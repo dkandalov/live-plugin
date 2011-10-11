@@ -8,6 +8,7 @@
     </content>
     <orderEntry type="jdk" jdkName="IDEA IC-10.5.2" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="groovy-1.7.6" level="application" />
   </component>
 </module>
 
