@@ -1,4 +1,4 @@
-package ru.intellijeval
+package ru.intellijeval.sampleplugin
 
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
@@ -10,6 +10,9 @@ import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.openapi.wm.ToolWindowManager
 import javax.swing.KeyStroke
+//import static ru.beans.Bean.*
+
+//-- classpath: c:/work/zz_misc/groovy-beans/target/gbeans-0.0-SNAPSHOT.jar
 
 def showPopup(String text) {
   def project = actionEvent.getRequiredData(PlatformDataKeys.PROJECT)
@@ -28,7 +31,8 @@ def registerAction() {
   def action = new AnAction() {
     @Override
     void actionPerformed(AnActionEvent e) {
-      showPopup("myAction !!!")
+//      showPopup("myAction !!! ${MyUtil.sayHi()} ${bean([a: 123])}")
+      showPopup("myAction !!! ${MyUtil.sayHi()}")
     }
   }
   KeymapManager.instance.activeKeymap.addShortcut(actionId, new KeyboardShortcut(KeyStroke.getKeyStroke("alt shift W"), null))
