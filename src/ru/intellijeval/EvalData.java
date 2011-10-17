@@ -1,13 +1,12 @@
 package ru.intellijeval;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.util.xmlb.XmlSerializerUtil;
 
 /**
  * @author DKandalov
@@ -15,25 +14,21 @@ import com.intellij.openapi.components.Storage;
 @SuppressWarnings({"UnusedDeclaration"})
 @State(
 		name = "EvalData",
-		storages = {@Storage(id = "main", file = "$APP_CONFIG$/intellij-eval.xml")}
+		storages = {@Storage(id = "other", file = "$APP_CONFIG$/intellij-eval.xml")}
 )
 public class EvalData implements PersistentStateComponent<EvalData> { // TODO
-	private Map<String, String> pluginPaths = new HashMap<String, String>();
-
-	public EvalData() {
-		pluginPaths.put("sample plugin", "C:\\work\\zz_misc\\intellij_eval\\src\\ru\\intellijeval\\sampleplugin");
-	}
+	private LinkedHashMap<String, String> pluginPaths = new LinkedHashMap<String, String>();
 
 	public static EvalData getInstance() {
 		return ServiceManager.getService(EvalData.class);
 	}
 
-	public Map<String, String> getPluginPaths() {
+	public LinkedHashMap<String, String> getPluginPaths() {
 		return pluginPaths;
 	}
 
-	public void setPluginPaths(Map<String, List<String>> pluginPaths) {
-//		this.pluginPaths = pluginPaths;
+	public void setPluginPaths(LinkedHashMap<String, String> pluginPaths) {
+		this.pluginPaths = pluginPaths;
 	}
 
 	@Override
@@ -43,7 +38,7 @@ public class EvalData implements PersistentStateComponent<EvalData> { // TODO
 
 	@Override
 	public void loadState(EvalData state) {
-//		XmlSerializerUtil.copyBean(state, this);
+		XmlSerializerUtil.copyBean(state, this);
 	}
 
 	@Override
@@ -59,5 +54,12 @@ public class EvalData implements PersistentStateComponent<EvalData> { // TODO
 	@Override
 	public int hashCode() {
 		return pluginPaths != null ? pluginPaths.hashCode() : 0;
+	}
+
+	@Override
+	public String toString() {
+		return "EvalData{" +
+				"pluginPaths=" + pluginPaths +
+				'}';
 	}
 }

@@ -34,6 +34,7 @@ public class EvaluateAction extends AnAction {
 
 			try {
 				if (mainScriptDoesNotExist()) {
+					System.err.println("Didn't find main script for " + entry.getKey());
 					continue; // TODO
 				}
 
