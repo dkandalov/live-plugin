@@ -29,7 +29,7 @@
 
 	<actions>
 		<action id="InetlliJEval.EvalCode" class="ru.intellijeval.EvaluateAction" text="Evaluate in IntelliJ"
-		        description="Evaluates code in IntelliJ" icon="/fileTypes/text.png">
+		        description="Reload dynamic plugins" icon="/fileTypes/text.png">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 			<add-to-group group-id="ToolsMenu" anchor="last"/>
 		</action>
