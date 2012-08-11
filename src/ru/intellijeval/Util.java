@@ -1,12 +1,5 @@
 package ru.intellijeval;
 
-import java.awt.*;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Collections;
-
-import javax.swing.*;
-
 import com.intellij.execution.ExecutionManager;
 import com.intellij.execution.Executor;
 import com.intellij.execution.executors.DefaultRunExecutor;
@@ -16,15 +9,14 @@ import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.actions.CloseAction;
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.unscramble.AnalyzeStacktraceUtil;
-import com.intellij.unscramble.ThreadState;
 import com.intellij.unscramble.UnscrambleDialog;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * @author DKandalov
@@ -35,8 +27,10 @@ public class Util {
 		StringWriter writer = new StringWriter();
 		e.printStackTrace(new PrintWriter(writer));
 		String s = UnscrambleDialog.normalizeText(writer.getBuffer().toString());
-		ConsoleView console = UnscrambleDialog.addConsole(project, Collections.<ThreadState>emptyList());
-		AnalyzeStacktraceUtil.printStacktrace(console, s);
+
+		// TODO fix me
+//		ConsoleView console = AnalyzeStacktraceUtil.addConsole(project, Collections.<ThreadState>emptyList());
+//		AnalyzeStacktraceUtil.printStacktrace(console, s);
 	}
 
 	public static void displayInConsole(String header, String text, ConsoleViewContentType contentType, Project project) {

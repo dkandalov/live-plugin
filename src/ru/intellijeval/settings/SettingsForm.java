@@ -1,18 +1,16 @@
 package ru.intellijeval.settings;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Map;
+import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.options.ConfigurationException;
+import org.jetbrains.annotations.Nls;
+import ru.intellijeval.EvalData;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-
-import org.jetbrains.annotations.Nls;
-
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import ru.intellijeval.EvalData;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Map;
 
 /**
  * @author DKandalov
@@ -98,11 +96,6 @@ public class SettingsForm implements Configurable {
 	@Override
 	public String getDisplayName() {
 		return "Intellij eval";
-	}
-
-	@Override
-	public Icon getIcon() {
-		return null;
 	}
 
 	@Override

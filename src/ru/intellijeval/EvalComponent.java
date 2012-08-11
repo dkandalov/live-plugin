@@ -1,25 +1,25 @@
 package ru.intellijeval;
 
-import javax.swing.*;
-
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NotNull;
-
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 import ru.intellijeval.settings.SettingsForm;
+
+import javax.swing.*;
 
 /**
  * @author DKandalov
  */
 public class EvalComponent implements ApplicationComponent, Configurable {
+	public static final String COMPONENT_NAME = "EvalComponent";
 
 	private SettingsForm settingsForm;
 
 	@Override
 	public void initComponent() {
-		// TODO
+		new PluginsToolWindow().init();
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 	@Override
 	@NotNull
 	public String getComponentName() {
-		return "EvalComponent";
+		return COMPONENT_NAME;
 	}
 
 	@Override
@@ -43,11 +43,6 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 	@Nls
 	public String getDisplayName() {
 		return getComponentName();
-	}
-
-	@Override
-	public Icon getIcon() {
-		return settingsForm.getIcon();
 	}
 
 	@Override
