@@ -1,7 +1,9 @@
 package ru.intellijeval;
 
-import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.DataKey;
+import com.intellij.openapi.actionSystem.DataSink;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.TypeSafeDataProvider;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
 import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
@@ -20,7 +22,8 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.OpenSourceUtil;
+import com.intellij.util.EditSourceOnDoubleClickHandler;
+import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.ui.tree.TreeUtil;
 
 import javax.swing.*;
@@ -78,19 +81,16 @@ public class PluginsToolWindow {
 		}
 		descriptor.setRoots(roots);
 
-		final FileSystemTreeImpl myFsTree = new FileSystemTreeImpl(project, descriptor, new MyTree(project), null, null, null);
-//		EditSourceOnDoubleClickHandler.install(myFsTree.getTree());
-		myFsTree.addOkAction(new Runnable() {
-			@Override public void run() {
-				DataContext dataContext = DataManager.getInstance().getDataContext(myFsTree.getTree());
-				OpenSourceUtil.openSourcesFrom(dataContext, true);
-			}
-		});
+		MyTree myTree = new MyTree(project);
+		EditSourceOnDoubleClickHandler.install(myTree); // handlers must be installed before adding myTree to FileSystemTreeImpl
+		EditSourceOnEnterKeyHandler.install(myTree);
+
+		FileSystemTreeImpl myFsTree = new FileSystemTreeImpl(project, descriptor, myTree, null, null, null);
 
 		JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(myFsTree.getTree());
 		SimpleToolWindowPanel panel = new SimpleToolWindowPanel(true).setProvideQuickActions(false);
 		panel.add(scrollPane);
-		return ContentFactory.SERVICE.getInstance().createContent(panel, "title", false);
+		return ContentFactory.SERVICE.getInstance().createContent(panel, "", false);
 	}
 
 	private void unregisterWindowFrom(Project project) {
