@@ -5,6 +5,7 @@ import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
@@ -85,6 +86,6 @@ def registerAction() {
 
 catchingAll {
   registerAction()
-  showPopup("evaled")
+  showPopup("evaled", NotificationType.INFORMATION)
 }
 
