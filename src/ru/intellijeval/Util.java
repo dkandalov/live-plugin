@@ -29,6 +29,7 @@ public class Util {
 		String s = UnscrambleDialog.normalizeText(writer.getBuffer().toString());
 
 		// TODO fix me
+		displayInConsole("", s, ConsoleViewContentType.ERROR_OUTPUT, project);
 //		ConsoleView console = AnalyzeStacktraceUtil.addConsole(project, Collections.<ThreadState>emptyList());
 //		AnalyzeStacktraceUtil.printStacktrace(console, s);
 	}

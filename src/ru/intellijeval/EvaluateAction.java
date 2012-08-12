@@ -9,7 +9,9 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
 import org.codehaus.groovy.control.CompilationFailedException;
+import ru.intellijeval.toolwindow.PluginsToolWindow;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -21,6 +23,7 @@ import static ru.intellijeval.Util.showInUnscrambleDialog;
  * @author DKandalov
  */
 public class EvaluateAction extends AnAction {
+	private static final ImageIcon ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/eval.png"));
 
 	private static final String MAIN_SCRIPT = "plugin.groovy";
 	private static final String CLASSPATH_PREFIX = "//-- classpath: ";
@@ -28,6 +31,10 @@ public class EvaluateAction extends AnAction {
 	private String pluginId;
 	private List<String> loadingErrors;
 	private LinkedHashMap<String, Exception> evaluationExceptions;
+
+	public EvaluateAction() {
+		super(ICON);
+	}
 
 	@Override
 	public void actionPerformed(AnActionEvent event) {
@@ -103,6 +110,9 @@ public class EvaluateAction extends AnAction {
 		GroovyClassLoader classLoader = new GroovyClassLoader(this.getClass().getClassLoader());
 
 		try {
+			classLoader.addURL(new URL("file://" + new File(mainScriptPath).getParent()));
+			classLoader.addClasspath(new File(mainScriptPath).getParent());
+
 			BufferedReader inputStream = new BufferedReader(new InputStreamReader(new FileInputStream(mainScriptPath)));
 			String line;
 			while ((line = inputStream.readLine()) != null) {

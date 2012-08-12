@@ -1,12 +1,12 @@
 package ru.intellijeval;
 
-import java.util.LinkedHashMap;
-
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+
+import java.util.LinkedHashMap;
 
 /**
  * @author DKandalov
@@ -39,6 +39,14 @@ public class EvalData implements PersistentStateComponent<EvalData> { // TODO
 	@Override
 	public void loadState(EvalData state) {
 		XmlSerializerUtil.copyBean(state, this);
+	}
+
+	public boolean containsPath(String path) {
+		for (String pluginPath : pluginPaths.keySet()) {
+			if (pluginPath.endsWith("/")) pluginPath = pluginPath.substring(0, pluginPath.length() - 1);
+			if (pluginPath.equals(path)) return true;
+		}
+		return false;
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import ru.intellijeval.settings.SettingsForm;
+import ru.intellijeval.toolwindow.PluginsToolWindow;
 
 import javax.swing.*;
 
