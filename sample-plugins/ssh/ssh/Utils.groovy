@@ -28,19 +28,11 @@ class Utils {
     ToolWindowManager.getInstance(project()).notifyByBalloon(toolWindowId, messageType, htmlBody)
   }
 
-  static showInUnscrambleDialog(Exception e) {
-    def writer = new StringWriter()
-    e.printStackTrace(new PrintWriter(writer))
-    def s = UnscrambleDialog.normalizeText(writer.buffer.toString())
-    def console = UnscrambleDialog.addConsole(project(), [])
-    AnalyzeStacktraceUtil.printStacktrace(console, s)
-  }
-
   static catchingAll(Closure closure) {
     try {
       closure.call()
     } catch (Exception e) {
-      showInUnscrambleDialog(e)
+//      showInUnscrambleDialog(e)
       showPopup("Caught exception", ToolWindowId.RUN, MessageType.ERROR)
     }
   }

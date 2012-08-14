@@ -18,6 +18,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
@@ -51,8 +52,9 @@ import java.util.List;
  * Date: 11/08/2012
  */
 public class PluginsToolWindow {
-	private static final ImageIcon ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/plugin.png"));
+	public static final ImageIcon ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/plugin.png"));
 	private static final String TOOL_WINDOW_ID = "Plugins";
+
 	private FileSystemTreeImpl myFsTree;
 	private SimpleToolWindowPanel panel;
 
@@ -82,10 +84,14 @@ public class PluginsToolWindow {
 
 	private void registerWindowFor(Project project) {
 		ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-		ToolWindow myToolWindow = toolWindowManager.registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
-		myToolWindow.setIcon(ICON);
+		ToolWindow toolWindow = toolWindowManager.registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
+		toolWindow.setIcon(ICON);
 
-		myToolWindow.getContentManager().addContent(createContent(project));
+		toolWindow.getContentManager().addContent(createContent(project));
+	}
+
+	private void unregisterWindowFrom(Project project) {
+		ToolWindowManager.getInstance(project).unregisterToolWindow(TOOL_WINDOW_ID);
 	}
 
 	private Content createContent(Project project) {
@@ -112,12 +118,15 @@ public class PluginsToolWindow {
 		List<VirtualFile> roots = currentPluginRoots();
 		descriptor.setRoots(roots);
 
+		Ref<FileSystemTreeImpl> myFsTreeRef = Ref.create();
 		MyTree myTree = new MyTree(project);
 		// handlers must be installed before adding myTree to FileSystemTreeImpl
-		EditSourceOnDoubleClickHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTree));
-		EditSourceOnEnterKeyHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTree));
+		EditSourceOnDoubleClickHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
+		EditSourceOnEnterKeyHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
 
-		return new FileSystemTreeImpl(project, descriptor, myTree, null, null, null);
+		FileSystemTreeImpl result = new FileSystemTreeImpl(project, descriptor, myTree, null, null, null);
+		myFsTreeRef.set(result);
+		return result;
 	}
 
 	private void reloadPluginRoots(Project project) {
@@ -147,10 +156,6 @@ public class PluginsToolWindow {
 
 		toolBarPanel.add(ActionManager.getInstance().createActionToolbar(TOOL_WINDOW_ID, actionGroup, true).getComponent());
 		return toolBarPanel;
-	}
-
-	private void unregisterWindowFrom(Project project) {
-		ToolWindowManager.getInstance(project).unregisterToolWindow(TOOL_WINDOW_ID);
 	}
 
 	private static class MySimpleToolWindowPanel extends SimpleToolWindowPanel {
@@ -246,15 +251,15 @@ public class PluginsToolWindow {
 
 	private static class DisableHighlightingRunnable implements Runnable {
 		private final Project project;
-		private final FileSystemTreeImpl myFsTree;
+		private final Ref<FileSystemTreeImpl> myFsTree;
 
-		public DisableHighlightingRunnable(Project project, FileSystemTreeImpl myFsTree) {
+		public DisableHighlightingRunnable(Project project, Ref<FileSystemTreeImpl> myFsTree) {
 			this.project = project;
 			this.myFsTree = myFsTree;
 		}
 
 		@Override public void run() {
-			VirtualFile selectedFile = myFsTree.getSelectedFile();
+			VirtualFile selectedFile = myFsTree.get().getSelectedFile();
 			if (selectedFile == null) return;
 
 			PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
