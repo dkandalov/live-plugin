@@ -5,7 +5,6 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
-import ru.intellijeval.settings.SettingsForm;
 import ru.intellijeval.toolwindow.PluginsToolWindow;
 
 import javax.swing.*;
@@ -16,8 +15,6 @@ import javax.swing.*;
 public class EvalComponent implements ApplicationComponent, Configurable {
 	public static final String COMPONENT_NAME = "EvalComponent";
 
-	private SettingsForm settingsForm;
-
 	@Override
 	public void initComponent() {
 		new PluginsToolWindow().init();
@@ -25,7 +22,6 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 
 	@Override
 	public void disposeComponent() {
-		// TODO
 	}
 
 	@Override
@@ -36,8 +32,7 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 
 	@Override
 	public JComponent createComponent() {
-		settingsForm = new SettingsForm();
-		return settingsForm.getRoot();
+		return null;
 	}
 
 	@Override
@@ -48,26 +43,23 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 
 	@Override
 	public String getHelpTopic() {
-		return settingsForm.getHelpTopic();
+		return null;
 	}
 
 	@Override
 	public void disposeUIResources() {
-		settingsForm = null;
 	}
 
 	@Override
 	public void apply() throws ConfigurationException {
-		settingsForm.apply();
 	}
 
 	@Override
 	public boolean isModified() {
-		return settingsForm.isModified();
+		return false;
 	}
 
 	@Override
 	public void reset() {
-		settingsForm.reset();
 	}
 }
