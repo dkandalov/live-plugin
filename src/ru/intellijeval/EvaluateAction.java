@@ -28,7 +28,6 @@ public class EvaluateAction extends AnAction {
 	private static final String MAIN_SCRIPT = "plugin.groovy";
 	private static final String CLASSPATH_PREFIX = "//-- classpath: ";
 
-	private String pluginId;
 	private List<String> loadingErrors;
 	private LinkedHashMap<String, Exception> evaluationExceptions;
 
@@ -47,9 +46,8 @@ public class EvaluateAction extends AnAction {
 		loadingErrors = new LinkedList<String>();
 		evaluationExceptions = new LinkedHashMap<String, Exception>();
 
-		EvalData evalData = EvalData.getInstance();
-		for (Map.Entry<String, String> entry : evalData.getPluginPaths().entrySet()) {
-			pluginId = entry.getKey();
+		for (Map.Entry<String, String> entry : EvalComponent.pluginToPathMap().entrySet()) {
+			String pluginId = entry.getKey();
 			String path = entry.getValue();
 
 			String mainScriptPath = findMainScriptIn(path);
@@ -60,7 +58,7 @@ public class EvaluateAction extends AnAction {
 
 			try {
 
-				GroovyScriptEngine scriptEngine = new GroovyScriptEngine(path, createClassLoaderWithDependencies(mainScriptPath));
+				GroovyScriptEngine scriptEngine = new GroovyScriptEngine(path, createClassLoaderWithDependencies(mainScriptPath, pluginId));
 				Binding binding = new Binding();
 				binding.setProperty("actionEvent", event);
 				binding.setVariable("event", event);
@@ -71,7 +69,7 @@ public class EvaluateAction extends AnAction {
 			} catch (CompilationFailedException e) {
 				addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
 			} catch (Exception e) {
-				addEvaluationException(e);
+				addEvaluationException(pluginId, e);
 			}
 		}
 
@@ -92,7 +90,7 @@ public class EvaluateAction extends AnAction {
 		else throw new IllegalStateException("Found several " + MAIN_SCRIPT + " files under " + path);
 	}
 
-	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath) {
+	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath, String pluginId) {
 		GroovyClassLoader classLoader = new GroovyClassLoader(this.getClass().getClassLoader());
 
 		try {
@@ -105,8 +103,11 @@ public class EvaluateAction extends AnAction {
 				if (line.contains(CLASSPATH_PREFIX)) {
 					String path = line.replace(CLASSPATH_PREFIX, "");
 					List<String> filePaths = findAllFilePaths(path);
+					if (filePaths.isEmpty()) {
+						addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
+					}
 					for (String filePath : filePaths) {
-						classLoader.addURL(new URL("file://" + filePath));
+						classLoader.addURL(new URL("file://" + filePath)); // TODO not sure which of the below works properly
 						classLoader.addClasspath(filePath);
 					}
 				}
@@ -120,7 +121,6 @@ public class EvaluateAction extends AnAction {
 	private List<String> findAllFilePaths(String path) {
 		File file = new File(path);
 		if (!file.exists()) {
-			addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
 			return Collections.emptyList();
 		}
 		if (file.isFile()) return Collections.singletonList(path);
@@ -168,7 +168,7 @@ public class EvaluateAction extends AnAction {
 		}
 	}
 
-	private void addEvaluationException(Exception e) {
+	private void addEvaluationException(String pluginId, Exception e) {
 		//noinspection ThrowableResultOfMethodCallIgnored
 		evaluationExceptions.put(pluginId, e);
 	}

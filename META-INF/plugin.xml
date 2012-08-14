@@ -44,8 +44,4 @@
         </group>
     </actions>
 
-	<extensions defaultExtensionNs="com.intellij">
-		<applicationService serviceInterface="ru.intellijeval.EvalData"
-		                    serviceImplementation="ru.intellijeval.EvalData"/>
-	</extensions>
 </idea-plugin>

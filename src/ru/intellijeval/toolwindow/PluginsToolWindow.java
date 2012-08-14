@@ -11,7 +11,6 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileSystemTree;
 import com.intellij.openapi.fileChooser.ex.FileChooserKeys;
 import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
-import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.project.Project;
@@ -19,8 +18,8 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Ref;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -38,12 +37,15 @@ import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
-import ru.intellijeval.EvalData;
+import ru.intellijeval.EvalComponent;
 import ru.intellijeval.EvaluateAction;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,7 +57,7 @@ public class PluginsToolWindow {
 	public static final ImageIcon ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/plugin.png"));
 	private static final String TOOL_WINDOW_ID = "Plugins";
 
-	private FileSystemTreeImpl myFsTree;
+	private FileSystemTree myFsTree;
 	private SimpleToolWindowPanel panel;
 
 	public PluginsToolWindow init() {
@@ -110,21 +112,14 @@ public class PluginsToolWindow {
 		return ContentFactory.SERVICE.getInstance().createContent(panel, "", false);
 	}
 
-	private FileSystemTreeImpl createFsTree(Project project) {
-		FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true);
-		descriptor.setShowFileSystemRoots(true);
-		descriptor.setIsTreeRootVisible(false);
-
-		List<VirtualFile> roots = currentPluginRoots();
-		descriptor.setRoots(roots);
-
-		Ref<FileSystemTreeImpl> myFsTreeRef = Ref.create();
+	private FileSystemTree createFsTree(Project project) {
+		Ref<FileSystemTree> myFsTreeRef = Ref.create();
 		MyTree myTree = new MyTree(project);
 		// handlers must be installed before adding myTree to FileSystemTreeImpl
 		EditSourceOnDoubleClickHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
 		EditSourceOnEnterKeyHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
 
-		FileSystemTreeImpl result = new FileSystemTreeImpl(project, descriptor, myTree, null, null, null);
+		FileSystemTree result = new PluginsFileSystemTree(project, myTree, null, null, null);
 		myFsTreeRef.set(result);
 		return result;
 	}
@@ -136,16 +131,6 @@ public class PluginsToolWindow {
 		panel.add(scrollPane, 0);
 	}
 
-	private List<VirtualFile> currentPluginRoots() {
-		List<VirtualFile> roots = new ArrayList<VirtualFile>();
-		EvalData evalData = EvalData.getInstance();
-		for (String pluginPath : evalData.getPluginPaths().values()) {
-			VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl("file://" + pluginPath);
-			roots.add(virtualFile);
-		}
-		return roots;
-	}
-
 	private JComponent createToolBar() {
 		JPanel toolBarPanel = new JPanel(new GridLayout());
 		DefaultActionGroup actionGroup = new DefaultActionGroup();
@@ -153,15 +138,17 @@ public class PluginsToolWindow {
 		actionGroup.add(new AddPluginAction(this));
 		actionGroup.add(new RemovePluginAction(this, myFsTree));
 		actionGroup.add(new EvaluateAction());
+		// TODO expand / collapse (all) actions
+		// TODO eval one plugin action
 
 		toolBarPanel.add(ActionManager.getInstance().createActionToolbar(TOOL_WINDOW_ID, actionGroup, true).getComponent());
 		return toolBarPanel;
 	}
 
 	private static class MySimpleToolWindowPanel extends SimpleToolWindowPanel {
-		private final FileSystemTreeImpl fileSystemTree;
+		private final FileSystemTree fileSystemTree;
 
-		public MySimpleToolWindowPanel(boolean vertical, FileSystemTreeImpl fileSystemTree) {
+		public MySimpleToolWindowPanel(boolean vertical, FileSystemTree fileSystemTree) {
 			super(vertical);
 			this.fileSystemTree = fileSystemTree;
 		}
@@ -198,7 +185,7 @@ public class PluginsToolWindow {
 		private static final ImageIcon ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/add.png"));
 		private final PluginsToolWindow pluginsToolWindow;
 
-		private AddPluginAction(PluginsToolWindow pluginsToolWindow) {
+		public AddPluginAction(PluginsToolWindow pluginsToolWindow) {
 			super(ICON);
 			this.pluginsToolWindow = pluginsToolWindow;
 		}
@@ -210,8 +197,14 @@ public class PluginsToolWindow {
 			// TODO check that it's a valid plugin folder
 			// TODO eval plugin?
 
-			EvalData evalData = EvalData.getInstance();
-			evalData.getPluginPaths().put(virtualFile.getPath(), virtualFile.getPath());
+			try {
+				File fromDir = new File(virtualFile.getPath());
+				File toDir = new File(EvalComponent.pluginsRootPath() + fromDir.getName());
+				FileUtil.createDirectory(toDir);
+				FileUtil.copyDirContent(fromDir, toDir);
+			} catch (IOException e) {
+				e.printStackTrace(); // TODO
+			}
 
 			pluginsToolWindow.reloadPluginRoots(event.getData(PlatformDataKeys.PROJECT));
 		}
@@ -229,18 +222,19 @@ public class PluginsToolWindow {
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
-			EvalData evalData = EvalData.getInstance();
+			// TODO confirmation dialog
 			for (VirtualFile virtualFile : fileSystemTree.getSelectedFiles()) {
-				evalData.getPluginPaths().remove(virtualFile.getPath());
+				String pluginPath = EvalComponent.pluginsRootPath() + "/" + virtualFile.getPath();
+				FileUtil.delete(new File(pluginPath));
 			}
 			pluginsToolWindow.reloadPluginRoots(event.getData(PlatformDataKeys.PROJECT));
 		}
 
 		@Override public void update(AnActionEvent e) {
-			EvalData evalData = EvalData.getInstance();
+			Collection<String> pluginPaths = EvalComponent.pluginToPathMap().values();
 			boolean anyPluginPathSelected = false;
 			for (VirtualFile virtualFile : fileSystemTree.getSelectedFiles()) {
-				if (evalData.containsPath(virtualFile.getPath())) {
+				if (pluginPaths.contains(virtualFile.getPath())) {
 					anyPluginPathSelected = true;
 					break;
 				}
@@ -251,9 +245,9 @@ public class PluginsToolWindow {
 
 	private static class DisableHighlightingRunnable implements Runnable {
 		private final Project project;
-		private final Ref<FileSystemTreeImpl> myFsTree;
+		private final Ref<FileSystemTree> myFsTree;
 
-		public DisableHighlightingRunnable(Project project, Ref<FileSystemTreeImpl> myFsTree) {
+		public DisableHighlightingRunnable(Project project, Ref<FileSystemTree> myFsTree) {
 			this.project = project;
 			this.myFsTree = myFsTree;
 		}
