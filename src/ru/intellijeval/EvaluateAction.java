@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.unscramble.UnscrambleDialog;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
@@ -17,7 +18,6 @@ import java.net.URL;
 import java.util.*;
 
 import static ru.intellijeval.Util.displayInConsole;
-import static ru.intellijeval.Util.showInUnscrambleDialog;
 
 /**
  * @author DKandalov
@@ -54,7 +54,7 @@ public class EvaluateAction extends AnAction {
 
 			String mainScriptPath = findMainScriptIn(path);
 			if (mainScriptPath == null) {
-				addLoadingError("Couldn't find main script");
+				addLoadingError(pluginId, "Couldn't find main script");
 				continue;
 			}
 
@@ -67,9 +67,9 @@ public class EvaluateAction extends AnAction {
 				scriptEngine.run(mainScriptPath, binding);
 
 			} catch (IOException e) {
-				addLoadingError("Error while creating scripting engine. " + e.getMessage());
+				addLoadingError(pluginId, "Error while creating scripting engine. " + e.getMessage());
 			} catch (CompilationFailedException e) {
-				addLoadingError("Error while compiling script. " + e.getMessage());
+				addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
 			} catch (Exception e) {
 				addEvaluationException(e);
 			}
@@ -92,20 +92,6 @@ public class EvaluateAction extends AnAction {
 		else throw new IllegalStateException("Found several " + MAIN_SCRIPT + " files under " + path);
 	}
 
-	private void reportLoadingErrors(AnActionEvent actionEvent) {
-		StringBuilder text = new StringBuilder();
-		for (String s : loadingErrors) text.append(s);
-		if (text.length() > 0)
-			displayInConsole(pluginId, text.toString(), ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
-	}
-
-	private void reportEvaluationExceptions(AnActionEvent actionEvent) {
-		for (Map.Entry<String, Exception> entry : evaluationExceptions.entrySet()) {
-			//noinspection ThrowableResultOfMethodCallIgnored
-			showInUnscrambleDialog(entry.getValue(), actionEvent.getData(PlatformDataKeys.PROJECT));
-		}
-	}
-
 	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath) {
 		GroovyClassLoader classLoader = new GroovyClassLoader(this.getClass().getClassLoader());
 
@@ -126,7 +112,7 @@ public class EvaluateAction extends AnAction {
 				}
 			}
 		} catch (IOException e) {
-			addLoadingError("Error while looking for dependencies. Main script: " + mainScriptPath + ". " + e.getMessage());
+			addLoadingError(pluginId, "Error while looking for dependencies. Main script: " + mainScriptPath + ". " + e.getMessage());
 		}
 		return classLoader;
 	}
@@ -134,7 +120,7 @@ public class EvaluateAction extends AnAction {
 	private List<String> findAllFilePaths(String path) {
 		File file = new File(path);
 		if (!file.exists()) {
-			loadingErrors.add("Couldn't find dependency '" + path + "'");
+			addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
 			return Collections.emptyList();
 		}
 		if (file.isFile()) return Collections.singletonList(path);
@@ -164,12 +150,30 @@ public class EvaluateAction extends AnAction {
 		return result;
 	}
 
+	private void reportLoadingErrors(AnActionEvent actionEvent) {
+		StringBuilder text = new StringBuilder();
+		for (String s : loadingErrors) text.append(s);
+		if (text.length() > 0)
+			displayInConsole("Loading errors", text.toString(), ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
+	}
+
+	@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+	private void reportEvaluationExceptions(AnActionEvent actionEvent) {
+		for (Map.Entry<String, Exception> entry : evaluationExceptions.entrySet()) {
+			StringWriter writer = new StringWriter();
+			entry.getValue().printStackTrace(new PrintWriter(writer));
+			String s = UnscrambleDialog.normalizeText(writer.getBuffer().toString());
+
+			displayInConsole(entry.getKey(), s, ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
+		}
+	}
+
 	private void addEvaluationException(Exception e) {
 		//noinspection ThrowableResultOfMethodCallIgnored
 		evaluationExceptions.put(pluginId, e);
 	}
 
-	private void addLoadingError(String message) {
+	private void addLoadingError(String pluginId, String message) {
 		loadingErrors.add("Plugin: " + pluginId + ". " + message);
 	}
 }

@@ -26,3 +26,5 @@ import com.intellij.openapi.wm.ToolWindowManager
 
 //showPopup(Util.class.declaredMethods.collect{it.name}.toString())
 println(Util.class.declaredMethods.collect{it.name})
+
+//throw new IllegalStateException("aaaa")

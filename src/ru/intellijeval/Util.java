@@ -11,28 +11,15 @@ import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.actions.CloseAction;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.unscramble.UnscrambleDialog;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 /**
  * @author DKandalov
  */
 public class Util {
-
-	public static void showInUnscrambleDialog(Exception e, Project project) {
-		StringWriter writer = new StringWriter();
-		e.printStackTrace(new PrintWriter(writer));
-		String s = UnscrambleDialog.normalizeText(writer.getBuffer().toString());
-
-		// TODO fix me
-		displayInConsole("", s, ConsoleViewContentType.ERROR_OUTPUT, project);
-//		ConsoleView console = AnalyzeStacktraceUtil.addConsole(project, Collections.<ThreadState>emptyList());
-//		AnalyzeStacktraceUtil.printStacktrace(console, s);
-	}
+	public static final ImageIcon ICON = new ImageIcon(Util.class.getResource("/ru/intellijeval/toolwindow/plugin.png"));
 
 	public static void displayInConsole(String header, String text, ConsoleViewContentType contentType, Project project) {
 		ConsoleView console = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
@@ -43,6 +30,10 @@ public class Util {
 		RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, header) {
 			public boolean isContentReuseProhibited() {
 				return true;
+			}
+
+			@Override public Icon getIcon() {
+				return ICON;
 			}
 		};
 		Executor executor = DefaultRunExecutor.getRunExecutorInstance();
