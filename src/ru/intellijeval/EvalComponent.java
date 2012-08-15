@@ -4,6 +4,7 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import ru.intellijeval.toolwindow.PluginsToolWindow;
@@ -11,6 +12,7 @@ import ru.intellijeval.toolwindow.PluginsToolWindow;
 import javax.swing.*;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +38,17 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 			result.put(file.getName(), file.getAbsolutePath());
 		}
 		return result;
+	}
+
+	public static boolean isInvalidPluginFolder(VirtualFile virtualFile) {
+		File file = new File(virtualFile.getPath());
+		if (!file.isDirectory()) return false;
+		String[] files = file.list(new FilenameFilter() {
+			@Override public boolean accept(File dir, String name) {
+				return name.equals(EvaluateAction.MAIN_SCRIPT);
+			}
+		});
+		return files.length < 1;
 	}
 
 	@Override

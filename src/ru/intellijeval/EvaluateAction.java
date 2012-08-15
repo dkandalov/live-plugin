@@ -22,7 +22,7 @@ import static ru.intellijeval.Util.displayInConsole;
  */
 public class EvaluateAction extends AnAction {
 
-	private static final String MAIN_SCRIPT = "plugin.groovy";
+	public static final String MAIN_SCRIPT = "plugin.groovy";
 	private static final String CLASSPATH_PREFIX = "//-- classpath: ";
 
 	private List<String> loadingErrors;

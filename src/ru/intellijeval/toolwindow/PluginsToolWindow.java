@@ -181,9 +181,10 @@ public class PluginsToolWindow {
 
 		actionGroup.add(new AddPluginAction(this));
 		actionGroup.add(new RemovePluginAction(this, myFsTreeRef));
+		actionGroup.add(new Separator());
 		actionGroup.add(new EvaluateAction());
 		// TODO expand / collapse (all) actions
-		// TODO eval one plugin action
+		// TODO eval one plugin action?
 
 		toolBarPanel.add(ActionManager.getInstance().createActionToolbar(TOOL_WINDOW_ID, actionGroup, true).getComponent());
 		return toolBarPanel;
@@ -237,8 +238,8 @@ public class PluginsToolWindow {
 			VirtualFile virtualFile = FileChooser.chooseFile(new FileChooserDescriptor(true, true, true, true, true, false), null, null);
 			if (virtualFile == null) return;
 
-			// TODO check that it's a valid plugin folder
-			// TODO eval plugin?
+			if (EvalComponent.isInvalidPluginFolder(virtualFile) &&
+					userDoesNotWantToAddFolder(virtualFile, event.getProject())) return;
 
 			try {
 				File fromDir = new File(virtualFile.getPath());
@@ -249,7 +250,22 @@ public class PluginsToolWindow {
 				e.printStackTrace(); // TODO
 			}
 
+			// TODO eval plugin?
+
 			pluginsToolWindow.reloadPluginRoots(event.getData(PlatformDataKeys.PROJECT));
+		}
+
+		private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {
+			int returnValue = Messages.showOkCancelDialog(
+					project,
+					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + EvaluateAction.MAIN_SCRIPT + "\"." +
+							"\nDo you want to add it anyway?",
+					"Add Plugin",
+					CommonBundle.getYesButtonText(),
+					CommonBundle.getNoButtonText(),
+					Messages.getQuestionIcon()
+			);
+			return returnValue != 0;
 		}
 	}
 
