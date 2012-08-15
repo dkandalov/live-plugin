@@ -9,8 +9,10 @@ import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.actions.CloseAction;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
+import ru.intellijeval.toolwindow.PluginsToolWindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +21,11 @@ import java.awt.*;
  * @author DKandalov
  */
 public class Util {
-	public static final ImageIcon ICON = new ImageIcon(Util.class.getResource("/ru/intellijeval/toolwindow/plugin.png"));
+	public static final Icon ADD_PLUGIN_ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/add.png"));
+	public static final Icon REMOVE_PLUGIN_ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/remove.png"));
+	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
+	public static final Icon EVAL_ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/eval.png"));
+
 
 	public static void displayInConsole(String header, String text, ConsoleViewContentType contentType, Project project) {
 		ConsoleView console = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
@@ -33,7 +39,7 @@ public class Util {
 			}
 
 			@Override public Icon getIcon() {
-				return ICON;
+				return AllIcons.Nodes.Plugin;
 			}
 		};
 		Executor executor = DefaultRunExecutor.getRunExecutorInstance();

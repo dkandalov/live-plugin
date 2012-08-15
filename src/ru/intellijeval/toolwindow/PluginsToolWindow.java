@@ -6,11 +6,6 @@ import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil;
 import com.intellij.ide.ui.customization.CustomizationUtil;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.*;
-import ru.intellijeval.toolwindow.fileChooser.FileChooser;
-import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
-import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
-import ru.intellijeval.toolwindow.fileChooser.ex.FileChooserKeys;
-import ru.intellijeval.toolwindow.fileChooser.ex.FileNodeDescriptor;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.project.Project;
@@ -20,6 +15,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -39,6 +35,12 @@ import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
 import ru.intellijeval.EvalComponent;
 import ru.intellijeval.EvaluateAction;
+import ru.intellijeval.Util;
+import ru.intellijeval.toolwindow.fileChooser.FileChooser;
+import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
+import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
+import ru.intellijeval.toolwindow.fileChooser.ex.FileChooserKeys;
+import ru.intellijeval.toolwindow.fileChooser.ex.FileNodeDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,7 +56,6 @@ import java.util.List;
  * Date: 11/08/2012
  */
 public class PluginsToolWindow {
-	public static final ImageIcon ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/plugin.png"));
 	private static final String TOOL_WINDOW_ID = "Plugins";
 
 	private Ref<FileSystemTree> myFsTreeRef = Ref.create();
@@ -87,7 +88,7 @@ public class PluginsToolWindow {
 	private void registerWindowFor(Project project) {
 		ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
 		ToolWindow toolWindow = toolWindowManager.registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
-		toolWindow.setIcon(ICON);
+		toolWindow.setIcon(Util.PLUGIN_ICON);
 
 		toolWindow.getContentManager().addContent(createContent(project));
 	}
@@ -100,36 +101,70 @@ public class PluginsToolWindow {
 		FileSystemTree fsTree = createFsTree(project);
 		myFsTreeRef = Ref.create(fsTree);
 
-		AnAction action = new NewElementPopupAction();
-		action.registerCustomShortcutSet(
-				new CustomShortcutSet(new KeyboardShortcut(KeyStroke.getKeyStroke("ctrl N"), null)), fsTree.getTree()); // TODO use generic shortcut?
-		CustomizationUtil.installPopupHandler(fsTree.getTree(), "InetlliJEval.Popup", ActionPlaces.UNKNOWN);
+		installPopupInto(fsTree);
 
 		JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(fsTree.getTree());
 		panel = new MySimpleToolWindowPanel(true, myFsTreeRef).setProvideQuickActions(false);
 		panel.add(scrollPane);
-
 		panel.setToolbar(createToolBar());
 		return ContentFactory.SERVICE.getInstance().createContent(panel, "", false);
 	}
 
 	private void reloadPluginRoots(Project project) {
-		myFsTreeRef.set(createFsTree(project));
+		FileSystemTree fsTree = createFsTree(project);
+		myFsTreeRef.set(fsTree);
+
+		installPopupInto(fsTree);
+
 		JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(myFsTreeRef.get().getTree());
 		panel.remove(0);
 		panel.add(scrollPane, 0);
 	}
 
+	private static void installPopupInto(FileSystemTree fsTree) {
+		AnAction action = new NewElementPopupAction();
+		KeyboardShortcut keyboardShortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("ctrl N"), null);
+		action.registerCustomShortcutSet(new CustomShortcutSet(keyboardShortcut), fsTree.getTree()); // TODO use generic shortcut?
+		CustomizationUtil.installPopupHandler(fsTree.getTree(), "InetlliJEval.Popup", ActionPlaces.UNKNOWN);
+	}
+
 	private FileSystemTree createFsTree(Project project) {
 		Ref<FileSystemTree> myFsTreeRef = Ref.create();
 		MyTree myTree = new MyTree(project);
+		myTree.setRootVisible(false);
+
 		// handlers must be installed before adding myTree to FileSystemTreeImpl
 		EditSourceOnDoubleClickHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
 		EditSourceOnEnterKeyHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef)); // TODO doesn't work
 
-		FileSystemTree result = new PluginsFileSystemTree(project, myTree, null, null, null);
+		FileSystemTree result = new PluginsFileSystemTree(project, createDescriptor(), myTree, null, null, null);
 		myFsTreeRef.set(result);
 		return result;
+	}
+
+	private static FileChooserDescriptor createDescriptor() {
+		FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
+			@Override public Icon getOpenIcon(VirtualFile file) {
+				if (EvalComponent.pluginToPathMap().values().contains(file.getPath())) return Util.PLUGIN_ICON;
+				return super.getOpenIcon(file);
+			}
+
+			@Override public Icon getClosedIcon(VirtualFile file) {
+				if (EvalComponent.pluginToPathMap().values().contains(file.getPath())) return Util.PLUGIN_ICON;
+				return super.getClosedIcon(file);
+			}
+		};
+		descriptor.setShowFileSystemRoots(false);
+		descriptor.setIsTreeRootVisible(false);
+
+		Collection<String> plugPaths = EvalComponent.pluginToPathMap().values();
+		List<VirtualFile> virtualFiles = new ArrayList<VirtualFile>();
+		for (String path : plugPaths) {
+			virtualFiles.add(VirtualFileManager.getInstance().findFileByUrl("file://" + path));
+		}
+		descriptor.setRoots(virtualFiles);
+
+		return descriptor;
 	}
 
 	private JComponent createToolBar() {
@@ -183,11 +218,10 @@ public class PluginsToolWindow {
 	}
 
 	private static class AddPluginAction extends AnAction {
-		private static final ImageIcon ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/add.png"));
 		private final PluginsToolWindow pluginsToolWindow;
 
 		public AddPluginAction(PluginsToolWindow pluginsToolWindow) {
-			super(ICON);
+			super(Util.ADD_PLUGIN_ICON);
 			this.pluginsToolWindow = pluginsToolWindow;
 		}
 
@@ -212,12 +246,11 @@ public class PluginsToolWindow {
 	}
 
 	private static class RemovePluginAction extends AnAction {
-		private static final ImageIcon ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/remove.png"));
 		private final PluginsToolWindow pluginsToolWindow;
 		private final Ref<FileSystemTree> fileSystemTree;
 
 		private RemovePluginAction(PluginsToolWindow pluginsToolWindow, Ref<FileSystemTree> fileSystemTree) {
-			super(ICON);
+			super(Util.REMOVE_PLUGIN_ICON);
 			this.pluginsToolWindow = pluginsToolWindow;
 			this.fileSystemTree = fileSystemTree;
 		}

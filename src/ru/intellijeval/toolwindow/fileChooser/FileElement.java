@@ -41,7 +41,7 @@ public class FileElement {
     myParent = parent;
   }
 
-  public ru.intellijeval.toolwindow.fileChooser.FileElement getParent() {
+  public FileElement getParent() {
     return myParent;
   }
 
@@ -92,7 +92,7 @@ public class FileElement {
 
   @Override
   public String toString() {
-    return myFile != null ? myFile.getName() : "";
+    return myFile != null ? myFile.getName() : ""; // so far that's the only good reason for forking intellij.fileChooser
   }
 
   public final boolean isHidden() {

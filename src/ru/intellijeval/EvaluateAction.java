@@ -10,9 +10,7 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
 import org.codehaus.groovy.control.CompilationFailedException;
-import ru.intellijeval.toolwindow.PluginsToolWindow;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -23,7 +21,6 @@ import static ru.intellijeval.Util.displayInConsole;
  * @author DKandalov
  */
 public class EvaluateAction extends AnAction {
-	private static final ImageIcon ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/eval.png"));
 
 	private static final String MAIN_SCRIPT = "plugin.groovy";
 	private static final String CLASSPATH_PREFIX = "//-- classpath: ";
@@ -32,7 +29,7 @@ public class EvaluateAction extends AnAction {
 	private LinkedHashMap<String, Exception> evaluationExceptions;
 
 	public EvaluateAction() {
-		super(ICON);
+		super(Util.EVAL_ICON);
 	}
 
 	@Override

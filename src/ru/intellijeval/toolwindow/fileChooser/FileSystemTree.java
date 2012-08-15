@@ -17,6 +17,7 @@ package ru.intellijeval.toolwindow.fileChooser;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataKey;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +57,11 @@ public interface FileSystemTree extends Disposable {
 
   void showHiddens(boolean showHidden);
 
-  interface Listener {
+	Exception createNewFolder(VirtualFile parentDirectory, String newFolderName);
+
+	Exception createNewFile(VirtualFile parentDirectory, String newFileName, FileType fileType, String initialContent);
+
+	interface Listener {
     void selectionChanged(List<VirtualFile> selection);
   }
 }

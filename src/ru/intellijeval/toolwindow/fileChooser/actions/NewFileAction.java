@@ -19,14 +19,13 @@ package ru.intellijeval.toolwindow.fileChooser.actions;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
-import ru.intellijeval.toolwindow.fileChooser.ex.FileChooserKeys;
-import ru.intellijeval.toolwindow.fileChooser.ex.FileSystemTreeImpl;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.LayeredIcon;
 import com.intellij.ui.UIBundle;
+import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
+import ru.intellijeval.toolwindow.fileChooser.ex.FileChooserKeys;
 
 public class NewFileAction extends FileChooserAction {
   protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {
@@ -67,7 +66,7 @@ public class NewFileAction extends FileChooserAction {
                                    UIBundle.message("error.dialog.title"), Messages.getErrorIcon());
         continue;
       }
-      Exception failReason = ((FileSystemTreeImpl)fileSystemTree).createNewFile(file, newFileName, fileType, initialContent);
+      Exception failReason = fileSystemTree.createNewFile(file, newFileName, fileType, initialContent);
       if (failReason != null) {
         Messages.showMessageDialog(UIBundle.message("create.new.file.could.not.create.file.error.message", newFileName),
                                    UIBundle.message("error.dialog.title"), Messages.getErrorIcon());

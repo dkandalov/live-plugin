@@ -29,7 +29,10 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.*;
+import com.intellij.openapi.vfs.JarFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VfsUtilCore;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.NewVirtualFile;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import com.intellij.ui.*;
@@ -41,13 +44,13 @@ import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.intellijeval.EvalComponent;
 import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
 import ru.intellijeval.toolwindow.fileChooser.FileElement;
 import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
 import ru.intellijeval.toolwindow.fileChooser.ex.FileNodeDescriptor;
 import ru.intellijeval.toolwindow.fileChooser.impl.FileComparator;
 import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeBuilder;
+import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeStructure;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -67,7 +70,7 @@ import java.util.*;
  */
 public class PluginsFileSystemTree implements FileSystemTree {
 	private final Tree myTree;
-	private final PluginsFileTreeStructure myTreeStructure;
+	private final FileTreeStructure myTreeStructure;
 	private final AbstractTreeBuilder myTreeBuilder;
 	private final Project myProject;
 	private final ArrayList<Runnable> myOkActions = new ArrayList<Runnable>(2);
@@ -80,13 +83,14 @@ public class PluginsFileSystemTree implements FileSystemTree {
 
 
 	public PluginsFileSystemTree(@Nullable final Project project,
+	                             final FileChooserDescriptor descriptor,
 	                             final Tree tree,
 	                             @Nullable TreeCellRenderer renderer,
 	                             @Nullable final Runnable onInitialized,
 	                             @Nullable final Convertor<TreePath, String> speedSearchConverter) {
 		myProject = project;
-		myDescriptor = createDescriptor();
-		myTreeStructure = new PluginsFileTreeStructure(project, myDescriptor);
+		myDescriptor = descriptor;
+		myTreeStructure = new FileTreeStructure(project, myDescriptor);
 		myTree = tree;
 		final DefaultTreeModel treeModel = new DefaultTreeModel(new DefaultMutableTreeNode());
 		myTree.setModel(treeModel);
@@ -153,21 +157,6 @@ public class PluginsFileSystemTree implements FileSystemTree {
 			};
 		}
 		myTree.setCellRenderer(renderer);
-	}
-
-	private static FileChooserDescriptor createDescriptor() {
-		FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true);
-		descriptor.setShowFileSystemRoots(false);
-		descriptor.setIsTreeRootVisible(false);
-
-		Collection<String> plugPaths = EvalComponent.pluginToPathMap().values();
-		List<VirtualFile> virtualFiles = new ArrayList<VirtualFile>();
-		for (String path : plugPaths) {
-			virtualFiles.add(VirtualFileManager.getInstance().findFileByUrl("file://" + path));
-		}
-		descriptor.setRoots(virtualFiles);
-
-		return descriptor;
 	}
 
 	protected AbstractTreeBuilder createTreeBuilder(JTree tree, DefaultTreeModel treeModel, AbstractTreeStructure treeStructure,

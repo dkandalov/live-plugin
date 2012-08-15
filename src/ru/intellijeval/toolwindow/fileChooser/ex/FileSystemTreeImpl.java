@@ -274,7 +274,7 @@ public class FileSystemTreeImpl implements FileSystemTree {
     return new FileElement(selectFile, selectFile.getName());
   }
 
-  public Exception createNewFolder(final VirtualFile parentDirectory, final String newFolderName) {
+  @Override public Exception createNewFolder(final VirtualFile parentDirectory, final String newFolderName) {
     final Exception[] failReason = new Exception[] { null };
     CommandProcessor.getInstance().executeCommand(
         myProject, new Runnable() {
@@ -303,6 +303,7 @@ public class FileSystemTreeImpl implements FileSystemTree {
     return failReason[0];
   }
 
+  @Override
   public Exception createNewFile(final VirtualFile parentDirectory, final String newFileName, final FileType fileType, final String initialContent) {
     final Exception[] failReason = new Exception[] { null };
     CommandProcessor.getInstance().executeCommand(
