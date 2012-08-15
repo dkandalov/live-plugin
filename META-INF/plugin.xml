@@ -36,10 +36,10 @@
         <group id="InetlliJEval.Popup">
             <action id="InetlliJEval.NewFileAction" class="ru.intellijeval.toolwindow.NewFileAction"
                     text="New File" icon="AllIcons.FileTypes.Text"/>
-            <action id="InetlliJEval.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
+            <action id="InetlliJEval.NewDirectoryAction" class="ru.intellijeval.toolwindow.fileChooser.actions.NewFolderAction"
                     text="New Directory" icon="AllIcons.Nodes.Folder"/>
             <separator/>
-            <action id="InetlliJEval.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction"
+            <action id="InetlliJEval.FileDeleteAction" class="ru.intellijeval.toolwindow.fileChooser.actions.FileDeleteAction"
                     text="Delete"/>
         </group>
     </actions>

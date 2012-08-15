@@ -25,13 +25,13 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileChooser.FileElement;
-import com.intellij.openapi.fileChooser.FileSystemTree;
-import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
-import com.intellij.openapi.fileChooser.impl.FileComparator;
-import com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
-import com.intellij.openapi.fileChooser.impl.FileTreeStructure;
+import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
+import ru.intellijeval.toolwindow.fileChooser.FileElement;
+import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
+import ru.intellijeval.toolwindow.fileChooser.ex.FileNodeDescriptor;
+import ru.intellijeval.toolwindow.fileChooser.impl.FileComparator;
+import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeBuilder;
+import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeStructure;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -66,7 +66,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Fork of {@link com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl}.
+ * Fork of {@link ru.intellijeval.toolwindow.fileChooser.ex.FileSystemTreeImpl}.
  */
 public class PluginsFileSystemTree implements FileSystemTree {
 	private final Tree myTree;

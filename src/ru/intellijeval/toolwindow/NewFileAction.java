@@ -2,10 +2,10 @@ package ru.intellijeval.toolwindow;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.fileChooser.FileSystemTree;
-import com.intellij.openapi.fileChooser.actions.FileChooserAction;
-import com.intellij.openapi.fileChooser.ex.FileChooserKeys;
-import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
+import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
+import ru.intellijeval.toolwindow.fileChooser.actions.FileChooserAction;
+import ru.intellijeval.toolwindow.fileChooser.ex.FileChooserKeys;
+import ru.intellijeval.toolwindow.fileChooser.ex.FileSystemTreeImpl;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -14,7 +14,7 @@ import com.intellij.ui.UIBundle;
 import javax.swing.*;
 
 /**
- * Fork of {@link com.intellij.openapi.fileChooser.actions.NewFileAction}
+ * Fork of {@link ru.intellijeval.toolwindow.fileChooser.actions.NewFileAction}
  *
  * User: dima
  * Date: 13/08/2012

@@ -3,7 +3,7 @@ package ru.intellijeval.toolwindow;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.fileChooser.actions.NewFolderAction;
+import ru.intellijeval.toolwindow.fileChooser.actions.NewFolderAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;

@@ -6,11 +6,11 @@ import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil;
 import com.intellij.ide.ui.customization.CustomizationUtil;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.fileChooser.FileChooser;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileChooser.FileSystemTree;
-import com.intellij.openapi.fileChooser.ex.FileChooserKeys;
-import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
+import ru.intellijeval.toolwindow.fileChooser.FileChooser;
+import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
+import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
+import ru.intellijeval.toolwindow.fileChooser.ex.FileChooserKeys;
+import ru.intellijeval.toolwindow.fileChooser.ex.FileNodeDescriptor;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.project.Project;
@@ -117,7 +117,7 @@ public class PluginsToolWindow {
 		MyTree myTree = new MyTree(project);
 		// handlers must be installed before adding myTree to FileSystemTreeImpl
 		EditSourceOnDoubleClickHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
-		EditSourceOnEnterKeyHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
+		EditSourceOnEnterKeyHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef)); // TODO doesn't work
 
 		FileSystemTree result = new PluginsFileSystemTree(project, myTree, null, null, null);
 		myFsTreeRef.set(result);
