@@ -58,7 +58,7 @@ public class FileElement {
     if (myPath == null) {
       final StringBuilder sb = StringBuilderSpinAllocator.alloc();
       try {
-        ru.intellijeval.toolwindow.fileChooser.FileElement element = this;
+        FileElement element = this;
         while (element != null) {
           if (element.myParent != null || !element.myName.equals(File.separator)) {
             sb.insert(0, element.myName);
@@ -91,8 +91,8 @@ public class FileElement {
   }
 
   @Override
-  public final String toString() {
-    return myName != null ? myName : "";
+  public String toString() {
+    return myFile != null ? myFile.getName() : "";
   }
 
   public final boolean isHidden() {

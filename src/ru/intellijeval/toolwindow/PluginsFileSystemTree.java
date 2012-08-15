@@ -48,7 +48,6 @@ import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
 import ru.intellijeval.toolwindow.fileChooser.ex.FileNodeDescriptor;
 import ru.intellijeval.toolwindow.fileChooser.impl.FileComparator;
 import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeBuilder;
-import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeStructure;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -68,7 +67,7 @@ import java.util.*;
  */
 public class PluginsFileSystemTree implements FileSystemTree {
 	private final Tree myTree;
-	private final FileTreeStructure myTreeStructure;
+	private final PluginsFileTreeStructure myTreeStructure;
 	private final AbstractTreeBuilder myTreeBuilder;
 	private final Project myProject;
 	private final ArrayList<Runnable> myOkActions = new ArrayList<Runnable>(2);
@@ -87,10 +86,11 @@ public class PluginsFileSystemTree implements FileSystemTree {
 	                             @Nullable final Convertor<TreePath, String> speedSearchConverter) {
 		myProject = project;
 		myDescriptor = createDescriptor();
-		myTreeStructure = new FileTreeStructure(project, myDescriptor);
+		myTreeStructure = new PluginsFileTreeStructure(project, myDescriptor);
 		myTree = tree;
 		final DefaultTreeModel treeModel = new DefaultTreeModel(new DefaultMutableTreeNode());
 		myTree.setModel(treeModel);
+		myTree.setRootVisible(false);
 
 		myTree.addTreeExpansionListener(myExpansionListener);
 
