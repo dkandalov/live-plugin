@@ -42,6 +42,20 @@
             <action id="InetlliJEval.FileDeleteAction" class="ru.intellijeval.toolwindow.fileChooser.actions.FileDeleteAction"
                     text="Delete"/>
         </group>
+
+        <group id="IntellijEval_FileChooserToolbar">
+            <action id="IntellijEval_FileChooser.GotoHome" class="ru.intellijeval.toolwindow.fileChooser.actions.GotoHomeAction" icon="AllIcons.Nodes.HomeFolder"/>
+            <action id="IntellijEval_FileChooser.GotoProject" class="ru.intellijeval.toolwindow.fileChooser.actions.GotoProjectDirectory" icon="AllIcons.Nodes.IdeaProject"/>
+            <separator/>
+            <action id="IntellijEval_FileChooser.NewFile" class="ru.intellijeval.toolwindow.fileChooser.actions.NewFileAction" icon="AllIcons.Actions.New"/>
+            <action id="IntellijEval_FileChooser.NewFolder" class="ru.intellijeval.toolwindow.fileChooser.actions.NewFolderAction" icon="AllIcons.Actions.NewFolder"/>
+            <action id="IntellijEval_FileChooser.Delete" class="ru.intellijeval.toolwindow.fileChooser.actions.FileDeleteAction" icon="AllIcons.Actions.Delete"/>
+            <separator/>
+            <action id="IntellijEval_FileChooser.Refresh" class="ru.intellijeval.toolwindow.fileChooser.actions.RefreshFileChooserAction" icon="AllIcons.Actions.Sync"/>
+            <separator/>
+            <action id="IntellijEval_FileChooser.ShowHiddens" class="ru.intellijeval.toolwindow.fileChooser.actions.ShowHiddensAction" icon="AllIcons.Actions.ShowHiddens"/>
+        </group>
+
     </actions>
 
 </idea-plugin>

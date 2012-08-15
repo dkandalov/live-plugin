@@ -25,7 +25,8 @@ import javax.swing.*;
 import java.util.List;
 
 public interface FileSystemTree extends Disposable {
-  DataKey<ru.intellijeval.toolwindow.fileChooser.FileSystemTree> DATA_KEY = DataKey.create("FileSystemTree");
+  // must be different from the key in IntelliJ classes
+  DataKey<FileSystemTree> DATA_KEY = DataKey.create("IntellijEval_FileSystemTree");
 
   JTree getTree();
 

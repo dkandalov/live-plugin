@@ -24,9 +24,6 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationActivationListener;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
-import ru.intellijeval.toolwindow.fileChooser.*;
-import ru.intellijeval.toolwindow.fileChooser.impl.FileChooserFactoryImpl;
-import ru.intellijeval.toolwindow.fileChooser.impl.FileChooserUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
@@ -50,6 +47,9 @@ import com.intellij.util.ui.update.Update;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.intellijeval.toolwindow.fileChooser.*;
+import ru.intellijeval.toolwindow.fileChooser.impl.FileChooserFactoryImpl;
+import ru.intellijeval.toolwindow.fileChooser.impl.FileChooserUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -152,7 +152,7 @@ public class FileChooserDialogImpl extends DialogWrapper implements FileChooserD
     registerFileChooserShortcut(IdeActions.ACTION_DELETE, "FileChooser.Delete");
     registerFileChooserShortcut(IdeActions.ACTION_SYNCHRONIZE, "FileChooser.Refresh");
 
-    return (DefaultActionGroup)ActionManager.getInstance().getAction("FileChooserToolbar");
+    return (DefaultActionGroup)ActionManager.getInstance().getAction("IntellijEval_FileChooserToolbar");
   }
 
   private void registerFileChooserShortcut(@NonNls final String baseActionId, @NonNls final String fileChooserActionId) {

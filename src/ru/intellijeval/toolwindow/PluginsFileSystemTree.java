@@ -25,17 +25,9 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.command.CommandProcessor;
-import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
-import ru.intellijeval.toolwindow.fileChooser.FileElement;
-import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
-import ru.intellijeval.toolwindow.fileChooser.ex.FileNodeDescriptor;
-import ru.intellijeval.toolwindow.fileChooser.impl.FileComparator;
-import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeBuilder;
-import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeStructure;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.*;
 import com.intellij.openapi.vfs.newvfs.NewVirtualFile;
@@ -50,6 +42,13 @@ import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.intellijeval.EvalComponent;
+import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
+import ru.intellijeval.toolwindow.fileChooser.FileElement;
+import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
+import ru.intellijeval.toolwindow.fileChooser.ex.FileNodeDescriptor;
+import ru.intellijeval.toolwindow.fileChooser.impl.FileComparator;
+import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeBuilder;
+import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeStructure;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -61,7 +60,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -162,10 +160,12 @@ public class PluginsFileSystemTree implements FileSystemTree {
 		descriptor.setShowFileSystemRoots(false);
 		descriptor.setIsTreeRootVisible(false);
 
-		String path = EvalComponent.pluginsRootPath();
-		FileUtil.createIfDoesntExist(new File(path));
-		VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl("file://" + path);
-		descriptor.setRoots(virtualFile);
+		Collection<String> plugPaths = EvalComponent.pluginToPathMap().values();
+		List<VirtualFile> virtualFiles = new ArrayList<VirtualFile>();
+		for (String path : plugPaths) {
+			virtualFiles.add(VirtualFileManager.getInstance().findFileByUrl("file://" + path));
+		}
+		descriptor.setRoots(virtualFiles);
 
 		return descriptor;
 	}
