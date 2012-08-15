@@ -1,19 +1,24 @@
 package ru.intellijeval.toolwindow;
 
+import com.intellij.CommonBundle;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.daemon.impl.analysis.FileHighlighingSetting;
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil;
 import com.intellij.ide.ui.customization.CustomizationUtil;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
@@ -31,6 +36,8 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.EditSourceOnEnterKeyHandler;
+import com.intellij.util.Function;
+import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
 import ru.intellijeval.EvalComponent;
@@ -158,10 +165,11 @@ public class PluginsToolWindow {
 		descriptor.setIsTreeRootVisible(false);
 
 		Collection<String> plugPaths = EvalComponent.pluginToPathMap().values();
-		List<VirtualFile> virtualFiles = new ArrayList<VirtualFile>();
-		for (String path : plugPaths) {
-			virtualFiles.add(VirtualFileManager.getInstance().findFileByUrl("file://" + path));
-		}
+		List<VirtualFile> virtualFiles = ContainerUtil.map(plugPaths, new Function<String, VirtualFile>() {
+			@Override public VirtualFile fun(String path) {
+				return VirtualFileManager.getInstance().findFileByUrl("file://" + path);
+			}
+		});
 		descriptor.setRoots(virtualFiles);
 
 		return descriptor;
@@ -256,12 +264,28 @@ public class PluginsToolWindow {
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
-			// TODO confirmation dialog
+			List<VirtualFile> rootFiles = findFilesMatchingPluginRoots(fileSystemTree.get().getSelectedFiles());
+			List<String> pluginNames = ContainerUtil.map(rootFiles, new Function<VirtualFile, String>() {
+				@Override public String fun(VirtualFile virtualFile1) {
+					return virtualFile1.getName();
+				}
+			});
+
+			if (userDoesNotWantToRemovePlugins(pluginNames, event.getProject())) return;
+
 			for (VirtualFile virtualFile : fileSystemTree.get().getSelectedFiles()) {
 				String pluginPath = virtualFile.getPath();
 				FileUtil.delete(new File(pluginPath));
 			}
 			pluginsToolWindow.reloadPluginRoots(event.getData(PlatformDataKeys.PROJECT));
+		}
+
+		private List<VirtualFile> findFilesMatchingPluginRoots(VirtualFile[] files) {
+			return ContainerUtil.filter(files, new Condition<VirtualFile>() {
+				@Override public boolean value(VirtualFile file) {
+					return EvalComponent.pluginToPathMap().values().contains(file.getPath());
+				}
+			});
 		}
 
 		@Override public void update(AnActionEvent e) {
@@ -274,6 +298,26 @@ public class PluginsToolWindow {
 				}
 			}
 			e.getPresentation().setEnabled(anyPluginPathSelected);
+		}
+
+		private static boolean userDoesNotWantToRemovePlugins(List<String> pluginNames, Project project) {
+			String message;
+			if (pluginNames.size() == 1) {
+				message = "Do you want to delete plugin \"" + pluginNames.get(0) + "\"?";
+			} else if (pluginNames.size() == 2) {
+				message = "Do you want to delete plugin \"" + pluginNames.get(0) + "\" and \"" + pluginNames.get(1) + "\"?";
+			} else {
+				message = "Do you want to delete plugins \"" + StringUtil.join(pluginNames, ", ") + "\"?";
+			}
+			int returnValue = Messages.showOkCancelDialog(
+					project,
+					message,
+					"Delete",
+					ApplicationBundle.message("button.delete"),
+					CommonBundle.getCancelButtonText(),
+					Messages.getQuestionIcon()
+			);
+			return returnValue != 0;
 		}
 	}
 

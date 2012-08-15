@@ -24,7 +24,7 @@ public class Util {
 	public static final Icon ADD_PLUGIN_ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/add.png"));
 	public static final Icon REMOVE_PLUGIN_ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/remove.png"));
 	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
-	public static final Icon EVAL_ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/eval.png"));
+	public static final Icon EVAL_ICON = AllIcons.Actions.Execute;
 
 
 	public static void displayInConsole(String header, String text, ConsoleViewContentType contentType, Project project) {
