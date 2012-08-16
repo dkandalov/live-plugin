@@ -12,7 +12,6 @@ import com.intellij.execution.ui.actions.CloseAction;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
-import ru.intellijeval.toolwindow.PluginsToolWindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,10 +20,10 @@ import java.awt.*;
  * @author DKandalov
  */
 public class Util {
-	public static final Icon ADD_PLUGIN_ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/add.png"));
-	public static final Icon REMOVE_PLUGIN_ICON = new ImageIcon(PluginsToolWindow.class.getResource("/ru/intellijeval/toolwindow/remove.png"));
+	public static final Icon ADD_PLUGIN_ICON = AllIcons.General.Add;
+	public static final Icon DELETE_PLUGIN_ICON = AllIcons.General.Remove;
 	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
-	public static final Icon EVAL_ICON = AllIcons.Actions.Execute;
+	public static final Icon EVAL_ALL_ICON = AllIcons.Actions.RefreshUsages;
 
 
 	public static void displayInConsole(String header, String text, ConsoleViewContentType contentType, Project project) {

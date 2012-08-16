@@ -4,6 +4,7 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +14,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,6 +51,15 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 			}
 		});
 		return files.length < 1;
+	}
+
+	public static String defaultPluginScript() {
+		try {
+			return FileUtil.loadTextAndClose(EvalComponent.class.getClassLoader().getResourceAsStream("/ru/intellijeval/default-plugin.groovy"));
+		} catch (IOException e) {
+			e.printStackTrace(); // TODO
+			return "";
+		}
 	}
 
 	@Override

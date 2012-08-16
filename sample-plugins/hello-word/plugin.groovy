@@ -14,9 +14,9 @@ import com.intellij.openapi.wm.ToolWindowManager
 //static showPopup(String htmlBody, String toolWindowId = ToolWindowId.RUN, MessageType messageType = MessageType.INFO, event) {
 //    ToolWindowManager.getInstance(event.project).notifyByBalloon(toolWindowId, messageType, htmlBody)
 //}
-//static showPopup2(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
-//    ((Notifications) NotificationsManager.notificationsManager).notify(new Notification("", title, htmlBody, notificationType))
-//}
+static showPopup2(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
+    ((Notifications) NotificationsManager.notificationsManager).notify(new Notification("", title, htmlBody, notificationType))
+}
 
 //showPopup("hello world!", event)
 //showPopup2("hello world 2")
@@ -24,7 +24,7 @@ import com.intellij.openapi.wm.ToolWindowManager
 
 //Util.ooo()
 
-//showPopup(Util.class.declaredMethods.collect{it.name}.toString())
-println(Util.class.declaredMethods.collect{it.name})
+showPopup2(Util.class.declaredMethods.collect{it.name}.toString())
+//println(Util.class.declaredMethods.collect{it.name})
 
 //throw new IllegalStateException("aaaa")

@@ -29,7 +29,7 @@ public class EvaluateAction extends AnAction {
 	private LinkedHashMap<String, Exception> evaluationExceptions;
 
 	public EvaluateAction() {
-		super(Util.EVAL_ICON);
+		super("Run all plugins", "Run all plugins", Util.EVAL_ALL_ICON);
 	}
 
 	@Override

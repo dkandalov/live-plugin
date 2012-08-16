@@ -4,6 +4,7 @@ import com.intellij.CommonBundle;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.daemon.impl.analysis.FileHighlighingSetting;
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil;
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.ui.customization.CustomizationUtil;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.*;
@@ -179,15 +180,23 @@ public class PluginsToolWindow {
 		JPanel toolBarPanel = new JPanel(new GridLayout());
 		DefaultActionGroup actionGroup = new DefaultActionGroup();
 
-		actionGroup.add(new AddPluginAction(this));
-		actionGroup.add(new RemovePluginAction(this, myFsTreeRef));
-		actionGroup.add(new Separator());
+		actionGroup.add(createAddActionsGroup());
+		actionGroup.add(new DeletePluginAction(this, myFsTreeRef));
+		actionGroup.addSeparator();
 		actionGroup.add(new EvaluateAction());
 		// TODO expand / collapse (all) actions
 		// TODO eval one plugin action?
 
 		toolBarPanel.add(ActionManager.getInstance().createActionToolbar(TOOL_WINDOW_ID, actionGroup, true).getComponent());
 		return toolBarPanel;
+	}
+
+	private ActionGroup createAddActionsGroup() {
+		DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
+		actionGroup.getTemplatePresentation().setIcon(AllIcons.General.Add);
+		actionGroup.add(new AddNewPluginAction(this));
+		actionGroup.add(new AddPluginAction(this));
+		return actionGroup;
 	}
 
 	private static class MySimpleToolWindowPanel extends SimpleToolWindowPanel {
@@ -226,11 +235,44 @@ public class PluginsToolWindow {
 		}
 	}
 
+	private static class AddNewPluginAction extends AnAction {
+		private final PluginsToolWindow pluginsToolWindow;
+
+		public AddNewPluginAction(PluginsToolWindow pluginsToolWindow) {
+			super("Add new plugin");
+			this.pluginsToolWindow = pluginsToolWindow;
+		}
+
+		@Override public void actionPerformed(AnActionEvent event) {
+			String newPluginName = Messages.showInputDialog(event.getProject(), "Enter new plugin name:", "New Plugin", null);
+
+			if (pluginExists(newPluginName)) {
+				Messages.showErrorDialog(event.getProject(), "Plugin \"" + newPluginName + "\" already exists.", "New Plugin");
+				return;
+			}
+
+			try {
+				String text = EvalComponent.defaultPluginScript();
+				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + newPluginName + "/" + EvaluateAction.MAIN_SCRIPT), text);
+			} catch (IOException e) {
+				e.printStackTrace(); // TODO
+			}
+
+			// TODO open plugin.groovy?
+
+			pluginsToolWindow.reloadPluginRoots(event.getProject());
+		}
+
+		private boolean pluginExists(String newPluginName) {
+			return EvalComponent.pluginToPathMap().keySet().contains(newPluginName);
+		}
+	}
+
 	private static class AddPluginAction extends AnAction {
 		private final PluginsToolWindow pluginsToolWindow;
 
 		public AddPluginAction(PluginsToolWindow pluginsToolWindow) {
-			super(Util.ADD_PLUGIN_ICON);
+			super("Add plugin from disk");
 			this.pluginsToolWindow = pluginsToolWindow;
 		}
 
@@ -269,12 +311,12 @@ public class PluginsToolWindow {
 		}
 	}
 
-	private static class RemovePluginAction extends AnAction {
+	private static class DeletePluginAction extends AnAction {
 		private final PluginsToolWindow pluginsToolWindow;
 		private final Ref<FileSystemTree> fileSystemTree;
 
-		private RemovePluginAction(PluginsToolWindow pluginsToolWindow, Ref<FileSystemTree> fileSystemTree) {
-			super(Util.REMOVE_PLUGIN_ICON);
+		private DeletePluginAction(PluginsToolWindow pluginsToolWindow, Ref<FileSystemTree> fileSystemTree) {
+			super("Delete plugin", "Delete plugin", Util.DELETE_PLUGIN_ICON);
 			this.pluginsToolWindow = pluginsToolWindow;
 			this.fileSystemTree = fileSystemTree;
 		}
