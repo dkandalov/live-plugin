@@ -1,11 +1,8 @@
 package ru.intellijeval;
 
-import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.unscramble.UnscrambleDialog;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
@@ -15,20 +12,18 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
-import static ru.intellijeval.Util.displayInConsole;
-
 /**
  * @author DKandalov
  */
-public class EvaluateAction extends AnAction {
+public class EvaluateAllPluginsAction extends AnAction {
 
 	public static final String MAIN_SCRIPT = "plugin.groovy";
 	private static final String CLASSPATH_PREFIX = "//-- classpath: ";
 
-	private List<String> loadingErrors;
-	private LinkedHashMap<String, Exception> evaluationExceptions;
+	private EvalErrorReporter errorReporter;
 
-	public EvaluateAction() {
+
+	public EvaluateAllPluginsAction() {
 		super("Run all plugins", "Run all plugins", Util.EVAL_ALL_ICON);
 	}
 
@@ -40,38 +35,41 @@ public class EvaluateAction extends AnAction {
 	private void evaluateAllPlugins(AnActionEvent event) {
 		FileDocumentManager.getInstance().saveAllDocuments();
 
-		loadingErrors = new LinkedList<String>();
-		evaluationExceptions = new LinkedHashMap<String, Exception>();
+		errorReporter = new EvalErrorReporter();
 
 		for (Map.Entry<String, String> entry : EvalComponent.pluginToPathMap().entrySet()) {
-			String pluginId = entry.getKey();
-			String path = entry.getValue();
-
-			String mainScriptPath = findMainScriptIn(path);
-			if (mainScriptPath == null) {
-				addLoadingError(pluginId, "Couldn't find main script");
-				continue;
-			}
-
-			try {
-
-				GroovyScriptEngine scriptEngine = new GroovyScriptEngine(path, createClassLoaderWithDependencies(mainScriptPath, pluginId));
-				Binding binding = new Binding();
-				binding.setProperty("actionEvent", event);
-				binding.setVariable("event", event);
-				scriptEngine.run(mainScriptPath, binding);
-
-			} catch (IOException e) {
-				addLoadingError(pluginId, "Error while creating scripting engine. " + e.getMessage());
-			} catch (CompilationFailedException e) {
-				addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
-			} catch (Exception e) {
-				addEvaluationException(pluginId, e);
-			}
+			doEval(event, entry);
 		}
 
-		reportLoadingErrors(event);
-		reportEvaluationExceptions(event);
+		errorReporter.reportLoadingErrors(event);
+		errorReporter.reportEvaluationExceptions(event);
+	}
+
+	private void doEval(AnActionEvent event, Map.Entry<String, String> entry) {
+		String pluginId = entry.getKey();
+		String path = entry.getValue();
+
+		String mainScriptPath = findMainScriptIn(path);
+		if (mainScriptPath == null) {
+			errorReporter.addLoadingError(pluginId, "Couldn't find main script");
+			return;
+		}
+
+		try {
+
+			GroovyScriptEngine scriptEngine = new GroovyScriptEngine(path, createClassLoaderWithDependencies(mainScriptPath, pluginId));
+			Binding binding = new Binding();
+			binding.setProperty("actionEvent", event);
+			binding.setVariable("event", event);
+			scriptEngine.run(mainScriptPath, binding);
+
+		} catch (IOException e) {
+			errorReporter.addLoadingError(pluginId, "Error while creating scripting engine. " + e.getMessage());
+		} catch (CompilationFailedException e) {
+			errorReporter.addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
+		} catch (Exception e) {
+			errorReporter.addEvaluationException(pluginId, e);
+		}
 	}
 
 	private String findMainScriptIn(String path) {
@@ -101,7 +99,7 @@ public class EvaluateAction extends AnAction {
 					String path = line.replace(CLASSPATH_PREFIX, "");
 					List<String> filePaths = findAllFilePaths(path);
 					if (filePaths.isEmpty()) {
-						addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
+						errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
 					}
 					for (String filePath : filePaths) {
 						classLoader.addURL(new URL("file://" + filePath)); // TODO not sure which of the below works properly
@@ -110,7 +108,7 @@ public class EvaluateAction extends AnAction {
 				}
 			}
 		} catch (IOException e) {
-			addLoadingError(pluginId, "Error while looking for dependencies. Main script: " + mainScriptPath + ". " + e.getMessage());
+			errorReporter.addLoadingError(pluginId, "Error while looking for dependencies. Main script: " + mainScriptPath + ". " + e.getMessage());
 		}
 		return classLoader;
 	}
@@ -145,32 +143,5 @@ public class EvaluateAction extends AnAction {
 			}
 		}
 		return result;
-	}
-
-	private void reportLoadingErrors(AnActionEvent actionEvent) {
-		StringBuilder text = new StringBuilder();
-		for (String s : loadingErrors) text.append(s);
-		if (text.length() > 0)
-			displayInConsole("Loading errors", text.toString(), ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
-	}
-
-	@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-	private void reportEvaluationExceptions(AnActionEvent actionEvent) {
-		for (Map.Entry<String, Exception> entry : evaluationExceptions.entrySet()) {
-			StringWriter writer = new StringWriter();
-			entry.getValue().printStackTrace(new PrintWriter(writer));
-			String s = UnscrambleDialog.normalizeText(writer.getBuffer().toString());
-
-			displayInConsole(entry.getKey(), s, ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
-		}
-	}
-
-	private void addEvaluationException(String pluginId, Exception e) {
-		//noinspection ThrowableResultOfMethodCallIgnored
-		evaluationExceptions.put(pluginId, e);
-	}
-
-	private void addLoadingError(String pluginId, String message) {
-		loadingErrors.add("Plugin: " + pluginId + ". " + message);
 	}
 }

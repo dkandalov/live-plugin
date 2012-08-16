@@ -42,7 +42,8 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
 import ru.intellijeval.EvalComponent;
-import ru.intellijeval.EvaluateAction;
+import ru.intellijeval.EvaluateAllPluginsAction;
+import ru.intellijeval.EvaluatePluginAction;
 import ru.intellijeval.Util;
 import ru.intellijeval.toolwindow.fileChooser.FileChooser;
 import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
@@ -183,9 +184,10 @@ public class PluginsToolWindow {
 		actionGroup.add(createAddActionsGroup());
 		actionGroup.add(new DeletePluginAction(this, myFsTreeRef));
 		actionGroup.addSeparator();
-		actionGroup.add(new EvaluateAction());
+		actionGroup.add(new EvaluatePluginAction());
+		actionGroup.add(new EvaluateAllPluginsAction());
+
 		// TODO expand / collapse (all) actions
-		// TODO eval one plugin action?
 
 		toolBarPanel.add(ActionManager.getInstance().createActionToolbar(TOOL_WINDOW_ID, actionGroup, true).getComponent());
 		return toolBarPanel;
@@ -253,7 +255,7 @@ public class PluginsToolWindow {
 
 			try {
 				String text = EvalComponent.defaultPluginScript();
-				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + newPluginName + "/" + EvaluateAction.MAIN_SCRIPT), text);
+				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + newPluginName + "/" + EvaluateAllPluginsAction.MAIN_SCRIPT), text);
 			} catch (IOException e) {
 				e.printStackTrace(); // TODO
 			}
@@ -300,7 +302,7 @@ public class PluginsToolWindow {
 		private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {
 			int returnValue = Messages.showOkCancelDialog(
 					project,
-					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + EvaluateAction.MAIN_SCRIPT + "\"." +
+					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + EvaluateAllPluginsAction.MAIN_SCRIPT + "\"." +
 							"\nDo you want to add it anyway?",
 					"Add Plugin",
 					CommonBundle.getYesButtonText(),

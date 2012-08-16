@@ -28,11 +28,11 @@
 	</application-components>
 
 	<actions>
-		<action id="InetlliJEval.EvalCode" class="ru.intellijeval.EvaluateAction" text="Evaluate in IntelliJ"
+		<action id="InetlliJEval.EvalCode" class="ru.intellijeval.EvaluateAllPluginsAction" text="Evaluate in IntelliJ"
 		        description="Reload dynamic plugins" icon="/fileTypes/text.png">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
-			<add-to-group group-id="ToolsMenu" anchor="last"/>
 		</action>
+
         <group id="InetlliJEval.Popup">
             <action id="InetlliJEval.NewFileAction" class="ru.intellijeval.toolwindow.NewFileAction"
                     text="New File" icon="AllIcons.FileTypes.Text"/>

@@ -47,7 +47,7 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 		if (!file.isDirectory()) return false;
 		String[] files = file.list(new FilenameFilter() {
 			@Override public boolean accept(File dir, String name) {
-				return name.equals(EvaluateAction.MAIN_SCRIPT);
+				return name.equals(EvaluateAllPluginsAction.MAIN_SCRIPT);
 			}
 		});
 		return files.length < 1;
