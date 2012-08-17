@@ -23,6 +23,7 @@ import java.util.Map;
  */
 public class EvalComponent implements ApplicationComponent, Configurable {
 	public static final String COMPONENT_NAME = "EvalComponent";
+	public static final String MAIN_SCRIPT = "plugin.groovy";
 
 	public static String pluginsRootPath() {
 		return PathManager.getPluginsPath() + "/intellij-eval-plugins/";
@@ -34,6 +35,7 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 				return file.isDirectory();
 			}
 		});
+		if (files == null) return new HashMap<String, String>();
 
 		HashMap<String, String> result = new HashMap<String, String>();
 		for (File file : files) {
@@ -47,7 +49,7 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 		if (!file.isDirectory()) return false;
 		String[] files = file.list(new FilenameFilter() {
 			@Override public boolean accept(File dir, String name) {
-				return name.equals(EvaluateAllPluginsAction.MAIN_SCRIPT);
+				return name.equals(MAIN_SCRIPT);
 			}
 		});
 		return files.length < 1;

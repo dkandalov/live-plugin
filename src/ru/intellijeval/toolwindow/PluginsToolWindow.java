@@ -41,10 +41,7 @@ import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
-import ru.intellijeval.EvalComponent;
-import ru.intellijeval.EvaluateAllPluginsAction;
-import ru.intellijeval.EvaluatePluginAction;
-import ru.intellijeval.Util;
+import ru.intellijeval.*;
 import ru.intellijeval.toolwindow.fileChooser.FileChooser;
 import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
 import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
@@ -69,6 +66,11 @@ public class PluginsToolWindow {
 
 	private Ref<FileSystemTree> myFsTreeRef = Ref.create();
 	private SimpleToolWindowPanel panel;
+
+	public static PluginsToolWindow getInstance(Project project) {
+		// TODO that's wrong
+		return (PluginsToolWindow) ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID);
+	}
 
 	public PluginsToolWindow init() {
 		ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
@@ -201,6 +203,23 @@ public class PluginsToolWindow {
 		return actionGroup;
 	}
 
+	public List<String> selectedPluginIds() {
+		List<VirtualFile> rootFiles = findFilesMatchingPluginRoots(myFsTreeRef.get().getSelectedFiles());
+		return ContainerUtil.map(rootFiles, new Function<VirtualFile, String>() {
+			@Override public String fun(VirtualFile virtualFile) {
+				return virtualFile.getName();
+			}
+		});
+	}
+
+	private static List<VirtualFile> findFilesMatchingPluginRoots(VirtualFile[] files) {
+		return ContainerUtil.filter(files, new Condition<VirtualFile>() {
+			@Override public boolean value(VirtualFile file) {
+				return EvalComponent.pluginToPathMap().values().contains(file.getPath());
+			}
+		});
+	}
+
 	private static class MySimpleToolWindowPanel extends SimpleToolWindowPanel {
 		private final Ref<FileSystemTree> fileSystemTree;
 
@@ -255,7 +274,7 @@ public class PluginsToolWindow {
 
 			try {
 				String text = EvalComponent.defaultPluginScript();
-				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + newPluginName + "/" + EvaluateAllPluginsAction.MAIN_SCRIPT), text);
+				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + newPluginName + "/" + EvalComponent.MAIN_SCRIPT), text);
 			} catch (IOException e) {
 				e.printStackTrace(); // TODO
 			}
@@ -302,7 +321,7 @@ public class PluginsToolWindow {
 		private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {
 			int returnValue = Messages.showOkCancelDialog(
 					project,
-					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + EvaluateAllPluginsAction.MAIN_SCRIPT + "\"." +
+					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + EvalComponent.MAIN_SCRIPT + "\"." +
 							"\nDo you want to add it anyway?",
 					"Add Plugin",
 					CommonBundle.getYesButtonText(),
@@ -324,28 +343,15 @@ public class PluginsToolWindow {
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
-			List<VirtualFile> rootFiles = findFilesMatchingPluginRoots(fileSystemTree.get().getSelectedFiles());
-			List<String> pluginNames = ContainerUtil.map(rootFiles, new Function<VirtualFile, String>() {
-				@Override public String fun(VirtualFile virtualFile1) {
-					return virtualFile1.getName();
-				}
-			});
+			List<String> pluginIds = pluginsToolWindow.selectedPluginIds();
 
-			if (userDoesNotWantToRemovePlugins(pluginNames, event.getProject())) return;
+			if (userDoesNotWantToRemovePlugins(pluginIds, event.getProject())) return;
 
 			for (VirtualFile virtualFile : fileSystemTree.get().getSelectedFiles()) {
 				String pluginPath = virtualFile.getPath();
 				FileUtil.delete(new File(pluginPath));
 			}
 			pluginsToolWindow.reloadPluginRoots(event.getData(PlatformDataKeys.PROJECT));
-		}
-
-		private List<VirtualFile> findFilesMatchingPluginRoots(VirtualFile[] files) {
-			return ContainerUtil.filter(files, new Condition<VirtualFile>() {
-				@Override public boolean value(VirtualFile file) {
-					return EvalComponent.pluginToPathMap().values().contains(file.getPath());
-				}
-			});
 		}
 
 		@Override public void update(AnActionEvent e) {

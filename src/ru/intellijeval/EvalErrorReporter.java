@@ -18,7 +18,7 @@ import static ru.intellijeval.Util.displayInConsole;
  * User: dima
  * Date: 17/08/2012
  */
-public class EvalErrorReporter {
+class EvalErrorReporter {
 	private final List<String> loadingErrors = new LinkedList<String>();
 	private final LinkedHashMap<String, Exception> evaluationExceptions = new LinkedHashMap<String, Exception>();
 
