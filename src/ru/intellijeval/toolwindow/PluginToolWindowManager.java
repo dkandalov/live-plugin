@@ -45,6 +45,7 @@ import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
+import git4idea.Notificator;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 import ru.intellijeval.EvalComponent;
@@ -261,8 +262,19 @@ public class PluginToolWindowManager {
 			if (dataId.equals(PlatformDataKeys.VIRTUAL_FILE_ARRAY.getName())) return fileSystemTree.get().getSelectedFiles();
 			if (dataId.equals(PlatformDataKeys.TREE_EXPANDER.getName()))
 				return new DefaultTreeExpander(fileSystemTree.get().getTree());
+
+//			if (dataId.equals(PlatformDataKeys.EDITOR.getName())) { // TODO needed by create gist action but affects popup; delete thisu
+//				VirtualFile selectedFile = fileSystemTree.get().getSelectedFile();
+//				if (selectedFile != null) {
+//					EditorFactory editorFactory = EditorFactory.getInstance();
+//					if (editorFactory != null) {
+//						return editorFactory.createEditor(editorFactory.createDocument(""));
+//					}
+//				}
+//			}
 			return super.getData(dataId);
 		}
+
 	}
 
 	private static class MyTree extends Tree implements TypeSafeDataProvider {
@@ -306,11 +318,13 @@ public class PluginToolWindowManager {
 				String text = EvalComponent.defaultPluginScript();
 				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + newPluginName + "/" + EvalComponent.MAIN_SCRIPT), text);
 			} catch (IOException e) {
-				Messages.showErrorDialog(
-						event.getProject(),
-						"Error adding plugin \"" + newPluginName + "\" to " + EvalComponent.pluginsRootPath(),
-						"Add Plugin"
-				);
+				Project project = event.getProject();
+				if (project != null) {
+					Notificator.getInstance(project).notifyError(
+							"Error adding plugin \"" + newPluginName + "\" to " + EvalComponent.pluginsRootPath(),
+							"Add Plugin"
+					);
+				}
 				LOG.error(e);
 			}
 
@@ -346,11 +360,13 @@ public class PluginToolWindowManager {
 				FileUtil.createDirectory(toDir);
 				FileUtil.copyDirContent(fromDir, toDir);
 			} catch (IOException e) {
-				Messages.showErrorDialog(
-						event.getProject(),
-						"Error adding plugin \"" + fromDir.getName() + "\" to " + EvalComponent.pluginsRootPath(),
-						"Add Plugin"
-				);
+				Project project = event.getProject();
+				if (project != null) {
+					Notificator.getInstance(project).notifyError(
+							"Error adding plugin \"" + fromDir.getName() + "\" to " + EvalComponent.pluginsRootPath(),
+							"Add Plugin"
+					);
+				}
 				LOG.error(e);
 			}
 
@@ -474,4 +490,5 @@ public class PluginToolWindowManager {
 			analyzer.restart();
 		}
 	}
+
 }
