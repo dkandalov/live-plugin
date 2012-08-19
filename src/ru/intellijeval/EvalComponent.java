@@ -8,7 +8,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
-import ru.intellijeval.toolwindow.PluginsToolWindow;
+import ru.intellijeval.toolwindow.PluginToolWindowManager;
 
 import javax.swing.*;
 import java.io.File;
@@ -66,7 +66,7 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 
 	@Override
 	public void initComponent() {
-		new PluginsToolWindow().init();
+		new PluginToolWindowManager().init();
 	}
 
 	@Override
