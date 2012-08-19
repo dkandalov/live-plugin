@@ -92,7 +92,7 @@ public class FileElement {
 
   @Override
   public String toString() {
-    return myFile != null ? myFile.getName() : ""; // so far that's the only good reason for forking intellij.fileChooser
+    return myFile != null ? myFile.getName() : "";
   }
 
   public final boolean isHidden() {

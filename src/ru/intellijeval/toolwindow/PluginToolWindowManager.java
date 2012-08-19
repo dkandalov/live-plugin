@@ -20,6 +20,8 @@ import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
@@ -41,6 +43,7 @@ import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 import ru.intellijeval.EvalComponent;
 import ru.intellijeval.EvaluateAllPluginsAction;
 import ru.intellijeval.EvaluatePluginAction;
@@ -67,6 +70,7 @@ public class PluginToolWindowManager {
 
 	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<Project, PluginToolWindow>();
 
+	@Nullable
 	public static PluginToolWindow getToolWindowFor(Project project) {
 		return toolWindowsByProject.get(project);
 	}
@@ -148,7 +152,6 @@ public class PluginToolWindowManager {
 		private FileSystemTree createFsTree(Project project) {
 			Ref<FileSystemTree> myFsTreeRef = Ref.create();
 			MyTree myTree = new MyTree(project);
-			myTree.setRootVisible(false);
 
 			// handlers must be installed before adding myTree to FileSystemTreeImpl
 			EditSourceOnDoubleClickHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
@@ -307,7 +310,9 @@ public class PluginToolWindowManager {
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
-			VirtualFile virtualFile = FileChooser.chooseFile(new FileChooserDescriptor(true, true, true, true, true, false), null, null);
+			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, true, true, false);
+			descriptor.setRoots(getFileSystemRoots());
+			VirtualFile virtualFile = FileChooser.chooseFile(descriptor, null, null);
 			if (virtualFile == null) return;
 
 			if (EvalComponent.isInvalidPluginFolder(virtualFile) &&
@@ -325,6 +330,22 @@ public class PluginToolWindowManager {
 			// TODO eval plugin?
 
 			pluginsToolWindow.reloadPluginRoots(event.getData(PlatformDataKeys.PROJECT));
+		}
+
+		private static VirtualFile[] getFileSystemRoots() {
+			final LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
+			final Set<VirtualFile> roots = new HashSet<VirtualFile>();
+			final File[] ioRoots = File.listRoots();
+			if (ioRoots != null) {
+				for (final File root : ioRoots) {
+					final String path = FileUtil.toSystemIndependentName(root.getAbsolutePath());
+					final VirtualFile file = localFileSystem.findFileByPath(path);
+					if (file != null) {
+						roots.add(file);
+					}
+				}
+			}
+			return VfsUtil.toVirtualFileArray(roots);
 		}
 
 		private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {

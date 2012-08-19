@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -29,6 +30,11 @@ public class EvaluatePluginAction extends AnAction {
 
 	@Override public void actionPerformed(AnActionEvent event) {
 		evalCurrentPlugin(event);
+	}
+
+	@Override
+	public void update(AnActionEvent event) {
+		event.getPresentation().setEnabled(!findCurrentPluginId(event).isEmpty());
 	}
 
 	private void evalCurrentPlugin(AnActionEvent event) {
@@ -56,11 +62,14 @@ public class EvaluatePluginAction extends AnAction {
 
 	private List<String> findPluginsSelectedInToolWindow(AnActionEvent event) {
 		PluginToolWindow pluginToolWindow = PluginToolWindowManager.getToolWindowFor(event.getProject());
+		if (pluginToolWindow == null) return Collections.emptyList();
 		return pluginToolWindow.selectedPluginIds();
 	}
 
 	private List<String> findPluginFromCurrentlyOpenFile(AnActionEvent event) {
-		Editor selectedTextEditor = FileEditorManager.getInstance(event.getProject()).getSelectedTextEditor();
+		Project project = event.getProject();
+		if (project == null) return Collections.emptyList();
+		Editor selectedTextEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
 		if (selectedTextEditor == null) return Collections.emptyList();
 
 		VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(selectedTextEditor.getDocument());

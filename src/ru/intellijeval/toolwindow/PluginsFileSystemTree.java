@@ -346,8 +346,7 @@ public class PluginsFileSystemTree implements FileSystemTree {
 		final VirtualFile selected = getSelectedFile();
 		if (selected != null) return selected;
 
-		final List<VirtualFile> roots = myDescriptor.getRoots();
-		return roots.size() == 1 ? roots.get(0) : null;
+		return null;
 	}
 
 	@NotNull
