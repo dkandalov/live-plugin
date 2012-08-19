@@ -205,9 +205,13 @@ public class PluginToolWindowManager {
 
 			actionGroup.add(createAddActionsGroup());
 			actionGroup.add(new DeletePluginAction(this, myFsTreeRef));
+			// TODO add refresh button;
+			// TODO updates in multiple project setup don't work
+			// TODO tree auto-expands on toolbar hide/show; don't want this
 			actionGroup.addSeparator();
 			actionGroup.add(new EvaluatePluginAction());
 			actionGroup.add(new EvaluateAllPluginsAction());
+			// TODO unplug action?
 			actionGroup.addSeparator();
 			actionGroup.add(withIcon(Util.EXPAND_ALL_ICON, new ExpandAllAction()));
 			actionGroup.add(withIcon(Util.COLLAPSE_ALL_ICON, new CollapseAllAction()));
@@ -220,6 +224,7 @@ public class PluginToolWindowManager {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
 			actionGroup.add(new AddNewPluginAction(this));
 			actionGroup.add(new AddPluginAction(this));
+			// TODO add examples (call them templates?)
 			return withIcon(Util.ADD_PLUGIN_ICON, actionGroup);
 		}
 

@@ -1,7 +1,4 @@
-import com.intellij.notification.Notification
-import com.intellij.notification.NotificationType
-import com.intellij.notification.Notifications
-import com.intellij.notification.NotificationsManager
+import com.intellij.notification.*
 
 static showPopup(String htmlBody, String title = "", notificationType = NotificationType.INFORMATION) {
 	((Notifications) NotificationsManager.notificationsManager).notify(new Notification("", title, htmlBody, notificationType))

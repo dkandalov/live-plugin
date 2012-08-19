@@ -19,6 +19,10 @@ public class EvaluateAllPluginsAction extends AnAction {
 		evaluateAllPlugins(event);
 	}
 
+	@Override public void update(AnActionEvent event) {
+		event.getPresentation().setEnabled(!EvalComponent.pluginToPathMap().isEmpty());
+	}
+
 	private void evaluateAllPlugins(AnActionEvent event) {
 		FileDocumentManager.getInstance().saveAllDocuments();
 
