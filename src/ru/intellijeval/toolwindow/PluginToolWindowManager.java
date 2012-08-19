@@ -205,7 +205,7 @@ public class PluginToolWindowManager {
 
 			actionGroup.add(createAddActionsGroup());
 			actionGroup.add(new DeletePluginAction(this, myFsTreeRef));
-			// TODO add refresh button;
+			// TODO add refresh button?
 			// TODO updates in multiple project setup don't work
 			// TODO tree auto-expands on toolbar hide/show; don't want this
 			actionGroup.addSeparator();

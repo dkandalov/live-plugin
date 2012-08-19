@@ -2,8 +2,7 @@ import com.intellij.notification.*
 
 
 static show(String htmlBody, String title = "", notificationType = NotificationType.INFORMATION) {
-	def notification = new Notification("", title, htmlBody, notificationType)
-	((Notifications) NotificationsManager.notificationsManager).notify(notification)
+	((Notifications) NotificationsManager.notificationsManager).notify(new Notification("", title, htmlBody, notificationType))
 }
 
 show("Hello IntelliJ")

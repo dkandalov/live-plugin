@@ -1,19 +1,19 @@
-import com.intellij.notification.Notification
-import com.intellij.notification.NotificationType
-import com.intellij.notification.Notifications
-import com.intellij.notification.NotificationsManager
-import com.intellij.openapi.actionSystem.*
+import com.intellij.notification.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.keymap.KeymapManager
-import com.intellij.openapi.ui.popup.JBPopupFactory
 
-import javax.swing.*
+import javax.swing.KeyStroke
+
 
 static show(String htmlBody, String title = "", notificationType = NotificationType.INFORMATION) {
 	def notification = new Notification("", title, htmlBody, notificationType)
 	((Notifications) NotificationsManager.notificationsManager).notify(notification)
 }
 
-static registerAction(String actionId, String keyStroke = "", Closure closure) {
+static registerAction(String actionId, String keyStroke = "", String secondKeyStroke = "", Closure closure) {
 	def actionManager = ActionManager.instance
 	def keymap = KeymapManager.instance.activeKeymap
 
@@ -33,40 +33,6 @@ static registerAction(String actionId, String keyStroke = "", Closure closure) {
 	show("Plugin '${actionId}' reloaded")
 }
 
-static ActionGroup createActions(data, actionGroup = new DefaultActionGroup()) {
-	data.each { entry ->
-		if (entry.value instanceof String) {
-			actionGroup.add(new AnAction(entry.key as String) {
-				@Override void actionPerformed(AnActionEvent e) {
-					show(entry.value)
-				}
-			})
-		} else {
-			def subActions = createActions(entry.value, new DefaultActionGroup(entry.key.toString(), true))
-			actionGroup.add(subActions)
-		}
-	}
-	actionGroup
-}
-
-
-registerAction("helloPopupAction", "ctrl alt shift P") { AnActionEvent event ->
-	def actionGroup = createActions([
-			"World 1": [
-					"sub-world 11" : "Hello sub-world 11!!",
-					"sub-world 12" : "hello sub-world 12",
-			],
-			"World 2": [
-					"sub-world 21" : "sub-world 21 hello",
-					"sub-world 22" : "sub-world hello 22",
-			],
-			"World 3" : "Hey world 3!"
-	])
-	JBPopupFactory.instance.createActionGroupPopup(
-			"Say hello to",
-			actionGroup,
-			event.dataContext,
-			JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-			true
-	).showCenteredInCurrentWindow(event.project)
+registerAction("HelloWorldAction", "ctrl shift alt H") {
+	show("Hello IntelliJ from action")
 }

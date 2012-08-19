@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
+
 /**
  * @author DKandalov
  */
@@ -34,11 +36,9 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 	}
 
 	public static Map<String, String> pluginToPathMap() {
-		// TODO ignore .idea folder
-
 		File[] files = new File(pluginsRootPath()).listFiles(new FileFilter() {
 			@Override public boolean accept(File file) {
-				return file.isDirectory();
+				return file.isDirectory() && !file.getName().equals(DIRECTORY_STORE_FOLDER);
 			}
 		});
 		if (files == null) return new HashMap<String, String>();
