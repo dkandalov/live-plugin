@@ -4,13 +4,16 @@ import com.intellij.CommonBundle;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.daemon.impl.analysis.FileHighlighingSetting;
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil;
-import com.intellij.icons.AllIcons;
+import com.intellij.ide.DefaultTreeExpander;
+import com.intellij.ide.actions.CollapseAllAction;
+import com.intellij.ide.actions.ExpandAllAction;
 import com.intellij.ide.ui.customization.CustomizationUtil;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationBundle;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.fileTypes.FileTypes;
+import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
@@ -122,7 +125,7 @@ public class PluginToolWindowManager {
 			FileSystemTree fsTree = createFsTree(project);
 			myFsTreeRef = Ref.create(fsTree);
 
-			installPopupInto(fsTree);
+			installPopupsInto(fsTree);
 
 			JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(fsTree.getTree());
 			panel = new MySimpleToolWindowPanel(true, myFsTreeRef).setProvideQuickActions(false);
@@ -135,30 +138,37 @@ public class PluginToolWindowManager {
 			FileSystemTree fsTree = createFsTree(project);
 			myFsTreeRef.set(fsTree);
 
-			installPopupInto(fsTree);
+			installPopupsInto(fsTree);
 
 			JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(myFsTreeRef.get().getTree());
 			panel.remove(0);
 			panel.add(scrollPane, 0);
 		}
 
-		private static void installPopupInto(FileSystemTree fsTree) {
+		private static void installPopupsInto(FileSystemTree fsTree) {
 			AnAction action = new NewElementPopupAction();
-			KeyboardShortcut keyboardShortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("ctrl N"), null);
-			action.registerCustomShortcutSet(new CustomShortcutSet(keyboardShortcut), fsTree.getTree()); // TODO use generic shortcut?
+			action.registerCustomShortcutSet(new CustomShortcutSet(shortcutsOf("NewElement")), fsTree.getTree());
+
 			CustomizationUtil.installPopupHandler(fsTree.getTree(), "InetlliJEval.Popup", ActionPlaces.UNKNOWN);
+		}
+
+		private static Shortcut[] shortcutsOf(String actionId) {
+			return KeymapManager.getInstance().getActiveKeymap().getShortcuts(actionId);
 		}
 
 		private FileSystemTree createFsTree(Project project) {
 			Ref<FileSystemTree> myFsTreeRef = Ref.create();
 			MyTree myTree = new MyTree(project);
 
-			// handlers must be installed before adding myTree to FileSystemTreeImpl
+			// must be installed before adding tree to FileSystemTreeImpl
 			EditSourceOnDoubleClickHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
-			EditSourceOnEnterKeyHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef)); // TODO doesn't work
 
 			FileSystemTree result = new PluginsFileSystemTree(project, createDescriptor(), myTree, null, null, null);
 			myFsTreeRef.set(result);
+
+			// must be installed after adding tree to FileSystemTreeImpl
+			EditSourceOnEnterKeyHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
+
 			return result;
 		}
 
@@ -197,19 +207,19 @@ public class PluginToolWindowManager {
 			actionGroup.addSeparator();
 			actionGroup.add(new EvaluatePluginAction());
 			actionGroup.add(new EvaluateAllPluginsAction());
-
-			// TODO expand / collapse (all) actions
+			actionGroup.addSeparator();
+			actionGroup.add(withIcon(Util.EXPAND_ALL_ICON, new ExpandAllAction()));
+			actionGroup.add(withIcon(Util.COLLAPSE_ALL_ICON, new CollapseAllAction()));
 
 			toolBarPanel.add(ActionManager.getInstance().createActionToolbar(TOOL_WINDOW_ID, actionGroup, true).getComponent());
 			return toolBarPanel;
 		}
 
-		private ActionGroup createAddActionsGroup() {
+		private AnAction createAddActionsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
-			actionGroup.getTemplatePresentation().setIcon(AllIcons.General.Add);
 			actionGroup.add(new AddNewPluginAction(this));
 			actionGroup.add(new AddPluginAction(this));
-			return actionGroup;
+			return withIcon(Util.ADD_PLUGIN_ICON, actionGroup);
 		}
 
 		public List<String> selectedPluginIds() {
@@ -228,6 +238,11 @@ public class PluginToolWindowManager {
 				}
 			});
 		}
+
+		private static AnAction withIcon(Icon icon, AnAction action) {
+			action.getTemplatePresentation().setIcon(icon);
+			return action;
+		}
 	}
 
 	private static class MySimpleToolWindowPanel extends SimpleToolWindowPanel {
@@ -241,9 +256,11 @@ public class PluginToolWindowManager {
 		@Override public Object getData(@NonNls String dataId) {
 			// this is used by actions like create directory/file
 			if (dataId.equals(FileSystemTree.DATA_KEY.getName())) return fileSystemTree.get();
-			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return FileTypes.PLAIN_TEXT;
+			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return Util.GROOVY_FILE_TYPE;
 			if (dataId.equals(FileChooserKeys.DELETE_ACTION_AVAILABLE.getName())) return true;
 			if (dataId.equals(PlatformDataKeys.VIRTUAL_FILE_ARRAY.getName())) return fileSystemTree.get().getSelectedFiles();
+			if (dataId.equals(PlatformDataKeys.TREE_EXPANDER.getName()))
+				return new DefaultTreeExpander(fileSystemTree.get().getTree());
 			return super.getData(dataId);
 		}
 	}
@@ -269,6 +286,7 @@ public class PluginToolWindowManager {
 
 
 	private static class AddNewPluginAction extends AnAction {
+		private static final Logger LOG = Logger.getInstance(AddNewPluginAction.class);
 		private final PluginToolWindow pluginsToolWindow;
 
 		public AddNewPluginAction(PluginToolWindow pluginsToolWindow) {
@@ -288,10 +306,13 @@ public class PluginToolWindowManager {
 				String text = EvalComponent.defaultPluginScript();
 				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + newPluginName + "/" + EvalComponent.MAIN_SCRIPT), text);
 			} catch (IOException e) {
-				e.printStackTrace(); // TODO
+				Messages.showErrorDialog(
+						event.getProject(),
+						"Error adding plugin \"" + newPluginName + "\" to " + EvalComponent.pluginsRootPath(),
+						"Add Plugin"
+				);
+				LOG.error(e);
 			}
-
-			// TODO open plugin.groovy?
 
 			pluginsToolWindow.reloadPluginRoots(event.getProject());
 		}
@@ -302,6 +323,7 @@ public class PluginToolWindowManager {
 	}
 
 	private static class AddPluginAction extends AnAction {
+		private static final Logger LOG = Logger.getInstance(AddPluginAction.class);
 		private final PluginToolWindow pluginsToolWindow;
 
 		public AddPluginAction(PluginToolWindow pluginsToolWindow) {
@@ -318,16 +340,19 @@ public class PluginToolWindowManager {
 			if (EvalComponent.isInvalidPluginFolder(virtualFile) &&
 					userDoesNotWantToAddFolder(virtualFile, event.getProject())) return;
 
+			File fromDir = new File(virtualFile.getPath());
+			File toDir = new File(EvalComponent.pluginsRootPath() + fromDir.getName());
 			try {
-				File fromDir = new File(virtualFile.getPath());
-				File toDir = new File(EvalComponent.pluginsRootPath() + fromDir.getName());
 				FileUtil.createDirectory(toDir);
 				FileUtil.copyDirContent(fromDir, toDir);
 			} catch (IOException e) {
-				e.printStackTrace(); // TODO
+				Messages.showErrorDialog(
+						event.getProject(),
+						"Error adding plugin \"" + fromDir.getName() + "\" to " + EvalComponent.pluginsRootPath(),
+						"Add Plugin"
+				);
+				LOG.error(e);
 			}
-
-			// TODO eval plugin?
 
 			pluginsToolWindow.reloadPluginRoots(event.getData(PlatformDataKeys.PROJECT));
 		}

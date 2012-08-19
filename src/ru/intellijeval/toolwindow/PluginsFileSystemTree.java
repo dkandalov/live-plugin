@@ -343,10 +343,13 @@ public class PluginsFileSystemTree implements FileSystemTree {
 
 	@Nullable
 	public VirtualFile getNewFileParent() {
-		final VirtualFile selected = getSelectedFile();
-		if (selected != null) return selected;
+		VirtualFile selected = getSelectedFile();
+		if (selected == null) return null;
 
-		return null;
+		if (!selected.isDirectory()) {
+			selected = selected.getParent();
+		}
+		return selected;
 	}
 
 	@NotNull

@@ -2,6 +2,7 @@ package ru.intellijeval;
 
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.util.io.FileUtil;
@@ -22,6 +23,8 @@ import java.util.Map;
  * @author DKandalov
  */
 public class EvalComponent implements ApplicationComponent, Configurable {
+	private static final Logger LOG = Logger.getInstance(EvalComponent.class);
+
 	public static final String COMPONENT_NAME = "EvalComponent";
 	public static final String MAIN_SCRIPT = "plugin.groovy";
 
@@ -59,7 +62,7 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 		try {
 			return FileUtil.loadTextAndClose(EvalComponent.class.getClassLoader().getResourceAsStream("/ru/intellijeval/default-plugin.groovy"));
 		} catch (IOException e) {
-			e.printStackTrace(); // TODO
+			LOG.error(e);
 			return "";
 		}
 	}

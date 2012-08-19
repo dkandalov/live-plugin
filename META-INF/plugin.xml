@@ -28,19 +28,18 @@
 	</application-components>
 
 	<actions>
-		<action id="InetlliJEval.EvalCode" class="ru.intellijeval.EvaluateAllPluginsAction" text="Evaluate in IntelliJ"
-		        description="Reload dynamic plugins" icon="/fileTypes/text.png">
+		<action id="InetlliJEval.EvalCode" class="ru.intellijeval.EvaluatePluginAction" text="Run current plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 		</action>
 
         <group id="InetlliJEval.Popup">
             <action id="InetlliJEval.NewFileAction" class="ru.intellijeval.toolwindow.NewFileAction"
-                    text="New File" icon="AllIcons.FileTypes.Text"/>
+                    text="New Groovy script" icon="/ru/intellijeval/toolwindow/groovy_fileType.png"/>
             <action id="InetlliJEval.NewDirectoryAction" class="ru.intellijeval.toolwindow.fileChooser.actions.NewFolderAction"
                     text="New Directory" icon="AllIcons.Nodes.Folder"/>
             <separator/>
             <action id="InetlliJEval.FileDeleteAction" class="ru.intellijeval.toolwindow.fileChooser.actions.FileDeleteAction"
-                    text="Delete"/>
+                    text="Delete" use-shortcut-of="$Delete"/>
         </group>
 
         <group id="IntellijEval_FileChooserToolbar">

@@ -11,7 +11,10 @@ import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.actions.CloseAction;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +28,11 @@ public class Util {
 	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
 	public static final Icon EVAL_ICON = AllIcons.Actions.Execute;
 	public static final Icon EVAL_ALL_ICON = AllIcons.Actions.RefreshUsages;
+	public static final Icon EXPAND_ALL_ICON = AllIcons.Actions.Expandall;
+	public static final Icon COLLAPSE_ALL_ICON = AllIcons.Actions.Collapseall;
+	public static final Icon GROOVY_FILE_TYPE_ICON = IconLoader.getIcon("/ru/intellijeval/toolwindow/groovy_fileType.png");
 
+	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
 
 	public static void displayInConsole(String header, String text, ConsoleViewContentType contentType, Project project) {
 		ConsoleView console = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();

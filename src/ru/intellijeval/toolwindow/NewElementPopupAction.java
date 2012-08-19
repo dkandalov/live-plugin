@@ -3,11 +3,12 @@ package ru.intellijeval.toolwindow;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.actionSystem.*;
-import ru.intellijeval.toolwindow.fileChooser.actions.NewFolderAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
+import ru.intellijeval.Util;
+import ru.intellijeval.toolwindow.fileChooser.actions.NewFolderAction;
 
 /**
  * User: dima
@@ -28,7 +29,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 				getGroup(),
 				dataContext,
 				false,
-				false,
+				true,
 				false,
 				null,
 				-1,
@@ -41,8 +42,8 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 			@NotNull @Override
 			public AnAction[] getChildren(AnActionEvent e) {
 				return new AnAction[]{
-						new NewFolderAction("Directory", "Directory", AllIcons.Nodes.Folder),
-						new NewFileAction("File", AllIcons.FileTypes.Text)
+						new NewFileAction("Groovy script", Util.GROOVY_FILE_TYPE_ICON),
+						new NewFolderAction("Directory", "Directory", AllIcons.Nodes.Folder)
 				};
 			}
 		};
