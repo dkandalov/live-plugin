@@ -44,13 +44,13 @@ import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
-import ru.intellijeval.toolwindow.fileChooser.FileElement;
-import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
-import ru.intellijeval.toolwindow.fileChooser.ex.FileNodeDescriptor;
-import ru.intellijeval.toolwindow.fileChooser.impl.FileComparator;
-import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeBuilder;
-import ru.intellijeval.toolwindow.fileChooser.impl.FileTreeStructure;
+import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import fork.com.intellij.openapi.fileChooser.FileElement;
+import fork.com.intellij.openapi.fileChooser.FileSystemTree;
+import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
+import fork.com.intellij.openapi.fileChooser.impl.FileComparator;
+import fork.com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
+import fork.com.intellij.openapi.fileChooser.impl.FileTreeStructure;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -66,7 +66,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Fork of {@link ru.intellijeval.toolwindow.fileChooser.ex.FileSystemTreeImpl}.
+ * Fork of {@link fork.com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl}.
  */
 public class PluginsFileSystemTree implements FileSystemTree {
 	private final Tree myTree;

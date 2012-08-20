@@ -52,11 +52,11 @@ import ru.intellijeval.EvalComponent;
 import ru.intellijeval.EvaluateAllPluginsAction;
 import ru.intellijeval.EvaluatePluginAction;
 import ru.intellijeval.Util;
-import ru.intellijeval.toolwindow.fileChooser.FileChooser;
-import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
-import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
-import ru.intellijeval.toolwindow.fileChooser.ex.FileChooserKeys;
-import ru.intellijeval.toolwindow.fileChooser.ex.FileNodeDescriptor;
+import fork.com.intellij.openapi.fileChooser.FileChooser;
+import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import fork.com.intellij.openapi.fileChooser.FileSystemTree;
+import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
+import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
 
 import javax.swing.*;
 import java.awt.*;

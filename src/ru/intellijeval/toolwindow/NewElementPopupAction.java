@@ -8,7 +8,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 import ru.intellijeval.Util;
-import ru.intellijeval.toolwindow.fileChooser.actions.NewFolderAction;
+import fork.com.intellij.openapi.fileChooser.actions.NewFolderAction;
 
 /**
  * User: dima

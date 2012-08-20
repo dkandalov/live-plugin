@@ -6,14 +6,14 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.UIBundle;
-import ru.intellijeval.toolwindow.fileChooser.FileSystemTree;
-import ru.intellijeval.toolwindow.fileChooser.actions.FileChooserAction;
-import ru.intellijeval.toolwindow.fileChooser.ex.FileChooserKeys;
+import fork.com.intellij.openapi.fileChooser.FileSystemTree;
+import fork.com.intellij.openapi.fileChooser.actions.FileChooserAction;
+import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
 
 import javax.swing.*;
 
 /**
- * Fork of {@link ru.intellijeval.toolwindow.fileChooser.actions.NewFileAction}
+ * Fork of {@link fork.com.intellij.openapi.fileChooser.actions.NewFileAction}
  *
  * User: dima
  * Date: 13/08/2012

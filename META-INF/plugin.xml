@@ -35,24 +35,24 @@
         <group id="InetlliJEval.Popup">
             <action id="InetlliJEval.NewFileAction" class="ru.intellijeval.toolwindow.NewFileAction"
                     text="New Groovy script" icon="/ru/intellijeval/toolwindow/groovy_fileType.png"/>
-            <action id="InetlliJEval.NewDirectoryAction" class="ru.intellijeval.toolwindow.fileChooser.actions.NewFolderAction"
+            <action id="InetlliJEval.NewDirectoryAction" class="fork.com.intellij.openapi.fileChooser.actions.NewFolderAction"
                     text="New Directory" icon="AllIcons.Nodes.Folder"/>
             <separator/>
-            <action id="InetlliJEval.FileDeleteAction" class="ru.intellijeval.toolwindow.fileChooser.actions.FileDeleteAction"
+            <action id="InetlliJEval.FileDeleteAction" class="fork.com.intellij.openapi.fileChooser.actions.FileDeleteAction"
                     text="Delete" use-shortcut-of="$Delete"/>
         </group>
 
         <group id="IntellijEval_FileChooserToolbar">
-            <action id="IntellijEval_FileChooser.GotoHome" class="ru.intellijeval.toolwindow.fileChooser.actions.GotoHomeAction" icon="AllIcons.Nodes.HomeFolder"/>
-            <action id="IntellijEval_FileChooser.GotoProject" class="ru.intellijeval.toolwindow.fileChooser.actions.GotoProjectDirectory" icon="AllIcons.Nodes.IdeaProject"/>
+            <action id="IntellijEval_FileChooser.GotoHome" class="fork.com.intellij.openapi.fileChooser.actions.GotoHomeAction" icon="AllIcons.Nodes.HomeFolder"/>
+            <action id="IntellijEval_FileChooser.GotoProject" class="fork.com.intellij.openapi.fileChooser.actions.GotoProjectDirectory" icon="AllIcons.Nodes.IdeaProject"/>
             <separator/>
-            <action id="IntellijEval_FileChooser.NewFile" class="ru.intellijeval.toolwindow.fileChooser.actions.NewFileAction" icon="AllIcons.Actions.New"/>
-            <action id="IntellijEval_FileChooser.NewFolder" class="ru.intellijeval.toolwindow.fileChooser.actions.NewFolderAction" icon="AllIcons.Actions.NewFolder"/>
-            <action id="IntellijEval_FileChooser.Delete" class="ru.intellijeval.toolwindow.fileChooser.actions.FileDeleteAction" icon="AllIcons.Actions.Delete"/>
+            <action id="IntellijEval_FileChooser.NewFile" class="fork.com.intellij.openapi.fileChooser.actions.NewFileAction" icon="AllIcons.Actions.New"/>
+            <action id="IntellijEval_FileChooser.NewFolder" class="fork.com.intellij.openapi.fileChooser.actions.NewFolderAction" icon="AllIcons.Actions.NewFolder"/>
+            <action id="IntellijEval_FileChooser.Delete" class="fork.com.intellij.openapi.fileChooser.actions.FileDeleteAction" icon="AllIcons.Actions.Delete"/>
             <separator/>
-            <action id="IntellijEval_FileChooser.Refresh" class="ru.intellijeval.toolwindow.fileChooser.actions.RefreshFileChooserAction" icon="AllIcons.Actions.Sync"/>
+            <action id="IntellijEval_FileChooser.Refresh" class="fork.com.intellij.openapi.fileChooser.actions.RefreshFileChooserAction" icon="AllIcons.Actions.Sync"/>
             <separator/>
-            <action id="IntellijEval_FileChooser.ShowHiddens" class="ru.intellijeval.toolwindow.fileChooser.actions.ShowHiddensAction" icon="AllIcons.Actions.ShowHiddens"/>
+            <action id="IntellijEval_FileChooser.ShowHiddens" class="fork.com.intellij.openapi.fileChooser.actions.ShowHiddensAction" icon="AllIcons.Actions.ShowHiddens"/>
         </group>
 
     </actions>
