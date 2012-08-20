@@ -34,7 +34,7 @@ public class EvaluatePluginAction extends AnAction {
 
 	@Override
 	public void update(AnActionEvent event) {
-		event.getPresentation().setEnabled(!findCurrentPluginId(event).isEmpty());
+		event.getPresentation().setEnabled(!findCurrentPluginIds(event).isEmpty());
 	}
 
 	private void evalCurrentPlugin(AnActionEvent event) {
@@ -43,7 +43,7 @@ public class EvaluatePluginAction extends AnAction {
 		EvalErrorReporter errorReporter = new EvalErrorReporter();
 		Evaluator evaluator = new Evaluator(errorReporter);
 
-		List<String> pluginIds = findCurrentPluginId(event);
+		List<String> pluginIds = findCurrentPluginIds(event);
 		for (String pluginId : pluginIds) {
 			String path = EvalComponent.pluginToPathMap().get(pluginId);
 			evaluator.doEval(pluginId, path, event);
@@ -53,20 +53,27 @@ public class EvaluatePluginAction extends AnAction {
 		errorReporter.reportEvaluationExceptions(event);
 	}
 
-	private List<String> findCurrentPluginId(AnActionEvent event) {
-		List<String> pluginIds = findPluginsSelectedInToolWindow(event);
-		if (!pluginIds.isEmpty()) return pluginIds;
-
-		return findPluginFromCurrentlyOpenFile(event);
+	private List<String> findCurrentPluginIds(AnActionEvent event) {
+		List<String> pluginIds = pluginsSelectedInToolWindow(event);
+		if (!pluginIds.isEmpty() && pluginToolWindowHasFocus(event)) {
+			return pluginIds;
+		} else {
+			return pluginForCurrentlyOpenFile(event);
+		}
 	}
 
-	private List<String> findPluginsSelectedInToolWindow(AnActionEvent event) {
+	private boolean pluginToolWindowHasFocus(AnActionEvent event) {
+		PluginToolWindow pluginToolWindow = PluginToolWindowManager.getToolWindowFor(event.getProject());
+		return pluginToolWindow != null && pluginToolWindow.hasFocus();
+	}
+
+	private List<String> pluginsSelectedInToolWindow(AnActionEvent event) {
 		PluginToolWindow pluginToolWindow = PluginToolWindowManager.getToolWindowFor(event.getProject());
 		if (pluginToolWindow == null) return Collections.emptyList();
 		return pluginToolWindow.selectedPluginIds();
 	}
 
-	private List<String> findPluginFromCurrentlyOpenFile(AnActionEvent event) {
+	private List<String> pluginForCurrentlyOpenFile(AnActionEvent event) {
 		Project project = event.getProject();
 		if (project == null) return Collections.emptyList();
 		Editor selectedTextEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();

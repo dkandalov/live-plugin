@@ -252,6 +252,10 @@ public class PluginToolWindowManager {
 			});
 		}
 
+		public boolean hasFocus() {
+			return panel.hasFocus();
+		}
+
 		private static List<VirtualFile> findFilesMatchingPluginRoots(VirtualFile[] files) {
 			return ContainerUtil.filter(files, new Condition<VirtualFile>() {
 				@Override public boolean value(VirtualFile file) {
