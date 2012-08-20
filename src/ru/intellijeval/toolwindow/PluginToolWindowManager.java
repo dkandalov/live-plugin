@@ -79,18 +79,36 @@ public class PluginToolWindowManager {
 		return toolWindowsByProject.get(project);
 	}
 
+	public static void reloadAllToolWindows() {
+		for (Map.Entry<Project, PluginToolWindow> entry : toolWindowsByProject.entrySet()) {
+			Project project = entry.getKey();
+			PluginToolWindow toolWindow = entry.getValue();
+
+			toolWindow.reloadPluginRoots(project);
+		}
+	}
+
+	public static void putToolWindow(PluginToolWindow pluginToolWindow, Project project) {
+		toolWindowsByProject.put(project, pluginToolWindow);
+	}
+
+	public static PluginToolWindow removeToolWindow(Project project) {
+		return toolWindowsByProject.remove(project);
+	}
+
 	public PluginToolWindowManager init() {
 		ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
 			@Override
 			public void projectOpened(Project project) {
 				PluginToolWindow pluginToolWindow = new PluginToolWindow();
 				pluginToolWindow.registerWindowFor(project);
-				toolWindowsByProject.put(project, pluginToolWindow);
+
+				putToolWindow(pluginToolWindow, project);
 			}
 
 			@Override
 			public void projectClosed(Project project) {
-				PluginToolWindow pluginToolWindow = toolWindowsByProject.get(project);
+				PluginToolWindow pluginToolWindow = removeToolWindow(project);
 				if (pluginToolWindow != null) pluginToolWindow.unregisterWindowFrom(project);
 			}
 
@@ -202,11 +220,9 @@ public class PluginToolWindowManager {
 		private JComponent createToolBar() {
 			JPanel toolBarPanel = new JPanel(new GridLayout());
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
-
 			actionGroup.add(createAddActionsGroup());
 			actionGroup.add(new DeletePluginAction(this, myFsTreeRef));
 			// TODO add refresh button?
-			// TODO updates in multiple project setup don't work
 			actionGroup.addSeparator();
 			actionGroup.add(new EvaluatePluginAction());
 			actionGroup.add(new EvaluateAllPluginsAction());
@@ -220,8 +236,8 @@ public class PluginToolWindowManager {
 
 		private AnAction createAddActionsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
-			actionGroup.add(new AddNewPluginAction(this));
-			actionGroup.add(new AddPluginAction(this));
+			actionGroup.add(new AddNewPluginAction());
+			actionGroup.add(new AddPluginAction());
 			// TODO add examples (call them templates?)
 			return withIcon(Util.ADD_PLUGIN_ICON, actionGroup);
 		}
@@ -302,11 +318,9 @@ public class PluginToolWindowManager {
 
 	private static class AddNewPluginAction extends AnAction {
 		private static final Logger LOG = Logger.getInstance(AddNewPluginAction.class);
-		private final PluginToolWindow pluginsToolWindow;
 
-		public AddNewPluginAction(PluginToolWindow pluginsToolWindow) {
+		public AddNewPluginAction() {
 			super("Add new plugin");
-			this.pluginsToolWindow = pluginsToolWindow;
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
@@ -331,7 +345,7 @@ public class PluginToolWindowManager {
 				LOG.error(e);
 			}
 
-			pluginsToolWindow.reloadPluginRoots(event.getProject());
+			reloadAllToolWindows();
 		}
 
 		private boolean pluginExists(String newPluginName) {
@@ -341,11 +355,9 @@ public class PluginToolWindowManager {
 
 	private static class AddPluginAction extends AnAction {
 		private static final Logger LOG = Logger.getInstance(AddPluginAction.class);
-		private final PluginToolWindow pluginsToolWindow;
 
-		public AddPluginAction(PluginToolWindow pluginsToolWindow) {
+		public AddPluginAction() {
 			super("Add plugin from disk");
-			this.pluginsToolWindow = pluginsToolWindow;
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
@@ -373,7 +385,7 @@ public class PluginToolWindowManager {
 				LOG.error(e);
 			}
 
-			pluginsToolWindow.reloadPluginRoots(event.getData(PlatformDataKeys.PROJECT));
+			reloadAllToolWindows();
 		}
 
 		private static VirtualFile[] getFileSystemRoots() {
@@ -425,7 +437,8 @@ public class PluginToolWindowManager {
 				String pluginPath = virtualFile.getPath();
 				FileUtil.delete(new File(pluginPath));
 			}
-			pluginsToolWindow.reloadPluginRoots(event.getData(PlatformDataKeys.PROJECT));
+
+			reloadAllToolWindows();
 		}
 
 		@Override public void update(AnActionEvent e) {
