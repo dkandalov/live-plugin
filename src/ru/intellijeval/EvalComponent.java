@@ -29,16 +29,23 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 
 	public static final String COMPONENT_NAME = "EvalComponent";
 	public static final String MAIN_SCRIPT = "plugin.groovy";
-	private static final String DEFAULT_PLUGIN_PATH = "/ru/intellijeval/plugins/default-plugin.groovy";
+
+	private static final String DEFAULT_PLUGIN_PATH = "/ru/intellijeval/exampleplugins/default-plugin.groovy";
+	private static final String DEFAULT_IDEA_OUTPUT_FOLDER = "out";
 
 	public static String pluginsRootPath() {
 		return PathManager.getPluginsPath() + "/intellij-eval-plugins/";
 	}
 
 	public static Map<String, String> pluginToPathMap() {
+		final boolean containsIdeaProjectFolder = new File(pluginsRootPath() + "/" + DIRECTORY_STORE_FOLDER).exists();
+
 		File[] files = new File(pluginsRootPath()).listFiles(new FileFilter() {
+			@SuppressWarnings("SimplifiableIfStatement")
 			@Override public boolean accept(File file) {
-				return file.isDirectory() && !file.getName().equals(DIRECTORY_STORE_FOLDER);
+				if (containsIdeaProjectFolder && file.getName().equals(DEFAULT_IDEA_OUTPUT_FOLDER)) return false;
+				if (file.getName().equals(DIRECTORY_STORE_FOLDER)) return false;
+				return file.isDirectory();
 			}
 		});
 		if (files == null) return new HashMap<String, String>();
