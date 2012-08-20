@@ -27,6 +27,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -45,6 +46,11 @@ import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
+import fork.com.intellij.openapi.fileChooser.FileChooser;
+import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import fork.com.intellij.openapi.fileChooser.FileSystemTree;
+import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
+import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
 import git4idea.Notificator;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -52,11 +58,6 @@ import ru.intellijeval.EvalComponent;
 import ru.intellijeval.EvaluateAllPluginsAction;
 import ru.intellijeval.EvaluatePluginAction;
 import ru.intellijeval.Util;
-import fork.com.intellij.openapi.fileChooser.FileChooser;
-import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import fork.com.intellij.openapi.fileChooser.FileSystemTree;
-import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
-import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -222,7 +223,7 @@ public class PluginToolWindowManager {
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
 			actionGroup.add(createAddActionsGroup());
 			actionGroup.add(new DeletePluginAction(this, myFsTreeRef));
-			// TODO add refresh button?
+			actionGroup.add(new RefreshPluginListAction());
 			actionGroup.addSeparator();
 			actionGroup.add(new EvaluatePluginAction());
 			actionGroup.add(new EvaluateAllPluginsAction());
@@ -422,7 +423,7 @@ public class PluginToolWindowManager {
 		private final PluginToolWindow pluginsToolWindow;
 		private final Ref<FileSystemTree> fileSystemTree;
 
-		private DeletePluginAction(PluginToolWindow pluginsToolWindow, Ref<FileSystemTree> fileSystemTree) {
+		public DeletePluginAction(PluginToolWindow pluginsToolWindow, Ref<FileSystemTree> fileSystemTree) {
 			super("Delete plugin", "Delete plugin", Util.DELETE_PLUGIN_ICON);
 			this.pluginsToolWindow = pluginsToolWindow;
 			this.fileSystemTree = fileSystemTree;
@@ -471,6 +472,24 @@ public class PluginToolWindowManager {
 					Messages.getQuestionIcon()
 			);
 			return returnValue != 0;
+		}
+	}
+
+	private static class RefreshPluginListAction extends AnAction {
+
+		public RefreshPluginListAction() {
+			super("Refresh plugin list", "Refresh plugin list", Util.REFRESH_PLUGIN_LIST_ICON);
+		}
+
+		@Override public void actionPerformed(AnActionEvent e) {
+			VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + EvalComponent.pluginsRootPath());
+			if (pluginsRoot == null) return;
+
+			RefreshQueue.getInstance().refresh(true, true, new Runnable() {
+				@Override public void run() {
+					reloadAllToolWindows();
+				}
+			}, pluginsRoot);
 		}
 	}
 

@@ -25,6 +25,7 @@ import java.awt.*;
 public class Util {
 	public static final Icon ADD_PLUGIN_ICON = AllIcons.General.Add;
 	public static final Icon DELETE_PLUGIN_ICON = AllIcons.General.Remove;
+	public static final Icon REFRESH_PLUGIN_LIST_ICON = AllIcons.Actions.Sync;
 	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
 	public static final Icon EVAL_ICON = AllIcons.Actions.Execute;
 	public static final Icon EVAL_ALL_ICON = AllIcons.Actions.RefreshUsages;
