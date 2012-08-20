@@ -22,15 +22,14 @@ package ru.intellijeval.toolwindow.fileChooser.impl;
 import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.AbstractTreeStructure;
 import com.intellij.ide.util.treeView.NodeDescriptor;
-import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
-import ru.intellijeval.toolwindow.fileChooser.FileElement;
-import ru.intellijeval.toolwindow.fileChooser.ex.RootFileElement;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.util.StatusBarProgress;
-import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.intellijeval.toolwindow.fileChooser.FileChooserDescriptor;
+import ru.intellijeval.toolwindow.fileChooser.FileElement;
+import ru.intellijeval.toolwindow.fileChooser.ex.RootFileElement;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
@@ -106,11 +105,11 @@ public class FileTreeBuilder extends AbstractTreeBuilder {
   protected boolean isAutoExpandNode(NodeDescriptor nodeDescriptor) {
     if (nodeDescriptor.getElement() instanceof RootFileElement) {
       return true;
-    } else if (!SystemInfo.isWindows) {
-      NodeDescriptor parent = nodeDescriptor.getParentDescriptor();
-      return parent != null && parent.getElement() instanceof RootFileElement;
+	// CHANGED: because it caused plugins to expand on hide/show plugin tool window
+//    } else if (!SystemInfo.isWindows) {
+//      NodeDescriptor parent = nodeDescriptor.getParentDescriptor();
+//      return parent != null && parent.getElement() instanceof RootFileElement;
     }
-
     return false;
   }
 
