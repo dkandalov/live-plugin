@@ -13,7 +13,7 @@ static show(String htmlBody, String title = "", notificationType = NotificationT
 	((Notifications) NotificationsManager.notificationsManager).notify(notification)
 }
 
-static registerAction(String actionId, String keyStroke = "", String secondKeyStroke = "", Closure closure) {
+static registerAction(String actionId, String keyStroke = "", Closure closure) {
 	def actionManager = ActionManager.instance
 	def keymap = KeymapManager.instance.activeKeymap
 
@@ -33,6 +33,6 @@ static registerAction(String actionId, String keyStroke = "", String secondKeySt
 	show("Plugin '${actionId}' reloaded")
 }
 
-registerAction("HelloWorldAction", "ctrl shift alt H") {
+registerAction("HelloWorldAction", "ctrl shift alt H", {
 	show("Hello IntelliJ from action")
-}
+})

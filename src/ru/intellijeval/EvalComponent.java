@@ -30,7 +30,9 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 	public static final String COMPONENT_NAME = "EvalComponent";
 	public static final String MAIN_SCRIPT = "plugin.groovy";
 
-	private static final String DEFAULT_PLUGIN_PATH = "/ru/intellijeval/exampleplugins/default-plugin.groovy";
+	private static final String DEFAULT_PLUGIN_PATH = "/ru/intellijeval/exampleplugins";
+	private static final String DEFAULT_PLUGIN_SCRIPT = "default-plugin.groovy";
+
 	private static final String DEFAULT_IDEA_OUTPUT_FOLDER = "out";
 
 	public static String pluginsRootPath() {
@@ -69,12 +71,21 @@ public class EvalComponent implements ApplicationComponent, Configurable {
 	}
 
 	public static String defaultPluginScript() {
+		return readSampleScriptFile(DEFAULT_PLUGIN_PATH, DEFAULT_PLUGIN_SCRIPT);
+	}
+
+	public static String readSampleScriptFile(String pluginPath, String file) {
 		try {
-			return FileUtil.loadTextAndClose(EvalComponent.class.getClassLoader().getResourceAsStream(DEFAULT_PLUGIN_PATH));
+			String path = pluginPath + "/" + file;
+			return FileUtil.loadTextAndClose(EvalComponent.class.getClassLoader().getResourceAsStream(path));
 		} catch (IOException e) {
 			LOG.error(e);
 			return "";
 		}
+	}
+
+	public static boolean pluginExists(String pluginId) {
+		return pluginToPathMap().keySet().contains(pluginId);
 	}
 
 	@Override

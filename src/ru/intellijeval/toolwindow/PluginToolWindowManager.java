@@ -66,6 +66,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+import static ru.intellijeval.EvalComponent.pluginExists;
+
 /**
  * User: dima
  * Date: 11/08/2012
@@ -221,7 +224,7 @@ public class PluginToolWindowManager {
 		private JComponent createToolBar() {
 			JPanel toolBarPanel = new JPanel(new GridLayout());
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
-			actionGroup.add(createAddActionsGroup());
+			actionGroup.add(createAddPluginsGroup());
 			actionGroup.add(new DeletePluginAction(this, myFsTreeRef));
 			actionGroup.add(new RefreshPluginListAction());
 			actionGroup.addSeparator();
@@ -235,12 +238,20 @@ public class PluginToolWindowManager {
 			return toolBarPanel;
 		}
 
-		private AnAction createAddActionsGroup() {
+		private AnAction createAddPluginsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
 			actionGroup.add(new AddNewPluginAction());
-			actionGroup.add(new AddPluginAction());
-			// TODO add examples (call them templates?)
+			actionGroup.add(new AddPluginFromDiskAction());
+			actionGroup.add(createAddPluginsExamplesGroup());
 			return withIcon(Util.ADD_PLUGIN_ICON, actionGroup);
+		}
+
+		private AnAction createAddPluginsExamplesGroup() {
+			DefaultActionGroup actionGroup = new DefaultActionGroup("Example", true);
+			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorld", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorldAction", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloPopupAction", asList("plugin.groovy")));
+			return actionGroup;
 		}
 
 		public List<String> selectedPluginIds() {
@@ -325,25 +336,27 @@ public class PluginToolWindowManager {
 		private static final Logger LOG = Logger.getInstance(AddNewPluginAction.class);
 
 		public AddNewPluginAction() {
-			super("Add new plugin");
+			super("New plugin");
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
-			String newPluginName = Messages.showInputDialog(event.getProject(), "Enter new plugin name:", "New Plugin", null);
+			String newPluginId = Messages.showInputDialog(event.getProject(), "Enter new plugin name:", "New Plugin", null);
 
-			if (pluginExists(newPluginName)) {
-				Messages.showErrorDialog(event.getProject(), "Plugin \"" + newPluginName + "\" already exists.", "New Plugin");
+			if (pluginExists(newPluginId)) {
+				Messages.showErrorDialog(event.getProject(), "Plugin \"" + newPluginId + "\" already exists.", "New Plugin");
 				return;
 			}
 
 			try {
+
 				String text = EvalComponent.defaultPluginScript();
-				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + newPluginName + "/" + EvalComponent.MAIN_SCRIPT), text);
+				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + newPluginId + "/" + EvalComponent.MAIN_SCRIPT), text);
+
 			} catch (IOException e) {
 				Project project = event.getProject();
 				if (project != null) {
 					Notificator.getInstance(project).notifyError(
-							"Error adding plugin \"" + newPluginName + "\" to " + EvalComponent.pluginsRootPath(),
+							"Error adding plugin \"" + newPluginId + "\" to " + EvalComponent.pluginsRootPath(),
 							"Add Plugin"
 					);
 				}
@@ -352,17 +365,64 @@ public class PluginToolWindowManager {
 
 			reloadAllToolWindows();
 		}
+	}
 
-		private boolean pluginExists(String newPluginName) {
-			return EvalComponent.pluginToPathMap().keySet().contains(newPluginName);
+	private static class AddExamplePluginAction extends AnAction {
+		private static final Logger LOG = Logger.getInstance(AddExamplePluginAction.class);
+
+		private final String pluginPath;
+		private final List<String> sampleFiles;
+		private final String pluginId;
+
+		public AddExamplePluginAction(String pluginPath, List<String> sampleFiles) {
+			this.pluginPath = pluginPath;
+			this.sampleFiles = sampleFiles;
+			this.pluginId = extractIdFrom(pluginPath);
+
+			getTemplatePresentation().setText(pluginId);
+		}
+
+		@Override public void actionPerformed(AnActionEvent event) {
+			for (String file : sampleFiles) {
+				try {
+
+					String text = EvalComponent.readSampleScriptFile(pluginPath, file);
+					FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + pluginId + "/" + file), text);
+
+				} catch (IOException e) {
+					logException(e, event);
+				}
+			}
+
+			reloadAllToolWindows();
+		}
+
+		@Override public void update(AnActionEvent event) {
+			event.getPresentation().setEnabled(!pluginExists(pluginId));
+		}
+
+		private static String extractIdFrom(String pluginPath) {
+			String[] split = pluginPath.split("/");
+			return split[split.length - 1];
+		}
+
+		private void logException(IOException e, AnActionEvent event) {
+			Project project = event.getProject();
+			if (project != null) {
+				Notificator.getInstance(project).notifyError(
+						"Error adding plugin \"" + pluginPath + "\" to " + EvalComponent.pluginsRootPath(),
+						"Add Plugin"
+				);
+			}
+			LOG.error(e);
 		}
 	}
 
-	private static class AddPluginAction extends AnAction {
-		private static final Logger LOG = Logger.getInstance(AddPluginAction.class);
+	private static class AddPluginFromDiskAction extends AnAction {
+		private static final Logger LOG = Logger.getInstance(AddPluginFromDiskAction.class);
 
-		public AddPluginAction() {
-			super("Add plugin from disk");
+		public AddPluginFromDiskAction() {
+			super("Plugin from disk");
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
@@ -458,14 +518,14 @@ public class PluginToolWindowManager {
 			e.getPresentation().setEnabled(anyPluginPathSelected);
 		}
 
-		private static boolean userDoesNotWantToRemovePlugins(List<String> pluginNames, Project project) {
+		private static boolean userDoesNotWantToRemovePlugins(List<String> pluginIds, Project project) {
 			String message;
-			if (pluginNames.size() == 1) {
-				message = "Do you want to delete plugin \"" + pluginNames.get(0) + "\"?";
-			} else if (pluginNames.size() == 2) {
-				message = "Do you want to delete plugin \"" + pluginNames.get(0) + "\" and \"" + pluginNames.get(1) + "\"?";
+			if (pluginIds.size() == 1) {
+				message = "Do you want to delete plugin \"" + pluginIds.get(0) + "\"?";
+			} else if (pluginIds.size() == 2) {
+				message = "Do you want to delete plugin \"" + pluginIds.get(0) + "\" and \"" + pluginIds.get(1) + "\"?";
 			} else {
-				message = "Do you want to delete plugins \"" + StringUtil.join(pluginNames, ", ") + "\"?";
+				message = "Do you want to delete plugins \"" + StringUtil.join(pluginIds, ", ") + "\"?";
 			}
 			int returnValue = Messages.showOkCancelDialog(
 					project,
