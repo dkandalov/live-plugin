@@ -64,7 +64,7 @@ public class EvaluatePluginAction extends AnAction {
 
 	private boolean pluginToolWindowHasFocus(AnActionEvent event) {
 		PluginToolWindow pluginToolWindow = PluginToolWindowManager.getToolWindowFor(event.getProject());
-		return pluginToolWindow != null && pluginToolWindow.hasFocus();
+		return pluginToolWindow != null && pluginToolWindow.isActive();
 	}
 
 	private List<String> pluginsSelectedInToolWindow(AnActionEvent event) {

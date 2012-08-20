@@ -131,10 +131,11 @@ public class PluginToolWindowManager {
 	public static class PluginToolWindow {
 		private Ref<FileSystemTree> myFsTreeRef = Ref.create();
 		private SimpleToolWindowPanel panel;
+		private ToolWindow toolWindow;
 
-		private void registerWindowFor(Project project) {
+		public void registerWindowFor(Project project) {
 			ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-			ToolWindow toolWindow = toolWindowManager.registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
+			toolWindow = toolWindowManager.registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
 			toolWindow.setIcon(Util.PLUGIN_ICON);
 
 			toolWindow.getContentManager().addContent(createContent(project));
@@ -263,8 +264,8 @@ public class PluginToolWindowManager {
 			});
 		}
 
-		public boolean hasFocus() {
-			return panel.hasFocus();
+		public boolean isActive() {
+			return toolWindow.isActive();
 		}
 
 		private static List<VirtualFile> findFilesMatchingPluginRoots(VirtualFile[] files) {
