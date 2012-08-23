@@ -1,7 +1,5 @@
 import com.intellij.codeInsight.daemon.GroupNames
-import com.intellij.codeInspection.BaseJavaLocalInspectionTool
-import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.*
 import com.intellij.codeInspection.ex.InspectionProfileImpl
 import com.intellij.codeInspection.ex.InspectionToolRegistrar
 import com.intellij.codeInspection.ex.InspectionToolWrapper
@@ -14,14 +12,10 @@ import com.intellij.notification.NotificationsManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Factory
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
-import com.intellij.psi.JavaElementVisitor
-import com.intellij.psi.PsiElementVisitor
-import com.intellij.psi.PsiLiteralExpression
+import com.intellij.psi.*
 
 
-// TODO review this
-
-class SwearDetector extends BaseJavaLocalInspectionTool {
+class HelloWorldInspection extends BaseJavaLocalInspectionTool {
 	@Override String getGroupDisplayName() { GroupNames.BUGS_GROUP_NAME }
 
 	@Override String getDisplayName() { "Detects swear words" }
@@ -34,11 +28,23 @@ class SwearDetector extends BaseJavaLocalInspectionTool {
 		new JavaElementVisitor() {
 			@Override void visitLiteralExpression(PsiLiteralExpression expression) {
 				super.visitLiteralExpression(expression)
-				if (expression.type.equalsToText("java.lang.String") && expression.value == "asdf") {
-					holder.registerProblem(expression, "Found swear word")
+				if (expression.type.equalsToText("java.lang.String") && expression.value == "hello") {
+					holder.registerProblem(expression, "Found swear word", new HelloWorldQuickFix())
 				}
 			}
 		}
+	}
+}
+
+class HelloWorldQuickFix implements LocalQuickFix {
+	@Override String getName() { 'Replace with "Hello World"' }
+
+	@Override String getFamilyName() { name }
+
+	@Override void applyFix(Project project, ProblemDescriptor descriptor) {
+		def factory = JavaPsiFacade.getInstance(project).elementFactory
+		def stringLiteral = factory.createExpressionFromText('"Hello World"', null)
+		descriptor.psiElement.replace(stringLiteral)
 	}
 }
 
@@ -46,7 +52,6 @@ static show(String htmlBody, String title = "", notificationType = NotificationT
 	def notification = new Notification("", title, htmlBody, notificationType)
 	((Notifications) NotificationsManager.notificationsManager).notify(notification)
 }
-
 
 static addInspection(Project project, Closure<LocalInspectionTool> inspectionFactory) {
 	def registrar = new InspectionToolRegistrar(SearchableOptionsRegistrar.instance)
@@ -71,6 +76,8 @@ static addInspection(Project project, Closure<LocalInspectionTool> inspectionFac
 	projectProfileManager.projectProfile = newProfile.name
 }
 
-addInspection(event.project, { new SwearDetector() })
+// TODO review this
 
-show("eval inspection")
+addInspection(event.project, { new HelloWorldInspection() })
+
+show("evaluated hello world inspection")
