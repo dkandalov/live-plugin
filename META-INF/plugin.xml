@@ -28,9 +28,10 @@
 	</application-components>
 
 	<actions>
-		<action id="InetlliJEval.EvalCode" class="ru.intellijeval.EvaluatePluginAction" text="Run current plugin">
+		<action id="InetlliJEval.EvalPlugin" class="ru.intellijeval.EvaluatePluginAction" text="Run current plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 		</action>
+		<action id="InetlliJEval.EvalAllPlugins" class="ru.intellijeval.EvaluateAllPluginsAction" text="Run all plugins"/>
 
         <group id="InetlliJEval.Popup">
             <action id="InetlliJEval.NewFileAction" class="ru.intellijeval.toolwindow.NewFileAction"

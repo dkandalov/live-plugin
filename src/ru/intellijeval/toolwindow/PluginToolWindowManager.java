@@ -53,10 +53,7 @@ import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
 import git4idea.Notificator;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
-import ru.intellijeval.EvalComponent;
-import ru.intellijeval.EvaluateAllPluginsAction;
-import ru.intellijeval.EvaluatePluginAction;
-import ru.intellijeval.Util;
+import ru.intellijeval.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -224,7 +221,7 @@ public class PluginToolWindowManager {
 		private JComponent createToolBar() {
 			JPanel toolBarPanel = new JPanel(new GridLayout());
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
-			actionGroup.add(createAddPluginsGroup());
+			actionGroup.add(withIcon(Util.ADD_PLUGIN_ICON, createAddPluginsGroup()));
 			actionGroup.add(new DeletePluginAction(this, myFsTreeRef));
 			actionGroup.add(new RefreshPluginListAction());
 			actionGroup.addSeparator();
@@ -233,9 +230,27 @@ public class PluginToolWindowManager {
 			actionGroup.addSeparator();
 			actionGroup.add(withIcon(Util.EXPAND_ALL_ICON, new ExpandAllAction()));
 			actionGroup.add(withIcon(Util.COLLAPSE_ALL_ICON, new CollapseAllAction()));
+			actionGroup.add(withIcon(Util.SETTINGS_ICON, createSettingsGroup()));
 
-			toolBarPanel.add(ActionManager.getInstance().createActionToolbar(TOOL_WINDOW_ID, actionGroup, true).getComponent());
+			// this is a "hack" to force drop-down box appear below button
+			// (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
+			String place = ActionPlaces.EDITOR_TOOLBAR;
+			toolBarPanel.add(ActionManager.getInstance().createActionToolbar(place, actionGroup, true).getComponent());
 			return toolBarPanel;
+		}
+
+		private AnAction createSettingsGroup() {
+			DefaultActionGroup actionGroup = new DefaultActionGroup("Settings", true);
+			actionGroup.add(new ToggleAction("Run all on IDE start") {
+				@Override public boolean isSelected(AnActionEvent event) {
+					return Settings.getInstance().runAllPluginsOnIDEStartup;
+				}
+
+				@Override public void setSelected(AnActionEvent event, boolean state) {
+					Settings.getInstance().runAllPluginsOnIDEStartup = state;
+				}
+			});
+			return actionGroup;
 		}
 
 		private AnAction createAddPluginsGroup() {
@@ -243,7 +258,7 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddNewPluginAction());
 			actionGroup.add(new AddPluginFromDiskAction());
 			actionGroup.add(createAddPluginsExamplesGroup());
-			return withIcon(Util.ADD_PLUGIN_ICON, actionGroup);
+			return actionGroup;
 		}
 
 		private AnAction createAddPluginsExamplesGroup() {

@@ -1,11 +1,18 @@
 package ru.intellijeval;
 
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.intellijeval.toolwindow.PluginToolWindowManager;
 
 import java.io.File;
@@ -90,15 +97,45 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	public void initComponent() {
 		Settings settings = Settings.getInstance();
 		if (settings.justInstalled) {
-			ExamplePluginInstaller pluginInstaller = new ExamplePluginInstaller("/ru/intellijeval/exampleplugins/helloWorld", asList("plugin.groovy"));
-			pluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
-				@Override public void onException(Exception e, String pluginPath) {
-					LOG.warn("Failed to install plugin: " + pluginPath, e);
-				}
-			});
+			installHelloWorldPlugin();
 			settings.justInstalled = false;
 		}
+		if (settings.runAllPluginsOnIDEStartup) {
+			runAllPlugins();
+		}
+
 		new PluginToolWindowManager().init();
+	}
+
+	private static void runAllPlugins() {
+		final AnAction action = ActionManager.getInstance().getAction("InetlliJEval.EvalAllPlugins");
+		DataContext dummyDataContext = new DataContext() {
+			@Nullable @Override public Object getData(@NonNls String dataId) {
+				return null;
+			}
+		};
+		final AnActionEvent event = new AnActionEvent(
+				null,
+				dummyDataContext,
+				Evaluator.RUN_ALL_PLUGINS_ON_IDE_START,
+				action.getTemplatePresentation(),
+				ActionManager.getInstance(),
+				0
+		);
+		ApplicationManager.getApplication().invokeLater(new Runnable() {
+			@Override public void run() {
+				action.actionPerformed(event);
+			}
+		});
+	}
+
+	private static void installHelloWorldPlugin() {
+		ExamplePluginInstaller pluginInstaller = new ExamplePluginInstaller("/ru/intellijeval/exampleplugins/helloWorld", asList("plugin.groovy"));
+		pluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
+			@Override public void onException(Exception e, String pluginPath) {
+				LOG.warn("Failed to install plugin: " + pluginPath, e);
+			}
+		});
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import java.util.*;
  * Date: 17/08/2012
  */
 class Evaluator {
+	public static final String RUN_ALL_PLUGINS_ON_IDE_START = "RUN_ALL_PLUGINS_ON_IDE_START";
 	private static final String CLASSPATH_PREFIX = "// add-to-classpath ";
 
 	private final EvalErrorReporter errorReporter;
@@ -38,6 +39,7 @@ class Evaluator {
 			Binding binding = new Binding();
 			binding.setVariable("event", event);
 			binding.setVariable("project", event.getProject());
+			binding.setVariable("isIdeStartup", event.getPlace().equals(RUN_ALL_PLUGINS_ON_IDE_START));
 			scriptEngine.run(mainScriptPath, binding);
 
 		} catch (IOException e) {

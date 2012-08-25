@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 @State(name = "IntellijEvalSettings", storages = {@Storage(id = "other", file = "$APP_CONFIG$/intellij-eval.xml")})
 public class Settings implements PersistentStateComponent<Settings> {
 	public boolean justInstalled = true;
+	public boolean runAllPluginsOnIDEStartup = false;
 
 	public static Settings getInstance() {
 		return ServiceManager.getService(Settings.class);

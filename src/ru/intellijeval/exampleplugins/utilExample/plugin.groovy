@@ -16,10 +16,10 @@ show(event.project.name, "Project")
 // external class
 show(AClass.produceAString(), "Hello")
 
-// shows text in console (useful for large texts and stacktraces)
+// shows text in console (useful for stacktraces or if text is large)
 showInConsole("Hello console", event.project)
 
-// shows exception stacktrace in console
+// shows exception's stacktrace in console
 showExceptionInConsole(new IllegalStateException(), event.project)
 
 registerAction("My Action", "ctrl alt shift H") {

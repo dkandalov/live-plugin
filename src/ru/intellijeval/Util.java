@@ -33,6 +33,7 @@ public class Util {
 	public static final Icon EVAL_ALL_ICON = AllIcons.Actions.RefreshUsages;
 	public static final Icon EXPAND_ALL_ICON = AllIcons.Actions.Expandall;
 	public static final Icon COLLAPSE_ALL_ICON = AllIcons.Actions.Collapseall;
+	public static final Icon SETTINGS_ICON = AllIcons.Actions.ShowSettings;
 	public static final Icon GROOVY_FILE_TYPE_ICON = IconLoader.getIcon("/ru/intellijeval/toolwindow/groovy_fileType.png");
 
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
