@@ -262,7 +262,7 @@ public class PluginToolWindowManager {
 		}
 
 		private AnAction createAddPluginsExamplesGroup() {
-			DefaultActionGroup actionGroup = new DefaultActionGroup("Example", true);
+			final DefaultActionGroup actionGroup = new DefaultActionGroup("Example", true);
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorld", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorldAction", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloPopupAction", asList("plugin.groovy")));
@@ -272,6 +272,17 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloFileStats", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/utilExample", asList("plugin.groovy", "util/AClass.groovy")));
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/classpathExample", asList("plugin.groovy")));
+			actionGroup.addSeparator();
+			actionGroup.add(new AnAction("Add all") {
+				@Override public void actionPerformed(AnActionEvent e) {
+					AnAction[] actions = actionGroup.getChildActionsOrStubs();
+					for (AnAction action : actions) {
+						if (action instanceof AddExamplePluginAction) {
+							Util.runAction(action, "ADD_ALL_EXAMPLES");
+						}
+					}
+				}
+			});
 			return actionGroup;
 		}
 

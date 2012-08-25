@@ -17,6 +17,8 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,6 +39,12 @@ public class Util {
 	public static final Icon GROOVY_FILE_TYPE_ICON = IconLoader.getIcon("/ru/intellijeval/toolwindow/groovy_fileType.png");
 
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
+
+	private static final DataContext DUMMY_DATA_CONTEXT = new DataContext() {
+		@Nullable @Override public Object getData(@NonNls String dataId) {
+			return null;
+		}
+	};
 
 	public static void displayInConsole(String header, String text, ConsoleViewContentType contentType, Project project) {
 		ConsoleView console = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
@@ -67,6 +75,22 @@ public class Util {
 		ApplicationManager.getApplication().runWriteAction(new Runnable() {
 			public void run() {
 				FileDocumentManager.getInstance().saveAllDocuments();
+			}
+		});
+	}
+
+	public static void runAction(final AnAction action, String place) {
+		final AnActionEvent event = new AnActionEvent(
+				null,
+				DUMMY_DATA_CONTEXT,
+				place,
+				action.getTemplatePresentation(),
+				ActionManager.getInstance(),
+				0
+		);
+		ApplicationManager.getApplication().invokeLater(new Runnable() {
+			@Override public void run() {
+				action.actionPerformed(event);
 			}
 		});
 	}
