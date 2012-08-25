@@ -36,7 +36,7 @@ public class EvalComponent implements ApplicationComponent, Configurable { // TO
 	private static final String DEFAULT_IDEA_OUTPUT_FOLDER = "out";
 
 	public static String pluginsRootPath() {
-		return PathManager.getPluginsPath() + "/intellij-eval-plugins/";
+		return PathManager.getPluginsPath() + "/intellij-eval-plugins";
 	}
 
 	public static Map<String, String> pluginToPathMap() {

@@ -19,7 +19,6 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -260,7 +259,7 @@ public class PluginToolWindowManager {
 		}
 
 		public List<String> selectedPluginIds() {
-			List<VirtualFile> rootFiles = findFilesMatchingPluginRoots(myFsTreeRef.get().getSelectedFiles());
+			Collection<VirtualFile> rootFiles = findFilesMatchingPluginRoots(myFsTreeRef.get().getSelectedFiles());
 			return ContainerUtil.map(rootFiles, new Function<VirtualFile, String>() {
 				@Override public String fun(VirtualFile virtualFile) {
 					return virtualFile.getName();
@@ -272,12 +271,19 @@ public class PluginToolWindowManager {
 			return toolWindow.isActive();
 		}
 
-		private static List<VirtualFile> findFilesMatchingPluginRoots(VirtualFile[] files) {
-			return ContainerUtil.filter(files, new Condition<VirtualFile>() {
-				@Override public boolean value(VirtualFile file) {
-					return EvalComponent.pluginToPathMap().values().contains(file.getPath());
-				}
-			});
+		private static Collection<VirtualFile> findFilesMatchingPluginRoots(VirtualFile[] files) {
+			Set<VirtualFile> selectedPluginRoots = new HashSet<VirtualFile>();
+			for (VirtualFile file : files) {
+				VirtualFile root = pluginFolderOf(file);
+				if (root != null) selectedPluginRoots.add(root);
+			}
+			return selectedPluginRoots;
+		}
+
+		private static VirtualFile pluginFolderOf(VirtualFile file) {
+			if (file.getParent() == null) return null;
+			if (!file.getParent().getPath().equals(EvalComponent.pluginsRootPath())) return pluginFolderOf(file.getParent());
+			return file;
 		}
 
 		private static AnAction withIcon(Icon icon, AnAction action) {
@@ -355,7 +361,7 @@ public class PluginToolWindowManager {
 			try {
 
 				String text = EvalComponent.defaultPluginScript();
-				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + newPluginId + "/" + EvalComponent.MAIN_SCRIPT), text);
+				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + "/" + newPluginId + "/" + EvalComponent.MAIN_SCRIPT), text);
 
 			} catch (IOException e) {
 				Project project = event.getProject();
@@ -392,7 +398,7 @@ public class PluginToolWindowManager {
 				try {
 
 					String text = EvalComponent.readSampleScriptFile(pluginPath, file);
-					FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + pluginId + "/" + file), text);
+					FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + "/" + pluginId + "/" + file), text);
 
 				} catch (IOException e) {
 					logException(e, event);
@@ -440,7 +446,7 @@ public class PluginToolWindowManager {
 					userDoesNotWantToAddFolder(virtualFile, event.getProject())) return;
 
 			File fromDir = new File(virtualFile.getPath());
-			File toDir = new File(EvalComponent.pluginsRootPath() + fromDir.getName());
+			File toDir = new File(EvalComponent.pluginsRootPath() + "/" + fromDir.getName());
 			try {
 				FileUtil.createDirectory(toDir);
 				FileUtil.copyDirContent(fromDir, toDir);
@@ -512,14 +518,7 @@ public class PluginToolWindowManager {
 		}
 
 		@Override public void update(AnActionEvent e) {
-			Collection<String> pluginPaths = EvalComponent.pluginToPathMap().values();
-			boolean anyPluginPathSelected = false;
-			for (VirtualFile virtualFile : fileSystemTree.get().getSelectedFiles()) {
-				if (pluginPaths.contains(virtualFile.getPath())) {
-					anyPluginPathSelected = true;
-					break;
-				}
-			}
+			boolean anyPluginPathSelected = !pluginsToolWindow.selectedPluginIds().isEmpty();
 			e.getPresentation().setEnabled(anyPluginPathSelected);
 		}
 
