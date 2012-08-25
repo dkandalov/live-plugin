@@ -3,15 +3,11 @@ package ru.intellijeval;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import ru.intellijeval.toolwindow.PluginToolWindowManager;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -20,11 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
+import static java.util.Arrays.asList;
+import static ru.intellijeval.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
 
 /**
  * @author DKandalov
  */
-public class EvalComponent implements ApplicationComponent, Configurable { // TODO implement DumbAware?
+public class EvalComponent implements ApplicationComponent { // TODO implement DumbAware?
 	private static final Logger LOG = Logger.getInstance(EvalComponent.class);
 
 	public static final String COMPONENT_NAME = "EvalComponent";
@@ -90,6 +88,16 @@ public class EvalComponent implements ApplicationComponent, Configurable { // TO
 
 	@Override
 	public void initComponent() {
+		Settings settings = Settings.getInstance();
+		if (settings.justInstalled) {
+			ExamplePluginInstaller pluginInstaller = new ExamplePluginInstaller("/ru/intellijeval/exampleplugins/helloWorld", asList("plugin.groovy"));
+			pluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
+				@Override public void onException(Exception e, String pluginPath) {
+					LOG.warn("Failed to install plugin: " + pluginPath, e);
+				}
+			});
+			settings.justInstalled = false;
+		}
 		new PluginToolWindowManager().init();
 	}
 
@@ -101,38 +109,5 @@ public class EvalComponent implements ApplicationComponent, Configurable { // TO
 	@NotNull
 	public String getComponentName() {
 		return COMPONENT_NAME;
-	}
-
-	@Override
-	public JComponent createComponent() {
-		return null;
-	}
-
-	@Override
-	@Nls
-	public String getDisplayName() {
-		return getComponentName();
-	}
-
-	@Override
-	public String getHelpTopic() {
-		return null;
-	}
-
-	@Override
-	public void disposeUIResources() {
-	}
-
-	@Override
-	public void apply() throws ConfigurationException {
-	}
-
-	@Override
-	public boolean isModified() {
-		return false;
-	}
-
-	@Override
-	public void reset() {
 	}
 }

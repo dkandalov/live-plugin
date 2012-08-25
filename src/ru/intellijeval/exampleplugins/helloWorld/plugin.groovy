@@ -6,3 +6,5 @@ static show(String htmlBody, String title = "", notificationType = NotificationT
 }
 
 show("Hello IntelliJ")
+
+// You can find more examples in "Add Plugin - Example" menu

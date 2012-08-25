@@ -381,22 +381,18 @@ public class PluginToolWindowManager {
 		}
 	}
 
-	private static class AddExamplePluginAction extends AnAction {
-		private static final Logger LOG = Logger.getInstance(AddExamplePluginAction.class);
-
+	public static class ExamplePluginInstaller {
 		private final String pluginPath;
 		private final List<String> sampleFiles;
 		private final String pluginId;
 
-		public AddExamplePluginAction(String pluginPath, List<String> sampleFiles) {
+		public ExamplePluginInstaller(String pluginPath, List<String> sampleFiles) {
 			this.pluginPath = pluginPath;
 			this.sampleFiles = sampleFiles;
 			this.pluginId = extractIdFrom(pluginPath);
-
-			getTemplatePresentation().setText(pluginId);
 		}
 
-		@Override public void actionPerformed(AnActionEvent event) {
+		public void installPlugin(Listener listener) {
 			for (String file : sampleFiles) {
 				try {
 
@@ -404,10 +400,40 @@ public class PluginToolWindowManager {
 					FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + "/" + pluginId + "/" + file), text);
 
 				} catch (IOException e) {
-					logException(e, event);
+					listener.onException(e, pluginPath);
 				}
 			}
+		}
 
+		public static String extractIdFrom(String pluginPath) {
+			String[] split = pluginPath.split("/");
+			return split[split.length - 1];
+		}
+
+		public interface Listener {
+			void onException(Exception e, String pluginPath);
+		}
+	}
+
+	private static class AddExamplePluginAction extends AnAction {
+		private static final Logger LOG = Logger.getInstance(AddExamplePluginAction.class);
+
+		private final String pluginId;
+		private final ExamplePluginInstaller examplePluginInstaller;
+
+		public AddExamplePluginAction(String pluginPath, List<String> sampleFiles) {
+			examplePluginInstaller = new ExamplePluginInstaller(pluginPath, sampleFiles);
+			this.pluginId = ExamplePluginInstaller.extractIdFrom(pluginPath);
+
+			getTemplatePresentation().setText(pluginId);
+		}
+
+		@Override public void actionPerformed(final AnActionEvent event) {
+			examplePluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
+				@Override public void onException(Exception e, String pluginPath) {
+					logException(e, event, pluginPath);
+				}
+			});
 			reloadAllToolWindows();
 		}
 
@@ -415,12 +441,7 @@ public class PluginToolWindowManager {
 			event.getPresentation().setEnabled(!pluginExists(pluginId));
 		}
 
-		private static String extractIdFrom(String pluginPath) {
-			String[] split = pluginPath.split("/");
-			return split[split.length - 1];
-		}
-
-		private void logException(IOException e, AnActionEvent event) {
+		private void logException(Exception e, AnActionEvent event, String pluginPath) {
 			Project project = event.getProject();
 			if (project != null) {
 				Notificator.getInstance(project).notifyError(

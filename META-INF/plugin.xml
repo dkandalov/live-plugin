@@ -3,7 +3,7 @@
 	<name>InetlliJEval</name>
 	<version>0.0</version>
 	<vendor email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
-	<idea-version since-build="8000"/>
+	<idea-version since-build="8000"/> <!-- TODO -->
 	<description>
 		<![CDATA[<html><body>
 				TODO
@@ -19,7 +19,7 @@
         ]]>
 	</change-notes>
 
-	<depends>com.intellij.modules.platform</depends>
+	<!--<depends>com.intellij.modules.platform</depends>-->
 
 	<application-components>
 		<component>
@@ -54,7 +54,10 @@
             <separator/>
             <action id="IntellijEval_FileChooser.ShowHiddens" class="fork.com.intellij.openapi.fileChooser.actions.ShowHiddensAction" icon="AllIcons.Actions.ShowHiddens"/>
         </group>
-
     </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceInterface="ru.intellijeval.Settings" serviceImplementation="ru.intellijeval.Settings"/>
+    </extensions>
 
 </idea-plugin>
