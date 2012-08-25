@@ -18,9 +18,9 @@ import com.intellij.psi.*
 class HelloWorldInspection extends BaseJavaLocalInspectionTool {
 	@Override String getGroupDisplayName() { GroupNames.BUGS_GROUP_NAME }
 
-	@Override String getDisplayName() { "Detects swear words" }
+	@Override String getDisplayName() { 'Replace "hello" with "Hello world"' }
 
-	@Override String getShortName() { "SwearDetector" }
+	@Override String getShortName() { "HelloWorldInspection" }
 
 	@Override boolean isEnabledByDefault() { true }
 
@@ -29,7 +29,7 @@ class HelloWorldInspection extends BaseJavaLocalInspectionTool {
 			@Override void visitLiteralExpression(PsiLiteralExpression expression) {
 				super.visitLiteralExpression(expression)
 				if (expression.type.equalsToText("java.lang.String") && expression.value == "hello") {
-					holder.registerProblem(expression, "Found swear word", new HelloWorldQuickFix())
+					holder.registerProblem(expression, "Found hello word", new HelloWorldQuickFix())
 				}
 			}
 		}
