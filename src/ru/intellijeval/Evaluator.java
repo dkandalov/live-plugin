@@ -36,8 +36,8 @@ class Evaluator {
 			GroovyClassLoader classLoader = createClassLoaderWithDependencies(mainScriptPath, pluginId, System.getenv());
 			GroovyScriptEngine scriptEngine = new GroovyScriptEngine(path, classLoader);
 			Binding binding = new Binding();
-			binding.setProperty("actionEvent", event);
 			binding.setVariable("event", event);
+			binding.setVariable("project", event.getProject());
 			scriptEngine.run(mainScriptPath, binding);
 
 		} catch (IOException e) {

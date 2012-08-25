@@ -8,6 +8,12 @@ log("Hello IntelliJ")
 
 // popup notification
 show("IntelliJ", "Hello")
+
+// "event" is an instance of AnActionEvent, it's implicitly available in all plugin.groovy scripts
+// (for more details about AnActionEvent please see IntelliJ API)
+show(event.project.name, "Project")
+
+// external class
 show(AClass.produceAString(), "Hello")
 
 // shows text in console (useful for large texts and stacktraces)
