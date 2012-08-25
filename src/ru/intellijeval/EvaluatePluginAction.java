@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static ru.intellijeval.Util.saveAllFiles;
 import static ru.intellijeval.toolwindow.PluginToolWindowManager.PluginToolWindow;
 
 /**
@@ -38,7 +39,7 @@ public class EvaluatePluginAction extends AnAction {
 	}
 
 	private void evalCurrentPlugin(AnActionEvent event) {
-		FileDocumentManager.getInstance().saveAllDocuments();
+		saveAllFiles();
 
 		EvalErrorReporter errorReporter = new EvalErrorReporter();
 		Evaluator evaluator = new Evaluator(errorReporter);

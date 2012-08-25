@@ -2,9 +2,10 @@ package ru.intellijeval;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 
 import java.util.Map;
+
+import static ru.intellijeval.Util.saveAllFiles;
 
 /**
  * @author DKandalov
@@ -24,7 +25,7 @@ public class EvaluateAllPluginsAction extends AnAction {
 	}
 
 	private void evaluateAllPlugins(AnActionEvent event) {
-		FileDocumentManager.getInstance().saveAllDocuments();
+		saveAllFiles();
 
 		EvalErrorReporter errorReporter = new EvalErrorReporter();
 		Evaluator evaluator = new Evaluator(errorReporter);

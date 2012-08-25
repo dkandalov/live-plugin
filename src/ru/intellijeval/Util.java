@@ -11,6 +11,8 @@ import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.actions.CloseAction;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
@@ -58,6 +60,14 @@ public class Util {
 		}
 
 		ExecutionManager.getInstance(project).getContentManager().showRunContent(executor, descriptor);
+	}
+
+	public static void saveAllFiles() {
+		ApplicationManager.getApplication().runWriteAction(new Runnable() {
+			public void run() {
+				FileDocumentManager.getInstance().saveAllDocuments();
+			}
+		});
 	}
 
 	private static final class MyConsolePanel extends JPanel {

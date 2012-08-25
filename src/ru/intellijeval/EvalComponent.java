@@ -24,7 +24,7 @@ import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 /**
  * @author DKandalov
  */
-public class EvalComponent implements ApplicationComponent, Configurable {
+public class EvalComponent implements ApplicationComponent, Configurable { // TODO implement DumbAware?
 	private static final Logger LOG = Logger.getInstance(EvalComponent.class);
 
 	public static final String COMPONENT_NAME = "EvalComponent";
