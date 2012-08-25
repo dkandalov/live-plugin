@@ -30,7 +30,7 @@ static registerAction(String actionId, String keyStroke = "", Closure closure) {
 		}
 	})
 
-	show("Plugin '${actionId}' reloaded")
+	show("Action '${actionId}' loaded")
 }
 
 registerAction("HelloWorldAction", "ctrl shift alt H", {

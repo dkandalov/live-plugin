@@ -15,7 +15,7 @@ import java.util.*;
  * Date: 17/08/2012
  */
 class Evaluator {
-	private static final String CLASSPATH_PREFIX = "//-- classpath: ";
+	private static final String CLASSPATH_PREFIX = "// add-to-classpath ";
 
 	private final EvalErrorReporter errorReporter;
 
@@ -33,7 +33,8 @@ class Evaluator {
 
 		try {
 
-			GroovyScriptEngine scriptEngine = new GroovyScriptEngine(path, createClassLoaderWithDependencies(mainScriptPath, pluginId));
+			GroovyClassLoader classLoader = createClassLoaderWithDependencies(mainScriptPath, pluginId, System.getenv());
+			GroovyScriptEngine scriptEngine = new GroovyScriptEngine(path, classLoader);
 			Binding binding = new Binding();
 			binding.setProperty("actionEvent", event);
 			binding.setVariable("event", event);
@@ -61,7 +62,7 @@ class Evaluator {
 		else throw new IllegalStateException("Found several " + EvalComponent.MAIN_SCRIPT + " files under " + path);
 	}
 
-	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath, String pluginId) {
+	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath, String pluginId, Map<String, String> environment) {
 		GroovyClassLoader classLoader = new GroovyClassLoader(this.getClass().getClassLoader());
 
 		try {
@@ -73,6 +74,9 @@ class Evaluator {
 			while ((line = inputStream.readLine()) != null) {
 				if (line.contains(CLASSPATH_PREFIX)) {
 					String path = line.replace(CLASSPATH_PREFIX, "");
+
+					path = inlineEnvironmentVariables(path, environment);
+
 					List<String> filePaths = findAllFilePaths(path);
 					if (filePaths.isEmpty()) {
 						errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
@@ -87,6 +91,13 @@ class Evaluator {
 			errorReporter.addLoadingError(pluginId, "Error while looking for dependencies. Main script: " + mainScriptPath + ". " + e.getMessage());
 		}
 		return classLoader;
+	}
+
+	private static String inlineEnvironmentVariables(String s, Map<String, String> environment) {
+		for (Map.Entry<String, String> entry : environment.entrySet()) {
+			s = s.replace("$" + entry.getKey(), entry.getValue());
+		}
+		return s;
 	}
 
 	// TODO use intellij.FileUtil

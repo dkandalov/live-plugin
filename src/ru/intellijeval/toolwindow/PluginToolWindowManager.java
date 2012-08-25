@@ -255,6 +255,8 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloTextEditor", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorldInspection", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloFileStats", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/utilExample", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/classpathExample", asList("plugin.groovy")));
 			return actionGroup;
 		}
 
