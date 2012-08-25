@@ -330,6 +330,7 @@ public class PluginToolWindowManager {
 
 		private MyTree(Project project) {
 			this.project = project;
+			getEmptyText().setText("No plugins to show");
 		}
 
 		@Override public void calcData(DataKey key, DataSink sink) {
