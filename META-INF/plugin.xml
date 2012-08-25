@@ -44,16 +44,16 @@
         </group>
 
         <group id="IntellijEval_FileChooserToolbar">
-            <action id="IntellijEval_FileChooser.GotoHome" class="fork.com.intellij.openapi.fileChooser.actions.GotoHomeAction" icon="AllIcons.Nodes.HomeFolder"/>
-            <action id="IntellijEval_FileChooser.GotoProject" class="fork.com.intellij.openapi.fileChooser.actions.GotoProjectDirectory" icon="AllIcons.Nodes.IdeaProject"/>
+            <action id="IntellijEval_FileChooser.GotoHome" class="fork.com.intellij.openapi.fileChooser.actions.GotoHomeAction" icon="AllIcons.Nodes.HomeFolder" text="Home"/>
+            <action id="IntellijEval_FileChooser.GotoProject" class="fork.com.intellij.openapi.fileChooser.actions.GotoProjectDirectory" icon="AllIcons.Nodes.IdeaProject" text="Project"/>
             <separator/>
-            <action id="IntellijEval_FileChooser.NewFile" class="fork.com.intellij.openapi.fileChooser.actions.NewFileAction" icon="AllIcons.Actions.New"/>
-            <action id="IntellijEval_FileChooser.NewFolder" class="fork.com.intellij.openapi.fileChooser.actions.NewFolderAction" icon="AllIcons.Actions.NewFolder"/>
-            <action id="IntellijEval_FileChooser.Delete" class="fork.com.intellij.openapi.fileChooser.actions.FileDeleteAction" icon="AllIcons.Actions.Delete"/>
+            <action id="IntellijEval_FileChooser.NewFile" class="fork.com.intellij.openapi.fileChooser.actions.NewFileAction" icon="AllIcons.Actions.New" text="New file"/>
+            <action id="IntellijEval_FileChooser.NewFolder" class="fork.com.intellij.openapi.fileChooser.actions.NewFolderAction" icon="AllIcons.Actions.NewFolder" text="New folder"/>
+            <action id="IntellijEval_FileChooser.Delete" class="fork.com.intellij.openapi.fileChooser.actions.FileDeleteAction" icon="AllIcons.Actions.Delete" text="Delete"/>
             <separator/>
-            <action id="IntellijEval_FileChooser.Refresh" class="fork.com.intellij.openapi.fileChooser.actions.RefreshFileChooserAction" icon="AllIcons.Actions.Sync"/>
+            <action id="IntellijEval_FileChooser.Refresh" class="fork.com.intellij.openapi.fileChooser.actions.RefreshFileChooserAction" icon="AllIcons.Actions.Sync" text="Refresh"/>
             <separator/>
-            <action id="IntellijEval_FileChooser.ShowHiddens" class="fork.com.intellij.openapi.fileChooser.actions.ShowHiddensAction" icon="AllIcons.Actions.ShowHiddens"/>
+            <action id="IntellijEval_FileChooser.ShowHiddens" class="fork.com.intellij.openapi.fileChooser.actions.ShowHiddensAction" icon="AllIcons.Actions.ShowHiddens" text="Show hidden"/>
         </group>
     </actions>
 

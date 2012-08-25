@@ -79,12 +79,11 @@ class Evaluator {
 
 					path = inlineEnvironmentVariables(path, environment);
 
-					List<String> filePaths = findAllFilePaths(path);
+					List<String> filePaths = collectAllFilesPaths(path);
 					if (filePaths.isEmpty()) {
 						errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
 					}
 					for (String filePath : filePaths) {
-						classLoader.addURL(new URL("file://" + filePath)); // TODO not sure which of the below works properly
 						classLoader.addClasspath(filePath);
 					}
 				}
@@ -102,8 +101,7 @@ class Evaluator {
 		return s;
 	}
 
-	// TODO use intellij.FileUtil
-	private List<String> findAllFilePaths(String path) {
+	private List<String> collectAllFilesPaths(String path) {
 		File file = new File(path);
 		if (!file.exists()) {
 			return Collections.emptyList();
