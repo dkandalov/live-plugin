@@ -248,10 +248,14 @@ public class PluginToolWindowManager {
 		}
 
 		private AnAction createAddPluginsExamplesGroup() {
-			DefaultActionGroup actionGroup = new DefaultActionGroup("Examples", true);
+			DefaultActionGroup actionGroup = new DefaultActionGroup("Example", true);
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorld", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorldAction", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloPopupAction", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloToolwindow", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloTextEditor", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorldInspection", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloFileStats", asList("plugin.groovy")));
 			return actionGroup;
 		}
 
