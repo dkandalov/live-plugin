@@ -238,8 +238,8 @@ public class PluginToolWindowManager {
 			descriptor.setShowFileSystemRoots(false);
 			descriptor.setIsTreeRootVisible(false);
 
-			Collection<String> plugPaths = EvalComponent.pluginToPathMap().values();
-			List<VirtualFile> virtualFiles = ContainerUtil.map(plugPaths, new Function<String, VirtualFile>() {
+			Collection<String> pluginPaths = EvalComponent.pluginToPathMap().values();
+			List<VirtualFile> virtualFiles = ContainerUtil.map(pluginPaths, new Function<String, VirtualFile>() {
 				@Override public VirtualFile fun(String path) {
 					return VirtualFileManager.getInstance().findFileByUrl("file://" + path);
 				}
@@ -618,8 +618,8 @@ public class PluginToolWindowManager {
 
 			if (userDoesNotWantToRemovePlugins(pluginIds, event.getProject())) return;
 
-			for (VirtualFile virtualFile : fileSystemTree.get().getSelectedFiles()) {
-				String pluginPath = virtualFile.getPath();
+			for (String pluginId : pluginIds) {
+				String pluginPath = EvalComponent.pluginToPathMap().get(pluginId);
 				FileUtil.delete(new File(pluginPath));
 			}
 
