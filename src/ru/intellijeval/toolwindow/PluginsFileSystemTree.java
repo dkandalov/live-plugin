@@ -368,7 +368,7 @@ public class PluginsFileSystemTree implements FileSystemTree {
 		final TreePath[] paths = myTree.getSelectionPaths();
 		if (paths == null) return Collections.emptyList();
 
-		final List<T> elements = ContainerUtil.newArrayList();
+		final List<T> elements = new ArrayList<T>();
 		for (TreePath path : paths) {
 			final DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
 			final Object userObject = node.getUserObject();

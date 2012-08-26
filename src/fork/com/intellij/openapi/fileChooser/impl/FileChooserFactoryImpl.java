@@ -26,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 import fork.com.intellij.openapi.fileChooser.*;
 import fork.com.intellij.openapi.fileChooser.ex.FileChooserDialogImpl;
 import fork.com.intellij.openapi.fileChooser.ex.FileSaverDialogImpl;
-import fork.com.intellij.openapi.fileChooser.ex.FileTextFieldImpl;
 import fork.com.intellij.openapi.fileChooser.ex.LocalFsFinder;
 
 import javax.swing.*;

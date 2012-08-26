@@ -13,21 +13,25 @@
  */
 package ru.intellijeval.toolwindow;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.openapi.util.IconLoader;
+import fork.com.intellij.openapi.fileChooser.actions.NewFolderAction;
 import org.jetbrains.annotations.NotNull;
 import ru.intellijeval.Util;
-import fork.com.intellij.openapi.fileChooser.actions.NewFolderAction;
+
+import javax.swing.*;
 
 /**
  * User: dima
  * Date: 13/08/2012
  */
 class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
+	public static final Icon Folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
+
 	public void actionPerformed(final AnActionEvent event) {
 		showPopup(event.getDataContext());
 	}
@@ -56,7 +60,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 			public AnAction[] getChildren(AnActionEvent e) {
 				return new AnAction[]{
 						new NewFileAction("Groovy script", Util.GROOVY_FILE_TYPE_ICON),
-						new NewFolderAction("Directory", "Directory", AllIcons.Nodes.Folder)
+						new NewFolderAction("Directory", "Directory", Folder)
 				};
 			}
 		};

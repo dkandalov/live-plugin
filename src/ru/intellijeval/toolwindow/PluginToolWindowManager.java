@@ -63,7 +63,6 @@ import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import fork.com.intellij.openapi.fileChooser.FileSystemTree;
 import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
 import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
-import git4idea.Notificator;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 import ru.intellijeval.*;
@@ -133,7 +132,7 @@ public class PluginToolWindowManager {
 	}
 
 	public static class PluginToolWindow {
-		private Ref<FileSystemTree> myFsTreeRef = Ref.create();
+		private Ref<FileSystemTree> myFsTreeRef = new Ref<FileSystemTree>();
 		private SimpleToolWindowPanel panel;
 		private ToolWindow toolWindow;
 
@@ -185,7 +184,7 @@ public class PluginToolWindowManager {
 		}
 
 		private FileSystemTree createFsTree(Project project) {
-			Ref<FileSystemTree> myFsTreeRef = Ref.create();
+			Ref<FileSystemTree> myFsTreeRef = new Ref<FileSystemTree>();
 			MyTree myTree = new MyTree(project);
 
 			// must be installed before adding tree to FileSystemTreeImpl
@@ -403,7 +402,8 @@ public class PluginToolWindowManager {
 			} catch (IOException e) {
 				Project project = event.getProject();
 				if (project != null) {
-					Notificator.getInstance(project).notifyError(
+					Util.showErrorDialog(
+							project,
 							"Error adding plugin \"" + newPluginId + "\" to " + EvalComponent.pluginsRootPath(),
 							"Add Plugin"
 					);
@@ -478,7 +478,8 @@ public class PluginToolWindowManager {
 		private void logException(Exception e, AnActionEvent event, String pluginPath) {
 			Project project = event.getProject();
 			if (project != null) {
-				Notificator.getInstance(project).notifyError(
+				Util.showErrorDialog(
+						project,
 						"Error adding plugin \"" + pluginPath + "\" to " + EvalComponent.pluginsRootPath(),
 						"Add Plugin"
 				);
@@ -506,12 +507,18 @@ public class PluginToolWindowManager {
 			File fromDir = new File(virtualFile.getPath());
 			File toDir = new File(EvalComponent.pluginsRootPath() + "/" + fromDir.getName());
 			try {
-				FileUtil.createDirectory(toDir);
+
+				boolean created = toDir.mkdirs();
+				if (!created) {
+					throw new IllegalStateException("Failed to create " + toDir.getPath());
+				}
 				FileUtil.copyDirContent(fromDir, toDir);
+
 			} catch (IOException e) {
 				Project project = event.getProject();
 				if (project != null) {
-					Notificator.getInstance(project).notifyError(
+					Util.showErrorDialog(
+							project,
 							"Error adding plugin \"" + fromDir.getName() + "\" to " + EvalComponent.pluginsRootPath(),
 							"Add Plugin"
 					);

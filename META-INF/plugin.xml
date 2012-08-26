@@ -3,7 +3,7 @@
 	<name>InetlliJEval</name>
 	<version>0.1</version>
 	<vendor email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
-	<idea-version since-build="120.0"/> <!--TODO make compatible with 11 -->
+	<idea-version since-build="111.0"/>
     <category></category> <!--TODO-->
 	<description>
 		<![CDATA[<html><body>

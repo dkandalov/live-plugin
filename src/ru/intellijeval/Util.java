@@ -22,13 +22,13 @@ import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.actions.CloseAction;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -40,15 +40,15 @@ import java.awt.*;
  * @author DKandalov
  */
 public class Util {
-	public static final Icon ADD_PLUGIN_ICON = AllIcons.General.Add;
-	public static final Icon DELETE_PLUGIN_ICON = AllIcons.General.Remove;
-	public static final Icon REFRESH_PLUGIN_LIST_ICON = AllIcons.Actions.Sync;
-	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
-	public static final Icon EVAL_ICON = AllIcons.Actions.Execute;
-	public static final Icon EVAL_ALL_ICON = AllIcons.Actions.RefreshUsages;
-	public static final Icon EXPAND_ALL_ICON = AllIcons.Actions.Expandall;
-	public static final Icon COLLAPSE_ALL_ICON = AllIcons.Actions.Collapseall;
-	public static final Icon SETTINGS_ICON = AllIcons.Actions.ShowSettings;
+	public static final Icon ADD_PLUGIN_ICON = IconLoader.getIcon("/general/add.png"); // 16x16
+	public static final Icon DELETE_PLUGIN_ICON = IconLoader.getIcon("/general/remove.png"); // 16x16
+	public static final Icon REFRESH_PLUGIN_LIST_ICON = IconLoader.getIcon("/actions/sync.png"); // 16x16
+	public static final Icon PLUGIN_ICON = IconLoader.getIcon("/nodes/plugin.png"); // 16x16
+	public static final Icon EVAL_ICON = IconLoader.getIcon("/actions/execute.png"); // 16x16
+	public static final Icon EVAL_ALL_ICON = IconLoader.getIcon("/actions/refreshUsages.png"); // 16x16
+	public static final Icon EXPAND_ALL_ICON = IconLoader.getIcon("/actions/expandall.png"); // 16x16
+	public static final Icon COLLAPSE_ALL_ICON = IconLoader.getIcon("/actions/collapseall.png"); // 16x16
+	public static final Icon SETTINGS_ICON = IconLoader.getIcon("/actions/showSettings.png"); // 16x16
 	public static final Icon GROOVY_FILE_TYPE_ICON = IconLoader.getIcon("/ru/intellijeval/toolwindow/groovy_fileType.png");
 
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
@@ -71,7 +71,7 @@ public class Util {
 			}
 
 			@Override public Icon getIcon() {
-				return AllIcons.Nodes.Plugin;
+				return PLUGIN_ICON;
 			}
 		};
 		Executor executor = DefaultRunExecutor.getRunExecutorInstance();
@@ -82,6 +82,10 @@ public class Util {
 		}
 
 		ExecutionManager.getInstance(project).getContentManager().showRunContent(executor, descriptor);
+	}
+
+	public static void showErrorDialog(Project project, String message, String title) {
+		Messages.showMessageDialog(project, message, title, Messages.getErrorIcon());
 	}
 
 	public static void saveAllFiles() {

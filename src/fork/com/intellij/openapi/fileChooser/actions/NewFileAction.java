@@ -16,18 +16,22 @@
 
 package fork.com.intellij.openapi.fileChooser.actions;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.LayeredIcon;
 import com.intellij.ui.UIBundle;
 import fork.com.intellij.openapi.fileChooser.FileSystemTree;
 import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
 
+import javax.swing.*;
+
 public class NewFileAction extends FileChooserAction {
+	public static final Icon New = IconLoader.getIcon("/actions/new.png"); // 16x16
+
   protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {
     Presentation presentation = e.getPresentation();
     final FileType fileType = e.getData(FileChooserKeys.NEW_FILE_TYPE);
@@ -35,7 +39,7 @@ public class NewFileAction extends FileChooserAction {
       presentation.setVisible(true);
       VirtualFile selectedFile = fileSystemTree.getNewFileParent();
       presentation.setEnabled(selectedFile != null && selectedFile.isDirectory());
-      presentation.setIcon(LayeredIcon.create(fileType.getIcon(), AllIcons.Actions.New));
+      presentation.setIcon(LayeredIcon.create(fileType.getIcon(), New));
     }
     else {
       presentation.setVisible(false);
