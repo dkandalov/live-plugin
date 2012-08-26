@@ -24,6 +24,14 @@ Why
  - it's a good way to quickly try IntelliJ API
 
 
+Technical details
+=================
+ - this is essentially a host plugin for other plugins
+ - each plugin is evaluated with its own classloader using GroovyScriptEngine
+ - plugin uses Groovy libraries bundled with IntelliJ (this is to reduce plugin size); please check IntelliJ libs if you need to know Groovy version
+ - there is currently no easy way to have dependencies between plugins
+
+
 Similar plugins
 ===============
 The idea of running code inside IntelliJ is not original. There are similar plugins:
