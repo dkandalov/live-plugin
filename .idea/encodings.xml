@@ -1,45 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileChooser.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileChooserDescriptor.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileChooserDescriptorFactory.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileChooserDialog.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileChooserFactory.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileElement.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileSaverDescriptor.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileSaverDialog.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileSystemTree.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileSystemTreeFactory.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileTypeDescriptor.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/PathChooserDialog.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/FileChooserAction.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/FileDeleteAction.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/GotoHomeAction.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/GotoProjectDirectory.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/NewFileAction.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/NewFolderAction.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/RefreshFileChooserAction.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/ShowHiddensAction.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/TooglePathShowingAction.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/VirtualFileDeleteProvider.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileChooserDialogImpl.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileChooserKeys.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileDrop.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileLookup.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileNodeDescriptor.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileSaverDialogImpl.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileSystemTreeFactoryImpl.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileSystemTreeImpl.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/LocalFsFinder.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/PathField.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/RootFileElement.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/impl/FileChooserFactoryImpl.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/impl/FileChooserUtil.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/impl/FileComparator.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/impl/FileTreeBuilder.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/impl/FileTreeStructure.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/package.html" charset="UTF-8" />
-  </component>
+  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" />
 </project>
 
