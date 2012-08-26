@@ -41,7 +41,7 @@ class Evaluator {
 
 		String mainScriptPath = findMainScriptIn(path);
 		if (mainScriptPath == null) {
-			errorReporter.addLoadingError(pluginId, "Couldn't find main script");
+			errorReporter.addLoadingError(pluginId, "Couldn't find " + EvalComponent.MAIN_SCRIPT);
 			return;
 		}
 

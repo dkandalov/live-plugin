@@ -61,14 +61,14 @@ import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
-import fork.com.intellij.openapi.fileChooser.FileChooser;
-import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import fork.com.intellij.openapi.fileChooser.FileSystemTree;
-import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
-import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
-import fork.com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
-import fork.com.intellij.openapi.fileChooser.ex.RootFileElement;
-import fork.com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileSystemTree;
+import com.intellij.openapi.fileChooser.ex.FileChooserKeys;
+import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
+import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
+import com.intellij.openapi.fileChooser.ex.RootFileElement;
+import com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 import ru.intellijeval.*;
@@ -244,8 +244,7 @@ public class PluginToolWindowManager {
 					return VirtualFileManager.getInstance().findFileByUrl("file://" + path);
 				}
 			});
-			descriptor.getRoots().clear();
-			descriptor.getRoots().addAll(virtualFiles);
+			addRoots(descriptor, virtualFiles);
 
 			return descriptor;
 		}
@@ -349,6 +348,21 @@ public class PluginToolWindowManager {
 		private static AnAction withIcon(Icon icon, AnAction action) {
 			action.getTemplatePresentation().setIcon(icon);
 			return action;
+		}
+	}
+
+	@SuppressWarnings("deprecation") // this is to make it compatible with as old intellij versions as possible
+	private static void addRoots(FileChooserDescriptor descriptor, List<VirtualFile> virtualFiles) {
+		if (virtualFiles.isEmpty()) {
+			descriptor.setRoot(null);
+		} else {
+			descriptor.setRoot(virtualFiles.remove(0));
+			for (VirtualFile virtualFile : virtualFiles) {
+				descriptor.addRoot(virtualFile);
+			}
+			// adding "null" is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement
+			// (if there is only one plugin, this forces tree show it as a package)
+			descriptor.addRoot(null);
 		}
 	}
 
@@ -524,8 +538,7 @@ public class PluginToolWindowManager {
 		@Override public void actionPerformed(AnActionEvent event) {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, true, true, false);
 
-			descriptor.getRoots().clear();
-			Collections.addAll(descriptor.getRoots(), getFileSystemRoots());
+			addRoots(descriptor, getFileSystemRoots());
 
 			VirtualFile virtualFile = FileChooser.chooseFile(event.getProject(), descriptor);
 			if (virtualFile == null) return;
@@ -558,7 +571,7 @@ public class PluginToolWindowManager {
 			reloadAllToolWindows();
 		}
 
-		private static VirtualFile[] getFileSystemRoots() {
+		private static List<VirtualFile> getFileSystemRoots() {
 			final LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
 			final Set<VirtualFile> roots = new HashSet<VirtualFile>();
 			final File[] ioRoots = File.listRoots();
@@ -571,7 +584,9 @@ public class PluginToolWindowManager {
 					}
 				}
 			}
-			return VfsUtil.toVirtualFileArray(roots);
+			ArrayList<VirtualFile> result = new ArrayList<VirtualFile>();
+			Collections.addAll(result, VfsUtil.toVirtualFileArray(roots));
+			return result;
 		}
 
 		private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {

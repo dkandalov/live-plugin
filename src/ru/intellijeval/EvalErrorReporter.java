@@ -36,7 +36,7 @@ class EvalErrorReporter {
 	private final LinkedHashMap<String, Exception> evaluationExceptions = new LinkedHashMap<String, Exception>();
 
 	public void addLoadingError(String pluginId, String message) {
-		loadingErrors.add("Plugin: " + pluginId + ". " + message);
+		loadingErrors.add("Error loading plugin: \"" + pluginId + "\". " + message);
 	}
 
 	public void addEvaluationException(String pluginId, Exception e) {

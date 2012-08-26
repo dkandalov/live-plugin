@@ -19,15 +19,15 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.UIBundle;
-import fork.com.intellij.openapi.fileChooser.FileSystemTree;
-import fork.com.intellij.openapi.fileChooser.actions.FileChooserAction;
-import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
-import fork.com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
+import com.intellij.openapi.fileChooser.FileSystemTree;
+import com.intellij.openapi.fileChooser.actions.FileChooserAction;
+import com.intellij.openapi.fileChooser.ex.FileChooserKeys;
+import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
 
 import javax.swing.*;
 
 /**
- * Fork of {@link fork.com.intellij.openapi.fileChooser.actions.NewFileAction}
+ * Fork of {@link com.intellij.openapi.fileChooser.actions.NewFileAction}
  *
  * User: dima
  * Date: 13/08/2012

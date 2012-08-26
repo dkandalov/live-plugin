@@ -19,7 +19,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.IconLoader;
-import fork.com.intellij.openapi.fileChooser.actions.NewFolderAction;
+import com.intellij.openapi.fileChooser.actions.NewFolderAction;
 import org.jetbrains.annotations.NotNull;
 import ru.intellijeval.Util;
 

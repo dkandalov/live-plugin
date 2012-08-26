@@ -37,24 +37,11 @@ Plugins are stored on application level.
         <group id="InetlliJEval.Popup">
             <action id="InetlliJEval.NewFileAction" class="ru.intellijeval.toolwindow.NewFileAction"
                     text="New Groovy script" icon="/ru/intellijeval/toolwindow/groovy_fileType.png"/>
-            <action id="InetlliJEval.NewDirectoryAction" class="fork.com.intellij.openapi.fileChooser.actions.NewFolderAction"
+            <action id="InetlliJEval.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
                     text="New Directory" icon="/nodes/folder.png"/>
             <separator/>
-            <action id="InetlliJEval.FileDeleteAction" class="fork.com.intellij.openapi.fileChooser.actions.FileDeleteAction"
+            <action id="InetlliJEval.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction"
                     text="Delete" use-shortcut-of="$Delete"/>
-        </group>
-
-        <group id="IntellijEval_FileChooserToolbar">
-            <action id="IntellijEval_FileChooser.GotoHome" class="fork.com.intellij.openapi.fileChooser.actions.GotoHomeAction" icon="/nodes/homeFolder.png" text="Home"/>
-            <action id="IntellijEval_FileChooser.GotoProject" class="fork.com.intellij.openapi.fileChooser.actions.GotoProjectDirectory" icon="/nodes/ideaProject.png" text="Project"/>
-            <separator/>
-            <action id="IntellijEval_FileChooser.NewFile" class="fork.com.intellij.openapi.fileChooser.actions.NewFileAction" icon="/actions/new.png" text="New file"/>
-            <action id="IntellijEval_FileChooser.NewFolder" class="fork.com.intellij.openapi.fileChooser.actions.NewFolderAction" icon="/actions/newFolder.png" text="New folder"/>
-            <action id="IntellijEval_FileChooser.Delete" class="fork.com.intellij.openapi.fileChooser.actions.FileDeleteAction" icon="/actions/delete.png" text="Delete"/>
-            <separator/>
-            <action id="IntellijEval_FileChooser.Refresh" class="fork.com.intellij.openapi.fileChooser.actions.RefreshFileChooserAction" icon="/actions/sync.png" text="Refresh"/>
-            <separator/>
-            <action id="IntellijEval_FileChooser.ShowHiddens" class="fork.com.intellij.openapi.fileChooser.actions.ShowHiddensAction" icon="/actions/showHiddens.png" text="Show hidden"/>
         </group>
     </actions>
 
