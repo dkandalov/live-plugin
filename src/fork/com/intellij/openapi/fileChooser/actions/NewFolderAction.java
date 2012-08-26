@@ -59,6 +59,7 @@ public class NewFolderAction extends FileChooserAction {
                                    UIBundle.message("error.dialog.title"), Messages.getErrorIcon());
         continue;
       }
+	    // TODO fork diff
       Exception failReason = fileSystemTree.createNewFolder(file, newFolderName);
       if (failReason != null) {
         Messages.showMessageDialog(UIBundle.message("create.new.folder.could.not.create.folder.error.message", newFolderName),

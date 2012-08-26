@@ -105,7 +105,7 @@ public class FileTreeBuilder extends AbstractTreeBuilder {
   protected boolean isAutoExpandNode(NodeDescriptor nodeDescriptor) {
     if (nodeDescriptor.getElement() instanceof RootFileElement) {
       return true;
-	// CHANGED: because it caused plugins to expand on hide/show plugin tool window
+	// TODO fork diff; because it caused plugins to expand on hide/show plugin tool window
 //    } else if (!SystemInfo.isWindows) {
 //      NodeDescriptor parent = nodeDescriptor.getParentDescriptor();
 //      return parent != null && parent.getElement() instanceof RootFileElement;

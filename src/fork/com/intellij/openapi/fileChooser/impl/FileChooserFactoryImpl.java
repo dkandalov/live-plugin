@@ -54,6 +54,7 @@ public class FileChooserFactoryImpl extends FileChooserFactory {
   public PathChooserDialog createPathChooser(@NotNull FileChooserDescriptor descriptor,
                                              @Nullable Project project,
                                              @Nullable Component parent) {
+	  // TODO fork diff
     /*if (useNativeMacChooser(descriptor)) {
       return new MacFileChooserDialogImpl(descriptor, project);
     }

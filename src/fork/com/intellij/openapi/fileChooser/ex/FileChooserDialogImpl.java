@@ -152,6 +152,7 @@ public class FileChooserDialogImpl extends DialogWrapper implements FileChooserD
     registerFileChooserShortcut(IdeActions.ACTION_DELETE, "FileChooser.Delete");
     registerFileChooserShortcut(IdeActions.ACTION_SYNCHRONIZE, "FileChooser.Refresh");
 
+	  // TODO fork diff
     return (DefaultActionGroup)ActionManager.getInstance().getAction("IntellijEval_FileChooserToolbar");
   }
 

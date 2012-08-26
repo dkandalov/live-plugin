@@ -34,6 +34,7 @@ public class RootFileElement extends FileElement {
   private Object[] myChildren;
 
   public RootFileElement(@NotNull final VirtualFile[] files, final String name, final boolean showFileSystemRoots) {
+	  // TODO fork diff
     super(null, name);
     myFiles = files.length == 0 && showFileSystemRoots ? getFileSystemRoots() : files;
   }

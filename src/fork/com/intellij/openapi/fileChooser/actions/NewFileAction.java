@@ -66,6 +66,7 @@ public class NewFileAction extends FileChooserAction {
                                    UIBundle.message("error.dialog.title"), Messages.getErrorIcon());
         continue;
       }
+	    // TODO fork diff
       Exception failReason = fileSystemTree.createNewFile(file, newFileName, fileType, initialContent);
       if (failReason != null) {
         Messages.showMessageDialog(UIBundle.message("create.new.file.could.not.create.file.error.message", newFileName),

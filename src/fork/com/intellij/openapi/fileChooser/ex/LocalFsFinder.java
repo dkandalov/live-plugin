@@ -107,11 +107,11 @@ public class LocalFsFinder implements FileLookup.Finder, FileLookup {
 
   public static class VfsFile implements LookupFile {
     private final VirtualFile myFile;
-    private final fork.com.intellij.openapi.fileChooser.ex.LocalFsFinder myFinder;
+    private final LocalFsFinder myFinder;
 
     private String myMacro;
 
-    public VfsFile(fork.com.intellij.openapi.fileChooser.ex.LocalFsFinder finder, final VirtualFile file) {
+    public VfsFile(LocalFsFinder finder, final VirtualFile file) {
       myFinder = finder;
       myFile = file;
     }

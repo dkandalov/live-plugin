@@ -162,8 +162,8 @@ public abstract class FileTextFieldImpl implements FileLookup, Disposable, FileT
     myCancelAction = new CancelAction();
 
 
-    new LazyUiDisposable<fork.com.intellij.openapi.fileChooser.ex.FileTextFieldImpl>(parent, field, this) {
-      protected void initialize(@NotNull Disposable parent, @NotNull fork.com.intellij.openapi.fileChooser.ex.FileTextFieldImpl child, @Nullable Project project) {
+    new LazyUiDisposable<FileTextFieldImpl>(parent, field, this) {
+      protected void initialize(@NotNull Disposable parent, @NotNull FileTextFieldImpl child, @Nullable Project project) {
         Disposer.register(child, myUiUpdater);
       }
     };
@@ -338,7 +338,7 @@ public abstract class FileTextFieldImpl implements FileLookup, Disposable, FileT
         }
 
         public String getCaptionAboveOf(final Object value) {
-          final fork.com.intellij.openapi.fileChooser.ex.FileTextFieldImpl.Separator separator = getSeparatorAboveOf(value);
+          final FileTextFieldImpl.Separator separator = getSeparatorAboveOf(value);
           return separator != null ? separator.getText() : null;
         }
       }));
@@ -700,7 +700,7 @@ public abstract class FileTextFieldImpl implements FileLookup, Disposable, FileT
    * @param caretPos
    * @param start    the start offset of the path component under the caret.
    * @param end      the end offset of the path component under the caret.
-   * @throws javax.swing.text.BadLocationException
+   * @throws BadLocationException
    */
   private void replacePathComponent(LookupFile file, int caretPos, int start, int end) throws BadLocationException {
     final Document doc = myPathTextField.getDocument();
@@ -918,7 +918,7 @@ public abstract class FileTextFieldImpl implements FileLookup, Disposable, FileT
     return pos < text.length() ? text.substring(0, pos) : text;
   }
 
-  public static class Vfs extends fork.com.intellij.openapi.fileChooser.ex.FileTextFieldImpl {
+  public static class Vfs extends FileTextFieldImpl {
 
     public Vfs(JTextField field,
                Map<String, String> macroMap,

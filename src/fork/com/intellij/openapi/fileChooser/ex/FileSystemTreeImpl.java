@@ -147,8 +147,8 @@ public class FileSystemTreeImpl implements FileSystemTree {
                                           boolean hasFocus) {
           super.customizeCellRenderer(tree, value, selected, expanded, leaf, row, hasFocus);
           final Object userObject = ((DefaultMutableTreeNode)value).getUserObject();
-          if (userObject instanceof fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor) {
-            String comment = ((fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor)userObject).getComment();
+          if (userObject instanceof FileNodeDescriptor) {
+            String comment = ((FileNodeDescriptor)userObject).getComment();
             if (comment != null) {
               append(comment, SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
@@ -274,7 +274,7 @@ public class FileSystemTreeImpl implements FileSystemTree {
     return new FileElement(selectFile, selectFile.getName());
   }
 
-  @Override public Exception createNewFolder(final VirtualFile parentDirectory, final String newFolderName) {
+  public Exception createNewFolder(final VirtualFile parentDirectory, final String newFolderName) {
     final Exception[] failReason = new Exception[] { null };
     CommandProcessor.getInstance().executeCommand(
         myProject, new Runnable() {
@@ -303,7 +303,6 @@ public class FileSystemTreeImpl implements FileSystemTree {
     return failReason[0];
   }
 
-  @Override
   public Exception createNewFile(final VirtualFile parentDirectory, final String newFileName, final FileType fileType, final String initialContent) {
     final Exception[] failReason = new Exception[] { null };
     CommandProcessor.getInstance().executeCommand(
@@ -338,8 +337,8 @@ public class FileSystemTreeImpl implements FileSystemTree {
     final TreePath path = myTree.getSelectionPath();
     if (path == null) return null;
     final DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
-    if (!(node.getUserObject() instanceof fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor)) return null;
-    final FileElement element = ((fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor)node.getUserObject()).getElement();
+    if (!(node.getUserObject() instanceof FileNodeDescriptor)) return null;
+    final FileElement element = ((FileNodeDescriptor)node.getUserObject()).getElement();
     return element.getFile();
   }
 
@@ -372,8 +371,8 @@ public class FileSystemTreeImpl implements FileSystemTree {
     for (TreePath path : paths) {
       final DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
       final Object userObject = node.getUserObject();
-      if (userObject instanceof fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor) {
-        final T element = converter.fun(((fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor)userObject).getElement());
+      if (userObject instanceof FileNodeDescriptor) {
+        final T element = converter.fun(((FileNodeDescriptor)userObject).getElement());
         if (element != null) {
           elements.add(element);
         }
@@ -426,8 +425,8 @@ public class FileSystemTreeImpl implements FileSystemTree {
         final Object last = each.getLastPathComponent();
         if (last instanceof DefaultMutableTreeNode) {
           final Object object = ((DefaultMutableTreeNode)last).getUserObject();
-          if (object instanceof fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor) {
-            final FileElement element = ((fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor)object).getElement();
+          if (object instanceof FileNodeDescriptor) {
+            final FileElement element = ((FileNodeDescriptor)object).getElement();
             final VirtualFile file = element.getFile();
             if (file != null) {
               selection.add(file);
@@ -446,8 +445,8 @@ public class FileSystemTreeImpl implements FileSystemTree {
 
       TreePath path = event.getPath();
       DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
-      if (node.getUserObject() instanceof fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor) {
-        fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor nodeDescriptor = (FileNodeDescriptor)node.getUserObject();
+      if (node.getUserObject() instanceof FileNodeDescriptor) {
+        FileNodeDescriptor nodeDescriptor = (FileNodeDescriptor)node.getUserObject();
         final FileElement fileDescriptor = nodeDescriptor.getElement();
         final VirtualFile virtualFile = fileDescriptor.getFile();
         if (virtualFile != null) {
