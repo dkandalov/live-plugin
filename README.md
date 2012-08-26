@@ -1,6 +1,7 @@
 This is IntelliJ IDEA plugin for writing simple plugins in Groovy (or running Groovy code inside IntelliJ).
 
-How to use:
+How to use
+===========
  - open "Plugins" tool window on the right side
  - open and edit one of "plugin.groovy" files (these are entry points for plugins)
  - use "ctrl + C, ctrl + E" to execute current plugin
@@ -15,13 +16,16 @@ You can set up a project for all plugins at the following folder:
  - (on Mac) $HOME/Library/Application Support/IntelliJIdea12/intellij-eval-plugins/
 
 
-Why:
+Why
+===
  - useful for simple or throw-away plugins
  - make plugins easy to change
  - plugins with immediately available source code
  - it's a good way to quickly try IntelliJ API
 
 
+Similar plugins
+===============
 The idea of running code inside IntelliJ is not original. There are similar plugins:
  - [PMIP - Poor Mans IDE Plugin](http://plugins.intellij.net/plugin/?idea&pluginId=4571) (conceptually quite similar plugin)
  - [Remote Groovy Console](http://plugins.intellij.net/plugin/?id=5373)
