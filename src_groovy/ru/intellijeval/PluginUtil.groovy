@@ -1,4 +1,5 @@
 package ru.intellijeval
+
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -10,6 +11,7 @@ import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerAdapter
+import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
@@ -19,11 +21,13 @@ import com.intellij.unscramble.UnscrambleDialog
 import javax.swing.*
 
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
+
 /**
  * User: dima
  * Date: 11/08/2012
  */
 class PluginUtil {
+	private static final WeakHashMap<ProjectManagerListener, String> pmListenerToId = new WeakHashMap()
 
 	static log(String htmlBody, String title = "", notificationType = NotificationType.INFORMATION) {
 		def notification = new Notification("", title, htmlBody, notificationType)
@@ -64,11 +68,16 @@ class PluginUtil {
 			}
 		})
 
-		log("Action '${actionId}' loaded")
+		log("Action '${actionId}' registered")
+	}
+
+	static unregisterAction(String actionId) {
+		ActionManager.instance.unregisterAction(actionId)
+		log("Action '${actionId}' unregistered")
 	}
 
 	static registerToolWindow(String id, JComponent component) {
-		ProjectManager.instance.addProjectManagerListener(new ProjectManagerAdapter() {
+		def listener = new ProjectManagerAdapter() {
 			@Override void projectOpened(Project project) {
 				registerToolWindowIn(project, id, component)
 			}
@@ -76,11 +85,26 @@ class PluginUtil {
 			@Override void projectClosed(Project project) {
 				unregisterToolWindowIn(project, id)
 			}
-		})
+		}
+		pmListenerToId[listener] = id
+		ProjectManager.instance.addProjectManagerListener(listener)
 
 		ProjectManager.instance.openProjects.each { project ->
 			registerToolWindowIn(project, id, component)
 		}
+
+		log("Toolwindow '${id}' registered")
+	}
+
+	static unregisterToolWindow(String id) {
+		def entry = pmListenerToId.find {it.value == id}
+		if (entry != null) ProjectManager.instance.removeProjectManagerListener(entry.key)
+
+		ProjectManager.instance.openProjects.each { project ->
+			unregisterToolWindowIn(project, id)
+		}
+
+		log("Toolwindow '${id}' unregistered")
 	}
 
 	private static ToolWindow registerToolWindowIn(Project project, String id, JComponent component) {

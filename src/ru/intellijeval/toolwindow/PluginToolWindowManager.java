@@ -275,7 +275,7 @@ public class PluginToolWindowManager {
 		}
 
 		private AnAction createAddPluginsExamplesGroup() {
-			final DefaultActionGroup actionGroup = new DefaultActionGroup("Example", true);
+			final DefaultActionGroup actionGroup = new DefaultActionGroup("Examples", true);
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorld", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorldAction", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloPopupAction", asList("plugin.groovy")));
