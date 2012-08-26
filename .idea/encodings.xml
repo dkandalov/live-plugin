@@ -11,7 +11,6 @@
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileSaverDialog.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileSystemTree.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileSystemTreeFactory.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileTextField.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/FileTypeDescriptor.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/PathChooserDialog.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/actions/FileChooserAction.java" charset="UTF-8" />
@@ -32,7 +31,6 @@
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileSaverDialogImpl.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileSystemTreeFactoryImpl.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileSystemTreeImpl.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/FileTextFieldImpl.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/LocalFsFinder.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/PathField.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/fork/com/intellij/openapi/fileChooser/ex/RootFileElement.java" charset="UTF-8" />
