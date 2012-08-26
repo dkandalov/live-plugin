@@ -25,5 +25,7 @@ showExceptionInConsole(new IllegalStateException(), event.project)
 registerAction("My Action", "ctrl alt shift H") {
 	show("IntelliJ", "Hello")
 }
+//unregisterAction("My Action")
 
 registerToolWindow("My Toolwindow", new JTextArea("Hello"))
+//unregisterToolWindow("My Toolwindow")

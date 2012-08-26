@@ -46,8 +46,7 @@ public class EvaluatePluginAction extends AnAction {
 		evalCurrentPlugin(event);
 	}
 
-	@Override
-	public void update(AnActionEvent event) {
+	@Override public void update(AnActionEvent event) {
 		event.getPresentation().setEnabled(!findCurrentPluginIds(event).isEmpty());
 	}
 

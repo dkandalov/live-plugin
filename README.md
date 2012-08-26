@@ -19,7 +19,7 @@ You can set up a project for all plugins at the following folder:
 Why
 ===
  - useful for simple or throw-away plugins
- - make plugins easy to change
+ - plugins should be easy to change
  - plugins with immediately available source code
  - it's a good way to quickly try IntelliJ API
 

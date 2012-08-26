@@ -87,8 +87,7 @@ public class PluginToolWindowManager {
 
 	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<Project, PluginToolWindow>();
 
-	@Nullable
-	public static PluginToolWindow getToolWindowFor(Project project) {
+	@Nullable public static PluginToolWindow getToolWindowFor(Project project) {
 		return toolWindowsByProject.get(project);
 	}
 
@@ -111,27 +110,23 @@ public class PluginToolWindowManager {
 
 	public PluginToolWindowManager init() {
 		ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
-			@Override
-			public void projectOpened(Project project) {
+			@Override public void projectOpened(Project project) {
 				PluginToolWindow pluginToolWindow = new PluginToolWindow();
 				pluginToolWindow.registerWindowFor(project);
 
 				putToolWindow(pluginToolWindow, project);
 			}
 
-			@Override
-			public void projectClosed(Project project) {
+			@Override public void projectClosed(Project project) {
 				PluginToolWindow pluginToolWindow = removeToolWindow(project);
 				if (pluginToolWindow != null) pluginToolWindow.unregisterWindowFrom(project);
 			}
 
-			@Override
-			public boolean canCloseProject(Project project) {
+			@Override public boolean canCloseProject(Project project) {
 				return true;
 			}
 
-			@Override
-			public void projectClosing(Project project) {
+			@Override public void projectClosing(Project project) {
 			}
 		});
 		return this;
