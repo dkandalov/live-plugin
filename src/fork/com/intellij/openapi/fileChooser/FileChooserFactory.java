@@ -18,14 +18,19 @@ package fork.com.intellij.openapi.fileChooser;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import fork.com.intellij.openapi.fileChooser.impl.FileChooserFactoryImpl;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
 
 public abstract class FileChooserFactory {
+	private static final FileChooserFactory instance = new FileChooserFactoryImpl();
+
   public static FileChooserFactory getInstance() {
-    return ServiceManager.getService(FileChooserFactory.class);
+	  // TODO fork diff; had to change because don't want to register fork as a service
+	  // was return ServiceManager.getService(FileChooserFactory.class);
+    return instance;
   }
 
   public abstract FileChooserDialog createFileChooser(FileChooserDescriptor descriptor, @Nullable Project project);

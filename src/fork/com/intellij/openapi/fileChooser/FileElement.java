@@ -64,10 +64,8 @@ public class FileElement {
   }
 
   public final String toString() {
-    if (myName != null) {
-      return myName;
-    }
-    return myFile.getName();
+	  // TODO fork diff (to make plugin roots show only folder name without full path)
+	  return myFile != null ? myFile.getName() : "";
   }
 
   public final String getName() { return myName; }

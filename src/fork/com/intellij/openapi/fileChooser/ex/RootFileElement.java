@@ -15,15 +15,14 @@
  */
 package fork.com.intellij.openapi.fileChooser.ex;
 
-import fork.com.intellij.openapi.fileChooser.FileElement;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
+import fork.com.intellij.openapi.fileChooser.FileElement;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class RootFileElement extends FileElement {
   private final VirtualFile[] myFiles;
@@ -31,7 +30,7 @@ public class RootFileElement extends FileElement {
   private Object[] myChildren;
 
   public RootFileElement(VirtualFile[] files, String name, boolean showFileSystemRoots) {
-	  // TODO fork diff
+	  // TODO fork diff; why?!
 	  super(null, name);
 	  myFiles = files.length == 0 && showFileSystemRoots ? getFileSystemRoots() : files;
     myShowFileSystemRoots = showFileSystemRoots;
@@ -57,17 +56,25 @@ public class RootFileElement extends FileElement {
     return ArrayUtil.toObjectArray(roots);
   }
 
+	// TODO fork diff; made return VirtualFile[] as in intellij 12 api
   private static VirtualFile[] getFileSystemRoots() {
     File[] roots = File.listRoots();
     LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
-    HashSet<FileElement> rootChildren = new HashSet<FileElement>();
+    Set<VirtualFile> rootChildren = new HashSet<VirtualFile>();
     for (File root : roots) {
       String path = root.getAbsolutePath();
       path = path.replace(File.separatorChar, '/');
       VirtualFile file = localFileSystem.findFileByPath(path);
       if (file == null) continue;
-      rootChildren.add(new FileElement(file, file.getPresentableUrl()));
+      rootChildren.add(file);
     }
-    return (VirtualFile[]) ArrayUtil.toObjectArray(rootChildren);
+    return toVirtualFileArray(rootChildren);
   }
+
+	private static VirtualFile[] toVirtualFileArray(@NotNull Collection<? extends VirtualFile> files) {
+		int size = files.size();
+		if (size == 0) return VirtualFile.EMPTY_ARRAY;
+		//noinspection SSBasedInspection
+		return files.toArray(new VirtualFile[size]);
+	}
 }

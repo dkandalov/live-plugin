@@ -18,15 +18,13 @@ package fork.com.intellij.openapi.fileChooser.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.UIBundle;
 import fork.com.intellij.openapi.fileChooser.FileSystemTree;
 import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
 import fork.com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.IconLoader;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.LayeredIcon;
-import com.intellij.ui.UIBundle;
 
 public class NewFileAction extends FileChooserAction {
   protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {
@@ -36,7 +34,8 @@ public class NewFileAction extends FileChooserAction {
       presentation.setVisible(true);
       VirtualFile selectedFile = fileSystemTree.getNewFileParent();
       presentation.setEnabled(selectedFile != null && selectedFile.isDirectory());
-      presentation.setIcon(LayeredIcon.create(fileType.getIcon(), IconLoader.getIcon("/actions/new.png")));
+	    // TODO fork diff (got rid of layered "new" icon because it's ugly)
+      presentation.setIcon(fileType.getIcon());
     }
     else {
       presentation.setVisible(false);
