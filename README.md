@@ -3,7 +3,7 @@ This is IntelliJ IDEA plugin for writing simple plugins in Groovy (or running Gr
 How to use
 ===========
  - open "Plugins" tool window on the right side
- - open and edit one of "plugin.groovy" files (these are entry points for plugins)
+ - edit one of "plugin.groovy" files (these are entry points for plugins)
  - use "ctrl + C, ctrl + E" to execute current plugin
 
 Plugins are stored on application level.
