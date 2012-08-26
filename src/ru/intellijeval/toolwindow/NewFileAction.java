@@ -13,6 +13,17 @@
  */
 package ru.intellijeval.toolwindow;
 
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.UIBundle;
+import fork.com.intellij.openapi.fileChooser.FileSystemTree;
+import fork.com.intellij.openapi.fileChooser.actions.FileChooserAction;
+import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
+import fork.com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
+
 import javax.swing.*;
 
 /**
@@ -21,13 +32,62 @@ import javax.swing.*;
  * User: dima
  * Date: 13/08/2012
  */
-public class NewFileAction extends fork.com.intellij.openapi.fileChooser.actions.NewFileAction {
+public class NewFileAction extends FileChooserAction {
 	public NewFileAction() {
 	}
 
 	public NewFileAction(String text, Icon icon) {
-		getTemplatePresentation().setText(text);
-		getTemplatePresentation().setDescription(text);
-		getTemplatePresentation().setIcon(icon);
+		super(text, text, icon);
+	}
+
+	protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {
+		Presentation presentation = e.getPresentation();
+		final FileType fileType = e.getData(FileChooserKeys.NEW_FILE_TYPE);
+		if (fileType != null) {
+			presentation.setVisible(true);
+			VirtualFile selectedFile = fileSystemTree.getNewFileParent();
+			presentation.setEnabled(selectedFile != null && selectedFile.isDirectory());
+			// TODO fork diff (got rid of layered "new" icon because it's ugly)
+			presentation.setIcon(fileType.getIcon());
+		}
+		else {
+			presentation.setVisible(false);
+		}
+	}
+
+	protected void actionPerformed(FileSystemTree fileSystemTree, AnActionEvent e) {
+		final FileType fileType = e.getData(FileChooserKeys.NEW_FILE_TYPE);
+		String initialContent = e.getData(FileChooserKeys.NEW_FILE_TEMPLATE_TEXT);
+		// TODO fork diff (don't really care if initial content if null)
+		if (initialContent == null) initialContent = "";
+		if (fileType != null) {
+			createNewFile(fileSystemTree, fileType, initialContent);
+		}
+	}
+
+	private static void createNewFile(FileSystemTree fileSystemTree, final FileType fileType, final String initialContent) {
+		final VirtualFile file = fileSystemTree.getNewFileParent();
+		if (file == null || !file.isDirectory()) return;
+
+		String newFileName;
+		while (true) {
+			newFileName = Messages.showInputDialog(UIBundle.message("create.new.file.enter.new.file.name.prompt.text"),
+					UIBundle.message("new.file.dialog.title"), Messages.getQuestionIcon());
+			if (newFileName == null) {
+				return;
+			}
+			if ("".equals(newFileName.trim())) {
+				Messages.showMessageDialog(UIBundle.message("create.new.file.file.name.cannot.be.empty.error.message"),
+						UIBundle.message("error.dialog.title"), Messages.getErrorIcon());
+				continue;
+			}
+			Exception failReason = ((FileSystemTreeImpl)fileSystemTree).createNewFile(file, newFileName, fileType, initialContent);
+			if (failReason != null) {
+				Messages.showMessageDialog(UIBundle.message("create.new.file.could.not.create.file.error.message", newFileName),
+						UIBundle.message("error.dialog.title"), Messages.getErrorIcon());
+				continue;
+			}
+			return;
+		}
 	}
 }

@@ -48,7 +48,7 @@ public class FileTreeStructure extends AbstractTreeStructure {
 
   public FileTreeStructure(Project project, FileChooserDescriptor chooserDescriptor) {
     myProject = project;
-	  // TODO fork diff; why?!
+	  // TODO fork diff; why?
       final VirtualFile[] rootFiles = VfsUtil.toVirtualFileArray(chooserDescriptor.getRoots());
 	  final String name = chooserDescriptor.getTitle();
 	  myRootElement = new RootFileElement(rootFiles, name, chooserDescriptor.isShowFileSystemRoots());

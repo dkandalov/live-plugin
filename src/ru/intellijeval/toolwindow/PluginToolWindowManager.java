@@ -21,6 +21,9 @@ import com.intellij.ide.DefaultTreeExpander;
 import com.intellij.ide.actions.CollapseAllAction;
 import com.intellij.ide.actions.ExpandAllAction;
 import com.intellij.ide.ui.customization.CustomizationUtil;
+import com.intellij.ide.util.treeView.AbstractTreeBuilder;
+import com.intellij.ide.util.treeView.AbstractTreeStructure;
+import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationBundle;
@@ -63,11 +66,15 @@ import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import fork.com.intellij.openapi.fileChooser.FileSystemTree;
 import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
 import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
+import fork.com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
+import fork.com.intellij.openapi.fileChooser.ex.RootFileElement;
+import fork.com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 import ru.intellijeval.*;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -190,7 +197,16 @@ public class PluginToolWindowManager {
 			// must be installed before adding tree to FileSystemTreeImpl
 			EditSourceOnDoubleClickHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
 
-			FileSystemTree result = new PluginsFileSystemTree(project, createDescriptor(), myTree, null, null, null);
+			FileSystemTree result = new FileSystemTreeImpl(project, createDescriptor(), myTree, null, null, null) {
+				@Override
+				protected AbstractTreeBuilder createTreeBuilder(JTree tree, DefaultTreeModel treeModel, AbstractTreeStructure treeStructure, Comparator<NodeDescriptor> comparator, FileChooserDescriptor descriptor, @Nullable Runnable onInitialized) {
+					return new FileTreeBuilder(tree, treeModel, treeStructure, comparator, descriptor, onInitialized) {
+						@Override protected boolean isAutoExpandNode(NodeDescriptor nodeDescriptor) {
+							return nodeDescriptor.getElement() instanceof RootFileElement;
+						}
+					};
+				}
+			};
 			myFsTreeRef.set(result);
 
 			// must be installed after adding tree to FileSystemTreeImpl
@@ -209,6 +225,14 @@ public class PluginToolWindowManager {
 				@Override public Icon getClosedIcon(VirtualFile file) {
 					if (EvalComponent.pluginToPathMap().values().contains(file.getPath())) return Util.PLUGIN_ICON;
 					return super.getClosedIcon(file);
+				}
+
+				@Override public String getName(VirtualFile virtualFile) {
+					return virtualFile.getName();
+				}
+
+				@Nullable @Override public String getComment(VirtualFile virtualFile) {
+					return "";
 				}
 			};
 			descriptor.setShowFileSystemRoots(false);
