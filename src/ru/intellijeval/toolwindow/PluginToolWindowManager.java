@@ -220,7 +220,8 @@ public class PluginToolWindowManager {
 					return VirtualFileManager.getInstance().findFileByUrl("file://" + path);
 				}
 			});
-			descriptor.setRoots(virtualFiles);
+			descriptor.getRoots().clear();
+			descriptor.getRoots().addAll(virtualFiles);
 
 			return descriptor;
 		}
@@ -497,8 +498,11 @@ public class PluginToolWindowManager {
 
 		@Override public void actionPerformed(AnActionEvent event) {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, true, true, false);
-			descriptor.setRoots(getFileSystemRoots());
-			VirtualFile virtualFile = FileChooser.chooseFile(descriptor, null, null);
+
+			descriptor.getRoots().clear();
+			Collections.addAll(descriptor.getRoots(), getFileSystemRoots());
+
+			VirtualFile virtualFile = FileChooser.chooseFile(event.getProject(), descriptor);
 			if (virtualFile == null) return;
 
 			if (EvalComponent.isInvalidPluginFolder(virtualFile) &&

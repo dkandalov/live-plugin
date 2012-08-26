@@ -18,32 +18,31 @@ package ru.intellijeval.toolwindow;
 import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.AbstractTreeStructure;
 import com.intellij.ide.util.treeView.NodeDescriptor;
-import com.intellij.ide.util.treeView.NodeRenderer;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.NewVirtualFile;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
-import com.intellij.ui.*;
+import com.intellij.ui.PopupHandler;
+import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.ui.TreeSpeedSearch;
+import com.intellij.ui.UIBundle;
+import com.intellij.ui.treeStructure.SimpleNodeRenderer;
 import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.Function;
-import com.intellij.util.NullableFunction;
-import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.containers.ConvertingIterator;
 import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import fork.com.intellij.openapi.fileChooser.FileElement;
 import fork.com.intellij.openapi.fileChooser.FileSystemTree;
@@ -51,6 +50,7 @@ import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
 import fork.com.intellij.openapi.fileChooser.impl.FileComparator;
 import fork.com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
 import fork.com.intellij.openapi.fileChooser.impl.FileTreeStructure;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -58,10 +58,7 @@ import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.*;
 
@@ -69,6 +66,8 @@ import java.util.*;
  * Fork of {@link fork.com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl}.
  */
 public class PluginsFileSystemTree implements FileSystemTree {
+	private static final Logger LOG = Logger.getInstance("#com.intellij.chooser.FileSystemTreeImpl");
+
 	private final Tree myTree;
 	private final FileTreeStructure myTreeStructure;
 	private final AbstractTreeBuilder myTreeBuilder;
@@ -82,23 +81,19 @@ public class PluginsFileSystemTree implements FileSystemTree {
 	private Map<VirtualFile, VirtualFile> myEverExpanded = new WeakHashMap<VirtualFile, VirtualFile>();
 
 
-	public PluginsFileSystemTree(@Nullable final Project project,
-	                             final FileChooserDescriptor descriptor,
-	                             final Tree tree,
-	                             @Nullable TreeCellRenderer renderer,
-	                             @Nullable final Runnable onInitialized,
-	                             @Nullable final Convertor<TreePath, String> speedSearchConverter) {
+	public PluginsFileSystemTree(@Nullable Project project, FileChooserDescriptor descriptor, Tree tree, TreeCellRenderer renderer,
+	                          final Runnable onInitialized,
+	                          Convertor<TreePath, String> speedSearchConvertor) {
 		myProject = project;
+		myTreeStructure = new FileTreeStructure(project, descriptor);
 		myDescriptor = descriptor;
-		myTreeStructure = new FileTreeStructure(project, myDescriptor);
 		myTree = tree;
 		final DefaultTreeModel treeModel = new DefaultTreeModel(new DefaultMutableTreeNode());
 		myTree.setModel(treeModel);
-		myTree.setRootVisible(false);
 
 		myTree.addTreeExpansionListener(myExpansionListener);
 
-		myTreeBuilder = createTreeBuilder(myTree, treeModel, myTreeStructure, FileComparator.getInstance(), myDescriptor, new Runnable() {
+		myTreeBuilder = createTreeBuilder(myTree, treeModel, myTreeStructure, FileComparator.getInstance(), descriptor, new Runnable() {
 			public void run() {
 				myTree.expandPath(new TreePath(treeModel.getRoot()));
 				if (onInitialized != null) {
@@ -123,8 +118,8 @@ public class PluginsFileSystemTree implements FileSystemTree {
 			}
 		});
 
-		if (speedSearchConverter != null) {
-			new TreeSpeedSearch(myTree, speedSearchConverter);
+		if (speedSearchConvertor != null) {
+			new TreeSpeedSearch(myTree, speedSearchConvertor);
 		} else {
 			new TreeSpeedSearch(myTree);
 		}
@@ -132,12 +127,15 @@ public class PluginsFileSystemTree implements FileSystemTree {
 		TreeUtil.installActions(myTree);
 
 		myTree.getSelectionModel().setSelectionMode(
-				myDescriptor.getChooseMultiple() ? TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION : TreeSelectionModel.SINGLE_TREE_SELECTION
+				myTreeStructure.getChooserDescriptor().getChooseMultiple() ?
+						TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION :
+						TreeSelectionModel.SINGLE_TREE_SELECTION
 		);
 		registerTreeActions();
 
 		if (renderer == null) {
-			renderer = new NodeRenderer() {
+			renderer = new SimpleNodeRenderer() {
+
 				public void customizeCellRenderer(JTree tree,
 				                                  Object value,
 				                                  boolean selected,
@@ -157,10 +155,11 @@ public class PluginsFileSystemTree implements FileSystemTree {
 			};
 		}
 		myTree.setCellRenderer(renderer);
+
 	}
 
-	protected AbstractTreeBuilder createTreeBuilder(JTree tree, DefaultTreeModel treeModel, AbstractTreeStructure treeStructure,
-	                                                Comparator<NodeDescriptor> comparator, FileChooserDescriptor descriptor,
+	protected AbstractTreeBuilder createTreeBuilder(final JTree tree, DefaultTreeModel treeModel, final AbstractTreeStructure treeStructure,
+	                                                final Comparator<NodeDescriptor> comparator, FileChooserDescriptor descriptor,
 	                                                @Nullable final Runnable onInitialized) {
 		return new FileTreeBuilder(tree, treeModel, treeStructure, comparator, descriptor, onInitialized);
 	}
@@ -173,14 +172,11 @@ public class PluginsFileSystemTree implements FileSystemTree {
 					}
 				}, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED
 		);
-
-		new DoubleClickListener() {
-			@Override
-			protected boolean onDoubleClick(MouseEvent e) {
-				performEnterAction(false);
-				return true;
+		myTree.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) performEnterAction(false);
 			}
-		}.installOn(myTree);
+		});
 	}
 
 	private void performEnterAction(boolean toggleNodeState) {
@@ -217,13 +213,13 @@ public class PluginsFileSystemTree implements FileSystemTree {
 		return myTreeStructure.areHiddensShown();
 	}
 
-	public void showHiddens(boolean showHidden) {
-		myTreeStructure.showHiddens(showHidden);
+	public void showHiddens(boolean showHiddens) {
+		myTreeStructure.showHiddens(showHiddens);
 		updateTree();
 	}
 
 	public void updateTree() {
-		myTreeBuilder.queueUpdate();
+		myTreeBuilder.updateFromRoot();
 	}
 
 	public void dispose() {
@@ -238,8 +234,20 @@ public class PluginsFileSystemTree implements FileSystemTree {
 		return myTreeBuilder;
 	}
 
+	/**
+	 * @deprecated since tree updating is an asynchronous operation
+	 */
+	public boolean select(final VirtualFile file) {
+		DefaultMutableTreeNode node = getNodeForFile(file);
+		if (node == null) return false;
+		else {
+			TreeUtil.selectPath(myTree, new TreePath(node.getPath()));
+			return true;
+		}
+	}
+
 	public void select(VirtualFile file, @Nullable final Runnable onDone) {
-		select(new VirtualFile[]{file}, onDone);
+		select(new VirtualFile[] {file}, onDone);
 	}
 
 	public void select(VirtualFile[] file, @Nullable final Runnable onDone) {
@@ -257,7 +265,7 @@ public class PluginsFileSystemTree implements FileSystemTree {
 	}
 
 	@Nullable
-	private static FileElement getFileElementFor(@NotNull VirtualFile file) {
+	private static FileElement getFileElementFor(VirtualFile file) {
 		VirtualFile selectFile;
 
 		if ((file.getFileSystem() instanceof JarFileSystem) && file.getParent() == null) {
@@ -271,6 +279,23 @@ public class PluginsFileSystemTree implements FileSystemTree {
 		}
 
 		return new FileElement(selectFile, selectFile.getName());
+	}
+
+	public boolean expand(VirtualFile directory) {
+		if (!directory.isDirectory()) return false;
+		DefaultMutableTreeNode node = getNodeForFile(directory);
+		if (node == null) return false;
+		myTree.expandPath(new TreePath(node.getPath()));
+		return true;
+	}
+
+	@Nullable
+	private DefaultMutableTreeNode getNodeForFile(VirtualFile file) {
+		FileElement descriptor = getFileElementFor(file);
+		if (descriptor == null) return null;
+
+		myTreeBuilder.buildNodeForElement(descriptor);
+		return myTreeBuilder.getNodeForElement(descriptor);
 	}
 
 	public Exception createNewFolder(final VirtualFile parentDirectory, final String newFolderName) {
@@ -335,51 +360,50 @@ public class PluginsFileSystemTree implements FileSystemTree {
 	public VirtualFile getSelectedFile() {
 		final TreePath path = myTree.getSelectionPath();
 		if (path == null) return null;
-		final DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
 		if (!(node.getUserObject() instanceof FileNodeDescriptor)) return null;
-		final FileElement element = ((FileNodeDescriptor)node.getUserObject()).getElement();
-		return element.getFile();
+		FileNodeDescriptor descriptor = (FileNodeDescriptor)node.getUserObject();
+		return descriptor.getElement().getFile();
 	}
 
-	@Nullable
 	public VirtualFile getNewFileParent() {
-		VirtualFile selected = getSelectedFile();
-		if (selected == null) return null;
+		if (getSelectedFile() != null) return getSelectedFile();
 
-		if (!selected.isDirectory()) {
-			selected = selected.getParent();
+		List<VirtualFile> roots = myDescriptor.getRoots();
+		for (VirtualFile each : roots) {
+			return each;
 		}
-		return selected;
+
+		return null;
 	}
 
-	@NotNull
 	public VirtualFile[] getSelectedFiles() {
-		final List<VirtualFile> files = collectSelectedElements(new NullableFunction<FileElement, VirtualFile>() {
-			@Override
-			public VirtualFile fun(final FileElement element) {
-				final VirtualFile file = element.getFile();
-				return file != null && file.isValid() ? file : null;
+		return collectSelectedFiles(new ConvertingIterator.IdConvertor<VirtualFile>());
+	}
+
+	public VirtualFile[] getChoosenFiles() {
+		return collectSelectedFiles(new Convertor<VirtualFile, VirtualFile>() {
+			@Nullable
+			public VirtualFile convert(VirtualFile file) {
+				if (file == null || !file.isValid()) return null;
+				return myTreeStructure.getChooserDescriptor().getFileToSelect(file);
 			}
 		});
-		return VfsUtil.toVirtualFileArray(files);
 	}
 
-	private <T> List<T> collectSelectedElements(final Function<FileElement, T> converter) {
-		final TreePath[] paths = myTree.getSelectionPaths();
-		if (paths == null) return Collections.emptyList();
+	private VirtualFile[] collectSelectedFiles(Convertor<VirtualFile, VirtualFile> fileConvertor) {
+		TreePath[] paths = myTree.getSelectionPaths();
+		if (paths == null) return VirtualFile.EMPTY_ARRAY;
+		ArrayList<VirtualFile> files = new ArrayList<VirtualFile>(paths.length);
 
-		final List<T> elements = new ArrayList<T>();
 		for (TreePath path : paths) {
-			final DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
-			final Object userObject = node.getUserObject();
-			if (userObject instanceof FileNodeDescriptor) {
-				final T element = converter.fun(((FileNodeDescriptor)userObject).getElement());
-				if (element != null) {
-					elements.add(element);
-				}
-			}
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode)path.getLastPathComponent();
+			if (!(node.getUserObject() instanceof FileNodeDescriptor)) return VirtualFile.EMPTY_ARRAY;
+			FileNodeDescriptor descriptor = (FileNodeDescriptor)node.getUserObject();
+			VirtualFile file = fileConvertor.convert(descriptor.getElement().getFile());
+			if (file != null && file.isValid()) files.add(file);
 		}
-		return elements;
+		return VfsUtil.toVirtualFileArray(files);
 	}
 
 	public boolean selectionExists() {
@@ -387,17 +411,17 @@ public class PluginsFileSystemTree implements FileSystemTree {
 		return selectedPaths != null && selectedPaths.length != 0;
 	}
 
-	@Override
-	public boolean isUnderRoots(@NotNull VirtualFile file) {
+	public boolean isUnderRoots(VirtualFile file) {
 		final List<VirtualFile> roots = myDescriptor.getRoots();
-		if (roots.size() == 0) return true;
-
+		if (roots.size() == 0) {
+			return true;
+		}
 		for (VirtualFile root : roots) {
-			if (root != null && VfsUtilCore.isAncestor(root, file, false)) {
+			if (root == null) continue;
+			if (VfsUtil.isAncestor(root, file, false)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -459,8 +483,7 @@ public class PluginsFileSystemTree implements FileSystemTree {
 					}
 
 
-					AbstractTreeStructure treeStructure = myTreeBuilder.getTreeStructure();
-					boolean async = treeStructure != null && treeStructure.isToBuildChildrenInBackground(virtualFile);
+					boolean async = myTreeBuilder.getTreeStructure().isToBuildChildrenInBackground(virtualFile);
 					if (virtualFile instanceof NewVirtualFile) {
 						RefreshQueue.getInstance().refresh(async, false, null, ModalityState.stateForComponent(myTree), virtualFile);
 					}
@@ -471,6 +494,7 @@ public class PluginsFileSystemTree implements FileSystemTree {
 			}
 		}
 
-		public void treeCollapsed(TreeExpansionEvent event) { }
+		public void treeCollapsed(TreeExpansionEvent event) {
+		}
 	}
 }

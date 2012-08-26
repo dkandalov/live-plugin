@@ -19,20 +19,20 @@
  */
 package fork.com.intellij.openapi.fileChooser.impl;
 
-import com.intellij.ide.util.treeView.NodeDescriptor;
 import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ide.util.treeView.NodeDescriptor;
 
 import java.util.Comparator;
 
 public final class FileComparator implements Comparator<NodeDescriptor> {
-  private static final fork.com.intellij.openapi.fileChooser.impl.FileComparator INSTANCE = new fork.com.intellij.openapi.fileChooser.impl.FileComparator();
+  private static final FileComparator INSTANCE = new FileComparator();
 
   private FileComparator() {
     // empty
   }
 
-  public static fork.com.intellij.openapi.fileChooser.impl.FileComparator getInstance() {
+  public static FileComparator getInstance() {
     return INSTANCE;
   }
 

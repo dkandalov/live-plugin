@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2012 JetBrains s.r.o.
+ * Copyright 2000-2009 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,26 +21,27 @@ import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.LayeredIcon;
 import com.intellij.ui.UIBundle;
 import com.intellij.util.IconUtil;
 import com.intellij.util.PlatformIcons;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * @see fork.com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+ * @see FileChooserDescriptorFactory
  */
-public class FileChooserDescriptor implements Cloneable {
-  private final boolean myChooseFiles;
+public class FileChooserDescriptor implements Cloneable{
+  private boolean myChooseFiles;
   private boolean myChooseFolders;
-  private final boolean myChooseJars;
-  private final boolean myChooseJarsAsFiles;
-  private final boolean myChooseJarContents;
-  private final boolean myChooseMultiple;
+  private boolean myChooseJars;
+  private boolean myChooseJarsAsFiles;
+  private boolean myChooseJarContents;
+  private boolean myChooseMultiple;
 
   private String myTitle = UIBundle.message("file.chooser.default.title");
   private String myDescription;
@@ -53,27 +54,37 @@ public class FileChooserDescriptor implements Cloneable {
   private final Map<String, Object> myUserData = new HashMap<String, Object>();
 
   /**
-   * Creates new instance. Use methods from {@link fork.com.intellij.openapi.fileChooser.FileChooserDescriptorFactory} for most used descriptors.
-   *
-   * @param chooseFiles       controls whether files can be chosen
-   * @param chooseFolders     controls whether folders can be chosen
-   * @param chooseJars        controls whether .jar files can be chosen
-   * @param chooseJarsAsFiles controls whether .jar files will be returned as files or as folders
-   * @param chooseJarContents controls whether .jar file contents can be chosen
-   * @param chooseMultiple    controls how many files can be chosen
-   */
-  public FileChooserDescriptor(boolean chooseFiles,
-                               boolean chooseFolders,
-                               boolean chooseJars,
-                               boolean chooseJarsAsFiles,
-                               boolean chooseJarContents,
-                               boolean chooseMultiple) {
+   * Creates new instance. Use methods from {@link FileChooserDescriptorFactory} for most used descriptors
+   * @param chooseFiles controls whether files can be chosen
+   * @param chooseFolders controls whether folders can be chosen
+   * @param chooseJars
+   * @param chooseJarsAsFiles controls whether the jar files will be returned as files or as folders
+   * @param chooseJarContents controls whether user can choose jar files and their contents
+   * @param chooseMultiple
+   */ 
+  public FileChooserDescriptor(
+    boolean chooseFiles, 
+    boolean chooseFolders, 
+    boolean chooseJars, 
+    boolean chooseJarsAsFiles, 
+    boolean chooseJarContents, 
+    boolean chooseMultiple
+  ){
     myChooseFiles = chooseFiles;
     myChooseFolders = chooseFolders;
     myChooseJars = chooseJars;
     myChooseJarsAsFiles = chooseJarsAsFiles;
     myChooseJarContents = chooseJarContents;
     myChooseMultiple = chooseMultiple;
+  }
+
+  public FileChooserDescriptor() {
+    this(false, false, false, false, false, false);
+  }
+
+  public FileChooserDescriptor chooseFolders() {
+    myChooseFolders = true;
+    return this;
   }
 
   public final String getTitle() {
@@ -112,14 +123,13 @@ public class FileChooserDescriptor implements Cloneable {
    * If true, the user will be able to choose multiple files.
    */
   public final boolean getChooseMultiple() {
-    return isChooseMultiple();
+    return myChooseMultiple;
   }
 
   /**
    * Defines whether file can be chosen or not 
    */ 
   public boolean isFileSelectable(VirtualFile file) {
-    if (file == null) return false;
     if (file.isDirectory() && myChooseFolders) return true;
     if (acceptAsJarFile(file)) return true;
     if (acceptAsGeneralFile(file)) return true;
@@ -158,31 +168,27 @@ public class FileChooserDescriptor implements Cloneable {
     return true;
   }
 
-  public Icon getOpenIcon(final VirtualFile file) {
-    if (file.isDirectory()) {
-      return dressIcon(file, PlatformIcons.DIRECTORY_OPEN_ICON);
+  public Icon getOpenIcon(VirtualFile virtualFile) {
+    if (virtualFile.isDirectory()) {
+      return PlatformIcons.DIRECTORY_OPEN_ICON;
     }
     // deliberately pass project null: isJavaSourceFile() and excluded from compile information is unavailable for template project
-    return IconUtil.getIcon(file, Iconable.ICON_FLAG_READ_STATUS, null);
+    return IconUtil.getIcon(virtualFile, Iconable.ICON_FLAG_READ_STATUS, null);
   }
-
-  public Icon getClosedIcon(final VirtualFile file) {
-    if (file.isDirectory()) {
-      return dressIcon(file, PlatformIcons.DIRECTORY_CLOSED_ICON);
+  public Icon getClosedIcon(VirtualFile virtualFile) {
+    if (virtualFile.isDirectory()) {
+      return PlatformIcons.DIRECTORY_CLOSED_ICON;
     }
-    return IconUtil.getIcon(file, Iconable.ICON_FLAG_READ_STATUS, null);
+    return IconUtil.getIcon(virtualFile, Iconable.ICON_FLAG_READ_STATUS, null);
   }
 
-  protected static Icon dressIcon(final VirtualFile file, final Icon baseIcon) {
-    return file.isSymLink() ? new LayeredIcon(baseIcon, PlatformIcons.SYMLINK_ICON) : baseIcon;
+  public String getName(VirtualFile virtualFile) {
+    return virtualFile.getPath();
   }
 
-  public String getName(final VirtualFile file) {
-    return file.getPath();
-  }
 
   @Nullable
-  public String getComment(final VirtualFile file) {
+  public String getComment(VirtualFile virtualFile) {
     return null;
   }
 
@@ -204,9 +210,8 @@ public class FileChooserDescriptor implements Cloneable {
     return myChooseJars && FileElement.isArchive(file);
   }
 
-  @Nullable
   public final VirtualFile getFileToSelect(VirtualFile file) {
-    if (file.isDirectory() && (myChooseFolders || isFileSelectable(file))) {
+    if (file.isDirectory() && myChooseFolders) {
       return file;
     }
     boolean isJar = file.getFileType() == FileTypes.ARCHIVE;
@@ -223,33 +228,17 @@ public class FileChooserDescriptor implements Cloneable {
     return JarFileSystem.getInstance().findFileByPath(path + JarFileSystem.JAR_SEPARATOR);
   }
 
-  public final void setHideIgnored(boolean hideIgnored) {
-    myHideIgnored = hideIgnored;
-  }
+  public final void setHideIgnored(boolean hideIgnored) { myHideIgnored = hideIgnored; }
 
   public final List<VirtualFile> getRoots() {
-    return Collections.unmodifiableList(myRoots);
+    return myRoots;
   }
 
-  public final void setRoots(final VirtualFile... roots) {
-    setRoots(Arrays.asList(roots));
-  }
-
-  public final void setRoots(@NotNull final List<VirtualFile> roots) {
-    myRoots.clear();
-    myRoots.addAll(roots);
-  }
-
-  /** @deprecated use {@linkplain #setRoots(com.intellij.openapi.vfs.VirtualFile...)} (to remove in IDEA 13) */
-  @SuppressWarnings("UnusedDeclaration")
   public final void setRoot(VirtualFile root) {
     myRoots.clear();
-    myRoots.add(root);
+    addRoot(root);
   }
-
-  /** @deprecated use {@linkplain #setRoots(com.intellij.openapi.vfs.VirtualFile...)} (to remove in IDEA 13) */
-  @SuppressWarnings("UnusedDeclaration")
-  public final void addRoot(VirtualFile root) {
+  public void addRoot(VirtualFile root) {
     myRoots.add(root);
   }
 
@@ -290,18 +279,11 @@ public class FileChooserDescriptor implements Cloneable {
     return myHideIgnored;
   }
 
-  @Nullable
   public Object getUserData(String dataId) {
     return myUserData.get(dataId);
   }
 
-  @Nullable
-  public <T> T getUserData(@NotNull DataKey<T> key) {
-    @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"}) final T t = (T)myUserData.get(key.getName());
-    return t;
-  }
-
-  public <T> void putUserData(@NotNull DataKey<T> key, @Nullable T data) {
+  public <T> void putUserData(DataKey<T> key, T data) {
     myUserData.put(key.getName(), data);
   }
 

@@ -30,8 +30,8 @@ public interface FileSystemTreeFactory {
     private SERVICE() {
     }
 
-    public static fork.com.intellij.openapi.fileChooser.FileSystemTreeFactory getInstance() {
-      return ServiceManager.getService(fork.com.intellij.openapi.fileChooser.FileSystemTreeFactory.class);
+    public static FileSystemTreeFactory getInstance() {
+      return ServiceManager.getService(FileSystemTreeFactory.class);
     }
   }
 }

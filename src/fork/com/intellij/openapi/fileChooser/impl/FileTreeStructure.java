@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2012 JetBrains s.r.o.
+ * Copyright 2000-2009 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +14,48 @@
  * limitations under the License.
  */
 
+/**
+ * @author Yura Cangea
+ */
 package fork.com.intellij.openapi.fileChooser.impl;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ide.util.treeView.AbstractTreeStructure;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.diagnostic.Logger;
-import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import fork.com.intellij.openapi.fileChooser.FileElement;
-import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
-import fork.com.intellij.openapi.fileChooser.ex.RootFileElement;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
+import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import fork.com.intellij.openapi.fileChooser.FileElement;
+import fork.com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
+import fork.com.intellij.openapi.fileChooser.ex.RootFileElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.HashSet;
 
-/**
- * @author Yura Cangea
- */
 public class FileTreeStructure extends AbstractTreeStructure {
   private static final Logger LOG = Logger.getInstance("#com.intellij.chooser.FileTreeStructure");
-
   private final RootFileElement myRootElement;
   private final FileChooserDescriptor myChooserDescriptor;
-  private boolean myShowHidden;
+  private boolean myShownHiddens;
   private final Project myProject;
 
   public FileTreeStructure(Project project, FileChooserDescriptor chooserDescriptor) {
     myProject = project;
-    final VirtualFile[] rootFiles = VfsUtil.toVirtualFileArray(chooserDescriptor.getRoots());
-    final String name = chooserDescriptor.getTitle();
-    myRootElement = new RootFileElement(rootFiles, name, chooserDescriptor.isShowFileSystemRoots());
-    myChooserDescriptor = chooserDescriptor;
-    myShowHidden = PropertiesComponent.getInstance().getBoolean("FileChooser.showHiddens", false);
+	  // TODO fork diff; why?!
+      final VirtualFile[] rootFiles = VfsUtil.toVirtualFileArray(chooserDescriptor.getRoots());
+	  final String name = chooserDescriptor.getTitle();
+	  myRootElement = new RootFileElement(rootFiles, name, chooserDescriptor.isShowFileSystemRoots());
+	  myChooserDescriptor = chooserDescriptor;
+
+    String value = PropertiesComponent.getInstance().getValue("FileChooser.showHiddens");
+    myShownHiddens = Boolean.valueOf(value).booleanValue();
   }
 
   public boolean isToBuildChildrenInBackground(final Object element) {
@@ -61,11 +63,11 @@ public class FileTreeStructure extends AbstractTreeStructure {
   }
 
   public final boolean areHiddensShown() {
-    return myShowHidden;
+    return myShownHiddens;
   }
 
-  public final void showHiddens(final boolean showHidden) {
-    myShowHidden = showHidden;
+  public final void showHiddens(final boolean showHiddens) {
+    myShownHiddens = showHiddens;
   }
 
   public final Object getRootElement() {
@@ -112,7 +114,7 @@ public class FileTreeStructure extends AbstractTreeStructure {
 
     HashSet<FileElement> childrenSet = new HashSet<FileElement>();
     for (VirtualFile child : children) {
-      if (myChooserDescriptor.isFileVisible(child, myShowHidden)) {
+      if (myChooserDescriptor.isFileVisible(child, myShownHiddens)) {
         final FileElement childElement = new FileElement(child, child.getName());
         childElement.setParent(element);
         childrenSet.add(childElement);
@@ -163,20 +165,21 @@ public class FileTreeStructure extends AbstractTreeStructure {
   }
 
   @Nullable
-  private static VirtualFile getValidFile(FileElement element) {
+  private VirtualFile getValidFile(FileElement element) {
     if (element == null) return null;
     final VirtualFile file = element.getFile();
     return file != null && file.isValid() ? file : null;
   }
 
-  public final void commit() { }
+  public final void commit() {
+  }
 
   public final boolean hasSomethingToCommit() {
     return false;
   }
 
   public final void dispose() {
-    PropertiesComponent.getInstance().setValue("FileChooser.showHiddens", Boolean.toString(myShowHidden));
+    PropertiesComponent.getInstance().setValue("FileChooser.showHiddens", Boolean.toString(myShownHiddens));
   }
 
   @NotNull

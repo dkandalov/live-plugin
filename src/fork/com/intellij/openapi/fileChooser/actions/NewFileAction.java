@@ -18,20 +18,17 @@ package fork.com.intellij.openapi.fileChooser.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import fork.com.intellij.openapi.fileChooser.FileSystemTree;
+import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
+import fork.com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.LayeredIcon;
 import com.intellij.ui.UIBundle;
-import fork.com.intellij.openapi.fileChooser.FileSystemTree;
-import fork.com.intellij.openapi.fileChooser.ex.FileChooserKeys;
-
-import javax.swing.*;
 
 public class NewFileAction extends FileChooserAction {
-	public static final Icon New = IconLoader.getIcon("/actions/new.png"); // 16x16
-
   protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {
     Presentation presentation = e.getPresentation();
     final FileType fileType = e.getData(FileChooserKeys.NEW_FILE_TYPE);
@@ -39,7 +36,7 @@ public class NewFileAction extends FileChooserAction {
       presentation.setVisible(true);
       VirtualFile selectedFile = fileSystemTree.getNewFileParent();
       presentation.setEnabled(selectedFile != null && selectedFile.isDirectory());
-      presentation.setIcon(LayeredIcon.create(fileType.getIcon(), New));
+      presentation.setIcon(LayeredIcon.create(fileType.getIcon(), IconLoader.getIcon("/actions/new.png")));
     }
     else {
       presentation.setVisible(false);
@@ -70,7 +67,7 @@ public class NewFileAction extends FileChooserAction {
                                    UIBundle.message("error.dialog.title"), Messages.getErrorIcon());
         continue;
       }
-      Exception failReason = fileSystemTree.createNewFile(file, newFileName, fileType, initialContent);
+      Exception failReason = ((FileSystemTreeImpl)fileSystemTree).createNewFile(file, newFileName, fileType, initialContent);
       if (failReason != null) {
         Messages.showMessageDialog(UIBundle.message("create.new.file.could.not.create.file.error.message", newFileName),
                                    UIBundle.message("error.dialog.title"), Messages.getErrorIcon());

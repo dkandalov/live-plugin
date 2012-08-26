@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2012 JetBrains s.r.o.
+ * Copyright 2000-2009 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,14 @@ package fork.com.intellij.openapi.fileChooser;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataKey;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.List;
 
 public interface FileSystemTree extends Disposable {
-  // must be different from the key in IntelliJ classes
-  DataKey<FileSystemTree> DATA_KEY = DataKey.create("IntellijEval_FileSystemTree");
+  DataKey<FileSystemTree> DATA_KEY = DataKey.create("FileSystemTree");
 
   JTree getTree();
 
@@ -36,32 +33,39 @@ public interface FileSystemTree extends Disposable {
   @Nullable
   VirtualFile getSelectedFile();
 
-  @NotNull
-  VirtualFile[] getSelectedFiles();
-
   @Nullable
   VirtualFile getNewFileParent();
 
+  /**
+   * @deprecated since tree updating is an asynchronous operation
+   */
+  boolean select(VirtualFile file);
+
   void select(VirtualFile file, @Nullable Runnable onDone);
+
   void select(VirtualFile[] files, @Nullable Runnable onDone);
+
+
+  /**
+   * @deprecated since tree updating is an asynchronous operation
+   */
+  boolean expand(VirtualFile file);
 
   void expand(VirtualFile file, @Nullable Runnable onDone);
 
   void addListener(Listener listener, Disposable parent);
 
-  boolean isUnderRoots(@NotNull VirtualFile file);
+  boolean isUnderRoots(VirtualFile file);
 
   boolean selectionExists();
 
+  VirtualFile[] getSelectedFiles();
+
   boolean areHiddensShown();
 
-  void showHiddens(boolean showHidden);
+  void showHiddens(boolean showHiddens);
 
-	Exception createNewFolder(VirtualFile parentDirectory, String newFolderName);
-
-	Exception createNewFile(VirtualFile parentDirectory, String newFileName, FileType fileType, String initialContent);
-
-	interface Listener {
+  interface Listener {
     void selectionChanged(List<VirtualFile> selection);
   }
 }

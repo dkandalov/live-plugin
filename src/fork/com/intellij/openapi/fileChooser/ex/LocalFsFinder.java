@@ -17,14 +17,11 @@ package fork.com.intellij.openapi.fileChooser.ex;
 
 import com.intellij.ide.presentation.VirtualFilePresentation;
 import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import fork.com.intellij.openapi.fileChooser.FileSystemTree;
-import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PlatformIcons;
-import com.intellij.util.SystemProperties;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +35,7 @@ import java.util.List;
 
 public class LocalFsFinder implements FileLookup.Finder, FileLookup {
 
-  private File myBaseDir = new File(SystemProperties.getUserHome());
+  private File myBaseDir = new File(System.getProperty("user.home"));
 
   public LookupFile find(@NotNull final String path) {
     final VirtualFile byUrl = VirtualFileManager.getInstance().findFileByUrl(path);
@@ -82,36 +79,27 @@ public class LocalFsFinder implements FileLookup.Finder, FileLookup {
   public static class FileChooserFilter implements LookupFilter {
 
     private final FileChooserDescriptor myDescriptor;
-    private final Computable<Boolean> myShowHidden;
+    private final boolean myShowHidden;
 
     public FileChooserFilter(final FileChooserDescriptor descriptor, boolean showHidden) {
-      myShowHidden = new Computable.PredefinedValueComputable<Boolean>(showHidden);
       myDescriptor = descriptor;
-    }
-    public FileChooserFilter(final FileChooserDescriptor descriptor, final FileSystemTree tree) {
-      myDescriptor = descriptor;
-      myShowHidden = new Computable<Boolean>() {
-        @Override
-        public Boolean compute() {
-          return tree.areHiddensShown();
-        }
-      };
+      myShowHidden = showHidden;
     }
 
     public boolean isAccepted(final LookupFile file) {
       VirtualFile vFile = ((VfsFile)file).getFile();
       if (vFile == null) return false;
-      return myDescriptor.isFileVisible(vFile, myShowHidden.compute());
+      return myDescriptor.isFileVisible(vFile, myShowHidden);
     }
   }
 
   public static class VfsFile implements LookupFile {
     private final VirtualFile myFile;
-    private final fork.com.intellij.openapi.fileChooser.ex.LocalFsFinder myFinder;
+    private final LocalFsFinder myFinder;
 
     private String myMacro;
 
-    public VfsFile(fork.com.intellij.openapi.fileChooser.ex.LocalFsFinder finder, final VirtualFile file) {
+    public VfsFile(LocalFsFinder finder, final VirtualFile file) {
       myFinder = finder;
       myFile = file;
     }

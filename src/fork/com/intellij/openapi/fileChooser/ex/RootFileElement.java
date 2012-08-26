@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2012 JetBrains s.r.o.
+ * Copyright 2000-2009 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,54 +16,58 @@
 package fork.com.intellij.openapi.fileChooser.ex;
 
 import fork.com.intellij.openapi.fileChooser.FileElement;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class RootFileElement extends FileElement {
   private final VirtualFile[] myFiles;
+  private final boolean myShowFileSystemRoots;
   private Object[] myChildren;
 
-  public RootFileElement(@NotNull final VirtualFile[] files, final String name, final boolean showFileSystemRoots) {
-    super(null, name);
-    myFiles = files.length == 0 && showFileSystemRoots ? getFileSystemRoots() : files;
+  public RootFileElement(VirtualFile[] files, String name, boolean showFileSystemRoots) {
+	  // TODO fork diff
+	  super(null, name);
+	  myFiles = files.length == 0 && showFileSystemRoots ? getFileSystemRoots() : files;
+    myShowFileSystemRoots = showFileSystemRoots;
   }
 
   public Object[] getChildren() {
+    if (myFiles.length <= 1 && myShowFileSystemRoots) {
+      return getFileSystemRoots();
+    }
     if (myChildren == null) {
-      final List<FileElement> children = new ArrayList<FileElement>();
-      for (final VirtualFile file : myFiles) {
-        if (file != null) {
-          children.add(new FileElement(file, file.getPresentableUrl()));
-        }
-      }
-      myChildren = ArrayUtil.toObjectArray(children);
+      myChildren = createFileElementArray();
     }
     return myChildren;
   }
 
-  private static VirtualFile[] getFileSystemRoots() {
-    final LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
-    final Set<VirtualFile> roots = new HashSet<VirtualFile>();
-    final File[] ioRoots = File.listRoots();
-    if (ioRoots != null) {
-      for (final File root : ioRoots) {
-        final String path = FileUtil.toSystemIndependentName(root.getAbsolutePath());
-        final VirtualFile file = localFileSystem.findFileByPath(path);
-        if (file != null) {
-          roots.add(file);
-        }
+  private Object[] createFileElementArray() {
+    final List<FileElement> roots = new ArrayList<FileElement>();
+    for (final VirtualFile file : myFiles) {
+      if (file != null) {
+        roots.add(new FileElement(file, file.getPresentableUrl()));
       }
     }
-    return VfsUtil.toVirtualFileArray(roots);
+    return ArrayUtil.toObjectArray(roots);
+  }
+
+  private static VirtualFile[] getFileSystemRoots() {
+    File[] roots = File.listRoots();
+    LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
+    HashSet<FileElement> rootChildren = new HashSet<FileElement>();
+    for (File root : roots) {
+      String path = root.getAbsolutePath();
+      path = path.replace(File.separatorChar, '/');
+      VirtualFile file = localFileSystem.findFileByPath(path);
+      if (file == null) continue;
+      rootChildren.add(new FileElement(file, file.getPresentableUrl()));
+    }
+    return (VirtualFile[]) ArrayUtil.toObjectArray(rootChildren);
   }
 }

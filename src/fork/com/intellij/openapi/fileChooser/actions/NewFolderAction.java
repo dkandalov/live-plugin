@@ -17,10 +17,11 @@ package fork.com.intellij.openapi.fileChooser.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import fork.com.intellij.openapi.fileChooser.FileSystemTree;
+import fork.com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.UIBundle;
-import fork.com.intellij.openapi.fileChooser.FileSystemTree;
 
 import javax.swing.*;
 
@@ -59,7 +60,7 @@ public class NewFolderAction extends FileChooserAction {
                                    UIBundle.message("error.dialog.title"), Messages.getErrorIcon());
         continue;
       }
-      Exception failReason = fileSystemTree.createNewFolder(file, newFolderName);
+      Exception failReason = ((FileSystemTreeImpl)fileSystemTree).createNewFolder(file, newFolderName);
       if (failReason != null) {
         Messages.showMessageDialog(UIBundle.message("create.new.folder.could.not.create.folder.error.message", newFolderName),
                                    UIBundle.message("error.dialog.title"), Messages.getErrorIcon());

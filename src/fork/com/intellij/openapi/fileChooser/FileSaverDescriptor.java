@@ -27,8 +27,8 @@ import java.util.List;
  * Defines save dialog behaviour
  *
  * @author Konstantin Bulenkov
- * @see fork.com.intellij.openapi.fileChooser.FileSaverDialog
- * @see fork.com.intellij.openapi.fileChooser.FileChooserDescriptor
+ * @see FileSaverDialog
+ * @see FileChooserDescriptor
  * @since 9.0
  */
 public class FileSaverDescriptor extends FileChooserDescriptor implements Cloneable {

@@ -25,11 +25,11 @@ import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.util.StatusBarProgress;
 import com.intellij.openapi.vfs.*;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import fork.com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import fork.com.intellij.openapi.fileChooser.FileElement;
 import fork.com.intellij.openapi.fileChooser.ex.RootFileElement;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
@@ -105,11 +105,12 @@ public class FileTreeBuilder extends AbstractTreeBuilder {
   protected boolean isAutoExpandNode(NodeDescriptor nodeDescriptor) {
     if (nodeDescriptor.getElement() instanceof RootFileElement) {
       return true;
-	// CHANGED: because it caused plugins to expand on hide/show plugin tool window
-//    } else if (!SystemInfo.isWindows) {
-//      NodeDescriptor parent = nodeDescriptor.getParentDescriptor();
-//      return parent != null && parent.getElement() instanceof RootFileElement;
+	    // TODO fork diff; because it caused plugins to expand on hide/show plugin tool window
+    /*} else if (!SystemInfo.isWindows) {
+      NodeDescriptor parent = nodeDescriptor.getParentDescriptor();
+      return parent != null && parent.getElement() instanceof RootFileElement;*/
     }
+
     return false;
   }
 

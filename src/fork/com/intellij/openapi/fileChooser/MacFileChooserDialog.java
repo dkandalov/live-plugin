@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2009 JetBrains s.r.o.
+ * Copyright 2000-2010 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,17 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface FileChooserDialog {
-  DataKey<Boolean> PREFER_LAST_OVER_TO_SELECT = DataKey.create("PREFER_LAST_OVER_TO_SELECT");
-  
-  @NotNull
-  VirtualFile[] choose(@Nullable VirtualFile toSelect, @Nullable Project project);
+/**
+ * User: spLeaner
+ */
+public interface MacFileChooserDialog extends FileChooserDialog {
+  DataKey<Boolean> NATIVE_MAC_FILE_CHOOSER_ENABLED = DataKey.create("native.mac.file.chooser.enabled");
+  DataKey<Boolean> NATIVE_MAC_FILE_CHOOSER_SHOW_HIDDEN_FILES_ENABLED = DataKey.create("native.mac.file.chooser.show.hidden.files.enabled");
+
+  void chooseWithSheet(@Nullable VirtualFile toSelect, @Nullable Project project, @NotNull final MacFileChooserCallback callback);
+
+  interface MacFileChooserCallback {
+    void onChosen(@NotNull VirtualFile[] files);
+  }
+
 }

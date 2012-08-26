@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2012 JetBrains s.r.o.
+ * Copyright 2000-2009 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,8 @@
 package fork.com.intellij.openapi.fileChooser;
 
 import com.intellij.openapi.fileTypes.FileTypes;
-import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.StringBuilderSpinAllocator;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -29,15 +25,15 @@ public class FileElement {
   private final VirtualFile myFile;
   private final String myName;
   private Boolean myIsHidden;
-  private String myPath;
-  private fork.com.intellij.openapi.fileChooser.FileElement myParent;
 
-  public FileElement(@Nullable VirtualFile file, String name) {
+  private FileElement myParent;
+
+  public FileElement(VirtualFile file, String name) {
     myFile = file;
     myName = name;
   }
 
-  public void setParent(final fork.com.intellij.openapi.fileChooser.FileElement parent) {
+  public void setParent(final FileElement parent) {
     myParent = parent;
   }
 
@@ -45,54 +41,15 @@ public class FileElement {
     return myParent;
   }
 
-  public final VirtualFile getFile() {
-    return myFile;
-  }
-
-  public final String getName() {
-    return myName;
-  }
-
-  @NotNull
-  public final String getPath() {
-    if (myPath == null) {
-      final StringBuilder sb = StringBuilderSpinAllocator.alloc();
-      try {
-        FileElement element = this;
-        while (element != null) {
-          if (element.myParent != null || !element.myName.equals(File.separator)) {
-            sb.insert(0, element.myName);
-          }
-          element = element.myParent;
-          if (element != null) {
-            sb.insert(0, File.separator);
-          }
-        }
-        myPath = sb.toString();
-      }
-      finally {
-        StringBuilderSpinAllocator.dispose(sb);
-      }
-    }
-    return myPath;
-  }
-
-  @Override
   public int hashCode() {
     return myFile == null ? 0 : myFile.hashCode();
   }
 
-  @Override
   public boolean equals(Object obj) {
-    if (obj instanceof fork.com.intellij.openapi.fileChooser.FileElement) {
-      if (Comparing.equal(((fork.com.intellij.openapi.fileChooser.FileElement)obj).myFile, myFile)) return true;
+    if (obj instanceof FileElement) {
+      if (((FileElement)obj).myFile == myFile) return true;
     }
     return false;
-  }
-
-  @Override
-  public String toString() {
-    return myFile != null ? myFile.getName() : "";
   }
 
   public final boolean isHidden() {
@@ -102,19 +59,27 @@ public class FileElement {
     return myIsHidden.booleanValue();
   }
 
-  public final boolean isArchive() {
-    return isArchive(getFile());
+  public final VirtualFile getFile() {
+    return myFile;
   }
 
-  public static boolean isFileHidden(@Nullable final VirtualFile file) {
-    if (file == null || !file.isValid()) return false;
-    if (!file.isInLocalFileSystem()) return false;
-    final File ioFile = new File(file.getPath().replace('/', File.separatorChar));
-    return ioFile.isHidden() && ioFile.getParent() != null; // Under Windows logical driver files (e.g C:\) are hidden.
+  public final String toString() {
+    if (myName != null) {
+      return myName;
+    }
+    return myFile.getName();
   }
 
-  public static boolean isArchive(@Nullable final VirtualFile file) {
-    if (file == null) return false;
+  public final String getName() { return myName; }
+
+  public static boolean isFileHidden(VirtualFile virtualFile) {
+    if (virtualFile == null || !virtualFile.isValid()) return false;
+    if (!virtualFile.isInLocalFileSystem()) return false;
+    File file = new File(virtualFile.getPath().replace('/', File.separatorChar));
+    return file.getParent() != null && file.isHidden(); // Under Windows logical driver files (e.g C:\) are hidden.
+  }
+
+  public static boolean isArchive(VirtualFile file) {
     if (isArchiveFileSystem(file) && file.getParent() == null) return true;
     return !file.isDirectory() &&
            file.getFileType() == FileTypes.ARCHIVE &&
@@ -123,5 +88,9 @@ public class FileElement {
 
   private static boolean isArchiveFileSystem(VirtualFile file) {
     return file.getFileSystem() instanceof JarFileSystem;
+  }
+
+  public boolean isArchive() {
+    return isArchive(getFile());
   }
 }

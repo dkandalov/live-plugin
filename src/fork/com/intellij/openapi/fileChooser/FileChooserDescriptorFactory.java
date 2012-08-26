@@ -16,7 +16,6 @@
 package fork.com.intellij.openapi.fileChooser;
 
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.UIBundle;
 
@@ -38,21 +37,6 @@ public class FileChooserDescriptorFactory {
 
   public static FileChooserDescriptor createSingleFileNoJarsDescriptor() {
     return new FileChooserDescriptor(true, false, false, false, false, false);
-  }
-
-  public static FileChooserDescriptor createSingleFileOrExecutableAppDescriptor() {
-    return new FileChooserDescriptor(true, false, false, false, false, false) {
-      @Override
-      public boolean isFileSelectable(VirtualFile file) {
-        if (super.isFileSelectable(file)) return true;
-
-        if (SystemInfo.isMac && file.isDirectory() && "app".equals(file.getExtension())) {
-          return true;
-        }
-
-        return false;
-      }
-    };
   }
 
   public static FileChooserDescriptor createSingleLocalFileDescriptor() {
