@@ -76,8 +76,6 @@ static addInspection(Project project, Closure<LocalInspectionTool> inspectionFac
 	projectProfileManager.projectProfile = newProfile.name
 }
 
-// TODO review this
-
 addInspection(event.project, { new HelloWorldInspection() })
 
 show("evaluated hello world inspection")

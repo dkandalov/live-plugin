@@ -1,10 +1,10 @@
 <idea-plugin>
 	<id>InetlliJEval</id>
 	<name>InetlliJEval</name>
-	<version>0.1</version>
+	<version>0.1 beta</version>
 	<vendor email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<idea-version since-build="111.0"/>
-    <category></category> <!--TODO-->
+    <category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>
 Plugin for writing simple plugins in Groovy (or running Groovy code inside IntelliJ).
@@ -16,6 +16,8 @@ How to use:
 <li>use "ctrl + C, ctrl + E" to execute current plugin</li>
 </ul>
 Plugins are stored on application level.
+
+(For more details please see https://github.com/dkandalov/intellij_eval)
 </body></html>
 		]]>
 	</description>
