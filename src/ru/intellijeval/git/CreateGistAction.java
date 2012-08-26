@@ -10,7 +10,7 @@ import com.intellij.openapi.extensions.PluginId;
  * User: dima
  * Date: 19/08/2012
  */
-public class CreateGistAction {
+public class CreateGistAction { // TODO
 
 	public static AnAction findCreateGistAction() {
 

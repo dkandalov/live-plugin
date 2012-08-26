@@ -87,8 +87,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 		return pluginToPathMap().keySet().contains(pluginId);
 	}
 
-	@Override
-	public void initComponent() {
+	@Override public void initComponent() {
 		Settings settings = Settings.getInstance();
 		if (settings.justInstalled) {
 			installHelloWorldPlugin();
@@ -117,8 +116,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 		});
 	}
 
-	@Override
-	public void disposeComponent() {
+	@Override public void disposeComponent() {
 	}
 
 	@Override
