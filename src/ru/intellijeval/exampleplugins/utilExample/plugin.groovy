@@ -20,7 +20,7 @@ show(AClass.produceAString(), "Hello")
 showInConsole("Hello console", event.project)
 
 // shows exception's stacktrace in console
-showExceptionInConsole(new IllegalStateException(), event.project)
+showExceptionInConsole(new Exception("This is a fake exception to show exception in a console"), event.project)
 
 registerAction("My Action", "ctrl alt shift H") {
 	show("IntelliJ", "Hello")

@@ -48,16 +48,18 @@ class Evaluator {
 		try {
 
 			GroovyClassLoader classLoader = createClassLoaderWithDependencies(mainScriptPath, pluginId, System.getenv());
-			GroovyScriptEngine scriptEngine = new GroovyScriptEngine(path, classLoader);
+			GroovyScriptEngine scriptEngine = new GroovyScriptEngine("file:///" + path, classLoader);
 			Binding binding = new Binding();
 			binding.setVariable("event", event);
 			binding.setVariable("project", event.getProject());
 			binding.setVariable("isIdeStartup", event.getPlace().equals(RUN_ALL_PLUGINS_ON_IDE_START));
-			scriptEngine.run(mainScriptPath, binding);
+			scriptEngine.run("file:///" + mainScriptPath, binding);
 
 		} catch (IOException e) {
 			errorReporter.addLoadingError(pluginId, "Error while creating scripting engine. " + e.getMessage());
 		} catch (CompilationFailedException e) {
+			errorReporter.addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
+		} catch (VerifyError e) {
 			errorReporter.addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
 		} catch (Exception e) {
 			errorReporter.addEvaluationException(pluginId, e);
@@ -81,7 +83,7 @@ class Evaluator {
 		GroovyClassLoader classLoader = new GroovyClassLoader(this.getClass().getClassLoader());
 
 		try {
-			classLoader.addURL(new URL("file://" + new File(mainScriptPath).getParent()));
+			classLoader.addURL(new URL("file:///" + new File(mainScriptPath).getParent()));
 			classLoader.addClasspath(new File(mainScriptPath).getParent());
 
 			BufferedReader inputStream = new BufferedReader(new InputStreamReader(new FileInputStream(mainScriptPath)));
@@ -108,6 +110,7 @@ class Evaluator {
 	}
 
 	private static String inlineEnvironmentVariables(String s, Map<String, String> environment) {
+		// TODO log or somehow show substitued values.. may be show classloader paths for a plugin
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
 			s = s.replace("$" + entry.getKey(), entry.getValue());
 		}

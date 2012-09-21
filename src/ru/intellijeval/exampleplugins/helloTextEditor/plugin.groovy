@@ -1,12 +1,13 @@
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.notification.NotificationsManager
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorAction
+import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
@@ -17,19 +18,29 @@ import javax.swing.*
 import java.awt.Color
 import java.awt.Font
 
-static show(String htmlBody, String title = "", notificationType = NotificationType.INFORMATION) {
-	def notification = new Notification("", title, htmlBody, notificationType)
-	((Notifications) NotificationsManager.notificationsManager).notify(notification)
+static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
+    SwingUtilities.invokeLater({
+        def notification = new Notification("", title, htmlBody, notificationType)
+        ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+    } as Runnable)
 }
 
 class MyEditorAction extends EditorAction {
-	protected MyEditorAction(Closure closure) {
-		super(new EditorWriteActionHandler() {
-			@Override void executeWriteAction(Editor editor, DataContext dataContext) {
-				closure.call(editor)
-			}
-		})
+    public MyEditorAction(Closure closure) {
+		super(new MyEditorWriteActionHandler(closure))
 	}
+}
+
+class MyEditorWriteActionHandler extends EditorWriteActionHandler {
+    final Closure closure
+
+    MyEditorWriteActionHandler(Closure closure) {
+        this.closure = closure
+    }
+
+    @Override void executeWriteAction(Editor editor, DataContext dataContext) {
+        closure.call(editor)
+    }
 }
 
 static registerTextEditorAction(String actionId, String keyStroke = "", Closure closure) {

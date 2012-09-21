@@ -3,14 +3,18 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.keymap.KeymapManager
 
 import javax.swing.KeyStroke
+import javax.swing.SwingUtilities
 
 
-static show(String htmlBody, String title = "", notificationType = NotificationType.INFORMATION) {
-	def notification = new Notification("", title, htmlBody, notificationType)
-	((Notifications) NotificationsManager.notificationsManager).notify(notification)
+static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
+    SwingUtilities.invokeLater({
+        def notification = new Notification("", title, htmlBody, notificationType)
+        ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+    } as Runnable)
 }
 
 static registerAction(String actionId, String keyStroke = "", Closure closure) {
@@ -33,6 +37,6 @@ static registerAction(String actionId, String keyStroke = "", Closure closure) {
 	show("Action '${actionId}' loaded")
 }
 
-registerAction("HelloWorldAction", "ctrl shift alt H", {
+registerAction("HelloWorldAction", "alt shift H", {
 	show("Hello IntelliJ from action")
 })

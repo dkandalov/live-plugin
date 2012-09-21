@@ -217,7 +217,8 @@ public class PluginToolWindowManager {
 
 		private static FileChooserDescriptor createDescriptor() {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
-				@Override public Icon getOpenIcon(VirtualFile file) {
+				// TODO find how to do the same thing without overriding
+/*				@Override public Icon getOpenIcon(VirtualFile file) {
 					if (EvalComponent.pluginToPathMap().values().contains(file.getPath())) return Util.PLUGIN_ICON;
 					return super.getOpenIcon(file);
 				}
@@ -225,7 +226,7 @@ public class PluginToolWindowManager {
 				@Override public Icon getClosedIcon(VirtualFile file) {
 					if (EvalComponent.pluginToPathMap().values().contains(file.getPath())) return Util.PLUGIN_ICON;
 					return super.getClosedIcon(file);
-				}
+				}*/
 
 				@Override public String getName(VirtualFile virtualFile) {
 					return virtualFile.getName();

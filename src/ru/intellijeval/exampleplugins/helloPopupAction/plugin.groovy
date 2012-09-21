@@ -1,17 +1,19 @@
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.notification.NotificationsManager
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.ui.popup.JBPopupFactory
 
 import javax.swing.*
 
 
-static show(String htmlBody, String title = "", notificationType = NotificationType.INFORMATION) {
-	def notification = new Notification("", title, htmlBody, notificationType)
-	((Notifications) NotificationsManager.notificationsManager).notify(notification)
+static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
+    SwingUtilities.invokeLater({
+        def notification = new Notification("", title, htmlBody, notificationType)
+        ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+    } as Runnable)
 }
 
 static registerAction(String actionId, String keyStroke = "", Closure closure) {

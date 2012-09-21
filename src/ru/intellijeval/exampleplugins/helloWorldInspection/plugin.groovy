@@ -8,11 +8,13 @@ import com.intellij.ide.ui.search.SearchableOptionsRegistrar
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.notification.NotificationsManager
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Factory
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.*
+
+import javax.swing.SwingUtilities
 
 
 class HelloWorldInspection extends BaseJavaLocalInspectionTool {
@@ -48,9 +50,11 @@ class HelloWorldQuickFix implements LocalQuickFix {
 	}
 }
 
-static show(String htmlBody, String title = "", notificationType = NotificationType.INFORMATION) {
-	def notification = new Notification("", title, htmlBody, notificationType)
-	((Notifications) NotificationsManager.notificationsManager).notify(notification)
+static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
+    SwingUtilities.invokeLater({
+        def notification = new Notification("", title, htmlBody, notificationType)
+        ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+    } as Runnable)
 }
 
 static addInspection(Project project, Closure<LocalInspectionTool> inspectionFactory) {
