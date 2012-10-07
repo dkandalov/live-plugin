@@ -14,6 +14,7 @@
 package ru.intellijeval;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.diagnostic.Logger;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
@@ -28,6 +29,8 @@ import java.util.*;
  * Date: 17/08/2012
  */
 class Evaluator {
+	private static final Logger LOG = Logger.getInstance(Evaluator.class);
+
 	public static final String RUN_ALL_PLUGINS_ON_IDE_START = "RUN_ALL_PLUGINS_ON_IDE_START";
 	private static final String CLASSPATH_PREFIX = "// add-to-classpath ";
 
@@ -110,10 +113,12 @@ class Evaluator {
 	}
 
 	private static String inlineEnvironmentVariables(String s, Map<String, String> environment) {
-		// TODO log or somehow show substitued values.. may be show classloader paths for a plugin
+		boolean wasModified = false;
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
 			s = s.replace("$" + entry.getKey(), entry.getValue());
+			wasModified = true;
 		}
+		if (wasModified) LOG.info("Path with env variables: " + s);
 		return s;
 	}
 
