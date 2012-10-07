@@ -93,27 +93,6 @@ public class PluginToolWindowManager {
 
 	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<Project, PluginToolWindow>();
 
-	@Nullable public static PluginToolWindow getToolWindowFor(Project project) {
-		return toolWindowsByProject.get(project);
-	}
-
-	public static void reloadAllToolWindows() {
-		for (Map.Entry<Project, PluginToolWindow> entry : toolWindowsByProject.entrySet()) {
-			Project project = entry.getKey();
-			PluginToolWindow toolWindow = entry.getValue();
-
-			toolWindow.reloadPluginRoots(project);
-		}
-	}
-
-	public static void putToolWindow(PluginToolWindow pluginToolWindow, Project project) {
-		toolWindowsByProject.put(project, pluginToolWindow);
-	}
-
-	public static PluginToolWindow removeToolWindow(Project project) {
-		return toolWindowsByProject.remove(project);
-	}
-
 	public PluginToolWindowManager init() {
 		ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
 			@Override public void projectOpened(Project project) {
@@ -136,6 +115,43 @@ public class PluginToolWindowManager {
 			}
 		});
 		return this;
+	}
+
+	@Nullable public static PluginToolWindow getToolWindowFor(@Nullable Project project) {
+		if (project == null) return null;
+		return toolWindowsByProject.get(project);
+	}
+
+	private static void reloadAllToolWindows() {
+		for (Map.Entry<Project, PluginToolWindow> entry : toolWindowsByProject.entrySet()) {
+			Project project = entry.getKey();
+			PluginToolWindow toolWindow = entry.getValue();
+
+			toolWindow.reloadPluginRoots(project);
+		}
+	}
+
+	private static void putToolWindow(PluginToolWindow pluginToolWindow, Project project) {
+		toolWindowsByProject.put(project, pluginToolWindow);
+	}
+
+	private static PluginToolWindow removeToolWindow(Project project) {
+		return toolWindowsByProject.remove(project);
+	}
+
+	@SuppressWarnings("deprecation") // this is to make it compatible with as old intellij versions as possible
+	private static void addRoots(FileChooserDescriptor descriptor, List<VirtualFile> virtualFiles) {
+		if (virtualFiles.isEmpty()) {
+			descriptor.setRoot(null);
+		} else {
+			descriptor.setRoot(virtualFiles.remove(0));
+			for (VirtualFile virtualFile : virtualFiles) {
+				descriptor.addRoot(virtualFile);
+			}
+			// adding "null" is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement
+			// (if there is only one plugin, this forces tree show it as a package)
+			descriptor.addRoot(null);
+		}
 	}
 
 	public static class PluginToolWindow {
@@ -217,8 +233,7 @@ public class PluginToolWindowManager {
 
 		private static FileChooserDescriptor createDescriptor() {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
-				// TODO find how to do the same thing without overriding
-/*				@Override public Icon getOpenIcon(VirtualFile file) {
+				@Override public Icon getOpenIcon(VirtualFile file) {
 					if (EvalComponent.pluginToPathMap().values().contains(file.getPath())) return Util.PLUGIN_ICON;
 					return super.getOpenIcon(file);
 				}
@@ -226,7 +241,7 @@ public class PluginToolWindowManager {
 				@Override public Icon getClosedIcon(VirtualFile file) {
 					if (EvalComponent.pluginToPathMap().values().contains(file.getPath())) return Util.PLUGIN_ICON;
 					return super.getClosedIcon(file);
-				}*/
+				}
 
 				@Override public String getName(VirtualFile virtualFile) {
 					return virtualFile.getName();
@@ -254,7 +269,7 @@ public class PluginToolWindowManager {
 			JPanel toolBarPanel = new JPanel(new GridLayout());
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
 			actionGroup.add(withIcon(Util.ADD_PLUGIN_ICON, createAddPluginsGroup()));
-			actionGroup.add(new DeletePluginAction(this, myFsTreeRef));
+			actionGroup.add(new DeletePluginAction(this));
 			actionGroup.add(new RefreshPluginListAction());
 			actionGroup.addSeparator();
 			actionGroup.add(new EvaluatePluginAction());
@@ -273,7 +288,7 @@ public class PluginToolWindowManager {
 
 		private AnAction createSettingsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Settings", true);
-			actionGroup.add(new ToggleAction("Run all on IDE start") {
+			actionGroup.add(new ToggleAction("Run all plugins on IDE start") {
 				@Override public boolean isSelected(AnActionEvent event) {
 					return Settings.getInstance().runAllPluginsOnIDEStartup;
 				}
@@ -352,21 +367,6 @@ public class PluginToolWindowManager {
 		}
 	}
 
-	@SuppressWarnings("deprecation") // this is to make it compatible with as old intellij versions as possible
-	private static void addRoots(FileChooserDescriptor descriptor, List<VirtualFile> virtualFiles) {
-		if (virtualFiles.isEmpty()) {
-			descriptor.setRoot(null);
-		} else {
-			descriptor.setRoot(virtualFiles.remove(0));
-			for (VirtualFile virtualFile : virtualFiles) {
-				descriptor.addRoot(virtualFile);
-			}
-			// adding "null" is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement
-			// (if there is only one plugin, this forces tree show it as a package)
-			descriptor.addRoot(null);
-		}
-	}
-
 	private static class MySimpleToolWindowPanel extends SimpleToolWindowPanel {
 		private final Ref<FileSystemTree> fileSystemTree;
 
@@ -383,19 +383,8 @@ public class PluginToolWindowManager {
 			if (dataId.equals(PlatformDataKeys.VIRTUAL_FILE_ARRAY.getName())) return fileSystemTree.get().getSelectedFiles();
 			if (dataId.equals(PlatformDataKeys.TREE_EXPANDER.getName()))
 				return new DefaultTreeExpander(fileSystemTree.get().getTree());
-
-//			if (dataId.equals(PlatformDataKeys.EDITOR.getName())) { // TODO needed by create gist action but affects popup; delete this
-//				VirtualFile selectedFile = fileSystemTree.get().getSelectedFile();
-//				if (selectedFile != null) {
-//					EditorFactory editorFactory = EditorFactory.getInstance();
-//					if (editorFactory != null) {
-//						return editorFactory.createEditor(editorFactory.createDocument(""));
-//					}
-//				}
-//			}
 			return super.getData(dataId);
 		}
-
 	}
 
 	private static class MyTree extends Tree implements TypeSafeDataProvider {
@@ -541,7 +530,7 @@ public class PluginToolWindowManager {
 
 			addRoots(descriptor, getFileSystemRoots());
 
-			VirtualFile virtualFile = FileChooser.chooseFile(event.getProject(), descriptor);
+			VirtualFile virtualFile = FileChooser.chooseFile(descriptor, event.getProject(), null);
 			if (virtualFile == null) return;
 
 			if (EvalComponent.isInvalidPluginFolder(virtualFile) &&
@@ -606,12 +595,10 @@ public class PluginToolWindowManager {
 
 	private static class DeletePluginAction extends AnAction {
 		private final PluginToolWindow pluginsToolWindow;
-		private final Ref<FileSystemTree> fileSystemTree;
 
-		public DeletePluginAction(PluginToolWindow pluginsToolWindow, Ref<FileSystemTree> fileSystemTree) {
+		public DeletePluginAction(PluginToolWindow pluginsToolWindow) {
 			super("Delete plugin", "Delete plugin", Util.DELETE_PLUGIN_ICON);
 			this.pluginsToolWindow = pluginsToolWindow;
-			this.fileSystemTree = fileSystemTree;
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {

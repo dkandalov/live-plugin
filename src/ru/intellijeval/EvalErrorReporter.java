@@ -51,10 +51,11 @@ class EvalErrorReporter {
 			displayInConsole("Loading errors", text.toString(), ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
 	}
 
-	@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 	public void reportEvaluationExceptions(AnActionEvent actionEvent) {
 		for (Map.Entry<String, Exception> entry : evaluationExceptions.entrySet()) {
 			StringWriter writer = new StringWriter();
+
+			//noinspection ThrowableResultOfMethodCallIgnored
 			entry.getValue().printStackTrace(new PrintWriter(writer));
 			String s = UnscrambleDialog.normalizeText(writer.getBuffer().toString());
 
