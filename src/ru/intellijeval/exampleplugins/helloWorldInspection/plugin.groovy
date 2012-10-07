@@ -51,10 +51,10 @@ class HelloWorldQuickFix implements LocalQuickFix {
 }
 
 static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
-    SwingUtilities.invokeLater({
-        def notification = new Notification("", title, htmlBody, notificationType)
-        ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
-    } as Runnable)
+	SwingUtilities.invokeLater({
+		def notification = new Notification("", title, htmlBody, notificationType)
+		ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+	} as Runnable)
 }
 
 static addInspection(Project project, Closure<LocalInspectionTool> inspectionFactory) {
@@ -82,4 +82,4 @@ static addInspection(Project project, Closure<LocalInspectionTool> inspectionFac
 
 addInspection(event.project, { new HelloWorldInspection() })
 
-show("evaluated hello world inspection")
+show("Loaded hello world inspection<br/>It replaces \"hello\" string literal in java code with \"Hello world\"")

@@ -11,10 +11,10 @@ import javax.swing.SwingUtilities
 
 
 static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
-    SwingUtilities.invokeLater({
-        def notification = new Notification("", title, htmlBody, notificationType)
-        ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
-    } as Runnable)
+	SwingUtilities.invokeLater({
+		def notification = new Notification("", title, htmlBody, notificationType)
+		ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+	} as Runnable)
 }
 
 static registerAction(String actionId, String keyStroke = "", Closure closure) {
@@ -34,7 +34,7 @@ static registerAction(String actionId, String keyStroke = "", Closure closure) {
 		}
 	})
 
-	show("Action '${actionId}' loaded")
+	show("Loaded '${actionId}'<br/>Use alt+shift+H to run it")
 }
 
 registerAction("HelloWorldAction", "alt shift H", {

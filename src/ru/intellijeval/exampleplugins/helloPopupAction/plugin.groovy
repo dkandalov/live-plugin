@@ -10,10 +10,10 @@ import javax.swing.*
 
 
 static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
-    SwingUtilities.invokeLater({
-        def notification = new Notification("", title, htmlBody, notificationType)
-        ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
-    } as Runnable)
+	SwingUtilities.invokeLater({
+		def notification = new Notification("", title, htmlBody, notificationType)
+		ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+	} as Runnable)
 }
 
 static registerAction(String actionId, String keyStroke = "", Closure closure) {
@@ -33,7 +33,7 @@ static registerAction(String actionId, String keyStroke = "", Closure closure) {
 		}
 	})
 
-	show("Plugin '${actionId}' reloaded")
+	show("Loaded '${actionId}'<br/>Use ctrl+alt+shift+P to run it")
 }
 
 static ActionGroup createActions(data, actionGroup = new DefaultActionGroup()) {

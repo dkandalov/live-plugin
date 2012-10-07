@@ -7,7 +7,6 @@ import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorAction
-import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler
 import com.intellij.openapi.editor.markup.EffectType
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
@@ -15,32 +14,31 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.keymap.KeymapManager
 
 import javax.swing.*
-import java.awt.Color
-import java.awt.Font
+import java.awt.*
 
 static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
-    SwingUtilities.invokeLater({
-        def notification = new Notification("", title, htmlBody, notificationType)
-        ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
-    } as Runnable)
+	SwingUtilities.invokeLater({
+		def notification = new Notification("", title, htmlBody, notificationType)
+		ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+	} as Runnable)
 }
 
 class MyEditorAction extends EditorAction {
-    public MyEditorAction(Closure closure) {
+	public MyEditorAction(Closure closure) {
 		super(new MyEditorWriteActionHandler(closure))
 	}
 }
 
 class MyEditorWriteActionHandler extends EditorWriteActionHandler {
-    final Closure closure
+	final Closure closure
 
-    MyEditorWriteActionHandler(Closure closure) {
-        this.closure = closure
-    }
+	MyEditorWriteActionHandler(Closure closure) {
+		this.closure = closure
+	}
 
-    @Override void executeWriteAction(Editor editor, DataContext dataContext) {
-        closure.call(editor)
-    }
+	@Override void executeWriteAction(Editor editor, DataContext dataContext) {
+		closure.call(editor)
+	}
 }
 
 static registerTextEditorAction(String actionId, String keyStroke = "", Closure closure) {
@@ -57,7 +55,7 @@ static registerTextEditorAction(String actionId, String keyStroke = "", Closure 
 
 	actionManager.registerAction(actionId, new MyEditorAction(closure))
 
-	show("Plugin '${actionId}' reloaded")
+	show("Loaded '${actionId}'<br/>Press ctrl+shift+alt+E to run it")
 }
 
 registerTextEditorAction("HelloTextEditorAction", "ctrl shift alt E", { Editor editor ->
