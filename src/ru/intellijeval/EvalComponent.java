@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
+import static com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName;
 import static java.util.Arrays.asList;
 import static ru.intellijeval.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
 
@@ -48,7 +49,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	private static final String DEFAULT_IDEA_OUTPUT_FOLDER = "out";
 
 	public static String pluginsRootPath() {
-		return PathManager.getPluginsPath() + "/intellij-eval-plugins";
+		return toSystemIndependentName(PathManager.getPluginsPath() + "/intellij-eval-plugins");
 	}
 
 	public static Map<String, String> pluginToPathMap() {
@@ -66,7 +67,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 
 		HashMap<String, String> result = new HashMap<String, String>();
 		for (File file : files) {
-			result.put(file.getName(), file.getAbsolutePath());
+			result.put(file.getName(), toSystemIndependentName(file.getAbsolutePath()));
 		}
 		return result;
 	}
