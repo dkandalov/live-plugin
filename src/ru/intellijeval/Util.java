@@ -24,6 +24,7 @@ import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.actions.CloseAction;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
@@ -53,6 +54,7 @@ public class Util {
 
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
 
+	private static final Logger LOG = Logger.getInstance(Util.class);
 	private static final DataContext DUMMY_DATA_CONTEXT = new DataContext() {
 		@Nullable @Override public Object getData(@NonNls String dataId) {
 			return null;
@@ -60,6 +62,11 @@ public class Util {
 	};
 
 	public static void displayInConsole(String header, String text, ConsoleViewContentType contentType, Project project) {
+		if (project == null) {
+			LOG.warn("Failed to display console because project was 'null'. Text not shown in console: " + text);
+			return;
+		}
+
 		ConsoleView console = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
 		console.print(text, contentType);
 
