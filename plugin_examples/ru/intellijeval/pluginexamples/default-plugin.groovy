@@ -1,3 +1,5 @@
+package ru.intellijeval.pluginexamples
+
 import com.intellij.notification.*
 import com.intellij.openapi.application.ApplicationManager
 

@@ -13,6 +13,25 @@
  */
 package ru.intellijeval.toolwindow;
 
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.*;
+import javax.swing.tree.DefaultTreeModel;
+
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
+
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.daemon.impl.analysis.FileHighlighingSetting;
@@ -25,9 +44,28 @@ import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.AbstractTreeStructure;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.lang.Language;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CustomShortcutSet;
+import com.intellij.openapi.actionSystem.DataKey;
+import com.intellij.openapi.actionSystem.DataSink;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.Shortcut;
+import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.actionSystem.TypeSafeDataProvider;
 import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileSystemTree;
+import com.intellij.openapi.fileChooser.ex.FileChooserKeys;
+import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
+import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
+import com.intellij.openapi.fileChooser.ex.RootFileElement;
+import com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.project.Project;
@@ -61,27 +99,15 @@ import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
-import com.intellij.openapi.fileChooser.FileChooser;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileChooser.FileSystemTree;
-import com.intellij.openapi.fileChooser.ex.FileChooserKeys;
-import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
-import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
-import com.intellij.openapi.fileChooser.ex.RootFileElement;
-import com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
-import ru.intellijeval.*;
 
-import javax.swing.*;
-import javax.swing.tree.DefaultTreeModel;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.List;
+import ru.intellijeval.EvalComponent;
+import ru.intellijeval.EvaluateAllPluginsAction;
+import ru.intellijeval.EvaluatePluginAction;
+import ru.intellijeval.Settings;
+import ru.intellijeval.Util;
 
 import static java.util.Arrays.asList;
+import static ru.intellijeval.EvalComponent.PLUGIN_EXAMPLES_PATH;
 import static ru.intellijeval.EvalComponent.pluginExists;
 
 /**
@@ -305,15 +331,14 @@ public class PluginToolWindowManager {
 
 		private AnAction createAddPluginsExamplesGroup() {
 			final DefaultActionGroup actionGroup = new DefaultActionGroup("Examples", true);
-			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorld", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorldAction", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloPopupAction", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloToolwindow", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloTextEditor", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloWorldInspection", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/helloFileStats", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/utilExample", asList("plugin.groovy", "util/AClass.groovy")));
-			actionGroup.add(new AddExamplePluginAction("/ru/intellijeval/exampleplugins/classpathExample", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloWorldAction", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloPopupAction", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloToolwindow", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloTextEditor", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloWorldInspection", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloFileStats", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/utilExample", asList("plugin.groovy", "util/AClass.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/classpathExample", asList("plugin.groovy")));
 			actionGroup.addSeparator();
 			actionGroup.add(new AnAction("Add all") {
 				@Override public void actionPerformed(AnActionEvent e) {

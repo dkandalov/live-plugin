@@ -13,21 +13,23 @@
  */
 package ru.intellijeval;
 
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
-import ru.intellijeval.toolwindow.PluginToolWindowManager;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
+
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+
+import ru.intellijeval.toolwindow.PluginToolWindowManager;
 
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName;
@@ -42,8 +44,9 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 
 	public static final String COMPONENT_NAME = "EvalComponent";
 	public static final String MAIN_SCRIPT = "plugin.groovy";
+	public static final String PLUGIN_EXAMPLES_PATH = "/ru/intellijeval/pluginexamples";
 
-	private static final String DEFAULT_PLUGIN_PATH = "/ru/intellijeval/exampleplugins";
+	private static final String DEFAULT_PLUGIN_PATH = PLUGIN_EXAMPLES_PATH;
 	private static final String DEFAULT_PLUGIN_SCRIPT = "default-plugin.groovy";
 
 	private static final String DEFAULT_IDEA_OUTPUT_FOLDER = "out";
@@ -122,7 +125,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	}
 
 	private static void installHelloWorldPlugin() {
-		ExamplePluginInstaller pluginInstaller = new ExamplePluginInstaller("/ru/intellijeval/exampleplugins/helloWorld", asList("plugin.groovy"));
+		ExamplePluginInstaller pluginInstaller = new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy"));
 		pluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
 			@Override public void onException(Exception e, String pluginPath) {
 				LOG.warn("Failed to install plugin: " + pluginPath, e);
