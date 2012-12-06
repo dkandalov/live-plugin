@@ -61,6 +61,7 @@ class PluginUtil {
 		showInConsole(text, header, project, contentType)
 	}
 
+	// TODO show reuse the same console and append to output
 	static showInConsole(String text, String header = "", Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
 		Util.displayInConsole(header, text, contentType, project)
 	}

@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>InetlliJEval</id>
 	<name>InetlliJEval</name>
-	<version>0.12 beta</version>
+	<version>0.121 beta</version>
 	<vendor email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<idea-version since-build="122.600"/>
     <category>Plugin Development</category>

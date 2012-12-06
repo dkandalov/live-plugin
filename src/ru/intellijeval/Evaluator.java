@@ -56,6 +56,7 @@ class Evaluator {
 			binding.setVariable("event", event);
 			binding.setVariable("project", event.getProject());
 			binding.setVariable("isIdeStartup", event.getPlace().equals(RUN_ALL_PLUGINS_ON_IDE_START));
+			binding.setVariable("pluginPath", path);
 			scriptEngine.run("file:///" + mainScriptPath, binding);
 
 		} catch (IOException e) {
