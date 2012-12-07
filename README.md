@@ -1,4 +1,19 @@
-This is IntelliJ IDEA plugin for writing simple plugins in Groovy (or running Groovy code inside IntelliJ).
+<img src="https://raw.github.com/dkandalov/intellij_eval/master/toolwindow.png" alt="toolwindow" title="toolwindow" align="right" />
+
+What is this?
+=============
+
+This is IntelliJ IDEA plugin for writing simple plugins in Groovy<br/>
+(or running Groovy code inside IntelliJ).
+
+
+Why?
+====
+ - plugins should be easy to change
+ - plugins source code should be easily available
+ - it's useful for experimental and throw-away plugins
+ - it's a good way to quickly try IntelliJ API
+
 
 How to use
 ===========
@@ -7,7 +22,8 @@ How to use
  - use "ctrl + C, ctrl + E" to execute current plugin
 
 Plugins are stored on application level.
-(Note that IDE support for editing plugins is very limited.)
+(Note that because in "usual" project IntelliJ SDK is not set up, some classes will be read while editing plugins.
+If you don't have Groovy plugin installed, plugins text will appear as plain text without syntax highlighting.)
 
 
 To get full IDE support it can be useful to set up a project with all plugins and IntelliJ JDK attached.
@@ -16,18 +32,10 @@ You can set up a project for all plugins at the following folder:
  - (on Mac) $HOME/Library/Application Support/IntelliJIdea12/intellij-eval-plugins/
 
 
-Why
-===
- - useful for simple or throw-away plugins
- - plugins should be easy to change
- - plugins with immediately available source code
- - it's a good way to quickly try IntelliJ API
-
-
 Technical details
 =================
  - this is essentially a host plugin for other plugins
- - each plugin is evaluated with its own classloader using GroovyScriptEngine
+ - each plugin is evaluated by its own classloader using GroovyScriptEngine
  - plugin uses Groovy libraries bundled with IntelliJ (this is to reduce plugin size); please check IntelliJ libs if you need to know Groovy version
  - there is currently no easy way to have dependencies between plugins
 
