@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.intellijeval
 
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
@@ -29,6 +28,7 @@ import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
+import ru.intellijeval.Util
 
 import javax.swing.*
 
@@ -39,6 +39,8 @@ import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
  * Date: 11/08/2012
  */
 class PluginUtil {
+	// TODO add javadocs?
+
 	private static final WeakHashMap<ProjectManagerListener, String> pmListenerToId = new WeakHashMap()
 
 	static log(String htmlBody, String title = "", notificationType = NotificationType.INFORMATION) {
@@ -46,12 +48,12 @@ class PluginUtil {
 		ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 	}
 
-    static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
-        SwingUtilities.invokeLater({
-            def notification = new Notification("", title, htmlBody, notificationType)
-            ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
-        } as Runnable)
-    }
+	static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
+		SwingUtilities.invokeLater({
+			def notification = new Notification("", title, htmlBody, notificationType)
+			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+		} as Runnable)
+	}
 
 	static showExceptionInConsole(Exception e, String header = "", Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
 		def writer = new StringWriter()
@@ -76,10 +78,14 @@ class PluginUtil {
 			actionManager.unregisterAction(actionId)
 		}
 
-		if (!keyStroke.empty) keymap.addShortcut(actionId, new KeyboardShortcut(KeyStroke.getKeyStroke(keyStroke), null))
+		def firstKeyStroke = { keyStroke[0..<keyStroke.indexOf(",")].trim() }
+		def secondKeyStroke = { keyStroke[(keyStroke.indexOf(",") + 1)..-1].trim() }
+		if (!keyStroke.empty) keymap.addShortcut(actionId,
+				new KeyboardShortcut(KeyStroke.getKeyStroke(firstKeyStroke()), KeyStroke.getKeyStroke(secondKeyStroke())))
+
 		actionManager.registerAction(actionId, new AnAction() {
-			@Override void actionPerformed(AnActionEvent e) {
-				closure.call(e)
+			@Override void actionPerformed(AnActionEvent event) {
+				closure.call(event)
 			}
 		})
 
