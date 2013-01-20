@@ -60,8 +60,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 			public AnAction[] getChildren(AnActionEvent e) {
 				return new AnAction[]{
 						new NewFileAction("Groovy script", Util.GROOVY_FILE_TYPE_ICON),
-						new NewFolderAction("Directory", "Directory", Folder),
-						new PluginToolWindowManager.MyRenameFileAction("Rename", "Rename", null) // TODO move this action out of here
+						new NewFolderAction("Directory", "Directory", Folder)
 				};
 			}
 		};

@@ -41,6 +41,8 @@ Plugins are stored on application level.
                     text="New Groovy script" icon="/ru/intellijeval/toolwindow/groovy_fileType.png"/>
             <action id="InetlliJEval.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
                     text="New Directory" icon="/nodes/folder.png"/>
+            <action id="InetlliJEval.RenameFileAction" class="ru.intellijeval.toolwindow.RenameFileAction" text="Rename"
+                    use-shortcut-of="RenameElement"/>
             <separator/>
             <action id="InetlliJEval.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction"
                     text="Delete" use-shortcut-of="$Delete"/>
