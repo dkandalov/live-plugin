@@ -23,6 +23,7 @@ Plugins are stored on application level.
 	</description>
 
 	<!--<depends>com.intellij.modules.platform</depends>-->
+    <depends optional="true" config-file="github-integration.xml">org.jetbrains.plugins.github</depends>
 
 	<application-components>
 		<component>

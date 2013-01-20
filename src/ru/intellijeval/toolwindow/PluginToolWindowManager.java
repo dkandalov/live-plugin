@@ -94,6 +94,9 @@ public class PluginToolWindowManager {
 
 	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<Project, PluginToolWindow>();
 
+	public static AnAction addFromGitHubAction; // TODO refactor this!!!
+
+
 	public PluginToolWindowManager init() {
 		ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
 			@Override public void projectOpened(Project project) {
@@ -300,6 +303,8 @@ public class PluginToolWindowManager {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
 			actionGroup.add(new AddNewPluginAction());
 			actionGroup.add(new AddPluginFromDiskAction());
+			if (addFromGitHubAction != null)
+				actionGroup.add(addFromGitHubAction);
 			actionGroup.add(createAddPluginsExamplesGroup());
 			return actionGroup;
 		}
@@ -635,7 +640,7 @@ public class PluginToolWindowManager {
 		}
 	}
 
-	private static class RefreshPluginListAction extends AnAction {
+	public static class RefreshPluginListAction extends AnAction {
 
 		public RefreshPluginListAction() {
 			super("Refresh plugin list", "Refresh plugin list", Util.REFRESH_PLUGIN_LIST_ICON);

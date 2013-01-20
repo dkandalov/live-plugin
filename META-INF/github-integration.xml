@@ -1,0 +1,7 @@
+<idea-plugin>
+    <application-components>
+        <component>
+            <implementation-class>ru.intellijeval.git.GithubComponent</implementation-class>
+        </component>
+    </application-components>
+</idea-plugin>
