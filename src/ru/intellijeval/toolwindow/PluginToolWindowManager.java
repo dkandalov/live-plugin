@@ -13,25 +13,6 @@
  */
 package ru.intellijeval.toolwindow;
 
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.*;
-import javax.swing.tree.DefaultTreeModel;
-
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
-
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.daemon.impl.analysis.FileHighlighingSetting;
@@ -44,23 +25,15 @@ import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.AbstractTreeStructure;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.lang.Language;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CustomShortcutSet;
-import com.intellij.openapi.actionSystem.DataKey;
-import com.intellij.openapi.actionSystem.DataSink;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.actionSystem.Shortcut;
-import com.intellij.openapi.actionSystem.ToggleAction;
-import com.intellij.openapi.actionSystem.TypeSafeDataProvider;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationBundle;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileElement;
 import com.intellij.openapi.fileChooser.FileSystemTree;
+import com.intellij.openapi.fileChooser.actions.FileChooserAction;
 import com.intellij.openapi.fileChooser.ex.FileChooserKeys;
 import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor;
 import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
@@ -99,12 +72,20 @@ import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
+import ru.intellijeval.*;
 
-import ru.intellijeval.EvalComponent;
-import ru.intellijeval.EvaluateAllPluginsAction;
-import ru.intellijeval.EvaluatePluginAction;
-import ru.intellijeval.Settings;
-import ru.intellijeval.Util;
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
+import java.util.Queue;
 
 import static java.util.Arrays.asList;
 import static ru.intellijeval.EvalComponent.PLUGIN_EXAMPLES_PATH;
@@ -677,6 +658,83 @@ public class PluginToolWindowManager {
 			}, pluginsRoot);
 		}
 	}
+
+	public static class MyRenameFileAction extends FileChooserAction {
+
+		public MyRenameFileAction(String text, String description, Icon icon) {
+			super(text, description, icon);
+		}
+
+		@Override protected void actionPerformed(final FileSystemTree fileSystemTree, final AnActionEvent event) {
+			final VirtualFile file = fileSystemTree.getSelectedFile();
+			if (file == null) return;
+
+			String defaultName = file.getName();
+			final String newFileName = Messages.showInputDialog("Rename file to:", "Rename", null, defaultName, null);
+			if (newFileName == null || newFileName.equals(file.getName())) return;
+
+			ApplicationManager.getApplication().runWriteAction(new Runnable() {
+				@Override public void run() {
+					try {
+						file.rename(null, newFileName);
+						updateTreeModel_HACK();
+					} catch (IOException e) {
+						Util.showErrorDialog(event.getProject(), "Couldn't rename " + file.getName() + " to " + newFileName, "Error");
+					}
+				}
+
+				/**
+				 * Couldn't find any way to update file chooser tree to show new file name, therefore this hack.
+				 * There is still a problem with this except that it's a hack.
+				 * If new file name is longer than previous name, it's not shown fully.
+				 * The workaround is to collapse, expand parent tree node.
+				 */
+				private void updateTreeModel_HACK() {
+					TreeModel model = fileSystemTree.getTree().getModel();
+					Queue<DefaultMutableTreeNode> queue = new LinkedList<DefaultMutableTreeNode>();
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) model.getRoot();
+					queue.add(node);
+
+					while (!queue.isEmpty()) {
+						node = queue.remove();
+						final Object userObject = node.getUserObject();
+						boolean nodeContainsRenamedFile = userObject instanceof FileNodeDescriptor && file.equals(((FileNodeDescriptor) userObject).getElement().getFile());
+
+						if (nodeContainsRenamedFile) {
+							final DefaultMutableTreeNode finalNode = node;
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override public void run() {
+									FileNodeDescriptor nodeDescriptor = (FileNodeDescriptor) userObject;
+									FileElement fileElement = new FileElement(file, newFileName);
+									fileElement.setParent(nodeDescriptor.getElement().getParent());
+									finalNode.setUserObject(new FileNodeDescriptor(
+											nodeDescriptor.getProject(),
+											fileElement,
+											nodeDescriptor.getParentDescriptor(),
+											nodeDescriptor.getIcon(),
+											newFileName,
+											nodeDescriptor.getComment()
+									));
+								}
+							});
+
+							return;
+						}
+
+						for (int i = 0; i < model.getChildCount(node); i++) {
+							queue.add((DefaultMutableTreeNode) model.getChild(node, i));
+						}
+					}
+				}
+			});
+		}
+
+		@Override protected void update(FileSystemTree fileChooser, AnActionEvent e) {
+			e.getPresentation().setVisible(true);
+			e.getPresentation().setEnabled(fileChooser.selectionExists());
+		}
+	}
+
 
 	private static class DisableHighlightingRunnable implements Runnable {
 		private final Project project;

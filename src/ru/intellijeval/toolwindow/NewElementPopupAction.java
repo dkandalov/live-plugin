@@ -15,11 +15,11 @@ package ru.intellijeval.toolwindow;
 
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.fileChooser.actions.NewFolderAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.IconLoader;
-import com.intellij.openapi.fileChooser.actions.NewFolderAction;
 import org.jetbrains.annotations.NotNull;
 import ru.intellijeval.Util;
 
@@ -36,14 +36,14 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 		showPopup(event.getDataContext());
 	}
 
-	protected void showPopup(DataContext context) {
+	private void showPopup(DataContext context) {
 		createPopup(context).showInBestPositionFor(context);
 	}
 
-	protected ListPopup createPopup(DataContext dataContext) {
+	private ListPopup createPopup(DataContext dataContext) {
 		return JBPopupFactory.getInstance().createActionGroupPopup(
 				IdeBundle.message("title.popup.new.element"),
-				getGroup(),
+				createActionGroup(),
 				dataContext,
 				false,
 				true,
@@ -54,13 +54,14 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 		);
 	}
 
-	private ActionGroup getGroup() {
+	private ActionGroup createActionGroup() {
 		return new ActionGroup() {
 			@NotNull @Override
 			public AnAction[] getChildren(AnActionEvent e) {
 				return new AnAction[]{
 						new NewFileAction("Groovy script", Util.GROOVY_FILE_TYPE_ICON),
-						new NewFolderAction("Directory", "Directory", Folder)
+						new NewFolderAction("Directory", "Directory", Folder),
+						new PluginToolWindowManager.MyRenameFileAction("Rename", "Rename", null) // TODO move this action out of here
 				};
 			}
 		};
