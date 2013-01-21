@@ -375,8 +375,18 @@ public class PluginToolWindowManager {
 			this.fileSystemTree = fileSystemTree;
 		}
 
+		/**
+		 * Provides context for actions in plugin tree popup popup menu.
+		 * Without it they would be disabled or won't work.
+		 *
+		 * Used by
+		 * {@link com.intellij.openapi.fileChooser.actions.NewFileAction},
+		 * {@link com.intellij.openapi.fileChooser.actions.NewFolderAction},
+		 * {@link com.intellij.openapi.fileChooser.actions.FileDeleteAction}
+		 */
 		@Override public Object getData(@NonNls String dataId) {
-			// this is used by actions like create directory/file
+			// this is used by create directory/file to get context in which they're executed
+			// (without this they would be disabled or won't work)
 			if (dataId.equals(FileSystemTree.DATA_KEY.getName())) return fileSystemTree.get();
 			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return Util.GROOVY_FILE_TYPE;
 			if (dataId.equals(FileChooserKeys.DELETE_ACTION_AVAILABLE.getName())) return true;

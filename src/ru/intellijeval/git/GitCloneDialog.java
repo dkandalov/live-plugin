@@ -45,6 +45,8 @@ import java.util.regex.Pattern;
 
 /**
  * This is a fork of {@link git4idea.checkout.GitCloneDialog}.
+ * The reason for fork is to disable "parent directory" and "directory name" text fields.
+ *
  *
  * A dialog for the git clone options
  *
