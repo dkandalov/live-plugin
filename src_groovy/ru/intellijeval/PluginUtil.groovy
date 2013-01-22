@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package ru.intellijeval
 
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
@@ -28,7 +29,8 @@ import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
-import ru.intellijeval.Util
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
 
@@ -43,31 +45,62 @@ class PluginUtil {
 
 	private static final WeakHashMap<ProjectManagerListener, String> pmListenerToId = new WeakHashMap()
 
-	static log(String htmlBody, String title = "", notificationType = NotificationType.INFORMATION) {
-		def notification = new Notification("", title, htmlBody, notificationType)
+	// TODO use actual intellij logger
+	static log(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION, String groupDisplayId = "") {
+		def notification = new Notification(groupDisplayId, title, htmlBody, notificationType)
 		ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 	}
 
-	static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
+	/**
+	 * Shows popup balloon notification.
+	 * (It actually sends IDE notification event which by default shows "balloon".
+	 * This also means that message will be added to "Event Log" console.)
+	 *
+	 * See "IDE Settings - Notifications".
+	 *
+	 * @param message message to display (can have html tags in it)
+	 * @param title (optional) popup title
+	 * @param notificationType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/notification/NotificationType.java
+	 * @param groupDisplayId (optional) an id to group notifications by (can be configured in "IDE Settings - Notifications")
+	 */
+	static show(@Nullable Object message, @Nullable Object title = "", NotificationType notificationType = NotificationType.INFORMATION, String groupDisplayId = "") {
 		SwingUtilities.invokeLater({
-			def notification = new Notification("", title, htmlBody, notificationType)
+			def notification = new Notification(groupDisplayId, String.valueOf(title), String.valueOf(message), notificationType)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		} as Runnable)
 	}
 
-	static showExceptionInConsole(Exception e, String header = "", Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
+	/**
+	 * @param e exception to show
+	 * @param consoleTitle (might be useful to have different titles if there are several open consoles)
+	 * @param project console will be displayed in the window of this project
+	 */
+	static showExceptionInConsole(Exception e, Object consoleTitle = "", @NotNull Project project) {
 		def writer = new StringWriter()
 		e.printStackTrace(new PrintWriter(writer))
 		String text = UnscrambleDialog.normalizeText(writer.buffer.toString())
 
-		showInConsole(text, header, project, contentType)
+		showInConsole(text, String.valueOf(consoleTitle), project, ConsoleViewContentType.ERROR_OUTPUT)
 	}
 
+	/**
+	 *
+	 * @param text
+	 * @param header
+	 * @param project
+	 * @param contentType see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
+	 */
 	// TODO show reuse the same console and append to output
 	static showInConsole(String text, String header = "", Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
 		Util.displayInConsole(header, text, contentType, project)
 	}
 
+	/**
+	 *
+	 * @param actionId
+	 * @param keyStroke
+	 * @param closure
+	 */
 	static registerAction(String actionId, String keyStroke = "", Closure closure) {
 		def actionManager = ActionManager.instance
 		def keymap = KeymapManager.instance.activeKeymap
