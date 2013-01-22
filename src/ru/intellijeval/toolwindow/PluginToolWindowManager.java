@@ -430,6 +430,7 @@ public class PluginToolWindowManager {
 		@Override public void actionPerformed(AnActionEvent event) {
 			String newPluginId = Messages.showInputDialog(event.getProject(), "Enter new plugin name:", "New Plugin", null);
 
+			if (newPluginId == null) return;
 			if (pluginExists(newPluginId)) {
 				Messages.showErrorDialog(event.getProject(), "Plugin \"" + newPluginId + "\" already exists.", "New Plugin");
 				return;
