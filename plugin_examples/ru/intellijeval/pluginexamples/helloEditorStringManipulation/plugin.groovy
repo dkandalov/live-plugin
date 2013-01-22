@@ -48,6 +48,6 @@ static registerTextEditorAction(String actionId, String keyStroke = "", Closure 
     show("Loaded '${actionId}'<br/>Select text in editor and press shift+alt+Q to run it")
 }
 
-registerTextEditorAction("HelloTextEditorReplace", "alt shift Q", { String s ->
+registerTextEditorAction("HelloEditorStringManipulation", "alt shift Q", { String s ->
     return s.toUpperCase()
 })
