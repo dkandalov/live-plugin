@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 package ru.intellijeval
+
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -23,6 +24,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
@@ -39,22 +41,34 @@ import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
 
+import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
+import static com.intellij.notification.NotificationType.ERROR
+import static com.intellij.notification.NotificationType.INFORMATION
+import static com.intellij.notification.NotificationType.WARNING
+import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  * User: dima
  * Date: 11/08/2012
  */
 @SuppressWarnings("GroovyUnusedDeclaration")
 class PluginUtil {
-	// TODO add javadocs
+	private static final Logger LOG = Logger.getInstance("IntelliJEval");
+	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new HashMap()
 
-	private static final WeakHashMap<ProjectManagerListener, String> pmListenerToId = new WeakHashMap()
-
-	// TODO use actual intellij logger
-	static log(@Nullable htmlBody, @Nullable title = "",
-	           NotificationType notificationType = NotificationType.INFORMATION, String groupDisplayId = "") {
-		def notification = new Notification(groupDisplayId, String.valueOf(title), String.valueOf(htmlBody), notificationType)
-		ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+	// TODO
+	static log(@Nullable message, NotificationType notificationType = INFORMATION) {
+		if (message instanceof Throwable) {
+			if (notificationType == INFORMATION) LOG.info(message)
+			else if (notificationType == WARNING) LOG.warn(message)
+			else if (notificationType == ERROR) LOG.error(message)
+		} else {
+			message = String.valueOf(message)
+			if (notificationType == INFORMATION) LOG.info(message)
+			else if (notificationType == WARNING) LOG.warn(message)
+			else if (notificationType == ERROR) LOG.error(message)
+		}
 	}
 
 	/**
@@ -70,7 +84,7 @@ class PluginUtil {
 	 * @param groupDisplayId (optional) an id to group notifications by (can be configured in "IDE Settings - Notifications")
 	 */
 	static show(@Nullable message, @Nullable title = "",
-	            NotificationType notificationType = NotificationType.INFORMATION, String groupDisplayId = "") {
+	            NotificationType notificationType = INFORMATION, String groupDisplayId = "") {
 		SwingUtilities.invokeLater({
 			def notification = new Notification(groupDisplayId, String.valueOf(title), String.valueOf(message), notificationType)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
@@ -87,7 +101,7 @@ class PluginUtil {
 		e.printStackTrace(new PrintWriter(writer))
 		String text = UnscrambleDialog.normalizeText(writer.buffer.toString())
 
-		showInConsole(text, String.valueOf(consoleTitle), project, ConsoleViewContentType.ERROR_OUTPUT)
+		showInConsole(text, String.valueOf(consoleTitle), project, ERROR_OUTPUT)
 	}
 
 	/**
@@ -96,7 +110,7 @@ class PluginUtil {
 	 * @param project console will be displayed in the window of this project
 	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
 	 */
-	// TODO show reuse the same console and append to output
+	// TODO reuse the same console and append to output
 	static showInConsole(String text, String consoleTitle = "", @NotNull Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
 		Util.displayInConsole(consoleTitle, text, contentType, project)
 	}
@@ -146,7 +160,13 @@ class PluginUtil {
 	 * @param component content of the tool window
 	 * @param location (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/wm/ToolWindowAnchor.java
 	 */
-	static registerToolWindow(String toolWindowId, JComponent component, ToolWindowAnchor location = ToolWindowAnchor.RIGHT) {
+	static registerToolWindow(String toolWindowId, JComponent component, ToolWindowAnchor location = RIGHT) {
+		def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
+		if (previousListener != null) {
+			ProjectManager.instance.removeProjectManagerListener(previousListener)
+			pmListenerToToolWindowId.remove(previousListener)
+		}
+
 		def listener = new ProjectManagerAdapter() {
 			@Override void projectOpened(Project project) {
 				registerToolWindowIn(project, toolWindowId, component)
@@ -156,7 +176,7 @@ class PluginUtil {
 				unregisterToolWindowIn(project, toolWindowId)
 			}
 		}
-		pmListenerToId[listener] = toolWindowId
+		pmListenerToToolWindowId[listener] = toolWindowId
 		ProjectManager.instance.addProjectManagerListener(listener)
 
 		ProjectManager.instance.openProjects.each { project ->
@@ -210,7 +230,7 @@ class PluginUtil {
 			manager.unregisterToolWindow(id)
 		}
 
-		def toolWindow = manager.registerToolWindow(id, false, ToolWindowAnchor.RIGHT)
+		def toolWindow = manager.registerToolWindow(id, false, RIGHT)
 		def content = ContentFactory.SERVICE.instance.createContent(component, "", false)
 		toolWindow.contentManager.addContent(content)
 		toolWindow
