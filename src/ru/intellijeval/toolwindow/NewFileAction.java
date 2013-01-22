@@ -47,7 +47,7 @@ public class NewFileAction extends FileChooserAction {
 			presentation.setVisible(true);
 			VirtualFile selectedFile = fileSystemTree.getNewFileParent();
 			presentation.setEnabled(selectedFile != null && selectedFile.isDirectory());
-			// TODO fork diff (got rid of layered "new" icon because it's ugly)
+			// FORK DIFF (got rid of layered "new" icon because it's ugly)
 			presentation.setIcon(fileType.getIcon());
 		}
 		else {
@@ -58,7 +58,7 @@ public class NewFileAction extends FileChooserAction {
 	protected void actionPerformed(FileSystemTree fileSystemTree, AnActionEvent e) {
 		final FileType fileType = e.getData(FileChooserKeys.NEW_FILE_TYPE);
 		String initialContent = e.getData(FileChooserKeys.NEW_FILE_TEMPLATE_TEXT);
-		// TODO fork diff (don't really care if initial content if null)
+		// FORK DIFF (don't really care if initial content if null)
 		if (initialContent == null) initialContent = "";
 		if (fileType != null) {
 			createNewFile(fileSystemTree, fileType, initialContent);
