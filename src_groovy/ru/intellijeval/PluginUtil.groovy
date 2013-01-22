@@ -12,18 +12,23 @@
  * limitations under the License.
  */
 package ru.intellijeval
-
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerAdapter
 import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
@@ -35,19 +40,20 @@ import org.jetbrains.annotations.Nullable
 import javax.swing.*
 
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
-
 /**
  * User: dima
  * Date: 11/08/2012
  */
+@SuppressWarnings("GroovyUnusedDeclaration")
 class PluginUtil {
-	// TODO add javadocs?
+	// TODO add javadocs
 
 	private static final WeakHashMap<ProjectManagerListener, String> pmListenerToId = new WeakHashMap()
 
 	// TODO use actual intellij logger
-	static log(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION, String groupDisplayId = "") {
-		def notification = new Notification(groupDisplayId, title, htmlBody, notificationType)
+	static log(@Nullable htmlBody, @Nullable title = "",
+	           NotificationType notificationType = NotificationType.INFORMATION, String groupDisplayId = "") {
+		def notification = new Notification(groupDisplayId, String.valueOf(title), String.valueOf(htmlBody), notificationType)
 		ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 	}
 
@@ -63,7 +69,8 @@ class PluginUtil {
 	 * @param notificationType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/notification/NotificationType.java
 	 * @param groupDisplayId (optional) an id to group notifications by (can be configured in "IDE Settings - Notifications")
 	 */
-	static show(@Nullable Object message, @Nullable Object title = "", NotificationType notificationType = NotificationType.INFORMATION, String groupDisplayId = "") {
+	static show(@Nullable message, @Nullable title = "",
+	            NotificationType notificationType = NotificationType.INFORMATION, String groupDisplayId = "") {
 		SwingUtilities.invokeLater({
 			def notification = new Notification(groupDisplayId, String.valueOf(title), String.valueOf(message), notificationType)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
@@ -72,10 +79,10 @@ class PluginUtil {
 
 	/**
 	 * @param e exception to show
-	 * @param consoleTitle (might be useful to have different titles if there are several open consoles)
+	 * @param consoleTitle (optional; might be useful to have different titles if there are several open consoles)
 	 * @param project console will be displayed in the window of this project
 	 */
-	static showExceptionInConsole(Exception e, Object consoleTitle = "", @NotNull Project project) {
+	static showExceptionInConsole(Exception e, consoleTitle = "", @NotNull Project project) {
 		def writer = new StringWriter()
 		e.printStackTrace(new PrintWriter(writer))
 		String text = UnscrambleDialog.normalizeText(writer.buffer.toString())
@@ -84,81 +91,116 @@ class PluginUtil {
 	}
 
 	/**
-	 *
-	 * @param text
-	 * @param header
-	 * @param project
-	 * @param contentType see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
+	 * @param text text to show
+	 * @param consoleTitle (optional)
+	 * @param project console will be displayed in the window of this project
+	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
 	 */
 	// TODO show reuse the same console and append to output
-	static showInConsole(String text, String header = "", Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
-		Util.displayInConsole(header, text, contentType, project)
+	static showInConsole(String text, String consoleTitle = "", @NotNull Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
+		Util.displayInConsole(consoleTitle, text, contentType, project)
 	}
 
 	/**
+	 * Registers action in IDE.
+	 * If there is already an action with {@code actionId}, it will be replaced.
+	 * (The main reason to replace action is to be able to incrementally add code to callback without restarting IDE.)
 	 *
-	 * @param actionId
-	 * @param keyStroke
-	 * @param closure
+	 * @param actionId unique identifier for action
+	 * @param keyStroke (optional) e.g. "ctrl alt shift H" or "alt C, alt H" for double key stroke.
+	 *        Note that letters must be uppercase, modification keys lowercase.
+	 * @param actionGroupId TODO
+	 * @param actionText TODO
+	 * @param callback code to run when action is invoked
+	 * @return instance of created action
 	 */
-	static registerAction(String actionId, String keyStroke = "", Closure closure) {
+	static AnAction registerAction(String actionId, String keyStroke = "",
+	                               String actionGroupId = null, String actionText = "", Closure callback) {
+		def action = new AnAction(actionText) {
+			@Override void actionPerformed(AnActionEvent event) { callback.call(event) }
+		}
+
 		def actionManager = ActionManager.instance
-		def keymap = KeymapManager.instance.activeKeymap
+		def actionGroup = findActionGroup(actionGroupId)
 
 		def alreadyRegistered = (actionManager.getAction(actionId) != null)
 		if (alreadyRegistered) {
-			keymap.removeAllActionShortcuts(actionId)
+			actionGroup?.remove(actionManager.getAction(actionId))
 			actionManager.unregisterAction(actionId)
 		}
 
-		def firstKeyStroke = { keyStroke[0..<keyStroke.indexOf(",")].trim() }
-		def secondKeyStroke = { keyStroke[(keyStroke.indexOf(",") + 1)..-1].trim() }
-		if (!keyStroke.empty) keymap.addShortcut(actionId,
-				new KeyboardShortcut(KeyStroke.getKeyStroke(firstKeyStroke()), KeyStroke.getKeyStroke(secondKeyStroke())))
-
-		actionManager.registerAction(actionId, new AnAction() {
-			@Override void actionPerformed(AnActionEvent event) {
-				closure.call(event)
-			}
-		})
+		registerKeyStroke(actionId, keyStroke)
+		actionManager.registerAction(actionId, action)
+		actionGroup?.add(action)
 
 		log("Action '${actionId}' registered")
+
+		action
 	}
 
-	static unregisterAction(String actionId) {
-		ActionManager.instance.unregisterAction(actionId)
-		log("Action '${actionId}' unregistered")
-	}
-
-	static registerToolWindow(String id, JComponent component) {
+	/**
+	 * Registers a tool window in IDE.
+	 * If there is already a tool window with {@code toolWindowId}, it will be replaced.
+	 *
+	 * @param toolWindowId unique identifier for tool window
+	 * @param component content of the tool window
+	 * @param location (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/wm/ToolWindowAnchor.java
+	 */
+	static registerToolWindow(String toolWindowId, JComponent component, ToolWindowAnchor location = ToolWindowAnchor.RIGHT) {
 		def listener = new ProjectManagerAdapter() {
 			@Override void projectOpened(Project project) {
-				registerToolWindowIn(project, id, component)
+				registerToolWindowIn(project, toolWindowId, component)
 			}
 
 			@Override void projectClosed(Project project) {
-				unregisterToolWindowIn(project, id)
+				unregisterToolWindowIn(project, toolWindowId)
 			}
 		}
-		pmListenerToId[listener] = id
+		pmListenerToId[listener] = toolWindowId
 		ProjectManager.instance.addProjectManagerListener(listener)
 
 		ProjectManager.instance.openProjects.each { project ->
-			registerToolWindowIn(project, id, component)
+			registerToolWindowIn(project, toolWindowId, component)
 		}
 
-		log("Toolwindow '${id}' registered")
+		log("Toolwindow '${toolWindowId}' registered")
 	}
 
-	static unregisterToolWindow(String id) {
-		def entry = pmListenerToId.find {it.value == id}
-		if (entry != null) ProjectManager.instance.removeProjectManagerListener(entry.key)
+	/**
+	 * This method exists for reference only.
+	 * For more dialogs see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/Messages.java
+	 */
+	@Nullable static String showInputDialog(String message, String title, @Nullable Icon icon) {
+		Messages.showInputDialog(message, title, icon)
+	}
 
-		ProjectManager.instance.openProjects.each { project ->
-			unregisterToolWindowIn(project, id)
+
+	private static DefaultActionGroup findActionGroup(String actionGroupId) {
+		if (actionGroupId != null && actionGroupId) {
+			def action = ActionManager.instance.getAction(actionGroupId)
+			action instanceof DefaultActionGroup ? action : null
+		} else {
+			null
 		}
+	}
 
-		log("Toolwindow '${id}' unregistered")
+	private static void registerKeyStroke(String actionId, String keyStroke) {
+		def keymap = KeymapManager.instance.activeKeymap
+		keymap.removeAllActionShortcuts(actionId)
+		if (!keyStroke.empty) {
+			if (keyStroke.contains(",")) {
+				def firstKeyStroke = { keyStroke[0..<keyStroke.indexOf(",")].trim() }
+				def secondKeyStroke = { keyStroke[(keyStroke.indexOf(",") + 1)..-1].trim() }
+				keymap.addShortcut(actionId,
+						new KeyboardShortcut(
+								KeyStroke.getKeyStroke(firstKeyStroke()),
+								KeyStroke.getKeyStroke(secondKeyStroke())))
+			} else {
+				keymap.addShortcut(actionId,
+						new KeyboardShortcut(
+								KeyStroke.getKeyStroke(keyStroke), null))
+			}
+		}
 	}
 
 	private static ToolWindow registerToolWindowIn(Project project, String id, JComponent component) {
@@ -185,10 +227,16 @@ class PluginUtil {
 
 		} catch (Exception e) {
 			ProjectManager.instance.openProjects.each { Project project ->
-				showExceptionInConsole(e, e.class.simpleName, project, ConsoleViewContentType.ERROR_OUTPUT)
+				showExceptionInConsole(e, e.class.simpleName, project)
 			}
 		}
 	}
+
+	// TODO method to edit content of a file (read-write action wrapper)
+	// TODO method to get current virtual file
+	// TODO method to iterate over all virtual files in project
+	// TODO method to iterate over PSI files in project
+
 
 	static accessField(Object o, String fieldName, Closure callback) {
 		catchingAll {

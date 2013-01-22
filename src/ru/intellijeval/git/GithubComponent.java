@@ -66,6 +66,8 @@ public class GithubComponent implements ApplicationComponent {
 					dialog.getDirectoryName(),
 					dialog.getParentDirectory()
 			);
+
+			// TODO check that project contains "plugin.groovy"
 		}
 	}
 }

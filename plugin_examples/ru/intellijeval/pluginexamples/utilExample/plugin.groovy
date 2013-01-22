@@ -9,12 +9,8 @@ log("Hello IntelliJ")
 // popup notification
 show("IntelliJ", "Hello")
 
-// "event" is an instance of AnActionEvent, it's implicitly available in all plugin.groovy scripts
-// (for more details about AnActionEvent please see IntelliJ API)
-show(event.project.name, "Project")
-
-// external class
-show(AClass.produceAString(), "Hello")
+// using imported class
+show(AClass.sayHello(), "Hello")
 
 // shows text in console (useful for stacktraces or if text is large)
 showInConsole("Hello console", event.project)
@@ -25,7 +21,5 @@ showExceptionInConsole(new Exception("This is a fake exception to show exception
 registerAction("My Action", "ctrl alt shift H") {
 	show("IntelliJ", "Hello")
 }
-//unregisterAction("My Action")
 
 registerToolWindow("My Toolwindow", new JTextArea("Hello"))
-//unregisterToolWindow("My Toolwindow")
