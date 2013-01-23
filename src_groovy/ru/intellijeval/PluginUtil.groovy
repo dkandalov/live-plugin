@@ -52,23 +52,26 @@ import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
  * User: dima
  * Date: 11/08/2012
  */
-@SuppressWarnings("GroovyUnusedDeclaration")
 class PluginUtil {
-	private static final Logger LOG = Logger.getInstance("IntelliJEval");
-	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new HashMap()
+	private static final Logger LOG = Logger.getInstance("IntelliJEval")
+	// Using WeakHashMap to make unregistering tool window optional
+	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new WeakHashMap()
 
-	// TODO
-	static log(@Nullable message, NotificationType notificationType = INFORMATION) {
-		if (message instanceof Throwable) {
-			if (notificationType == INFORMATION) LOG.info(message)
-			else if (notificationType == WARNING) LOG.warn(message)
-			else if (notificationType == ERROR) LOG.error(message)
-		} else {
+	/**
+	 * Writes a message to "idea.log" file.
+	 * (Its location can be found using {@link com.intellij.openapi.application.PathManager#getLogPath()}.)
+	 *
+	 * @param message message or {@link Throwable} to log
+	 * @param notificationType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/notification/NotificationType.java
+	 * (Note that NotificationType.ERROR will not just log message but will also show it in "IDE internal errors" toolbar.)
+	 */
+	static void log(@Nullable message, NotificationType notificationType = INFORMATION) {
+		if (!(message instanceof Throwable)) {
 			message = String.valueOf(message)
-			if (notificationType == INFORMATION) LOG.info(message)
-			else if (notificationType == WARNING) LOG.warn(message)
-			else if (notificationType == ERROR) LOG.error(message)
 		}
+		if (notificationType == INFORMATION) LOG.info(message)
+		else if (notificationType == WARNING) LOG.warn(message)
+		else if (notificationType == ERROR) LOG.error(message)
 	}
 
 	/**
@@ -123,14 +126,16 @@ class PluginUtil {
 	 * @param actionId unique identifier for action
 	 * @param keyStroke (optional) e.g. "ctrl alt shift H" or "alt C, alt H" for double key stroke.
 	 *        Note that letters must be uppercase, modification keys lowercase.
-	 * @param actionGroupId TODO
-	 * @param actionText TODO
+	 * @param actionGroupId (optional) can be used to add actions to existing menus, etc.
+	 *                      (e.g. "ToolsMenu" corresponds to main menu "Tools")
+	 *                      The best way to find existing actionGroupIds is probably to search IntelliJ source code for "group id=".
+	 * @param displayText (optional) if action is added to menu, this text will be shown
 	 * @param callback code to run when action is invoked
 	 * @return instance of created action
 	 */
 	static AnAction registerAction(String actionId, String keyStroke = "",
-	                               String actionGroupId = null, String actionText = "", Closure callback) {
-		def action = new AnAction(actionText) {
+	                               String actionGroupId = null, String displayText = "", Closure callback) {
+		def action = new AnAction(displayText) {
 			@Override void actionPerformed(AnActionEvent event) { callback.call(event) }
 		}
 

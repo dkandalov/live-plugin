@@ -32,7 +32,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -62,7 +61,7 @@ public class Util {
 		}
 	};
 
-	public static void displayInConsole(String header, String text, ConsoleViewContentType contentType, @NotNull Project project) {
+	public static void displayInConsole(String consoleTitle, String text, ConsoleViewContentType contentType, Project project) {
 		if (project == null) {
 			LOG.warn("Failed to display console because project was 'null'. Text not shown in console: " + text);
 			return;
@@ -73,8 +72,8 @@ public class Util {
 
 		DefaultActionGroup toolbarActions = new DefaultActionGroup();
 		JComponent consoleComponent = new MyConsolePanel(console, toolbarActions);
-		RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, header) {
-			public boolean isContentReuseProhibited() {
+		RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
+			@Override public boolean isContentReuseProhibited() {
 				return true;
 			}
 
