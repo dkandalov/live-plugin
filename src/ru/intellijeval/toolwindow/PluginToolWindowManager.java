@@ -27,6 +27,7 @@ import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationBundle;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -150,7 +151,8 @@ public class PluginToolWindowManager {
 		} else {
 			descriptor.setRoot(virtualFiles.remove(0));
 			for (VirtualFile virtualFile : virtualFiles) {
-				descriptor.addRoot(virtualFile);
+				if (virtualFile != null)
+					descriptor.addRoot(virtualFile);
 			}
 			// adding "null" is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement
 			// (if there is only one plugin, this forces tree show it as a package)
@@ -420,6 +422,7 @@ public class PluginToolWindowManager {
 	}
 
 
+	// TODO add this and similar actions to file tree popup menu (ctrl+n)
 	private static class AddNewPluginAction extends AnAction {
 		private static final Logger LOG = Logger.getInstance(AddNewPluginAction.class);
 
@@ -453,7 +456,7 @@ public class PluginToolWindowManager {
 				LOG.error(e);
 			}
 
-			reloadAllToolWindows();
+			new RefreshPluginListAction().actionPerformed(event);
 		}
 	}
 
@@ -510,7 +513,7 @@ public class PluginToolWindowManager {
 					logException(e, event, pluginPath);
 				}
 			});
-			reloadAllToolWindows();
+			new RefreshPluginListAction().actionPerformed(event);
 		}
 
 		@Override public void update(AnActionEvent event) {
@@ -570,7 +573,7 @@ public class PluginToolWindowManager {
 				LOG.error(e);
 			}
 
-			reloadAllToolWindows();
+			new RefreshPluginListAction().actionPerformed(event);
 		}
 
 		private static List<VirtualFile> getFileSystemRoots() {
@@ -605,6 +608,7 @@ public class PluginToolWindowManager {
 		}
 	}
 
+	// TODO wrap "delete folder" file tree action ("delete" shortcut) to check whether the folder is plugin
 	private static class DeletePluginAction extends AnAction {
 		private final PluginToolWindow pluginsToolWindow;
 
@@ -623,7 +627,7 @@ public class PluginToolWindowManager {
 				FileUtil.delete(new File(pluginPath));
 			}
 
-			reloadAllToolWindows();
+			new RefreshPluginListAction().actionPerformed(event);
 		}
 
 		@Override public void update(AnActionEvent e) {
@@ -659,14 +663,20 @@ public class PluginToolWindowManager {
 		}
 
 		@Override public void actionPerformed(AnActionEvent e) {
-			VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + EvalComponent.pluginsRootPath());
-			if (pluginsRoot == null) return;
-
-			RefreshQueue.getInstance().refresh(true, true, new Runnable() {
+			ApplicationManager.getApplication().runWriteAction(new Runnable() {
 				@Override public void run() {
-					reloadAllToolWindows();
+					VirtualFileManager.getInstance().refreshWithoutFileWatcher(false); // TODO this is a crude workaround to make virtual files refresh no matter what
+
+					VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + EvalComponent.pluginsRootPath());
+					if (pluginsRoot == null) return;
+
+					RefreshQueue.getInstance().refresh(false, true, new Runnable() {
+						@Override public void run() {
+							reloadAllToolWindows();
+						}
+					}, pluginsRoot);
 				}
-			}, pluginsRoot);
+			});
 		}
 	}
 
