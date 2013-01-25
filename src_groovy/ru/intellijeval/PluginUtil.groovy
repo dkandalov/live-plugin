@@ -13,16 +13,12 @@
  */
 package ru.intellijeval
 
+import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.actionSystem.KeyboardShortcut
-import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
@@ -43,9 +39,7 @@ import javax.swing.*
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
-import static com.intellij.notification.NotificationType.ERROR
-import static com.intellij.notification.NotificationType.INFORMATION
-import static com.intellij.notification.NotificationType.WARNING
+import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 
 /**
@@ -56,6 +50,7 @@ class PluginUtil {
 	private static final Logger LOG = Logger.getInstance("IntelliJEval")
 	// Using WeakHashMap to make unregistering tool window optional
 	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new WeakHashMap()
+	private static final Map<ConsoleView, String> consoleToConsoleTitle = new WeakHashMap()
 
 	/**
 	 * Writes a message to "idea.log" file.
@@ -95,27 +90,55 @@ class PluginUtil {
 	}
 
 	/**
-	 * @param e exception to show
-	 * @param consoleTitle (optional; might be useful to have different titles if there are several open consoles)
+	 * @param throwable exception to show
+	 * @param consoleTitle (optional) might be useful to have different titles if there are several open consoles
 	 * @param project console will be displayed in the window of this project
 	 */
-	static showExceptionInConsole(Exception e, consoleTitle = "", @NotNull Project project) {
+	static showExceptionInConsole(Throwable throwable, consoleTitle = "", @NotNull Project project) {
 		def writer = new StringWriter()
-		e.printStackTrace(new PrintWriter(writer))
+		throwable.printStackTrace(new PrintWriter(writer))
 		String text = UnscrambleDialog.normalizeText(writer.buffer.toString())
 
 		showInConsole(text, String.valueOf(consoleTitle), project, ERROR_OUTPUT)
 	}
 
 	/**
+	 * Opens new "Run" console tool window with {@code text} in it.
+	 *
 	 * @param text text to show
 	 * @param consoleTitle (optional)
 	 * @param project console will be displayed in the window of this project
 	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
 	 */
-	// TODO reuse the same console and append to output
-	static showInConsole(String text, String consoleTitle = "", @NotNull Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
-		Util.displayInConsole(consoleTitle, text, contentType, project)
+	static ConsoleView showInNewConsole(@Nullable text, String consoleTitle = "", @NotNull Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
+		if (text instanceof Throwable) {
+			showExceptionInConsole(text, consoleTitle, project)
+		} else {
+			Util.displayInConsole(consoleTitle, String.valueOf(text), contentType, project)
+		}
+	}
+
+	/**
+	 * Opens "Run" console tool window with {@code text} in it.
+	 * If console with the same {@code consoleTitle} already exists, the text is appended to it.
+	 *
+	 * (The only reason to use "Run" console is because it's convenient for showing multi-line text.)
+	 *
+	 * @param text
+	 * @param consoleTitle
+	 * @param project
+	 * @param contentType
+	 */
+	static ConsoleView showInConsole(@Nullable text, String consoleTitle = "", @NotNull Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
+		ConsoleView console = consoleToConsoleTitle.find{ it.value == consoleTitle }?.key
+		if (console == null) {
+			console = showInNewConsole(text, consoleTitle, project, contentType)
+			consoleToConsoleTitle[console] = consoleTitle
+			console
+		} else {
+			console.print(String.valueOf(text), contentType)
+			console
+		}
 	}
 
 	/**

@@ -61,10 +61,10 @@ public class Util {
 		}
 	};
 
-	public static void displayInConsole(String consoleTitle, String text, ConsoleViewContentType contentType, Project project) {
+	public static ConsoleView displayInConsole(String consoleTitle, String text, ConsoleViewContentType contentType, Project project) {
 		if (project == null) {
 			LOG.warn("Failed to display console because project was 'null'. Text not shown in console: " + text);
-			return;
+			return null;
 		}
 
 		ConsoleView console = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
@@ -89,6 +89,8 @@ public class Util {
 		}
 
 		ExecutionManager.getInstance(project).getContentManager().showRunContent(executor, descriptor);
+
+		return console;
 	}
 
 	public static void showErrorDialog(Project project, String message, String title) {
