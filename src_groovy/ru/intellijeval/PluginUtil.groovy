@@ -29,6 +29,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerAdapter
 import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
@@ -306,8 +307,40 @@ class PluginUtil {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
 	}
 
+	/**
+	 * @return lazy iterator for all files in project (in breadth-first order)
+	 */
+	static Iterator<VirtualFile> allFilesIn(@NotNull Project project) {
+		def sourceRoots = ProjectRootManager.getInstance(project).contentSourceRoots
+		def queue = new LinkedList<VirtualFile>(sourceRoots.toList())
+
+		new Iterator() {
+			@Override boolean hasNext() {
+				!queue.empty
+			}
+
+			@Override VirtualFile next() {
+				if (queue.first.isDirectory()) {
+					queue.addAll(queue.first.children)
+				}
+				queue.removeFirst()
+			}
+
+			@Override void remove() {
+				throw new UnsupportedOperationException()
+			}
+		}
+	}
+
+	static Iterator<Document> allDocumentsIn(@NotNull Project project) {
+		// TODO
+	}
+
+	static forAllFilesIn(Project project, Closure callback) {
+		// TODO
+	}
+
 	// TODO method to edit content of a file (read-write action wrapper)
-	// TODO method to iterate over all virtual files in project
 	// TODO method to iterate over PSI files in project
 
 
