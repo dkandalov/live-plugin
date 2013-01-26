@@ -20,6 +20,9 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
@@ -278,6 +281,22 @@ class PluginUtil {
 				showExceptionInConsole(e, e.class.simpleName, project)
 			}
 		}
+	}
+
+	/**
+	 * @return currently open editor; null if there are no open files
+	 */
+	@Nullable static Editor currentEditorIn(@NotNull Project project) {
+		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).selectedTextEditor
+	}
+
+	/**
+	 * @return {@link Document} for opened editor tab; null if there are no open files
+	 */
+	@Nullable static Document currentDocumentIn(@NotNull Project project) {
+		def file = ((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
+		if (file == null) return null
+		FileDocumentManager.instance.getDocument(file)
 	}
 
 	/**
