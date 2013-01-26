@@ -35,6 +35,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.psi.PsiFileSystemItem
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
 import org.jetbrains.annotations.NotNull
@@ -284,6 +285,8 @@ class PluginUtil {
 		}
 	}
 
+	// TODO current PsiFileSystemItem
+
 	/**
 	 * @return currently open editor; null if there are no open files
 	 */
@@ -308,31 +311,39 @@ class PluginUtil {
 	}
 
 	/**
-	 * @return lazy iterator for all files in project (in breadth-first order)
+	 * @return lazy iterator for all {@link VirtualFile}s in project (in breadth-first order)
 	 */
 	static Iterator<VirtualFile> allFilesIn(@NotNull Project project) {
 		def sourceRoots = ProjectRootManager.getInstance(project).contentSourceRoots
 		def queue = new LinkedList<VirtualFile>(sourceRoots.toList())
 
-		new Iterator() {
-			@Override boolean hasNext() {
-				!queue.empty
-			}
+		new Iterator<VirtualFile>() {
+			@Override boolean hasNext() { !queue.empty }
 
 			@Override VirtualFile next() {
-				if (queue.first.isDirectory()) {
+				if (queue.first.isDirectory())
 					queue.addAll(queue.first.children)
-				}
 				queue.removeFirst()
 			}
 
-			@Override void remove() {
-				throw new UnsupportedOperationException()
-			}
+			@Override void remove() { throw new UnsupportedOperationException() }
 		}
 	}
 
+	/**
+	 * @return lazy iterator for all {@link Document}s in project (in breadth-first order).
+	 *         Note that iterator can return null elements.
+	 */
 	static Iterator<Document> allDocumentsIn(@NotNull Project project) {
+		def fileIterator = allFilesIn(project)
+		new Iterator<Document>() {
+			@Override boolean hasNext() { fileIterator.hasNext() }
+			@Override Document next() { FileDocumentManager.instance.getDocument(fileIterator.next()) }
+			@Override void remove() { throw new UnsupportedOperationException() }
+		}
+	}
+
+	static Iterator<PsiFileSystemItem> allPsiItemsIn(@NotNull Project project) {
 		// TODO
 	}
 
