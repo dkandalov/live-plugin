@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 package ru.intellijeval
-
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
@@ -21,12 +20,14 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerAdapter
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
@@ -41,7 +42,6 @@ import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  * User: dima
  * Date: 11/08/2012
@@ -280,8 +280,14 @@ class PluginUtil {
 		}
 	}
 
+	/**
+	 * @return {@link VirtualFile} for opened editor tab; null if there are no open files
+	 */
+	@Nullable static VirtualFile currentFileIn(@NotNull Project project) {
+		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
+	}
+
 	// TODO method to edit content of a file (read-write action wrapper)
-	// TODO method to get current virtual file
 	// TODO method to iterate over all virtual files in project
 	// TODO method to iterate over PSI files in project
 
