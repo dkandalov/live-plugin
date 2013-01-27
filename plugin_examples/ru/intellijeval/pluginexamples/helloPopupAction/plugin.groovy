@@ -1,52 +1,24 @@
-import com.intellij.notification.Notification
-import com.intellij.notification.NotificationType
-import com.intellij.notification.Notifications
-import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.keymap.KeymapManager
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 
-import javax.swing.*
+import static ru.intellijeval.PluginUtil.*
 
-
-static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
-	SwingUtilities.invokeLater({
-		def notification = new Notification("", title, htmlBody, notificationType)
-		ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
-	} as Runnable)
-}
-
-static registerAction(String actionId, String keyStroke = "", Closure closure) {
-	def actionManager = ActionManager.instance
-	def keymap = KeymapManager.instance.activeKeymap
-
-	def alreadyRegistered = (actionManager.getAction(actionId) != null)
-	if (alreadyRegistered) {
-		keymap.removeAllActionShortcuts(actionId)
-		actionManager.unregisterAction(actionId)
-	}
-
-	if (!keyStroke.empty) keymap.addShortcut(actionId, new KeyboardShortcut(KeyStroke.getKeyStroke(keyStroke), null))
-	actionManager.registerAction(actionId, new AnAction() {
-		@Override void actionPerformed(AnActionEvent e) {
-			closure.call(e)
-		}
-	})
-
-	show("Loaded '${actionId}'<br/>Use ctrl+alt+shift+P to run it")
-}
-
-static ActionGroup createActions(data, actionGroup = new DefaultActionGroup()) {
-	data.each { entry ->
+ActionGroup createActions(menuDescription, actionGroup = new DefaultActionGroup()) {
+	menuDescription.each { entry ->
 		if (entry.value instanceof String) {
 			actionGroup.add(new AnAction(entry.key as String) {
-				@Override void actionPerformed(AnActionEvent e) {
+				@Override void actionPerformed(AnActionEvent ignored) {
 					show(entry.value)
 				}
 			})
 		} else {
-			def subActions = createActions(entry.value, new DefaultActionGroup(entry.key.toString(), true))
-			actionGroup.add(subActions)
+			def actionGroupName = entry.key.toString()
+			def isPopup = true
+			def subMenuDescription = entry.value
+			actionGroup.add(createActions(subMenuDescription, new DefaultActionGroup(actionGroupName, isPopup)))
 		}
 	}
 	actionGroup
@@ -54,22 +26,24 @@ static ActionGroup createActions(data, actionGroup = new DefaultActionGroup()) {
 
 
 registerAction("helloPopupAction", "ctrl alt shift P") { AnActionEvent event ->
-	def actionGroup = createActions([
+	def popupMenuDescription = [
 			"World 1": [
-					"sub-world 11" : "Hello sub-world 11!!",
-					"sub-world 12" : "hello sub-world 12",
+					"sub-world 11": "Hello sub-world 11!!",
+					"sub-world 12": "hello sub-world 12",
 			],
 			"World 2": [
-					"sub-world 21" : "sub-world 21 hello",
-					"sub-world 22" : "sub-world hello 22",
+					"sub-world 21": "sub-world 21 hello",
+					"sub-world 22": "sub-world hello 22",
 			],
-			"World 3" : "Hey world 3!"
-	])
+			"World 3": "Hey world 3!"
+	]
+	def popupTitle = "Say hello to..."
 	JBPopupFactory.instance.createActionGroupPopup(
-			"Say hello to",
-			actionGroup,
+			popupTitle,
+			createActions(popupMenuDescription),
 			event.dataContext,
 			JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
 			true
 	).showCenteredInCurrentWindow(event.project)
 }
+show("Loaded 'helloPopupAction'<br/>Use ctrl+alt+shift+P to run it")
