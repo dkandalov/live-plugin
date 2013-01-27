@@ -1,6 +1,11 @@
 import com.intellij.openapi.actionSystem.AnActionEvent
 import static ru.intellijeval.PluginUtil.show
 
+// To run a plugin you can press "Run plugin" button or use "ctrl+C, ctrl+E" shortcut.
+// This will try to run plugin which you currently edit (determined by opened editor)
+// otherwise plugin selected in plugin tree will be run.
+
+
 // This should show balloon message with "Hello IntelliJ" text.
 // (If there is no balloon, it might be disabled in "IDE Settings - Notifications".)
 show("Hello IntelliJ")

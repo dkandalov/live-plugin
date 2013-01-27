@@ -3,7 +3,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import static ru.intellijeval.PluginUtil.*
 
 // This action inserts new line above current line.
-// It's a follow-up for the these posts:
+// It's a follow-up for these posts:
 //  - http://martinfowler.com/bliki/InternalReprogrammability.html
 //  - http://nealford.com/memeagora/2013/01/22/why_everyone_eventually_hates_maven.html
 
@@ -19,4 +19,4 @@ registerAction("InsertNewLineAbove", "ctrl alt shift I") { AnActionEvent event -
 		}
 	}
 }
-show("Loaded 'InsertNewLineAbove' action. Use 'ctrl alt shift I' to run it.")
+show("Loaded 'InsertNewLineAbove' action<br/>Use 'ctrl+alt+shift+I' to run it")

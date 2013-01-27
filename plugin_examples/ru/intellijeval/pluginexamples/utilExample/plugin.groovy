@@ -3,6 +3,11 @@ import javax.swing.*
 import static ru.intellijeval.PluginUtil.*
 import util.AClass
 
+//
+// For more details please see
+// https://github.com/dkandalov/intellij_eval/blob/master/src_groovy/ru/intellijeval/PluginUtil.groovy
+//
+
 // log message in "Event Log"
 log("Hello IntelliJ")
 

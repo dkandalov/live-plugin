@@ -1,61 +1,24 @@
 import com.intellij.codeInsight.daemon.GroupNames
-import com.intellij.codeInspection.*
+import com.intellij.codeInspection.BaseJavaLocalInspectionTool
+import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.codeInspection.LocalQuickFix
+import com.intellij.codeInspection.ProblemDescriptor
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.codeInspection.ex.InspectionProfileImpl
 import com.intellij.codeInspection.ex.InspectionToolRegistrar
 import com.intellij.codeInspection.ex.InspectionToolWrapper
 import com.intellij.codeInspection.ex.LocalInspectionToolWrapper
 import com.intellij.ide.ui.search.SearchableOptionsRegistrar
-import com.intellij.notification.Notification
-import com.intellij.notification.NotificationType
-import com.intellij.notification.Notifications
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Factory
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
-import com.intellij.psi.*
+import com.intellij.psi.JavaElementVisitor
+import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.PsiLiteralExpression
 
-import javax.swing.SwingUtilities
+import static ru.intellijeval.PluginUtil.show
 
-
-class HelloWorldInspection extends BaseJavaLocalInspectionTool {
-	@Override String getGroupDisplayName() { GroupNames.BUGS_GROUP_NAME }
-
-	@Override String getDisplayName() { 'Replace "hello" with "Hello world"' }
-
-	@Override String getShortName() { "HelloWorldInspection" }
-
-	@Override boolean isEnabledByDefault() { true }
-
-	@Override PsiElementVisitor buildVisitor(ProblemsHolder holder, boolean isOnTheFly) {
-		new JavaElementVisitor() {
-			@Override void visitLiteralExpression(PsiLiteralExpression expression) {
-				super.visitLiteralExpression(expression)
-				if (expression.type.equalsToText("java.lang.String") && expression.value == "hello") {
-					holder.registerProblem(expression, "Found hello word", new HelloWorldQuickFix())
-				}
-			}
-		}
-	}
-}
-
-class HelloWorldQuickFix implements LocalQuickFix {
-	@Override String getName() { 'Replace with "Hello World"' }
-
-	@Override String getFamilyName() { name }
-
-	@Override void applyFix(Project project, ProblemDescriptor descriptor) {
-		def factory = JavaPsiFacade.getInstance(project).elementFactory
-		def stringLiteral = factory.createExpressionFromText('"Hello World"', null)
-		descriptor.psiElement.replace(stringLiteral)
-	}
-}
-
-static show(String htmlBody, String title = "", NotificationType notificationType = NotificationType.INFORMATION) {
-	SwingUtilities.invokeLater({
-		def notification = new Notification("", title, htmlBody, notificationType)
-		ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
-	} as Runnable)
-}
 
 static addInspection(Project project, Closure<LocalInspectionTool> inspectionFactory) {
 	def registrar = new InspectionToolRegistrar(SearchableOptionsRegistrar.instance)
@@ -79,6 +42,36 @@ static addInspection(Project project, Closure<LocalInspectionTool> inspectionFac
 	projectProfileManager.updateProfile(newProfile)
 	projectProfileManager.projectProfile = newProfile.name
 }
+
+class HelloWorldInspection extends BaseJavaLocalInspectionTool {
+	@Override String getGroupDisplayName() { GroupNames.BUGS_GROUP_NAME }
+	@Override String getDisplayName() { 'Replace "hello" with "Hello world"' }
+	@Override String getShortName() { "HelloWorldInspection" }
+	@Override boolean isEnabledByDefault() { true }
+
+	@Override PsiElementVisitor buildVisitor(ProblemsHolder holder, boolean isOnTheFly) {
+		new JavaElementVisitor() {
+			@Override void visitLiteralExpression(PsiLiteralExpression expression) {
+				super.visitLiteralExpression(expression)
+				if (expression.type.equalsToText("java.lang.String") && expression.value == "hello") {
+					holder.registerProblem(expression, "Found hello word", new HelloWorldQuickFix())
+				}
+			}
+		}
+	}
+}
+
+class HelloWorldQuickFix implements LocalQuickFix {
+	@Override String getName() { 'Replace with "Hello World"' }
+	@Override String getFamilyName() { name }
+
+	@Override void applyFix(Project project, ProblemDescriptor descriptor) {
+		def factory = JavaPsiFacade.getInstance(project).elementFactory
+		def stringLiteral = factory.createExpressionFromText('"Hello World"', null)
+		descriptor.psiElement.replace(stringLiteral)
+	}
+}
+
 
 addInspection(event.project, { new HelloWorldInspection() })
 
