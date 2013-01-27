@@ -51,6 +51,7 @@ import javax.swing.*
 
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  *
  */
@@ -153,7 +154,7 @@ class PluginUtil {
 	 *
 	 * @return instance of created action
 	 */
-	static AnAction registerAction(String actionId, String keyStroke = "",
+	static AnAction registerAction(String actionId, String keyStroke = "", // TODO check that keyStroke is correct
 	                               String actionGroupId = null, String displayText = "", Closure callback) {
 		def action = new AnAction(displayText) {
 			@Override void actionPerformed(AnActionEvent event) { callback.call(event) }

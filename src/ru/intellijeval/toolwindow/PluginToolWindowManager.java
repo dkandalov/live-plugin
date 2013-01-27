@@ -91,6 +91,7 @@ import static ru.intellijeval.EvalComponent.pluginExists;
  * Date: 11/08/2012
  */
 public class PluginToolWindowManager {
+
 	private static final String TOOL_WINDOW_ID = "Plugins";
 
 	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<Project, PluginToolWindow>();
@@ -444,7 +445,7 @@ public class PluginToolWindowManager {
 			try {
 
 				String text = EvalComponent.defaultPluginScript();
-				FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + "/" + newPluginId + "/" + EvalComponent.MAIN_SCRIPT), text);
+				PluginsIO.createFile(EvalComponent.pluginsRootPath() + "/" + newPluginId + "/" + EvalComponent.MAIN_SCRIPT, text);
 
 			} catch (IOException e) {
 				Project project = event.getProject();
@@ -478,7 +479,7 @@ public class PluginToolWindowManager {
 				try {
 
 					String text = EvalComponent.readSampleScriptFile(pluginPath, file);
-					FileUtil.writeToFile(new File(EvalComponent.pluginsRootPath() + "/" + pluginId + "/" + file), text);
+					PluginsIO.createFile(EvalComponent.pluginsRootPath() + "/" + pluginId + "/" + file, text);
 
 				} catch (IOException e) {
 					listener.onException(e, pluginPath);
@@ -558,11 +559,7 @@ public class PluginToolWindowManager {
 			File toDir = new File(EvalComponent.pluginsRootPath() + "/" + fromDir.getName());
 			try {
 
-				boolean created = toDir.mkdirs();
-				if (!created) {
-					throw new IllegalStateException("Failed to create " + toDir.getPath());
-				}
-				FileUtil.copyDirContent(fromDir, toDir);
+				PluginsIO.copyDirContent(fromDir, toDir);
 
 			} catch (IOException e) {
 				Project project = event.getProject();
@@ -580,13 +577,13 @@ public class PluginToolWindowManager {
 		}
 
 		private static List<VirtualFile> getFileSystemRoots() {
-			final LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
-			final Set<VirtualFile> roots = new HashSet<VirtualFile>();
-			final File[] ioRoots = File.listRoots();
+			LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
+			Set<VirtualFile> roots = new HashSet<VirtualFile>();
+			File[] ioRoots = File.listRoots();
 			if (ioRoots != null) {
-				for (final File root : ioRoots) {
-					final String path = FileUtil.toSystemIndependentName(root.getAbsolutePath());
-					final VirtualFile file = localFileSystem.findFileByPath(path);
+				for (File root : ioRoots) {
+					String path = FileUtil.toSystemIndependentName(root.getAbsolutePath());
+					VirtualFile file = localFileSystem.findFileByPath(path);
 					if (file != null) {
 						roots.add(file);
 					}
@@ -627,7 +624,7 @@ public class PluginToolWindowManager {
 
 			for (String pluginId : pluginIds) {
 				String pluginPath = EvalComponent.pluginToPathMap().get(pluginId);
-				FileUtil.delete(new File(pluginPath));
+				PluginsIO.delete(pluginPath);
 			}
 
 			new RefreshPluginListAction().actionPerformed(event);
@@ -684,6 +681,36 @@ public class PluginToolWindowManager {
 		}
 	}
 
+
+	private static class PluginsIO {
+		public static void createFile(String filePath, String text) throws IOException {
+			FileUtil.writeToFile(new File(filePath), text);
+
+//			CommandProcessor.getInstance().executeCommand(null, new Runnable() {
+//				@Override public void run() {
+//					ApplicationManager.getApplication().runWriteAction(new Runnable() {
+//						public void run() {
+//
+////							VirtualFileManager.getInstance().findFileByUrl() // TODO
+//
+//						}
+//					});
+//				}
+//			}, "create file", "IntelliJEval");
+		}
+
+		public static void copyDirContent(File fromDir, File toDir) throws IOException {
+			boolean created = toDir.mkdirs();
+			if (!created) {
+				throw new IllegalStateException("Failed to create " + toDir.getPath());
+			}
+			FileUtil.copyDirContent(fromDir, toDir);
+		}
+
+		public static void delete(String pluginPath) {
+			FileUtil.delete(new File(pluginPath));
+		}
+	}
 
 	private static class DisableHighlightingRunnable implements Runnable {
 		private final Project project;

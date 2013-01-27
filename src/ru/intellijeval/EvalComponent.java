@@ -13,23 +13,21 @@
  */
 package ru.intellijeval;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.jetbrains.annotations.NotNull;
-
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-
+import org.jetbrains.annotations.NotNull;
 import ru.intellijeval.toolwindow.PluginToolWindowManager;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName;
@@ -42,7 +40,6 @@ import static ru.intellijeval.toolwindow.PluginToolWindowManager.ExamplePluginIn
 public class EvalComponent implements ApplicationComponent { // TODO implement DumbAware?
 	private static final Logger LOG = Logger.getInstance(EvalComponent.class);
 
-	public static final String COMPONENT_NAME = "EvalComponent";
 	public static final String MAIN_SCRIPT = "plugin.groovy";
 	public static final String PLUGIN_EXAMPLES_PATH = "/ru/intellijeval/pluginexamples";
 
@@ -139,6 +136,6 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	@Override
 	@NotNull
 	public String getComponentName() {
-		return COMPONENT_NAME;
+		return "EvalComponent";
 	}
 }
