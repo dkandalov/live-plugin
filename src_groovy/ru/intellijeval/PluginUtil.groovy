@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 package ru.intellijeval
+
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
@@ -50,17 +51,12 @@ import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  * User: dima
  * Date: 11/08/2012
  */
 class PluginUtil {
-	private static final Logger LOG = Logger.getInstance("IntelliJEval")
-
-	// Using WeakHashMap to make unregistering tool window optional
-	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new WeakHashMap()
-	private static final Map<ConsoleView, String> consoleToConsoleTitle = new WeakHashMap()
-
 	/**
 	 * Writes a message to "idea.log" file.
 	 * (Its location can be found using {@link com.intellij.openapi.application.PathManager#getLogPath()}.)
@@ -437,4 +433,11 @@ class PluginUtil {
 	private static unregisterToolWindowIn(Project project, String id) {
 		ToolWindowManager.getInstance(project).unregisterToolWindow(id)
 	}
+
+
+	private static final Logger LOG = Logger.getInstance("IntelliJEval")
+
+	// Using WeakHashMap to make unregistering tool window optional
+	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new WeakHashMap()
+	private static final Map<ConsoleView, String> consoleToConsoleTitle = new WeakHashMap()
 }
