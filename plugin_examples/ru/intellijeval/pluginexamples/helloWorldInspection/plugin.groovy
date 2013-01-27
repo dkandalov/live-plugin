@@ -48,7 +48,7 @@ class HelloWorldInspection extends BaseJavaLocalInspectionTool {
 	@Override String getDisplayName() { 'Replace "hello" with "Hello world"' }
 	@Override String getShortName() { "HelloWorldInspection" }
 	@Override boolean isEnabledByDefault() { true }
-
+	                                                  v
 	@Override PsiElementVisitor buildVisitor(ProblemsHolder holder, boolean isOnTheFly) {
 		new JavaElementVisitor() {
 			@Override void visitLiteralExpression(PsiLiteralExpression expression) {

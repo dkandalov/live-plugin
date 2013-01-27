@@ -142,7 +142,7 @@ class PluginUtil {
 			consoleToConsoleTitle[console] = consoleTitle
 			console
 		} else {
-			console.print(String.valueOf(text), contentType)
+			console.print("\n" + String.valueOf(text), contentType)
 			console
 		}
 	}
@@ -367,9 +367,11 @@ class PluginUtil {
 	static runDocumentWriteAction(@NotNull Project project, Document document = currentDocumentIn(project), Closure callback) {
 		def name = "runDocumentWriteAction"
 		def groupId = "PluginUtil"
-		CommandProcessor.instance.executeCommand(project, {
-			callback.call(document)
-		}, name, groupId, UndoConfirmationPolicy.DEFAULT, document)
+		runWriteAction {
+			CommandProcessor.instance.executeCommand(project, {
+				callback.call(document)
+			}, name, groupId, UndoConfirmationPolicy.DEFAULT, document)
+		}
 	}
 
 	/**
@@ -379,8 +381,9 @@ class PluginUtil {
 	 * @param transformer
 	 */
 	static transformSelectedText(@NotNull Project project, Closure transformer) {
+		def editor = currentEditorIn(project)
 		runDocumentWriteAction(project) {
-			transformSelectionIn(currentEditorIn(project), transformer)
+			transformSelectionIn(editor, transformer)
 		}
 	}
 
@@ -483,7 +486,7 @@ class PluginUtil {
 		}
 		String[] textParts = selectedText.split("\n")
 
-		if (editor.columnMode) {
+		if (editor.columnMode) { // TODO doesn't work properly
 			int[] blockStarts = selectionModel.blockSelectionStarts
 			int[] blockEnds = selectionModel.blockSelectionEnds
 

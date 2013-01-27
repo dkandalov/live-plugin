@@ -93,7 +93,7 @@ class Evaluator {
 			BufferedReader inputStream = new BufferedReader(new InputStreamReader(new FileInputStream(mainScriptPath)));
 			String line;
 			while ((line = inputStream.readLine()) != null) {
-				if (line.contains(CLASSPATH_PREFIX)) {
+				if (line.startsWith(CLASSPATH_PREFIX)) {
 					String path = line.replace(CLASSPATH_PREFIX, "");
 
 					path = inlineEnvironmentVariables(path, environment);

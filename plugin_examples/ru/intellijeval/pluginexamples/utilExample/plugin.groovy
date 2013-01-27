@@ -1,8 +1,6 @@
-import javax.swing.*
-
-import static ru.intellijeval.PluginUtil.*
 import util.AClass
 
+import static ru.intellijeval.PluginUtil.*
 //
 // For more details please see
 // https://github.com/dkandalov/intellij_eval/blob/master/src_groovy/ru/intellijeval/PluginUtil.groovy
@@ -17,14 +15,9 @@ show("IntelliJ", "Hello")
 // using imported class
 show(AClass.sayHello(), "Hello")
 
-// shows text in console (useful for stacktraces or if text is large)
-showInConsole("Hello console", event.project)
+// shows text in console
+showInConsole("Hello console", "my console", project)
+showInConsole("....", "my console", project)
 
-// shows exception's stacktrace in console
-showExceptionInConsole(new Exception("This is a fake exception to show exception in a console"), event.project)
-
-registerAction("My Action", "ctrl alt shift H") {
-	show("IntelliJ", "Hello")
-}
-
-registerToolWindow("My Toolwindow", new JTextArea("Hello"))
+// shows exception's stacktrace in new console
+showInNewConsole(new Exception("This is a fake exception to show exception in a console"), "console with exception", project)
