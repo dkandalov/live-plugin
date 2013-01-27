@@ -32,10 +32,10 @@ Plugins are stored on application level.
 	</application-components>
 
 	<actions>
-		<action id="InetlliJEval.EvalPlugin" class="ru.intellijeval.EvaluatePluginAction" text="Run current plugin">
+		<action id="InetlliJEval.EvalPlugin" class="ru.intellijeval.EvaluatePluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 		</action>
-		<action id="InetlliJEval.EvalAllPlugins" class="ru.intellijeval.EvaluateAllPluginsAction" text="Run all plugins"/>
+		<action id="InetlliJEval.EvalAllPlugins" class="ru.intellijeval.EvaluateAllPluginsAction" text="Run All Plugins"/>
 
         <group id="InetlliJEval.Popup.MainActions">
             <action id="InetlliJEval.NewFileAction" class="ru.intellijeval.toolwindow.NewFileAction"

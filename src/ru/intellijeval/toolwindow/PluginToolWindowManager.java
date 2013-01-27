@@ -424,6 +424,7 @@ public class PluginToolWindowManager {
 	}
 
 
+	@SuppressWarnings("ComponentNotRegistered")
 	public static class AddNewPluginAction extends AnAction {
 		private static final Logger LOG = Logger.getInstance(AddNewPluginAction.class);
 
@@ -534,6 +535,7 @@ public class PluginToolWindowManager {
 		}
 	}
 
+	@SuppressWarnings("ComponentNotRegistered")
 	public static class AddPluginFromDiskAction extends AnAction {
 		private static final Logger LOG = Logger.getInstance(AddPluginFromDiskAction.class);
 
@@ -614,7 +616,7 @@ public class PluginToolWindowManager {
 		private final PluginToolWindow pluginsToolWindow;
 
 		public DeletePluginAction(PluginToolWindow pluginsToolWindow) {
-			super("Delete plugin", "Delete plugin", Util.DELETE_PLUGIN_ICON);
+			super("Delete Plugin", "Delete Plugin", Util.DELETE_PLUGIN_ICON);
 			this.pluginsToolWindow = pluginsToolWindow;
 		}
 
@@ -657,10 +659,11 @@ public class PluginToolWindowManager {
 		}
 	}
 
+	@SuppressWarnings("ComponentNotRegistered")
 	public static class RefreshPluginListAction extends AnAction {
 
 		public RefreshPluginListAction() {
-			super("Refresh plugin list", "Refresh plugin list", Util.REFRESH_PLUGIN_LIST_ICON);
+			super("Refresh Plugin Tree", "Refresh Plugin Tree", Util.REFRESH_PLUGIN_LIST_ICON);
 		}
 
 		@Override public void actionPerformed(AnActionEvent e) {
