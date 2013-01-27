@@ -313,6 +313,7 @@ public class PluginToolWindowManager {
 
 		private AnAction createAddPluginsExamplesGroup() {
 			final DefaultActionGroup actionGroup = new DefaultActionGroup("Examples", true);
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloWorldAction", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloPopupAction", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloToolwindow", asList("plugin.groovy")));
