@@ -289,7 +289,7 @@ public class PluginToolWindowManager {
 
 		private AnAction createSettingsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Settings", true);
-			actionGroup.add(new ToggleAction("Run all plugins on IDE start") {
+			actionGroup.add(new ToggleAction("Run All Plugins on IDE Start") {
 				@Override public boolean isSelected(AnActionEvent event) {
 					return Settings.getInstance().runAllPluginsOnIDEStartup;
 				}
@@ -323,7 +323,7 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/utilExample", asList("plugin.groovy", "util/AClass.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/classpathExample", asList("plugin.groovy")));
 			actionGroup.addSeparator();
-			actionGroup.add(new AnAction("Add all") {
+			actionGroup.add(new AnAction("Add All") {
 				@Override public void actionPerformed(AnActionEvent e) {
 					AnAction[] actions = actionGroup.getChildActionsOrStubs();
 					for (AnAction action : actions) {
@@ -427,7 +427,7 @@ public class PluginToolWindowManager {
 		private static final Logger LOG = Logger.getInstance(AddNewPluginAction.class);
 
 		public AddNewPluginAction() {
-			super("New plugin");
+			super("New Plugin");
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
@@ -537,7 +537,7 @@ public class PluginToolWindowManager {
 		private static final Logger LOG = Logger.getInstance(AddPluginFromDiskAction.class);
 
 		public AddPluginFromDiskAction() {
-			super("Plugin from disk");
+			super("Plugin from Disk");
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
