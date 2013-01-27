@@ -20,6 +20,8 @@ import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
@@ -53,8 +55,7 @@ import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 
 /**
- * User: dima
- * Date: 11/08/2012
+ *
  */
 class PluginUtil {
 	/**
@@ -158,7 +159,8 @@ class PluginUtil {
 	 *                      (e.g. "ToolsMenu" corresponds to main menu "Tools")
 	 *                      The best way to find existing actionGroupIds is probably to search IntelliJ source code for "group id=".
 	 * @param displayText (optional) if action is added to menu, this text will be shown
-	 * @param callback code to run when action is invoked
+	 * @param callback code to run when action is invoked. {@link AnActionEvent} will be passed as a parameter.
+	 *
 	 * @return instance of created action
 	 */
 	static AnAction registerAction(String actionId, String keyStroke = "",
@@ -354,6 +356,20 @@ class PluginUtil {
 	 */
 	static runReadAction(Closure callback) {
 		ApplicationManager.application.runReadAction(callback as Computable)
+	}
+
+	/**
+	 * TODO
+	 *
+	 * @param document
+	 * @param callback
+	 */
+	static runDocumentWriteAction(@NotNull Project project, Document document = currentDocumentIn(project), Closure callback) {
+		def name = "runDocumentWriteAction"
+		def groupId = "PluginUtil"
+		CommandProcessor.instance.executeCommand(project, {
+			callback.call()
+		}, name, groupId, UndoConfirmationPolicy.DEFAULT, document)
 	}
 
 	static accessField(Object o, String fieldName, Closure callback) {
