@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 package ru.intellijeval
-
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
@@ -25,6 +24,7 @@ import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.keymap.KeymapManager
@@ -368,8 +368,20 @@ class PluginUtil {
 		def name = "runDocumentWriteAction"
 		def groupId = "PluginUtil"
 		CommandProcessor.instance.executeCommand(project, {
-			callback.call()
+			callback.call(document)
 		}, name, groupId, UndoConfirmationPolicy.DEFAULT, document)
+	}
+
+	/**
+	 * TODO
+	 *
+	 * @param project
+	 * @param transformer
+	 */
+	static transformSelectedText(@NotNull Project project, Closure transformer) {
+		runDocumentWriteAction(project) {
+			transformSelectionIn(currentEditorIn(project), transformer)
+		}
 	}
 
 	static accessField(Object o, String fieldName, Closure callback) {
@@ -448,6 +460,51 @@ class PluginUtil {
 
 	private static unregisterToolWindowIn(Project project, String id) {
 		ToolWindowManager.getInstance(project).unregisterToolWindow(id)
+	}
+
+
+	/**
+	 * Original version borrowed from here
+	 * http://code.google.com/p/idea-string-manip/source/browse/trunk/src/main/java/osmedile/intellij/stringmanip/AbstractStringManipAction.java
+	 *
+	 * @author Olivier Smedile
+	 */
+	static transformSelectionIn(Editor editor, Closure transformer) {
+		SelectionModel selectionModel = editor.selectionModel
+		String selectedText = selectionModel.selectedText
+
+		boolean allLineSelected = false
+		if (selectedText == null) {
+			selectionModel.selectLineAtCaret()
+			selectedText = selectionModel.selectedText
+			allLineSelected = true
+
+			if (selectedText == null) return
+		}
+		String[] textParts = selectedText.split("\n")
+
+		if (editor.columnMode) {
+			int[] blockStarts = selectionModel.blockSelectionStarts
+			int[] blockEnds = selectionModel.blockSelectionEnds
+
+			int plusOffset = 0
+
+			for (int i = 0; i < textParts.length; i++) {
+				String newTextPart = transformer(textParts[i])
+				if (allLineSelected) {
+					newTextPart += "\n"
+				}
+
+				editor.document.replaceString(blockStarts[i] + plusOffset, blockEnds[i] + plusOffset, newTextPart)
+				plusOffset += newTextPart.length() - textParts[i].length()
+			}
+		} else {
+			String transformedText = textParts.collect{ transformer(it) }.join("\n")
+			editor.document.replaceString(selectionModel.selectionStart, selectionModel.selectionEnd, transformedText)
+			if (allLineSelected) {
+				editor.document.insertString(selectionModel.selectionEnd, "\n")
+			}
+		}
 	}
 
 
