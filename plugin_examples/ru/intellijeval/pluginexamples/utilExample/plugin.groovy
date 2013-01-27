@@ -1,10 +1,9 @@
 import util.AClass
 
 import static ru.intellijeval.PluginUtil.*
-//
-// For more details please see
+
+// For more util methods see
 // https://github.com/dkandalov/intellij_eval/blob/master/src_groovy/ru/intellijeval/PluginUtil.groovy
-//
 
 // log message in "Event Log"
 log("Hello IntelliJ")

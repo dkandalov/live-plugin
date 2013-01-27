@@ -7,7 +7,7 @@ import static ru.intellijeval.PluginUtil.*
 //  - http://martinfowler.com/bliki/InternalReprogrammability.html
 //  - http://nealford.com/memeagora/2013/01/22/why_everyone_eventually_hates_maven.html
 
-registerAction("InsertNewLineAbove", "ctrl alt shift I") { AnActionEvent event ->
+registerAction("InsertNewLineAbove", "alt shift ENTER") { AnActionEvent event ->
 	runDocumentWriteAction(event.project) {
 		currentEditorIn(event.project).with {
 			def offset = caretModel.offset
@@ -19,4 +19,4 @@ registerAction("InsertNewLineAbove", "ctrl alt shift I") { AnActionEvent event -
 		}
 	}
 }
-show("Loaded 'InsertNewLineAbove' action<br/>Use 'ctrl+alt+shift+I' to run it")
+show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")

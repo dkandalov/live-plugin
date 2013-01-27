@@ -1,5 +1,5 @@
 import com.intellij.openapi.actionSystem.AnActionEvent
-import static ru.intellijeval.PluginUtil.show
+import static ru.intellijeval.PluginUtil.*
 
 // To run a plugin you can press "Run plugin" button or use "ctrl+C, ctrl+E" shortcut.
 // This will try to run plugin which you currently edit (determined by opened editor)

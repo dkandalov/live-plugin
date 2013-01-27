@@ -146,6 +146,7 @@ class PluginUtil {
 	 * @param actionId unique identifier for action
 	 * @param keyStroke (optional) e.g. "ctrl alt shift H" or "alt C, alt H" for double key stroke.
 	 *        Note that letters must be uppercase, modification keys lowercase.
+	 *        See {@link javax.swing.KeyStroke#getKeyStroke(String)}
 	 * @param actionGroupId (optional) can be used to add actions to existing menus, etc.
 	 *                      (e.g. "ToolsMenu" corresponds to main menu "Tools")
 	 *                      The best way to find existing actionGroupIds is probably to search IntelliJ source code for "group id=".
