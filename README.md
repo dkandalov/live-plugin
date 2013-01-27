@@ -27,7 +27,7 @@ If you don't have Groovy plugin installed, plugins text will appear as plain tex
 
 
 To get full IDE support it can be useful to set up a project with all plugins and IntelliJ JDK attached.
-You can set up a project for all plugins at the following folder:
+You can set up a project for all plugins in:
  - $HOME/.$INTELLIJ_VERSION/config/intellij-eval-plugins/
  - (on Mac) $HOME/Library/Application Support/IntelliJIdea12/intellij-eval-plugins/
 

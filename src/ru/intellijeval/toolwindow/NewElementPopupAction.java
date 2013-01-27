@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import ru.intellijeval.Util;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * User: dima
@@ -32,7 +34,7 @@ import javax.swing.*;
 class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 	public static final Icon Folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
 
-	public void actionPerformed(final AnActionEvent event) {
+	@Override public void actionPerformed(final AnActionEvent event) {
 		showPopup(event.getDataContext());
 	}
 
@@ -58,15 +60,23 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 		return new ActionGroup() {
 			@NotNull @Override
 			public AnAction[] getChildren(AnActionEvent e) {
-				return new AnAction[]{
-						new NewFileAction("Groovy script", Util.GROOVY_FILE_TYPE_ICON),
-						new NewFolderAction("Directory", "Directory", Folder)
-				};
+				ArrayList<AnAction> actions = new ArrayList<AnAction>();
+				actions.addAll(Arrays.asList(
+						new NewFileAction("Groovy Script", Util.GROOVY_FILE_TYPE_ICON),
+						new NewFolderAction("Directory", "Directory", Folder),
+						new Separator(),
+						new PluginToolWindowManager.AddNewPluginAction(),
+						new PluginToolWindowManager.AddPluginFromDiskAction()
+				));
+				if (PluginToolWindowManager.addFromGitHubAction != null) {
+					actions.add(PluginToolWindowManager.addFromGitHubAction);
+				}
+				return actions.toArray(new AnAction[actions.size()]);
 			}
 		};
 	}
 
-	public void update(AnActionEvent e) {
+	@Override public void update(AnActionEvent e) {
 		Presentation presentation = e.getPresentation();
 		presentation.setEnabled(true);
 	}

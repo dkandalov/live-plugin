@@ -181,7 +181,7 @@ public class PluginToolWindowManager {
 			FileSystemTree fsTree = createFsTree(project);
 			myFsTreeRef = Ref.create(fsTree);
 
-			installPopupsInto(fsTree);
+			installPopupMenuInto(fsTree);
 
 			JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(fsTree.getTree());
 			panel = new MySimpleToolWindowPanel(true, myFsTreeRef).setProvideQuickActions(false);
@@ -194,14 +194,14 @@ public class PluginToolWindowManager {
 			FileSystemTree fsTree = createFsTree(project);
 			myFsTreeRef.set(fsTree);
 
-			installPopupsInto(fsTree);
+			installPopupMenuInto(fsTree);
 
 			JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(myFsTreeRef.get().getTree());
 			panel.remove(0);
 			panel.add(scrollPane, 0);
 		}
 
-		private static void installPopupsInto(FileSystemTree fsTree) {
+		private static void installPopupMenuInto(FileSystemTree fsTree) {
 			AnAction action = new NewElementPopupAction();
 			action.registerCustomShortcutSet(new CustomShortcutSet(shortcutsOf("NewElement")), fsTree.getTree());
 
@@ -424,8 +424,7 @@ public class PluginToolWindowManager {
 	}
 
 
-	// TODO add this and similar actions to file tree popup menu (ctrl+n)
-	private static class AddNewPluginAction extends AnAction {
+	public static class AddNewPluginAction extends AnAction {
 		private static final Logger LOG = Logger.getInstance(AddNewPluginAction.class);
 
 		public AddNewPluginAction() {
@@ -535,7 +534,7 @@ public class PluginToolWindowManager {
 		}
 	}
 
-	private static class AddPluginFromDiskAction extends AnAction {
+	public static class AddPluginFromDiskAction extends AnAction {
 		private static final Logger LOG = Logger.getInstance(AddPluginFromDiskAction.class);
 
 		public AddPluginFromDiskAction() {
