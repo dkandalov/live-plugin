@@ -4,11 +4,4 @@
             <implementation-class>ru.intellijeval.git.GithubComponent</implementation-class>
         </component>
     </application-components>
-
-    <actions>
-        <reference id="Github.Create.Gist">
-            <add-to-group group-id="InetlliJEval.Popup.MainActions"/>
-        </reference>
-    </actions>
-
 </idea-plugin>
