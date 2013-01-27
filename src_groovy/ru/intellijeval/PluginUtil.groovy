@@ -12,12 +12,18 @@
  * limitations under the License.
  */
 package ru.intellijeval
+
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.KeyboardShortcut
+import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
@@ -31,11 +37,14 @@ import com.intellij.openapi.project.ProjectManagerAdapter
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
+import com.intellij.psi.PsiManager
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
 import org.jetbrains.annotations.NotNull
@@ -47,12 +56,14 @@ import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  * User: dima
  * Date: 11/08/2012
  */
 class PluginUtil {
 	private static final Logger LOG = Logger.getInstance("IntelliJEval")
+
 	// Using WeakHashMap to make unregistering tool window optional
 	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new WeakHashMap()
 	private static final Map<ConsoleView, String> consoleToConsoleTitle = new WeakHashMap()
@@ -227,6 +238,154 @@ class PluginUtil {
 		Messages.showInputDialog(message, title, icon)
 	}
 
+	/**
+	 * @return currently open editor; null if there are no open files
+	 */
+	@Nullable static Editor currentEditorIn(@NotNull Project project) {
+		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).selectedTextEditor
+	}
+
+	/**
+	 * @return {@PsiFile} for opened editor tab; null if there are no open files
+	 */
+	@Nullable static PsiFile currentPsiFileIn(@NotNull Project project) {
+		PsiManager.getInstance(project).findFile(currentFileIn(project))
+	}
+
+	/**
+	 * @return {@link Document} for opened editor tab; null if there are no open files
+	 */
+	@Nullable static Document currentDocumentIn(@NotNull Project project) {
+		def file = ((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
+		if (file == null) return null
+		FileDocumentManager.instance.getDocument(file)
+	}
+
+	/**
+	 * @return {@link VirtualFile} for opened editor tab; null if there are no open files
+	 */
+	@Nullable static VirtualFile currentFileIn(@NotNull Project project) {
+		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
+	}
+
+	/**
+	 * @return lazy iterator for all {@link VirtualFile}s in project (in breadth-first order)
+	 */
+	static Iterator<VirtualFile> allFilesIn(@NotNull Project project) {
+		def sourceRoots = ProjectRootManager.getInstance(project).contentSourceRoots
+		def queue = new LinkedList<VirtualFile>(sourceRoots.toList())
+
+		new Iterator<VirtualFile>() {
+			@Override boolean hasNext() { !queue.empty }
+
+			@Override VirtualFile next() {
+				if (queue.first.isDirectory())
+					queue.addAll(queue.first.children)
+				queue.removeFirst()
+			}
+
+			@Override void remove() { throw new UnsupportedOperationException() }
+		}
+	}
+
+	/**
+	 * @return lazy iterator for all {@link Document}s in project (in breadth-first order).
+	 *         Note that iterator can return null elements.
+	 */
+	static Iterator<Document> allDocumentsIn(@NotNull Project project) {
+		def fileIterator = allFilesIn(project)
+		def documentManager = FileDocumentManager.instance
+
+		new Iterator<Document>() {
+			@Override boolean hasNext() { fileIterator.hasNext() }
+			@Override Document next() { documentManager.getDocument(fileIterator.next()) }
+			@Override void remove() { throw new UnsupportedOperationException() }
+		}
+	}
+
+	/**
+	 * @return lazy iterator for all {@link PsiFileSystemItem}s in project (in breadth-first order).
+	 *         Note that iterator can return null elements.
+	 */
+	static Iterator<PsiFileSystemItem> allPsiItemsIn(@NotNull Project project) {
+		def fileIterator = allFilesIn(project)
+		def psiManager = PsiManager.getInstance(project)
+
+		new Iterator<PsiFileSystemItem>() {
+			@Override boolean hasNext() { fileIterator.hasNext() }
+			@Override PsiFileSystemItem next() {
+				def file = fileIterator.next()
+				def psiItem = file.isDirectory() ? psiManager.findDirectory(file) : psiManager.findFile(file)
+				psiItem
+			}
+			@Override void remove() { throw new UnsupportedOperationException() }
+		}
+	}
+
+	/**
+	 * Iterator over all files in project (in breadth-first order).
+	 *
+	 * @param callback code to be executed for each file.
+	 */
+	static forAllFilesIn(@NotNull Project project, Closure callback) {
+		def documentManager = FileDocumentManager.instance
+		def psiManager = PsiManager.getInstance(project)
+
+		allFilesIn(project).each { VirtualFile file ->
+			def document = documentManager.getDocument(file)
+			def psiItem = (file.isDirectory() ? psiManager.findDirectory(file) : psiManager.findFile(file))
+			callback.call(file, document, psiItem)
+		}
+	}
+
+	/**
+	 * Executes callback as write action ensuring that it's executed from Swing event-dispatch thread.
+	 * For details see javadoc for Application // TODO github link
+	 *
+	 * @param callback code to execute
+	 * @return result of callback
+	 */
+	static runWriteAction(Closure callback) {
+		if (SwingUtilities.isEventDispatchThread()) {
+			ApplicationManager.application.runWriteAction(callback as Computable)
+		} else {
+			SwingUtilities.invokeAndWait {
+				ApplicationManager.application.runWriteAction(callback as Computable)
+			}
+		}
+	}
+
+	/**
+	 * Executes callback as read action.
+	 * This is only required if IntelliJ data structures are accessed from not
+	 *
+	 * @param callback code to execute
+	 * @return result of callback
+	 */
+	static runReadAction(Closure callback) {
+		ApplicationManager.application.runReadAction(callback as Computable)
+	}
+
+	static accessField(Object o, String fieldName, Closure callback) {
+		catchingAll {
+			for (field in o.class.declaredFields) {
+				if (field.name == fieldName) {
+					field.setAccessible(true)
+					callback(field.get(o))
+					return
+				}
+			}
+		}
+	}
+
+	static registerInMetaClasses(AnActionEvent anActionEvent) { // TODO
+		[Object.metaClass, Class.metaClass].each {
+			it.actionEvent = { anActionEvent }
+			it.project = { actionEvent().getData(PlatformDataKeys.PROJECT) }
+			it.editor = { actionEvent().getData(PlatformDataKeys.EDITOR) }
+			it.fileText = { actionEvent().getData(PlatformDataKeys.FILE_TEXT) }
+		}
+	}
 
 	private static DefaultActionGroup findActionGroup(String actionGroupId) {
 		if (actionGroupId != null && actionGroupId) {
@@ -285,94 +444,4 @@ class PluginUtil {
 		}
 	}
 
-	// TODO current PsiFileSystemItem
-
-	/**
-	 * @return currently open editor; null if there are no open files
-	 */
-	@Nullable static Editor currentEditorIn(@NotNull Project project) {
-		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).selectedTextEditor
-	}
-
-	/**
-	 * @return {@link Document} for opened editor tab; null if there are no open files
-	 */
-	@Nullable static Document currentDocumentIn(@NotNull Project project) {
-		def file = ((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
-		if (file == null) return null
-		FileDocumentManager.instance.getDocument(file)
-	}
-
-	/**
-	 * @return {@link VirtualFile} for opened editor tab; null if there are no open files
-	 */
-	@Nullable static VirtualFile currentFileIn(@NotNull Project project) {
-		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
-	}
-
-	/**
-	 * @return lazy iterator for all {@link VirtualFile}s in project (in breadth-first order)
-	 */
-	static Iterator<VirtualFile> allFilesIn(@NotNull Project project) {
-		def sourceRoots = ProjectRootManager.getInstance(project).contentSourceRoots
-		def queue = new LinkedList<VirtualFile>(sourceRoots.toList())
-
-		new Iterator<VirtualFile>() {
-			@Override boolean hasNext() { !queue.empty }
-
-			@Override VirtualFile next() {
-				if (queue.first.isDirectory())
-					queue.addAll(queue.first.children)
-				queue.removeFirst()
-			}
-
-			@Override void remove() { throw new UnsupportedOperationException() }
-		}
-	}
-
-	/**
-	 * @return lazy iterator for all {@link Document}s in project (in breadth-first order).
-	 *         Note that iterator can return null elements.
-	 */
-	static Iterator<Document> allDocumentsIn(@NotNull Project project) {
-		def fileIterator = allFilesIn(project)
-		new Iterator<Document>() {
-			@Override boolean hasNext() { fileIterator.hasNext() }
-			@Override Document next() { FileDocumentManager.instance.getDocument(fileIterator.next()) }
-			@Override void remove() { throw new UnsupportedOperationException() }
-		}
-	}
-
-	static Iterator<PsiFileSystemItem> allPsiItemsIn(@NotNull Project project) {
-		// TODO
-	}
-
-	static forAllFilesIn(Project project, Closure callback) {
-		// TODO
-	}
-
-	// TODO method to edit content of a file (read-write action wrapper)
-	// TODO method to iterate over PSI files in project
-
-
-	static accessField(Object o, String fieldName, Closure callback) {
-		catchingAll {
-			for (field in o.class.declaredFields) {
-				if (field.name == fieldName) {
-					field.setAccessible(true)
-					callback(field.get(o))
-					return
-				}
-			}
-		}
-	}
-
-	static registerInMetaClasses(AnActionEvent anActionEvent) { // TODO
-		[Object.metaClass, Class.metaClass].each {
-			it.actionEvent = { anActionEvent }
-			it.project = { actionEvent().getData(PlatformDataKeys.PROJECT) }
-			it.editor = { actionEvent().getData(PlatformDataKeys.EDITOR) }
-			it.fileText = { actionEvent().getData(PlatformDataKeys.FILE_TEXT) }
-		}
-	}
 }
