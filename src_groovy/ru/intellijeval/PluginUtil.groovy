@@ -49,11 +49,8 @@ import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
 
-import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
-import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  *
  */
@@ -96,29 +93,21 @@ class PluginUtil {
 	}
 
 	/**
-	 * @param throwable exception to show
-	 * @param consoleTitle (optional) might be useful to have different titles if there are several open consoles
-	 * @param project console will be displayed in the window of this project
-	 */
-	static showExceptionInConsole(Throwable throwable, consoleTitle = "", @NotNull Project project) {
-		def writer = new StringWriter()
-		throwable.printStackTrace(new PrintWriter(writer))
-		String text = UnscrambleDialog.normalizeText(writer.buffer.toString())
-
-		showInConsole(text, String.valueOf(consoleTitle), project, ERROR_OUTPUT)
-	}
-
-	/**
 	 * Opens new "Run" console tool window with {@code text} in it.
 	 *
-	 * @param text text to show
+	 * @param text text or exception to show
 	 * @param consoleTitle (optional)
 	 * @param project console will be displayed in the window of this project
 	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
 	 */
-	static ConsoleView showInNewConsole(@Nullable text, String consoleTitle = "", @NotNull Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
+	static ConsoleView showInNewConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
+	                                    ConsoleViewContentType contentType = guessContentTypeOf(text)) {
 		if (text instanceof Throwable) {
-			showExceptionInConsole(text, consoleTitle, project)
+			def writer = new StringWriter()
+			text.printStackTrace(new PrintWriter(writer))
+			text = UnscrambleDialog.normalizeText(writer.buffer.toString())
+
+			showInNewConsole(text, consoleTitle, project, contentType)
 		} else {
 			Util.displayInConsole(consoleTitle, String.valueOf(text), contentType, project)
 		}
@@ -130,12 +119,13 @@ class PluginUtil {
 	 *
 	 * (The only reason to use "Run" console is because it's convenient for showing multi-line text.)
 	 *
-	 * @param text
-	 * @param consoleTitle
-	 * @param project
-	 * @param contentType
+	 * @param text text or exception to show
+	 * @param consoleTitle (optional)
+	 * @param project console will be displayed in the window of this project
+	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
 	 */
-	static ConsoleView showInConsole(@Nullable text, String consoleTitle = "", @NotNull Project project, ConsoleViewContentType contentType = NORMAL_OUTPUT) {
+	static ConsoleView showInConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
+	                                 ConsoleViewContentType contentType = guessContentTypeOf(text)) {
 		ConsoleView console = consoleToConsoleTitle.find{ it.value == consoleTitle }?.key
 		if (console == null) {
 			console = showInNewConsole(text, consoleTitle, project, contentType)
@@ -463,6 +453,10 @@ class PluginUtil {
 
 	private static unregisterToolWindowIn(Project project, String id) {
 		ToolWindowManager.getInstance(project).unregisterToolWindow(id)
+	}
+
+	private static ConsoleViewContentType guessContentTypeOf(text) {
+		text instanceof Throwable ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT
 	}
 
 
