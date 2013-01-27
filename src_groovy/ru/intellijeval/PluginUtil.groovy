@@ -12,18 +12,12 @@
  * limitations under the License.
  */
 package ru.intellijeval
-
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.actionSystem.KeyboardShortcut
-import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
@@ -56,7 +50,6 @@ import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  * User: dima
  * Date: 11/08/2012
@@ -340,7 +333,8 @@ class PluginUtil {
 
 	/**
 	 * Executes callback as write action ensuring that it's executed from Swing event-dispatch thread.
-	 * For details see javadoc for Application // TODO github link
+	 * For details see javadoc for ${@link com.intellij.openapi.application.Application}
+	 * (https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/application/Application.java)
 	 *
 	 * @param callback code to execute
 	 * @return result of callback
@@ -378,12 +372,24 @@ class PluginUtil {
 		}
 	}
 
-	static registerInMetaClasses(AnActionEvent anActionEvent) { // TODO
-		[Object.metaClass, Class.metaClass].each {
-			it.actionEvent = { anActionEvent }
-			it.project = { actionEvent().getData(PlatformDataKeys.PROJECT) }
-			it.editor = { actionEvent().getData(PlatformDataKeys.EDITOR) }
-			it.fileText = { actionEvent().getData(PlatformDataKeys.FILE_TEXT) }
+	static registerInMetaClassesContextOf(AnActionEvent actionEvent, List metaClasses = [Object.metaClass],
+	                                      Map contextKeys = ["project": PlatformDataKeys.PROJECT]) {
+		metaClasses.each { aMetaClass ->
+			contextKeys.each { entry ->
+				aMetaClass."${entry.key}" = actionEvent.getData(entry.value as DataKey)
+			}
+		}
+	}
+
+	static catchingAll(Closure closure) {
+		try {
+
+			closure.call()
+
+		} catch (Exception e) {
+			ProjectManager.instance.openProjects.each { Project project ->
+				showExceptionInConsole(e, e.class.simpleName, project)
+			}
 		}
 	}
 
@@ -431,17 +437,4 @@ class PluginUtil {
 	private static unregisterToolWindowIn(Project project, String id) {
 		ToolWindowManager.getInstance(project).unregisterToolWindow(id)
 	}
-
-	static catchingAll(Closure closure) {
-		try {
-
-			closure.call()
-
-		} catch (Exception e) {
-			ProjectManager.instance.openProjects.each { Project project ->
-				showExceptionInConsole(e, e.class.simpleName, project)
-			}
-		}
-	}
-
 }
