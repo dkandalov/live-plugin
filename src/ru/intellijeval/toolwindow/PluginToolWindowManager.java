@@ -28,6 +28,7 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -44,6 +45,7 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -68,6 +70,7 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.Function;
+import com.intellij.util.ThrowableRunnable;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
@@ -92,7 +95,7 @@ import static ru.intellijeval.EvalComponent.pluginExists;
  */
 public class PluginToolWindowManager {
 
-	private static final String TOOL_WINDOW_ID = "Plugins";
+	private static final String PLUGINS_TOOL_WINDOW_ID = "Plugins";
 
 	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<Project, PluginToolWindow>();
 
@@ -128,7 +131,7 @@ public class PluginToolWindowManager {
 		return toolWindowsByProject.get(project);
 	}
 
-	private static void reloadAllToolWindows() {
+	private static void reloadPluginTreesInAllProjects() {
 		for (Map.Entry<Project, PluginToolWindow> entry : toolWindowsByProject.entrySet()) {
 			Project project = entry.getKey();
 			PluginToolWindow toolWindow = entry.getValue();
@@ -168,14 +171,14 @@ public class PluginToolWindowManager {
 
 		public void registerWindowFor(Project project) {
 			ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-			toolWindow = toolWindowManager.registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
+			toolWindow = toolWindowManager.registerToolWindow(PLUGINS_TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
 			toolWindow.setIcon(Util.PLUGIN_ICON);
 
 			toolWindow.getContentManager().addContent(createContent(project));
 		}
 
-		private void unregisterWindowFrom(Project project) {
-			ToolWindowManager.getInstance(project).unregisterToolWindow(TOOL_WINDOW_ID);
+		public void unregisterWindowFrom(Project project) {
+			ToolWindowManager.getInstance(project).unregisterToolWindow(PLUGINS_TOOL_WINDOW_ID);
 		}
 
 		private Content createContent(Project project) {
@@ -191,7 +194,7 @@ public class PluginToolWindowManager {
 			return ContentFactory.SERVICE.getInstance().createContent(panel, "", false);
 		}
 
-		private void reloadPluginRoots(Project project) {
+		public void reloadPluginRoots(Project project) {
 			FileSystemTree fsTree = createFsTree(project);
 			myFsTreeRef.set(fsTree);
 
@@ -445,7 +448,7 @@ public class PluginToolWindowManager {
 			try {
 
 				String text = EvalComponent.defaultPluginScript();
-				PluginsIO.createFile(EvalComponent.pluginsRootPath() + "/" + newPluginId + "/" + EvalComponent.MAIN_SCRIPT, text);
+				PluginsIO.createFile(EvalComponent.pluginsRootPath() + "/" + newPluginId, EvalComponent.MAIN_SCRIPT, text);
 
 			} catch (IOException e) {
 				Project project = event.getProject();
@@ -465,21 +468,22 @@ public class PluginToolWindowManager {
 
 	public static class ExamplePluginInstaller {
 		private final String pluginPath;
-		private final List<String> sampleFiles;
+		private final List<String> filePaths;
 		private final String pluginId;
 
-		public ExamplePluginInstaller(String pluginPath, List<String> sampleFiles) {
+		public ExamplePluginInstaller(String pluginPath, List<String> filePaths) {
 			this.pluginPath = pluginPath;
-			this.sampleFiles = sampleFiles;
-			this.pluginId = extractIdFrom(pluginPath);
+			this.filePaths = filePaths;
+			this.pluginId = extractPluginIdFrom(pluginPath);
 		}
 
 		public void installPlugin(Listener listener) {
-			for (String file : sampleFiles) {
+			for (String relativeFilePath : filePaths) {
 				try {
 
-					String text = EvalComponent.readSampleScriptFile(pluginPath, file);
-					PluginsIO.createFile(EvalComponent.pluginsRootPath() + "/" + pluginId + "/" + file, text);
+					String text = EvalComponent.readSampleScriptFile(pluginPath, relativeFilePath);
+					Pair<String, String> pair = splitIntoPathAndFileName(EvalComponent.pluginsRootPath() + "/" + pluginId + "/" + relativeFilePath);
+					PluginsIO.createFile(pair.first, pair.second, text);
 
 				} catch (IOException e) {
 					listener.onException(e, pluginPath);
@@ -487,7 +491,12 @@ public class PluginToolWindowManager {
 			}
 		}
 
-		public static String extractIdFrom(String pluginPath) {
+		private static Pair<String, String> splitIntoPathAndFileName(String filePath) {
+			int index = filePath.lastIndexOf("/");
+			return new Pair<String, String>(filePath.substring(0, index), filePath.substring(index + 1));
+		}
+
+		public static String extractPluginIdFrom(String pluginPath) {
 			String[] split = pluginPath.split("/");
 			return split[split.length - 1];
 		}
@@ -505,7 +514,7 @@ public class PluginToolWindowManager {
 
 		public AddExamplePluginAction(String pluginPath, List<String> sampleFiles) {
 			examplePluginInstaller = new ExamplePluginInstaller(pluginPath, sampleFiles);
-			this.pluginId = ExamplePluginInstaller.extractIdFrom(pluginPath);
+			pluginId = ExamplePluginInstaller.extractPluginIdFrom(pluginPath);
 
 			getTemplatePresentation().setText(pluginId);
 		}
@@ -555,18 +564,18 @@ public class PluginToolWindowManager {
 			if (EvalComponent.isInvalidPluginFolder(virtualFile) &&
 					userDoesNotWantToAddFolder(virtualFile, event.getProject())) return;
 
-			File fromDir = new File(virtualFile.getPath());
-			File toDir = new File(EvalComponent.pluginsRootPath() + "/" + fromDir.getName());
+			String folderToCopy = virtualFile.getPath();
+			String targetFolder = EvalComponent.pluginsRootPath();
 			try {
 
-				PluginsIO.copyDirContent(fromDir, toDir);
+				PluginsIO.copyFolder(folderToCopy, targetFolder);
 
 			} catch (IOException e) {
 				Project project = event.getProject();
 				if (project != null) {
 					Util.showErrorDialog(
 							project,
-							"Error adding plugin \"" + fromDir.getName() + "\" to " + EvalComponent.pluginsRootPath(),
+							"Error adding plugin \"" + folderToCopy + "\" to " + targetFolder,
 							"Add Plugin"
 					);
 				}
@@ -610,6 +619,8 @@ public class PluginToolWindowManager {
 
 	// TODO wrap "delete folder" file tree action ("delete" shortcut) to check whether the folder is plugin
 	private static class DeletePluginAction extends AnAction {
+		private static final Logger LOG = Logger.getInstance(DeletePluginAction.class);
+
 		private final PluginToolWindow pluginsToolWindow;
 
 		public DeletePluginAction(PluginToolWindow pluginsToolWindow) {
@@ -624,7 +635,20 @@ public class PluginToolWindowManager {
 
 			for (String pluginId : pluginIds) {
 				String pluginPath = EvalComponent.pluginToPathMap().get(pluginId);
-				PluginsIO.delete(pluginPath);
+
+				try {
+					PluginsIO.delete(pluginPath);
+				} catch (IOException e) {
+					Project project = event.getProject();
+					if (project != null) {
+						Util.showErrorDialog(
+								project,
+								"Error deleting plugin \"" + pluginPath,
+								"Delete Plugin"
+						);
+					}
+					LOG.error(e);
+				}
 			}
 
 			new RefreshPluginListAction().actionPerformed(event);
@@ -666,14 +690,14 @@ public class PluginToolWindowManager {
 		@Override public void actionPerformed(AnActionEvent e) {
 			ApplicationManager.getApplication().runWriteAction(new Runnable() {
 				@Override public void run() {
-					VirtualFileManager.getInstance().refreshWithoutFileWatcher(false); // TODO this is a crude workaround to make virtual files refresh no matter what
+//					VirtualFileManager.getInstance().refreshWithoutFileWatcher(false); // TODO this is a crude workaround to make virtual files refresh no matter what
 
 					VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + EvalComponent.pluginsRootPath());
 					if (pluginsRoot == null) return;
 
 					RefreshQueue.getInstance().refresh(false, true, new Runnable() {
 						@Override public void run() {
-							reloadAllToolWindows();
+							reloadPluginTreesInAllProjects();
 						}
 					}, pluginsRoot);
 				}
@@ -683,32 +707,69 @@ public class PluginToolWindowManager {
 
 
 	private static class PluginsIO {
-		public static void createFile(String filePath, String text) throws IOException {
-			FileUtil.writeToFile(new File(filePath), text);
+		private static final String REQUESTOR = PluginsIO.class.getCanonicalName();
 
-//			CommandProcessor.getInstance().executeCommand(null, new Runnable() {
-//				@Override public void run() {
-//					ApplicationManager.getApplication().runWriteAction(new Runnable() {
-//						public void run() {
-//
-////							VirtualFileManager.getInstance().findFileByUrl() // TODO
-//
-//						}
-//					});
-//				}
-//			}, "create file", "IntelliJEval");
+		public static void createFile(final String parentPath, final String fileName, final String text) throws IOException {
+			runIOAction("createFile", new ThrowableRunnable<IOException>() {
+				@Override public void run() throws IOException {
+
+					VirtualFile parentFolder = VfsUtil.createDirectoryIfMissing(parentPath);
+					if (parentFolder == null) throw new IOException("Failed to create folder " + parentPath);
+
+					VirtualFile file = parentFolder.createChildData(REQUESTOR, fileName);
+					VfsUtil.saveText(file, text);
+
+				}
+			});
 		}
 
-		public static void copyDirContent(File fromDir, File toDir) throws IOException {
-			boolean created = toDir.mkdirs();
-			if (!created) {
-				throw new IllegalStateException("Failed to create " + toDir.getPath());
-			}
-			FileUtil.copyDirContent(fromDir, toDir);
+		public static void copyFolder(final String folder, final String toFolder) throws IOException {
+			runIOAction("copyFolder", new ThrowableRunnable<IOException>() {
+				@Override public void run() throws IOException {
+
+					VirtualFile targetFolder = VfsUtil.createDirectoryIfMissing(toFolder);
+					if (targetFolder == null) throw new IOException("Failed to create folder " + toFolder);
+					VirtualFile folderToCopy = VirtualFileManager.getInstance().findFileByUrl("file://" + folder);
+					if (folderToCopy == null) throw new IOException("Failed to find folder " + folder);
+
+					VfsUtil.copy(REQUESTOR, folderToCopy, targetFolder);
+
+				}
+			});
 		}
 
-		public static void delete(String pluginPath) {
-			FileUtil.delete(new File(pluginPath));
+		public static void delete(final String filePath) throws IOException {
+			runIOAction("delete", new ThrowableRunnable<IOException>() {
+				@Override public void run() throws IOException {
+
+					VirtualFile file = VirtualFileManager.getInstance().findFileByUrl("file://" + filePath);
+					if (file == null) throw new IOException("Failed to find file " + filePath);
+
+					file.delete(REQUESTOR);
+
+				}
+			});
+		}
+
+		private static void runIOAction(String actionName, final ThrowableRunnable<IOException> runnable) throws IOException {
+			final IOException[] exception = new IOException[]{null};
+			CommandProcessor.getInstance().executeCommand(null, new Runnable() {
+				@Override public void run() {
+					ApplicationManager.getApplication().runWriteAction(new Runnable() {
+						public void run() {
+							try {
+
+								runnable.run();
+
+							} catch (IOException e) {
+								exception[0] = e;
+							}
+						}
+					});
+				}
+			}, actionName, "IntelliJEval");
+
+			if (exception[0] != null) throw exception[0];
 		}
 	}
 
