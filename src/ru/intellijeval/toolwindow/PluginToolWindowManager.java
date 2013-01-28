@@ -416,13 +416,15 @@ public class PluginToolWindowManager {
 		}
 
 		@Override public void calcData(DataKey key, DataSink sink) {
-			if (PlatformDataKeys.NAVIGATABLE_ARRAY.equals(key)) { // need this to be able to open files in toolwindow on double-click/enter
+			if (key == PlatformDataKeys.NAVIGATABLE_ARRAY) { // need this to be able to open files in toolwindow on double-click/enter
 				List<FileNodeDescriptor> nodeDescriptors = TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor.class);
 				List<Navigatable> navigatables = new ArrayList<Navigatable>();
 				for (FileNodeDescriptor nodeDescriptor : nodeDescriptors) {
 					navigatables.add(new OpenFileDescriptor(project, nodeDescriptor.getElement().getFile()));
 				}
 				sink.put(PlatformDataKeys.NAVIGATABLE_ARRAY, navigatables.toArray(new Navigatable[navigatables.size()]));
+			} else if (key == PlatformDataKeys.DELETE_ELEMENT_PROVIDER) {
+//				sink.put(PlatformDataKeys.DELETE_ELEMENT_PROVIDER, null); // TODO
 			}
 		}
 	}

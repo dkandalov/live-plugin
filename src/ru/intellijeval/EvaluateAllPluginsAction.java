@@ -15,6 +15,7 @@ package ru.intellijeval;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.ui.Messages;
 
 import java.util.Map;
 
@@ -23,21 +24,16 @@ import static ru.intellijeval.Util.saveAllFiles;
 /**
  * @author DKandalov
  */
-public class EvaluateAllPluginsAction extends AnAction {
+public class EvaluateAllPluginsAction extends AnAction { // TODO consider removing.. I never used it
 
 	public EvaluateAllPluginsAction() {
-		super("Run all plugins", "Run all plugins", Util.EVAL_ALL_ICON);
+		super("Run All Plugins", "Run all plugins", Util.EVAL_ALL_ICON);
 	}
 
 	@Override public void actionPerformed(AnActionEvent event) {
-		evaluateAllPlugins(event);
-	}
+		int answer = Messages.showYesNoDialog(event.getProject(), "Do you want to run all plugins?", "Run All Plugins", Messages.getQuestionIcon());
+		if (answer == Messages.NO) return;
 
-	@Override public void update(AnActionEvent event) {
-		event.getPresentation().setEnabled(!EvalComponent.pluginToPathMap().isEmpty());
-	}
-
-	private void evaluateAllPlugins(AnActionEvent event) {
 		saveAllFiles();
 
 		EvalErrorReporter errorReporter = new EvalErrorReporter();
@@ -52,4 +48,9 @@ public class EvaluateAllPluginsAction extends AnAction {
 		errorReporter.reportLoadingErrors(event);
 		errorReporter.reportEvaluationExceptions(event);
 	}
+
+	@Override public void update(AnActionEvent event) {
+		event.getPresentation().setEnabled(!EvalComponent.pluginToPathMap().isEmpty());
+	}
+
 }

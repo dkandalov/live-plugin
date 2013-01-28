@@ -39,7 +39,7 @@ import static ru.intellijeval.toolwindow.PluginToolWindowManager.PluginToolWindo
  */
 public class EvaluatePluginAction extends AnAction {
 	public EvaluatePluginAction() {
-		super("Run plugin", "Run current plugin", Util.EVAL_ICON);
+		super("Run Plugin", "Run selected plugins", Util.EVAL_ICON);
 	}
 
 	@Override public void actionPerformed(AnActionEvent event) {
