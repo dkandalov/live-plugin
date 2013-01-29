@@ -625,16 +625,14 @@ public class PluginToolWindowManager {
 		}
 
 		private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {
-			int answer = Messages.showOkCancelDialog(
+			int answer = Messages.showYesNoDialog(
 					project,
 					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + EvalComponent.MAIN_SCRIPT + "\"." +
 							"\nDo you want to add it anyway?",
 					"Add Plugin",
-					CommonBundle.getYesButtonText(),
-					CommonBundle.getNoButtonText(),
 					Messages.getQuestionIcon()
 			);
-			return answer != Messages.OK;
+			return answer != Messages.YES;
 		}
 	}
 

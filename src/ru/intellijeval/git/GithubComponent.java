@@ -54,7 +54,7 @@ public class GithubComponent implements ApplicationComponent {
 			super("Plugin from GitHub", "Plugin from GitHub", GithubIcons.Github_icon);
 		}
 
-		@Override public void actionPerformed(final AnActionEvent event) {
+		@Override public void actionPerformed(AnActionEvent event) {
 			GitCloneDialog dialog = new GitCloneDialog(event.getProject());
 			dialog.show();
 			if (!dialog.isOK()) return;
