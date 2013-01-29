@@ -606,7 +606,7 @@ public class PluginToolWindowManager {
 		}
 
 		private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {
-			int returnValue = Messages.showOkCancelDialog(
+			int answer = Messages.showOkCancelDialog(
 					project,
 					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + EvalComponent.MAIN_SCRIPT + "\"." +
 							"\nDo you want to add it anyway?",
@@ -615,7 +615,7 @@ public class PluginToolWindowManager {
 					CommonBundle.getNoButtonText(),
 					Messages.getQuestionIcon()
 			);
-			return returnValue != 0;
+			return answer != Messages.OK;
 		}
 	}
 
@@ -670,7 +670,7 @@ public class PluginToolWindowManager {
 			} else {
 				message = "Do you want to delete plugins \"" + StringUtil.join(pluginIds, ", ") + "\"?";
 			}
-			int returnValue = Messages.showOkCancelDialog(
+			int answer = Messages.showOkCancelDialog(
 					project,
 					message,
 					"Delete",
@@ -678,7 +678,7 @@ public class PluginToolWindowManager {
 					CommonBundle.getCancelButtonText(),
 					Messages.getQuestionIcon()
 			);
-			return returnValue != 0;
+			return answer != Messages.OK;
 		}
 	}
 
