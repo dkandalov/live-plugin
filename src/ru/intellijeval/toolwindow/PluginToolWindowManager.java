@@ -18,6 +18,7 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.daemon.impl.analysis.FileHighlighingSetting;
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil;
 import com.intellij.ide.DefaultTreeExpander;
+import com.intellij.ide.DeleteProvider;
 import com.intellij.ide.actions.CollapseAllAction;
 import com.intellij.ide.actions.ExpandAllAction;
 import com.intellij.ide.ui.customization.CustomizationUtil;
@@ -74,6 +75,7 @@ import com.intellij.util.ThrowableRunnable;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.intellijeval.*;
 
@@ -620,19 +622,33 @@ public class PluginToolWindowManager {
 
 	// TODO wrap "delete folder" file tree action ("delete" shortcut) to check whether the folder is plugin
 	private static class DeletePluginAction extends AnAction {
-		private static final Logger LOG = Logger.getInstance(DeletePluginAction.class);
-
+		private final DeleteProvider deleteProvider = new PluginDeleteProvider();
 
 		public DeletePluginAction() {
 			super("Delete Plugin", "Delete Plugin", Util.DELETE_PLUGIN_ICON);
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
-			VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.getDataContext());
+			deleteProvider.deleteElement(event.getDataContext());
+			new RefreshPluginListAction().actionPerformed(event);
+		}
+
+		@Override public void update(AnActionEvent event) {
+			boolean enabled = deleteProvider.canDeleteElement(event.getDataContext());
+			event.getPresentation().setEnabled(enabled);
+		}
+	}
+
+	private static class PluginDeleteProvider implements DeleteProvider {
+		private static final Logger LOG = Logger.getInstance(PluginDeleteProvider.class);
+
+		@Override public void deleteElement(@NotNull DataContext dataContext) {
+			VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
 			if (files == null || files.length == 0) return;
 
+			Project project = PlatformDataKeys.PROJECT.getData(dataContext);
 			Collection<VirtualFile> pluginRoots = PluginToolWindow.findPluginRootsFor(files);
-			if (userDoesNotWantToRemovePlugins(pluginRoots, event.getProject())) return;
+			if (userDoesNotWantToRemovePlugins(pluginRoots, project)) return;
 
 			for (VirtualFile pluginRoot : pluginRoots) {
 				try {
@@ -640,7 +656,6 @@ public class PluginToolWindowManager {
 					PluginsIO.delete(pluginRoot.getPath());
 
 				} catch (IOException e) {
-					Project project = event.getProject();
 					if (project != null) {
 						Util.showErrorDialog(
 								project,
@@ -651,23 +666,21 @@ public class PluginToolWindowManager {
 					LOG.error(e);
 				}
 			}
-
-			new RefreshPluginListAction().actionPerformed(event);
 		}
 
-		@Override public void update(AnActionEvent event) {
-			VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.getDataContext());
+		@Override public boolean canDeleteElement(@NotNull DataContext dataContext) {
+			VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(dataContext);
 
-			boolean enabled = true;
+			boolean canDelete = true;
 			if (files == null || files.length == 0)
-				enabled = false;
+				canDelete = false;
 			else if (PluginToolWindow.findPluginRootsFor(files).isEmpty())
-				enabled = false;
+				canDelete = false;
 
-			event.getPresentation().setEnabled(enabled);
+			return canDelete;
 		}
 
-		private static boolean userDoesNotWantToRemovePlugins(Collection<VirtualFile> pluginRoots, Project project) {
+		private static boolean userDoesNotWantToRemovePlugins(Collection<VirtualFile> pluginRoots, @Nullable Project project) {
 			List<String> pluginIds = ContainerUtil.map(pluginRoots, new Function<VirtualFile, String>() {
 				@Override public String fun(VirtualFile virtualFile) {
 					return virtualFile.getName();
