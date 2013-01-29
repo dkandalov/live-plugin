@@ -661,11 +661,7 @@ public class PluginToolWindowManager {
 				} catch (IOException e) {
 					Project project = event.getProject();
 					if (project != null) {
-						Util.showErrorDialog(
-								project,
-								"Error deleting plugin \"" + pluginRoot.getPath(),
-								"Delete Plugin"
-						);
+						Util.showErrorDialog(project, "Error deleting plugin \"" + pluginRoot.getPath(), "Delete Plugin");
 					}
 					LOG.error(e);
 				}
@@ -737,7 +733,7 @@ public class PluginToolWindowManager {
 	}
 
 
-	private static class PluginsIO {
+	public static class PluginsIO {
 		private static final String REQUESTOR = PluginsIO.class.getCanonicalName();
 
 		public static void createFile(final String parentPath, final String fileName, final String text) throws IOException {
