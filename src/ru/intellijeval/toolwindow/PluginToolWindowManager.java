@@ -275,13 +275,12 @@ public class PluginToolWindowManager {
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
 			actionGroup.add(withIcon(Util.ADD_PLUGIN_ICON, createAddPluginsGroup()));
 			actionGroup.add(new DeletePluginAction(this));
-			actionGroup.add(new RefreshPluginListAction());
-			actionGroup.addSeparator();
 			actionGroup.add(new EvaluatePluginAction());
-			actionGroup.add(new EvaluateAllPluginsAction());
 			actionGroup.addSeparator();
+			actionGroup.add(new RefreshPluginListAction());
 			actionGroup.add(withIcon(Util.EXPAND_ALL_ICON, new ExpandAllAction()));
 			actionGroup.add(withIcon(Util.COLLAPSE_ALL_ICON, new CollapseAllAction()));
+			actionGroup.addSeparator();
 			actionGroup.add(withIcon(Util.SETTINGS_ICON, createSettingsGroup()));
 
 			// this is a "hack" to force drop-down box appear below button
