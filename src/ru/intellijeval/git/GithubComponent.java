@@ -58,7 +58,7 @@ public class GithubComponent implements ApplicationComponent {
 						@Override public void directoryCheckedOut(File directory, VcsKey vcs) {}
 
 						@Override public void checkoutCompleted() {
-							new PluginToolWindowManager.RefreshPluginListAction().actionPerformed(event);
+							new PluginToolWindowManager.RefreshPluginTreeAction().actionPerformed(event);
 						}
 					},
 					destinationParent,
