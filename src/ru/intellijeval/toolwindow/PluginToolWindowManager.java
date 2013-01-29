@@ -274,7 +274,7 @@ public class PluginToolWindowManager {
 			JPanel toolBarPanel = new JPanel(new GridLayout());
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
 			actionGroup.add(withIcon(Util.ADD_PLUGIN_ICON, createAddPluginsGroup()));
-			actionGroup.add(new DeletePluginAction(this));
+			actionGroup.add(new DeletePluginAction());
 			actionGroup.add(new EvaluatePluginAction());
 			actionGroup.addSeparator();
 			actionGroup.add(new RefreshPluginListAction());
@@ -342,7 +342,7 @@ public class PluginToolWindowManager {
 		}
 
 		public List<String> selectedPluginIds() {
-			Collection<VirtualFile> rootFiles = findFilesMatchingPluginRoots(myFsTreeRef.get().getSelectedFiles());
+			Collection<VirtualFile> rootFiles = findPluginRootsFor(myFsTreeRef.get().getSelectedFiles());
 			return ContainerUtil.map(rootFiles, new Function<VirtualFile, String>() {
 				@Override public String fun(VirtualFile virtualFile) {
 					return virtualFile.getName();
@@ -354,7 +354,7 @@ public class PluginToolWindowManager {
 			return toolWindow.isActive();
 		}
 
-		private static Collection<VirtualFile> findFilesMatchingPluginRoots(VirtualFile[] files) {
+		private static Collection<VirtualFile> findPluginRootsFor(VirtualFile[] files) {
 			Set<VirtualFile> selectedPluginRoots = new HashSet<VirtualFile>();
 			for (VirtualFile file : files) {
 				VirtualFile root = pluginFolderOf(file);
@@ -622,29 +622,29 @@ public class PluginToolWindowManager {
 	private static class DeletePluginAction extends AnAction {
 		private static final Logger LOG = Logger.getInstance(DeletePluginAction.class);
 
-		private final PluginToolWindow pluginsToolWindow;
 
-		public DeletePluginAction(PluginToolWindow pluginsToolWindow) {
+		public DeletePluginAction() {
 			super("Delete Plugin", "Delete Plugin", Util.DELETE_PLUGIN_ICON);
-			this.pluginsToolWindow = pluginsToolWindow;
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
-			List<String> pluginIds = pluginsToolWindow.selectedPluginIds();
+			VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.getDataContext());
+			if (files == null || files.length == 0) return;
 
-			if (userDoesNotWantToRemovePlugins(pluginIds, event.getProject())) return;
+			Collection<VirtualFile> pluginRoots = PluginToolWindow.findPluginRootsFor(files);
+			if (userDoesNotWantToRemovePlugins(pluginRoots, event.getProject())) return;
 
-			for (String pluginId : pluginIds) {
-				String pluginPath = EvalComponent.pluginToPathMap().get(pluginId);
-
+			for (VirtualFile pluginRoot : pluginRoots) {
 				try {
-					PluginsIO.delete(pluginPath);
+
+					PluginsIO.delete(pluginRoot.getPath());
+
 				} catch (IOException e) {
 					Project project = event.getProject();
 					if (project != null) {
 						Util.showErrorDialog(
 								project,
-								"Error deleting plugin \"" + pluginPath,
+								"Error deleting plugin \"" + pluginRoot.getPath(),
 								"Delete Plugin"
 						);
 					}
@@ -655,12 +655,25 @@ public class PluginToolWindowManager {
 			new RefreshPluginListAction().actionPerformed(event);
 		}
 
-		@Override public void update(AnActionEvent e) {
-			boolean anyPluginPathSelected = !pluginsToolWindow.selectedPluginIds().isEmpty();
-			e.getPresentation().setEnabled(anyPluginPathSelected);
+		@Override public void update(AnActionEvent event) {
+			VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.getDataContext());
+
+			boolean enabled = true;
+			if (files == null || files.length == 0)
+				enabled = false;
+			else if (PluginToolWindow.findPluginRootsFor(files).isEmpty())
+				enabled = false;
+
+			event.getPresentation().setEnabled(enabled);
 		}
 
-		private static boolean userDoesNotWantToRemovePlugins(List<String> pluginIds, Project project) {
+		private static boolean userDoesNotWantToRemovePlugins(Collection<VirtualFile> pluginRoots, Project project) {
+			List<String> pluginIds = ContainerUtil.map(pluginRoots, new Function<VirtualFile, String>() {
+				@Override public String fun(VirtualFile virtualFile) {
+					return virtualFile.getName();
+				}
+			});
+
 			String message;
 			if (pluginIds.size() == 1) {
 				message = "Do you want to delete plugin \"" + pluginIds.get(0) + "\"?";

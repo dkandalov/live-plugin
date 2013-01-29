@@ -80,7 +80,7 @@ public class EvaluatePluginAction extends AnAction {
 		return pluginToolWindow != null && pluginToolWindow.isActive();
 	}
 
-	private List<String> pluginsSelectedInToolWindow(AnActionEvent event) {
+	private List<String> pluginsSelectedInToolWindow(AnActionEvent event) { // TODO get selected plugins through DataContext
 		PluginToolWindow pluginToolWindow = PluginToolWindowManager.getToolWindowFor(event.getProject());
 		if (pluginToolWindow == null) return Collections.emptyList();
 		return pluginToolWindow.selectedPluginIds();
