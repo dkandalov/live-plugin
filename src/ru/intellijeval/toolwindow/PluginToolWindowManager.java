@@ -758,7 +758,11 @@ public class PluginToolWindowManager {
 			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, INTELLIJ_EVAL_LIBRARY)) {
 				DependenciesUtil.removeLibraryDependencyFrom(project, INTELLIJ_EVAL_LIBRARY);
 			} else {
-				DependenciesUtil.addLibraryDependencyTo(project, INTELLIJ_EVAL_LIBRARY, findPathToMyClasses());
+				//noinspection unchecked
+				DependenciesUtil.addLibraryDependencyTo(project, INTELLIJ_EVAL_LIBRARY, Arrays.asList(
+						Pair.create(findPathToMyClasses(), OrderRootType.CLASSES),
+						Pair.create(findPathToMyClasses() + "src/", OrderRootType.SOURCES)
+				));
 			}
 		}
 
@@ -799,11 +803,14 @@ public class PluginToolWindowManager {
 				DependenciesUtil.removeLibraryDependencyFrom(project, IDEA_JARS_LIBRARY);
 			} else {
 				String ideaJarsPath = "jar://" + PathManager.getHomePath() + "/lib/";
-				DependenciesUtil.addLibraryDependencyTo(project, IDEA_JARS_LIBRARY,
-						ideaJarsPath + "openapi.jar!/",
-						ideaJarsPath + "idea.jar!/",
-						ideaJarsPath + "idea_rt.jar!/"
-				);
+				//noinspection unchecked
+				DependenciesUtil.addLibraryDependencyTo(project, IDEA_JARS_LIBRARY, Arrays.asList(
+						Pair.create(ideaJarsPath + "openapi.jar!/", OrderRootType.CLASSES),
+						Pair.create(ideaJarsPath + "idea.jar!/", OrderRootType.CLASSES),
+						Pair.create(ideaJarsPath + "idea_rt.jar!/", OrderRootType.CLASSES),
+						Pair.create(ideaJarsPath + "annotations.jar!/", OrderRootType.CLASSES),
+						Pair.create(ideaJarsPath + "util.jar!/", OrderRootType.CLASSES)
+				));
 			}
 		}
 
@@ -844,7 +851,8 @@ public class PluginToolWindowManager {
 			});
 		}
 
-		public static void addLibraryDependencyTo(final Project project, final String libraryName, final String... paths) {
+		public static void addLibraryDependencyTo(final Project project, final String libraryName,
+		                                          final List<Pair<String, OrderRootType>> paths) {
 			ApplicationManager.getApplication().runWriteAction(new Runnable() {
 				@Override public void run() {
 					Module[] modules = ModuleManager.getInstance(project).getModules();
@@ -855,8 +863,8 @@ public class PluginToolWindowManager {
 
 						Library library = libraryTable.createLibrary(libraryName);
 						Library.ModifiableModel modifiableLibrary = library.getModifiableModel();
-						for (String path : paths) {
-							modifiableLibrary.addRoot(path, OrderRootType.CLASSES);
+						for (Pair<String, OrderRootType> pathAndType : paths) {
+							modifiableLibrary.addRoot(pathAndType.first, pathAndType.second);
 						}
 						modifiableLibrary.commit();
 
