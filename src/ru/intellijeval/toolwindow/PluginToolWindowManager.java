@@ -29,6 +29,7 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooser;
@@ -752,11 +753,12 @@ public class PluginToolWindowManager {
 
 			ApplicationManager.getApplication().runWriteAction(new Runnable() {
 				@Override public void run() {
-					String pathToMyClasses = "file://" + PathUtil.getJarPathForClass(PluginUtil.class);
-					if (!pathToMyClasses.endsWith(".jar")) {
-						// need this in case plugin is not deployed as jar (e.g. in plugin sandbox)
-						// because folder dependency without trailing '/' doesn't work
-						pathToMyClasses += "/";
+					String pathToMyClasses = PathUtil.getJarPathForClass(PluginUtil.class);
+					// need trailing "/" because folder dependency doesn't work without it
+					if (pathToMyClasses.endsWith(".jar")) {
+						pathToMyClasses = "jar://" + pathToMyClasses + "!/";
+					} else {
+						pathToMyClasses = "file://" + pathToMyClasses + "/";
 					}
 
 					for (Module module : ModuleManager.getInstance(project).getModules()) {
@@ -770,16 +772,14 @@ public class PluginToolWindowManager {
 			ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
 			LibraryTable libraryTable = moduleRootManager.getModuleLibraryTable();
 
-			Library library = libraryTable.createLibrary("ooo");
+			Library library = libraryTable.createLibrary("IntelliJEval");
 			Library.ModifiableModel modifiableLibrary = library.getModifiableModel();
-			modifiableLibrary.addJarDirectory(jarPath, true, OrderRootType.CLASSES);
+			modifiableLibrary.addRoot(jarPath, OrderRootType.CLASSES);
 			modifiableLibrary.commit();
 
 			LibraryOrderEntry libraryOrderEntry = moduleRootManager.findLibraryOrderEntry(library);
 			if (libraryOrderEntry != null) libraryOrderEntry.setScope(DependencyScope.PROVIDED);
 			moduleRootManager.commit();
-
-			System.out.println(library.toString());
 		}
 	}
 
@@ -795,20 +795,22 @@ public class PluginToolWindowManager {
 			ApplicationManager.getApplication().runWriteAction(new Runnable() {
 				@Override public void run() {
 					for (Module module : ModuleManager.getInstance(project).getModules()) {
-//						addDependencyTo(module); // TODO
+						addDependencyTo(module);
 					}
 				}
 			});
-
 		}
 
 		private void addDependencyTo(Module module) {
 			ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
 			LibraryTable.ModifiableModel libraryTable = moduleRootManager.getModuleLibraryTable().getModifiableModel();
 
-			Library library = libraryTable.createLibrary("IntelliJEval");
+			Library library = libraryTable.createLibrary("IDEA jars");
 			Library.ModifiableModel modifiableLibrary = library.getModifiableModel();
-//			modifiableLibrary.addJarDirectory(jarPath, true, OrderRootType.CLASSES); // TODO
+			String ideaJarsPath = "jar://" + PathManager.getHomePath() + "/lib/";
+			modifiableLibrary.addRoot(ideaJarsPath + "openapi.jar!/", OrderRootType.CLASSES);
+			modifiableLibrary.addRoot(ideaJarsPath + "idea.jar!/", OrderRootType.CLASSES);
+			modifiableLibrary.addRoot(ideaJarsPath + "idea_rt.jar!/", OrderRootType.CLASSES);
 			modifiableLibrary.commit();
 
 			LibraryOrderEntry libraryOrderEntry = moduleRootManager.findLibraryOrderEntry(library);
