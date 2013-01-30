@@ -42,9 +42,14 @@ import com.intellij.openapi.fileChooser.ex.RootFileElement;
 import com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.keymap.KeymapManager;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Pair;
@@ -69,19 +74,13 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.EditSourceOnDoubleClickHandler;
-import com.intellij.util.EditSourceOnEnterKeyHandler;
-import com.intellij.util.Function;
-import com.intellij.util.ThrowableRunnable;
+import com.intellij.util.*;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.intellijeval.EvalComponent;
-import ru.intellijeval.EvaluatePluginAction;
-import ru.intellijeval.Settings;
-import ru.intellijeval.Util;
+import ru.intellijeval.*;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
@@ -201,6 +200,8 @@ public class PluginToolWindowManager {
 		}
 
 		public void reloadPluginRoots(Project project) {
+			// the only reason to create new instance of tree here is that
+			// I couldn't find a way to force tree to update it's roots
 			FileSystemTree fsTree = createFsTree(project);
 			myFsTreeRef.set(fsTree);
 
@@ -298,15 +299,10 @@ public class PluginToolWindowManager {
 
 		private AnAction createSettingsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Settings", true);
-			actionGroup.add(new ToggleAction("Run All Plugins on IDE Start") {
-				@Override public boolean isSelected(AnActionEvent event) {
-					return Settings.getInstance().runAllPluginsOnIDEStartup;
-				}
-
-				@Override public void setSelected(AnActionEvent event, boolean state) {
-					Settings.getInstance().runAllPluginsOnIDEStartup = state;
-				}
-			});
+			actionGroup.add(new AddPluginJarAsDependency());
+			actionGroup.add(new AddIDEAJarsAsDependencies());
+			actionGroup.add(new Separator());
+			actionGroup.add(new RunAllPluginsOnIDEStartAction());
 			return actionGroup;
 		}
 
@@ -727,6 +723,98 @@ public class PluginToolWindowManager {
 					}, pluginsRoot);
 				}
 			});
+		}
+	}
+
+
+	private static class RunAllPluginsOnIDEStartAction extends ToggleAction {
+		public RunAllPluginsOnIDEStartAction() {
+			super("Run All Plugins on IDE Start");
+		}
+
+		@Override public boolean isSelected(AnActionEvent event) {
+			return Settings.getInstance().runAllPluginsOnIDEStartup;
+		}
+
+		@Override public void setSelected(AnActionEvent event, boolean state) {
+			Settings.getInstance().runAllPluginsOnIDEStartup = state;
+		}
+	}
+
+	private static class AddPluginJarAsDependency extends AnAction {
+		private AddPluginJarAsDependency() {
+			super("Add IntelliJEval Jar to Project", "Add IntelliJEval jar to project dependencies", null);
+		}
+
+		@Override public void actionPerformed(AnActionEvent event) {
+			final Project project = event.getProject();
+			if (project == null) return;
+
+			ApplicationManager.getApplication().runWriteAction(new Runnable() {
+				@Override public void run() {
+					String pathToMyClasses = "file://" + PathUtil.getJarPathForClass(PluginUtil.class);
+					if (!pathToMyClasses.endsWith(".jar")) {
+						// need this in case plugin is not deployed as jar (e.g. in plugin sandbox)
+						// because folder dependency without trailing '/' doesn't work
+						pathToMyClasses += "/";
+					}
+
+					for (Module module : ModuleManager.getInstance(project).getModules()) {
+						addDependencyTo(module, pathToMyClasses);
+					}
+				}
+			});
+		}
+
+		private static void addDependencyTo(Module module, String jarPath) {
+			ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
+			LibraryTable libraryTable = moduleRootManager.getModuleLibraryTable();
+
+			Library library = libraryTable.createLibrary("ooo");
+			Library.ModifiableModel modifiableLibrary = library.getModifiableModel();
+			modifiableLibrary.addJarDirectory(jarPath, true, OrderRootType.CLASSES);
+			modifiableLibrary.commit();
+
+			LibraryOrderEntry libraryOrderEntry = moduleRootManager.findLibraryOrderEntry(library);
+			if (libraryOrderEntry != null) libraryOrderEntry.setScope(DependencyScope.PROVIDED);
+			moduleRootManager.commit();
+
+			System.out.println(library.toString());
+		}
+	}
+
+	private static class AddIDEAJarsAsDependencies extends AnAction {
+		private AddIDEAJarsAsDependencies() {
+			super("Add IDEA Jars to Project", "Add IDEA jars to project as dependencies", null);
+		}
+
+		@Override public void actionPerformed(AnActionEvent event) {
+			final Project project = event.getProject();
+			if (project == null) return;
+
+			ApplicationManager.getApplication().runWriteAction(new Runnable() {
+				@Override public void run() {
+					for (Module module : ModuleManager.getInstance(project).getModules()) {
+//						addDependencyTo(module); // TODO
+					}
+				}
+			});
+
+		}
+
+		private void addDependencyTo(Module module) {
+			ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
+			LibraryTable.ModifiableModel libraryTable = moduleRootManager.getModuleLibraryTable().getModifiableModel();
+
+			Library library = libraryTable.createLibrary("IntelliJEval");
+			Library.ModifiableModel modifiableLibrary = library.getModifiableModel();
+//			modifiableLibrary.addJarDirectory(jarPath, true, OrderRootType.CLASSES); // TODO
+			modifiableLibrary.commit();
+
+			LibraryOrderEntry libraryOrderEntry = moduleRootManager.findLibraryOrderEntry(library);
+			if (libraryOrderEntry != null) libraryOrderEntry.setScope(DependencyScope.PROVIDED);
+
+			moduleRootManager.commit();
 		}
 	}
 
