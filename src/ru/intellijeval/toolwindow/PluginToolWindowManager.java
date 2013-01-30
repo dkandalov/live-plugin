@@ -368,7 +368,8 @@ public class PluginToolWindowManager {
 
 		private static VirtualFile pluginFolderOf(VirtualFile file) {
 			if (file.getParent() == null) return null;
-			if (!file.getParent().getPath().equals(EvalComponent.pluginsRootPath())) return pluginFolderOf(file.getParent());
+			if (!file.getParent().getPath().equals(EvalComponent.pluginsRootPath()))
+				return pluginFolderOf(file.getParent());
 			return file;
 		}
 
@@ -389,7 +390,7 @@ public class PluginToolWindowManager {
 		/**
 		 * Provides context for actions in plugin tree popup popup menu.
 		 * Without it they would be disabled or won't work.
-		 *
+		 * <p/>
 		 * Used by
 		 * {@link com.intellij.openapi.fileChooser.actions.NewFileAction},
 		 * {@link com.intellij.openapi.fileChooser.actions.NewFolderAction},
@@ -401,7 +402,8 @@ public class PluginToolWindowManager {
 			if (dataId.equals(FileSystemTree.DATA_KEY.getName())) return fileSystemTree.get();
 			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return Util.GROOVY_FILE_TYPE;
 			if (dataId.equals(FileChooserKeys.DELETE_ACTION_AVAILABLE.getName())) return true;
-			if (dataId.equals(PlatformDataKeys.VIRTUAL_FILE_ARRAY.getName())) return fileSystemTree.get().getSelectedFiles();
+			if (dataId.equals(PlatformDataKeys.VIRTUAL_FILE_ARRAY.getName()))
+				return fileSystemTree.get().getSelectedFiles();
 			if (dataId.equals(PlatformDataKeys.TREE_EXPANDER.getName()))
 				return new DefaultTreeExpander(fileSystemTree.get().getTree());
 			return super.getData(dataId);
@@ -743,79 +745,132 @@ public class PluginToolWindowManager {
 	}
 
 	private static class AddPluginJarAsDependency extends AnAction {
-		private AddPluginJarAsDependency() {
-			super("Add IntelliJEval Jar to Project", "Add IntelliJEval jar to project dependencies", null);
-		}
+		private static final String INTELLIJ_EVAL_LIBRARY = "IntelliJEval";
 
 		@Override public void actionPerformed(AnActionEvent event) {
-			final Project project = event.getProject();
+			Project project = event.getProject();
 			if (project == null) return;
 
-			ApplicationManager.getApplication().runWriteAction(new Runnable() {
-				@Override public void run() {
-					String pathToMyClasses = PathUtil.getJarPathForClass(PluginUtil.class);
-					// need trailing "/" because folder dependency doesn't work without it
-					if (pathToMyClasses.endsWith(".jar")) {
-						pathToMyClasses = "jar://" + pathToMyClasses + "!/";
-					} else {
-						pathToMyClasses = "file://" + pathToMyClasses + "/";
-					}
-
-					for (Module module : ModuleManager.getInstance(project).getModules()) {
-						addDependencyTo(module, pathToMyClasses);
-					}
-				}
-			});
+			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, INTELLIJ_EVAL_LIBRARY)) {
+				DependenciesUtil.removeLibraryDependencyFrom(project, INTELLIJ_EVAL_LIBRARY);
+			} else {
+				DependenciesUtil.addLibraryDependencyTo(project, INTELLIJ_EVAL_LIBRARY, findPathToMyClasses());
+			}
 		}
 
-		private static void addDependencyTo(Module module, String jarPath) {
-			ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
-			LibraryTable libraryTable = moduleRootManager.getModuleLibraryTable();
-
-			Library library = libraryTable.createLibrary("IntelliJEval");
-			Library.ModifiableModel modifiableLibrary = library.getModifiableModel();
-			modifiableLibrary.addRoot(jarPath, OrderRootType.CLASSES);
-			modifiableLibrary.commit();
-
-			LibraryOrderEntry libraryOrderEntry = moduleRootManager.findLibraryOrderEntry(library);
-			if (libraryOrderEntry != null) libraryOrderEntry.setScope(DependencyScope.PROVIDED);
-			moduleRootManager.commit();
+		private static String findPathToMyClasses() {
+			String pathToMyClasses = PathUtil.getJarPathForClass(EvalComponent.class);
+			// need trailing "/" because folder dependency doesn't work without it
+			if (pathToMyClasses.endsWith(".jar")) {
+				pathToMyClasses = "jar://" + pathToMyClasses + "!/";
+			} else {
+				pathToMyClasses = "file://" + pathToMyClasses + "/";
+			}
+			return pathToMyClasses;
 		}
+
+		@Override public void update(AnActionEvent event) {
+			Project project = event.getProject();
+			if (project == null) return;
+
+			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, INTELLIJ_EVAL_LIBRARY)) {
+				event.getPresentation().setText("Remove IntelliJEval Jar from Project");
+				event.getPresentation().setDescription("Remove IntelliJEval jar from project dependencies");
+			} else {
+				event.getPresentation().setText("Add IntelliJEval Jar to Project");
+				event.getPresentation().setDescription("Add IntelliJEval jar to project dependencies");
+			}
+		}
+
 	}
 
 	private static class AddIDEAJarsAsDependencies extends AnAction {
-		private AddIDEAJarsAsDependencies() {
-			super("Add IDEA Jars to Project", "Add IDEA jars to project as dependencies", null);
-		}
+		private static final String IDEA_JARS_LIBRARY = "IDEA jars";
 
 		@Override public void actionPerformed(AnActionEvent event) {
-			final Project project = event.getProject();
+			Project project = event.getProject();
 			if (project == null) return;
 
+			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, IDEA_JARS_LIBRARY)) {
+				DependenciesUtil.removeLibraryDependencyFrom(project, IDEA_JARS_LIBRARY);
+			} else {
+				String ideaJarsPath = "jar://" + PathManager.getHomePath() + "/lib/";
+				DependenciesUtil.addLibraryDependencyTo(project, IDEA_JARS_LIBRARY,
+						ideaJarsPath + "openapi.jar!/",
+						ideaJarsPath + "idea.jar!/",
+						ideaJarsPath + "idea_rt.jar!/"
+				);
+			}
+		}
+
+		@Override public void update(AnActionEvent event) {
+			Project project = event.getProject();
+			if (project == null) return;
+
+			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, IDEA_JARS_LIBRARY)) {
+				event.getPresentation().setText("Remove IDEA Jars from Project");
+				event.getPresentation().setDescription("Remove IDEA jars dependencies from project");
+			} else {
+				event.getPresentation().setText("Add IDEA Jars to Project");
+				event.getPresentation().setDescription("Add IDEA jars to project as dependencies");
+			}
+		}
+	}
+
+	private static class DependenciesUtil {
+		public static boolean allModulesHasLibraryAsDependencyIn(Project project, String libraryName) {
+			for (Module module : ModuleManager.getInstance(project).getModules()) {
+				ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
+				Library library = moduleRootManager.getModuleLibraryTable().getLibraryByName(libraryName);
+				if (library == null) return false;
+			}
+			return true;
+		}
+
+		public static void removeLibraryDependencyFrom(final Project project, final String libraryName) {
 			ApplicationManager.getApplication().runWriteAction(new Runnable() {
 				@Override public void run() {
 					for (Module module : ModuleManager.getInstance(project).getModules()) {
-						addDependencyTo(module);
+						removeDependencyFrom(module, libraryName);
 					}
 				}
 			});
 		}
 
-		private void addDependencyTo(Module module) {
-			ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
-			LibraryTable.ModifiableModel libraryTable = moduleRootManager.getModuleLibraryTable().getModifiableModel();
+		public static void addLibraryDependencyTo(final Project project, final String libraryName, final String... paths) {
+			ApplicationManager.getApplication().runWriteAction(new Runnable() {
+				@Override public void run() {
+					for (Module module : ModuleManager.getInstance(project).getModules()) {
+						addDependencyTo(module, libraryName, paths);
+					}
+				}
+			});
+		}
 
-			Library library = libraryTable.createLibrary("IDEA jars");
+		private static void removeDependencyFrom(Module module, String libraryName) {
+			ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
+			LibraryTable libraryTable = moduleRootManager.getModuleLibraryTable();
+
+			Library library = libraryTable.getLibraryByName(libraryName);
+			if (library == null) return;
+			libraryTable.removeLibrary(library);
+
+			moduleRootManager.commit();
+		}
+
+		private static void addDependencyTo(Module module, String libraryName, String... paths) {
+			ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
+			LibraryTable libraryTable = moduleRootManager.getModuleLibraryTable();
+
+			Library library = libraryTable.createLibrary(libraryName);
 			Library.ModifiableModel modifiableLibrary = library.getModifiableModel();
-			String ideaJarsPath = "jar://" + PathManager.getHomePath() + "/lib/";
-			modifiableLibrary.addRoot(ideaJarsPath + "openapi.jar!/", OrderRootType.CLASSES);
-			modifiableLibrary.addRoot(ideaJarsPath + "idea.jar!/", OrderRootType.CLASSES);
-			modifiableLibrary.addRoot(ideaJarsPath + "idea_rt.jar!/", OrderRootType.CLASSES);
+			for (String path : paths) {
+				modifiableLibrary.addRoot(path, OrderRootType.CLASSES);
+			}
 			modifiableLibrary.commit();
 
 			LibraryOrderEntry libraryOrderEntry = moduleRootManager.findLibraryOrderEntry(library);
 			if (libraryOrderEntry != null) libraryOrderEntry.setScope(DependencyScope.PROVIDED);
-
 			moduleRootManager.commit();
 		}
 	}
