@@ -27,21 +27,21 @@ Plugins are stored on application level.
 
 	<application-components>
 		<component>
-			<implementation-class>ru.intellijeval.EvalComponent</implementation-class>
+			<implementation-class>intellijeval.EvalComponent</implementation-class>
 		</component>
 	</application-components>
 
 	<actions>
-		<action id="InetlliJEval.EvalPlugin" class="ru.intellijeval.EvaluatePluginAction" text="Run Current Plugin">
+		<action id="InetlliJEval.EvalPlugin" class="intellijeval.EvaluatePluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 		</action>
 
         <group id="InetlliJEval.Popup.MainActions">
-            <action id="InetlliJEval.NewFileAction" class="ru.intellijeval.toolwindow.NewFileAction"
+            <action id="InetlliJEval.NewFileAction" class="intellijeval.toolwindow.NewFileAction"
                     text="New Groovy Script" icon="/ru/intellijeval/toolwindow/groovy_fileType.png"/>
             <action id="InetlliJEval.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
                     text="New Directory" icon="/nodes/folder.png"/>
-            <action id="InetlliJEval.RenameFileAction" class="ru.intellijeval.toolwindow.RenameFileAction" text="Rename"
+            <action id="InetlliJEval.RenameFileAction" class="intellijeval.toolwindow.RenameFileAction" text="Rename"
                     use-shortcut-of="RenameElement"/>
         </group>
         <group id="InetlliJEval.Popup">
@@ -53,7 +53,7 @@ Plugins are stored on application level.
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceInterface="ru.intellijeval.Settings" serviceImplementation="ru.intellijeval.Settings"/>
+        <applicationService serviceInterface="intellijeval.Settings" serviceImplementation="intellijeval.Settings"/>
     </extensions>
 
 </idea-plugin>
