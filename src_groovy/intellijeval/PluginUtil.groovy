@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 package intellijeval
+
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
@@ -51,6 +52,7 @@ import javax.swing.*
 
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  *
  */
@@ -377,6 +379,38 @@ class PluginUtil {
 		runDocumentWriteAction(project) {
 			transformSelectionIn(editor, transformer)
 		}
+	}
+
+	/**
+	 * Allows to store value on application level sharing it between plugin reloads.
+	 *
+	 * Note that static fields will NOT keep data because new classloader is created on each plugin reload.
+	 * {@link com.intellij.openapi.util.UserDataHolder} won't work as well because {@link com.intellij.openapi.util.Key}
+	 * implementation uses incremental numbers as hashCode() (each "new Key()" is different from previous one).
+	 *
+	 * @param key key that identifies value
+	 * @param initialValue
+	 * @param callback should calculate new value given previous one
+	 * @return new value
+	 */
+	static def <T> T getCachedBy(String key, @Nullable initialValue = null, Closure callback) {
+		def actionManager = ActionManager.instance
+		def action = actionManager.getAction(key)
+
+		def prevValue = (action == null ? initialValue : action.value)
+		T newValue = (T) callback.call(prevValue)
+
+		// unregister action only after callback has been invoked in case it crashes
+		if (action != null) actionManager.unregisterAction(key)
+
+		// anonymous class below will keep reference to outer object but that should be ok
+		// because its class is not a part of reloadable plugin
+		actionManager.registerAction(key, new AnAction() {
+			final def value = newValue
+			@Override void actionPerformed(AnActionEvent e) {}
+		})
+
+		newValue
 	}
 
 	static accessField(Object o, String fieldName, Closure callback) {
