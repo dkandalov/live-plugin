@@ -44,7 +44,6 @@ import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
-import intellijeval.Util
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -52,7 +51,6 @@ import javax.swing.*
 
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  *
  */
@@ -218,7 +216,7 @@ class PluginUtil {
 	 * This method exists for reference only.
 	 * For more dialogs see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/Messages.java
 	 */
-	@Nullable static String showInputDialog(String message, String title, @Nullable Icon icon) {
+	@Nullable static String showInputDialog(String message, String title, @Nullable Icon icon = null) {
 		Messages.showInputDialog(message, title, icon)
 	}
 
@@ -310,6 +308,7 @@ class PluginUtil {
 	 * Iterator over all files in project (in breadth-first order).
 	 *
 	 * @param callback code to be executed for each file.
+	 *        Passes in as parameters {@link VirtualFile}, {@link Document}, {@link PsiFileSystemItem}.
 	 */
 	static forAllFilesIn(@NotNull Project project, Closure callback) {
 		def documentManager = FileDocumentManager.instance
