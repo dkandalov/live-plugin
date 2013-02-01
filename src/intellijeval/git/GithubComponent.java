@@ -24,9 +24,6 @@ import intellijeval.Util;
 import intellijeval.toolwindow.PluginToolWindowManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import intellijeval.EvalComponent;
-import intellijeval.Util;
-import intellijeval.toolwindow.PluginToolWindowManager;
 
 import java.io.File;
 
@@ -54,7 +51,7 @@ public class GithubComponent implements ApplicationComponent {
 		private static final Logger LOG = Logger.getInstance(AddPluginFromGitHubAction.class);
 
 		private AddPluginFromGitHubAction() {
-			super("Plugin from GitHub", "Plugin from GitHub", GithubIcons.Github_icon);
+			super("Plugin from Git", "Plugin from Git", GithubIcons.Github_icon);
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {

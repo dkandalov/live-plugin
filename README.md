@@ -51,6 +51,7 @@ How to start
 =============
  - open "Plugins" tool window on the right side
  - select "helloWorld" plugin and press "ctrl + C, ctrl + E" to execute it
+   ("plugin.groovy" are plugin entry points)
  - add plugin examples and experiment with them
 
 
