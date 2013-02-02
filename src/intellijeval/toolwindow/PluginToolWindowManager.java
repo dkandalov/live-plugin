@@ -257,7 +257,7 @@ public class PluginToolWindowManager {
 		private static FileChooserDescriptor createFileChooserDescriptor() {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
 				@Override public Icon getIcon(VirtualFile file) {
-					if (EvalComponent.pluginToPathMap().values().contains(file.getPath())) return Util.PLUGIN_ICON;
+					if (EvalComponent.pluginIdToPathMap().values().contains(file.getPath())) return Util.PLUGIN_ICON;
 					return super.getIcon(file);
 				}
 
@@ -272,7 +272,7 @@ public class PluginToolWindowManager {
 			descriptor.setShowFileSystemRoots(false);
 			descriptor.setIsTreeRootVisible(false);
 
-			Collection<String> pluginPaths = EvalComponent.pluginToPathMap().values();
+			Collection<String> pluginPaths = EvalComponent.pluginIdToPathMap().values();
 			List<VirtualFile> virtualFiles = ContainerUtil.map(pluginPaths, new Function<String, VirtualFile>() {
 				@Override public VirtualFile fun(String path) {
 					return VirtualFileManager.getInstance().findFileByUrl("file://" + path);

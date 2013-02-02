@@ -46,7 +46,6 @@ public class Util {
 	public static final Icon REFRESH_PLUGIN_LIST_ICON = IconLoader.getIcon("/actions/sync.png"); // 16x16
 	public static final Icon PLUGIN_ICON = IconLoader.getIcon("/nodes/plugin.png"); // 16x16
 	public static final Icon EVAL_ICON = IconLoader.getIcon("/actions/execute.png"); // 16x16
-	public static final Icon EVAL_ALL_ICON = IconLoader.getIcon("/actions/refreshUsages.png"); // 16x16
 	public static final Icon EXPAND_ALL_ICON = IconLoader.getIcon("/actions/expandall.png"); // 16x16
 	public static final Icon COLLAPSE_ALL_ICON = IconLoader.getIcon("/actions/collapseall.png"); // 16x16
 	public static final Icon SETTINGS_ICON = IconLoader.getIcon("/actions/showSettings.png"); // 16x16
@@ -55,7 +54,7 @@ public class Util {
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
 
 	private static final Logger LOG = Logger.getInstance(Util.class);
-	private static final DataContext DUMMY_DATA_CONTEXT = new DataContext() {
+	public static final DataContext DUMMY_DATA_CONTEXT = new DataContext() {
 		@Nullable @Override public Object getData(@NonNls String dataId) {
 			return null;
 		}

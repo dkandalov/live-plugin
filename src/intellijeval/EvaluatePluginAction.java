@@ -24,15 +24,12 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import intellijeval.toolwindow.PluginToolWindowManager;
-import intellijeval.toolwindow.PluginToolWindowManager;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static intellijeval.Util.saveAllFiles;
-import static intellijeval.toolwindow.PluginToolWindowManager.PluginToolWindow;
 
 /**
  * User: dima
@@ -53,13 +50,16 @@ public class EvaluatePluginAction extends AnAction {
 
 	private void evalCurrentPlugin(AnActionEvent event) {
 		Util.saveAllFiles();
+		List<String> pluginIds = findCurrentPluginIds(event);
+		evaluatePlugins(pluginIds, event);
+	}
 
+	static void evaluatePlugins(Collection<String> pluginIds, AnActionEvent event) {
 		EvalErrorReporter errorReporter = new EvalErrorReporter();
 		Evaluator evaluator = new Evaluator(errorReporter);
 
-		List<String> pluginIds = findCurrentPluginIds(event);
 		for (String pluginId : pluginIds) {
-			String path = EvalComponent.pluginToPathMap().get(pluginId);
+			String path = EvalComponent.pluginIdToPathMap().get(pluginId);
 			evaluator.doEval(pluginId, path, event);
 		}
 
@@ -67,7 +67,7 @@ public class EvaluatePluginAction extends AnAction {
 		errorReporter.reportEvaluationExceptions(event);
 	}
 
-	private List<String> findCurrentPluginIds(AnActionEvent event) {
+	private static List<String> findCurrentPluginIds(AnActionEvent event) {
 		List<String> pluginIds = pluginsSelectedInToolWindow(event);
 		if (!pluginIds.isEmpty() && pluginToolWindowHasFocus(event)) {
 			return pluginIds;
@@ -76,18 +76,18 @@ public class EvaluatePluginAction extends AnAction {
 		}
 	}
 
-	private boolean pluginToolWindowHasFocus(AnActionEvent event) {
+	private static boolean pluginToolWindowHasFocus(AnActionEvent event) {
 		PluginToolWindowManager.PluginToolWindow pluginToolWindow = PluginToolWindowManager.getToolWindowFor(event.getProject());
 		return pluginToolWindow != null && pluginToolWindow.isActive();
 	}
 
-	private List<String> pluginsSelectedInToolWindow(AnActionEvent event) { // TODO get selected plugins through DataContext
+	private static List<String> pluginsSelectedInToolWindow(AnActionEvent event) { // TODO get selected plugins through DataContext
 		PluginToolWindowManager.PluginToolWindow pluginToolWindow = PluginToolWindowManager.getToolWindowFor(event.getProject());
 		if (pluginToolWindow == null) return Collections.emptyList();
 		return pluginToolWindow.selectedPluginIds();
 	}
 
-	private List<String> pluginForCurrentlyOpenFile(AnActionEvent event) {
+	private static List<String> pluginForCurrentlyOpenFile(AnActionEvent event) {
 		Project project = event.getProject();
 		if (project == null) return Collections.emptyList();
 		Editor selectedTextEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
@@ -97,7 +97,7 @@ public class EvaluatePluginAction extends AnAction {
 		if (virtualFile == null) return Collections.emptyList();
 
 		final File file = new File(virtualFile.getPath());
-		Map.Entry<String, String> entry = ContainerUtil.find(EvalComponent.pluginToPathMap().entrySet(), new Condition<Map.Entry<String, String>>() {
+		Map.Entry<String, String> entry = ContainerUtil.find(EvalComponent.pluginIdToPathMap().entrySet(), new Condition<Map.Entry<String, String>>() {
 			@Override
 			public boolean value(Map.Entry<String, String> entry) {
 				String pluginPath = entry.getValue();

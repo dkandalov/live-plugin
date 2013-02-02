@@ -14,13 +14,16 @@
 package intellijeval;
 
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
 import intellijeval.toolwindow.PluginToolWindowManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -31,8 +34,8 @@ import java.util.Map;
 
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName;
-import static java.util.Arrays.asList;
 import static intellijeval.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
+import static java.util.Arrays.asList;
 
 /**
  * @author DKandalov
@@ -52,7 +55,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 		return toSystemIndependentName(PathManager.getPluginsPath() + "/intellij-eval-plugins");
 	}
 
-	public static Map<String, String> pluginToPathMap() {
+	public static Map<String, String> pluginIdToPathMap() {
 		final boolean containsIdeaProjectFolder = new File(pluginsRootPath() + "/" + DIRECTORY_STORE_FOLDER).exists();
 
 		File[] files = new File(pluginsRootPath()).listFiles(new FileFilter() {
@@ -98,7 +101,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	}
 
 	public static boolean pluginExists(String pluginId) {
-		return pluginToPathMap().keySet().contains(pluginId);
+		return pluginIdToPathMap().keySet().contains(pluginId);
 	}
 
 	@Override public void initComponent() {
@@ -115,10 +118,19 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	}
 
 	private static void runAllPlugins() {
-		Util.runAction(
-				ActionManager.getInstance().getAction("InetlliJEval.EvalAllPlugins"),
-				Evaluator.RUN_ALL_PLUGINS_ON_IDE_START
-		);
+		ApplicationManager.getApplication().invokeLater(new Runnable() {
+			@Override public void run() {
+				AnActionEvent event = new AnActionEvent(
+						null,
+						Util.DUMMY_DATA_CONTEXT,
+						Evaluator.RUN_ALL_PLUGINS_ON_IDE_START,
+						new Presentation(),
+						ActionManager.getInstance(),
+						0
+				);
+				EvaluatePluginAction.evaluatePlugins(pluginIdToPathMap().keySet(), event);
+			}
+		});
 	}
 
 	private static void installHelloWorldPlugin() {
