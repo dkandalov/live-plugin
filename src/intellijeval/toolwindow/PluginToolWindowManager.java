@@ -94,7 +94,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Pattern;
 
+import static com.intellij.openapi.roots.OrderRootType.CLASSES;
+import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static java.util.Arrays.asList;
 
 /**
@@ -758,8 +761,8 @@ public class PluginToolWindowManager {
 			} else {
 				//noinspection unchecked
 				DependenciesUtil.addLibraryDependencyTo(project, INTELLIJ_EVAL_LIBRARY, Arrays.asList(
-						Pair.create(findPathToMyClasses(), OrderRootType.CLASSES),
-						Pair.create(findPathToMyClasses() + "src/", OrderRootType.SOURCES)
+						Pair.create(findPathToMyClasses(), CLASSES),
+						Pair.create(findPathToMyClasses() + "src/", SOURCES)
 				));
 			}
 		}
@@ -800,16 +803,23 @@ public class PluginToolWindowManager {
 			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, IDEA_JARS_LIBRARY)) {
 				DependenciesUtil.removeLibraryDependencyFrom(project, IDEA_JARS_LIBRARY);
 			} else {
-				String ideaJarsPath = "jar://" + PathManager.getHomePath() + "/lib/";
+				String ideaJarsPath = PathManager.getHomePath() + "/lib/";
 				//noinspection unchecked
 				DependenciesUtil.addLibraryDependencyTo(project, IDEA_JARS_LIBRARY, Arrays.asList(
-						Pair.create(ideaJarsPath + "openapi.jar!/", OrderRootType.CLASSES),
-						Pair.create(ideaJarsPath + "idea.jar!/", OrderRootType.CLASSES),
-						Pair.create(ideaJarsPath + "idea_rt.jar!/", OrderRootType.CLASSES),
-						Pair.create(ideaJarsPath + "annotations.jar!/", OrderRootType.CLASSES),
-						Pair.create(ideaJarsPath + "util.jar!/", OrderRootType.CLASSES)
+						Pair.create("jar://" + ideaJarsPath + "openapi.jar!/", CLASSES),
+						Pair.create("jar://" + ideaJarsPath + "idea.jar!/", CLASSES),
+						Pair.create("jar://" + ideaJarsPath + "idea_rt.jar!/", CLASSES),
+						Pair.create("jar://" + ideaJarsPath + "annotations.jar!/", CLASSES),
+						Pair.create("jar://" + ideaJarsPath + "util.jar!/", CLASSES),
+						Pair.create("jar://" + ideaJarsPath + findGroovyJarOn(ideaJarsPath) + "!/", CLASSES)
 				));
 			}
+		}
+
+		private static String findGroovyJarOn(String ideaJarsPath) {
+			List<File> files = FileUtil.findFilesByMask(Pattern.compile("groovy-all-.*jar"), new File(ideaJarsPath));
+			if (files.isEmpty()) return "could-not-find-groovy.jar";
+			else return files.get(0).getName();
 		}
 
 		@Override public void update(AnActionEvent event) {
