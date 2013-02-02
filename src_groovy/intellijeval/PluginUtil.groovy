@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 package intellijeval
-
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.notification.Notification
@@ -67,7 +66,7 @@ class PluginUtil {
 	 */
 	static void log(@Nullable message, NotificationType notificationType = INFORMATION) {
 		if (!(message instanceof Throwable)) {
-			message = String.valueOf(message)
+			message = asString(message)
 		}
 		if (notificationType == INFORMATION) LOG.info(message)
 		else if (notificationType == WARNING) LOG.warn(message)
@@ -89,7 +88,7 @@ class PluginUtil {
 	static show(@Nullable message, @Nullable title = "",
 	            NotificationType notificationType = INFORMATION, String groupDisplayId = "") {
 		SwingUtilities.invokeLater({
-			def notification = new Notification(groupDisplayId, String.valueOf(title), String.valueOf(message), notificationType)
+			def notification = new Notification(groupDisplayId, String.valueOf(title), asString(message), notificationType)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		} as Runnable)
 	}
@@ -157,7 +156,7 @@ class PluginUtil {
 	 * @return instance of created action
 	 */
 	static AnAction registerAction(String actionId, String keyStroke = "", // TODO check that keyStroke is correct
-	                               String actionGroupId = null, String displayText = "", Closure callback) {
+	                               String actionGroupId = null, String displayText = actionId, Closure callback) {
 		def action = new AnAction(displayText) {
 			@Override void actionPerformed(AnActionEvent event) { callback.call(event) }
 		}
@@ -495,6 +494,9 @@ class PluginUtil {
 		text instanceof Throwable ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT
 	}
 
+	private static String asString(message) {
+		message.class.isArray() ? Arrays.toString(message) : String.valueOf(message)
+	}
 
 	/**
 	 * Original version borrowed from here

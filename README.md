@@ -55,7 +55,7 @@ How to start
  - add plugin examples and experiment with them
 
 
-Might be useful to
+It might be useful to
 ===================
  - get auto-completion it might be useful to temporarily add IDEA and IntelliJEval jars to project
    (can be done in "Settings" drop-down at the top of "Plugins" tool window).
