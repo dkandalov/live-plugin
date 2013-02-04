@@ -57,9 +57,9 @@ How to start
 
 It might be useful to
 ===================
- - get auto-completion it might be useful to temporarily add IDEA and IntelliJEval jars to project
+ - have auto-completion by adding IDEA and IntelliJEval jars to project
    (can be done in "Settings" drop-down at the top of "Plugins" tool window).
- - (unless you already have it) install Groovy plugin
+ - install Groovy plugin
  - look at [PluginUtil](https://github.com/dkandalov/intellij_eval/blob/master/src_groovy/intellijeval/PluginUtil.groovy) class
  - get [IntelliJ sources](https://github.com/JetBrains/intellij-community)
 
