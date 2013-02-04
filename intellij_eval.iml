@@ -8,9 +8,9 @@
       <sourceFolder url="file://$MODULE_DIR$/src_groovy" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/plugin_examples" isTestSource="false" />
     </content>
+    <orderEntry type="library" scope="PROVIDED" name="groovy-1.8.3" level="application" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="groovy-1.8.3" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="mockito" level="application" />
   </component>
 </module>
