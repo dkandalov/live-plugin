@@ -3,7 +3,7 @@
 What is this?
 =============
 
-This is IntelliJ IDEA plugin for writing simple plugins in Groovy<br/>
+This is experimental IntelliJ IDEA plugin for writing simple plugins in Groovy<br/>
 (or running Groovy code inside IntelliJ).
 
 
@@ -87,6 +87,6 @@ The idea of running code inside IntelliJ is not original. There are similar plug
 It would be interesting to
 ===========================
  - have nice object tree pattern-matching API for Groovy. Or may be there is one and I just don't know about it.
- - use some other language (e.g. Scala or Ruby).
- - go meta. Rewrite IntelliJEval as its own plugin. This is really how it was started (loads of fun with classloaders).
- The old meta-version was too broken to released and two years later was replaced with this.
+ - use another language (e.g. Scala or Ruby).
+ - go meta! Rewrite IntelliJEval as its own plugin. This is really how it was started (loads of fun with classloaders).
+ The old meta-version was too broken to be released and two years later was replaced with this.
