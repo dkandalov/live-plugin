@@ -44,7 +44,7 @@ show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
 How to install
 ===============
 Through IntelliJ plugin manager. Search for "eval".
-(Just in case this is the [plugin page](http://plugins.jetbrains.com/plugin/?idea&pluginId=7090).)
+(Just in case this is the [plugin page](http://plugins.jetbrains.com/plugin?pr=idea&pluginId=7173).)
 
 
 How to start
