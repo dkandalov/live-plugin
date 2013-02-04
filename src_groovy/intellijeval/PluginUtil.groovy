@@ -88,7 +88,11 @@ class PluginUtil {
 	static show(@Nullable message, @Nullable title = "",
 	            NotificationType notificationType = INFORMATION, String groupDisplayId = "") {
 		SwingUtilities.invokeLater({
-			def notification = new Notification(groupDisplayId, String.valueOf(title), asString(message), notificationType)
+			message = asString(message)
+			// this is because Notification doesn't accept empty messages
+			if (message.trim().empty) message = "[empty message]"
+
+			def notification = new Notification(groupDisplayId, String.valueOf(title), message, notificationType)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		} as Runnable)
 	}
