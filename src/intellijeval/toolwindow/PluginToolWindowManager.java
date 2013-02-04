@@ -222,7 +222,7 @@ public class PluginToolWindowManager {
 			AnAction action = new NewElementPopupAction();
 			action.registerCustomShortcutSet(new CustomShortcutSet(shortcutsOf("NewElement")), fsTree.getTree());
 
-			CustomizationUtil.installPopupHandler(fsTree.getTree(), "InetlliJEval.Popup", ActionPlaces.UNKNOWN);
+			CustomizationUtil.installPopupHandler(fsTree.getTree(), "IntelliJEval.Popup", ActionPlaces.UNKNOWN);
 		}
 
 		private static Shortcut[] shortcutsOf(String actionId) {

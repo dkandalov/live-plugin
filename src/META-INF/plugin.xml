@@ -1,6 +1,6 @@
 <idea-plugin>
-	<id>InetlliJEval</id>
-	<name>InetlliJEval</name>
+	<id>IntelliJEval</id>
+	<name>IntelliJEval</name>
 	<version>0.2 beta</version>
 	<vendor url="https://github.com/dkandalov/intellij_eval"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
@@ -22,7 +22,7 @@ How to use:
 		]]>
 	</description>
 
-    <!--TODO check if it works in other ides-->
+    <!--TODO check if it works in other IDEs-->
 	<!--<depends>com.intellij.modules.platform</depends>-->
     <depends optional="true" config-file="github-integration.xml">org.jetbrains.plugins.github</depends>
 
@@ -33,22 +33,22 @@ How to use:
 	</application-components>
 
 	<actions>
-		<action id="InetlliJEval.EvalPlugin" class="intellijeval.EvaluatePluginAction" text="Run Current Plugin">
+		<action id="IntelliJEval.EvalPlugin" class="intellijeval.EvaluatePluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 		</action>
 
-        <group id="InetlliJEval.Popup.MainActions">
-            <action id="InetlliJEval.NewFileAction" class="intellijeval.toolwindow.NewFileAction"
+        <group id="IntelliJEval.Popup.MainActions">
+            <action id="IntelliJEval.NewFileAction" class="intellijeval.toolwindow.NewFileAction"
                     text="New Groovy Script" icon="/ru/intellijeval/toolwindow/groovy_fileType.png"/>
-            <action id="InetlliJEval.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
+            <action id="IntelliJEval.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
                     text="New Directory" icon="/nodes/folder.png"/>
-            <action id="InetlliJEval.RenameFileAction" class="intellijeval.toolwindow.RenameFileAction" text="Rename"
+            <action id="IntelliJEval.RenameFileAction" class="intellijeval.toolwindow.RenameFileAction" text="Rename"
                     use-shortcut-of="RenameElement"/>
         </group>
-        <group id="InetlliJEval.Popup">
-            <reference id="InetlliJEval.Popup.MainActions"/>
+        <group id="IntelliJEval.Popup">
+            <reference id="IntelliJEval.Popup.MainActions"/>
             <separator/>
-            <action id="InetlliJEval.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction"
+            <action id="IntelliJEval.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction"
                     text="Delete" use-shortcut-of="$Delete"/>
         </group>
     </actions>
