@@ -82,3 +82,11 @@ The idea of running code inside IntelliJ is not original. There are similar plug
  - [Script Monkey](http://plugins.intellij.net/plugin?pr=idea&pluginId=3674)
  - [Groovy Console Plugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=4660)
  - [HotPlugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=1020) (probably outdated)
+
+
+It would be interesting to
+===========================
+ - have nice object tree pattern-matching API for Groovy. Or may be there is one and I just don't know about it.
+ - use some other language (e.g. Scala or Ruby).
+ - go meta. Rewrite IntelliJEval as its own plugin. This is really how it was started (loads of fun with classloaders).
+ The old meta-version was too broken to released and two years later was replaced with this.
