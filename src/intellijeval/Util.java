@@ -13,16 +13,12 @@
  */
 package intellijeval;
 
-import com.intellij.execution.ExecutionManager;
-import com.intellij.execution.Executor;
-import com.intellij.execution.executors.DefaultRunExecutor;
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.execution.ui.ExecutionConsole;
-import com.intellij.execution.ui.RunContentDescriptor;
-import com.intellij.execution.ui.actions.CloseAction;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -35,12 +31,13 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * @author DKandalov
  */
 public class Util {
+	// icons paths are inlined "in case API changes but path to icons does not"
+	// it's probably not worth doing
 	public static final Icon ADD_PLUGIN_ICON = IconLoader.getIcon("/general/add.png"); // 16x16
 	public static final Icon DELETE_PLUGIN_ICON = IconLoader.getIcon("/general/remove.png"); // 16x16
 	public static final Icon REFRESH_PLUGIN_LIST_ICON = IconLoader.getIcon("/actions/sync.png"); // 16x16
@@ -65,31 +62,7 @@ public class Util {
 			LOG.warn("Failed to display console because project was 'null'. Text not shown in console: " + text);
 			return null;
 		}
-
-		ConsoleView console = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
-		console.print(text, contentType);
-
-		DefaultActionGroup toolbarActions = new DefaultActionGroup();
-		JComponent consoleComponent = new MyConsolePanel(console, toolbarActions);
-		RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
-			@Override public boolean isContentReuseProhibited() {
-				return true;
-			}
-
-			@Override public Icon getIcon() {
-				return PLUGIN_ICON;
-			}
-		};
-		Executor executor = DefaultRunExecutor.getRunExecutorInstance();
-
-		toolbarActions.add(new CloseAction(executor, descriptor, project));
-		for (AnAction action : console.createConsoleActions()) {
-			toolbarActions.add(action);
-		}
-
-		ExecutionManager.getInstance(project).getContentManager().showRunContent(executor, descriptor);
-
-		return console;
+		return PluginUtil.showInConsole(text, consoleTitle, project, contentType);
 	}
 
 	public static void showErrorDialog(Project project, String message, String title) {
@@ -118,15 +91,5 @@ public class Util {
 				action.actionPerformed(event);
 			}
 		});
-	}
-
-	private static final class MyConsolePanel extends JPanel {
-		public MyConsolePanel(ExecutionConsole consoleView, ActionGroup toolbarActions) {
-			super(new BorderLayout());
-			JPanel toolbarPanel = new JPanel(new BorderLayout());
-			toolbarPanel.add(ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarActions, false).getComponent());
-			add(toolbarPanel, BorderLayout.WEST);
-			add(consoleView.getComponent(), BorderLayout.CENTER);
-		}
 	}
 }

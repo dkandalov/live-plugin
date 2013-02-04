@@ -12,8 +12,17 @@
  * limitations under the License.
  */
 package intellijeval
+
+import com.intellij.execution.ExecutionManager
+import com.intellij.execution.Executor
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.execution.ui.ExecutionConsole
+import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.ui.actions.CloseAction
+import com.intellij.icons.AllIcons
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
@@ -48,6 +57,8 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
+import java.awt.*
+import java.util.List
 
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
@@ -92,7 +103,7 @@ class PluginUtil {
 			// this is because Notification doesn't accept empty messages
 			if (message.trim().empty) message = "[empty message]"
 
-			def notification = new Notification(groupDisplayId, String.valueOf(title), message, notificationType)
+			def notification = new Notification(groupDisplayId, asString(title), message, notificationType)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		} as Runnable)
 	}
@@ -114,7 +125,23 @@ class PluginUtil {
 
 			showInNewConsole(text, consoleTitle, project, contentType)
 		} else {
-			Util.displayInConsole(consoleTitle, String.valueOf(text), contentType, project)
+			ConsoleView console = TextConsoleBuilderFactory.instance.createBuilder(project).console
+			console.print(asString(text), contentType)
+
+			DefaultActionGroup toolbarActions = new DefaultActionGroup()
+			def consoleComponent = new MyConsolePanel(console, toolbarActions)
+			RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
+				@Override boolean isContentReuseProhibited() { true }
+				@Override Icon getIcon() { AllIcons.Nodes.Plugin }
+			}
+			Executor executor = DefaultRunExecutor.runExecutorInstance
+
+			toolbarActions.add(new CloseAction(executor, descriptor, project))
+			console.createConsoleActions().each{ toolbarActions.add(it) }
+
+			ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
+
+			console
 		}
 	}
 
@@ -137,7 +164,7 @@ class PluginUtil {
 			consoleToConsoleTitle[console] = consoleTitle
 			console
 		} else {
-			console.print("\n" + String.valueOf(text), contentType)
+			console.print("\n" + asString(text), contentType)
 			console
 		}
 	}
@@ -543,6 +570,16 @@ class PluginUtil {
 			if (allLineSelected) {
 				editor.document.insertString(selectionModel.selectionEnd, "\n")
 			}
+		}
+	}
+
+	private static class MyConsolePanel extends JPanel {
+		MyConsolePanel(ExecutionConsole consoleView, ActionGroup toolbarActions) {
+			super(new BorderLayout())
+			def toolbarPanel = new JPanel(new BorderLayout())
+			toolbarPanel.add(ActionManager.instance.createActionToolbar(ActionPlaces.UNKNOWN, toolbarActions, false).component)
+			add(toolbarPanel, BorderLayout.WEST)
+			add(consoleView.component, BorderLayout.CENTER)
 		}
 	}
 
