@@ -3,7 +3,7 @@
 What is this?
 =============
 
-This is experimental IntelliJ IDEA plugin for writing simple plugins in Groovy<br/>
+This is experimental IntelliJ IDEA plugin for writing plugins in Groovy at runtime<br/>
 (or running Groovy code inside IntelliJ).
 
 
@@ -61,7 +61,7 @@ It might be useful to
    (can be done in "Settings" drop-down at the top of "Plugins" tool window).
  - install Groovy plugin
  - look at [PluginUtil](https://github.com/dkandalov/intellij_eval/blob/master/src_groovy/intellijeval/PluginUtil.groovy) class
- - get [IntelliJ sources](https://github.com/JetBrains/intellij-community)
+ - get [IntelliJ sources](https://github.com/JetBrains/intellij-community) to see source code and javadocs
 
 
 Under the hood
