@@ -471,7 +471,7 @@ class PluginUtil {
 
 		} catch (Exception e) {
 			ProjectManager.instance.openProjects.each { Project project ->
-				showExceptionInConsole(e, e.class.simpleName, project)
+				showInConsole(e, e.class.simpleName, project)
 			}
 		}
 	}
@@ -525,8 +525,8 @@ class PluginUtil {
 		text instanceof Throwable ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT
 	}
 
-	private static String asString(message) {
-		message.class.isArray() ? Arrays.toString(message) : String.valueOf(message)
+	static String asString(message) {
+		message?.class?.isArray() ? Arrays.toString(message) : String.valueOf(message)
 	}
 
 	/**
