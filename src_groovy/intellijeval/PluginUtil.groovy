@@ -354,8 +354,8 @@ class PluginUtil {
 	}
 
 	/**
-	 * Executes callback as write action ensuring that it's executed from Swing event-dispatch thread.
-	 * For details see javadoc for ${@link com.intellij.openapi.application.Application}
+	 * Executes callback as write action ensuring that it's runs in Swing event-dispatch thread.
+	 * For details see javadoc {@link com.intellij.openapi.application.Application}
 	 * (https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/application/Application.java)
 	 *
 	 * @param callback code to execute
@@ -373,7 +373,9 @@ class PluginUtil {
 
 	/**
 	 * Executes callback as read action.
-	 * This is only required if IntelliJ data structures are accessed from not
+	 * This is only required if IntelliJ data structures are accessed NOT from Swing event-dispatch thread.
+	 * For details see javadoc {@link com.intellij.openapi.application.Application}
+	 * (https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/application/Application.java)
 	 *
 	 * @param callback code to execute
 	 * @return result of callback
