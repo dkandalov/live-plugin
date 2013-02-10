@@ -24,6 +24,7 @@ import static intellijeval.PluginUtil.*
 // It's a follow-up for these posts:
 //   http://martinfowler.com/bliki/InternalReprogrammability.html
 //   http://nealford.com/memeagora/2013/01/22/why_everyone_eventually_hates_maven.html
+// Note that there is "Start New Line Before Current" action (ctrl + alt + enter) which does almost the same thing.
 
 registerAction("InsertNewLineAbove", "alt shift ENTER") { AnActionEvent event ->
 	runDocumentWriteAction(event.project) {
