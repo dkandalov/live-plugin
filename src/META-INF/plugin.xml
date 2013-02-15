@@ -48,8 +48,7 @@ How to use:
         <group id="IntelliJEval.Popup">
             <reference id="IntelliJEval.Popup.MainActions"/>
             <separator/>
-            <action id="IntelliJEval.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction"
-                    text="Delete" use-shortcut-of="$Delete"/>
+            <action id="IntelliJEval.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction" text="Delete"/>
         </group>
     </actions>
 
