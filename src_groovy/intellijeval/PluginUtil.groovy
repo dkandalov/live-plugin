@@ -56,6 +56,7 @@ import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -123,32 +124,33 @@ class PluginUtil {
 	 */
 	static ConsoleView showInNewConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
 	                                    ConsoleViewContentType contentType = guessContentTypeOf(text)) {
-		// TODO check if it's EDT
-		if (text instanceof Throwable) {
-			def writer = new StringWriter()
-			text.printStackTrace(new PrintWriter(writer))
-			text = UnscrambleDialog.normalizeText(writer.buffer.toString())
+		ConsoleView console = null
+		UIUtil.invokeAndWaitIfNeeded {
+			if (text instanceof Throwable) {
+				def writer = new StringWriter()
+				text.printStackTrace(new PrintWriter(writer))
+				text = UnscrambleDialog.normalizeText(writer.buffer.toString())
 
-			showInNewConsole(text, consoleTitle, project, contentType)
-		} else {
-			ConsoleView console = TextConsoleBuilderFactory.instance.createBuilder(project).console
-			console.print(asString(text), contentType)
+				console = showInNewConsole(text, consoleTitle, project, contentType)
+			} else {
+				console = TextConsoleBuilderFactory.instance.createBuilder(project).console
+				console.print(asString(text), contentType)
 
-			DefaultActionGroup toolbarActions = new DefaultActionGroup()
-			def consoleComponent = new MyConsolePanel(console, toolbarActions)
-			RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
-				@Override boolean isContentReuseProhibited() { true }
-				@Override Icon getIcon() { AllIcons.Nodes.Plugin }
+				DefaultActionGroup toolbarActions = new DefaultActionGroup()
+				def consoleComponent = new MyConsolePanel(console, toolbarActions)
+				RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
+					@Override boolean isContentReuseProhibited() { true }
+					@Override Icon getIcon() { AllIcons.Nodes.Plugin }
+				}
+				Executor executor = DefaultRunExecutor.runExecutorInstance
+
+				toolbarActions.add(new CloseAction(executor, descriptor, project))
+				console.createConsoleActions().each{ toolbarActions.add(it) }
+
+				ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
 			}
-			Executor executor = DefaultRunExecutor.runExecutorInstance
-
-			toolbarActions.add(new CloseAction(executor, descriptor, project))
-			console.createConsoleActions().each{ toolbarActions.add(it) }
-
-			ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
-
-			console
 		}
+		console
 	}
 
 	/**
@@ -164,16 +166,17 @@ class PluginUtil {
 	 */
 	static ConsoleView showInConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
 	                                 ConsoleViewContentType contentType = guessContentTypeOf(text)) {
-		// TODO check if it's EDT
-		ConsoleView console = consoleToConsoleTitle.find{ it.value == consoleTitle }?.key
-		if (console == null) {
-			console = showInNewConsole(text, consoleTitle, project, contentType)
-			consoleToConsoleTitle[console] = consoleTitle
-			console
-		} else {
-			console.print("\n" + asString(text), contentType)
-			console
+		ConsoleView console = null
+		UIUtil.invokeAndWaitIfNeeded {
+			console = consoleToConsoleTitle.find{ it.value == consoleTitle }?.key
+			if (console == null) {
+				console = showInNewConsole(text, consoleTitle, project, contentType)
+				consoleToConsoleTitle[console] = consoleTitle
+			} else {
+				console.print("\n" + asString(text), contentType)
+			}
 		}
+		console
 	}
 
 	/**
