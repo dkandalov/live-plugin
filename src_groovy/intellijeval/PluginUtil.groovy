@@ -37,6 +37,9 @@ import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.keymap.KeymapManager
+import com.intellij.openapi.progress.PerformInBackgroundOption
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerAdapter
@@ -59,8 +62,10 @@ import org.jetbrains.annotations.Nullable
 import javax.swing.*
 import java.awt.*
 import java.util.List
+import java.util.concurrent.atomic.AtomicReference
 
 import static com.intellij.notification.NotificationType.*
+import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 
 /**
@@ -118,6 +123,7 @@ class PluginUtil {
 	 */
 	static ConsoleView showInNewConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
 	                                    ConsoleViewContentType contentType = guessContentTypeOf(text)) {
+		// TODO check if it's EDT
 		if (text instanceof Throwable) {
 			def writer = new StringWriter()
 			text.printStackTrace(new PrintWriter(writer))
@@ -158,6 +164,7 @@ class PluginUtil {
 	 */
 	static ConsoleView showInConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
 	                                 ConsoleViewContentType contentType = guessContentTypeOf(text)) {
+		// TODO check if it's EDT
 		ConsoleView console = consoleToConsoleTitle.find{ it.value == consoleTitle }?.key
 		if (console == null) {
 			console = showInNewConsole(text, consoleTitle, project, contentType)
@@ -425,7 +432,7 @@ class PluginUtil {
 	 * @param callback should calculate new value given previous one
 	 * @return new value
 	 */
-	static def <T> T getCachedBy(String key, @Nullable initialValue = null, Closure callback) {
+	static def <T> T getCachedBy(String key, @Nullable initialValue = null, Closure callback = {it}) {
 		def actionManager = ActionManager.instance
 		def action = actionManager.getAction(key)
 
@@ -443,6 +450,33 @@ class PluginUtil {
 		})
 
 		newValue
+	}
+
+	/**
+	 * TODO
+	 *
+	 * @param key
+	 */
+	static def removeCachedBy(String key) {
+		ActionManager.instance.unregisterAction(key)
+	}
+
+	/**
+	 * TODO
+	 *
+	 */
+	static doInBackground(String taskDescription = "", boolean canBeCancelled = true,
+	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
+	                      Closure task, Closure whenCancelled = {}, Closure whenDone) {
+
+		new Task.Backgroundable(null, taskDescription, canBeCancelled, backgroundOption) {
+			private final AtomicReference result = new AtomicReference(null)
+
+			@Override void run(ProgressIndicator indicator) { result.set(task.call(indicator)) }
+			@Override void onSuccess() { whenDone.call(result.get()) }
+			@Override void onCancel() { whenCancelled.call() }
+
+		}.queue()
 	}
 
 	static accessField(Object o, String fieldName, Closure callback) {
@@ -537,7 +571,7 @@ class PluginUtil {
 	 *
 	 * @author Olivier Smedile
 	 */
-	static transformSelectionIn(Editor editor, Closure transformer) {
+	private static transformSelectionIn(Editor editor, Closure transformer) {
 		SelectionModel selectionModel = editor.selectionModel
 		String selectedText = selectionModel.selectedText
 
