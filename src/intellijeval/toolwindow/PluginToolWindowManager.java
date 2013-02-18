@@ -811,6 +811,7 @@ public class PluginToolWindowManager {
 						Pair.create("jar://" + ideaJarsPath + "idea_rt.jar!/", CLASSES),
 						Pair.create("jar://" + ideaJarsPath + "annotations.jar!/", CLASSES),
 						Pair.create("jar://" + ideaJarsPath + "util.jar!/", CLASSES),
+						Pair.create("jar://" + ideaJarsPath + "extensions.jar!/", CLASSES),
 						Pair.create("jar://" + ideaJarsPath + findGroovyJarOn(ideaJarsPath) + "!/", CLASSES)
 				));
 			}
