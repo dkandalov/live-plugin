@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>IntelliJEval</id>
 	<name>IntelliJEval</name>
-	<version>0.2 beta</version>
+	<version>0.2.1 beta</version>
 	<vendor url="https://github.com/dkandalov/intellij_eval"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<idea-version since-build="122.600"/>

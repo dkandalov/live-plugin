@@ -468,10 +468,8 @@ class PluginUtil {
 	static doInBackground(String taskDescription = "", boolean canBeCancelled = true,
 	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
 	                      Closure task, Closure whenCancelled = {}, Closure whenDone) {
-
+		AtomicReference result = new AtomicReference(null)
 		new Task.Backgroundable(null, taskDescription, canBeCancelled, backgroundOption) {
-			private final AtomicReference result = new AtomicReference(null)
-
 			@Override void run(ProgressIndicator indicator) { result.set(task.call(indicator)) }
 			@Override void onSuccess() { whenDone.call(result.get()) }
 			@Override void onCancel() { whenCancelled.call() }
