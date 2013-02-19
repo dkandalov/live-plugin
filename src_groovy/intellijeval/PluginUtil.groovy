@@ -435,7 +435,7 @@ class PluginUtil {
 	 * @param callback should calculate new value given previous one
 	 * @return new value
 	 */
-	static <T> T getAndCachedBy(String varName, @Nullable initialValue = null, Closure callback = {it}) {
+	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure callback) {
 		def actionManager = ActionManager.instance
 		def action = actionManager.getAction(asActionId(varName))
 
@@ -455,30 +455,27 @@ class PluginUtil {
 		newValue
 	}
 
-	static <T> T setGlobalVar(String varName, @Nullable value) {
-		// TODO
-		null
+	@Nullable static <T> T setGlobalVar(String varName, @Nullable varValue) {
+		changeGlobalVar(varName){ varValue }
 	}
 
-	static <T> T getGlobalVar(String varName) {
-		ActionManager.instance.with {
-			def actionIds = getActionIds(asActionId(varName))
-			if (actionIds.length == 0) null
-			else getAction(actionIds.first()).value
-		}
+	@Nullable static <T> T getGlobalVar(String varName) {
+		def action = ActionManager.instance.getAction(asActionId(varName))
+		action == null ? null : action.value
 	}
 
-	static <T> T removeGlobalVar(String varName) {
-		T result = getGlobalVar(varName)
+	@Nullable static <T> T removeGlobalVar(String varName) {
+		def action = ActionManager.instance.getAction(asActionId(varName))
+		if (action == null) return null
 		ActionManager.instance.unregisterAction(asActionId(varName))
-		result
+		action.value
 	}
 
 	/**
 	 * TODO
 	 *
 	 */
-	static doInBackground(String taskDescription = "", boolean canBeCancelled = true,
+	static doInBackground(String taskDescription = "", boolean canBeCancelled = CAN_CANCEL,
 	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
 	                      Closure task, Closure whenCancelled = {}, Closure whenDone) {
 		AtomicReference result = new AtomicReference(null)
