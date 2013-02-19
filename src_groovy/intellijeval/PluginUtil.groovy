@@ -430,24 +430,24 @@ class PluginUtil {
 	 * {@link com.intellij.openapi.util.UserDataHolder} won't work as well because {@link com.intellij.openapi.util.Key}
 	 * implementation uses incremental numbers as hashCode() (each "new Key()" is different from previous one).
 	 *
-	 * @param key key that identifies value
+	 * @param varName
 	 * @param initialValue
 	 * @param callback should calculate new value given previous one
 	 * @return new value
 	 */
-	static def <T> T getCachedBy(String key, @Nullable initialValue = null, Closure callback = {it}) {
+	static <T> T getAndCachedBy(String varName, @Nullable initialValue = null, Closure callback = {it}) {
 		def actionManager = ActionManager.instance
-		def action = actionManager.getAction(key)
+		def action = actionManager.getAction(asActionId(varName))
 
 		def prevValue = (action == null ? initialValue : action.value)
 		T newValue = (T) callback.call(prevValue)
 
 		// unregister action only after callback has been invoked in case it crashes
-		if (action != null) actionManager.unregisterAction(key)
+		if (action != null) actionManager.unregisterAction(asActionId(varName))
 
 		// anonymous class below will keep reference to outer object but that should be ok
 		// because its class is not a part of reloadable plugin
-		actionManager.registerAction(key, new AnAction() {
+		actionManager.registerAction(asActionId(varName), new AnAction() {
 			final def value = newValue
 			@Override void actionPerformed(AnActionEvent e) {}
 		})
@@ -455,13 +455,23 @@ class PluginUtil {
 		newValue
 	}
 
-	/**
-	 * TODO
-	 *
-	 * @param key
-	 */
-	static def removeCachedBy(String key) {
-		ActionManager.instance.unregisterAction(key)
+	static <T> T setGlobalVar(String varName, @Nullable value) {
+		// TODO
+		null
+	}
+
+	static <T> T getGlobalVar(String varName) {
+		ActionManager.instance.with {
+			def actionIds = getActionIds(asActionId(varName))
+			if (actionIds.length == 0) null
+			else getAction(actionIds.first()).value
+		}
+	}
+
+	static <T> T removeGlobalVar(String varName) {
+		T result = getGlobalVar(varName)
+		ActionManager.instance.unregisterAction(asActionId(varName))
+		result
 	}
 
 	/**
@@ -560,6 +570,10 @@ class PluginUtil {
 
 	private static ConsoleViewContentType guessContentTypeOf(text) {
 		text instanceof Throwable ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT
+	}
+
+	private static asActionId(String globalVarKey) {
+		"IntelliJEval-" + globalVarKey
 	}
 
 	static String asString(message) {
