@@ -59,6 +59,7 @@ import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
+import org.junit.Test
 
 import javax.swing.*
 import java.awt.*
