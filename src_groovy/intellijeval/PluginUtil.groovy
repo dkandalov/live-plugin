@@ -72,6 +72,7 @@ import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 /**
  *
  */
+@SuppressWarnings("GroovyUnusedDeclaration")
 class PluginUtil {
 	/**
 	 * Writes a message to "idea.log" file.
@@ -347,7 +348,7 @@ class PluginUtil {
 	}
 
 	/**
-	 * Iterator over all files in project (in breadth-first order).
+	 * Iterates over all files in project (in breadth-first order).
 	 *
 	 * @param callback code to be executed for each file.
 	 *        Passes in as parameters {@link VirtualFile}, {@link Document}, {@link PsiFileSystemItem}.
@@ -356,7 +357,8 @@ class PluginUtil {
 		def documentManager = FileDocumentManager.instance
 		def psiManager = PsiManager.getInstance(project)
 
-		allFilesIn(project).each { VirtualFile file ->
+		def filesIterator = allFilesIn(project)
+		for (VirtualFile file in filesIterator) {
 			def document = documentManager.getDocument(file)
 			def psiItem = (file.isDirectory() ? psiManager.findDirectory(file) : psiManager.findFile(file))
 			callback.call(file, document, psiItem)
@@ -475,7 +477,7 @@ class PluginUtil {
 	 * TODO
 	 *
 	 */
-	static doInBackground(String taskDescription = "", boolean canBeCancelled = CAN_CANCEL,
+	static doInBackground(String taskDescription = "", boolean canBeCancelled = true,
 	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
 	                      Closure task, Closure whenCancelled = {}, Closure whenDone) {
 		AtomicReference result = new AtomicReference(null)
@@ -548,14 +550,14 @@ class PluginUtil {
 		}
 	}
 
-	private static ToolWindow registerToolWindowIn(Project project, String id, JComponent component) {
+	private static ToolWindow registerToolWindowIn(Project project, String id, JComponent component, ToolWindowAnchor location = RIGHT) {
 		def manager = ToolWindowManager.getInstance(project)
 
 		if (manager.getToolWindow(id) != null) {
 			manager.unregisterToolWindow(id)
 		}
 
-		def toolWindow = manager.registerToolWindow(id, false, RIGHT)
+		def toolWindow = manager.registerToolWindow(id, false, location)
 		def content = ContentFactory.SERVICE.instance.createContent(component, "", false)
 		toolWindow.contentManager.addContent(content)
 		toolWindow
