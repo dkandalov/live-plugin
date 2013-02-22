@@ -59,6 +59,7 @@ import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
+import org.junit.Test
 
 import javax.swing.*
 import java.awt.*
@@ -575,10 +576,12 @@ class PluginUtil {
 		"IntelliJEval-" + globalVarKey
 	}
 
-	static String asString(message) {
-		message?.class?.isArray() ? Arrays.toString(message) : String.valueOf(message)
+	static String asString(@Nullable message) {
+		if (message?.getClass()?.isArray()) return Arrays.toString(message)
+		if (message instanceof MapWithDefault) return "{" + message.entrySet().join(", ") + "}"
+		String.valueOf(message)
 	}
-
+	
 	/**
 	 * Original version borrowed from here
 	 * http://code.google.com/p/idea-string-manip/source/browse/trunk/src/main/java/osmedile/intellij/stringmanip/AbstractStringManipAction.java
@@ -639,4 +642,21 @@ class PluginUtil {
 	// Using WeakHashMap to make unregistering tool window optional
 	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new WeakHashMap()
 	private static final Map<ConsoleView, String> consoleToConsoleTitle = new WeakHashMap()
+	
+	@Test void "asString() should convert to string values of any type"() {
+		assert asString(null) == "null"
+
+		assert asString(1) == "1"
+
+		assert asString([] as Integer[]) == "[]"
+		assert asString([1] as Integer[]) == "[1]"
+
+		assert asString([]) == "[]"
+		assert asString([1, 2, 3]) == "[1, 2, 3]"
+
+		assert asString([:]) == "{}"
+		assert asString([a: 1]) == "{a=1}"
+		assert asString([:].withDefault { 0 }) == "{}"
+		assert asString([a: 1].withDefault { 0 }) == "{a=1}"
+	}
 }
