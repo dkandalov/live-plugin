@@ -121,28 +121,28 @@ class PluginUtil {
 	/**
 	 * Opens new "Run" console tool window with {@code text} in it.
 	 *
-	 * @param text text or exception to show
+	 * @param message text or exception to show
 	 * @param consoleTitle (optional)
 	 * @param project console will be displayed in the window of this project
 	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
 	 */
 	@CanCallFromAnyThread
-	static ConsoleView showInNewConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
-	                                    ConsoleViewContentType contentType = guessContentTypeOf(text)) {
+	static ConsoleView showInNewConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
+	                                    ConsoleViewContentType contentType = guessContentTypeOf(message)) {
 		AtomicReference<ConsoleView> result = new AtomicReference(null)
 		// Use reference for consoleTitle because get groovy Reference class like in this bug http://jira.codehaus.org/browse/GROOVY-5101
 		AtomicReference<String> titleRef = new AtomicReference(consoleTitle)
 
 		UIUtil.invokeAndWaitIfNeeded {
-			if (text instanceof Throwable) {
+			if (message instanceof Throwable) {
 				def writer = new StringWriter()
-				text.printStackTrace(new PrintWriter(writer))
-				text = UnscrambleDialog.normalizeText(writer.buffer.toString())
+				message.printStackTrace(new PrintWriter(writer))
+				message = UnscrambleDialog.normalizeText(writer.buffer.toString())
 
-				result.set(showInNewConsole(text, titleRef.get(), project, contentType))
+				result.set(showInNewConsole(message, titleRef.get(), project, contentType))
 			} else {
 				ConsoleView console = TextConsoleBuilderFactory.instance.createBuilder(project).console
-				console.print(asString(text), contentType)
+				console.print(asString(message), contentType)
 
 				DefaultActionGroup toolbarActions = new DefaultActionGroup()
 				def consoleComponent = new MyConsolePanel(console, toolbarActions)
@@ -168,22 +168,22 @@ class PluginUtil {
 	 *
 	 * (The only reason to use "Run" console is because it's convenient for showing multi-line text.)
 	 *
-	 * @param text text or exception to show
+	 * @param message text or exception to show
 	 * @param consoleTitle (optional)
 	 * @param project console will be displayed in the window of this project
 	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
 	 */
 	@CanCallFromAnyThread
-	static ConsoleView showInConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
-	                                 ConsoleViewContentType contentType = guessContentTypeOf(text)) {
+	static ConsoleView showInConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
+	                                 ConsoleViewContentType contentType = guessContentTypeOf(message)) {
 		AtomicReference<ConsoleView> result = new AtomicReference(null)
 		UIUtil.invokeAndWaitIfNeeded {
 			ConsoleView console = consoleToConsoleTitle.find{ it.value == consoleTitle }?.key
 			if (console == null) {
-				console = showInNewConsole(text, consoleTitle, project, contentType)
+				console = showInNewConsole(message, consoleTitle, project, contentType)
 				consoleToConsoleTitle[console] = consoleTitle
 			} else {
-				console.print("\n" + asString(text), contentType)
+				console.print("\n" + asString(message), contentType)
 			}
 			result.set(console)
 		}
