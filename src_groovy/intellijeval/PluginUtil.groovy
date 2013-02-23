@@ -83,6 +83,7 @@ class PluginUtil {
 	 * @param notificationType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/notification/NotificationType.java
 	 * (Note that NotificationType.ERROR will not just log message but will also show it in "IDE internal errors" toolbar.)
 	 */
+	@CanCallFromAnyThread
 	static void log(@Nullable message, NotificationType notificationType = INFORMATION) {
 		if (!(message instanceof Throwable)) {
 			message = asString(message)
@@ -104,6 +105,7 @@ class PluginUtil {
 	 * @param notificationType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/notification/NotificationType.java
 	 * @param groupDisplayId (optional) an id to group notifications by (can be configured in "IDE Settings - Notifications")
 	 */
+	@CanCallFromAnyThread
 	static show(@Nullable message, @Nullable title = "",
 	            NotificationType notificationType = INFORMATION, String groupDisplayId = "") {
 		SwingUtilities.invokeLater({
@@ -124,10 +126,11 @@ class PluginUtil {
 	 * @param project console will be displayed in the window of this project
 	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
 	 */
+	@CanCallFromAnyThread
 	static ConsoleView showInNewConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
 	                                    ConsoleViewContentType contentType = guessContentTypeOf(text)) {
 		AtomicReference<ConsoleView> result = new AtomicReference(null)
-		// Use reference for consoleTitle because of ClassCastException like in this bug http://jira.codehaus.org/browse/GROOVY-5101
+		// Use reference for consoleTitle because get groovy Reference class like in this bug http://jira.codehaus.org/browse/GROOVY-5101
 		AtomicReference<String> titleRef = new AtomicReference(consoleTitle)
 
 		UIUtil.invokeAndWaitIfNeeded {
@@ -158,20 +161,6 @@ class PluginUtil {
 		}
 		result.get()
 	}
-	// Can't use anonymous class because of ClassCastException like in this bug http://jira.codehaus.org/browse/GROOVY-5101
-	private static class ConsoleCloseAction extends CloseAction {
-		private final ConsoleView consoleView
-
-		ConsoleCloseAction(ConsoleView consoleView, Executor executor, RunContentDescriptor contentDescriptor, Project project) {
-			super(executor, contentDescriptor, project)
-			this.consoleView = consoleView
-		}
-
-		@Override void actionPerformed(AnActionEvent e) {
-			super.actionPerformed(e)
-			consoleToConsoleTitle.remove(consoleView)
-		}
-	}
 
 	/**
 	 * Opens "Run" console tool window with {@code text} in it.
@@ -184,6 +173,7 @@ class PluginUtil {
 	 * @param project console will be displayed in the window of this project
 	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
 	 */
+	@CanCallFromAnyThread
 	static ConsoleView showInConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
 	                                 ConsoleViewContentType contentType = guessContentTypeOf(text)) {
 		AtomicReference<ConsoleView> result = new AtomicReference(null)
@@ -249,6 +239,7 @@ class PluginUtil {
 	 * @param component content of the tool window
 	 * @param location (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/wm/ToolWindowAnchor.java
 	 */
+	@CanOnlyCallFromEDT
 	static registerToolWindow(String toolWindowId, JComponent component, ToolWindowAnchor location = RIGHT) {
 		def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
 		if (previousListener != null) {
@@ -279,6 +270,7 @@ class PluginUtil {
 	 * This method exists for reference only.
 	 * For more dialogs see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/Messages.java
 	 */
+	@CanOnlyCallFromEDT
 	@Nullable static String showInputDialog(String message, String title, @Nullable Icon icon = null) {
 		Messages.showInputDialog(message, title, icon)
 	}
@@ -286,6 +278,7 @@ class PluginUtil {
 	/**
 	 * @return currently open editor; null if there are no open files
 	 */
+	@CanOnlyCallFromEDT
 	@Nullable static Editor currentEditorIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).selectedTextEditor
 	}
@@ -293,6 +286,7 @@ class PluginUtil {
 	/**
 	 * @return {@PsiFile} for opened editor tab; null if there are no open files
 	 */
+	@CanOnlyCallFromEDT
 	@Nullable static PsiFile currentPsiFileIn(@NotNull Project project) {
 		PsiManager.getInstance(project).findFile(currentFileIn(project))
 	}
@@ -300,6 +294,7 @@ class PluginUtil {
 	/**
 	 * @return {@link Document} for opened editor tab; null if there are no open files
 	 */
+	@CanOnlyCallFromEDT
 	@Nullable static Document currentDocumentIn(@NotNull Project project) {
 		def file = ((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
 		if (file == null) return null
@@ -309,6 +304,7 @@ class PluginUtil {
 	/**
 	 * @return {@link VirtualFile} for opened editor tab; null if there are no open files
 	 */
+	@CanOnlyCallFromEDT
 	@Nullable static VirtualFile currentFileIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
 	}
@@ -393,6 +389,7 @@ class PluginUtil {
 	 * @param callback code to execute
 	 * @return result of callback
 	 */
+	@CanCallFromAnyThread
 	static runWriteAction(Closure callback) {
 		if (SwingUtilities.isEventDispatchThread()) {
 			ApplicationManager.application.runWriteAction(callback as Computable)
@@ -412,6 +409,7 @@ class PluginUtil {
 	 * @param callback code to execute
 	 * @return result of callback
 	 */
+	@CanCallFromAnyThread
 	static runReadAction(Closure callback) {
 		ApplicationManager.application.runReadAction(callback as Computable)
 	}
@@ -422,6 +420,7 @@ class PluginUtil {
 	 * @param document
 	 * @param callback
 	 */
+	@CanCallFromAnyThread
 	static runDocumentWriteAction(@NotNull Project project, Document document = currentDocumentIn(project), Closure callback) {
 		def name = "runDocumentWriteAction"
 		def groupId = "PluginUtil"
@@ -438,6 +437,7 @@ class PluginUtil {
 	 * @param project
 	 * @param transformer
 	 */
+	@CanCallFromAnyThread
 	static transformSelectedText(@NotNull Project project, Closure transformer) {
 		def editor = currentEditorIn(project)
 		runDocumentWriteAction(project) {
@@ -655,6 +655,21 @@ class PluginUtil {
 		}
 	}
 
+	// Can't use anonymous class because of ClassCastException like in this bug http://jira.codehaus.org/browse/GROOVY-5101
+	private static class ConsoleCloseAction extends CloseAction {
+		private final ConsoleView consoleView
+
+		ConsoleCloseAction(ConsoleView consoleView, Executor executor, RunContentDescriptor contentDescriptor, Project project) {
+			super(executor, contentDescriptor, project)
+			this.consoleView = consoleView
+		}
+
+		@Override void actionPerformed(AnActionEvent event) {
+			super.actionPerformed(event)
+			consoleToConsoleTitle.remove(consoleView)
+		}
+	}
+
 
 	private static final Logger LOG = Logger.getInstance("IntelliJEval")
 
@@ -680,3 +695,6 @@ class PluginUtil {
 		assert asString([a: 1].withDefault { 0 }) == "{a=1}"
 	}
 }
+
+@interface CanCallFromAnyThread {}
+@interface CanOnlyCallFromEDT {}
