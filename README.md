@@ -57,12 +57,19 @@ How to start
 
 
 It might be useful to
-===================
+=====================
  - have auto-completion by adding IDEA and IntelliJEval jars to project
    (can be done in "Settings" drop-down at the top of "Plugins" tool window).
  - install Groovy plugin
  - look at [PluginUtil](https://github.com/dkandalov/intellij_eval/blob/master/src_groovy/intellijeval/PluginUtil.groovy) class
  - get [IntelliJ sources](https://github.com/JetBrains/intellij-community) to see source code and javadocs
+
+
+Even more examples
+==================
+ - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622)
+ - [Word Cloud](https://github.com/dkandalov/intellij-wordcloud)
+ - [Method History](https://github.com/dkandalov/history-slider-plugin)
 
 
 Under the hood
