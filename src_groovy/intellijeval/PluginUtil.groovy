@@ -126,33 +126,51 @@ class PluginUtil {
 	 */
 	static ConsoleView showInNewConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
 	                                    ConsoleViewContentType contentType = guessContentTypeOf(text)) {
-		ConsoleView console = null
+		AtomicReference<ConsoleView> result = new AtomicReference(null)
+		// Use reference for consoleTitle because of ClassCastException like in this bug http://jira.codehaus.org/browse/GROOVY-5101
+		AtomicReference<String> titleRef = new AtomicReference(consoleTitle)
+
 		UIUtil.invokeAndWaitIfNeeded {
 			if (text instanceof Throwable) {
 				def writer = new StringWriter()
 				text.printStackTrace(new PrintWriter(writer))
 				text = UnscrambleDialog.normalizeText(writer.buffer.toString())
 
-				console = showInNewConsole(text, consoleTitle, project, contentType)
+				result.set(showInNewConsole(text, titleRef.get(), project, contentType))
 			} else {
-				console = TextConsoleBuilderFactory.instance.createBuilder(project).console
+				ConsoleView console = TextConsoleBuilderFactory.instance.createBuilder(project).console
 				console.print(asString(text), contentType)
 
 				DefaultActionGroup toolbarActions = new DefaultActionGroup()
 				def consoleComponent = new MyConsolePanel(console, toolbarActions)
-				RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
+				RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, titleRef.get()) {
 					@Override boolean isContentReuseProhibited() { true }
 					@Override Icon getIcon() { AllIcons.Nodes.Plugin }
 				}
 				Executor executor = DefaultRunExecutor.runExecutorInstance
 
-				toolbarActions.add(new CloseAction(executor, descriptor, project))
+				toolbarActions.add(new ConsoleCloseAction(console, executor, descriptor, project))
 				console.createConsoleActions().each{ toolbarActions.add(it) }
 
 				ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
+				result.set(console)
 			}
 		}
-		console
+		result.get()
+	}
+	// Can't use anonymous class because of ClassCastException like in this bug http://jira.codehaus.org/browse/GROOVY-5101
+	private static class ConsoleCloseAction extends CloseAction {
+		private final ConsoleView consoleView
+
+		ConsoleCloseAction(ConsoleView consoleView, Executor executor, RunContentDescriptor contentDescriptor, Project project) {
+			super(executor, contentDescriptor, project)
+			this.consoleView = consoleView
+		}
+
+		@Override void actionPerformed(AnActionEvent e) {
+			super.actionPerformed(e)
+			consoleToConsoleTitle.remove(consoleView)
+		}
 	}
 
 	/**
@@ -168,17 +186,18 @@ class PluginUtil {
 	 */
 	static ConsoleView showInConsole(@Nullable text, String consoleTitle = "", @NotNull Project project,
 	                                 ConsoleViewContentType contentType = guessContentTypeOf(text)) {
-		ConsoleView console = null
+		AtomicReference<ConsoleView> result = new AtomicReference(null)
 		UIUtil.invokeAndWaitIfNeeded {
-			console = consoleToConsoleTitle.find{ it.value == consoleTitle }?.key
+			ConsoleView console = consoleToConsoleTitle.find{ it.value == consoleTitle }?.key
 			if (console == null) {
 				console = showInNewConsole(text, consoleTitle, project, contentType)
 				consoleToConsoleTitle[console] = consoleTitle
 			} else {
 				console.print("\n" + asString(text), contentType)
 			}
+			result.set(console)
 		}
-		console
+		result.get()
 	}
 
 	/**
@@ -641,7 +660,8 @@ class PluginUtil {
 
 	// Using WeakHashMap to make unregistering tool window optional
 	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new WeakHashMap()
-	private static final Map<ConsoleView, String> consoleToConsoleTitle = new WeakHashMap()
+	// thread-confined to EDT
+	private static final Map<ConsoleView, String> consoleToConsoleTitle = new HashMap()
 	
 	@Test void "asString() should convert to string values of any type"() {
 		assert asString(null) == "null"
