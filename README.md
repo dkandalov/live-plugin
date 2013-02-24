@@ -68,6 +68,7 @@ It might be useful to
 Even more examples
 ==================
  - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622)
+ - [Evaluate selection as Groovy](https://gist.github.com/dkandalov/5024580)
  - [Word Cloud](https://github.com/dkandalov/intellij-wordcloud)
  - [Method History](https://github.com/dkandalov/history-slider-plugin)
 
