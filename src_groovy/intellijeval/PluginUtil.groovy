@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 package intellijeval
-
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
@@ -54,6 +53,7 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
+import com.intellij.psi.search.ProjectScope
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.ui.UIUtil
@@ -69,7 +69,6 @@ import java.util.concurrent.atomic.AtomicReference
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  *
  */
@@ -313,6 +312,7 @@ class PluginUtil {
 	 * @return lazy iterator for all {@link VirtualFile}s in project (in breadth-first order)
 	 */
 	static Iterator<VirtualFile> allFilesIn(@NotNull Project project) {
+		def projectScope = ProjectScope.getAllScope(project)
 		def sourceRoots = ProjectRootManager.getInstance(project).contentSourceRoots
 		def queue = new LinkedList<VirtualFile>(sourceRoots.toList())
 
@@ -320,8 +320,10 @@ class PluginUtil {
 			@Override boolean hasNext() { !queue.empty }
 
 			@Override VirtualFile next() {
-				if (queue.first.isDirectory())
-					queue.addAll(queue.first.children)
+				if (queue.first.isDirectory()) {
+					def childrenInProjectScope = queue.first.children.findAll{ projectScope.contains(it) }
+					queue.addAll(childrenInProjectScope)
+				}
 				queue.removeFirst()
 			}
 
