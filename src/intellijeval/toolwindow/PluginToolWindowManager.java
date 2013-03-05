@@ -183,6 +183,7 @@ public class PluginToolWindowManager {
 		public void registerWindowFor(Project project) {
 			ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
 			toolWindow = toolWindowManager.registerToolWindow(PLUGINS_TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
+			// TODO resize at runtime? get in intellij log: "WARN - openapi.wm.impl.ToolWindowImpl - ToolWindow icons should be 13x13"
 			toolWindow.setIcon(Util.PLUGIN_ICON);
 
 			toolWindow.getContentManager().addContent(createContent(project));

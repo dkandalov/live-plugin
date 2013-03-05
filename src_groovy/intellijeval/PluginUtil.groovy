@@ -182,7 +182,7 @@ class PluginUtil {
 				console = showInNewConsole(message, consoleTitle, project, contentType)
 				consoleToConsoleTitle[console] = consoleTitle
 			} else {
-				console.print("\n" + asString(message), contentType)
+				console.print("\n" + asString(message), contentType) // TODO show full stacktraces here
 			}
 			result.set(console)
 		}
@@ -532,7 +532,7 @@ class PluginUtil {
 		}
 	}
 
-	static catchingAll(Closure closure) {
+	@Nullable static <T> T catchingAll(Closure<T> closure) {
 		try {
 
 			closure.call()
@@ -541,6 +541,7 @@ class PluginUtil {
 			ProjectManager.instance.openProjects.each { Project project ->
 				showInConsole(e, e.class.simpleName, project)
 			}
+			null
 		}
 	}
 
