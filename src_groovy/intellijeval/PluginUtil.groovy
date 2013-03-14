@@ -624,7 +624,7 @@ class PluginUtil {
 		}
 		String[] textParts = selectedText.split("\n")
 
-		if (editor.columnMode) { // TODO doesn't work properly
+		if (selectionModel.hasBlockSelection()) { 
 			int[] blockStarts = selectionModel.blockSelectionStarts
 			int[] blockEnds = selectionModel.blockSelectionEnds
 
