@@ -637,7 +637,9 @@ class PluginUtil {
 				}
 
 				editor.document.replaceString(blockStarts[i] + plusOffset, blockEnds[i] + plusOffset, newTextPart)
-				plusOffset += newTextPart.length() - textParts[i].length()
+
+				def realTextLength = blockEnds[i] - blockStarts[i]
+				plusOffset += newTextPart.length() - realTextLength
 			}
 		} else {
 			String transformedText = textParts.collect{ transformer(it) }.join("\n")
