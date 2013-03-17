@@ -99,13 +99,11 @@ class Evaluator {
 					String path = line.replace(CLASSPATH_PREFIX, "");
 
 					path = inlineEnvironmentVariables(path, environment);
-
-					List<String> filePaths = collectAllFilesPaths(path);
-					if (filePaths.isEmpty()) {
+					if (!new File(path).exists()) {
 						errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
-					}
-					for (String filePath : filePaths) {
-						classLoader.addClasspath(filePath);
+					} else {
+						classLoader.addURL(new URL("file:///" + path));
+						classLoader.addClasspath(path);
 					}
 				}
 			}
@@ -123,23 +121,6 @@ class Evaluator {
 		}
 		if (wasModified) LOG.info("Path with env variables: " + s);
 		return s;
-	}
-
-	private List<String> collectAllFilesPaths(String path) {
-		File file = new File(path);
-		if (!file.exists()) {
-			return Collections.emptyList();
-		}
-		if (file.isFile()) return Collections.singletonList(path);
-		if (file.isDirectory()) {
-			List<File> allFiles = allFilesInDirectory(file);
-			List<String> result = new LinkedList<String>();
-			for (File aFile : allFiles) {
-				result.add(aFile.getAbsolutePath());
-			}
-			return result;
-		}
-		throw new IllegalStateException();
 	}
 
 	private static List<File> allFilesInDirectory(File dir) {

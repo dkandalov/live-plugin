@@ -25,8 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static intellijeval.Util.displayInConsole;
-
 /**
  * User: dima
  * Date: 17/08/2012
@@ -48,7 +46,8 @@ class EvalErrorReporter {
 		StringBuilder text = new StringBuilder();
 		for (String s : loadingErrors) text.append(s);
 		if (text.length() > 0)
-			Util.displayInConsole("Loading errors", text.toString(), ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
+			Util.displayInConsole("Loading errors", text.toString() + "\n",
+					ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
 	}
 
 	public void reportEvaluationExceptions(AnActionEvent actionEvent) {
