@@ -105,7 +105,7 @@ class PluginUtil {
 	 * @param groupDisplayId (optional) an id to group notifications by (can be configured in "IDE Settings - Notifications")
 	 */
 	@CanCallFromAnyThread
-	static show(@Nullable message, @Nullable title = "",
+	static show(@Nullable message, @Nullable String title = "",
 	            NotificationType notificationType = INFORMATION, String groupDisplayId = "") {
 		SwingUtilities.invokeLater({
 			message = asString(message)
