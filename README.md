@@ -71,6 +71,8 @@ Even more examples
  - [Evaluate selection as Groovy](https://gist.github.com/dkandalov/5024580)
  - [Word Cloud](https://github.com/dkandalov/intellij-wordcloud)
  - [Method History](https://github.com/dkandalov/history-slider-plugin)
+ - [Template completion on tab prototype](https://gist.github.com/dkandalov/5222759)
+ - [Wrap selection](https://gist.github.com/dkandalov/5129543)
 
 
 Under the hood
