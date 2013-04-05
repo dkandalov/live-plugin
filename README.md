@@ -67,12 +67,12 @@ It might be useful to
 
 Even more examples
 ==================
- - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622)
- - [Evaluate selection as Groovy](https://gist.github.com/dkandalov/5024580)
- - [Word Cloud](https://github.com/dkandalov/intellij-wordcloud)
- - [Method History](https://github.com/dkandalov/history-slider-plugin)
- - [Template completion on "Tab"](https://gist.github.com/dkandalov/5222759)(prototype)
- - [Wrap selection](https://gist.github.com/dkandalov/5129543)
+ - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622) - micro-plugin to show warning when change list size exceeds threshold
+ - [Word Cloud](https://github.com/dkandalov/intellij-wordcloud) - shows world cloud for the selected item (file/package/folder)
+ - [Template completion on "Tab"](https://gist.github.com/dkandalov/5222759) - simplistic prototype for auto-completion on tab key (in case built-in live templates are not enough)
+ - [Wrap selection](https://gist.github.com/dkandalov/5129543) - micro-plugin to wrap long lines with separator
+ - [Method History](https://github.com/dkandalov/history-slider-plugin) - combines built-in method history based on selection and method history based on method name
+ - [Evaluate selection as Groovy](https://gist.github.com/dkandalov/5024580) - that's exactly what it does
 
 
 Under the hood
