@@ -56,17 +56,17 @@ How to start
  - add plugin examples and experiment with them
 
 
-It might be useful to
-=====================
- - have auto-completion by adding IDEA and IntelliJEval jars to project
+It might be useful
+==================
+ - to have auto-completion by adding IDEA and IntelliJEval jars to project
    (can be done in "Settings" drop-down at the top of "Plugins" tool window).
  - install Groovy plugin
  - look at [PluginUtil](https://github.com/dkandalov/intellij_eval/blob/master/src_groovy/intellijeval/PluginUtil.groovy) class
- - get [IntelliJ sources](https://github.com/JetBrains/intellij-community) to see source code and javadocs
+ - get [IntelliJ source code](https://github.com/JetBrains/intellij-community)
 
 
 More examples
-==================
+=============
  - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622) - micro-plugin to show warning when change list size exceeds threshold
  - [Word Cloud](https://github.com/dkandalov/intellij-wordcloud) - shows world cloud for the selected item (file/package/folder)
  - [Project TreeMap View](https://github.com/dkandalov/project-treemap) - shows project structure (packages/classes) as treemap based on size of classes
@@ -96,9 +96,9 @@ The idea of running code inside IntelliJ is not original. There are similar plug
  - [HotPlugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=1020) (probably outdated)
 
 
-It would be interesting to
-===========================
- - have nice object tree pattern-matching API for Groovy (can be good for writing inspections/intentions to match/replace syntax tree).
+It would be interesting
+=======================
+ - to have nice object tree pattern-matching API for Groovy (can be good for writing inspections/intentions to match/replace syntax tree).
  Or may be there is one and I just don't know about it.
  - use another language (e.g. Scala or Ruby).
  - go meta! Rewrite IntelliJEval as its own plugin. This is really how it was started (loads of fun with classloaders).
