@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src_groovy" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/plugin_examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test_groovy" isTestSource="true" />
     </content>
     <orderEntry type="library" scope="PROVIDED" name="groovy-1.8.3" level="application" />
     <orderEntry type="inheritedJdk" />

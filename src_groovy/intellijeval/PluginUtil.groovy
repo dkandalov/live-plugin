@@ -59,7 +59,6 @@ import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
-import org.junit.Test
 
 import javax.swing.*
 import java.awt.*
@@ -72,7 +71,7 @@ import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 /**
  *
  */
-@SuppressWarnings("GroovyUnusedDeclaration")
+@SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
 	/**
 	 * Writes a message to "idea.log" file.
@@ -112,7 +111,7 @@ class PluginUtil {
 			// this is because Notification doesn't accept empty messages
 			if (message.trim().empty) message = "[empty message]"
 
-			def notification = new Notification(groupDisplayId, asString(title), message, notificationType)
+			def notification = new Notification(groupDisplayId, title, message, notificationType)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		} as Runnable)
 	}
@@ -133,30 +132,22 @@ class PluginUtil {
 		AtomicReference<String> titleRef = new AtomicReference(consoleTitle)
 
 		UIUtil.invokeAndWaitIfNeeded {
-			if (message instanceof Throwable) {
-				def writer = new StringWriter()
-				message.printStackTrace(new PrintWriter(writer))
-				message = UnscrambleDialog.normalizeText(writer.buffer.toString())
+			ConsoleView console = TextConsoleBuilderFactory.instance.createBuilder(project).console
+			console.print(asString(message), contentType)
 
-				result.set(showInNewConsole(message, titleRef.get(), project, contentType))
-			} else {
-				ConsoleView console = TextConsoleBuilderFactory.instance.createBuilder(project).console
-				console.print(asString(message), contentType)
-
-				DefaultActionGroup toolbarActions = new DefaultActionGroup()
-				def consoleComponent = new MyConsolePanel(console, toolbarActions)
-				RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, titleRef.get()) {
-					@Override boolean isContentReuseProhibited() { true }
-					@Override Icon getIcon() { AllIcons.Nodes.Plugin }
-				}
-				Executor executor = DefaultRunExecutor.runExecutorInstance
-
-				toolbarActions.add(new ConsoleCloseAction(console, executor, descriptor, project))
-				console.createConsoleActions().each{ toolbarActions.add(it) }
-
-				ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
-				result.set(console)
+			DefaultActionGroup toolbarActions = new DefaultActionGroup()
+			def consoleComponent = new MyConsolePanel(console, toolbarActions)
+			RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, titleRef.get()) {
+				@Override boolean isContentReuseProhibited() { true }
+				@Override Icon getIcon() { AllIcons.Nodes.Plugin }
 			}
+			Executor executor = DefaultRunExecutor.runExecutorInstance
+
+			toolbarActions.add(new ConsoleCloseAction(console, executor, descriptor, project))
+			console.createConsoleActions().each{ toolbarActions.add(it) }
+
+			ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
+			result.set(console)
 		}
 		result.get()
 	}
@@ -182,7 +173,7 @@ class PluginUtil {
 				console = showInNewConsole(message, consoleTitle, project, contentType)
 				consoleToConsoleTitle[console] = consoleTitle
 			} else {
-				console.print("\n" + asString(message), contentType) // TODO show full stacktraces here
+				console.print("\n" + asString(message), contentType)
 			}
 			result.set(console)
 		}
@@ -483,9 +474,9 @@ class PluginUtil {
 		changeGlobalVar(varName){ varValue }
 	}
 
-	@Nullable static <T> T getGlobalVar(String varName) {
+	@Nullable static <T> T getGlobalVar(String varName, @Nullable initialValue = null) {
 		def action = ActionManager.instance.getAction(asActionId(varName))
-		action == null ? null : action.value
+		action == null ? initialValue : action.value
 	}
 
 	@Nullable static <T> T removeGlobalVar(String varName) {
@@ -599,9 +590,15 @@ class PluginUtil {
 	}
 
 	static String asString(@Nullable message) {
-		if (message?.getClass()?.isArray()) return Arrays.toString(message)
-		if (message instanceof MapWithDefault) return "{" + message.entrySet().join(", ") + "}"
-		String.valueOf(message)
+		if (message?.getClass()?.isArray()) Arrays.toString(message)
+		else if (message instanceof MapWithDefault) "{" + message.entrySet().join(", ") + "}"
+		else if (message instanceof Throwable) {
+			def writer = new StringWriter()
+			message.printStackTrace(new PrintWriter(writer))
+			UnscrambleDialog.normalizeText(writer.buffer.toString())
+		} else {
+			String.valueOf(message)
+		}
 	}
 	
 	/**
@@ -682,23 +679,6 @@ class PluginUtil {
 	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new WeakHashMap()
 	// thread-confined to EDT
 	private static final Map<ConsoleView, String> consoleToConsoleTitle = new HashMap()
-	
-	@Test void "asString() should convert to string values of any type"() {
-		assert asString(null) == "null"
-
-		assert asString(1) == "1"
-
-		assert asString([] as Integer[]) == "[]"
-		assert asString([1] as Integer[]) == "[1]"
-
-		assert asString([]) == "[]"
-		assert asString([1, 2, 3]) == "[1, 2, 3]"
-
-		assert asString([:]) == "{}"
-		assert asString([a: 1]) == "{a=1}"
-		assert asString([:].withDefault { 0 }) == "{}"
-		assert asString([a: 1].withDefault { 0 }) == "{a=1}"
-	}
 }
 
 @interface CanCallFromAnyThread {}
