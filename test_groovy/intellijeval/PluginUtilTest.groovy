@@ -1,11 +1,31 @@
 package intellijeval
-
+import com.intellij.openapi.actionSystem.KeyboardShortcut
 import org.junit.Test
 
-import static intellijeval.PluginUtil.asString
+import javax.swing.*
 
+import static intellijeval.PluginUtil.asKeyboardShortcut
+import static intellijeval.PluginUtil.asString
+import static org.junit.Assert.fail
 
 class PluginUtilTest {
+	@Test void "should convert valid keystrokes from string into KeyboardShortcut object"() {
+		assert asKeyboardShortcut("") == null
+		assert asKeyboardShortcut("A") == new KeyboardShortcut(KeyStroke.getKeyStroke("A"), null)
+		assert asKeyboardShortcut("alt A") == new KeyboardShortcut(KeyStroke.getKeyStroke("alt A"), null)
+		assert asKeyboardShortcut("alt COMMA") == new KeyboardShortcut(KeyStroke.getKeyStroke("alt COMMA"), null)
+		assert asKeyboardShortcut("alt A, B") == new KeyboardShortcut(KeyStroke.getKeyStroke("alt A"), KeyStroke.getKeyStroke("B"))
+	}
+
+	@Test void "should explicitly fail if keystroke cannot be converted in KeyboardShortcut object"() {
+		try {
+			asKeyboardShortcut("alt")
+			fail()
+		} catch (IllegalStateException e) {
+			assert e.message == "Invalid keystroke 'alt'"
+		}
+	}
+
 	@Test void "asString() should convert to string values of any type"() {
 		assert asString(null) == "null"
 

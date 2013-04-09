@@ -183,7 +183,7 @@ class PluginUtil {
 	/**
 	 * Registers action in IDE.
 	 * If there is already an action with {@code actionId}, it will be replaced.
-	 * (The main reason to replace action is to be able to incrementally add code to callback without restarting IDE.)
+	 * (The main reason to replace action is to be able to incrementally add code to it without restarting IDE.)
 	 *
 	 * @param actionId unique identifier for action
 	 * @param keyStroke (optional) e.g. "ctrl alt shift H" or "alt C, alt H" for double key stroke.
@@ -197,7 +197,7 @@ class PluginUtil {
 	 *
 	 * @return instance of created action
 	 */
-	static AnAction registerAction(String actionId, String keyStroke = "", // TODO check that keyStroke is correct
+	static AnAction registerAction(String actionId, String keyStroke = "",
 	                               String actionGroupId = null, String displayText = actionId, Closure callback) {
 		def action = new AnAction(displayText) {
 			@Override void actionPerformed(AnActionEvent event) { callback.call(event) }
@@ -212,7 +212,7 @@ class PluginUtil {
 			actionManager.unregisterAction(actionId)
 		}
 
-		registerKeyStroke(actionId, keyStroke)
+		assignKeyStrokeTo(actionId, keyStroke)
 		actionManager.registerAction(actionId, action)
 		actionGroup?.add(action)
 
@@ -540,24 +540,27 @@ class PluginUtil {
 		}
 	}
 
-	private static void registerKeyStroke(String actionId, String keyStroke) {
+	private static void assignKeyStrokeTo(String actionId, String keyStroke) {
 		def keymap = KeymapManager.instance.activeKeymap
 		keymap.removeAllActionShortcuts(actionId)
-		if (!keyStroke.empty) {
-			if (keyStroke.contains(",")) {
-				def firstKeyStroke = { keyStroke[0..<keyStroke.indexOf(",")].trim() }
-				def secondKeyStroke = { keyStroke[(keyStroke.indexOf(",") + 1)..-1].trim() }
-				keymap.addShortcut(actionId,
-						new KeyboardShortcut(
-								KeyStroke.getKeyStroke(firstKeyStroke()),
-								KeyStroke.getKeyStroke(secondKeyStroke())))
-			} else {
-				keymap.addShortcut(actionId,
-						new KeyboardShortcut(
-								KeyStroke.getKeyStroke(keyStroke), null))
-			}
-		}
+		keymap.addShortcut(actionId, asKeyboardShortcut(keyStroke))
 	}
+
+	static def asKeyboardShortcut(String keyStroke) {
+		if (keyStroke.trim().empty) return null
+
+		def firstKeystroke
+		def secondsKeystroke = null
+		if (keyStroke.contains(",")) {
+			firstKeystroke = KeyStroke.getKeyStroke(keyStroke[0..<keyStroke.indexOf(",")].trim())
+			secondsKeystroke = KeyStroke.getKeyStroke(keyStroke[(keyStroke.indexOf(",") + 1)..-1].trim())
+		} else {
+			firstKeystroke = KeyStroke.getKeyStroke(keyStroke)
+		}
+		if (firstKeystroke == null) throw new IllegalStateException("Invalid keystroke '$keyStroke'")
+		new KeyboardShortcut(firstKeystroke, secondsKeystroke)
+	}
+
 
 	private static ToolWindow registerToolWindowIn(Project project, String id, JComponent component, ToolWindowAnchor location = RIGHT) {
 		def manager = ToolWindowManager.getInstance(project)
