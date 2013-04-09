@@ -375,7 +375,7 @@ class PluginUtil {
 	}
 
 	/**
-	 * Executes callback as write action ensuring that it's runs in Swing event-dispatch thread.
+	 * Executes callback as write action ensuring that it's run in Swing event-dispatch thread.
 	 * For details see javadoc {@link com.intellij.openapi.application.Application}
 	 * (https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/application/Application.java)
 	 *
@@ -408,10 +408,10 @@ class PluginUtil {
 	}
 
 	/**
-	 * TODO
+	 * Changes document so that modification is added to "Main menu - Edit - Undo/Redo".
+	 * @see #runWriteAction(groovy.lang.Closure)
 	 *
-	 * @param document
-	 * @param callback
+	 * @param callback takes {@link Document}
 	 */
 	@CanCallFromAnyThread
 	static runDocumentWriteAction(@NotNull Project project, Document document = currentDocumentIn(project), Closure callback) {
@@ -425,10 +425,9 @@ class PluginUtil {
 	}
 
 	/**
-	 * TODO
+	 * Transforms selected text in editor or current line if there is no selection.
 	 *
-	 * @param project
-	 * @param transformer
+	 * @param transformer takes selected text as {@link String}; should output new text that will replace selection
 	 */
 	@CanCallFromAnyThread
 	static transformSelectedText(@NotNull Project project, Closure transformer) {
@@ -486,19 +485,15 @@ class PluginUtil {
 		action.value
 	}
 
-	/**
-	 * TODO
-	 *
-	 */
-	static doInBackground(String taskDescription = "", boolean canBeCancelled = true,
+	@CanCallFromAnyThread
+	static doInBackground(String taskDescription = "", boolean canBeCancelledByUser = true,
 	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
 	                      Closure task, Closure whenCancelled = {}, Closure whenDone) {
 		AtomicReference result = new AtomicReference(null)
-		new Task.Backgroundable(null, taskDescription, canBeCancelled, backgroundOption) {
+		new Task.Backgroundable(null, taskDescription, canBeCancelledByUser, backgroundOption) {
 			@Override void run(ProgressIndicator indicator) { result.set(task.call(indicator)) }
 			@Override void onSuccess() { whenDone.call(result.get()) }
 			@Override void onCancel() { whenCancelled.call() }
-
 		}.queue()
 	}
 
