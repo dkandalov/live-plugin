@@ -14,6 +14,7 @@
 package intellijeval;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
@@ -50,7 +51,7 @@ class Evaluator {
 
 		try {
 
-			GroovyClassLoader classLoader = createClassLoaderWithDependencies(mainScriptPath, pluginId, System.getenv());
+			GroovyClassLoader classLoader = createClassLoaderWithDependencies(mainScriptPath, pluginId, pluginEnvironment(mainScriptPath));
 			GroovyScriptEngine scriptEngine = new GroovyScriptEngine("file:///" + path, classLoader);
 			Binding binding = new Binding();
 
@@ -70,6 +71,14 @@ class Evaluator {
 		} catch (Exception e) {
 			errorReporter.addEvaluationException(pluginId, e);
 		}
+	}
+
+	private static Map<String, String> pluginEnvironment(String mainScriptPath) {
+		Map<String, String> result = new HashMap<String, String>(System.getenv());
+		result.put("THIS_SCRIPT", mainScriptPath);
+		result.put("INTELLIJ_PLUGINS_PATH", PathManager.getPluginsPath());
+		result.put("INTELLIJ_LIBS", PathManager.getLibPath());
+		return result;
 	}
 
 	private String findMainScriptIn(String path) {
@@ -96,7 +105,7 @@ class Evaluator {
 			String line;
 			while ((line = inputStream.readLine()) != null) {
 				if (line.startsWith(CLASSPATH_PREFIX)) {
-					String path = line.replace(CLASSPATH_PREFIX, "");
+					String path = line.replace(CLASSPATH_PREFIX, "").trim();
 
 					path = inlineEnvironmentVariables(path, environment);
 					if (!new File(path).exists()) {
@@ -113,14 +122,14 @@ class Evaluator {
 		return classLoader;
 	}
 
-	private static String inlineEnvironmentVariables(String s, Map<String, String> environment) {
+	private static String inlineEnvironmentVariables(String path, Map<String, String> environment) {
 		boolean wasModified = false;
 		for (Map.Entry<String, String> entry : environment.entrySet()) {
-			s = s.replace("$" + entry.getKey(), entry.getValue());
+			path = path.replace("$" + entry.getKey(), entry.getValue());
 			wasModified = true;
 		}
-		if (wasModified) LOG.info("Path with env variables: " + s);
-		return s;
+		if (wasModified) LOG.info("Path with env variables: " + path);
+		return path;
 	}
 
 	private static List<File> allFilesInDirectory(File dir) {
