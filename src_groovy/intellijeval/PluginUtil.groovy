@@ -278,7 +278,9 @@ class PluginUtil {
 	 */
 	@CanOnlyCallFromEDT
 	@Nullable static PsiFile currentPsiFileIn(@NotNull Project project) {
-		PsiManager.getInstance(project).findFile(currentFileIn(project))
+		def file = currentFileIn(project)
+		if (file == null) return null
+		PsiManager.getInstance(project).findFile(file)
 	}
 
 	/**
