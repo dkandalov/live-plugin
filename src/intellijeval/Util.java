@@ -62,7 +62,7 @@ public class Util {
 			LOG.warn("Failed to display console because project was 'null'. Text not shown in console: " + text);
 			return null;
 		}
-		return PluginUtil.showInConsole(text, consoleTitle, project, contentType);
+		return PluginUtil.showInNewConsole(text, consoleTitle, project, contentType);
 	}
 
 	public static void showErrorDialog(Project project, String message, String title) {

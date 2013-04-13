@@ -22,7 +22,6 @@ import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.IconLoader;
 import intellijeval.Util;
 import org.jetbrains.annotations.NotNull;
-import intellijeval.Util;
 
 import javax.swing.*;
 import java.util.ArrayList;
