@@ -374,9 +374,13 @@ public class PluginToolWindowManager {
 
 		private static VirtualFile pluginFolderOf(VirtualFile file) {
 			if (file.getParent() == null) return null;
-			if (!file.getParent().getPath().equals(EvalComponent.pluginsRootPath()))
+
+			File pluginsRoot = new File(EvalComponent.pluginsRootPath());
+			// comparing files because string comparison was observed not work on windows (e.g. "c:/..." and "C:/...")
+			if (!FileUtil.filesEqual(new File(file.getParent().getPath()), pluginsRoot))
 				return pluginFolderOf(file.getParent());
-			return file;
+			else
+				return file;
 		}
 
 		private static AnAction withIcon(Icon icon, AnAction action) {
