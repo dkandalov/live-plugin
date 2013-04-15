@@ -288,7 +288,7 @@ class PluginUtil {
 	 */
 	@CanOnlyCallFromEDT
 	@Nullable static Document currentDocumentIn(@NotNull Project project) {
-		def file = ((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
+		def file = currentFileIn(project)
 		if (file == null) return null
 		FileDocumentManager.instance.getDocument(file)
 	}
