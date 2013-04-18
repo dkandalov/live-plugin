@@ -222,6 +222,56 @@ class PluginUtil {
 	}
 
 	/**
+	 * TODO
+	 * @param actionId
+	 * @return
+	 */
+	static def unwrapAction(String actionId) {
+		ActionManager.instance.with {
+			AnAction wrappedAction = it.getAction(actionId)
+			if (wrappedAction == null) {
+				log("Couldn't unwrap action '${actionId}' because it was not found")
+				return
+			}
+			if (!wrappedAction.hasProperty("originalAction")) {
+				log("Action '${actionId}' is not wrapped")
+				return
+			}
+			it.unregisterAction(actionId)
+			it.registerAction(actionId, wrappedAction.originalAction)
+			log("Unwrapped action '${actionId}'")
+		}
+	}
+
+	/**
+	 * TODO
+	 * @param actionId
+	 * @return
+	 */
+	static def wrapAction(String actionId, Closure closure) {
+		ActionManager.instance.with {
+			AnAction action = it.getAction(actionId)
+			if (action == null) {
+				log("Couldn't wrap action '${actionId}' because it was not found")
+				return
+			}
+
+			AnAction newAction = new AnAction() {
+				AnAction originalAction = action
+
+				@Override void actionPerformed(AnActionEvent event) {
+					closure.call(event, originalAction)
+				}
+			}
+			newAction.copyShortcutFrom(action)
+
+			it.unregisterAction(actionId)
+			it.registerAction(actionId, newAction)
+			log("Wrapped action '${actionId}'")
+		}
+	}
+
+	/**
 	 * Registers a tool window in IDE.
 	 * If there is already a tool window with {@code toolWindowId}, it will be replaced.
 	 *
