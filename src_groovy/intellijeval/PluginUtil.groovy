@@ -595,7 +595,10 @@ class PluginUtil {
 	private static void assignKeyStrokeTo(String actionId, String keyStroke) {
 		def keymap = KeymapManager.instance.activeKeymap
 		keymap.removeAllActionShortcuts(actionId)
-		keymap.addShortcut(actionId, asKeyboardShortcut(keyStroke))
+		def shortcut = asKeyboardShortcut(keyStroke)
+		if (shortcut != null) {
+			keymap.addShortcut(actionId, shortcut)
+		}
 	}
 
 	static def asKeyboardShortcut(String keyStroke) {
