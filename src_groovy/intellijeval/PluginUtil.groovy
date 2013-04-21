@@ -260,7 +260,7 @@ class PluginUtil {
 				AnAction originalAction = action
 
 				@Override void actionPerformed(AnActionEvent event) {
-					closure.call(event, originalAction)
+					closure.call(event, this.originalAction)
 				}
 			}
 			newAction.copyShortcutFrom(action)
