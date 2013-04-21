@@ -223,52 +223,25 @@ class PluginUtil {
 	}
 
 	/**
-	 * TODO
-	 * @param actionId
-	 * @return
+	 * @param actionId id of action to wrap
+	 * @param actionGroupIds (optional) action groups ids in which action is registered;
+	 *        can be used to update actions in menus, etc. (this is needed because action groups reference actions directly)
+	 * @param callback will be invoked instead of existing action; takes {@link AnActionEvent} and original action as parameters
+	 * @return wrapped action or null if there are no actions for {@code actionId}
 	 */
-	static def unwrapAction(String actionId, List<String> actionGroups = []) {
-		ActionManager.instance.with {
-			AnAction wrappedAction = it.getAction(actionId)
-			if (wrappedAction == null) {
-				log("Couldn't unwrap action '${actionId}' because it was not found")
-				return
-			}
-			if (!wrappedAction.hasProperty("originalAction")) {
-				log("Action '${actionId}' is not wrapped")
-				return
-			}
-
-			actionGroups.each {
-				replaceActionInGroup(it, actionId, wrappedAction.originalAction)
-			}
-
-			it.unregisterAction(actionId)
-			it.registerAction(actionId, wrappedAction.originalAction)
-			log("Unwrapped action '${actionId}'")
-
-			wrappedAction.originalAction
-		}
-	}
-
-	/**
-	 * TODO
-	 * @param actionId
-	 * @return
-	 */
-	static def wrapAction(String actionId, List<String> actionGroups = [], Closure closure) {
+	static def wrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
 		ActionManager.instance.with {
 			AnAction action = it.getAction(actionId)
 			if (action == null) {
 				log("Couldn't wrap action '${actionId}' because it was not found")
-				return
+				return null
 			}
 
 			AnAction newAction = new AnAction() {
 				AnAction originalAction = action
 
 				@Override void actionPerformed(AnActionEvent event) {
-					closure.call(event, this.originalAction)
+					callback.call(event, this.originalAction)
 				}
 
 				@Override void update(AnActionEvent event) {
@@ -290,6 +263,36 @@ class PluginUtil {
 			log("Wrapped action '${actionId}'")
 
 			newAction
+		}
+	}
+
+	/**
+	 * @param actionId id of action to unwrap
+	 * @param actionGroupIds (optional) action groups ids in which action is registered;
+	 *        can be used to update actions in menus, etc. (this is needed because action groups reference actions directly)
+	 * @return unwrapped action or null if there are no actions for {@code actionId}
+	 */
+	static def unwrapAction(String actionId, List<String> actionGroupIds = []) {
+		ActionManager.instance.with {
+			AnAction wrappedAction = it.getAction(actionId)
+			if (wrappedAction == null) {
+				log("Couldn't unwrap action '${actionId}' because it was not found")
+				return null
+			}
+			if (!wrappedAction.hasProperty("originalAction")) {
+				log("Action '${actionId}' is not wrapped")
+				return wrappedAction
+			}
+
+			actionGroupIds.each {
+				replaceActionInGroup(it, actionId, wrappedAction.originalAction)
+			}
+
+			it.unregisterAction(actionId)
+			it.registerAction(actionId, wrappedAction.originalAction)
+			log("Unwrapped action '${actionId}'")
+
+			wrappedAction.originalAction
 		}
 	}
 
