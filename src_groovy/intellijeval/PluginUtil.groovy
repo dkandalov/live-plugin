@@ -46,6 +46,7 @@ import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.Computable
+import com.intellij.openapi.util.Pair
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
@@ -226,7 +227,7 @@ class PluginUtil {
 	 * @param actionId
 	 * @return
 	 */
-	static def unwrapAction(String actionId) {
+	static def unwrapAction(String actionId, List<String> actionGroups = []) {
 		ActionManager.instance.with {
 			AnAction wrappedAction = it.getAction(actionId)
 			if (wrappedAction == null) {
@@ -237,9 +238,16 @@ class PluginUtil {
 				log("Action '${actionId}' is not wrapped")
 				return
 			}
+
+			actionGroups.each {
+				replaceActionInGroup(it, actionId, wrappedAction.originalAction)
+			}
+
 			it.unregisterAction(actionId)
 			it.registerAction(actionId, wrappedAction.originalAction)
 			log("Unwrapped action '${actionId}'")
+
+			wrappedAction.originalAction
 		}
 	}
 
@@ -248,7 +256,7 @@ class PluginUtil {
 	 * @param actionId
 	 * @return
 	 */
-	static def wrapAction(String actionId, Closure closure) {
+	static def wrapAction(String actionId, List<String> actionGroups = [], Closure closure) {
 		ActionManager.instance.with {
 			AnAction action = it.getAction(actionId)
 			if (action == null) {
@@ -262,12 +270,26 @@ class PluginUtil {
 				@Override void actionPerformed(AnActionEvent event) {
 					closure.call(event, this.originalAction)
 				}
+
+				@Override void update(AnActionEvent event) {
+					this.originalAction.update(event)
+				}
 			}
+			newAction.templatePresentation.text = action.templatePresentation.text
+			newAction.templatePresentation.icon = action.templatePresentation.icon
+			newAction.templatePresentation.hoveredIcon = action.templatePresentation.hoveredIcon
+			newAction.templatePresentation.description = action.templatePresentation.description
 			newAction.copyShortcutFrom(action)
+
+			actionGroups.each {
+				replaceActionInGroup(it, actionId, newAction)
+			}
 
 			it.unregisterAction(actionId)
 			it.registerAction(actionId, newAction)
 			log("Wrapped action '${actionId}'")
+
+			newAction
 		}
 	}
 
@@ -641,6 +663,37 @@ class PluginUtil {
 	private static asActionId(String globalVarKey) {
 		"IntelliJEval-" + globalVarKey
 	}
+
+	private static replaceActionInGroup(String actionGroupId, String actionId, AnAction newAction) {
+		def group = ActionManager.instance.getAction(actionGroupId)
+		if (!group instanceof DefaultActionGroup) {
+			log("'${actionGroupId}' has type '${actionGroupId.class}' which is not supported")
+			return
+		}
+
+		accessField(group, "mySortedChildren") { List<AnAction> actions ->
+			def actionIndex = actions.findIndexOf {
+				if (it == null) return
+				def id = 	ActionManager.instance.getId(it)
+				id == actionId
+			}
+			if (actionIndex >= 0) {
+				actions.set(actionIndex, newAction)
+			}
+		}
+		accessField(group, "myPairs") { List<Pair<AnAction, Constraints>> pairs ->
+			def pairIndex = pairs.findIndexOf {
+				if (it == null || it.first == null) return
+				def id = 	ActionManager.instance.getId(it.first)
+				id == actionId
+			}
+			if (pairIndex >= 0) {
+				def oldPair = pairs.get(pairIndex)
+				pairs.set(pairIndex, new Pair(newAction, oldPair.second))
+			}
+		}
+	}
+
 
 	static String asString(@Nullable message) {
 		if (message?.getClass()?.isArray()) Arrays.toString(message)
