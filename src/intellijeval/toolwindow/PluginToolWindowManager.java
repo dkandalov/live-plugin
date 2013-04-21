@@ -305,7 +305,13 @@ public class PluginToolWindowManager {
 		}
 
 		private AnAction createSettingsGroup() {
-			DefaultActionGroup actionGroup = new DefaultActionGroup("Settings", true);
+			DefaultActionGroup actionGroup = new DefaultActionGroup("Settings", true) {
+				@Override public boolean disableIfNoVisibleChildren() {
+					// without this IntelliJ calls update() on first action in the group
+					// even if the action group is collapsed
+					return false;
+				}
+			};
 			actionGroup.add(new AddPluginJarAsDependency());
 			actionGroup.add(new AddIDEAJarsAsDependencies());
 			actionGroup.add(new Separator());
