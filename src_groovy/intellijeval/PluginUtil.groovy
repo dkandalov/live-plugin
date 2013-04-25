@@ -460,7 +460,7 @@ class PluginUtil {
 	 * @return result of callback
 	 */
 	@CanCallFromAnyThread
-	static runWriteAction(Closure callback) {
+	static <T> T runWriteAction(Closure callback) {
 		if (SwingUtilities.isEventDispatchThread()) {
 			ApplicationManager.application.runWriteAction(callback as Computable)
 		} else {
@@ -480,7 +480,7 @@ class PluginUtil {
 	 * @return result of callback
 	 */
 	@CanCallFromAnyThread
-	static runReadAction(Closure callback) {
+	static <T> T runReadAction(Closure callback) {
 		ApplicationManager.application.runReadAction(callback as Computable)
 	}
 
@@ -551,8 +551,7 @@ class PluginUtil {
 	}
 
 	@Nullable static <T> T getGlobalVar(String varName, @Nullable initialValue = null) {
-		def action = ActionManager.instance.getAction(asActionId(varName))
-		action == null ? initialValue : action.value
+		changeGlobalVar(varName, initialValue, {it})
 	}
 
 	@Nullable static <T> T removeGlobalVar(String varName) {
