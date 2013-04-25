@@ -14,7 +14,7 @@ How to use:
 <ul>
 <li>open "Plugins" tool window on the right side</li>
 <li>select one of "plugin.groovy" files (these are entry points for plugins)</li>
-<li>use "ctrl + C, ctrl + E" to execute it</li>
+<li>use "alt + C, alt + E" to execute it</li>
 </ul>
 <br/><br/>
 (For more details please see https://github.com/dkandalov/intellij_eval)
