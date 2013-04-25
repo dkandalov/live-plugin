@@ -67,6 +67,7 @@ It might be useful
 
 More examples
 =============
+ - [Remove getters/setters](https://gist.github.com/xhanin/4978948) - removes all setters or getters in a class
  - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622) - micro-plugin to show warning when change list size exceeds threshold
  - [Word Cloud](https://github.com/dkandalov/intellij-wordcloud) - shows world cloud for the selected item (file/package/folder)
  - [Project TreeMap View](https://github.com/dkandalov/project-treemap) - shows project structure (packages/classes) as treemap based on size of classes
