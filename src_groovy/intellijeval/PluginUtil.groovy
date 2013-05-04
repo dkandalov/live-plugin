@@ -564,7 +564,7 @@ class PluginUtil {
 	@CanCallFromAnyThread
 	static doInBackground(String taskDescription = "", boolean canBeCancelledByUser = true,
 	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
-	                      Closure task, Closure whenCancelled = {}, Closure whenDone) {
+	                      Closure task, Closure whenCancelled = {}, Closure whenDone = {}) {
 		AtomicReference result = new AtomicReference(null)
 		new Task.Backgroundable(null, taskDescription, canBeCancelledByUser, backgroundOption) {
 			@Override void run(ProgressIndicator indicator) { result.set(task.call(indicator)) }
