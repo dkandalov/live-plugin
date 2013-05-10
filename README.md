@@ -67,6 +67,7 @@ It might be useful
 
 More examples
 =============
+ - [Symbolize keywords](https://gist.github.com/dkandalov/5553999) - collapses Java keywords into shorter symbols
  - [Remove getters/setters](https://gist.github.com/dkandalov/5476562) - removes all setters or getters in a class
  - [ISO DateTime / Epoch timestamp converter](https://gist.github.com/xhanin/4948901) - converts Epoch time to/from ISO format
  - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622) - micro-plugin to show warning when change list size exceeds threshold
