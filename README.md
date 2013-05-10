@@ -67,6 +67,7 @@ It might be useful
 
 More examples
 =============
+ - [Wrap selected text to column width](https://gist.github.com/dkandalov/5557393) - copy of this plugin https://github.com/abrookins/WrapToColumn
  - [Symbolize keywords](https://gist.github.com/dkandalov/5553999) - collapses Java keywords into shorter symbols
  - [Create .jar patch file for current change list](https://gist.github.com/dkandalov/5502872) - that's what it does
  - [Remove getters/setters](https://gist.github.com/dkandalov/5476562) - removes all setters or getters in a class
