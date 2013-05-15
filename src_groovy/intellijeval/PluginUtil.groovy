@@ -34,6 +34,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.progress.PerformInBackgroundOption
@@ -341,11 +342,31 @@ class PluginUtil {
 	}
 
 	/**
-	 * @return currently open editor; null if there are no open files
+	 * @return currently open editor; null if there are no open editors
 	 */
 	@CanOnlyCallFromEDT
 	@Nullable static Editor currentEditorIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).selectedTextEditor
+	}
+
+	/**
+	 * @return editor which is visible but not active
+	 * (this is the case when windows is split or editor is dragged out of project frame)
+	 *
+	 * It is intended to be used while writing plugin code which modifies content of another open editor.
+	 */
+	@CanOnlyCallFromEDT
+	@NotNull static Editor anotherOpenEditorIn(Project project) {
+		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).with {
+			if (selectedTextEditor == null) throw new IllegalStateException("There are no open editors")
+			def editors = selectedEditors
+					.findAll{it instanceof TextEditor}
+					.collect{(Editor) it.editor}
+					.findAll{it != selectedTextEditor}
+			if (editors.size() == 0) throw new IllegalStateException("There is only one open editor")
+			if (editors.size() > 1) throw new IllegalStateException("There are more than 2 open editors")
+			editors.first()
+		}
 	}
 
 	/**
