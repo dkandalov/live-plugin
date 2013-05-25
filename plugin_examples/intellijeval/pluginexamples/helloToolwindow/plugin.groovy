@@ -10,7 +10,7 @@ static panelWithButton(JPanel panel = new JPanel()) {
 	panel
 }
 
-registerToolWindow("helloToolWindow", panelWithButton())
+registerToolWindow("helloToolWindow") { panelWithButton() }
 
 // To remove the above toolwindow, you can run the following code.
 // (Ideally tool windows should be able to remove themselves.. not done here for simplicity.)

@@ -298,15 +298,15 @@ class PluginUtil {
 	}
 
 	/**
-	 * Registers a tool window in IDE.
+	 * Registers a tool window in all open IDE windows.
 	 * If there is already a tool window with {@code toolWindowId}, it will be replaced.
 	 *
 	 * @param toolWindowId unique identifier for tool window
-	 * @param component content of the tool window
+	 * @param createComponent closure that creates tool window content (will be called for each open project)
 	 * @param location (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/wm/ToolWindowAnchor.java
 	 */
 	@CanOnlyCallFromEDT
-	static registerToolWindow(String toolWindowId, JComponent component, ToolWindowAnchor location = RIGHT) {
+	static registerToolWindow(String toolWindowId, ToolWindowAnchor location = RIGHT, Closure<JComponent> createComponent) {
 		def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
 		if (previousListener != null) {
 			ProjectManager.instance.removeProjectManagerListener(previousListener)
@@ -314,18 +314,21 @@ class PluginUtil {
 		}
 
 		def listener = new ProjectManagerAdapter() {
-			@Override void projectOpened(Project project) { registerToolWindowIn(project, toolWindowId, component) }
+			@Override void projectOpened(Project project) { registerToolWindowIn(project, toolWindowId, createComponent()) }
 			@Override void projectClosed(Project project) { unregisterToolWindowIn(project, toolWindowId) }
 		}
 		pmListenerToToolWindowId[listener] = toolWindowId
 		ProjectManager.instance.addProjectManagerListener(listener)
 
-		ProjectManager.instance.openProjects.each { project -> registerToolWindowIn(project, toolWindowId, component) }
+		ProjectManager.instance.openProjects.each { project -> registerToolWindowIn(project, toolWindowId, createComponent()) }
 
 		log("Toolwindow '${toolWindowId}' registered")
 	}
 
-	@CanOnlyCallFromEDT
+	/**
+	 * Unregisters a tool window from all open IDE windows.
+	 */
+  @CanOnlyCallFromEDT
 	static unregisterToolWindow(String toolWindowId) {
 		def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
 		if (previousListener != null) {
