@@ -70,8 +70,10 @@ import java.util.concurrent.atomic.AtomicReference
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
- *
+ * Contains a bunch of utility methods on top of IntelliJ API.
+ * Some of them might be very simple and exist only because for reference.
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
