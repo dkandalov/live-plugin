@@ -314,22 +314,26 @@ class PluginUtil {
 		}
 
 		def listener = new ProjectManagerAdapter() {
-			@Override void projectOpened(Project project) {
-				registerToolWindowIn(project, toolWindowId, component)
-			}
-
-			@Override void projectClosed(Project project) {
-				unregisterToolWindowIn(project, toolWindowId)
-			}
+			@Override void projectOpened(Project project) { registerToolWindowIn(project, toolWindowId, component) }
+			@Override void projectClosed(Project project) { unregisterToolWindowIn(project, toolWindowId) }
 		}
 		pmListenerToToolWindowId[listener] = toolWindowId
 		ProjectManager.instance.addProjectManagerListener(listener)
 
-		ProjectManager.instance.openProjects.each { project ->
-			registerToolWindowIn(project, toolWindowId, component)
-		}
+		ProjectManager.instance.openProjects.each { project -> registerToolWindowIn(project, toolWindowId, component) }
 
 		log("Toolwindow '${toolWindowId}' registered")
+	}
+
+	@CanOnlyCallFromEDT
+	static unregisterToolWindow(String toolWindowId) {
+		def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
+		if (previousListener != null) {
+			ProjectManager.instance.removeProjectManagerListener(previousListener)
+			pmListenerToToolWindowId.remove(previousListener)
+		}
+
+		ProjectManager.instance.openProjects.each { project -> unregisterToolWindowIn(project, toolWindowId) }
 	}
 
 	/**
@@ -583,7 +587,7 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
-	static doInBackground(String taskDescription = "", boolean canBeCancelledByUser = true,
+	static doInBackground(String taskDescription = "A task", boolean canBeCancelledByUser = true,
 	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
 	                      Closure task, Closure whenCancelled = {}, Closure whenDone = {}) {
 		AtomicReference result = new AtomicReference(null)
@@ -797,7 +801,7 @@ class PluginUtil {
 
 		@Override void actionPerformed(AnActionEvent event) {
 			super.actionPerformed(event)
-			consoleToConsoleTitle.remove(consoleView)
+			consoleToConsoleTitle.remove(consoleView) // TODO (broken) won't be called if project window is closed
 		}
 	}
 

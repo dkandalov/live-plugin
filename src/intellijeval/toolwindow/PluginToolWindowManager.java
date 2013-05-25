@@ -285,7 +285,6 @@ public class PluginToolWindowManager {
 		}
 
 		private JComponent createToolBar() {
-			JPanel toolBarPanel = new JPanel(new GridLayout());
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
 			actionGroup.add(withIcon(Util.ADD_PLUGIN_ICON, createAddPluginsGroup()));
 			actionGroup.add(new DeletePluginAction());
@@ -300,6 +299,8 @@ public class PluginToolWindowManager {
 			// this is a "hack" to force drop-down box appear below button
 			// (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
 			String place = ActionPlaces.EDITOR_TOOLBAR;
+
+			JPanel toolBarPanel = new JPanel(new GridLayout());
 			toolBarPanel.add(ActionManager.getInstance().createActionToolbar(place, actionGroup, true).getComponent());
 			return toolBarPanel;
 		}
