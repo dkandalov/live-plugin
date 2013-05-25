@@ -70,7 +70,6 @@ import java.util.concurrent.atomic.AtomicReference
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only because for reference.
@@ -341,6 +340,23 @@ class PluginUtil {
 		ProjectManager.instance.openProjects.each { project -> unregisterToolWindowIn(project, toolWindowId) }
 	}
 
+	static ToolWindow registerToolWindowIn(Project project, String toolWindowId, JComponent component, ToolWindowAnchor location = RIGHT) {
+		def manager = ToolWindowManager.getInstance(project)
+
+		if (manager.getToolWindow(toolWindowId) != null) {
+			manager.unregisterToolWindow(toolWindowId)
+		}
+
+		def toolWindow = manager.registerToolWindow(toolWindowId, false, location)
+		def content = ContentFactory.SERVICE.instance.createContent(component, "", false)
+		toolWindow.contentManager.addContent(content)
+		toolWindow
+	}
+
+	static unregisterToolWindowIn(Project project, String toolWindowId) {
+		ToolWindowManager.getInstance(project).unregisterToolWindow(toolWindowId)
+	}
+
 	/**
 	 * This method exists for reference only.
 	 * For more dialogs see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/Messages.java
@@ -603,6 +619,8 @@ class PluginUtil {
 		}.queue()
 	}
 
+	// TODO method with input dialog
+
 	static accessField(Object o, String fieldName, Closure callback) {
 		catchingAll {
 			for (field in o.class.declaredFields) {
@@ -655,7 +673,7 @@ class PluginUtil {
 		}
 	}
 
-	static def asKeyboardShortcut(String keyStroke) {
+	static KeyboardShortcut asKeyboardShortcut(String keyStroke) {
 		if (keyStroke.trim().empty) return null
 
 		def firstKeystroke
@@ -668,24 +686,6 @@ class PluginUtil {
 		}
 		if (firstKeystroke == null) throw new IllegalStateException("Invalid keystroke '$keyStroke'")
 		new KeyboardShortcut(firstKeystroke, secondsKeystroke)
-	}
-
-
-	private static ToolWindow registerToolWindowIn(Project project, String id, JComponent component, ToolWindowAnchor location = RIGHT) {
-		def manager = ToolWindowManager.getInstance(project)
-
-		if (manager.getToolWindow(id) != null) {
-			manager.unregisterToolWindow(id)
-		}
-
-		def toolWindow = manager.registerToolWindow(id, false, location)
-		def content = ContentFactory.SERVICE.instance.createContent(component, "", false)
-		toolWindow.contentManager.addContent(content)
-		toolWindow
-	}
-
-	private static unregisterToolWindowIn(Project project, String id) {
-		ToolWindowManager.getInstance(project).unregisterToolWindow(id)
 	}
 
 	private static ConsoleViewContentType guessContentTypeOf(text) {
