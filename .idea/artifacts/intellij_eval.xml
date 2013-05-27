@@ -2,7 +2,7 @@
   <artifact type="jar" build-on-make="true" name="intellij_eval">
     <output-path>$PROJECT_DIR$/</output-path>
     <root id="archive" name="intellij_eval.jar">
-      <element id="module-output" name="intellij_eval" />
+      <element id="module-output" name="live-plugin" />
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
       </element>

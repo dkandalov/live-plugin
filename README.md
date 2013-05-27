@@ -1,4 +1,4 @@
-<img src="https://raw.github.com/dkandalov/intellij_eval/master/toolwindow.png" alt="toolwindow" title="toolwindow" align="right" />
+<img src="https://raw.github.com/dkandalov/live-plugin/master/toolwindow.png" alt="toolwindow" title="toolwindow" align="right" />
 
 What is this?
 =============
@@ -61,7 +61,7 @@ It might be useful
  - to have auto-completion by adding IDEA and IntelliJEval jars to project
    (can be done in "Settings" drop-down at the top of "Plugins" tool window).
  - install Groovy plugin
- - look at [PluginUtil](https://github.com/dkandalov/intellij_eval/blob/master/src_groovy/intellijeval/PluginUtil.groovy) class
+ - look at [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/intellijeval/PluginUtil.groovy) class
  - get [IntelliJ source code](https://github.com/JetBrains/intellij-community)
 
 
@@ -107,5 +107,5 @@ It would be interesting
  - to have nice object tree pattern-matching API for Groovy (can be good for writing inspections/intentions to match/replace syntax tree).
  Or may be there is one and I just don't know about it.
  - use another language (e.g. Scala or Ruby).
- - go meta! Rewrite IntelliJEval as its own plugin. This is really how it was started (loads of fun with classloaders).
+ - go meta! Rewrite this plugin as its own plugin. This is really how it was started (loads of fun with classloaders).
  The old meta-version was too broken to be released and two years later was replaced with this.
