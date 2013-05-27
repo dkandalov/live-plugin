@@ -172,9 +172,16 @@ class PluginUtil {
 		AtomicReference<ConsoleView> result = new AtomicReference(null)
 		UIUtil.invokeAndWaitIfNeeded {
 			ConsoleView console = consoleToConsoleTitle.find{ it.value == consoleTitle }?.key
-			if (console == null) {
+			Project lastProject = projectToConsoleTitle.find{ it.value == consoleTitle }?.key
+
+			if (console == null || lastProject == null || !lastProject.isOpen() || lastProject != project) {
+				consoleToConsoleTitle.remove(console)
+				projectToConsoleTitle.remove(lastProject)
+
 				console = showInNewConsole(message, consoleTitle, project, contentType)
+
 				consoleToConsoleTitle[console] = consoleTitle
+				projectToConsoleTitle[project] = consoleTitle
 			} else {
 				console.print("\n" + asString(message), contentType)
 			}
@@ -619,7 +626,6 @@ class PluginUtil {
 		}.queue()
 	}
 
-	// TODO method with input dialog
 
 	static accessField(Object o, String fieldName, Closure callback) {
 		catchingAll {
@@ -806,17 +812,21 @@ class PluginUtil {
 
 		@Override void actionPerformed(AnActionEvent event) {
 			super.actionPerformed(event)
-			consoleToConsoleTitle.remove(consoleView) // TODO (broken) won't be called if project window is closed
+			def consoleTitle = consoleToConsoleTitle.remove(consoleView)
+			projectToConsoleTitle.remove(projectToConsoleTitle.find{ it.value == consoleTitle }.key)
 		}
 	}
 
 
 	private static final Logger LOG = Logger.getInstance("IntelliJEval")
 
-	// Using WeakHashMap to make unregistering tool window optional
-	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new WeakHashMap()
+	// thread-confined to EDT
+	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new HashMap()
 	// thread-confined to EDT
 	private static final Map<ConsoleView, String> consoleToConsoleTitle = new HashMap()
+	// thread-confined to EDT
+	// use WeakHashMap to avoid hard references to project objects
+	private static final Map<Project, String> projectToConsoleTitle = new WeakHashMap()
 }
 
 @interface CanCallFromAnyThread {}
