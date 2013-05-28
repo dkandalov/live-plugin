@@ -72,7 +72,7 @@ import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BAC
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
- * Some of them might be very simple and exist only because for reference.
+ * Some of them might be very simple and exist only for reference.
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
@@ -209,10 +209,13 @@ class PluginUtil {
 	 */
 	static AnAction registerAction(String actionId, String keyStroke = "",
 	                               String actionGroupId = null, String displayText = actionId, Closure callback) {
-		def action = new AnAction(displayText) {
-			@Override void actionPerformed(AnActionEvent event) { callback.call(event) }
-		}
+		registerAction(actionId, keyStroke, actionGroupId, displayText, new AnAction() {
+			@Override void actionPerformed(AnActionEvent event) { callback(event) }
+		})
+	}
 
+	static AnAction registerAction(String actionId, String keyStroke = "",
+	                               String actionGroupId = null, String displayText = actionId, AnAction action) {
 		def actionManager = ActionManager.instance
 		def actionGroup = findActionGroup(actionGroupId)
 
@@ -699,7 +702,7 @@ class PluginUtil {
 	}
 
 	private static asActionId(String globalVarKey) {
-		"IntelliJEval-" + globalVarKey
+		"LivePlugin-" + globalVarKey
 	}
 
 	private static replaceActionInGroup(String actionGroupId, String actionId, AnAction newAction) {
@@ -818,7 +821,7 @@ class PluginUtil {
 	}
 
 
-	private static final Logger LOG = Logger.getInstance("IntelliJEval")
+	private static final Logger LOG = Logger.getInstance("LivePlugin")
 
 	// thread-confined to EDT
 	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new HashMap()

@@ -223,7 +223,7 @@ public class PluginToolWindowManager {
 			AnAction action = new NewElementPopupAction();
 			action.registerCustomShortcutSet(new CustomShortcutSet(shortcutsOf("NewElement")), fsTree.getTree());
 
-			CustomizationUtil.installPopupHandler(fsTree.getTree(), "IntelliJEval.Popup", ActionPlaces.UNKNOWN);
+			CustomizationUtil.installPopupHandler(fsTree.getTree(), "LivePlugin.Popup", ActionPlaces.UNKNOWN);
 		}
 
 		private static Shortcut[] shortcutsOf(String actionId) {
@@ -749,7 +749,7 @@ public class PluginToolWindowManager {
 
 	private static class RunAllPluginsOnIDEStartAction extends ToggleAction {
 		public RunAllPluginsOnIDEStartAction() {
-			super("Run All Plugins on IDE Start");
+			super("Run All Live Plugins on IDE Start");
 		}
 
 		@Override public boolean isSelected(AnActionEvent event) {
@@ -762,17 +762,17 @@ public class PluginToolWindowManager {
 	}
 
 	private static class AddPluginJarAsDependency extends AnAction {
-		private static final String INTELLIJ_EVAL_LIBRARY = "IntelliJEval";
+		private static final String LIVE_PLUGIN_LIBRARY = "LivePlugin";
 
 		@Override public void actionPerformed(AnActionEvent event) {
 			Project project = event.getProject();
 			if (project == null) return;
 
-			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, INTELLIJ_EVAL_LIBRARY)) {
-				DependenciesUtil.removeLibraryDependencyFrom(project, INTELLIJ_EVAL_LIBRARY);
+			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
+				DependenciesUtil.removeLibraryDependencyFrom(project, LIVE_PLUGIN_LIBRARY);
 			} else {
 				//noinspection unchecked
-				DependenciesUtil.addLibraryDependencyTo(project, INTELLIJ_EVAL_LIBRARY, Arrays.asList(
+				DependenciesUtil.addLibraryDependencyTo(project, LIVE_PLUGIN_LIBRARY, Arrays.asList(
 						Pair.create(findPathToMyClasses(), CLASSES),
 						Pair.create(findPathToMyClasses() + "src/", SOURCES)
 				));
@@ -794,12 +794,12 @@ public class PluginToolWindowManager {
 			Project project = event.getProject();
 			if (project == null) return;
 
-			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, INTELLIJ_EVAL_LIBRARY)) {
-				event.getPresentation().setText("Remove IntelliJEval Jar from Project");
-				event.getPresentation().setDescription("Remove IntelliJEval jar from project dependencies");
+			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
+				event.getPresentation().setText("Remove LivePlugin Jar from Project");
+				event.getPresentation().setDescription("Remove LivePlugin jar from project dependencies");
 			} else {
-				event.getPresentation().setText("Add IntelliJEval Jar to Project");
-				event.getPresentation().setDescription("Add IntelliJEval jar to project dependencies");
+				event.getPresentation().setText("Add LivePlugin Jar to Project");
+				event.getPresentation().setDescription("Add LivePlugin jar to project dependencies");
 			}
 		}
 
@@ -983,7 +983,7 @@ public class PluginToolWindowManager {
 						}
 					});
 				}
-			}, actionName, "IntelliJEval");
+			}, actionName, "LivePlugin");
 
 			if (exception[0] != null) throw exception[0];
 		}
