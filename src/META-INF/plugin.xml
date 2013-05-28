@@ -17,7 +17,7 @@ How to use:
 <li>use "alt + C, alt + E" to execute it</li>
 </ul>
 <br/><br/>
-(For more details please see https://github.com/dkandalov/live-plugin
+(For more details see https://github.com/dkandalov/live-plugin)
 </body></html>
 		]]>
 	</description>
@@ -38,7 +38,7 @@ How to use:
 
         <group id="LivePlugin.Popup.MainActions">
             <action id="LivePlugin.NewFileAction" class="intellijeval.toolwindow.NewFileAction"
-                    text="New Groovy Script" icon="/ru/intellijeval/toolwindow/groovy_fileType.png"/>
+                    text="New Groovy Script" icon="/intellijeval/toolwindow/groovy_fileType.png"/>
             <action id="LivePlugin.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
                     text="New Directory" icon="/nodes/folder.png"/>
             <action id="LivePlugin.RenameFileAction" class="intellijeval.toolwindow.RenameFileAction" text="Rename"
