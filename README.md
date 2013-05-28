@@ -1,21 +1,18 @@
 <img src="https://raw.github.com/dkandalov/live-plugin/master/toolwindow.png" alt="toolwindow" title="toolwindow" align="right" />
 
-What is this?
-=============
+### What is this?
 
 This is experimental IntelliJ IDEA plugin for writing plugins in Groovy at runtime<br/>
 (or running Groovy code inside IntelliJ).
 
 
-Why?
-====
+### Why?
  - it should be possible to write a simple plugin without setting up new project
  - plugins source code should be easily available and editable
  - time between writing code and seeing how it works should be short
 
 
-Example plugin
-===============
+### Example plugin
 ```groovy
 import com.intellij.openapi.actionSystem.AnActionEvent
 import static intellijeval.PluginUtil.*
@@ -42,22 +39,19 @@ show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
 ```
 
 
-How to install
-===============
+### How to install
 Through IntelliJ plugin manager. Search for "eval".
 (Just in case this is the [plugin page](http://plugins.jetbrains.com/plugin?pr=idea&pluginId=7173).)
 
 
-How to start
-=============
+### How to start
  - open "Plugins" tool window on the right side
  - select "helloWorld" plugin and press "alt + C, alt + E" to execute it
    ("plugin.groovy" are plugin entry points)
  - add plugin examples and experiment with them
 
 
-It might be useful
-==================
+### It might be useful
  - to have auto-completion by adding IDEA and IntelliJEval jars to project
    (can be done in "Settings" drop-down at the top of "Plugins" tool window).
  - install Groovy plugin
@@ -65,8 +59,7 @@ It might be useful
  - get [IntelliJ source code](https://github.com/JetBrains/intellij-community)
 
 
-More examples
-=============
+### More examples
  - [Wrap selected text to column width](https://gist.github.com/dkandalov/5557393) - copy of this plugin https://github.com/abrookins/WrapToColumn
  - [Symbolize keywords](https://gist.github.com/dkandalov/5553999) - collapses Java keywords into shorter symbols
  - [Create .jar patch file for current change list](https://gist.github.com/dkandalov/5502872) - that's what it does
@@ -82,8 +75,7 @@ More examples
  - [Evaluate selection as Groovy](https://gist.github.com/dkandalov/5024580) - that's exactly what it does
 
 
-Under the hood
-===============
+### Under the hood
  - this is essentially a host plugin for other plugins
  - each plugin is evaluated with its own classloader using GroovyScriptEngine
  - it uses Groovy bundled with IntelliJ (v1.8.5 at the moment)
@@ -92,8 +84,7 @@ Under the hood
 You can also use standard "ctrl + shift + C" shortcut to copy file/folder path.
 
 
-Similar plugins
-===============
+### Similar plugins
 The idea of running code inside IntelliJ is not original. There are similar plugins:
  - [PMIP - Poor Mans IDE Plugin](http://plugins.intellij.net/plugin/?idea&pluginId=4571) (it's for Ruby)
  - [Remote Groovy Console](http://plugins.intellij.net/plugin/?id=5373)
@@ -102,8 +93,7 @@ The idea of running code inside IntelliJ is not original. There are similar plug
  - [HotPlugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=1020) (probably outdated)
 
 
-It would be interesting
-=======================
+### It would be interesting
  - to have nice object tree pattern-matching API for Groovy (can be good for writing inspections/intentions to match/replace syntax tree).
  Or may be there is one and I just don't know about it.
  - use another language (e.g. Scala or Ruby).
