@@ -1,7 +1,7 @@
 import com.intellij.openapi.actionSystem.AnActionEvent
 import static intellijeval.PluginUtil.*
 
-// To run a plugin you can press "Run plugin" button or use "ctrl+C, ctrl+E" shortcut.
+// To run a plugin you can press "Run plugin" button or use "alt+C, alt+E" shortcut.
 // This will try to run plugin which you currently edit (determined by opened editor)
 // otherwise plugin selected in plugin tree will be run.
 
