@@ -146,7 +146,7 @@ class PluginUtil {
 			}
 			Executor executor = DefaultRunExecutor.runExecutorInstance
 
-			toolbarActions.add(new ConsoleCloseAction(console, executor, descriptor, project))
+			toolbarActions.add(new CloseAction(console, executor, descriptor, project))
 			console.createConsoleActions().each{ toolbarActions.add(it) }
 
 			ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
@@ -156,38 +156,12 @@ class PluginUtil {
 	}
 
 	/**
-	 * Opens "Run" console tool window with {@code text} in it.
-	 * If console with the same {@code consoleTitle} already exists, the text is appended to it.
-	 *
-	 * (The only reason to use "Run" console is because it's convenient for showing multi-line text.)
-	 *
-	 * @param message text or exception to show
-	 * @param consoleTitle (optional)
-	 * @param project console will be displayed in the window of this project
-	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
+	 * Same as {@link #showInNewConsole(java.lang.Object, com.intellij.openapi.project.Project)}
 	 */
 	@CanCallFromAnyThread
 	static ConsoleView showInConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
 	                                 ConsoleViewContentType contentType = guessContentTypeOf(message)) {
-		AtomicReference<ConsoleView> result = new AtomicReference(null)
-		UIUtil.invokeAndWaitIfNeeded {
-			ConsoleView console = consoleToConsoleTitle.find{ it.value == consoleTitle }?.key
-			Project lastProject = projectToConsoleTitle.find{ it.value == consoleTitle }?.key
-
-			if (console == null || lastProject == null || !lastProject.isOpen() || lastProject != project) {
-				consoleToConsoleTitle.remove(console)
-				projectToConsoleTitle.remove(lastProject)
-
-				console = showInNewConsole(message, consoleTitle, project, contentType)
-
-				consoleToConsoleTitle[console] = consoleTitle
-				projectToConsoleTitle[project] = consoleTitle
-			} else {
-				console.print("\n" + asString(message), contentType)
-			}
-			result.set(console)
-		}
-		result.get()
+		showInNewConsole(message, consoleTitle, project, contentType)
 	}
 
 	/**
@@ -804,32 +778,10 @@ class PluginUtil {
 		}
 	}
 
-	// Can't use anonymous class because of ClassCastException like in this bug http://jira.codehaus.org/browse/GROOVY-5101
-	private static class ConsoleCloseAction extends CloseAction {
-		private final ConsoleView consoleView
-
-		ConsoleCloseAction(ConsoleView consoleView, Executor executor, RunContentDescriptor contentDescriptor, Project project) {
-			super(executor, contentDescriptor, project)
-			this.consoleView = consoleView
-		}
-
-		@Override void actionPerformed(AnActionEvent event) {
-			super.actionPerformed(event)
-			def consoleTitle = consoleToConsoleTitle.remove(consoleView)
-			projectToConsoleTitle.remove(projectToConsoleTitle.find{ it.value == consoleTitle }.key)
-		}
-	}
-
-
 	private static final Logger LOG = Logger.getInstance("LivePlugin")
 
 	// thread-confined to EDT
 	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new HashMap()
-	// thread-confined to EDT
-	private static final Map<ConsoleView, String> consoleToConsoleTitle = new HashMap()
-	// thread-confined to EDT
-	// use WeakHashMap to avoid hard references to project objects
-	private static final Map<Project, String> projectToConsoleTitle = new WeakHashMap()
 }
 
 @interface CanCallFromAnyThread {}
