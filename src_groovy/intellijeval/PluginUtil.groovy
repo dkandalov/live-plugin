@@ -146,7 +146,7 @@ class PluginUtil {
 			}
 			Executor executor = DefaultRunExecutor.runExecutorInstance
 
-			toolbarActions.add(new CloseAction(console, executor, descriptor, project))
+			toolbarActions.add(new CloseAction(executor, descriptor, project))
 			console.createConsoleActions().each{ toolbarActions.add(it) }
 
 			ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
