@@ -15,7 +15,7 @@ package liveplugin.toolwindow;
 
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.codeInsight.daemon.impl.analysis.FileHighlighingSetting;
+import com.intellij.codeInsight.daemon.impl.analysis.FileHighlightingSetting;
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil;
 import com.intellij.ide.DefaultTreeExpander;
 import com.intellij.ide.DeleteProvider;
@@ -1015,7 +1015,7 @@ public class PluginToolWindowManager {
 
 			for (Language language : languages) {
 				PsiElement root = viewProvider.getPsi(language);
-				HighlightLevelUtil.forceRootHighlighting(root, FileHighlighingSetting.SKIP_HIGHLIGHTING);
+				HighlightLevelUtil.forceRootHighlighting(root, FileHighlightingSetting.SKIP_HIGHLIGHTING);
 			}
 			DaemonCodeAnalyzer analyzer = DaemonCodeAnalyzer.getInstance(psiFile.getProject());
 			analyzer.restart();
