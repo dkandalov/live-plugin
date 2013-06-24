@@ -119,6 +119,7 @@ class PluginUtil {
 		} as Runnable)
 	}
 
+
 	/**
 	 * Opens new "Run" console tool window with {@code text} in it.
 	 *
@@ -128,8 +129,8 @@ class PluginUtil {
 	 * @param contentType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/execution/ui/ConsoleViewContentType.java
 	 */
 	@CanCallFromAnyThread
-	static ConsoleView showInNewConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
-	                                    ConsoleViewContentType contentType = guessContentTypeOf(message)) {
+	static ConsoleView showInConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
+	                                 ConsoleViewContentType contentType = guessContentTypeOf(message)) {
 		AtomicReference<ConsoleView> result = new AtomicReference(null)
 		// Use reference for consoleTitle because get groovy Reference class like in this bug http://jira.codehaus.org/browse/GROOVY-5101
 		AtomicReference<String> titleRef = new AtomicReference(consoleTitle)
@@ -155,13 +156,11 @@ class PluginUtil {
 		result.get()
 	}
 
-	/**
-	 * Same as {@link #showInNewConsole(java.lang.Object, com.intellij.openapi.project.Project)}
-	 */
+	@Deprecated // please use showInConsole() instead (it was a bad idea to have two methods)
 	@CanCallFromAnyThread
-	static ConsoleView showInConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
-	                                 ConsoleViewContentType contentType = guessContentTypeOf(message)) {
-		showInNewConsole(message, consoleTitle, project, contentType)
+	static ConsoleView showInNewConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
+	                                    ConsoleViewContentType contentType = guessContentTypeOf(message)) {
+		showInConsole(message, consoleTitle, project, contentType)
 	}
 
 	/**
