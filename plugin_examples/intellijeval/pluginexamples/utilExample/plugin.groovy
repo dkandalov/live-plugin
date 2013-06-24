@@ -3,7 +3,7 @@ import util.AClass
 import static intellijeval.PluginUtil.*
 
 // For more util methods see
-// https://github.com/dkandalov/intellij_eval/blob/master/src_groovy/ru/intellijeval/PluginUtil.groovy
+// https://github.com/dkandalov/live-plugin/blob/master/src_groovy/intellijeval/PluginUtil.groovy
 
 // log message in "Event Log"
 log("Hello IntelliJ")
