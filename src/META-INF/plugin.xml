@@ -27,21 +27,21 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
 
 	<application-components>
 		<component>
-			<implementation-class>intellijeval.EvalComponent</implementation-class>
+			<implementation-class>liveplugin.EvalComponent</implementation-class>
 		</component>
 	</application-components>
 
 	<actions>
-		<action id="LivePlugin.EvalPlugin" class="intellijeval.EvaluatePluginAction" text="Run Current Plugin">
+		<action id="LivePlugin.EvalPlugin" class="liveplugin.EvaluatePluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 		</action>
 
         <group id="LivePlugin.Popup.MainActions">
-            <action id="LivePlugin.NewFileAction" class="intellijeval.toolwindow.NewFileAction"
-                    text="New Groovy Script" icon="/intellijeval/toolwindow/groovy_fileType.png"/>
+            <action id="LivePlugin.NewFileAction" class="liveplugin.toolwindow.NewFileAction"
+                    text="New Groovy Script" icon="/liveplugin/toolwindow/groovy_fileType.png"/>
             <action id="LivePlugin.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
                     text="New Directory" icon="/nodes/folder.png"/>
-            <action id="LivePlugin.RenameFileAction" class="intellijeval.toolwindow.RenameFileAction" text="Rename"
+            <action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.RenameFileAction" text="Rename"
                     use-shortcut-of="RenameElement"/>
         </group>
         <group id="LivePlugin.Popup">
@@ -52,7 +52,7 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceInterface="intellijeval.Settings" serviceImplementation="intellijeval.Settings"/>
+        <applicationService serviceInterface="liveplugin.Settings" serviceImplementation="liveplugin.Settings"/>
     </extensions>
 
 </idea-plugin>

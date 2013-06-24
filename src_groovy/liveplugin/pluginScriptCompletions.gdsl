@@ -1,0 +1,14 @@
+package liveplugin
+/**
+ * User: jason
+ * Date: 2/5/13
+ */
+
+def ctx = context(scope: scriptScope(),pathRegexp:'.*plugin\\.groovy$')
+
+contributor(ctx) {
+    property name: 'event', type: 'com.intellij.openapi.actionSystem.AnActionEvent'
+    property name: 'project', type: 'com.intellij.openapi.project.Project'
+    property name: 'isIdeStartup', type: Boolean.name
+    property name: 'pluginPath', type: String.name
+}

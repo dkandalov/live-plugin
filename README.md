@@ -15,7 +15,7 @@ This is experimental IntelliJ IDEA plugin for writing plugins in Groovy at runti
 ### Example plugin
 ```groovy
 import com.intellij.openapi.actionSystem.AnActionEvent
-import static intellijeval.PluginUtil.*
+import static liveplugin.PluginUtil.*
 
 // This action inserts new line above current line.
 // It's a follow-up for these posts:
@@ -55,7 +55,7 @@ Through IntelliJ plugin manager. Search for "eval".
  - to have auto-completion by adding IDEA and IntelliJEval jars to project
    (can be done in "Settings" drop-down at the top of "Plugins" tool window).
  - install Groovy plugin
- - look at [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/intellijeval/PluginUtil.groovy) class
+ - look at [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy) class
  - get [IntelliJ source code](https://github.com/JetBrains/intellij-community)
 
 
