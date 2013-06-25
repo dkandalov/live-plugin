@@ -778,7 +778,6 @@ class PluginUtil {
 		}
 	}
 
-	static final NotificationGroup NOTIFICATION_GROUP = NotificationGroup.balloonGroup("Live Plugin");
 	static final Logger LOG = Logger.getInstance("LivePlugin")
 
 	// thread-confined to EDT

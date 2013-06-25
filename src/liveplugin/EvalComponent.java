@@ -14,6 +14,7 @@
 package liveplugin;
 
 import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -181,7 +182,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 				}
 			};
 
-			PluginUtil.getNOTIFICATION_GROUP().createNotification(
+			NotificationGroup.balloonGroup("Live Plugin Migration").createNotification(
 					"Detected plugins for IntelliJEval.",
 					"<a href=\"\">Migrate plugins.</a> This includes replacing 'intellijeval' with 'liveplugin' package name in imports.",
 					NotificationType.INFORMATION,
