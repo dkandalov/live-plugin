@@ -23,6 +23,7 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.notification.Notification
+import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.*
@@ -777,7 +778,8 @@ class PluginUtil {
 		}
 	}
 
-	private static final Logger LOG = Logger.getInstance("LivePlugin")
+	static final NotificationGroup NOTIFICATION_GROUP = NotificationGroup.balloonGroup("Live Plugin");
+	static final Logger LOG = Logger.getInstance("LivePlugin")
 
 	// thread-confined to EDT
 	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new HashMap()

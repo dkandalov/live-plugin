@@ -79,8 +79,8 @@ Through IntelliJ plugin manager. Search for "eval".
  - this is essentially a host plugin for other plugins
  - each plugin is evaluated with its own classloader using GroovyScriptEngine
  - it uses Groovy bundled with IntelliJ (v1.8.5 at the moment)
- - plugins are stored in "$HOME/.$INTELLIJ_VERSION/config/intellij-eval-plugins"
-(on Mac "$HOME/Library/Application Support/IntelliJIdea12/intellij-eval-plugins").
+ - plugins are stored in "$HOME/.$INTELLIJ_VERSION/config/live-plugins"
+(on Mac "$HOME/Library/Application Support/IntelliJIdea12/live-plugins").
 You can also use standard "ctrl + shift + C" shortcut to copy file/folder path.
 
 

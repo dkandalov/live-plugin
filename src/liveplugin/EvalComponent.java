@@ -13,6 +13,9 @@
  */
 package liveplugin;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationListener;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -21,25 +24,29 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.event.HyperlinkEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
-import static com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName;
-import static liveplugin.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
+import static com.intellij.openapi.util.io.FileUtil.toSystemIndependentName;
+import static com.intellij.openapi.vfs.VfsUtilCore.pathToUrl;
 import static java.util.Arrays.asList;
+import static liveplugin.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
 
-/**
- * @author DKandalov
- */
 public class EvalComponent implements ApplicationComponent { // TODO implement DumbAware?
 	private static final Logger LOG = Logger.getInstance(EvalComponent.class);
 
@@ -50,9 +57,13 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	private static final String DEFAULT_PLUGIN_SCRIPT = "default-plugin.groovy";
 
 	private static final String DEFAULT_IDEA_OUTPUT_FOLDER = "out";
+	private static final String COMPONENT_NAME = "LivePluginComponent";
 
 	public static String pluginsRootPath() {
-		return toSystemIndependentName(PathManager.getPluginsPath() + "/intellij-eval-plugins");
+		return FileUtilRt.toSystemIndependentName(PathManager.getPluginsPath() + "/live-plugins");
+	}
+	private static String oldPluginsRootPath() {
+		return FileUtilRt.toSystemIndependentName(PathManager.getPluginsPath() + "/intellij-eval-plugins");
 	}
 
 	public static Map<String, String> pluginIdToPathMap() {
@@ -70,7 +81,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 
 		HashMap<String, String> result = new HashMap<String, String>();
 		for (File file : files) {
-			result.put(file.getName(), toSystemIndependentName(file.getAbsolutePath()));
+			result.put(file.getName(), FileUtilRt.toSystemIndependentName(file.getAbsolutePath()));
 		}
 		return result;
 	}
@@ -110,6 +121,13 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 			installHelloWorldPlugin();
 			settings.justInstalled = false;
 		}
+		if (new File(oldPluginsRootPath()).exists()) {
+			Migration.askIfUserWantsToMigrate(new Runnable() {
+				@Override public void run() {
+					Migration.migrateOldPlugins();
+				}
+			});
+		}
 		if (settings.runAllPluginsOnIDEStartup) {
 			runAllPlugins();
 		}
@@ -145,9 +163,69 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	@Override public void disposeComponent() {
 	}
 
-	@Override
-	@NotNull
-	public String getComponentName() {
-		return "EvalComponent";
+	@Override @NotNull public String getComponentName() {
+		return COMPONENT_NAME;
+	}
+
+	private static class Migration {
+		private static final String OLD_STATIC_IMPORT = "import static intellijeval";
+		private static final String OLD_IMPORT = "import intellijeval";
+		private static final String NEW_STATIC_IMPORT = "import static liveplugin";
+		private static final String NEW_IMPORT = "import liveplugin";
+
+		public static void askIfUserWantsToMigrate(final Runnable migrationCallback) {
+			NotificationListener listener = new NotificationListener() {
+				@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
+					migrationCallback.run();
+					notification.expire();
+				}
+			};
+
+			PluginUtil.getNOTIFICATION_GROUP().createNotification(
+					"Detected plugins for IntelliJEval.",
+					"<a href=\"\">Migrate plugins.</a> This includes replacing 'intellijeval' with 'liveplugin' package name in imports.",
+					NotificationType.INFORMATION,
+					listener
+			).notify(null);
+		}
+
+		public static void migrateOldPlugins() {
+			try {
+				FileUtil.rename(new File(oldPluginsRootPath()), new File(pluginsRootPath()));
+				for (File file : allFilesInDirectory(new File(pluginsRootPath()))) {
+					migrate(file);
+				}
+			} catch (IOException e) {
+				LOG.error("Error while migrating old plugins", e);
+			}
+		}
+
+		private static void migrate(File file) throws IOException {
+			String text = FileUtil.loadFile(file);
+			if (text.contains(OLD_STATIC_IMPORT) || text.contains(OLD_IMPORT)) {
+				String[] lines = text.split("\n");
+				for (int i = 0; i < lines.length; i++) {
+					lines[i] = lines[i].replace(OLD_STATIC_IMPORT, NEW_STATIC_IMPORT).replace(OLD_IMPORT, NEW_IMPORT);
+				}
+				FileUtil.writeToFile(file, StringUtil.join(lines, "\n"));
+
+				VirtualFileManager.getInstance().refreshAndFindFileByUrl(pathToUrl(toSystemIndependentName(pluginsRootPath())));
+			}
+		}
+
+		private static List<File> allFilesInDirectory(File dir) {
+			LinkedList<File> result = new LinkedList<File>();
+			File[] files = dir.listFiles();
+			if (files == null) return result;
+
+			for (File file : files) {
+				if (file.isFile()) {
+					result.add(file);
+				} else if (file.isDirectory()) {
+					result.addAll(allFilesInDirectory(file));
+				}
+			}
+			return result;
+		}
 	}
 }

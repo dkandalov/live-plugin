@@ -20,11 +20,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * User: dima
- * Date: 25/08/2012
- */
-@State(name = "IntellijEvalSettings", storages = {@Storage(id = "other", file = "$APP_CONFIG$/intellij-eval.xml")})
+@State(name = "LivePluginSettings", storages = {@Storage(id = "other", file = "$APP_CONFIG$/live-plugin.xml")})
 public class Settings implements PersistentStateComponent<Settings> {
 	public boolean justInstalled = true;
 	public boolean runAllPluginsOnIDEStartup = false;
