@@ -1015,13 +1015,13 @@ public class PluginToolWindowManager {
 
 			for (Language language : languages) {
 				PsiElement root = viewProvider.getPsi(language);
-				forceRootHighlighting_IJ12_IJ13_compatibility_workaround(root);
+				skipHighlighting_IJ12_IJ13_compatibility_workaround(root);
 			}
 			DaemonCodeAnalyzer analyzer = DaemonCodeAnalyzer.getInstance(psiFile.getProject());
 			analyzer.restart();
 		}
 
-		private static void forceRootHighlighting_IJ12_IJ13_compatibility_workaround(PsiElement psiElement) {
+		private static void skipHighlighting_IJ12_IJ13_compatibility_workaround(PsiElement psiElement) {
 			try {
 				Class enumClass;
 				try {
