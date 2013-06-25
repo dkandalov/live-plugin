@@ -15,7 +15,6 @@ package intellijeval.toolwindow;
 
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.codeInsight.daemon.impl.analysis.FileHighlighingSetting;
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil;
 import com.intellij.ide.DefaultTreeExpander;
 import com.intellij.ide.DeleteProvider;
@@ -92,6 +91,7 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -1015,10 +1015,26 @@ public class PluginToolWindowManager {
 
 			for (Language language : languages) {
 				PsiElement root = viewProvider.getPsi(language);
-				HighlightLevelUtil.forceRootHighlighting(root, FileHighlighingSetting.SKIP_HIGHLIGHTING);
+				skipHighlighting_IJ12_IJ13_compatibility_workaround(root);
 			}
 			DaemonCodeAnalyzer analyzer = DaemonCodeAnalyzer.getInstance(psiFile.getProject());
 			analyzer.restart();
+		}
+
+		private static void skipHighlighting_IJ12_IJ13_compatibility_workaround(PsiElement psiElement) {
+			try {
+				Class enumClass;
+				try {
+					enumClass = Class.forName("com.intellij.codeInsight.daemon.impl.analysis.FileHighlightingSetting");
+				} catch (ClassNotFoundException e) {
+					enumClass = Class.forName("com.intellij.codeInsight.daemon.impl.analysis.FileHighlighingSetting");
+				}
+				Enum skipHighlighting = Enum.valueOf(enumClass, "SKIP_HIGHLIGHTING");
+				Method method = HighlightLevelUtil.class.getMethod("forceRootHighlighting", PsiElement.class, enumClass);
+				method.invoke(null, psiElement, skipHighlighting);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
