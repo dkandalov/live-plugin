@@ -23,7 +23,6 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.notification.Notification
-import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.*
@@ -365,15 +364,15 @@ class PluginUtil {
 	 * It is intended to be used while writing plugin code which modifies content of another open editor.
 	 */
 	@CanOnlyCallFromEDT
-	@NotNull static Editor anotherOpenEditorIn(Project project) {
+	@NotNull static Editor anotherOpenEditorIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).with {
-			if (selectedTextEditor == null) throw new IllegalStateException("There are no open editors")
+			if (selectedTextEditor == null) throw new IllegalStateException("There are no open editors in " + project.name)
 			def editors = selectedEditors
 					.findAll{it instanceof TextEditor}
 					.collect{(Editor) it.editor}
 					.findAll{it != selectedTextEditor}
-			if (editors.size() == 0) throw new IllegalStateException("There is only one open editor")
-			if (editors.size() > 1) throw new IllegalStateException("There are more than 2 open editors")
+			if (editors.size() == 0) throw new IllegalStateException("There is only one open editor in " + project.name)
+			if (editors.size() > 1) throw new IllegalStateException("There are more than 2 open editors in " + project.name)
 			editors.first()
 		}
 	}
