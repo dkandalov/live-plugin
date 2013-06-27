@@ -22,13 +22,17 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.util.download.DownloadableFileDescription;
+import com.intellij.util.download.DownloadableFileService;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -178,16 +182,31 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 		} catch (ClassNotFoundException ignored) {
 			found = false;
 		}
+		if (found) return;
 
-		if (!found) {
-			NotificationGroup.balloonGroup("Live Plugin").createNotification(
-					"LivePlugin didn't find Groovy on classpath.",
-					"Without it plugins won't work. It should be possible to fix this problem<br/> " +
-							"by copying groovy-all.jar to '" + PathManager.getLibPath() + "'",
-					NotificationType.WARNING,
-					null
-			).notify(null);
-		}
+		NotificationListener listener = new NotificationListener() {
+			@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
+				DownloadableFileService service = DownloadableFileService.getInstance();
+				String fileName = "groovy-all-2.0.6.jar";
+				DownloadableFileDescription description = service.createFileDescription(
+						"http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/" + fileName, fileName);
+				service.createDownloader(asList(description), null, null, fileName)
+						.toDirectory(PathManager.getLibPath()).download();
+
+				notification.expire();
+
+				if (Messages.showOkCancelDialog("You must restart the IDE to changes take effect. Restart now?",
+						"Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon()) == Messages.OK) {
+					ApplicationManagerEx.getApplicationEx().restart(true);
+				}
+			}
+		};
+		NotificationGroup.balloonGroup("Live Plugin").createNotification(
+				"LivePlugin didn't find Groovy on classpath",
+				"Without it plugins won't work. <a href=\"\">Download groovy-all.jar</a> to '" + PathManager.getLibPath() + "'",
+				NotificationType.WARNING,
+				listener
+		).notify(null);
 	}
 
 	private static class Migration {
@@ -205,7 +224,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 			};
 
 			NotificationGroup.balloonGroup("Live Plugin Migration").createNotification(
-					"Detected plugins for IntelliJEval.",
+					"Detected plugins for IntelliJEval",
 					"<a href=\"\">Migrate plugins.</a> This includes replacing 'intellijeval' with 'liveplugin' package name in imports.",
 					NotificationType.INFORMATION,
 					listener
