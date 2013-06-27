@@ -31,10 +31,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * User: dima
- * Date: 16/08/2012
- */
 public class EvaluatePluginAction extends AnAction {
 	public EvaluatePluginAction() {
 		super("Run Plugin", "Run selected plugins", Util.EVAL_ICON);
@@ -56,7 +52,7 @@ public class EvaluatePluginAction extends AnAction {
 
 	static void evaluatePlugins(Collection<String> pluginIds, AnActionEvent event) {
 		EvalErrorReporter errorReporter = new EvalErrorReporter();
-		Evaluator evaluator = new Evaluator(errorReporter);
+		Evaluator evaluator = new GroovyEvaluator(errorReporter);
 
 		for (String pluginId : pluginIds) {
 			String path = EvalComponent.pluginIdToPathMap().get(pluginId);

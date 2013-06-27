@@ -148,7 +148,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 				AnActionEvent event = new AnActionEvent(
 						null,
 						Util.DUMMY_DATA_CONTEXT,
-						Evaluator.RUN_ALL_PLUGINS_ON_IDE_START,
+						Evaluator.IDE_STARTUP,
 						new Presentation(),
 						ActionManager.getInstance(),
 						0
