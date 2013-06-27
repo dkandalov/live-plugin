@@ -117,6 +117,8 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	}
 
 	@Override public void initComponent() {
+		checkGroovyLibsAreOnClasspath();
+
 		Settings settings = Settings.getInstance();
 		if (settings.justInstalled) {
 			installHelloWorldPlugin();
@@ -166,6 +168,26 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 
 	@Override @NotNull public String getComponentName() {
 		return COMPONENT_NAME;
+	}
+
+	private static void checkGroovyLibsAreOnClasspath() {
+		boolean found;
+		try {
+			Class.forName("org.codehaus.groovy.runtime.DefaultGroovyMethods");
+			found = true;
+		} catch (ClassNotFoundException ignored) {
+			found = false;
+		}
+
+		if (!found) {
+			NotificationGroup.balloonGroup("Live Plugin").createNotification(
+					"LivePlugin didn't find Groovy on classpath.",
+					"Without it plugins won't work. It should be possible to fix this problem<br/> " +
+							"by copying groovy-all.jar to '" + PathManager.getLibPath() + "'",
+					NotificationType.WARNING,
+					null
+			).notify(null);
+		}
 	}
 
 	private static class Migration {
