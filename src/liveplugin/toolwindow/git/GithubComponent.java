@@ -1,4 +1,4 @@
-package liveplugin.git;
+package liveplugin.toolwindow.git;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
