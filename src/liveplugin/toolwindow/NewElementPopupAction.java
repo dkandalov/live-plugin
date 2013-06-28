@@ -27,10 +27,6 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * User: dima
- * Date: 13/08/2012
- */
 class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 	public static final Icon Folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
 
@@ -46,12 +42,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 		return JBPopupFactory.getInstance().createActionGroupPopup(
 				IdeBundle.message("title.popup.new.element"),
 				createActionGroup(),
-				dataContext,
-				false,
-				true,
-				false,
-				null,
-				-1,
+				dataContext, false, true, false, null, -1,
 				LangDataKeys.PRESELECT_NEW_ACTION_CONDITION.getData(dataContext)
 		);
 	}
@@ -62,7 +53,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 			public AnAction[] getChildren(AnActionEvent e) {
 				ArrayList<AnAction> actions = new ArrayList<AnAction>();
 				actions.addAll(Arrays.asList(
-						new NewFileAction("Groovy Script", IdeUtil.GROOVY_FILE_TYPE_ICON),
+						new NewFileAction("Groovy File", IdeUtil.GROOVY_FILE_TYPE_ICON, IdeUtil.GROOVY_FILE_TYPE),
 						new NewFolderAction("Directory", "Directory", Folder),
 						new Separator(),
 						new PluginToolWindowManager.AddNewPluginAction(),

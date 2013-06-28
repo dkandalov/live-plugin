@@ -27,17 +27,18 @@ import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
 import javax.swing.*;
 
 /**
- * Fork of {@link com.intellij.openapi.fileChooser.actions.NewFileAction}
- *
- * User: dima
- * Date: 13/08/2012
+ * Originally forked from {@link com.intellij.openapi.fileChooser.actions.NewFileAction}
  */
 public class NewFileAction extends FileChooserAction {
+
+	private FileType fileType;
+
 	public NewFileAction() {
 	}
 
-	public NewFileAction(String text, Icon icon) {
+	public NewFileAction(String text, Icon icon, FileType fileType) {
 		super(text, text, icon);
+		this.fileType = fileType;
 	}
 
 	protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {
@@ -56,13 +57,10 @@ public class NewFileAction extends FileChooserAction {
 	}
 
 	protected void actionPerformed(FileSystemTree fileSystemTree, AnActionEvent e) {
-		final FileType fileType = e.getData(FileChooserKeys.NEW_FILE_TYPE);
 		String initialContent = e.getData(FileChooserKeys.NEW_FILE_TEMPLATE_TEXT);
 		// FORK DIFF (don't really care if initial content if null)
 		if (initialContent == null) initialContent = "";
-		if (fileType != null) {
-			createNewFile(fileSystemTree, fileType, initialContent);
-		}
+		createNewFile(fileSystemTree, fileType, initialContent);
 	}
 
 	private static void createNewFile(FileSystemTree fileSystemTree, final FileType fileType, final String initialContent) {
