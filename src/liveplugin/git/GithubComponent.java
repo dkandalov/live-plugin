@@ -19,7 +19,7 @@ import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.Git;
 import icons.GithubIcons;
-import liveplugin.EvalComponent;
+import liveplugin.LivePluginComponent;
 import liveplugin.Util;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import org.jetbrains.annotations.NotNull;
@@ -90,7 +90,7 @@ public class GithubComponent implements ApplicationComponent {
 			}
 
 			@Override public void checkoutCompleted() {
-				VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + EvalComponent.pluginsRootPath());
+				VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginComponent.pluginsRootPath());
 				if (pluginsRoot == null) return;
 
 				RefreshQueue.getInstance().refresh(false, true, new Runnable() {
@@ -103,7 +103,7 @@ public class GithubComponent implements ApplicationComponent {
 
 						try {
 
-							if (EvalComponent.isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
+							if (LivePluginComponent.isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
 								PluginToolWindowManager.PluginsIO.delete(clonedFolder.getPath());
 							}
 
@@ -123,7 +123,7 @@ public class GithubComponent implements ApplicationComponent {
 				int answer = Messages.showYesNoDialog(
 						project,
 						"It looks like \"" + pluginName + "\" is not a valid plugin because it does not contain \"" +
-								EvalComponent.MAIN_SCRIPT + "\".\n\nDo you want to add it anyway?",
+								LivePluginComponent.MAIN_SCRIPT + "\".\n\nDo you want to add it anyway?",
 						"Add Plugin",
 						Messages.getQuestionIcon()
 				);

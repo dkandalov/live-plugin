@@ -52,8 +52,8 @@ import static com.intellij.openapi.vfs.VfsUtilCore.pathToUrl;
 import static java.util.Arrays.asList;
 import static liveplugin.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
 
-public class EvalComponent implements ApplicationComponent { // TODO implement DumbAware?
-	private static final Logger LOG = Logger.getInstance(EvalComponent.class);
+public class LivePluginComponent implements ApplicationComponent { // TODO implement DumbAware?
+	private static final Logger LOG = Logger.getInstance(LivePluginComponent.class);
 
 	public static final String MAIN_SCRIPT = "plugin.groovy";
 	public static final String PLUGIN_EXAMPLES_PATH = "/liveplugin/pluginexamples";
@@ -109,7 +109,7 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	public static String readSampleScriptFile(String pluginPath, String file) {
 		try {
 			String path = pluginPath + "/" + file;
-			return FileUtil.loadTextAndClose(EvalComponent.class.getClassLoader().getResourceAsStream(path));
+			return FileUtil.loadTextAndClose(LivePluginComponent.class.getClassLoader().getResourceAsStream(path));
 		} catch (IOException e) {
 			LOG.error(e);
 			return "";

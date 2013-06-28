@@ -30,8 +30,8 @@ import git4idea.commands.GitTask;
 import git4idea.commands.GitTaskResult;
 import git4idea.i18n.GitBundle;
 import git4idea.remote.GitRememberedInputs;
+import liveplugin.LivePluginComponent;
 import org.jetbrains.annotations.NonNls;
-import liveplugin.EvalComponent;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -138,7 +138,7 @@ public class GitCloneDialog extends DialogWrapper {
 //    }
 
 	  //noinspection ConstantIfStatement
-	  myParentDirectory.setText(EvalComponent.pluginsRootPath()); // FORK DIFF
+	  myParentDirectory.setText(LivePluginComponent.pluginsRootPath()); // FORK DIFF
 
     myDirectoryName.getDocument().addDocumentListener(updateOkButtonListener);
 

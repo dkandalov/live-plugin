@@ -38,7 +38,7 @@ class GroovyEvaluator implements Evaluator {
 
 		String mainScriptPath = findMainScriptIn(pathToPluginFolder);
 		if (mainScriptPath == null) {
-			errorReporter.addLoadingError(pluginId, "Couldn't find " + EvalComponent.MAIN_SCRIPT);
+			errorReporter.addLoadingError(pluginId, "Couldn't find " + LivePluginComponent.MAIN_SCRIPT);
 			return;
 		}
 
@@ -78,13 +78,13 @@ class GroovyEvaluator implements Evaluator {
 		List<File> files = allFilesInDirectory(new File(path));
 		List<File> result = new ArrayList<File>();
 		for (File file : files) {
-			if (EvalComponent.MAIN_SCRIPT.equals(file.getName())) {
+			if (LivePluginComponent.MAIN_SCRIPT.equals(file.getName())) {
 				result.add(file);
 			}
 		}
 		if (result.size() == 0) return null;
 		else if (result.size() == 1) return result.get(0).getAbsolutePath();
-		else throw new IllegalStateException("Found several " + EvalComponent.MAIN_SCRIPT + " files under " + path);
+		else throw new IllegalStateException("Found several " + LivePluginComponent.MAIN_SCRIPT + " files under " + path);
 	}
 
 	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath, String pluginId, Map<String, String> environment) {

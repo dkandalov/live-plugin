@@ -55,7 +55,7 @@ public class EvaluatePluginAction extends AnAction {
 		Evaluator evaluator = new GroovyEvaluator(errorReporter);
 
 		for (String pluginId : pluginIds) {
-			String path = EvalComponent.pluginIdToPathMap().get(pluginId);
+			String path = LivePluginComponent.pluginIdToPathMap().get(pluginId);
 			evaluator.doEval(pluginId, path, event);
 		}
 
@@ -93,7 +93,7 @@ public class EvaluatePluginAction extends AnAction {
 		if (virtualFile == null) return Collections.emptyList();
 
 		final File file = new File(virtualFile.getPath());
-		Map.Entry<String, String> entry = ContainerUtil.find(EvalComponent.pluginIdToPathMap().entrySet(), new Condition<Map.Entry<String, String>>() {
+		Map.Entry<String, String> entry = ContainerUtil.find(LivePluginComponent.pluginIdToPathMap().entrySet(), new Condition<Map.Entry<String, String>>() {
 			@Override
 			public boolean value(Map.Entry<String, String> entry) {
 				String pluginPath = entry.getValue();
