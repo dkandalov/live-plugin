@@ -21,6 +21,7 @@ import git4idea.commands.Git;
 import icons.GithubIcons;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
+import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -119,7 +120,7 @@ public class GithubComponent implements ApplicationComponent {
 				int answer = Messages.showYesNoDialog(
 						project,
 						"It looks like \"" + pluginName + "\" is not a valid plugin because it does not contain \"" +
-								LivePluginAppComponent.MAIN_SCRIPT + "\".\n\nDo you want to add it anyway?",
+								GroovyPluginRunner.MAIN_SCRIPT + "\".\n\nDo you want to add it anyway?",
 						"Add Plugin",
 						Messages.getQuestionIcon()
 				);

@@ -80,6 +80,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
+import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.Settings;
 import org.jetbrains.annotations.NonNls;
@@ -485,7 +486,7 @@ public class PluginToolWindowManager {
 			try {
 
 				String text = LivePluginAppComponent.defaultPluginScript();
-				PluginsIO.createFile(LivePluginAppComponent.pluginsRootPath() + "/" + newPluginId, LivePluginAppComponent.MAIN_SCRIPT, text);
+				PluginsIO.createFile(LivePluginAppComponent.pluginsRootPath() + "/" + newPluginId, GroovyPluginRunner.MAIN_SCRIPT, text);
 
 			} catch (IOException e) {
 				Project project = event.getProject();
@@ -643,7 +644,7 @@ public class PluginToolWindowManager {
 		private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {
 			int answer = Messages.showYesNoDialog(
 					project,
-					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + LivePluginAppComponent.MAIN_SCRIPT + "\"." +
+					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + GroovyPluginRunner.MAIN_SCRIPT + "\"." +
 							"\nDo you want to add it anyway?",
 					"Add Plugin",
 					Messages.getQuestionIcon()

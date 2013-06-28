@@ -19,14 +19,14 @@ import com.intellij.openapi.diagnostic.Logger;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
-import liveplugin.LivePluginAppComponent;
 import org.codehaus.groovy.control.CompilationFailedException;
 
 import java.io.*;
 import java.net.URL;
 import java.util.*;
 
-class GroovyPluginRunner implements PluginRunner {
+public class GroovyPluginRunner implements PluginRunner {
+	public static final String MAIN_SCRIPT = "plugin.groovy";
 	private static final Logger LOG = Logger.getInstance(GroovyPluginRunner.class);
 
 	private final ErrorReporter errorReporter;
@@ -39,7 +39,7 @@ class GroovyPluginRunner implements PluginRunner {
 
 		String mainScriptPath = findMainScriptIn(pathToPluginFolder);
 		if (mainScriptPath == null) {
-			errorReporter.addLoadingError(pluginId, "Couldn't find " + LivePluginAppComponent.MAIN_SCRIPT);
+			errorReporter.addLoadingError(pluginId, "Couldn't find " + MAIN_SCRIPT);
 			return;
 		}
 
@@ -75,17 +75,17 @@ class GroovyPluginRunner implements PluginRunner {
 		return result;
 	}
 
-	private String findMainScriptIn(String path) {
+	private static String findMainScriptIn(String path) {
 		List<File> files = allFilesInDirectory(new File(path));
 		List<File> result = new ArrayList<File>();
 		for (File file : files) {
-			if (LivePluginAppComponent.MAIN_SCRIPT.equals(file.getName())) {
+			if (MAIN_SCRIPT.equals(file.getName())) {
 				result.add(file);
 			}
 		}
 		if (result.size() == 0) return null;
 		else if (result.size() == 1) return result.get(0).getAbsolutePath();
-		else throw new IllegalStateException("Found several " + LivePluginAppComponent.MAIN_SCRIPT + " files under " + path);
+		else throw new IllegalStateException("Found several " + MAIN_SCRIPT + " files under " + path);
 	}
 
 	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath, String pluginId, Map<String, String> environment) {

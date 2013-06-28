@@ -33,6 +33,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.download.DownloadableFileDescription;
 import com.intellij.util.download.DownloadableFileService;
+import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.pluginrunner.PluginRunner;
 import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.toolwindow.PluginToolWindowManager;
@@ -57,7 +58,6 @@ import static liveplugin.toolwindow.PluginToolWindowManager.ExamplePluginInstall
 public class LivePluginAppComponent implements ApplicationComponent { // TODO implement DumbAware?
 	private static final Logger LOG = Logger.getInstance(LivePluginAppComponent.class);
 
-	public static final String MAIN_SCRIPT = "plugin.groovy";
 	public static final String PLUGIN_EXAMPLES_PATH = "/liveplugin/pluginexamples";
 
 	private static final String DEFAULT_PLUGIN_PATH = PLUGIN_EXAMPLES_PATH;
@@ -98,7 +98,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 		if (!file.isDirectory()) return false;
 		String[] files = file.list(new FilenameFilter() {
 			@Override public boolean accept(File dir, String name) {
-				return name.equals(MAIN_SCRIPT);
+				return name.equals(GroovyPluginRunner.MAIN_SCRIPT);
 			}
 		});
 		return files.length < 1;
