@@ -153,7 +153,7 @@ public class LivePluginComponent implements ApplicationComponent { // TODO imple
 						ActionManager.getInstance(),
 						0
 				);
-				EvaluatePluginAction.evaluatePlugins(pluginIdToPathMap().keySet(), event);
+				RunPluginAction.evaluatePlugins(pluginIdToPathMap().keySet(), event);
 			}
 		});
 	}

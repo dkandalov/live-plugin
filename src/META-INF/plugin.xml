@@ -32,7 +32,7 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
 	</application-components>
 
 	<actions>
-		<action id="LivePlugin.EvalPlugin" class="liveplugin.EvaluatePluginAction" text="Run Current Plugin">
+		<action id="LivePlugin.EvalPlugin" class="liveplugin.RunPluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 		</action>
 

@@ -79,7 +79,7 @@ import com.intellij.util.*;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.LivePluginComponent;
-import liveplugin.EvaluatePluginAction;
+import liveplugin.RunPluginAction;
 import liveplugin.Settings;
 import liveplugin.Util;
 import org.jetbrains.annotations.NonNls;
@@ -288,7 +288,7 @@ public class PluginToolWindowManager {
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
 			actionGroup.add(withIcon(Util.ADD_PLUGIN_ICON, createAddPluginsGroup()));
 			actionGroup.add(new DeletePluginAction());
-			actionGroup.add(new EvaluatePluginAction());
+			actionGroup.add(new RunPluginAction());
 			actionGroup.addSeparator();
 			actionGroup.add(new RefreshPluginTreeAction());
 			actionGroup.add(withIcon(Util.EXPAND_ALL_ICON, new ExpandAllAction()));

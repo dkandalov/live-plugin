@@ -31,8 +31,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class EvaluatePluginAction extends AnAction {
-	public EvaluatePluginAction() {
+public class RunPluginAction extends AnAction {
+	public RunPluginAction() {
 		super("Run Plugin", "Run selected plugins", Util.EVAL_ICON);
 	}
 
