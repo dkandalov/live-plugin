@@ -35,7 +35,7 @@ import javax.swing.*;
 /**
  * @author DKandalov
  */
-public class Util {
+public class IdeUtil {
 	// icons paths are inlined "in case API changes but path to icons does not"
 	// it's probably not worth doing
 	public static final Icon ADD_PLUGIN_ICON = IconLoader.getIcon("/general/add.png"); // 16x16
@@ -50,7 +50,7 @@ public class Util {
 
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
 
-	private static final Logger LOG = Logger.getInstance(Util.class);
+	private static final Logger LOG = Logger.getInstance(IdeUtil.class);
 	public static final DataContext DUMMY_DATA_CONTEXT = new DataContext() {
 		@Nullable @Override public Object getData(@NonNls String dataId) {
 			return null;

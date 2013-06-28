@@ -147,7 +147,7 @@ public class LivePluginComponent implements ApplicationComponent { // TODO imple
 			@Override public void run() {
 				AnActionEvent event = new AnActionEvent(
 						null,
-						Util.DUMMY_DATA_CONTEXT,
+						IdeUtil.DUMMY_DATA_CONTEXT,
 						PluginRunner.IDE_STARTUP,
 						new Presentation(),
 						ActionManager.getInstance(),

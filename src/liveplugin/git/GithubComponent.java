@@ -19,8 +19,8 @@ import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.Git;
 import icons.GithubIcons;
+import liveplugin.IdeUtil;
 import liveplugin.LivePluginComponent;
-import liveplugin.Util;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -109,7 +109,7 @@ public class GithubComponent implements ApplicationComponent {
 
 						} catch (Exception e) {
 							if (project != null) {
-								Util.showErrorDialog(project, "Error deleting plugin \"" + clonedFolder.getPath(), "Delete Plugin");
+								IdeUtil.showErrorDialog(project, "Error deleting plugin \"" + clonedFolder.getPath(), "Delete Plugin");
 							}
 							LOG.error(e);
 						}

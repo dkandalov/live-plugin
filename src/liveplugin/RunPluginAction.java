@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class RunPluginAction extends AnAction {
 	public RunPluginAction() {
-		super("Run Plugin", "Run selected plugins", Util.RUN_PLUGIN_ICON);
+		super("Run Plugin", "Run selected plugins", IdeUtil.RUN_PLUGIN_ICON);
 	}
 
 	@Override public void actionPerformed(AnActionEvent event) {
@@ -45,7 +45,7 @@ public class RunPluginAction extends AnAction {
 	}
 
 	private void runCurrentPlugin(AnActionEvent event) {
-		Util.saveAllFiles();
+		IdeUtil.saveAllFiles();
 		List<String> pluginIds = findCurrentPluginIds(event);
 		runPlugins(pluginIds, event);
 	}

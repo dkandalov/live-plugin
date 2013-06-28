@@ -42,7 +42,7 @@ class ErrorReporter {
 		StringBuilder text = new StringBuilder();
 		for (String s : loadingErrors) text.append(s);
 		if (text.length() > 0)
-			Util.displayInConsole("Loading errors", text.toString() + "\n",
+			IdeUtil.displayInConsole("Loading errors", text.toString() + "\n",
 					ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
 	}
 
@@ -54,7 +54,7 @@ class ErrorReporter {
 			entry.getValue().printStackTrace(new PrintWriter(writer));
 			String s = UnscrambleDialog.normalizeText(writer.getBuffer().toString());
 
-			Util.displayInConsole(entry.getKey(), s, ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
+			IdeUtil.displayInConsole(entry.getKey(), s, ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
 		}
 	}
 

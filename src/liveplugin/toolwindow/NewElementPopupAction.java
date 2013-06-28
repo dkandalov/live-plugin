@@ -20,7 +20,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.IconLoader;
-import liveplugin.Util;
+import liveplugin.IdeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -62,7 +62,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 			public AnAction[] getChildren(AnActionEvent e) {
 				ArrayList<AnAction> actions = new ArrayList<AnAction>();
 				actions.addAll(Arrays.asList(
-						new NewFileAction("Groovy Script", Util.GROOVY_FILE_TYPE_ICON),
+						new NewFileAction("Groovy Script", IdeUtil.GROOVY_FILE_TYPE_ICON),
 						new NewFolderAction("Directory", "Directory", Folder),
 						new Separator(),
 						new PluginToolWindowManager.AddNewPluginAction(),

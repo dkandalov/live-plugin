@@ -78,10 +78,10 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.*;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
+import liveplugin.IdeUtil;
 import liveplugin.LivePluginComponent;
 import liveplugin.RunPluginAction;
 import liveplugin.Settings;
-import liveplugin.Util;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -184,7 +184,7 @@ public class PluginToolWindowManager {
 			ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
 			toolWindow = toolWindowManager.registerToolWindow(PLUGINS_TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
 			// TODO resize at runtime? get in intellij log: "WARN - openapi.wm.impl.ToolWindowImpl - ToolWindow icons should be 13x13"
-			toolWindow.setIcon(Util.PLUGIN_ICON);
+			toolWindow.setIcon(IdeUtil.PLUGIN_ICON);
 
 			toolWindow.getContentManager().addContent(createContent(project));
 		}
@@ -258,7 +258,7 @@ public class PluginToolWindowManager {
 		private static FileChooserDescriptor createFileChooserDescriptor() {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
 				@Override public Icon getIcon(VirtualFile file) {
-					if (LivePluginComponent.pluginIdToPathMap().values().contains(file.getPath())) return Util.PLUGIN_ICON;
+					if (LivePluginComponent.pluginIdToPathMap().values().contains(file.getPath())) return IdeUtil.PLUGIN_ICON;
 					return super.getIcon(file);
 				}
 
@@ -286,15 +286,15 @@ public class PluginToolWindowManager {
 
 		private JComponent createToolBar() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
-			actionGroup.add(withIcon(Util.ADD_PLUGIN_ICON, createAddPluginsGroup()));
+			actionGroup.add(withIcon(IdeUtil.ADD_PLUGIN_ICON, createAddPluginsGroup()));
 			actionGroup.add(new DeletePluginAction());
 			actionGroup.add(new RunPluginAction());
 			actionGroup.addSeparator();
 			actionGroup.add(new RefreshPluginTreeAction());
-			actionGroup.add(withIcon(Util.EXPAND_ALL_ICON, new ExpandAllAction()));
-			actionGroup.add(withIcon(Util.COLLAPSE_ALL_ICON, new CollapseAllAction()));
+			actionGroup.add(withIcon(IdeUtil.EXPAND_ALL_ICON, new ExpandAllAction()));
+			actionGroup.add(withIcon(IdeUtil.COLLAPSE_ALL_ICON, new CollapseAllAction()));
 			actionGroup.addSeparator();
-			actionGroup.add(withIcon(Util.SETTINGS_ICON, createSettingsGroup()));
+			actionGroup.add(withIcon(IdeUtil.SETTINGS_ICON, createSettingsGroup()));
 
 			// this is a "hack" to force drop-down box appear below button
 			// (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
@@ -349,7 +349,7 @@ public class PluginToolWindowManager {
 					AnAction[] actions = actionGroup.getChildActionsOrStubs();
 					for (AnAction action : actions) {
 						if (action instanceof AddExamplePluginAction) {
-							Util.runAction(action, "ADD_ALL_EXAMPLES");
+							IdeUtil.runAction(action, "ADD_ALL_EXAMPLES");
 						}
 					}
 				}
@@ -417,7 +417,7 @@ public class PluginToolWindowManager {
 			// this is used by create directory/file to get context in which they're executed
 			// (without this they would be disabled or won't work)
 			if (dataId.equals(FileSystemTree.DATA_KEY.getName())) return fileSystemTree.get();
-			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return Util.GROOVY_FILE_TYPE;
+			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return IdeUtil.GROOVY_FILE_TYPE;
 			if (dataId.equals(FileChooserKeys.DELETE_ACTION_AVAILABLE.getName())) return true;
 			if (dataId.equals(PlatformDataKeys.VIRTUAL_FILE_ARRAY.getName()))
 				return fileSystemTree.get().getSelectedFiles();
@@ -490,7 +490,7 @@ public class PluginToolWindowManager {
 			} catch (IOException e) {
 				Project project = event.getProject();
 				if (project != null) {
-					Util.showErrorDialog(
+					IdeUtil.showErrorDialog(
 							project,
 							"Error adding plugin \"" + newPluginId + "\" to " + LivePluginComponent.pluginsRootPath(),
 							"Add Plugin"
@@ -572,7 +572,7 @@ public class PluginToolWindowManager {
 		private void logException(Exception e, AnActionEvent event, String pluginPath) {
 			Project project = event.getProject();
 			if (project != null) {
-				Util.showErrorDialog(
+				IdeUtil.showErrorDialog(
 						project,
 						"Error adding plugin \"" + pluginPath + "\" to " + LivePluginComponent.pluginsRootPath(),
 						"Add Plugin"
@@ -610,7 +610,7 @@ public class PluginToolWindowManager {
 			} catch (IOException e) {
 				Project project = event.getProject();
 				if (project != null) {
-					Util.showErrorDialog(
+					IdeUtil.showErrorDialog(
 							project,
 							"Error adding plugin \"" + folderToCopy + "\" to " + targetFolder,
 							"Add Plugin"
@@ -657,7 +657,7 @@ public class PluginToolWindowManager {
 
 
 		public DeletePluginAction() {
-			super("Delete Plugin", "Delete Plugin", Util.DELETE_PLUGIN_ICON);
+			super("Delete Plugin", "Delete Plugin", IdeUtil.DELETE_PLUGIN_ICON);
 		}
 
 		@Override public void actionPerformed(AnActionEvent event) {
@@ -675,7 +675,7 @@ public class PluginToolWindowManager {
 				} catch (IOException e) {
 					Project project = event.getProject();
 					if (project != null) {
-						Util.showErrorDialog(project, "Error deleting plugin \"" + pluginRoot.getPath(), "Delete Plugin");
+						IdeUtil.showErrorDialog(project, "Error deleting plugin \"" + pluginRoot.getPath(), "Delete Plugin");
 					}
 					LOG.error(e);
 				}
@@ -727,7 +727,7 @@ public class PluginToolWindowManager {
 	public static class RefreshPluginTreeAction extends AnAction {
 
 		public RefreshPluginTreeAction() {
-			super("Refresh Plugin Tree", "Refresh Plugin Tree", Util.REFRESH_PLUGIN_LIST_ICON);
+			super("Refresh Plugin Tree", "Refresh Plugin Tree", IdeUtil.REFRESH_PLUGIN_LIST_ICON);
 		}
 
 		@Override public void actionPerformed(@Nullable AnActionEvent e) {
