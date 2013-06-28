@@ -49,6 +49,7 @@ public class IdeUtil {
 	public static final Icon GROOVY_FILE_TYPE_ICON = IconLoader.getIcon("/liveplugin/toolwindow/groovy_fileType.png");
 
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
+	public static final FileType TEXT_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".txt");
 
 	private static final Logger LOG = Logger.getInstance(IdeUtil.class);
 	public static final DataContext DUMMY_DATA_CONTEXT = new DataContext() {

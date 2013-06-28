@@ -13,6 +13,7 @@
  */
 package liveplugin.toolwindow;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.fileChooser.actions.NewFolderAction;
@@ -54,6 +55,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 				ArrayList<AnAction> actions = new ArrayList<AnAction>();
 				actions.addAll(Arrays.asList(
 						new NewFileAction("Groovy File", IdeUtil.GROOVY_FILE_TYPE_ICON, IdeUtil.GROOVY_FILE_TYPE),
+						new NewFileAction("Text File", AllIcons.FileTypes.Text, IdeUtil.TEXT_FILE_TYPE),
 						new NewFolderAction("Directory", "Directory", Folder),
 						new Separator(),
 						new PluginToolWindowManager.AddNewPluginAction(),

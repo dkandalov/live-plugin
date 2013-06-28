@@ -15,14 +15,15 @@ package liveplugin.toolwindow;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.UIBundle;
 import com.intellij.openapi.fileChooser.FileSystemTree;
 import com.intellij.openapi.fileChooser.actions.FileChooserAction;
 import com.intellij.openapi.fileChooser.ex.FileChooserKeys;
 import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.UIBundle;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -36,24 +37,18 @@ public class NewFileAction extends FileChooserAction {
 	public NewFileAction() {
 	}
 
-	public NewFileAction(String text, Icon icon, FileType fileType) {
+	public NewFileAction(String text, Icon icon, @NotNull FileType fileType) {
 		super(text, text, icon);
 		this.fileType = fileType;
 	}
 
 	protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {
 		Presentation presentation = e.getPresentation();
-		final FileType fileType = e.getData(FileChooserKeys.NEW_FILE_TYPE);
-		if (fileType != null) {
-			presentation.setVisible(true);
-			VirtualFile selectedFile = fileSystemTree.getNewFileParent();
-			presentation.setEnabled(selectedFile != null && selectedFile.isDirectory());
-			// FORK DIFF (got rid of layered "new" icon because it's ugly)
-			presentation.setIcon(fileType.getIcon());
-		}
-		else {
-			presentation.setVisible(false);
-		}
+		presentation.setVisible(true);
+		VirtualFile selectedFile = fileSystemTree.getNewFileParent();
+		presentation.setEnabled(selectedFile != null);
+		// FORK DIFF (got rid of layered "new" icon because it's ugly)
+		presentation.setIcon(fileType.getIcon());
 	}
 
 	protected void actionPerformed(FileSystemTree fileSystemTree, AnActionEvent e) {
