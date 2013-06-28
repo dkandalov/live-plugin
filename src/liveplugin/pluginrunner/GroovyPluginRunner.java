@@ -35,7 +35,7 @@ public class GroovyPluginRunner implements PluginRunner {
 		this.errorReporter = errorReporter;
 	}
 
-	@Override public void runPlugin(String pluginId, String pathToPluginFolder, AnActionEvent event) {
+	@Override public void runPlugin(String pathToPluginFolder, String pluginId, AnActionEvent event) {
 
 		String mainScriptPath = findMainScriptIn(pathToPluginFolder);
 		if (mainScriptPath == null) {

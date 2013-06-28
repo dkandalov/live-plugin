@@ -58,7 +58,7 @@ public class RunPluginAction extends AnAction {
 
 		for (String pluginId : pluginIds) {
 			String path = LivePluginAppComponent.pluginIdToPathMap().get(pluginId);
-			pluginRunner.runPlugin(pluginId, path, event);
+			pluginRunner.runPlugin(path, pluginId, event);
 		}
 
 		errorReporter.reportLoadingErrors(event);
