@@ -80,7 +80,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
-import liveplugin.RunPluginAction;
+import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.Settings;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;

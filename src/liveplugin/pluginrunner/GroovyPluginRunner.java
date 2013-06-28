@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package liveplugin;
+package liveplugin.pluginrunner;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.PathManager;
@@ -19,6 +19,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
+import liveplugin.LivePluginAppComponent;
 import org.codehaus.groovy.control.CompilationFailedException;
 
 import java.io.*;

@@ -33,6 +33,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.download.DownloadableFileDescription;
 import com.intellij.util.download.DownloadableFileService;
+import liveplugin.pluginrunner.PluginRunner;
+import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import org.jetbrains.annotations.NotNull;
 

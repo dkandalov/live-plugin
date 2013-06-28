@@ -11,12 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package liveplugin;
+package liveplugin.pluginrunner;
 
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.unscramble.UnscrambleDialog;
+import liveplugin.IdeUtil;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

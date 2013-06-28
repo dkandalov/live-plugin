@@ -1,4 +1,4 @@
-package liveplugin;
+package liveplugin.pluginrunner;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 

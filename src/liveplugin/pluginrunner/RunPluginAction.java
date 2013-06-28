@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package liveplugin;
+package liveplugin.pluginrunner;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -23,6 +23,8 @@ import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
+import liveplugin.IdeUtil;
+import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.PluginToolWindowManager;
 
 import java.io.File;
@@ -50,7 +52,7 @@ public class RunPluginAction extends AnAction {
 		runPlugins(pluginIds, event);
 	}
 
-	static void runPlugins(Collection<String> pluginIds, AnActionEvent event) {
+	public static void runPlugins(Collection<String> pluginIds, AnActionEvent event) {
 		ErrorReporter errorReporter = new ErrorReporter();
 		PluginRunner pluginRunner = new GroovyPluginRunner(errorReporter);
 
