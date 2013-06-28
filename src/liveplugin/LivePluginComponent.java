@@ -148,7 +148,7 @@ public class LivePluginComponent implements ApplicationComponent { // TODO imple
 				AnActionEvent event = new AnActionEvent(
 						null,
 						Util.DUMMY_DATA_CONTEXT,
-						Evaluator.IDE_STARTUP,
+						PluginRunner.IDE_STARTUP,
 						new Presentation(),
 						ActionManager.getInstance(),
 						0

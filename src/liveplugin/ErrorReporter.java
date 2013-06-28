@@ -25,11 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * User: dima
- * Date: 17/08/2012
- */
-class EvalErrorReporter {
+class ErrorReporter {
 	private final List<String> loadingErrors = new LinkedList<String>();
 	private final LinkedHashMap<String, Exception> evaluationExceptions = new LinkedHashMap<String, Exception>();
 

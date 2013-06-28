@@ -2,7 +2,7 @@ package liveplugin;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 
-public interface Evaluator {
+public interface PluginRunner {
 	String IDE_STARTUP = "IDE_STARTUP";
 	String CLASSPATH_PREFIX = "// add-to-classpath ";
 

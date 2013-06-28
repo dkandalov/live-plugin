@@ -51,12 +51,12 @@ public class RunPluginAction extends AnAction {
 	}
 
 	static void evaluatePlugins(Collection<String> pluginIds, AnActionEvent event) {
-		EvalErrorReporter errorReporter = new EvalErrorReporter();
-		Evaluator evaluator = new GroovyEvaluator(errorReporter);
+		ErrorReporter errorReporter = new ErrorReporter();
+		PluginRunner pluginRunner = new GroovyPluginRunner(errorReporter);
 
 		for (String pluginId : pluginIds) {
 			String path = LivePluginComponent.pluginIdToPathMap().get(pluginId);
-			evaluator.doEval(pluginId, path, event);
+			pluginRunner.doEval(pluginId, path, event);
 		}
 
 		errorReporter.reportLoadingErrors(event);

@@ -25,12 +25,12 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
-class GroovyEvaluator implements Evaluator {
-	private static final Logger LOG = Logger.getInstance(GroovyEvaluator.class);
+class GroovyPluginRunner implements PluginRunner {
+	private static final Logger LOG = Logger.getInstance(GroovyPluginRunner.class);
 
-	private final EvalErrorReporter errorReporter;
+	private final ErrorReporter errorReporter;
 
-	public GroovyEvaluator(EvalErrorReporter errorReporter) {
+	public GroovyPluginRunner(ErrorReporter errorReporter) {
 		this.errorReporter = errorReporter;
 	}
 
