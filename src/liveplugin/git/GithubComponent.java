@@ -20,17 +20,13 @@ import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.Git;
 import icons.GithubIcons;
 import liveplugin.IdeUtil;
-import liveplugin.LivePluginComponent;
+import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
-/**
- * User: dima
- * Date: 20/01/2013
- */
 @SuppressWarnings("ComponentNotRegistered")
 public class GithubComponent implements ApplicationComponent {
 	@Override public void initComponent() {
@@ -90,7 +86,7 @@ public class GithubComponent implements ApplicationComponent {
 			}
 
 			@Override public void checkoutCompleted() {
-				VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginComponent.pluginsRootPath());
+				VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginAppComponent.pluginsRootPath());
 				if (pluginsRoot == null) return;
 
 				RefreshQueue.getInstance().refresh(false, true, new Runnable() {
@@ -103,7 +99,7 @@ public class GithubComponent implements ApplicationComponent {
 
 						try {
 
-							if (LivePluginComponent.isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
+							if (LivePluginAppComponent.isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
 								PluginToolWindowManager.PluginsIO.delete(clonedFolder.getPath());
 							}
 
@@ -123,7 +119,7 @@ public class GithubComponent implements ApplicationComponent {
 				int answer = Messages.showYesNoDialog(
 						project,
 						"It looks like \"" + pluginName + "\" is not a valid plugin because it does not contain \"" +
-								LivePluginComponent.MAIN_SCRIPT + "\".\n\nDo you want to add it anyway?",
+								LivePluginAppComponent.MAIN_SCRIPT + "\".\n\nDo you want to add it anyway?",
 						"Add Plugin",
 						Messages.getQuestionIcon()
 				);

@@ -79,7 +79,7 @@ import com.intellij.util.*;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IdeUtil;
-import liveplugin.LivePluginComponent;
+import liveplugin.LivePluginAppComponent;
 import liveplugin.RunPluginAction;
 import liveplugin.Settings;
 import org.jetbrains.annotations.NonNls;
@@ -258,7 +258,7 @@ public class PluginToolWindowManager {
 		private static FileChooserDescriptor createFileChooserDescriptor() {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
 				@Override public Icon getIcon(VirtualFile file) {
-					if (LivePluginComponent.pluginIdToPathMap().values().contains(file.getPath())) return IdeUtil.PLUGIN_ICON;
+					if (LivePluginAppComponent.pluginIdToPathMap().values().contains(file.getPath())) return IdeUtil.PLUGIN_ICON;
 					return super.getIcon(file);
 				}
 
@@ -273,7 +273,7 @@ public class PluginToolWindowManager {
 			descriptor.setShowFileSystemRoots(false);
 			descriptor.setIsTreeRootVisible(false);
 
-			Collection<String> pluginPaths = LivePluginComponent.pluginIdToPathMap().values();
+			Collection<String> pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values();
 			List<VirtualFile> virtualFiles = ContainerUtil.map(pluginPaths, new Function<String, VirtualFile>() {
 				@Override public VirtualFile fun(String path) {
 					return VirtualFileManager.getInstance().findFileByUrl("file://" + path);
@@ -332,17 +332,17 @@ public class PluginToolWindowManager {
 
 		private AnAction createAddPluginsExamplesGroup() {
 			final DefaultActionGroup actionGroup = new DefaultActionGroup("Examples", true);
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/helloWorldAction", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/helloPopupAction", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/helloToolwindow", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/helloTextEditor", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/transformSelectedText", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/insertNewLineAbove", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/helloWorldInspection", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/helloFileStats", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/utilExample", asList("plugin.groovy", "util/AClass.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginComponent.PLUGIN_EXAMPLES_PATH + "/classpathExample", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloWorldAction", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloPopupAction", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloToolwindow", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloTextEditor", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/transformSelectedText", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/insertNewLineAbove", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloWorldInspection", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloFileStats", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/utilExample", asList("plugin.groovy", "util/AClass.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/classpathExample", asList("plugin.groovy")));
 			actionGroup.addSeparator();
 			actionGroup.add(new AnAction("Add All") {
 				@Override public void actionPerformed(AnActionEvent e) {
@@ -382,7 +382,7 @@ public class PluginToolWindowManager {
 		private static VirtualFile pluginFolderOf(VirtualFile file) {
 			if (file.getParent() == null) return null;
 
-			File pluginsRoot = new File(LivePluginComponent.pluginsRootPath());
+			File pluginsRoot = new File(LivePluginAppComponent.pluginsRootPath());
 			// comparing files because string comparison was observed not work on windows (e.g. "c:/..." and "C:/...")
 			if (!FileUtil.filesEqual(new File(file.getParent().getPath()), pluginsRoot))
 				return pluginFolderOf(file.getParent());
@@ -477,22 +477,22 @@ public class PluginToolWindowManager {
 			String newPluginId = Messages.showInputDialog(event.getProject(), "Enter new plugin name:", "New Plugin", null);
 
 			if (newPluginId == null) return;
-			if (LivePluginComponent.pluginExists(newPluginId)) {
+			if (LivePluginAppComponent.pluginExists(newPluginId)) {
 				Messages.showErrorDialog(event.getProject(), "Plugin \"" + newPluginId + "\" already exists.", "New Plugin");
 				return;
 			}
 
 			try {
 
-				String text = LivePluginComponent.defaultPluginScript();
-				PluginsIO.createFile(LivePluginComponent.pluginsRootPath() + "/" + newPluginId, LivePluginComponent.MAIN_SCRIPT, text);
+				String text = LivePluginAppComponent.defaultPluginScript();
+				PluginsIO.createFile(LivePluginAppComponent.pluginsRootPath() + "/" + newPluginId, LivePluginAppComponent.MAIN_SCRIPT, text);
 
 			} catch (IOException e) {
 				Project project = event.getProject();
 				if (project != null) {
 					IdeUtil.showErrorDialog(
 							project,
-							"Error adding plugin \"" + newPluginId + "\" to " + LivePluginComponent.pluginsRootPath(),
+							"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.pluginsRootPath(),
 							"Add Plugin"
 					);
 				}
@@ -518,8 +518,8 @@ public class PluginToolWindowManager {
 			for (String relativeFilePath : filePaths) {
 				try {
 
-					String text = LivePluginComponent.readSampleScriptFile(pluginPath, relativeFilePath);
-					Pair<String, String> pair = splitIntoPathAndFileName(LivePluginComponent.pluginsRootPath() + "/" + pluginId + "/" + relativeFilePath);
+					String text = LivePluginAppComponent.readSampleScriptFile(pluginPath, relativeFilePath);
+					Pair<String, String> pair = splitIntoPathAndFileName(LivePluginAppComponent.pluginsRootPath() + "/" + pluginId + "/" + relativeFilePath);
 					PluginsIO.createFile(pair.first, pair.second, text);
 
 				} catch (IOException e) {
@@ -566,7 +566,7 @@ public class PluginToolWindowManager {
 		}
 
 		@Override public void update(AnActionEvent event) {
-			event.getPresentation().setEnabled(!LivePluginComponent.pluginExists(pluginId));
+			event.getPresentation().setEnabled(!LivePluginAppComponent.pluginExists(pluginId));
 		}
 
 		private void logException(Exception e, AnActionEvent event, String pluginPath) {
@@ -574,7 +574,7 @@ public class PluginToolWindowManager {
 			if (project != null) {
 				IdeUtil.showErrorDialog(
 						project,
-						"Error adding plugin \"" + pluginPath + "\" to " + LivePluginComponent.pluginsRootPath(),
+						"Error adding plugin \"" + pluginPath + "\" to " + LivePluginAppComponent.pluginsRootPath(),
 						"Add Plugin"
 				);
 			}
@@ -598,11 +598,11 @@ public class PluginToolWindowManager {
 			VirtualFile virtualFile = FileChooser.chooseFile(descriptor, event.getProject(), null);
 			if (virtualFile == null) return;
 
-			if (LivePluginComponent.isInvalidPluginFolder(virtualFile) &&
+			if (LivePluginAppComponent.isInvalidPluginFolder(virtualFile) &&
 					userDoesNotWantToAddFolder(virtualFile, event.getProject())) return;
 
 			String folderToCopy = virtualFile.getPath();
-			String targetFolder = LivePluginComponent.pluginsRootPath();
+			String targetFolder = LivePluginAppComponent.pluginsRootPath();
 			try {
 
 				PluginsIO.copyFolder(folderToCopy, targetFolder);
@@ -643,7 +643,7 @@ public class PluginToolWindowManager {
 		private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {
 			int answer = Messages.showYesNoDialog(
 					project,
-					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + LivePluginComponent.MAIN_SCRIPT + "\"." +
+					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + LivePluginAppComponent.MAIN_SCRIPT + "\"." +
 							"\nDo you want to add it anyway?",
 					"Add Plugin",
 					Messages.getQuestionIcon()
@@ -733,7 +733,7 @@ public class PluginToolWindowManager {
 		@Override public void actionPerformed(@Nullable AnActionEvent e) {
 			ApplicationManager.getApplication().runWriteAction(new Runnable() {
 				@Override public void run() {
-					VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginComponent.pluginsRootPath());
+					VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginAppComponent.pluginsRootPath());
 					if (pluginsRoot == null) return;
 
 					RefreshQueue.getInstance().refresh(false, true, new Runnable() {
@@ -780,7 +780,7 @@ public class PluginToolWindowManager {
 		}
 
 		private static String findPathToMyClasses() {
-			String pathToMyClasses = PathUtil.getJarPathForClass(LivePluginComponent.class);
+			String pathToMyClasses = PathUtil.getJarPathForClass(LivePluginAppComponent.class);
 			// need trailing "/" because folder dependency doesn't work without it
 			if (pathToMyClasses.endsWith(".jar")) {
 				pathToMyClasses = "jar://" + pathToMyClasses + "!/";
