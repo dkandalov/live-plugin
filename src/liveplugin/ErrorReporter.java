@@ -27,15 +27,15 @@ import java.util.Map;
 
 class ErrorReporter {
 	private final List<String> loadingErrors = new LinkedList<String>();
-	private final LinkedHashMap<String, Exception> evaluationExceptions = new LinkedHashMap<String, Exception>();
+	private final LinkedHashMap<String, Exception> runningPluginExceptions = new LinkedHashMap<String, Exception>();
 
 	public void addLoadingError(String pluginId, String message) {
 		loadingErrors.add("Error loading plugin: \"" + pluginId + "\". " + message);
 	}
 
-	public void addEvaluationException(String pluginId, Exception e) {
+	public void addRunningPluginException(String pluginId, Exception e) {
 		//noinspection ThrowableResultOfMethodCallIgnored
-		evaluationExceptions.put(pluginId, e);
+		runningPluginExceptions.put(pluginId, e);
 	}
 
 	public void reportLoadingErrors(AnActionEvent actionEvent) {
@@ -46,8 +46,8 @@ class ErrorReporter {
 					ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
 	}
 
-	public void reportEvaluationExceptions(AnActionEvent actionEvent) {
-		for (Map.Entry<String, Exception> entry : evaluationExceptions.entrySet()) {
+	public void reportRunningPluginExceptions(AnActionEvent actionEvent) {
+		for (Map.Entry<String, Exception> entry : runningPluginExceptions.entrySet()) {
 			StringWriter writer = new StringWriter();
 
 			//noinspection ThrowableResultOfMethodCallIgnored

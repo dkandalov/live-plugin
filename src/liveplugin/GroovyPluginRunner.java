@@ -34,7 +34,7 @@ class GroovyPluginRunner implements PluginRunner {
 		this.errorReporter = errorReporter;
 	}
 
-	@Override public void doEval(String pluginId, String pathToPluginFolder, AnActionEvent event) {
+	@Override public void runPlugin(String pluginId, String pathToPluginFolder, AnActionEvent event) {
 
 		String mainScriptPath = findMainScriptIn(pathToPluginFolder);
 		if (mainScriptPath == null) {
@@ -62,7 +62,7 @@ class GroovyPluginRunner implements PluginRunner {
 		} catch (VerifyError e) {
 			errorReporter.addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
 		} catch (Exception e) {
-			errorReporter.addEvaluationException(pluginId, e);
+			errorReporter.addRunningPluginException(pluginId, e);
 		}
 	}
 

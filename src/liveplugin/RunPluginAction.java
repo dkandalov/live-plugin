@@ -33,34 +33,34 @@ import java.util.Map;
 
 public class RunPluginAction extends AnAction {
 	public RunPluginAction() {
-		super("Run Plugin", "Run selected plugins", Util.EVAL_ICON);
+		super("Run Plugin", "Run selected plugins", Util.RUN_PLUGIN_ICON);
 	}
 
 	@Override public void actionPerformed(AnActionEvent event) {
-		evalCurrentPlugin(event);
+		runCurrentPlugin(event);
 	}
 
 	@Override public void update(AnActionEvent event) {
 		event.getPresentation().setEnabled(!findCurrentPluginIds(event).isEmpty());
 	}
 
-	private void evalCurrentPlugin(AnActionEvent event) {
+	private void runCurrentPlugin(AnActionEvent event) {
 		Util.saveAllFiles();
 		List<String> pluginIds = findCurrentPluginIds(event);
-		evaluatePlugins(pluginIds, event);
+		runPlugins(pluginIds, event);
 	}
 
-	static void evaluatePlugins(Collection<String> pluginIds, AnActionEvent event) {
+	static void runPlugins(Collection<String> pluginIds, AnActionEvent event) {
 		ErrorReporter errorReporter = new ErrorReporter();
 		PluginRunner pluginRunner = new GroovyPluginRunner(errorReporter);
 
 		for (String pluginId : pluginIds) {
 			String path = LivePluginComponent.pluginIdToPathMap().get(pluginId);
-			pluginRunner.doEval(pluginId, path, event);
+			pluginRunner.runPlugin(pluginId, path, event);
 		}
 
 		errorReporter.reportLoadingErrors(event);
-		errorReporter.reportEvaluationExceptions(event);
+		errorReporter.reportRunningPluginExceptions(event);
 	}
 
 	private static List<String> findCurrentPluginIds(AnActionEvent event) {
