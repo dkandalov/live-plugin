@@ -1,5 +1,7 @@
 package liveplugin;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -21,7 +23,7 @@ public class FileUtil {
 		return result;
 	}
 
-	public static String findSingleFileIn(String path, String fileName) {
+	@Nullable public static String findSingleFileIn(String path, String fileName) {
 		List<File> files = allFilesInDirectory(new File(path));
 		List<File> result = new ArrayList<File>();
 		for (File file : files) {

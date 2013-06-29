@@ -1,10 +1,14 @@
 package liveplugin.pluginrunner;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import liveplugin.IdeUtil;
 
+import java.util.Map;
+
+import static liveplugin.FileUtil.findSingleFileIn;
+
 class ScalaPluginRunner implements PluginRunner {
-	private static boolean isEnabled = IdeUtil.isOnClasspath("scala.Some");
+	private static boolean ENABLED = IdeUtil.isOnClasspath("scala.Some");
+
 	private static final String MAIN_SCRIPT = "plugin.scala";
 
 	private final ErrorReporter errorReporter;
@@ -14,10 +18,10 @@ class ScalaPluginRunner implements PluginRunner {
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
-		return isEnabled;
+		return ENABLED && findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
 	}
 
-	@Override public void runPlugin(String pathToPluginFolder, String pluginId, AnActionEvent event) {
+	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
 		// TODO
 	}
 }

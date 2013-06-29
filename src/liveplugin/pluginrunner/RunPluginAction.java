@@ -15,6 +15,7 @@ package liveplugin.pluginrunner;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -52,7 +53,7 @@ public class RunPluginAction extends AnAction {
 	public static void runPlugins(Collection<String> pluginIds, AnActionEvent event) {
 		ErrorReporter errorReporter = new ErrorReporter();
 		List<PluginRunner> pluginRunners = Arrays.asList(
-				new GroovyPluginRunner(errorReporter),
+				new GroovyPluginRunner(errorReporter, environment()),
 				new ScalaPluginRunner(errorReporter)
 		);
 
@@ -67,11 +68,28 @@ public class RunPluginAction extends AnAction {
 				errorReporter.addLoadingError(pluginId, "Couldn't find plugin startup script");
 				continue;
 			}
-			pluginRunner.runPlugin(pathToPluginFolder, pluginId, event);
+
+			pluginRunner.runPlugin(pathToPluginFolder, pluginId, createBinding(event, pathToPluginFolder));
 		}
 
 		errorReporter.reportLoadingErrors(event);
 		errorReporter.reportRunningPluginExceptions(event);
+	}
+
+	private static Map<String, Object> createBinding(AnActionEvent event, String pathToPluginFolder) {
+		Map<String, Object> binding = new HashMap<String, Object>();
+		binding.put("event", event);
+		binding.put("project", event.getProject());
+		binding.put("isIdeStartup", event.getPlace().equals(PluginRunner.IDE_STARTUP));
+		binding.put("pluginPath", pathToPluginFolder);
+		return binding;
+	}
+
+	private static Map<String, String> environment() {
+		Map<String, String> result = new HashMap<String, String>(System.getenv());
+		result.put("INTELLIJ_PLUGINS_PATH", PathManager.getPluginsPath());
+		result.put("INTELLIJ_LIBS", PathManager.getLibPath());
+		return result;
 	}
 
 	private static List<String> findCurrentPluginIds(AnActionEvent event) {

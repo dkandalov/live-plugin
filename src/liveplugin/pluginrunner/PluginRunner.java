@@ -1,6 +1,6 @@
 package liveplugin.pluginrunner;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import java.util.Map;
 
 public interface PluginRunner {
 	String IDE_STARTUP = "IDE_STARTUP";
@@ -8,5 +8,5 @@ public interface PluginRunner {
 
 	boolean canRunPlugin(String pathToPluginFolder);
 
-	void runPlugin(String pathToPluginFolder, String pluginId, AnActionEvent event);
+	void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding);
 }

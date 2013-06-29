@@ -13,8 +13,6 @@
  */
 package liveplugin.pluginrunner;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
@@ -32,29 +30,29 @@ public class GroovyPluginRunner implements PluginRunner {
 	private static final Logger LOG = Logger.getInstance(GroovyPluginRunner.class);
 
 	private final ErrorReporter errorReporter;
+	private final Map<String,String> environment;
 
-	public GroovyPluginRunner(ErrorReporter errorReporter) {
+	public GroovyPluginRunner(ErrorReporter errorReporter, Map<String, String> environment) {
 		this.errorReporter = errorReporter;
+		this.environment = new HashMap<String, String>(environment);
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
 		return FileUtil.findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
 	}
 
-	@Override public void runPlugin(String pathToPluginFolder, String pluginId, AnActionEvent event) {
+	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
+		String mainScriptPath = FileUtil.findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
+		runGroovyScript(mainScriptPath, pathToPluginFolder, pluginId, binding);
+	}
+
+	void runGroovyScript(String mainScriptPath, String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
 		try {
-			String mainScriptPath = FileUtil.findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
+			environment.put("THIS_SCRIPT", mainScriptPath);
 
-			GroovyClassLoader classLoader = createClassLoaderWithDependencies(mainScriptPath, pluginId, pluginEnvironment(mainScriptPath));
+			GroovyClassLoader classLoader = createClassLoaderWithDependencies(mainScriptPath, pluginId);
 			GroovyScriptEngine scriptEngine = new GroovyScriptEngine("file:///" + pathToPluginFolder, classLoader);
-			Binding binding = new Binding();
-
-			binding.setVariable("event", event);
-			binding.setVariable("project", event.getProject());
-			binding.setVariable("isIdeStartup", event.getPlace().equals(IDE_STARTUP));
-			binding.setVariable("pluginPath", pathToPluginFolder);
-
-			scriptEngine.run("file:///" + mainScriptPath, binding);
+			scriptEngine.run("file:///" + mainScriptPath, createGroovyBinding(binding));
 
 		} catch (IOException e) {
 			errorReporter.addLoadingError(pluginId, "Error while creating scripting engine. " + e.getMessage());
@@ -67,15 +65,15 @@ public class GroovyPluginRunner implements PluginRunner {
 		}
 	}
 
-	private static Map<String, String> pluginEnvironment(String mainScriptPath) {
-		Map<String, String> result = new HashMap<String, String>(System.getenv());
-		result.put("THIS_SCRIPT", mainScriptPath);
-		result.put("INTELLIJ_PLUGINS_PATH", PathManager.getPluginsPath());
-		result.put("INTELLIJ_LIBS", PathManager.getLibPath());
+	private static Binding createGroovyBinding(Map<String, ?> binding) {
+		Binding result = new Binding();
+		for (Map.Entry<String, ?> entry : binding.entrySet()) {
+			result.setVariable(entry.getKey(), entry.getValue());
+		}
 		return result;
 	}
 
-	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath, String pluginId, Map<String, String> environment) {
+	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath, String pluginId) {
 		GroovyClassLoader classLoader = new GroovyClassLoader(this.getClass().getClassLoader());
 
 		try {
