@@ -52,10 +52,7 @@ public class RunPluginAction extends AnAction {
 
 	public static void runPlugins(Collection<String> pluginIds, AnActionEvent event) {
 		ErrorReporter errorReporter = new ErrorReporter();
-		List<PluginRunner> pluginRunners = Arrays.asList(
-				new GroovyPluginRunner(errorReporter, environment()),
-				new ScalaPluginRunner(errorReporter)
-		);
+		List<PluginRunner> pluginRunners = createPluginRunners(errorReporter);
 
 		for (String pluginId : pluginIds) {
 			final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId);
@@ -74,6 +71,13 @@ public class RunPluginAction extends AnAction {
 
 		errorReporter.reportLoadingErrors(event);
 		errorReporter.reportRunningPluginExceptions(event);
+	}
+
+	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
+		return Arrays.asList(
+				new GroovyPluginRunner(errorReporter, environment()),
+				new ScalaPluginRunner(errorReporter, environment())
+		);
 	}
 
 	private static Map<String, Object> createBinding(AnActionEvent event, String pathToPluginFolder) {

@@ -46,7 +46,7 @@ public class GroovyPluginRunner implements PluginRunner {
 		runGroovyScript(mainScriptPath, pathToPluginFolder, pluginId, binding);
 	}
 
-	void runGroovyScript(String mainScriptPath, String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
+	private void runGroovyScript(String mainScriptPath, String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
 		try {
 			environment.put("THIS_SCRIPT", mainScriptPath);
 

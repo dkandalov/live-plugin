@@ -12,9 +12,11 @@ class ScalaPluginRunner implements PluginRunner {
 	private static final String MAIN_SCRIPT = "plugin.scala";
 
 	private final ErrorReporter errorReporter;
+	private final GroovyPluginRunner groovyPluginRunner;
 
-	public ScalaPluginRunner(ErrorReporter errorReporter) {
+	public ScalaPluginRunner(ErrorReporter errorReporter, Map<String, String> environment) {
 		this.errorReporter = errorReporter;
+		this.groovyPluginRunner = new GroovyPluginRunner(errorReporter, environment);
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
