@@ -31,6 +31,9 @@ import liveplugin.toolwindow.PluginToolWindowManager;
 import java.io.File;
 import java.util.*;
 
+import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
+import static com.intellij.openapi.actionSystem.PlatformDataKeys.PROJECT;
+
 public class RunPluginAction extends AnAction {
 	public RunPluginAction() {
 		super("Run Plugin", "Run selected plugins", IdeUtil.RUN_PLUGIN_ICON);
@@ -50,7 +53,7 @@ public class RunPluginAction extends AnAction {
 		runPlugins(pluginIds, event);
 	}
 
-	public static void runPlugins(Collection<String> pluginIds, AnActionEvent event) {
+	public static void runPlugins(Collection<String> pluginIds, final AnActionEvent event) {
 		ErrorReporter errorReporter = new ErrorReporter();
 		List<PluginRunner> pluginRunners = createPluginRunners(errorReporter);
 
@@ -69,8 +72,13 @@ public class RunPluginAction extends AnAction {
 			pluginRunner.runPlugin(pathToPluginFolder, pluginId, createBinding(event, pathToPluginFolder));
 		}
 
-		errorReporter.reportLoadingErrors(event);
-		errorReporter.reportRunningPluginExceptions(event);
+		ErrorReporter.Callback displayInConsole = new ErrorReporter.Callback() {
+			@Override public void display(String title, String message) {
+				IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, event.getData(PROJECT));
+			}
+		};
+		errorReporter.reportLoadingErrors(displayInConsole);
+		errorReporter.reportRunningPluginExceptions(displayInConsole);
 	}
 
 	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {

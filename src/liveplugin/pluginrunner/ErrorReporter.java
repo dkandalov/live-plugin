@@ -13,11 +13,7 @@
  */
 package liveplugin.pluginrunner;
 
-import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.unscramble.UnscrambleDialog;
-import liveplugin.IdeUtil;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -39,15 +35,15 @@ class ErrorReporter {
 		runningPluginExceptions.put(pluginId, e);
 	}
 
-	public void reportLoadingErrors(AnActionEvent actionEvent) {
+	public void reportLoadingErrors(Callback callback) {
 		StringBuilder text = new StringBuilder();
 		for (String s : loadingErrors) text.append(s);
-		if (text.length() > 0)
-			IdeUtil.displayInConsole("Loading errors", text.toString() + "\n",
-					ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
+		if (text.length() > 0) {
+			callback.display("Loading errors", text.toString() + "\n");
+		}
 	}
 
-	public void reportRunningPluginExceptions(AnActionEvent actionEvent) {
+	public void reportRunningPluginExceptions(Callback callback) {
 		for (Map.Entry<String, Exception> entry : runningPluginExceptions.entrySet()) {
 			StringWriter writer = new StringWriter();
 
@@ -55,8 +51,11 @@ class ErrorReporter {
 			entry.getValue().printStackTrace(new PrintWriter(writer));
 			String s = UnscrambleDialog.normalizeText(writer.getBuffer().toString());
 
-			IdeUtil.displayInConsole(entry.getKey(), s, ConsoleViewContentType.ERROR_OUTPUT, actionEvent.getData(PlatformDataKeys.PROJECT));
+			callback.display(entry.getKey(), s);
 		}
 	}
 
+	public interface Callback {
+		void display(String title, String message);
+	}
 }
