@@ -19,11 +19,13 @@ import com.intellij.openapi.diagnostic.Logger;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
+import liveplugin.FileUtil;
 import org.codehaus.groovy.control.CompilationFailedException;
 
 import java.io.*;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GroovyPluginRunner implements PluginRunner {
 	public static final String MAIN_SCRIPT = "plugin.groovy";
@@ -35,15 +37,13 @@ public class GroovyPluginRunner implements PluginRunner {
 		this.errorReporter = errorReporter;
 	}
 
+	@Override public boolean canRunPlugin(String pathToPluginFolder) {
+		return FileUtil.findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
+	}
+
 	@Override public void runPlugin(String pathToPluginFolder, String pluginId, AnActionEvent event) {
-
-		String mainScriptPath = findMainScriptIn(pathToPluginFolder);
-		if (mainScriptPath == null) {
-			errorReporter.addLoadingError(pluginId, "Couldn't find " + MAIN_SCRIPT);
-			return;
-		}
-
 		try {
+			String mainScriptPath = FileUtil.findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
 
 			GroovyClassLoader classLoader = createClassLoaderWithDependencies(mainScriptPath, pluginId, pluginEnvironment(mainScriptPath));
 			GroovyScriptEngine scriptEngine = new GroovyScriptEngine("file:///" + pathToPluginFolder, classLoader);
@@ -73,19 +73,6 @@ public class GroovyPluginRunner implements PluginRunner {
 		result.put("INTELLIJ_PLUGINS_PATH", PathManager.getPluginsPath());
 		result.put("INTELLIJ_LIBS", PathManager.getLibPath());
 		return result;
-	}
-
-	private static String findMainScriptIn(String path) {
-		List<File> files = allFilesInDirectory(new File(path));
-		List<File> result = new ArrayList<File>();
-		for (File file : files) {
-			if (MAIN_SCRIPT.equals(file.getName())) {
-				result.add(file);
-			}
-		}
-		if (result.size() == 0) return null;
-		else if (result.size() == 1) return result.get(0).getAbsolutePath();
-		else throw new IllegalStateException("Found several " + MAIN_SCRIPT + " files under " + path);
 	}
 
 	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath, String pluginId, Map<String, String> environment) {
@@ -125,20 +112,4 @@ public class GroovyPluginRunner implements PluginRunner {
 		if (wasModified) LOG.info("Path with env variables: " + path);
 		return path;
 	}
-
-	private static List<File> allFilesInDirectory(File dir) {
-		LinkedList<File> result = new LinkedList<File>();
-		File[] files = dir.listFiles();
-		if (files == null) return result;
-
-		for (File file : files) {
-			if (file.isFile()) {
-				result.add(file);
-			} else if (file.isDirectory()) {
-				result.addAll(allFilesInDirectory(file));
-			}
-		}
-		return result;
-	}
-
 }

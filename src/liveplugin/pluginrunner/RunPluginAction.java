@@ -28,10 +28,7 @@ import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.PluginToolWindowManager;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RunPluginAction extends AnAction {
 	public RunPluginAction() {
@@ -54,11 +51,23 @@ public class RunPluginAction extends AnAction {
 
 	public static void runPlugins(Collection<String> pluginIds, AnActionEvent event) {
 		ErrorReporter errorReporter = new ErrorReporter();
-		PluginRunner pluginRunner = new GroovyPluginRunner(errorReporter);
+		List<PluginRunner> pluginRunners = Arrays.asList(
+				new GroovyPluginRunner(errorReporter),
+				new ScalaPluginRunner(errorReporter)
+		);
 
 		for (String pluginId : pluginIds) {
-			String path = LivePluginAppComponent.pluginIdToPathMap().get(pluginId);
-			pluginRunner.runPlugin(path, pluginId, event);
+			final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId);
+			PluginRunner pluginRunner = ContainerUtil.find(pluginRunners, new Condition<PluginRunner>() {
+				@Override public boolean value(PluginRunner it) {
+					return it.canRunPlugin(pathToPluginFolder);
+				}
+			});
+			if (pluginRunner == null) {
+				errorReporter.addLoadingError(pluginId, "Couldn't find plugin startup script");
+				continue;
+			}
+			pluginRunner.runPlugin(pathToPluginFolder, pluginId, event);
 		}
 
 		errorReporter.reportLoadingErrors(event);

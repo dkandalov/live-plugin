@@ -45,14 +45,13 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static com.intellij.openapi.util.io.FileUtil.toSystemIndependentName;
 import static com.intellij.openapi.vfs.VfsUtilCore.pathToUrl;
 import static java.util.Arrays.asList;
+import static liveplugin.FileUtil.allFilesInDirectory;
 import static liveplugin.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
 
 public class LivePluginAppComponent implements ApplicationComponent { // TODO implement DumbAware?
@@ -177,14 +176,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 	}
 
 	private static void checkGroovyLibsAreOnClasspath() {
-		boolean found;
-		try {
-			Class.forName("org.codehaus.groovy.runtime.DefaultGroovyMethods");
-			found = true;
-		} catch (ClassNotFoundException ignored) {
-			found = false;
-		}
-		if (found) return;
+		if (IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")) return;
 
 		NotificationListener listener = new NotificationListener() {
 			@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
@@ -255,21 +247,6 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 
 				VirtualFileManager.getInstance().refreshAndFindFileByUrl(pathToUrl(toSystemIndependentName(pluginsRootPath())));
 			}
-		}
-
-		private static List<File> allFilesInDirectory(File dir) {
-			LinkedList<File> result = new LinkedList<File>();
-			File[] files = dir.listFiles();
-			if (files == null) return result;
-
-			for (File file : files) {
-				if (file.isFile()) {
-					result.add(file);
-				} else if (file.isDirectory()) {
-					result.addAll(allFilesInDirectory(file));
-				}
-			}
-			return result;
 		}
 	}
 }
