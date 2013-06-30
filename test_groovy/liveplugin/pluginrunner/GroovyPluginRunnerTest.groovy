@@ -9,9 +9,11 @@ class GroovyPluginRunnerTest {
 	private static final LinkedHashMap NO_BINDING = [:]
 	private static final LinkedHashMap NO_ENVIRONMENT = [:]
 
-	private ErrorReporter errorReporter = new ErrorReporter()
-	private GroovyPluginRunner pluginRunner = new GroovyPluginRunner(errorReporter, NO_ENVIRONMENT)
-	private File directory
+	private final ErrorReporter errorReporter = new ErrorReporter()
+	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(errorReporter, NO_ENVIRONMENT)
+	private File rootFolder
+	private File myPackageFolder
+
 
 	@Test void "should run correct groovy script without errors"() {
 		def scriptCode = """
@@ -22,9 +24,9 @@ class GroovyPluginRunnerTest {
 			def a = 1
 			def b = 2
 			a + b
-"""
-		def file = createFile("plugin.groovy", scriptCode)
-		pluginRunner.runGroovyScript(file.absolutePath, file.parentFile.absolutePath, "someId", NO_BINDING)
+		"""
+		def file = createFile("plugin.groovy", scriptCode, rootFolder)
+		pluginRunner.runGroovyScript(file.absolutePath, rootFolder.absolutePath, "someId", NO_BINDING)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -32,9 +34,9 @@ class GroovyPluginRunnerTest {
 	@Test void "should run incorrect groovy script with errors"() {
 		def scriptCode = """
 			invalid code + 1
-"""
-		def file = createFile("plugin.groovy", scriptCode)
-		pluginRunner.runGroovyScript(file.absolutePath, file.parentFile.absolutePath, "someId", NO_BINDING)
+		"""
+		def file = createFile("plugin.groovy", scriptCode, rootFolder)
+		pluginRunner.runGroovyScript(file.absolutePath, rootFolder.absolutePath, "someId", NO_BINDING)
 
 		def errors = collectErrorsFrom(errorReporter)
 		assert errors.size() == 1
@@ -44,30 +46,33 @@ class GroovyPluginRunnerTest {
 
 	@Test void "should run groovy script which uses groovy class from another file"() {
 		def scriptCode = """
+			import myPackage.Util
 			Util.myFunction()
-"""
+		"""
 		def scriptCode2 = """
 			class Util {
 				static myFunction() { 42 }
 			}
-"""
-		def file = createFile("plugin.groovy", scriptCode)
-		createFile("Util.groovy", scriptCode2)
+		"""
+		def file = createFile("plugin.groovy", scriptCode, rootFolder)
+		createFile("Util.groovy", scriptCode2, myPackageFolder)
 
-		pluginRunner.runGroovyScript(file.absolutePath, directory.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runGroovyScript(file.absolutePath, rootFolder.absolutePath, "someId", NO_BINDING)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
 
 	@Before void setup() {
-		directory = FileUtil.createTempDirectory("", "")
+		rootFolder = FileUtil.createTempDirectory("", "")
+		myPackageFolder = new File(rootFolder, "myPackage")
+		myPackageFolder.mkdir()
 	}
 
 	@After void teardown() {
-		directory.delete()
+		FileUtil.delete(rootFolder)
 	}
 
-	def createFile(String fileName, String fileContent) {
+	private static createFile(String fileName, String fileContent, File directory) {
 		def file = new File(directory, fileName)
 		file.write(fileContent)
 		file
