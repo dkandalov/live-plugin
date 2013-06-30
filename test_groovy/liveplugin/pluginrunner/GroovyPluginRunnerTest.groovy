@@ -21,7 +21,7 @@ class GroovyPluginRunnerTest {
 
 	@Test void "should run correct groovy script without errors"() {
 		def scriptCode = """
-			// import to ensure that groovy has access to parent classloader from which test is run
+			// import to ensure that script has access to parent classloader from which test is run
 			import com.intellij.openapi.util.io.FileUtil
 
 			// some groovy code

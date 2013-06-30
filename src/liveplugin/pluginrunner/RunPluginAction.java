@@ -84,7 +84,8 @@ public class RunPluginAction extends AnAction {
 	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
 		return Arrays.asList(
 				new GroovyPluginRunner(errorReporter, environment()),
-				new ScalaPluginRunner(errorReporter, environment())
+				new ScalaPluginRunner(errorReporter, environment()),
+				new ClojurePluginRunner(errorReporter, environment())
 		);
 	}
 
