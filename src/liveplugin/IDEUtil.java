@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.net.URL;
 
 public class IdeUtil {
 	// icons paths are inlined "in case API changes but path to icons does not"
@@ -92,11 +93,7 @@ public class IdeUtil {
 	}
 
 	public static boolean isOnClasspath(String className) {
-		try {
-			Class.forName(className);
-			return true;
-		} catch (ClassNotFoundException ignored) {
-			return false;
-		}
+		URL resource = IdeUtil.class.getClassLoader().getResource(className.replace(".", "/") + ".class");
+		return resource != null;
 	}
 }
