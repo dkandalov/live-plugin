@@ -17,13 +17,18 @@ import com.intellij.openapi.diagnostic.Logger;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
-import liveplugin.FileUtil;
 import org.codehaus.groovy.control.CompilationFailedException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+
+import static liveplugin.MyFileUtil.findSingleFileIn;
+import static liveplugin.MyFileUtil.asUrl;
 
 public class GroovyPluginRunner implements PluginRunner {
 	public static final String MAIN_SCRIPT = "plugin.groovy";
@@ -38,21 +43,22 @@ public class GroovyPluginRunner implements PluginRunner {
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
-		return FileUtil.findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
+		return findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
 	}
 
 	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
-		String pathToMainScript = FileUtil.findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
-		runGroovyScript(pathToMainScript, pathToPluginFolder, pluginId, binding);
+		File mainScript = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
+		String pluginFolderUrl = "file:///" + pathToPluginFolder;
+		runGroovyScript(asUrl(mainScript), pluginFolderUrl, pluginId, binding);
 	}
 
-	void runGroovyScript(String pathToMainScript, String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
+	void runGroovyScript(String mainScriptUrl, String pluginFolderUrl, String pluginId, Map<String, ?> binding) {
 		try {
-			environment.put("THIS_SCRIPT", pathToMainScript);
+			environment.put("THIS_SCRIPT", mainScriptUrl);
 
-			GroovyClassLoader classLoader = createClassLoaderWithDependencies(pathToMainScript, pluginId);
-			GroovyScriptEngine scriptEngine = new GroovyScriptEngine("file:///" + pathToPluginFolder, classLoader);
-			scriptEngine.run("file:///" + pathToMainScript, createGroovyBinding(binding));
+			GroovyClassLoader classLoader = createClassLoaderWithDependencies(pluginFolderUrl, mainScriptUrl, pluginId);
+			GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
+			scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));
 
 		} catch (IOException e) {
 			errorReporter.addLoadingError(pluginId, "Error while creating scripting engine. " + e.getMessage());
@@ -73,14 +79,15 @@ public class GroovyPluginRunner implements PluginRunner {
 		return result;
 	}
 
-	private GroovyClassLoader createClassLoaderWithDependencies(String mainScriptPath, String pluginId) {
+	private GroovyClassLoader createClassLoaderWithDependencies(String pluginFolderUrl, String mainScriptUrl, String pluginId) {
 		GroovyClassLoader classLoader = new GroovyClassLoader(this.getClass().getClassLoader());
 
 		try {
-			classLoader.addURL(new URL("file:///" + new File(mainScriptPath).getParent()));
-			classLoader.addClasspath(new File(mainScriptPath).getParent());
+			URL url = new URL(pluginFolderUrl);
+			classLoader.addURL(url);
+			classLoader.addClasspath(url.getFile());
 
-			BufferedReader inputStream = new BufferedReader(new InputStreamReader(new FileInputStream(mainScriptPath)));
+			BufferedReader inputStream = new BufferedReader(new InputStreamReader(new URL(mainScriptUrl).openStream()));
 			String line;
 			while ((line = inputStream.readLine()) != null) {
 				if (line.startsWith(CLASSPATH_PREFIX)) {
@@ -96,7 +103,7 @@ public class GroovyPluginRunner implements PluginRunner {
 				}
 			}
 		} catch (IOException e) {
-			errorReporter.addLoadingError(pluginId, "Error while looking for dependencies. Main script: " + mainScriptPath + ". " + e.getMessage());
+			errorReporter.addLoadingError(pluginId, "Error while looking for dependencies. Main script: " + mainScriptUrl + ". " + e.getMessage());
 		}
 		return classLoader;
 	}

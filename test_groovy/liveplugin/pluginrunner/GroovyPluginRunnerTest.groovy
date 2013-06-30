@@ -1,9 +1,13 @@
 package liveplugin.pluginrunner
-
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.io.ZipUtil
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+
+import java.util.zip.ZipOutputStream
+
+import static liveplugin.MyFileUtil.asUrl
 
 class GroovyPluginRunnerTest {
 	private static final LinkedHashMap NO_BINDING = [:]
@@ -26,7 +30,7 @@ class GroovyPluginRunnerTest {
 			a + b
 		"""
 		def file = createFile("plugin.groovy", scriptCode, rootFolder)
-		pluginRunner.runGroovyScript(file.absolutePath, rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runGroovyScript(asUrl(file), asUrl(rootFolder), "someId", NO_BINDING)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -36,7 +40,7 @@ class GroovyPluginRunnerTest {
 			invalid code + 1
 		"""
 		def file = createFile("plugin.groovy", scriptCode, rootFolder)
-		pluginRunner.runGroovyScript(file.absolutePath, rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runGroovyScript(asUrl(file), asUrl(rootFolder), "someId", NO_BINDING)
 
 		def errors = collectErrorsFrom(errorReporter)
 		assert errors.size() == 1
@@ -44,7 +48,7 @@ class GroovyPluginRunnerTest {
 		assert errors.first()[1].startsWith("groovy.lang.MissingPropertyException")
 	}
 
-	@Test void "should run groovy script which uses groovy class from another file"() {
+	@Test void "when script is in folder should run groovy script which uses groovy class from another file"() {
 		def scriptCode = """
 			import myPackage.Util
 			Util.myFunction()
@@ -57,9 +61,30 @@ class GroovyPluginRunnerTest {
 		def file = createFile("plugin.groovy", scriptCode, rootFolder)
 		createFile("Util.groovy", scriptCode2, myPackageFolder)
 
-		pluginRunner.runGroovyScript(file.absolutePath, rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runGroovyScript(asUrl(file), asUrl(rootFolder), "someId", NO_BINDING)
 
 		assert collectErrorsFrom(errorReporter).empty
+	}
+
+	@Test void "when script is in jar file should run groovy script which uses groovy class from another file"() {
+		def scriptCode = """
+			import myPackage.Util
+			Util.myFunction()
+		"""
+		def scriptCode2 = """
+			class Util {
+				static myFunction() { 42 }
+			}
+		"""
+		createFile("plugin.groovy", scriptCode, rootFolder)
+		createFile("Util.groovy", scriptCode2, myPackageFolder)
+
+		givenJarred(rootFolder) { File jarFile ->
+			def scriptUrl = "jar:file://" + jarFile.absolutePath + "!/plugin.groovy"
+			def pluginFolderUrl = "file://" + rootFolder.absolutePath
+			pluginRunner.runGroovyScript(scriptUrl, pluginFolderUrl, "someId", NO_BINDING)
+			assert collectErrorsFrom(errorReporter).empty
+		}
 	}
 
 	@Before void setup() {
@@ -70,6 +95,26 @@ class GroovyPluginRunnerTest {
 
 	@After void teardown() {
 		FileUtil.delete(rootFolder)
+	}
+
+	private static givenJarred(File dir, Closure closure) {
+		def tempDir = FileUtil.createTempDirectory("", "")
+		def jarFile = new File(tempDir, "plugin.jar")
+		zip(dir, jarFile)
+		try {
+			closure(jarFile)
+		} finally {
+			FileUtil.delete(tempDir)
+		}
+	}
+
+	private static def zip(File fileToZip, File destinationFile) {
+		def zipOutputStream = new ZipOutputStream(new FileOutputStream(destinationFile))
+		def allFilesFilter = new FileFilter() {
+			@Override boolean accept(File pathName) { true }
+		}
+		ZipUtil.addDirToZipRecursively(zipOutputStream, null, fileToZip, "", allFilesFilter, new HashSet())
+		zipOutputStream.close()
 	}
 
 	private static createFile(String fileName, String fileContent, File directory) {

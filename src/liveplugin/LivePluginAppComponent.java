@@ -51,7 +51,7 @@ import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static com.intellij.openapi.util.io.FileUtil.toSystemIndependentName;
 import static com.intellij.openapi.vfs.VfsUtilCore.pathToUrl;
 import static java.util.Arrays.asList;
-import static liveplugin.FileUtil.allFilesInDirectory;
+import static liveplugin.MyFileUtil.allFilesInDirectory;
 import static liveplugin.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
 
 public class LivePluginAppComponent implements ApplicationComponent { // TODO implement DumbAware?

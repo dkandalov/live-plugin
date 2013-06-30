@@ -4,7 +4,7 @@ import liveplugin.IdeUtil;
 
 import java.util.Map;
 
-import static liveplugin.FileUtil.findSingleFileIn;
+import static liveplugin.MyFileUtil.findSingleFileIn;
 
 class ScalaPluginRunner implements PluginRunner {
 	private static boolean ENABLED = IdeUtil.isOnClasspath("scala.Some");
