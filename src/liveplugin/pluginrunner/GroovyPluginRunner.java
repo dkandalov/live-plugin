@@ -42,17 +42,17 @@ public class GroovyPluginRunner implements PluginRunner {
 	}
 
 	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
-		String mainScriptPath = FileUtil.findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
-		runGroovyScript(mainScriptPath, pathToPluginFolder, pluginId, binding);
+		String pathToMainScript = FileUtil.findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
+		runGroovyScript(pathToMainScript, pathToPluginFolder, pluginId, binding);
 	}
 
-	private void runGroovyScript(String mainScriptPath, String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
+	void runGroovyScript(String pathToMainScript, String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
 		try {
-			environment.put("THIS_SCRIPT", mainScriptPath);
+			environment.put("THIS_SCRIPT", pathToMainScript);
 
-			GroovyClassLoader classLoader = createClassLoaderWithDependencies(mainScriptPath, pluginId);
+			GroovyClassLoader classLoader = createClassLoaderWithDependencies(pathToMainScript, pluginId);
 			GroovyScriptEngine scriptEngine = new GroovyScriptEngine("file:///" + pathToPluginFolder, classLoader);
-			scriptEngine.run("file:///" + mainScriptPath, createGroovyBinding(binding));
+			scriptEngine.run("file:///" + pathToMainScript, createGroovyBinding(binding));
 
 		} catch (IOException e) {
 			errorReporter.addLoadingError(pluginId, "Error while creating scripting engine. " + e.getMessage());
