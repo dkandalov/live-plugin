@@ -117,13 +117,13 @@ class GroovyPluginRunnerTest {
 		zipOutputStream.close()
 	}
 
-	private static createFile(String fileName, String fileContent, File directory) {
+	static createFile(String fileName, String fileContent, File directory) {
 		def file = new File(directory, fileName)
 		file.write(fileContent)
 		file
 	}
 
-	private def static collectErrorsFrom(ErrorReporter errorReporter) {
+	static collectErrorsFrom(ErrorReporter errorReporter) {
 		def errors = []
 		errorReporter.reportLoadingErrors(new ErrorReporter.Callback() {
 			@Override void display(String title, String message) {
