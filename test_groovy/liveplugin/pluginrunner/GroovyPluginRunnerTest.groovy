@@ -44,8 +44,10 @@ class GroovyPluginRunnerTest {
 
 		def errors = collectErrorsFrom(errorReporter)
 		assert errors.size() == 1
-		assert errors.first()[0] == "someId"
-		assert errors.first()[1].startsWith("groovy.lang.MissingPropertyException")
+		errors.first().with{
+			assert it[0] == "someId"
+			assert it[1].startsWith("groovy.lang.MissingPropertyException")
+		}
 	}
 
 	@Test void "when script is in folder should run groovy script which uses groovy class from another file"() {

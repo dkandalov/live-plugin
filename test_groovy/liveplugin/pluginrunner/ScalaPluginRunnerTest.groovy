@@ -40,8 +40,10 @@ class ScalaPluginRunnerTest {
 
 		def errors = collectErrorsFrom(errorReporter)
 		assert errors.size() == 1
-		assert errors.first()[0] == "someId"
-		assert errors.first()[1].startsWith("<console>:10: error: value is is not a member of object")
+		errors.first().with{
+			assert it[0] == "someId"
+			assert it[1].startsWith("<console>:10: error: value is is not a member of object")
+		}
 	}
 
 	@Before void setup() {
