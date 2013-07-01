@@ -27,6 +27,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
+import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 
 class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 	public static final Icon Folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
@@ -52,9 +56,13 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 		return new ActionGroup() {
 			@NotNull @Override
 			public AnAction[] getChildren(AnActionEvent e) {
-				ArrayList<AnAction> actions = new ArrayList<AnAction>();
+				List<AnAction> actions = new ArrayList<AnAction>();
+				actions.add(new NewFileAction("Groovy File", null, IdeUtil.GROOVY_FILE_TYPE));
+
+				if (scalaIsOnClassPath()) actions.add(new NewFileAction("Scala File", null, IdeUtil.SCALA_FILE_TYPE));
+				if (clojureIsOnClassPath()) actions.add(new NewFileAction("Clojure File", null, IdeUtil.CLOJURE_FILE_TYPE));
+
 				actions.addAll(Arrays.asList(
-						new NewFileAction("Groovy File", IdeUtil.GROOVY_FILE_TYPE_ICON, IdeUtil.GROOVY_FILE_TYPE),
 						new NewFileAction("Text File", AllIcons.FileTypes.Text, IdeUtil.TEXT_FILE_TYPE),
 						new NewFolderAction("Directory", "Directory", Folder),
 						new Separator(),

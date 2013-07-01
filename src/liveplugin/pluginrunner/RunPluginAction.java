@@ -33,6 +33,8 @@ import java.util.*;
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.openapi.actionSystem.PlatformDataKeys.PROJECT;
+import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
+import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 
 public class RunPluginAction extends AnAction {
 	public RunPluginAction() {
@@ -86,14 +88,6 @@ public class RunPluginAction extends AnAction {
 		if (scalaIsOnClassPath()) result.add(new ScalaPluginRunner(errorReporter, environment()));
 		if (clojureIsOnClassPath()) result.add(new ClojurePluginRunner(errorReporter, environment()));
 		return result;
-	}
-
-	private static boolean scalaIsOnClassPath() {
-		return IdeUtil.isOnClasspath("scala.Some");
-	}
-
-	private static boolean clojureIsOnClassPath() {
-		return IdeUtil.isOnClasspath("clojure.core.Vec");
 	}
 
 	private static Map<String, Object> createBinding(AnActionEvent event, String pathToPluginFolder) {

@@ -121,6 +121,14 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 		return pluginIdToPathMap().keySet().contains(pluginId);
 	}
 
+	public static boolean scalaIsOnClassPath() {
+		return IdeUtil.isOnClasspath("scala.Some");
+	}
+
+	public static boolean clojureIsOnClassPath() {
+		return IdeUtil.isOnClasspath("clojure.core.Vec");
+	}
+
 	@Override public void initComponent() {
 		checkGroovyLibsAreOnClasspath();
 

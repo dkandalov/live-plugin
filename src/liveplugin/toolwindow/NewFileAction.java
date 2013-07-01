@@ -24,6 +24,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.UIBundle;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
@@ -37,7 +38,7 @@ public class NewFileAction extends FileChooserAction {
 	public NewFileAction() {
 	}
 
-	public NewFileAction(String text, Icon icon, @NotNull FileType fileType) {
+	public NewFileAction(String text, @Nullable Icon icon, @NotNull FileType fileType) {
 		super(text, text, icon);
 		this.fileType = fileType;
 	}
