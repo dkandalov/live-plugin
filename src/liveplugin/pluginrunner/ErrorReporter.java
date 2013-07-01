@@ -25,9 +25,14 @@ import java.util.Map;
 class ErrorReporter {
 	private final List<String> loadingErrors = new LinkedList<String>();
 	private final LinkedHashMap<String, Exception> runningPluginExceptions = new LinkedHashMap<String, Exception>();
+	private final LinkedHashMap<String, String> runningPluginErrors = new LinkedHashMap<String, String>();
 
 	public void addLoadingError(String pluginId, String message) {
 		loadingErrors.add("Error loading plugin: \"" + pluginId + "\". " + message);
+	}
+
+	public void addRunningPluginError(String pluginId, String message) {
+		runningPluginErrors.put(pluginId, message);
 	}
 
 	public void addRunningPluginException(String pluginId, Exception e) {
@@ -35,7 +40,13 @@ class ErrorReporter {
 		runningPluginExceptions.put(pluginId, e);
 	}
 
-	public void reportLoadingErrors(Callback callback) {
+	public void reportAllErrors(Callback callback) {
+		reportLoadingErrors(callback);
+		reportRunningPluginExceptions(callback);
+		reportRunningPluginErrors(callback);
+	}
+
+	private void reportLoadingErrors(Callback callback) {
 		StringBuilder text = new StringBuilder();
 		for (String s : loadingErrors) text.append(s);
 		if (text.length() > 0) {
@@ -43,7 +54,7 @@ class ErrorReporter {
 		}
 	}
 
-	public void reportRunningPluginExceptions(Callback callback) {
+	private void reportRunningPluginExceptions(Callback callback) {
 		for (Map.Entry<String, Exception> entry : runningPluginExceptions.entrySet()) {
 			StringWriter writer = new StringWriter();
 
@@ -52,6 +63,12 @@ class ErrorReporter {
 			String s = UnscrambleDialog.normalizeText(writer.getBuffer().toString());
 
 			callback.display(entry.getKey(), s);
+		}
+	}
+
+	private void reportRunningPluginErrors(Callback callback) {
+		for (Map.Entry<String, String> entry : runningPluginErrors.entrySet()) {
+			callback.display(entry.getKey(), entry.getValue());
 		}
 	}
 

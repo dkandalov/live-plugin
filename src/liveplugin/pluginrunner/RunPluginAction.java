@@ -77,16 +77,23 @@ public class RunPluginAction extends AnAction {
 				IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, event.getData(PROJECT));
 			}
 		};
-		errorReporter.reportLoadingErrors(displayInConsole);
-		errorReporter.reportRunningPluginExceptions(displayInConsole);
+		errorReporter.reportAllErrors(displayInConsole);
 	}
 
 	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
-		return Arrays.asList(
-				new GroovyPluginRunner(errorReporter, environment()),
-				new ScalaPluginRunner(errorReporter, environment()),
-				new ClojurePluginRunner(errorReporter, environment())
-		);
+		List<PluginRunner> result = new ArrayList<PluginRunner>();
+		result.add(new GroovyPluginRunner(errorReporter, environment()));
+		if (scalaIsOnClassPath()) result.add(new ScalaPluginRunner(errorReporter, environment()));
+		if (clojureIsOnClassPath()) result.add(new ClojurePluginRunner(errorReporter, environment()));
+		return result;
+	}
+
+	private static boolean scalaIsOnClassPath() {
+		return IdeUtil.isOnClasspath("scala.Some");
+	}
+
+	private static boolean clojureIsOnClassPath() {
+		return IdeUtil.isOnClasspath("clojure.core.Vec");
 	}
 
 	private static Map<String, Object> createBinding(AnActionEvent event, String pathToPluginFolder) {

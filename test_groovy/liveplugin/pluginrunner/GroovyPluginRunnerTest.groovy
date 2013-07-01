@@ -125,12 +125,7 @@ class GroovyPluginRunnerTest {
 
 	static collectErrorsFrom(ErrorReporter errorReporter) {
 		def errors = []
-		errorReporter.reportLoadingErrors(new ErrorReporter.Callback() {
-			@Override void display(String title, String message) {
-				errors << [title, message]
-			}
-		})
-		errorReporter.reportRunningPluginExceptions(new ErrorReporter.Callback() {
+		errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 			@Override void display(String title, String message) {
 				errors << [title, message]
 			}

@@ -1,12 +1,11 @@
 package liveplugin.pluginrunner
-
 import com.intellij.openapi.util.io.FileUtil
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-import static liveplugin.MyFileUtil.asUrl
-import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
+import static liveplugin.pluginrunner.GroovyPluginRunnerTest.collectErrorsFrom
+import static liveplugin.pluginrunner.GroovyPluginRunnerTest.createFile
 
 class ScalaPluginRunnerTest {
 	private static final LinkedHashMap NO_BINDING = [:]
@@ -27,9 +26,22 @@ class ScalaPluginRunnerTest {
 			a + b
 		"""
 		createFile("plugin.scala", scriptCode, rootFolder)
-		pluginRunner.runPlugin(asUrl(rootFolder), "someId", NO_BINDING)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
 
 		assert collectErrorsFrom(errorReporter).empty
+	}
+
+	@Test void "should run incorrect scala script reporting errors"() {
+		def scriptCode = """
+			this is not proper scala code
+		"""
+		createFile("plugin.scala", scriptCode, rootFolder)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
+
+		def errors = collectErrorsFrom(errorReporter)
+		assert errors.size() == 1
+		assert errors.first()[0] == "someId"
+		assert errors.first()[1].startsWith("<console>:10: error: value is is not a member of object")
 	}
 
 	@Before void setup() {

@@ -1,15 +1,12 @@
 package liveplugin.pluginrunner;
 
-import liveplugin.IdeUtil;
-
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import static liveplugin.MyFileUtil.findSingleFileIn;
 
-public class ClojurePluginRunner implements PluginRunner {
-	private static boolean ENABLED = IdeUtil.isOnClasspath("clojure.core.Vec");
+class ClojurePluginRunner implements PluginRunner {
 	static final String MAIN_SCRIPT = "plugin.clj";
 
 	private final GroovyPluginRunner groovyPluginRunner;
@@ -19,7 +16,7 @@ public class ClojurePluginRunner implements PluginRunner {
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
-		return ENABLED && findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
+		return findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
 	}
 
 	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
