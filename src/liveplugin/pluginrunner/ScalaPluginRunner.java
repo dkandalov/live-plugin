@@ -11,7 +11,6 @@ import scala.tools.nsc.interpreter.Results;
 import scala.tools.nsc.settings.MutableSettings;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
@@ -65,7 +64,7 @@ class ScalaPluginRunner implements PluginRunner {
 		Results.Result result;
 		try {
 			result = interpreter.interpret(FileUtil.loadFile(scriptFile));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
 			return;
 		}

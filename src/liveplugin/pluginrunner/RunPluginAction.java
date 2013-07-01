@@ -26,7 +26,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.PluginToolWindowManager;
@@ -34,13 +33,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
+import static com.intellij.util.containers.ContainerUtil.find;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
 import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
 public class RunPluginAction extends AnAction {
+	private static final ExecutorService executor = newSingleThreadExecutor();
+
 	public RunPluginAction() {
 		super("Run Plugin", "Run selected plugins", IdeUtil.RUN_PLUGIN_ICON);
 	}
@@ -59,39 +65,52 @@ public class RunPluginAction extends AnAction {
 		runPlugins(pluginIds, event);
 	}
 
-	public static void runPlugins(Collection<String> pluginIds, final AnActionEvent event) {
+	public static void runPlugins(final Collection<String> pluginIds, AnActionEvent event) {
 		final Project project = event.getProject();
-		final ErrorReporter errorReporter = new ErrorReporter();
-		List<PluginRunner> pluginRunners = createPluginRunners(errorReporter);
+		final boolean isIdeStartup = event.getPlace().equals(IDE_STARTUP);
 
-		for (final String pluginId : pluginIds) {
-			final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId);
-			final PluginRunner pluginRunner = ContainerUtil.find(pluginRunners, new Condition<PluginRunner>() {
-				@Override public boolean value(PluginRunner it) {
-					return it.canRunPlugin(pathToPluginFolder);
-				}
-			});
-			if (pluginRunner == null) {
-				errorReporter.addLoadingError(pluginId, "Couldn't find plugin startup script");
-				continue;
-			}
+		final Callable<Void> runPlugins = new Callable<Void>() {
+			@Override public Void call() throws Exception {
 
-			final Map<String, Object> binding = createBinding(pathToPluginFolder, project, event.getPlace().equals(IDE_STARTUP));
-			new Task.Backgroundable(project, "Running plugin: " + pluginId, false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-				@Override public void run(@NotNull ProgressIndicator indicator) {
+				ErrorReporter errorReporter = new ErrorReporter();
+				List<PluginRunner> pluginRunners = createPluginRunners(errorReporter);
+
+				for (String pluginId : pluginIds) {
+					final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
+					PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
+						@Override public boolean value(PluginRunner it) {
+							return it.canRunPlugin(pathToPluginFolder);
+						}
+					});
+					if (pluginRunner == null) {
+						errorReporter.addLoadingError(pluginId, "Couldn't find plugin startup script");
+						continue;
+					}
+
+					Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
 					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding);
-				}
 
-				@Override public void onSuccess() {
-					ErrorReporter.Callback displayInConsole = new ErrorReporter.Callback() {
+					errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 						@Override public void display(String title, String message) {
 							IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
 						}
-					};
-					errorReporter.reportAllErrors(displayInConsole);
+					});
 				}
-			}.queue();
-		}
+
+				return null;
+			}
+		};
+
+		new Task.Backgroundable(project, "Running live plugin", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+			@Override public void run(@NotNull ProgressIndicator indicator) {
+				try {
+					// this is to make running plugins thread-confined
+					executor.submit(runPlugins).get();
+				} catch (InterruptedException ignored) {
+				} catch (ExecutionException ignored) {
+				}
+			}
+		}.queue();
 	}
 
 	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
@@ -147,7 +166,7 @@ public class RunPluginAction extends AnAction {
 		if (virtualFile == null) return Collections.emptyList();
 
 		final File file = new File(virtualFile.getPath());
-		Map.Entry<String, String> entry = ContainerUtil.find(LivePluginAppComponent.pluginIdToPathMap().entrySet(), new Condition<Map.Entry<String, String>>() {
+		Map.Entry<String, String> entry = find(LivePluginAppComponent.pluginIdToPathMap().entrySet(), new Condition<Map.Entry<String, String>>() {
 			@Override
 			public boolean value(Map.Entry<String, String> entry) {
 				String pluginPath = entry.getValue();
