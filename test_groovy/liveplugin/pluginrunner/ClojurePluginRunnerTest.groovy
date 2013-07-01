@@ -2,6 +2,7 @@ package liveplugin.pluginrunner
 import com.intellij.openapi.util.io.FileUtil
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 import static liveplugin.pluginrunner.GroovyPluginRunnerTest.collectErrorsFrom
@@ -14,6 +15,8 @@ class ClojurePluginRunnerTest {
 	private final ErrorReporter errorReporter = new ErrorReporter()
 	private final ClojurePluginRunner pluginRunner = new ClojurePluginRunner(errorReporter, NO_ENVIRONMENT)
 	private File rootFolder
+	private File myPackageFolder
+
 
 	@Test void "should run correct clojure script without errors"() {
 		def scriptCode = """
@@ -43,8 +46,25 @@ class ClojurePluginRunnerTest {
 		}
 	}
 
+	@Ignore @Test void "should run correct clojure script which uses other script"() {
+		def scriptCode = """
+			(load "util")
+			(+ 1 2)
+		"""
+		def scriptCode2 = """
+			(defn foo [] 41)
+		"""
+		createFile("plugin.clj", scriptCode, rootFolder)
+		createFile("util.clj", scriptCode2, myPackageFolder)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
+
+		assert collectErrorsFrom(errorReporter).empty
+	}
+
 	@Before void setup() {
 		rootFolder = FileUtil.createTempDirectory("", "")
+		myPackageFolder = new File(rootFolder, "clojure")
+		myPackageFolder.mkdir()
 	}
 
 	@After void teardown() {

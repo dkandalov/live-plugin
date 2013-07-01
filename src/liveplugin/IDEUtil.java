@@ -44,9 +44,10 @@ public class IdeUtil {
 	public static final Icon EXPAND_ALL_ICON = IconLoader.getIcon("/actions/expandall.png"); // 16x16
 	public static final Icon COLLAPSE_ALL_ICON = IconLoader.getIcon("/actions/collapseall.png"); // 16x16
 	public static final Icon SETTINGS_ICON = IconLoader.getIcon("/actions/showSettings.png"); // 16x16
-	public static final Icon GROOVY_FILE_TYPE_ICON = IconLoader.getIcon("/liveplugin/toolwindow/groovy_fileType.png");
 
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
+	public static final FileType SCALA_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".scala");
+	public static final FileType CLOJURE_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".clj");
 	public static final FileType TEXT_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".txt");
 
 	private static final Logger LOG = Logger.getInstance(IdeUtil.class);

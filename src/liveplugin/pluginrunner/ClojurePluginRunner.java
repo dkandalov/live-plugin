@@ -4,11 +4,9 @@ import clojure.lang.Namespace;
 import clojure.lang.RT;
 import clojure.lang.Symbol;
 import clojure.lang.Var;
-import com.intellij.openapi.util.io.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Map;
 
 import static liveplugin.MyFileUtil.findSingleFileIn;
@@ -49,10 +47,14 @@ class ClojurePluginRunner implements PluginRunner {
 		File scriptFile = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
 		assert scriptFile != null;
 		try {
-			clojure.lang.Compiler.load(new StringReader(FileUtil.loadFile(scriptFile)));
+
+			clojure.lang.Compiler.loadFile(scriptFile.getAbsolutePath());
+
 		} catch (IOException e) {
+			e.printStackTrace();
 			errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
 		} catch (Exception e) {
+			e.printStackTrace();
 			errorReporter.addRunningPluginException(pluginId, e);
 		}
 	}
