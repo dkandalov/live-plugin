@@ -77,7 +77,7 @@ public class RunPluginAction extends AnAction {
 			}
 
 			final Map<String, Object> binding = createBinding(pathToPluginFolder, project, event.getPlace().equals(IDE_STARTUP));
-			new Task.Backgroundable(project, "Running '" + pluginId + "' plugin", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+			new Task.Backgroundable(project, "Running plugin: " + pluginId, false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 				@Override public void run(@NotNull ProgressIndicator indicator) {
 					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding);
 				}

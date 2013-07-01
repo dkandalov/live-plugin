@@ -40,35 +40,6 @@ class ScalaPluginRunner implements PluginRunner {
 	public ScalaPluginRunner(ErrorReporter errorReporter, Map<String, String> environment) {
 		this.errorReporter = errorReporter;
 		this.environment = environment;
-
-		if (interpreter == null) {
-			try {
-				Settings settings = new Settings();
-				MutableSettings.PathSetting bootClasspath = (MutableSettings.PathSetting) settings.bootclasspath();
-
-				Function<File, String> toAbsolutePath = new Function<File, String>() {
-					@Override public String fun(File it) {
-						return it.getAbsolutePath();
-					}
-				};
-
-				String compilerPath = PathUtil.getJarPathForClass(Class.forName("scala.tools.nsc.Interpreter"));
-				String scalaLibPath = PathUtil.getJarPathForClass(Class.forName("scala.Some"));
-				String intellijLibPath = join(map(withDefault(new File[0], new File(getLibPath()).listFiles()), toAbsolutePath), pathSeparator);
-				String intellijPluginsPath = join(map(withDefault(new File[0], new File(getPluginsPath()).listFiles()), toAbsolutePath), pathSeparator);
-				String livePluginPath = PathManager.getResourceRoot(ScalaPluginRunner.class, "/liveplugin/"); // this is only useful when running liveplugin from IDE (it's not packed into jar)
-				String path =
-						join(asList(compilerPath, scalaLibPath, livePluginPath), pathSeparator) +
-						pathSeparator + intellijLibPath + pathSeparator + intellijPluginsPath;
-
-				bootClasspath.append(path);
-				((MutableSettings.BooleanSetting) settings.usejavacp()).tryToSetFromPropertyValue("true");
-
-				interpreter = new IMain(settings, new PrintWriter(interpreterOutput));
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
@@ -76,6 +47,14 @@ class ScalaPluginRunner implements PluginRunner {
 	}
 
 	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
+		if (interpreter == null) {
+			try {
+				interpreter = initInterpreter();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 		interpreterOutput.getBuffer().delete(0, interpreterOutput.getBuffer().length());
 		for (Map.Entry<String, ?> entry : binding.entrySet()) {
 			interpreter.bindValue(entry.getKey(), entry.getValue());
@@ -94,6 +73,31 @@ class ScalaPluginRunner implements PluginRunner {
 		if (!(result instanceof Results.Success$)) {
 			errorReporter.addRunningPluginError(pluginId, interpreterOutput.toString());
 		}
+	}
+
+	private static IMain initInterpreter() throws ClassNotFoundException {
+		Settings settings = new Settings();
+		MutableSettings.PathSetting bootClasspath = (MutableSettings.PathSetting) settings.bootclasspath();
+
+		Function<File, String> toAbsolutePath = new Function<File, String>() {
+			@Override public String fun(File it) {
+				return it.getAbsolutePath();
+			}
+		};
+
+		String compilerPath = PathUtil.getJarPathForClass(Class.forName("scala.tools.nsc.Interpreter"));
+		String scalaLibPath = PathUtil.getJarPathForClass(Class.forName("scala.Some"));
+		String intellijLibPath = join(map(withDefault(new File[0], new File(getLibPath()).listFiles()), toAbsolutePath), pathSeparator);
+		String intellijPluginsPath = join(map(withDefault(new File[0], new File(getPluginsPath()).listFiles()), toAbsolutePath), pathSeparator);
+		String livePluginPath = PathManager.getResourceRoot(ScalaPluginRunner.class, "/liveplugin/"); // this is only useful when running liveplugin from IDE (it's not packed into jar)
+		String path =
+				join(asList(compilerPath, scalaLibPath, livePluginPath), pathSeparator) +
+						pathSeparator + intellijLibPath + pathSeparator + intellijPluginsPath;
+
+		bootClasspath.append(path);
+		((MutableSettings.BooleanSetting) settings.usejavacp()).tryToSetFromPropertyValue("true");
+
+		return new IMain(settings, new PrintWriter(interpreterOutput));
 	}
 
 	private static <T> T withDefault(T defaultValue, T value) {
