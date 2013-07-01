@@ -76,6 +76,27 @@ import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
+	@CanCallFromAnyThread
+	static <T> T invokeOnEDT(Closure closure) {
+		def result = null
+		UIUtil.invokeAndWaitIfNeeded(new Runnable() {
+			@Override void run() {
+				//noinspection GrReassignedInClosureLocalVar
+				result = closure()
+			}
+		})
+		(T) result
+	}
+
+	@CanCallFromAnyThread
+	static void invokeLaterOnEDT(Closure closure) {
+		UIUtil.invokeLaterIfNeeded(new Runnable() {
+			@Override void run() {
+				closure()
+			}
+		})
+	}
+
 	/**
 	 * Writes a message to "idea.log" file.
 	 * (Its location can be found using {@link com.intellij.openapi.application.PathManager#getLogPath()}.)
