@@ -19,6 +19,9 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
@@ -27,14 +30,15 @@ import com.intellij.util.containers.ContainerUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.PluginToolWindowManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
-import static com.intellij.openapi.actionSystem.PlatformDataKeys.PROJECT;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
 import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
+import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
 public class RunPluginAction extends AnAction {
 	public RunPluginAction() {
@@ -56,12 +60,13 @@ public class RunPluginAction extends AnAction {
 	}
 
 	public static void runPlugins(Collection<String> pluginIds, final AnActionEvent event) {
-		ErrorReporter errorReporter = new ErrorReporter();
+		final Project project = event.getProject();
+		final ErrorReporter errorReporter = new ErrorReporter();
 		List<PluginRunner> pluginRunners = createPluginRunners(errorReporter);
 
-		for (String pluginId : pluginIds) {
+		for (final String pluginId : pluginIds) {
 			final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId);
-			PluginRunner pluginRunner = ContainerUtil.find(pluginRunners, new Condition<PluginRunner>() {
+			final PluginRunner pluginRunner = ContainerUtil.find(pluginRunners, new Condition<PluginRunner>() {
 				@Override public boolean value(PluginRunner it) {
 					return it.canRunPlugin(pathToPluginFolder);
 				}
@@ -71,15 +76,22 @@ public class RunPluginAction extends AnAction {
 				continue;
 			}
 
-			pluginRunner.runPlugin(pathToPluginFolder, pluginId, createBinding(event, pathToPluginFolder));
-		}
+			final Map<String, Object> binding = createBinding(pathToPluginFolder, project, event.getPlace().equals(IDE_STARTUP));
+			new Task.Backgroundable(project, "Running '" + pluginId + "' plugin", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+				@Override public void run(@NotNull ProgressIndicator indicator) {
+					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding);
+				}
 
-		ErrorReporter.Callback displayInConsole = new ErrorReporter.Callback() {
-			@Override public void display(String title, String message) {
-				IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, event.getData(PROJECT));
-			}
-		};
-		errorReporter.reportAllErrors(displayInConsole);
+				@Override public void onSuccess() {
+					ErrorReporter.Callback displayInConsole = new ErrorReporter.Callback() {
+						@Override public void display(String title, String message) {
+							IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
+						}
+					};
+					errorReporter.reportAllErrors(displayInConsole);
+				}
+			}.queue();
+		}
 	}
 
 	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
@@ -90,11 +102,10 @@ public class RunPluginAction extends AnAction {
 		return result;
 	}
 
-	private static Map<String, Object> createBinding(AnActionEvent event, String pathToPluginFolder) {
+	private static Map<String, Object> createBinding(String pathToPluginFolder, Project project, boolean isIdeStartup) {
 		Map<String, Object> binding = new HashMap<String, Object>();
-		binding.put("event", event);
-		binding.put("project", event.getProject());
-		binding.put("isIdeStartup", event.getPlace().equals(PluginRunner.IDE_STARTUP));
+		binding.put("project", project);
+		binding.put("isIdeStartup", isIdeStartup);
 		binding.put("pluginPath", pathToPluginFolder);
 		return binding;
 	}
