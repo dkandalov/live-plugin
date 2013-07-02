@@ -133,7 +133,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 	}
 
 	@Override public void initComponent() {
-		checkGroovyLibsAreOnClasspath();
+		checkThatGroovyIsOnClasspath();
 
 		Settings settings = Settings.getInstance();
 		if (settings.justInstalled) {
@@ -190,12 +190,12 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 		DownloadableFileService service = DownloadableFileService.getInstance();
 		DownloadableFileDescription description = service.createFileDescription(downloadUrl + fileName, fileName);
 		VirtualFile[] files = service.createDownloader(asList(description), null, null, fileName)
-				.toDirectory(PathManager.getPluginsPath() + "LivePlugin/lib/")
+				.toDirectory(PathManager.getPluginsPath() + "/LivePlugin/lib/")
 				.download();
 		return files != null;
 	}
 
-	private static void checkGroovyLibsAreOnClasspath() {
+	public static void checkThatGroovyIsOnClasspath() {
 		if (isGroovyOnClasspath()) return;
 
 		NotificationListener listener = new NotificationListener() {
@@ -205,13 +205,14 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 					notification.expire();
 					askUserIfShouldRestartIde();
 				} else {
-					NotificationGroup.balloonGroup("Live Plugin").createNotification("Failed to download groovy-all.jar", NotificationType.WARNING);
+					NotificationGroup.balloonGroup("Live Plugin")
+							.createNotification("Failed to download Groovy libraries", NotificationType.WARNING);
 				}
 			}
 		};
 		NotificationGroup.balloonGroup("Live Plugin").createNotification(
-				"LivePlugin didn't find Groovy on classpath",
-				"Without it plugins won't work. <a href=\"\">Download groovy-all.jar</a>",
+				"LivePlugin didn't find Groovy libraries on classpath",
+				"Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~6Mb)",
 				NotificationType.ERROR,
 				listener
 		).notify(null);

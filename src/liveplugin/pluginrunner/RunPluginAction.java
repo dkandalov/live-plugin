@@ -40,6 +40,7 @@ import java.util.concurrent.ExecutorService;
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.util.containers.ContainerUtil.find;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static liveplugin.LivePluginAppComponent.checkThatGroovyIsOnClasspath;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
 import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
@@ -66,6 +67,8 @@ public class RunPluginAction extends AnAction {
 	}
 
 	public static void runPlugins(final Collection<String> pluginIds, AnActionEvent event) {
+		checkThatGroovyIsOnClasspath();
+
 		final Project project = event.getProject();
 		final boolean isIdeStartup = event.getPlace().equals(IDE_STARTUP);
 

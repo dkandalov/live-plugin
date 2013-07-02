@@ -25,6 +25,8 @@ import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.AbstractTreeStructure;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.lang.Language;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.application.ApplicationManager;
@@ -100,6 +102,8 @@ import java.util.regex.Pattern;
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static java.util.Arrays.asList;
+import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
+import static liveplugin.LivePluginAppComponent.downloadLibraryToPluginPath;
 
 /**
  * User: dima
@@ -318,6 +322,10 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddIDEAJarsAsDependencies());
 			actionGroup.add(new Separator());
 			actionGroup.add(new RunAllPluginsOnIDEStartAction());
+			actionGroup.add(new Separator());
+			actionGroup.add(new DownloadScalaLibs());
+			actionGroup.add(new DownloadClojureLibs());
+
 			return actionGroup;
 		}
 
@@ -759,6 +767,40 @@ public class PluginToolWindowManager {
 
 		@Override public void setSelected(AnActionEvent event, boolean state) {
 			Settings.getInstance().runAllPluginsOnIDEStartup = state;
+		}
+	}
+
+	private static class DownloadScalaLibs extends AnAction {
+		private DownloadScalaLibs() {
+			super("Download Scala Libraries", "Download Scala libraries to plugin classpath to enable scala plugins support (~20Mb)", null);
+		}
+
+		@Override public void actionPerformed(AnActionEvent e) {
+			boolean downloaded1 = downloadLibraryToPluginPath("http://repo1.maven.org/maven2/org/scala-lang/scala-library/2.10.2/", "scala-library-2.10.2.jar");
+			boolean downloaded2 = downloadLibraryToPluginPath("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.10.2/", "scala-compiler-2.10.2.jar");
+
+			if (downloaded1 && downloaded2) {
+				askUserIfShouldRestartIde();
+			} else {
+				NotificationGroup.balloonGroup("Live Plugin")
+						.createNotification("Failed to download Scala libraries", NotificationType.WARNING);
+			}
+		}
+	}
+
+	private static class DownloadClojureLibs extends AnAction {
+		private DownloadClojureLibs() {
+			super("Download Clojure Libraries", "Download Clojure libraries to plugin classpath to enable clojure plugins support (~4Mb)", null);
+		}
+
+		@Override public void actionPerformed(AnActionEvent e) {
+			boolean downloaded = downloadLibraryToPluginPath("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar");
+			if (downloaded) {
+				askUserIfShouldRestartIde();
+			} else {
+				NotificationGroup.balloonGroup("Live Plugin")
+						.createNotification("Failed to download Clojure libraries", NotificationType.WARNING);
+			}
 		}
 	}
 
