@@ -82,9 +82,9 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
+import liveplugin.Settings;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.pluginrunner.RunPluginAction;
-import liveplugin.Settings;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -103,7 +103,9 @@ import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static java.util.Arrays.asList;
 import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
+import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
 import static liveplugin.LivePluginAppComponent.downloadLibraryToPluginPath;
+import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 
 /**
  * User: dima
@@ -323,8 +325,12 @@ public class PluginToolWindowManager {
 			actionGroup.add(new Separator());
 			actionGroup.add(new RunAllPluginsOnIDEStartAction());
 			actionGroup.add(new Separator());
-			actionGroup.add(new DownloadScalaLibs());
-			actionGroup.add(new DownloadClojureLibs());
+			actionGroup.add(new DefaultActionGroup("Languages Support", true) {{
+				add(new AddScalaLibsAsDependency());
+				add(new AddClojureLibsAsDependency());
+				add(new DownloadScalaLibs());
+				add(new DownloadClojureLibs());
+			}});
 
 			return actionGroup;
 		}
@@ -770,9 +776,35 @@ public class PluginToolWindowManager {
 		}
 	}
 
+	private static class AddScalaLibsAsDependency extends AnAction {
+		private AddScalaLibsAsDependency() {
+			super("Add Scala Libraries to Project");
+		}
+
+		@Override public void actionPerformed(AnActionEvent e) {
+		}
+
+		@Override public void update(AnActionEvent e) {
+			super.update(e);
+		}
+	}
+
+	private static class AddClojureLibsAsDependency extends AnAction {
+		private AddClojureLibsAsDependency() {
+			super("Add Clojure to Project");
+		}
+
+		@Override public void actionPerformed(AnActionEvent e) {
+		}
+
+		@Override public void update(AnActionEvent e) {
+			super.update(e);
+		}
+	}
+
 	private static class DownloadScalaLibs extends AnAction {
 		private DownloadScalaLibs() {
-			super("Download Scala Libraries", "Download Scala libraries to plugin classpath to enable scala plugins support (~20Mb)", null);
+			super("Download Scala to Plugin Classpath", "Download Scala libraries to plugin classpath to enable scala plugins support (~20Mb)", null);
 		}
 
 		@Override public void actionPerformed(AnActionEvent e) {
@@ -786,11 +818,15 @@ public class PluginToolWindowManager {
 						.createNotification("Failed to download Scala libraries", NotificationType.WARNING);
 			}
 		}
+
+		@Override public void update(AnActionEvent event) {
+			event.getPresentation().setEnabled(!scalaIsOnClassPath());
+		}
 	}
 
 	private static class DownloadClojureLibs extends AnAction {
 		private DownloadClojureLibs() {
-			super("Download Clojure Libraries", "Download Clojure libraries to plugin classpath to enable clojure plugins support (~4Mb)", null);
+			super("Download Clojure to Plugin Classpath", "Download Clojure libraries to plugin classpath to enable clojure plugins support (~4Mb)", null);
 		}
 
 		@Override public void actionPerformed(AnActionEvent e) {
@@ -801,6 +837,10 @@ public class PluginToolWindowManager {
 				NotificationGroup.balloonGroup("Live Plugin")
 						.createNotification("Failed to download Clojure libraries", NotificationType.WARNING);
 			}
+		}
+
+		@Override public void update(AnActionEvent event) {
+			event.getPresentation().setEnabled(!clojureIsOnClassPath());
 		}
 	}
 
