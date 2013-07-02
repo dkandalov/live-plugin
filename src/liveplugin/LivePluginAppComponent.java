@@ -22,10 +22,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.text.StringUtil;
@@ -51,6 +49,7 @@ import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static com.intellij.openapi.util.io.FileUtil.toSystemIndependentName;
 import static com.intellij.openapi.vfs.VfsUtilCore.pathToUrl;
 import static java.util.Arrays.asList;
+import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
 import static liveplugin.MyFileUtil.allFilesInDirectory;
 import static liveplugin.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
 
@@ -121,6 +120,10 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 		return pluginIdToPathMap().keySet().contains(pluginId);
 	}
 
+	private static boolean isGroovyOnClasspath() {
+		return IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods");
+	}
+
 	public static boolean scalaIsOnClassPath() {
 		return IdeUtil.isOnClasspath("scala.Some");
 	}
@@ -183,30 +186,33 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 		return COMPONENT_NAME;
 	}
 
+	public static boolean downloadLibraryToPluginPath(String downloadUrl, String fileName) {
+		DownloadableFileService service = DownloadableFileService.getInstance();
+		DownloadableFileDescription description = service.createFileDescription(downloadUrl + fileName, fileName);
+		VirtualFile[] files = service.createDownloader(asList(description), null, null, fileName)
+				.toDirectory(PathManager.getPluginsPath() + "LivePlugin/lib/")
+				.download();
+		return files != null;
+	}
+
 	private static void checkGroovyLibsAreOnClasspath() {
-		if (IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")) return;
+		if (isGroovyOnClasspath()) return;
 
 		NotificationListener listener = new NotificationListener() {
 			@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
-				DownloadableFileService service = DownloadableFileService.getInstance();
-				String fileName = "groovy-all-2.0.6.jar";
-				DownloadableFileDescription description = service.createFileDescription(
-						"http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/" + fileName, fileName);
-				service.createDownloader(asList(description), null, null, fileName)
-						.toDirectory(PathManager.getLibPath()).download();
-
-				notification.expire();
-
-				if (Messages.showOkCancelDialog("You must restart the IDE to changes take effect. Restart now?",
-						"Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon()) == Messages.OK) {
-					ApplicationManagerEx.getApplicationEx().restart(true);
+				boolean downloaded = downloadLibraryToPluginPath("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/", "groovy-all-2.0.6.jar");
+				if (downloaded) {
+					notification.expire();
+					askUserIfShouldRestartIde();
+				} else {
+					NotificationGroup.balloonGroup("Live Plugin").createNotification("Failed to download groovy-all.jar", NotificationType.WARNING);
 				}
 			}
 		};
 		NotificationGroup.balloonGroup("Live Plugin").createNotification(
 				"LivePlugin didn't find Groovy on classpath",
-				"Without it plugins won't work. <a href=\"\">Download groovy-all.jar</a> to '" + PathManager.getLibPath() + "'",
-				NotificationType.WARNING,
+				"Without it plugins won't work. <a href=\"\">Download groovy-all.jar</a>",
+				NotificationType.ERROR,
 				listener
 		).notify(null);
 	}

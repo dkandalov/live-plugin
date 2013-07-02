@@ -20,6 +20,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
@@ -96,5 +97,12 @@ public class IdeUtil {
 	public static boolean isOnClasspath(String className) {
 		URL resource = IdeUtil.class.getClassLoader().getResource(className.replace(".", "/") + ".class");
 		return resource != null;
+	}
+
+	public static void askUserIfShouldRestartIde() {
+		if (Messages.showOkCancelDialog("You must restart IDE for the changes to take effect. Restart now?",
+				"Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon()) == Messages.OK) {
+			ApplicationManagerEx.getApplicationEx().restart(true);
+		}
 	}
 }
