@@ -29,8 +29,6 @@ import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.download.DownloadableFileDescription;
-import com.intellij.util.download.DownloadableFileService;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.pluginrunner.PluginRunner;
 import liveplugin.pluginrunner.RunPluginAction;
@@ -50,6 +48,7 @@ import static com.intellij.openapi.util.io.FileUtil.toSystemIndependentName;
 import static com.intellij.openapi.vfs.VfsUtilCore.pathToUrl;
 import static java.util.Arrays.asList;
 import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
+import static liveplugin.IdeUtil.downloadFile;
 import static liveplugin.MyFileUtil.allFilesInDirectory;
 import static liveplugin.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
 
@@ -57,6 +56,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 	private static final Logger LOG = Logger.getInstance(LivePluginAppComponent.class);
 
 	public static final String PLUGIN_EXAMPLES_PATH = "/liveplugin/pluginexamples";
+	public static final String PLUGIN_LIBS_PATH = PathManager.getPluginsPath() + "/LivePlugin/lib/";
 
 	private static final String DEFAULT_PLUGIN_PATH = PLUGIN_EXAMPLES_PATH;
 	private static final String DEFAULT_PLUGIN_SCRIPT = "default-plugin.groovy";
@@ -186,21 +186,12 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 		return COMPONENT_NAME;
 	}
 
-	public static boolean downloadLibraryToPluginPath(String downloadUrl, String fileName) {
-		DownloadableFileService service = DownloadableFileService.getInstance();
-		DownloadableFileDescription description = service.createFileDescription(downloadUrl + fileName, fileName);
-		VirtualFile[] files = service.createDownloader(asList(description), null, null, fileName)
-				.toDirectory(PathManager.getPluginsPath() + "/LivePlugin/lib/")
-				.download();
-		return files != null;
-	}
-
 	public static void checkThatGroovyIsOnClasspath() {
 		if (isGroovyOnClasspath()) return;
 
 		NotificationListener listener = new NotificationListener() {
 			@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
-				boolean downloaded = downloadLibraryToPluginPath("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/", "groovy-all-2.0.6.jar");
+				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/", "groovy-all-2.0.6.jar", PLUGIN_LIBS_PATH);
 				if (downloaded) {
 					notification.expire();
 					askUserIfShouldRestartIde();

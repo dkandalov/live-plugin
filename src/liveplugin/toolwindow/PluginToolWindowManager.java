@@ -103,8 +103,9 @@ import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static java.util.Arrays.asList;
 import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
+import static liveplugin.LivePluginAppComponent.PLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
-import static liveplugin.LivePluginAppComponent.downloadLibraryToPluginPath;
+import static liveplugin.IdeUtil.downloadFile;
 import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 
 /**
@@ -803,24 +804,35 @@ public class PluginToolWindowManager {
 	}
 
 	private static class DownloadScalaLibs extends AnAction {
-		private DownloadScalaLibs() {
-			super("Download Scala to Plugin Classpath", "Download Scala libraries to plugin classpath to enable scala plugins support (~20Mb)", null);
-		}
-
-		@Override public void actionPerformed(AnActionEvent e) {
-			boolean downloaded1 = downloadLibraryToPluginPath("http://repo1.maven.org/maven2/org/scala-lang/scala-library/2.10.2/", "scala-library-2.10.2.jar");
-			boolean downloaded2 = downloadLibraryToPluginPath("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.10.2/", "scala-compiler-2.10.2.jar");
-
-			if (downloaded1 && downloaded2) {
-				askUserIfShouldRestartIde();
+		@Override public void actionPerformed(AnActionEvent event) {
+			if (scalaIsOnClassPath()) {
+				int answer = Messages.showYesNoDialog(event.getProject(), "Do you want to remove Scala libraries from plugin classpath?", "Live Plugin", null);
+				if (answer == Messages.YES) {
+					FileUtil.delete(new File(PLUGIN_LIBS_PATH + "scala-library-2.10.2.jar"));
+					FileUtil.delete(new File(PLUGIN_LIBS_PATH + "scala-compiler-2.10.2.jar"));
+					askUserIfShouldRestartIde();
+				}
 			} else {
-				NotificationGroup.balloonGroup("Live Plugin")
-						.createNotification("Failed to download Scala libraries", NotificationType.WARNING);
+				boolean downloaded1 = downloadFile("http://repo1.maven.org/maven2/org/scala-lang/scala-library/2.10.2/", "scala-library-2.10.2.jar", PLUGIN_LIBS_PATH);
+				boolean downloaded2 = downloadFile("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.10.2/", "scala-compiler-2.10.2.jar", PLUGIN_LIBS_PATH);
+
+				if (downloaded1 && downloaded2) {
+					askUserIfShouldRestartIde();
+				} else {
+					NotificationGroup.balloonGroup("Live Plugin")
+							.createNotification("Failed to download Scala libraries", NotificationType.WARNING);
+				}
 			}
 		}
 
 		@Override public void update(AnActionEvent event) {
-			event.getPresentation().setEnabled(!scalaIsOnClassPath());
+			if (scalaIsOnClassPath()) {
+				event.getPresentation().setText("Download Scala to Plugin Classpath");
+				event.getPresentation().setDescription("Download Scala libraries to plugin classpath to enable scala plugins support (~20Mb)");
+			} else {
+				event.getPresentation().setText("Remove Scala from Plugin Classpath");
+				event.getPresentation().setDescription("Remove Scala from Plugin Classpath");
+			}
 		}
 	}
 
@@ -830,7 +842,7 @@ public class PluginToolWindowManager {
 		}
 
 		@Override public void actionPerformed(AnActionEvent e) {
-			boolean downloaded = downloadLibraryToPluginPath("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar");
+			boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar", PLUGIN_LIBS_PATH);
 			if (downloaded) {
 				askUserIfShouldRestartIde();
 			} else {

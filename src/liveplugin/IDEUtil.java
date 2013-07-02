@@ -28,11 +28,16 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.download.DownloadableFileDescription;
+import com.intellij.util.download.DownloadableFileService;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.net.URL;
+
+import static java.util.Arrays.asList;
 
 public class IdeUtil {
 	// icons paths are inlined "in case API changes but path to icons does not"
@@ -104,5 +109,14 @@ public class IdeUtil {
 				"Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon()) == Messages.OK) {
 			ApplicationManagerEx.getApplicationEx().restart(true);
 		}
+	}
+
+	public static boolean downloadFile(String downloadUrl, String fileName, String targetPath) {
+		DownloadableFileService service = DownloadableFileService.getInstance();
+		DownloadableFileDescription description = service.createFileDescription(downloadUrl + fileName, fileName);
+		VirtualFile[] files = service.createDownloader(asList(description), null, null, fileName)
+				.toDirectory(targetPath)
+				.download();
+		return files != null;
 	}
 }
