@@ -839,10 +839,12 @@ public class PluginToolWindowManager {
 
 			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
 				event.getPresentation().setText("Remove LivePlugin Jar from Project");
-				event.getPresentation().setDescription("Remove LivePlugin jar from project dependencies");
+				event.getPresentation().setDescription(
+						"Remove LivePlugin jar from project dependencies. This will enable auto-complete and other IDE features for IntelliJ classes.");
 			} else {
 				event.getPresentation().setText("Add LivePlugin Jar to Project");
-				event.getPresentation().setDescription("Add LivePlugin jar to project dependencies");
+				event.getPresentation().setDescription(
+						"Add LivePlugin jar to project dependencies. This will enable auto-complete and other IDE features for PluginUtil.");
 			}
 		}
 
