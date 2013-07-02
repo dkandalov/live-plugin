@@ -76,6 +76,7 @@ import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
+
 	@CanCallFromAnyThread
 	static <T> T invokeOnEDT(Closure closure) {
 		def result = null
