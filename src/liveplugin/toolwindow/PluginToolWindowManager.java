@@ -104,7 +104,7 @@ import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static java.util.Arrays.asList;
 import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
 import static liveplugin.IdeUtil.downloadFile;
-import static liveplugin.LivePluginAppComponent.PLUGIN_LIBS_PATH;
+import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
 import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 
@@ -778,48 +778,88 @@ public class PluginToolWindowManager {
 	}
 
 	private static class AddScalaLibsAsDependency extends AnAction {
-		private AddScalaLibsAsDependency() {
-			super("Add Scala Libraries to Project");
+		private static final String LIBRARY_NAME = "LivePlugin - Scala";
+
+		@Override public void actionPerformed(AnActionEvent event) {
+			Project project = event.getProject();
+			if (project == null) return;
+
+			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
+				DependenciesUtil.removeLibraryDependencyFrom(project, LIBRARY_NAME);
+			} else {
+				//noinspection unchecked
+				DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, Arrays.asList(
+						Pair.create("jar://" + LIVEPLUGIN_LIBS_PATH + "scala-library-2.10.2.jar!/", CLASSES),
+						Pair.create("jar://" + LIVEPLUGIN_LIBS_PATH + "scala-compiler-2.10.2.jar!/", CLASSES)
+				));
+			}
 		}
 
-		@Override public void actionPerformed(AnActionEvent e) {
-		}
+		@Override public void update(AnActionEvent event) {
+			Project project = event.getProject();
+			if (project == null) return;
 
-		@Override public void update(AnActionEvent e) {
-			super.update(e);
+			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
+				event.getPresentation().setText("Remove Scala Libraries from Project");
+				event.getPresentation().setDescription("Remove Scala Libraries from Project");
+			} else {
+				event.getPresentation().setText("Add Scala Libraries to Project");
+				event.getPresentation().setDescription("Add Scala Libraries to Project");
+				event.getPresentation().setEnabled(scalaIsOnClassPath());
+			}
 		}
 	}
 
 	private static class AddClojureLibsAsDependency extends AnAction {
-		private AddClojureLibsAsDependency() {
-			super("Add Clojure to Project");
+		private static final String LIBRARY_NAME = "LivePlugin - Clojure";
+
+		@Override public void actionPerformed(AnActionEvent event) {
+			Project project = event.getProject();
+			if (project == null) return;
+
+			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
+				DependenciesUtil.removeLibraryDependencyFrom(project, LIBRARY_NAME);
+			} else {
+				//noinspection unchecked
+				DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, Arrays.asList(
+						Pair.create("jar://" + LIVEPLUGIN_LIBS_PATH + "clojure-1.5.1.jar!/", CLASSES)
+				));
+			}
 		}
 
-		@Override public void actionPerformed(AnActionEvent e) {
-		}
+		@Override public void update(AnActionEvent event) {
+			Project project = event.getProject();
+			if (project == null) return;
 
-		@Override public void update(AnActionEvent e) {
-			super.update(e);
+			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
+				event.getPresentation().setText("Remove Clojure Libraries from Project");
+				event.getPresentation().setDescription("Remove Clojure Libraries from Project");
+			} else {
+				event.getPresentation().setText("Add Clojure Libraries to Project");
+				event.getPresentation().setDescription("Add Clojure Libraries to Project");
+				event.getPresentation().setEnabled(clojureIsOnClassPath());
+			}
 		}
 	}
 
 	private static class DownloadScalaLibs extends AnAction {
 		@Override public void actionPerformed(AnActionEvent event) {
 			if (scalaIsOnClassPath()) {
-				int answer = Messages.showYesNoDialog(event.getProject(), "Do you want to remove Scala libraries from plugin classpath?", "Live Plugin", null);
+				int answer = Messages.showYesNoDialog(event.getProject(),
+						"Do you want to remove Scala libraries from plugin classpath? This action cannot be undone.", "Live Plugin", null);
 				if (answer == Messages.YES) {
-					FileUtil.delete(new File(PLUGIN_LIBS_PATH + "scala-library-2.10.2.jar"));
-					FileUtil.delete(new File(PLUGIN_LIBS_PATH + "scala-compiler-2.10.2.jar"));
+					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + "scala-library-2.10.2.jar"));
+					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + "scala-compiler-2.10.2.jar"));
 					askUserIfShouldRestartIde();
 				}
 			} else {
 				int answer = Messages.showOkCancelDialog(event.getProject(),
-						"Scala libraries will be downloaded to '" + PLUGIN_LIBS_PATH + "'." +
-						"\n(If you already have scala >= 2.10, you can copy it to this path manually and restart IDE.)", "Live Plugin", null);
+						"Scala libraries will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
+						"\n(If you already have scala >= 2.10, you can copy it manually and restart IDE.)", "Live Plugin", null);
 				if (answer != Messages.OK) return;
 
-				boolean downloaded1 = downloadFile("http://repo1.maven.org/maven2/org/scala-lang/scala-library/2.10.2/", "scala-library-2.10.2.jar", PLUGIN_LIBS_PATH);
-				boolean downloaded2 = downloadFile("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.10.2/", "scala-compiler-2.10.2.jar", PLUGIN_LIBS_PATH);
+				boolean downloaded1 = downloadFile("http://repo1.maven.org/maven2/org/scala-lang/scala-library/2.10.2/", "scala-library-2.10.2.jar", LIVEPLUGIN_LIBS_PATH);
+				boolean downloaded2 = downloadFile("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.10.2/", "scala-compiler-2.10.2.jar", LIVEPLUGIN_LIBS_PATH);
 
 				if (downloaded1 && downloaded2) {
 					askUserIfShouldRestartIde();
@@ -827,7 +867,6 @@ public class PluginToolWindowManager {
 					NotificationGroup.balloonGroup("Live Plugin")
 							.createNotification("Failed to download Scala libraries", NotificationType.WARNING);
 				}
-
 			}
 		}
 
@@ -845,18 +884,19 @@ public class PluginToolWindowManager {
 	private static class DownloadClojureLibs extends AnAction {
 		@Override public void actionPerformed(AnActionEvent event) {
 			if (clojureIsOnClassPath()) {
-				int answer = Messages.showYesNoDialog(event.getProject(), "Do you want to remove Clojure libraries from plugin classpath?", "Live Plugin", null);
+				int answer = Messages.showYesNoDialog(event.getProject(),
+						"Do you want to remove Clojure libraries from plugin classpath? This action cannot be undone.", "Live Plugin", null);
 				if (answer == Messages.YES) {
-					FileUtil.delete(new File(PLUGIN_LIBS_PATH + "clojure-1.5.1.jar"));
+					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + "clojure-1.5.1.jar"));
 					askUserIfShouldRestartIde();
 				}
 			} else {
 				int answer = Messages.showOkCancelDialog(event.getProject(),
-						"Clojure libraries will be downloaded to '" + PLUGIN_LIBS_PATH + "'." +
-						"\n(If you already have clojure >= 1.5.1, you can copy it to this path manually and restart IDE.)", "Live Plugin", null);
+						"Clojure libraries will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
+						"\n(If you already have clojure >= 1.5.1, you can copy it manually and restart IDE.)", "Live Plugin", null);
 				if (answer != Messages.OK) return;
 
-				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar", PLUGIN_LIBS_PATH);
+				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar", LIVEPLUGIN_LIBS_PATH);
 				if (downloaded) {
 					askUserIfShouldRestartIde();
 				} else {

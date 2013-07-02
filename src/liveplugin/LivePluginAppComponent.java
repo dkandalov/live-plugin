@@ -56,7 +56,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 	private static final Logger LOG = Logger.getInstance(LivePluginAppComponent.class);
 
 	public static final String PLUGIN_EXAMPLES_PATH = "/liveplugin/pluginexamples";
-	public static final String PLUGIN_LIBS_PATH = PathManager.getPluginsPath() + "/LivePlugin/lib/";
+	public static final String LIVEPLUGIN_LIBS_PATH = PathManager.getPluginsPath() + "/LivePlugin/lib/";
 
 	private static final String DEFAULT_PLUGIN_PATH = PLUGIN_EXAMPLES_PATH;
 	private static final String DEFAULT_PLUGIN_SCRIPT = "default-plugin.groovy";
@@ -191,7 +191,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 
 		NotificationListener listener = new NotificationListener() {
 			@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
-				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/", "groovy-all-2.0.6.jar", PLUGIN_LIBS_PATH);
+				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/", "groovy-all-2.0.6.jar", LIVEPLUGIN_LIBS_PATH);
 				if (downloaded) {
 					notification.expire();
 					askUserIfShouldRestartIde();
