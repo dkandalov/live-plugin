@@ -103,9 +103,9 @@ import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static java.util.Arrays.asList;
 import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
+import static liveplugin.IdeUtil.downloadFile;
 import static liveplugin.LivePluginAppComponent.PLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
-import static liveplugin.IdeUtil.downloadFile;
 import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 
 /**
@@ -813,6 +813,11 @@ public class PluginToolWindowManager {
 					askUserIfShouldRestartIde();
 				}
 			} else {
+				int answer = Messages.showOkCancelDialog(event.getProject(),
+						"Scala libraries will be downloaded to '" + PLUGIN_LIBS_PATH + "'." +
+						"\n(If you already have scala >= 2.10, you can copy it to this path manually and restart IDE.)", "Live Plugin", null);
+				if (answer != Messages.OK) return;
+
 				boolean downloaded1 = downloadFile("http://repo1.maven.org/maven2/org/scala-lang/scala-library/2.10.2/", "scala-library-2.10.2.jar", PLUGIN_LIBS_PATH);
 				boolean downloaded2 = downloadFile("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.10.2/", "scala-compiler-2.10.2.jar", PLUGIN_LIBS_PATH);
 
@@ -822,37 +827,53 @@ public class PluginToolWindowManager {
 					NotificationGroup.balloonGroup("Live Plugin")
 							.createNotification("Failed to download Scala libraries", NotificationType.WARNING);
 				}
+
 			}
 		}
 
 		@Override public void update(AnActionEvent event) {
 			if (scalaIsOnClassPath()) {
-				event.getPresentation().setText("Download Scala to Plugin Classpath");
-				event.getPresentation().setDescription("Download Scala libraries to plugin classpath to enable scala plugins support (~20Mb)");
-			} else {
 				event.getPresentation().setText("Remove Scala from Plugin Classpath");
 				event.getPresentation().setDescription("Remove Scala from Plugin Classpath");
+			} else {
+				event.getPresentation().setText("Download Scala to Plugin Classpath");
+				event.getPresentation().setDescription("Download Scala libraries to plugin classpath to enable scala plugins support (~20Mb)");
 			}
 		}
 	}
 
 	private static class DownloadClojureLibs extends AnAction {
-		private DownloadClojureLibs() {
-			super("Download Clojure to Plugin Classpath", "Download Clojure libraries to plugin classpath to enable clojure plugins support (~4Mb)", null);
-		}
-
-		@Override public void actionPerformed(AnActionEvent e) {
-			boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar", PLUGIN_LIBS_PATH);
-			if (downloaded) {
-				askUserIfShouldRestartIde();
+		@Override public void actionPerformed(AnActionEvent event) {
+			if (clojureIsOnClassPath()) {
+				int answer = Messages.showYesNoDialog(event.getProject(), "Do you want to remove Clojure libraries from plugin classpath?", "Live Plugin", null);
+				if (answer == Messages.YES) {
+					FileUtil.delete(new File(PLUGIN_LIBS_PATH + "clojure-1.5.1.jar"));
+					askUserIfShouldRestartIde();
+				}
 			} else {
-				NotificationGroup.balloonGroup("Live Plugin")
-						.createNotification("Failed to download Clojure libraries", NotificationType.WARNING);
+				int answer = Messages.showOkCancelDialog(event.getProject(),
+						"Clojure libraries will be downloaded to '" + PLUGIN_LIBS_PATH + "'." +
+						"\n(If you already have clojure >= 1.5.1, you can copy it to this path manually and restart IDE.)", "Live Plugin", null);
+				if (answer != Messages.OK) return;
+
+				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar", PLUGIN_LIBS_PATH);
+				if (downloaded) {
+					askUserIfShouldRestartIde();
+				} else {
+					NotificationGroup.balloonGroup("Live Plugin")
+							.createNotification("Failed to download Clojure libraries", NotificationType.WARNING);
+				}
 			}
 		}
 
 		@Override public void update(AnActionEvent event) {
-			event.getPresentation().setEnabled(!clojureIsOnClassPath());
+			if (clojureIsOnClassPath()) {
+				event.getPresentation().setText("Remove Clojure from Plugin Classpath");
+				event.getPresentation().setDescription("Remove Clojure from Plugin Classpath");
+			} else {
+				event.getPresentation().setText("Download Clojure to Plugin Classpath");
+				event.getPresentation().setDescription("Download Clojure libraries to plugin classpath to enable clojure plugins support (~4Mb)");
+			}
 		}
 	}
 

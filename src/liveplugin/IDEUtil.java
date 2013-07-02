@@ -105,7 +105,7 @@ public class IdeUtil {
 	}
 
 	public static void askUserIfShouldRestartIde() {
-		if (Messages.showOkCancelDialog("You must restart IDE for the changes to take effect. Restart now?",
+		if (Messages.showOkCancelDialog("For the changes to take effect IDE restart is required. Restart now?",
 				"Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon()) == Messages.OK) {
 			ApplicationManagerEx.getApplicationEx().restart(true);
 		}
