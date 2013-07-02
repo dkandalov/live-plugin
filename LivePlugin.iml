@@ -13,6 +13,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="mockito" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="scala-2.10.2" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="clojure-1.5.1" level="application" />
   </component>
 </module>
 
