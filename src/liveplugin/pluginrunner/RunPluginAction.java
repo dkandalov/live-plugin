@@ -45,7 +45,7 @@ import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
 public class RunPluginAction extends AnAction {
-	private static final ExecutorService executor = newSingleThreadExecutor();
+	private static final ExecutorService singleThreadExecutor = newSingleThreadExecutor();
 
 	public RunPluginAction() {
 		super("Run Plugin", "Run selected plugins", IdeUtil.RUN_PLUGIN_ICON);
@@ -105,7 +105,7 @@ public class RunPluginAction extends AnAction {
 			@Override public void run(@NotNull ProgressIndicator indicator) {
 				try {
 					// this is to make running plugins thread-confined
-					executor.submit(runPlugins).get();
+					singleThreadExecutor.submit(runPlugins).get();
 				} catch (InterruptedException ignored) {
 				} catch (ExecutionException ignored) {
 				}
