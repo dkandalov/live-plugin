@@ -15,7 +15,6 @@ package liveplugin.pluginrunner;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -42,9 +41,7 @@ import java.util.concurrent.ThreadFactory;
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.util.containers.ContainerUtil.find;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
-import static liveplugin.LivePluginAppComponent.checkThatGroovyIsOnClasspath;
-import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
-import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
+import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
 public class RunPluginAction extends AnAction {
@@ -97,11 +94,7 @@ public class RunPluginAction extends AnAction {
 					}
 
 					final Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
-					ApplicationManager.getApplication().runReadAction(new Runnable() {
-						@Override public void run() {
-							pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding);
-						}
-					});
+					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding);
 
 					errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 						@Override public void display(String title, String message) {
