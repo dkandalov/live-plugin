@@ -28,8 +28,10 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.unscramble.UnscrambleDialog;
+import com.intellij.util.Function;
 import com.intellij.util.download.DownloadableFileDescription;
 import com.intellij.util.download.DownloadableFileService;
 import org.jetbrains.annotations.NonNls;
@@ -39,7 +41,9 @@ import javax.swing.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.List;
 
+import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
 
 public class IdeUtil {
@@ -115,12 +119,19 @@ public class IdeUtil {
 	}
 
 	public static boolean downloadFile(String downloadUrl, String fileName, String targetPath) {
-		DownloadableFileService service = DownloadableFileService.getInstance();
-		DownloadableFileDescription description = service.createFileDescription(downloadUrl + fileName, fileName);
-		VirtualFile[] files = service.createDownloader(asList(description), null, null, fileName)
-				.toDirectory(targetPath)
-				.download();
-		return files != null;
+		//noinspection unchecked
+		return downloadFiles(asList(Pair.create(downloadUrl, fileName)), targetPath);
+	}
+
+	public static boolean downloadFiles(List<Pair<String, String>> urlAndFileNames, String targetPath) {
+		final DownloadableFileService service = DownloadableFileService.getInstance();
+		List<DownloadableFileDescription> descriptions = map(urlAndFileNames, new Function<Pair<String, String>, DownloadableFileDescription>() {
+			@Override public DownloadableFileDescription fun(Pair<String, String> it) {
+				return service.createFileDescription(it.first + it.second, it.second);
+			}
+		});
+		VirtualFile[] files = service.createDownloader(descriptions, null, null, "").toDirectory(targetPath).download();
+		return files != null && files.length == urlAndFileNames.size();
 	}
 
 	public static String unscrambleThrowable(Throwable throwable) {

@@ -100,10 +100,10 @@ import java.util.List;
 
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
+import static com.intellij.openapi.util.Pair.create;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
-import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
-import static liveplugin.IdeUtil.downloadFile;
+import static liveplugin.IdeUtil.*;
 import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
@@ -788,7 +788,7 @@ public class PluginToolWindowManager {
 			} else {
 				List<Pair<String, OrderRootType>> paths = map(fileNamesMatching(DownloadScalaLibs.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH), new Function<String, Pair<String, OrderRootType>>() {
 					@Override public Pair<String, OrderRootType> fun(String fileName) {
-						return Pair.create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES);
+						return create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES);
 					}
 				});
 				DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, paths);
@@ -822,7 +822,7 @@ public class PluginToolWindowManager {
 			} else {
 				List<Pair<String, OrderRootType>> paths = map(fileNamesMatching(DownloadClojureLibs.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH), new Function<String, Pair<String, OrderRootType>>() {
 					@Override public Pair<String, OrderRootType> fun(String fileName) {
-						return Pair.create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES);
+						return create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES);
 					}
 				});
 				DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, paths);
@@ -846,6 +846,7 @@ public class PluginToolWindowManager {
 
 	private static class DownloadScalaLibs extends AnAction {
 		public static final String LIB_FILES_PATTERN = "(scala-|scalap).*jar";
+		private static final String APPROXIMATE_SIZE = "(~26Mb)";
 
 		@Override public void actionPerformed(AnActionEvent event) {
 			if (scalaIsOnClassPath()) {
@@ -859,14 +860,20 @@ public class PluginToolWindowManager {
 				}
 			} else {
 				int answer = Messages.showOkCancelDialog(event.getProject(),
-						"Scala libraries will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
+						"Scala libraries " + APPROXIMATE_SIZE + " will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
 						"\n(If you already have scala >= 2.10, you can copy it manually and restart IDE.)", "Live Plugin", null);
 				if (answer != Messages.OK) return;
 
-				boolean downloaded1 = downloadFile("http://repo1.maven.org/maven2/org/scala-lang/scala-library/2.10.2/", "scala-library-2.10.2.jar", LIVEPLUGIN_LIBS_PATH);
-				boolean downloaded2 = downloadFile("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/2.10.2/", "scala-compiler-2.10.2.jar", LIVEPLUGIN_LIBS_PATH);
+				List<String> scalaLibs = asList("scala-library", "scala-compiler", "scala-reflect", "scala-swing",
+						"scala-partest", "scala-actors", "scala-actors-migration", "scalap");
+				List<Pair<String, String>> urlAndFileNamePairs = map(scalaLibs, new Function<String, Pair<String, String>>() {
+					@Override public Pair<String, String> fun(String it) {
+						return Pair.create("http://repo1.maven.org/maven2/org/scala-lang/" + it + "/2.10.2/", it + "-2.10.jar");
+					}
+				});
 
-				if (downloaded1 && downloaded2) {
+				boolean downloaded = downloadFiles(urlAndFileNamePairs, LIVEPLUGIN_LIBS_PATH);
+				if (downloaded) {
 					askUserIfShouldRestartIde();
 				} else {
 					NotificationGroup.balloonGroup("Live Plugin")
@@ -881,13 +888,14 @@ public class PluginToolWindowManager {
 				event.getPresentation().setDescription("Remove Scala from Plugin Classpath");
 			} else {
 				event.getPresentation().setText("Download Scala to Plugin Classpath");
-				event.getPresentation().setDescription("Download Scala libraries to plugin classpath to enable scala plugins support (~26Mb)");
+				event.getPresentation().setDescription("Download Scala libraries to plugin classpath to enable scala plugins support " + APPROXIMATE_SIZE);
 			}
 		}
 	}
 
 	private static class DownloadClojureLibs extends AnAction {
 		public static final String LIB_FILES_PATTERN = "clojure-.*jar";
+		private static final String APPROXIMATE_SIZE = "(~4Mb)";
 
 		@Override public void actionPerformed(AnActionEvent event) {
 			if (clojureIsOnClassPath()) {
@@ -901,7 +909,7 @@ public class PluginToolWindowManager {
 				}
 			} else {
 				int answer = Messages.showOkCancelDialog(event.getProject(),
-						"Clojure libraries will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
+						"Clojure libraries " + APPROXIMATE_SIZE + " will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
 						"\n(If you already have clojure >= 1.5.1, you can copy it manually and restart IDE.)", "Live Plugin", null);
 				if (answer != Messages.OK) return;
 
@@ -921,7 +929,7 @@ public class PluginToolWindowManager {
 				event.getPresentation().setDescription("Remove Clojure from Plugin Classpath");
 			} else {
 				event.getPresentation().setText("Download Clojure to Plugin Classpath");
-				event.getPresentation().setDescription("Download Clojure libraries to plugin classpath to enable clojure plugins support (~4Mb)");
+				event.getPresentation().setDescription("Download Clojure libraries to plugin classpath to enable clojure plugins support " + APPROXIMATE_SIZE);
 			}
 		}
 	}
@@ -938,8 +946,8 @@ public class PluginToolWindowManager {
 			} else {
 				//noinspection unchecked
 				DependenciesUtil.addLibraryDependencyTo(project, LIVE_PLUGIN_LIBRARY, Arrays.asList(
-						Pair.create(findPathToMyClasses(), CLASSES),
-						Pair.create(findPathToMyClasses() + "src/", SOURCES)
+						create(findPathToMyClasses(), CLASSES),
+						create(findPathToMyClasses() + "src/", SOURCES)
 				));
 			}
 		}
@@ -985,13 +993,13 @@ public class PluginToolWindowManager {
 				String ideaJarsPath = PathManager.getHomePath() + "/lib/";
 				//noinspection unchecked
 				DependenciesUtil.addLibraryDependencyTo(project, IDEA_JARS_LIBRARY, Arrays.asList(
-						Pair.create("jar://" + ideaJarsPath + "openapi.jar!/", CLASSES),
-						Pair.create("jar://" + ideaJarsPath + "idea.jar!/", CLASSES),
-						Pair.create("jar://" + ideaJarsPath + "idea_rt.jar!/", CLASSES),
-						Pair.create("jar://" + ideaJarsPath + "annotations.jar!/", CLASSES),
-						Pair.create("jar://" + ideaJarsPath + "util.jar!/", CLASSES),
-						Pair.create("jar://" + ideaJarsPath + "extensions.jar!/", CLASSES),
-						Pair.create("jar://" + ideaJarsPath + findGroovyJarOn(ideaJarsPath) + "!/", CLASSES)
+						create("jar://" + ideaJarsPath + "openapi.jar!/", CLASSES),
+						create("jar://" + ideaJarsPath + "idea.jar!/", CLASSES),
+						create("jar://" + ideaJarsPath + "idea_rt.jar!/", CLASSES),
+						create("jar://" + ideaJarsPath + "annotations.jar!/", CLASSES),
+						create("jar://" + ideaJarsPath + "util.jar!/", CLASSES),
+						create("jar://" + ideaJarsPath + "extensions.jar!/", CLASSES),
+						create("jar://" + ideaJarsPath + findGroovyJarOn(ideaJarsPath) + "!/", CLASSES)
 				));
 			}
 		}
