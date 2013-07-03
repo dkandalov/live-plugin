@@ -15,6 +15,7 @@ package liveplugin.pluginrunner;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -83,9 +84,9 @@ public class RunPluginAction extends AnAction {
 				ErrorReporter errorReporter = new ErrorReporter();
 				List<PluginRunner> pluginRunners = createPluginRunners(errorReporter);
 
-				for (String pluginId : pluginIds) {
+				for (final String pluginId : pluginIds) {
 					final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
-					PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
+					final PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
 						@Override public boolean value(PluginRunner it) {
 							return it.canRunPlugin(pathToPluginFolder);
 						}
@@ -95,8 +96,12 @@ public class RunPluginAction extends AnAction {
 						continue;
 					}
 
-					Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
-					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding);
+					final Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
+					ApplicationManager.getApplication().runReadAction(new Runnable() {
+						@Override public void run() {
+							pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding);
+						}
+					});
 
 					errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 						@Override public void display(String title, String message) {
