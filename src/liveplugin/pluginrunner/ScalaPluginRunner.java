@@ -49,8 +49,11 @@ class ScalaPluginRunner implements PluginRunner {
 		if (interpreter == null) {
 			try {
 				interpreter = initInterpreter();
-			} catch (Throwable e) {
-				errorReporter.addLoadingError("Failed to init scala interpreter", e.getMessage());
+			} catch (Exception e) {
+				errorReporter.addLoadingError("Failed to init scala interpreter", e);
+				return;
+			} catch (LinkageError e) {
+				errorReporter.addLoadingError("Failed to init scala interpreter", e);
 				return;
 			}
 		}
@@ -71,7 +74,7 @@ class ScalaPluginRunner implements PluginRunner {
 		}
 
 		if (!(result instanceof Results.Success$)) {
-			errorReporter.addRunningPluginError(pluginId, interpreterOutput.toString());
+			errorReporter.addRunningError(pluginId, interpreterOutput.toString());
 		}
 	}
 

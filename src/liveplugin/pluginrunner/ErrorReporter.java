@@ -13,36 +13,35 @@
  */
 package liveplugin.pluginrunner;
 
-import com.intellij.unscramble.UnscrambleDialog;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static liveplugin.IdeUtil.unscrambleThrowable;
+
 class ErrorReporter {
 	private final List<String> loadingErrors = new LinkedList<String>();
-	private final LinkedHashMap<String, Exception> runningPluginExceptions = new LinkedHashMap<String, Exception>();
 	private final LinkedHashMap<String, String> runningPluginErrors = new LinkedHashMap<String, String>();
 
 	public void addLoadingError(String pluginId, String message) {
 		loadingErrors.add("Error loading plugin: \"" + pluginId + "\". " + message);
 	}
 
-	public void addRunningPluginError(String pluginId, String message) {
+	public void addLoadingError(String pluginId, Throwable e) {
+		addLoadingError(pluginId, unscrambleThrowable(e));
+	}
+
+	public void addRunningError(String pluginId, String message) {
 		runningPluginErrors.put(pluginId, message);
 	}
 
-	public void addRunningPluginException(String pluginId, Exception e) {
-		//noinspection ThrowableResultOfMethodCallIgnored
-		runningPluginExceptions.put(pluginId, e);
+	public void addRunningError(String pluginId, Throwable e) {
+		addRunningError(pluginId, unscrambleThrowable(e));
 	}
 
 	public void reportAllErrors(Callback callback) {
 		reportLoadingErrors(callback);
-		reportRunningPluginExceptions(callback);
 		reportRunningPluginErrors(callback);
 	}
 
@@ -51,18 +50,6 @@ class ErrorReporter {
 		for (String s : loadingErrors) text.append(s);
 		if (text.length() > 0) {
 			callback.display("Loading errors", text.toString() + "\n");
-		}
-	}
-
-	private void reportRunningPluginExceptions(Callback callback) {
-		for (Map.Entry<String, Exception> entry : runningPluginExceptions.entrySet()) {
-			StringWriter writer = new StringWriter();
-
-			//noinspection ThrowableResultOfMethodCallIgnored
-			entry.getValue().printStackTrace(new PrintWriter(writer));
-			String s = UnscrambleDialog.normalizeText(writer.getBuffer().toString());
-
-			callback.display(entry.getKey(), s);
 		}
 	}
 

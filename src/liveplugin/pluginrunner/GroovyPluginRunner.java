@@ -67,7 +67,7 @@ public class GroovyPluginRunner implements PluginRunner {
 		} catch (VerifyError e) {
 			errorReporter.addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
 		} catch (Exception e) {
-			errorReporter.addRunningPluginException(pluginId, e);
+			errorReporter.addRunningError(pluginId, e);
 		}
 	}
 

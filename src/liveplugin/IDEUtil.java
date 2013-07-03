@@ -29,12 +29,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.unscramble.UnscrambleDialog;
 import com.intellij.util.download.DownloadableFileDescription;
 import com.intellij.util.download.DownloadableFileService;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 
 import static java.util.Arrays.asList;
@@ -118,5 +121,12 @@ public class IdeUtil {
 				.toDirectory(targetPath)
 				.download();
 		return files != null;
+	}
+
+	public static String unscrambleThrowable(Throwable throwable) {
+		StringWriter writer = new StringWriter();
+		//noinspection ThrowableResultOfMethodCallIgnored
+		throwable.printStackTrace(new PrintWriter(writer));
+		return UnscrambleDialog.normalizeText(writer.getBuffer().toString());
 	}
 }

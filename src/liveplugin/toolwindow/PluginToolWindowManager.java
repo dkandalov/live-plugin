@@ -845,7 +845,7 @@ public class PluginToolWindowManager {
 	}
 
 	private static class DownloadScalaLibs extends AnAction {
-		public static final String LIB_FILES_PATTERN = "scala-(library|compiler).*jar";
+		public static final String LIB_FILES_PATTERN = "(scala-|scalap).*jar";
 
 		@Override public void actionPerformed(AnActionEvent event) {
 			if (scalaIsOnClassPath()) {
@@ -881,7 +881,7 @@ public class PluginToolWindowManager {
 				event.getPresentation().setDescription("Remove Scala from Plugin Classpath");
 			} else {
 				event.getPresentation().setText("Download Scala to Plugin Classpath");
-				event.getPresentation().setDescription("Download Scala libraries to plugin classpath to enable scala plugins support (~20Mb)");
+				event.getPresentation().setDescription("Download Scala libraries to plugin classpath to enable scala plugins support (~26Mb)");
 			}
 		}
 	}
