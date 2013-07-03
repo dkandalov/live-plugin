@@ -131,14 +131,14 @@ class PluginUtil {
 	@CanCallFromAnyThread
 	static show(@Nullable message, @Nullable String title = "",
 	            NotificationType notificationType = INFORMATION, String groupDisplayId = "") {
-		SwingUtilities.invokeLater({
+		invokeLaterOnEDT {
 			message = asString(message)
 			// this is because Notification doesn't accept empty messages
 			if (message.trim().empty) message = "[empty message]"
 
 			def notification = new Notification(groupDisplayId, title, message, notificationType)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
-		} as Runnable)
+		}
 	}
 
 
@@ -157,7 +157,7 @@ class PluginUtil {
 		// Use reference for consoleTitle because get groovy Reference class like in this bug http://jira.codehaus.org/browse/GROOVY-5101
 		AtomicReference<String> titleRef = new AtomicReference(consoleTitle)
 
-		UIUtil.invokeAndWaitIfNeeded {
+		invokeOnEDT {
 			ConsoleView console = TextConsoleBuilderFactory.instance.createBuilder(project).console
 			console.print(asString(message), contentType)
 
@@ -202,6 +202,7 @@ class PluginUtil {
 	 *
 	 * @return instance of created action
 	 */
+	@CanCallFromAnyThread
 	static AnAction registerAction(String actionId, String keyStroke = "",
 	                               String actionGroupId = null, String displayText = actionId, Closure callback) {
 		registerAction(actionId, keyStroke, actionGroupId, displayText, new AnAction() {
@@ -209,24 +210,29 @@ class PluginUtil {
 		})
 	}
 
+	@CanCallFromAnyThread
 	static AnAction registerAction(String actionId, String keyStroke = "",
 	                               String actionGroupId = null, String displayText = actionId, AnAction action) {
-		def actionManager = ActionManager.instance
-		def actionGroup = findActionGroup(actionGroupId)
+		invokeOnEDT{
+			runWriteAction{
+				def actionManager = ActionManager.instance
+				def actionGroup = findActionGroup(actionGroupId)
 
-		def alreadyRegistered = (actionManager.getAction(actionId) != null)
-		if (alreadyRegistered) {
-			actionGroup?.remove(actionManager.getAction(actionId))
-			actionManager.unregisterAction(actionId)
+				def alreadyRegistered = (actionManager.getAction(actionId) != null)
+				if (alreadyRegistered) {
+					actionGroup?.remove(actionManager.getAction(actionId))
+					actionManager.unregisterAction(actionId)
+				}
+
+				assignKeyStrokeTo(actionId, keyStroke)
+				actionManager.registerAction(actionId, action)
+				actionGroup?.add(action)
+
+				log("Action '${actionId}' registered")
+
+				action
+			}
 		}
-
-		assignKeyStrokeTo(actionId, keyStroke)
-		actionManager.registerAction(actionId, action)
-		actionGroup?.add(action)
-
-		log("Action '${actionId}' registered")
-
-		action
 	}
 
 	/**
@@ -236,40 +242,45 @@ class PluginUtil {
 	 * @param callback will be invoked instead of existing action; takes {@link AnActionEvent} and original action as parameters
 	 * @return wrapped action or null if there are no actions for {@code actionId}
 	 */
+	@CanCallFromAnyThread
 	static def wrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
-		ActionManager.instance.with {
-			AnAction action = it.getAction(actionId)
-			if (action == null) {
-				log("Couldn't wrap action '${actionId}' because it was not found")
-				return null
-			}
+		invokeOnEDT{
+			runWriteAction{
+				ActionManager.instance.with {
+					AnAction action = it.getAction(actionId)
+					if (action == null) {
+						log("Couldn't wrap action '${actionId}' because it was not found")
+						return null
+					}
 
-			AnAction newAction = new AnAction() {
-				AnAction originalAction = action
+					AnAction newAction = new AnAction() {
+						AnAction originalAction = action
 
-				@Override void actionPerformed(AnActionEvent event) {
-					callback.call(event, this.originalAction)
+						@Override void actionPerformed(AnActionEvent event) {
+							callback.call(event, this.originalAction)
+						}
+
+						@Override void update(AnActionEvent event) {
+							this.originalAction.update(event)
+						}
+					}
+					newAction.templatePresentation.text = action.templatePresentation.text
+					newAction.templatePresentation.icon = action.templatePresentation.icon
+					newAction.templatePresentation.hoveredIcon = action.templatePresentation.hoveredIcon
+					newAction.templatePresentation.description = action.templatePresentation.description
+					newAction.copyShortcutFrom(action)
+
+					actionGroups.each {
+						replaceActionInGroup(it, actionId, newAction)
+					}
+
+					it.unregisterAction(actionId)
+					it.registerAction(actionId, newAction)
+					log("Wrapped action '${actionId}'")
+
+					newAction
 				}
-
-				@Override void update(AnActionEvent event) {
-					this.originalAction.update(event)
-				}
 			}
-			newAction.templatePresentation.text = action.templatePresentation.text
-			newAction.templatePresentation.icon = action.templatePresentation.icon
-			newAction.templatePresentation.hoveredIcon = action.templatePresentation.hoveredIcon
-			newAction.templatePresentation.description = action.templatePresentation.description
-			newAction.copyShortcutFrom(action)
-
-			actionGroups.each {
-				replaceActionInGroup(it, actionId, newAction)
-			}
-
-			it.unregisterAction(actionId)
-			it.registerAction(actionId, newAction)
-			log("Wrapped action '${actionId}'")
-
-			newAction
 		}
 	}
 
@@ -279,27 +290,32 @@ class PluginUtil {
 	 *        can be used to update actions in menus, etc. (this is needed because action groups reference actions directly)
 	 * @return unwrapped action or null if there are no actions for {@code actionId}
 	 */
+	@CanCallFromAnyThread
 	static def unwrapAction(String actionId, List<String> actionGroupIds = []) {
-		ActionManager.instance.with {
-			AnAction wrappedAction = it.getAction(actionId)
-			if (wrappedAction == null) {
-				log("Couldn't unwrap action '${actionId}' because it was not found")
-				return null
-			}
-			if (!wrappedAction.hasProperty("originalAction")) {
-				log("Action '${actionId}' is not wrapped")
-				return wrappedAction
-			}
+		invokeOnEDT {
+			runWriteAction {
+				ActionManager.instance.with {
+					AnAction wrappedAction = it.getAction(actionId)
+					if (wrappedAction == null) {
+						log("Couldn't unwrap action '${actionId}' because it was not found")
+						return null
+					}
+					if (!wrappedAction.hasProperty("originalAction")) {
+						log("Action '${actionId}' is not wrapped")
+						return wrappedAction
+					}
 
-			actionGroupIds.each {
-				replaceActionInGroup(it, actionId, wrappedAction.originalAction)
+					actionGroupIds.each {
+						replaceActionInGroup(it, actionId, wrappedAction.originalAction)
+					}
+
+					it.unregisterAction(actionId)
+					it.registerAction(actionId, wrappedAction.originalAction)
+					log("Unwrapped action '${actionId}'")
+
+					wrappedAction.originalAction
+				}
 			}
-
-			it.unregisterAction(actionId)
-			it.registerAction(actionId, wrappedAction.originalAction)
-			log("Unwrapped action '${actionId}'")
-
-			wrappedAction.originalAction
 		}
 	}
 
@@ -311,38 +327,46 @@ class PluginUtil {
 	 * @param createComponent closure that creates tool window content (will be called for each open project)
 	 * @param location (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/wm/ToolWindowAnchor.java
 	 */
-	@CanOnlyCallFromEDT
+	@CanCallFromAnyThread
 	static registerToolWindow(String toolWindowId, ToolWindowAnchor location = RIGHT, Closure<JComponent> createComponent) {
-		def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
-		if (previousListener != null) {
-			ProjectManager.instance.removeProjectManagerListener(previousListener)
-			pmListenerToToolWindowId.remove(previousListener)
+		invokeOnEDT {
+			runWriteAction {
+				def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
+				if (previousListener != null) {
+					ProjectManager.instance.removeProjectManagerListener(previousListener)
+					pmListenerToToolWindowId.remove(previousListener)
+				}
+
+				def listener = new ProjectManagerAdapter() {
+					@Override void projectOpened(Project project) { registerToolWindowIn(project, toolWindowId, createComponent()) }
+					@Override void projectClosed(Project project) { unregisterToolWindowIn(project, toolWindowId) }
+				}
+				pmListenerToToolWindowId[listener] = toolWindowId
+				ProjectManager.instance.addProjectManagerListener(listener)
+
+				ProjectManager.instance.openProjects.each { project -> registerToolWindowIn(project, toolWindowId, createComponent()) }
+
+				log("Toolwindow '${toolWindowId}' registered")
+			}
 		}
-
-		def listener = new ProjectManagerAdapter() {
-			@Override void projectOpened(Project project) { registerToolWindowIn(project, toolWindowId, createComponent()) }
-			@Override void projectClosed(Project project) { unregisterToolWindowIn(project, toolWindowId) }
-		}
-		pmListenerToToolWindowId[listener] = toolWindowId
-		ProjectManager.instance.addProjectManagerListener(listener)
-
-		ProjectManager.instance.openProjects.each { project -> registerToolWindowIn(project, toolWindowId, createComponent()) }
-
-		log("Toolwindow '${toolWindowId}' registered")
 	}
 
 	/**
 	 * Unregisters a tool window from all open IDE windows.
 	 */
-  @CanOnlyCallFromEDT
+  @CanCallFromAnyThread
 	static unregisterToolWindow(String toolWindowId) {
-		def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
-		if (previousListener != null) {
-			ProjectManager.instance.removeProjectManagerListener(previousListener)
-			pmListenerToToolWindowId.remove(previousListener)
-		}
+	  invokeOnEDT {
+		  runWriteAction {
+				def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
+				if (previousListener != null) {
+					ProjectManager.instance.removeProjectManagerListener(previousListener)
+					pmListenerToToolWindowId.remove(previousListener)
+				}
 
-		ProjectManager.instance.openProjects.each { project -> unregisterToolWindowIn(project, toolWindowId) }
+				ProjectManager.instance.openProjects.each { project -> unregisterToolWindowIn(project, toolWindowId) }
+		  }
+	  }
 	}
 
 	static ToolWindow registerToolWindowIn(Project project, String toolWindowId, JComponent component, ToolWindowAnchor location = RIGHT) {
@@ -366,7 +390,7 @@ class PluginUtil {
 	 * This method exists for reference only.
 	 * For more dialogs see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/Messages.java
 	 */
-	@CanOnlyCallFromEDT
+	@CanCallWithinRunReadActionOrEDT
 	@Nullable static String showInputDialog(String message, String title, @Nullable Icon icon = null) {
 		Messages.showInputDialog(message, title, icon)
 	}
@@ -374,7 +398,7 @@ class PluginUtil {
 	/**
 	 * @return currently open editor; null if there are no open editors
 	 */
-	@CanOnlyCallFromEDT
+	@CanCallWithinRunReadActionOrEDT
 	@Nullable static Editor currentEditorIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).selectedTextEditor
 	}
@@ -385,7 +409,7 @@ class PluginUtil {
 	 *
 	 * It is intended to be used while writing plugin code which modifies content of another open editor.
 	 */
-	@CanOnlyCallFromEDT
+	@CanCallWithinRunReadActionOrEDT
 	@NotNull static Editor anotherOpenEditorIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).with {
 			if (selectedTextEditor == null) throw new IllegalStateException("There are no open editors in " + project.name)
@@ -402,7 +426,7 @@ class PluginUtil {
 	/**
 	 * @return {@PsiFile} for opened editor tab; null if there are no open files
 	 */
-	@CanOnlyCallFromEDT
+	@CanCallWithinRunReadActionOrEDT
 	@Nullable static PsiFile currentPsiFileIn(@NotNull Project project) {
 		def file = currentFileIn(project)
 		if (file == null) return null
@@ -412,7 +436,7 @@ class PluginUtil {
 	/**
 	 * @return {@link Document} for opened editor tab; null if there are no open files
 	 */
-	@CanOnlyCallFromEDT
+	@CanCallWithinRunReadActionOrEDT
 	@Nullable static Document currentDocumentIn(@NotNull Project project) {
 		def file = currentFileIn(project)
 		if (file == null) return null
@@ -422,7 +446,7 @@ class PluginUtil {
 	/**
 	 * @return {@link VirtualFile} for opened editor tab; null if there are no open files
 	 */
-	@CanOnlyCallFromEDT
+	@CanCallWithinRunReadActionOrEDT
 	@Nullable static VirtualFile currentFileIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
 	}
@@ -512,12 +536,8 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	static <T> T runWriteAction(Closure callback) {
-		if (SwingUtilities.isEventDispatchThread()) {
+		invokeOnEDT {
 			ApplicationManager.application.runWriteAction(callback as Computable)
-		} else {
-			SwingUtilities.invokeAndWait {
-				ApplicationManager.application.runWriteAction(callback as Computable)
-			}
 		}
 	}
 
@@ -806,4 +826,4 @@ class PluginUtil {
 }
 
 @interface CanCallFromAnyThread {}
-@interface CanOnlyCallFromEDT {}
+@interface CanCallWithinRunReadActionOrEDT {}
