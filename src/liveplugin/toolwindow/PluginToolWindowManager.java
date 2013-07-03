@@ -97,16 +97,15 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
+import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
 import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
 import static liveplugin.IdeUtil.downloadFile;
-import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
-import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
-import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
+import static liveplugin.LivePluginAppComponent.*;
+import static liveplugin.MyFileUtil.fileNamesMatching;
 
 /**
  * User: dima
@@ -282,7 +281,7 @@ public class PluginToolWindowManager {
 			descriptor.setIsTreeRootVisible(false);
 
 			Collection<String> pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values();
-			List<VirtualFile> virtualFiles = ContainerUtil.map(pluginPaths, new Function<String, VirtualFile>() {
+			List<VirtualFile> virtualFiles = map(pluginPaths, new Function<String, VirtualFile>() {
 				@Override public VirtualFile fun(String path) {
 					return VirtualFileManager.getInstance().findFileByUrl("file://" + path);
 				}
@@ -375,7 +374,7 @@ public class PluginToolWindowManager {
 
 		public List<String> selectedPluginIds() {
 			Collection<VirtualFile> rootFiles = findPluginRootsFor(myFsTreeRef.get().getSelectedFiles());
-			return ContainerUtil.map(rootFiles, new Function<VirtualFile, String>() {
+			return map(rootFiles, new Function<VirtualFile, String>() {
 				@Override public String fun(VirtualFile virtualFile) {
 					return virtualFile.getName();
 				}
@@ -713,7 +712,7 @@ public class PluginToolWindowManager {
 		}
 
 		private static boolean userDoesNotWantToRemovePlugins(Collection<VirtualFile> pluginRoots, Project project) {
-			List<String> pluginIds = ContainerUtil.map(pluginRoots, new Function<VirtualFile, String>() {
+			List<String> pluginIds = map(pluginRoots, new Function<VirtualFile, String>() {
 				@Override public String fun(VirtualFile virtualFile) {
 					return virtualFile.getName();
 				}
@@ -787,11 +786,12 @@ public class PluginToolWindowManager {
 			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
 				DependenciesUtil.removeLibraryDependencyFrom(project, LIBRARY_NAME);
 			} else {
-				//noinspection unchecked
-				DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, Arrays.asList(
-						Pair.create("jar://" + LIVEPLUGIN_LIBS_PATH + "scala-library-2.10.2.jar!/", CLASSES),
-						Pair.create("jar://" + LIVEPLUGIN_LIBS_PATH + "scala-compiler-2.10.2.jar!/", CLASSES)
-				));
+				List<Pair<String, OrderRootType>> paths = map(fileNamesMatching(DownloadScalaLibs.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH), new Function<String, Pair<String, OrderRootType>>() {
+					@Override public Pair<String, OrderRootType> fun(String fileName) {
+						return Pair.create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES);
+					}
+				});
+				DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, paths);
 			}
 		}
 
@@ -820,10 +820,12 @@ public class PluginToolWindowManager {
 			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
 				DependenciesUtil.removeLibraryDependencyFrom(project, LIBRARY_NAME);
 			} else {
-				//noinspection unchecked
-				DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, Arrays.asList(
-						Pair.create("jar://" + LIVEPLUGIN_LIBS_PATH + "clojure-1.5.1.jar!/", CLASSES)
-				));
+				List<Pair<String, OrderRootType>> paths = map(fileNamesMatching(DownloadClojureLibs.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH), new Function<String, Pair<String, OrderRootType>>() {
+					@Override public Pair<String, OrderRootType> fun(String fileName) {
+						return Pair.create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES);
+					}
+				});
+				DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, paths);
 			}
 		}
 
@@ -843,13 +845,16 @@ public class PluginToolWindowManager {
 	}
 
 	private static class DownloadScalaLibs extends AnAction {
+		public static final String LIB_FILES_PATTERN = "scala-(library|compiler).*jar";
+
 		@Override public void actionPerformed(AnActionEvent event) {
 			if (scalaIsOnClassPath()) {
 				int answer = Messages.showYesNoDialog(event.getProject(),
 						"Do you want to remove Scala libraries from plugin classpath? This action cannot be undone.", "Live Plugin", null);
 				if (answer == Messages.YES) {
-					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + "scala-library-2.10.2.jar"));
-					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + "scala-compiler-2.10.2.jar"));
+					for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
+						FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
+					}
 					askUserIfShouldRestartIde();
 				}
 			} else {
@@ -882,12 +887,16 @@ public class PluginToolWindowManager {
 	}
 
 	private static class DownloadClojureLibs extends AnAction {
+		public static final String LIB_FILES_PATTERN = "clojure-.*jar";
+
 		@Override public void actionPerformed(AnActionEvent event) {
 			if (clojureIsOnClassPath()) {
 				int answer = Messages.showYesNoDialog(event.getProject(),
 						"Do you want to remove Clojure libraries from plugin classpath? This action cannot be undone.", "Live Plugin", null);
 				if (answer == Messages.YES) {
-					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + "clojure-1.5.1.jar"));
+					for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
+						FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
+					}
 					askUserIfShouldRestartIde();
 				}
 			} else {
@@ -988,9 +997,9 @@ public class PluginToolWindowManager {
 		}
 
 		private static String findGroovyJarOn(String ideaJarsPath) {
-			List<File> files = FileUtil.findFilesByMask(Pattern.compile("groovy-all-.*jar"), new File(ideaJarsPath));
+			List<String> files = fileNamesMatching("groovy-all-.*jar", ideaJarsPath);
 			if (files.isEmpty()) return "could-not-find-groovy.jar";
-			else return files.get(0).getName();
+			else return files.get(0);
 		}
 
 		@Override public void update(AnActionEvent event) {

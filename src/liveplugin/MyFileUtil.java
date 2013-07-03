@@ -1,5 +1,8 @@
 package liveplugin;
 
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.util.Function;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -7,8 +10,18 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class MyFileUtil {
+	public static List<String> fileNamesMatching(String regexp, String path) {
+		List<File> files = FileUtil.findFilesByMask(Pattern.compile(regexp), new File(path));
+		return ContainerUtil.map(files, new Function<File, String>() {
+			@Override public String fun(File it) {
+				return it.getName();
+			}
+		});
+	}
+
 	public static String asUrl(File file) {
 		try {
 			return file.toURI().toURL().toString();

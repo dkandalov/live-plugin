@@ -49,8 +49,9 @@ class ScalaPluginRunner implements PluginRunner {
 		if (interpreter == null) {
 			try {
 				interpreter = initInterpreter();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			} catch (Throwable e) {
+				errorReporter.addLoadingError("Failed to init scala interpreter", e.getMessage());
+				return;
 			}
 		}
 

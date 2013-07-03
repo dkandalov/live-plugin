@@ -36,6 +36,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadFactory;
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.util.containers.ContainerUtil.find;
@@ -46,7 +47,11 @@ import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
 public class RunPluginAction extends AnAction {
-	private static final ExecutorService singleThreadExecutor = newSingleThreadExecutor();
+	private static final ExecutorService singleThreadExecutor = newSingleThreadExecutor(new ThreadFactory() {
+		@NotNull @Override public Thread newThread(@NotNull Runnable runnable) {
+			return new Thread(runnable, "LivePlugin run plugin thread");
+		}
+	});
 
 	public RunPluginAction() {
 		super("Run Plugin", "Run selected plugins", IdeUtil.RUN_PLUGIN_ICON);
