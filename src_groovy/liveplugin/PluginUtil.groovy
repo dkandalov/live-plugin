@@ -390,7 +390,7 @@ class PluginUtil {
 	 * This method exists for reference only.
 	 * For more dialogs see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/Messages.java
 	 */
-	@CanCallWithinRunReadActionOrEDT
+	@CanCallWithinRunReadActionOrFromEDT
 	@Nullable static String showInputDialog(String message, String title, @Nullable Icon icon = null) {
 		Messages.showInputDialog(message, title, icon)
 	}
@@ -398,7 +398,7 @@ class PluginUtil {
 	/**
 	 * @return currently open editor; null if there are no open editors
 	 */
-	@CanCallWithinRunReadActionOrEDT
+	@CanCallWithinRunReadActionOrFromEDT
 	@Nullable static Editor currentEditorIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).selectedTextEditor
 	}
@@ -409,7 +409,7 @@ class PluginUtil {
 	 *
 	 * It is intended to be used while writing plugin code which modifies content of another open editor.
 	 */
-	@CanCallWithinRunReadActionOrEDT
+	@CanCallWithinRunReadActionOrFromEDT
 	@NotNull static Editor anotherOpenEditorIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).with {
 			if (selectedTextEditor == null) throw new IllegalStateException("There are no open editors in " + project.name)
@@ -426,7 +426,7 @@ class PluginUtil {
 	/**
 	 * @return {@PsiFile} for opened editor tab; null if there are no open files
 	 */
-	@CanCallWithinRunReadActionOrEDT
+	@CanCallWithinRunReadActionOrFromEDT
 	@Nullable static PsiFile currentPsiFileIn(@NotNull Project project) {
 		def file = currentFileIn(project)
 		if (file == null) return null
@@ -436,7 +436,7 @@ class PluginUtil {
 	/**
 	 * @return {@link Document} for opened editor tab; null if there are no open files
 	 */
-	@CanCallWithinRunReadActionOrEDT
+	@CanCallWithinRunReadActionOrFromEDT
 	@Nullable static Document currentDocumentIn(@NotNull Project project) {
 		def file = currentFileIn(project)
 		if (file == null) return null
@@ -446,7 +446,7 @@ class PluginUtil {
 	/**
 	 * @return {@link VirtualFile} for opened editor tab; null if there are no open files
 	 */
-	@CanCallWithinRunReadActionOrEDT
+	@CanCallWithinRunReadActionOrFromEDT
 	@Nullable static VirtualFile currentFileIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
 	}
@@ -826,4 +826,4 @@ class PluginUtil {
 }
 
 @interface CanCallFromAnyThread {}
-@interface CanCallWithinRunReadActionOrEDT {}
+@interface CanCallWithinRunReadActionOrFromEDT {}
