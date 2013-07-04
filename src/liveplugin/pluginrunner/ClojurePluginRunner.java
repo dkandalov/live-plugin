@@ -4,6 +4,7 @@ import clojure.lang.Namespace;
 import clojure.lang.RT;
 import clojure.lang.Symbol;
 import clojure.lang.Var;
+import com.intellij.util.ui.UIUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,17 +50,22 @@ class ClojurePluginRunner implements PluginRunner {
 			Var.pushThreadBindings(Var.getThreadBindings().assoc(key, entry.getValue()));
 		}
 
-		File scriptFile = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
+		final File scriptFile = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
 		assert scriptFile != null;
-		try {
 
-			clojure.lang.Compiler.loadFile(scriptFile.getAbsolutePath());
+		UIUtil.invokeAndWaitIfNeeded(new Runnable() {
+			@Override public void run() {
+				try {
 
-		} catch (IOException e) {
-			errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
-		} catch (Exception e) {
-			errorReporter.addRunningError(pluginId, e);
-		}
+					clojure.lang.Compiler.loadFile(scriptFile.getAbsolutePath());
+
+				} catch (IOException e) {
+					errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
+				} catch (Exception e) {
+					errorReporter.addRunningError(pluginId, e);
+				}
+			}
+		});
 	}
 
 	private static Var createKey(String name) {

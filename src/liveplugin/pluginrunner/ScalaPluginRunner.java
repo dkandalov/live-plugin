@@ -4,6 +4,7 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.Function;
 import com.intellij.util.PathUtil;
+import com.intellij.util.ui.UIUtil;
 import liveplugin.MyFileUtil;
 import scala.tools.nsc.Settings;
 import scala.tools.nsc.interpreter.IMain;
@@ -45,7 +46,7 @@ class ScalaPluginRunner implements PluginRunner {
 		return findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
 	}
 
-	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
+	@Override public void runPlugin(String pathToPluginFolder, final String pluginId, Map<String, ?> binding) {
 		if (interpreter == null) {
 			try {
 				interpreter = initInterpreter();
@@ -63,21 +64,26 @@ class ScalaPluginRunner implements PluginRunner {
 			interpreter.bindValue(entry.getKey(), entry.getValue());
 		}
 
-		File scriptFile = MyFileUtil.findSingleFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
+		final File scriptFile = MyFileUtil.findSingleFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
 		assert scriptFile != null;
-		Results.Result result;
-		try {
-			result = interpreter.interpret(FileUtil.loadFile(scriptFile));
-		} catch (Exception e) {
-			errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
-			return;
-		} finally {
-			interpreter.reset();
-		}
 
-		if (!(result instanceof Results.Success$)) {
-			errorReporter.addRunningError(pluginId, interpreterOutput.toString());
-		}
+		UIUtil.invokeAndWaitIfNeeded(new Runnable() {
+			@Override public void run() {
+				Results.Result result;
+				try {
+					result = interpreter.interpret(FileUtil.loadFile(scriptFile));
+				} catch (Exception e) {
+					errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
+					return;
+				} finally {
+					interpreter.reset();
+				}
+
+				if (!(result instanceof Results.Success$)) {
+					errorReporter.addRunningError(pluginId, interpreterOutput.toString());
+				}
+			}
+		});
 	}
 
 	private static IMain initInterpreter() throws ClassNotFoundException {

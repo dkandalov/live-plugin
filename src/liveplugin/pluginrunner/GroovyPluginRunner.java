@@ -14,6 +14,7 @@
 package liveplugin.pluginrunner;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.util.ui.UIUtil;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
@@ -52,13 +53,22 @@ public class GroovyPluginRunner implements PluginRunner {
 		runGroovyScript(asUrl(mainScript), pluginFolderUrl, pluginId, binding);
 	}
 
-	private void runGroovyScript(String mainScriptUrl, String pluginFolderUrl, String pluginId, Map<String, ?> binding) {
+	private void runGroovyScript(final String mainScriptUrl, String pluginFolderUrl, final String pluginId, final Map<String, ?> binding) {
 		try {
 			environment.put("THIS_SCRIPT", mainScriptUrl);
 
 			GroovyClassLoader classLoader = createClassLoaderWithDependencies(pluginFolderUrl, mainScriptUrl, pluginId);
-			GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
-			scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));
+			final GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
+
+			UIUtil.invokeAndWaitIfNeeded(new Runnable() {
+				@Override public void run() {
+					try {
+						scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));
+					} catch (Exception e) {
+						errorReporter.addRunningError(pluginId, e);
+					}
+				}
+			});
 
 		} catch (IOException e) {
 			errorReporter.addLoadingError(pluginId, "Error while creating scripting engine. " + e.getMessage());
@@ -66,8 +76,6 @@ public class GroovyPluginRunner implements PluginRunner {
 			errorReporter.addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
 		} catch (VerifyError e) {
 			errorReporter.addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
-		} catch (Exception e) {
-			errorReporter.addRunningError(pluginId, e);
 		}
 	}
 
