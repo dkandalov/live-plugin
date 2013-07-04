@@ -61,6 +61,12 @@ public class GroovyPluginRunner implements PluginRunner {
 
 			GroovyClassLoader classLoader = createClassLoaderWithDependencies(pluginFolderUrl, mainScriptUrl, pluginId);
 			final GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
+			try {
+				scriptEngine.loadScriptByName(mainScriptUrl);
+			} catch (Exception e) {
+				errorReporter.addRunningError(pluginId, e);
+				return;
+			}
 
 			runPluginCallback.fun(new Runnable() {
 				@Override public void run() {
