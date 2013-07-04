@@ -19,9 +19,6 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
@@ -31,27 +28,24 @@ import com.intellij.util.ui.UIUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.PluginToolWindowManager;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.util.containers.ContainerUtil.find;
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static liveplugin.IdeUtil.SingleThreadBackgroundRunner;
 import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
 public class RunPluginAction extends AnAction {
-	private static final ExecutorService singleThreadExecutor = newSingleThreadExecutor(new ThreadFactory() {
-		@NotNull @Override public Thread newThread(@NotNull Runnable runnable) {
-			return new Thread(runnable, "LivePlugin run plugin thread");
+	private static final SingleThreadBackgroundRunner backgroundRunner = new SingleThreadBackgroundRunner("LivePlugin thread");
+	private static final Function<Runnable,Void> RUN_ON_EDT = new Function<Runnable, Void>() {
+		@Override public Void fun(Runnable runnable) {
+			UIUtil.invokeAndWaitIfNeeded(runnable);
+			return null;
 		}
-	});
+	};
 
 	public RunPluginAction() {
 		super("Run Plugin", "Run selected plugins", IdeUtil.RUN_PLUGIN_ICON);
@@ -77,9 +71,8 @@ public class RunPluginAction extends AnAction {
 		final Project project = event.getProject();
 		final boolean isIdeStartup = event.getPlace().equals(IDE_STARTUP);
 
-		final Callable<Void> runPlugins = new Callable<Void>() {
-			@Override public Void call() throws Exception {
-
+		Runnable runPlugins = new Runnable() {
+			@Override public void run() {
 				ErrorReporter errorReporter = new ErrorReporter();
 				List<PluginRunner> pluginRunners = createPluginRunners(errorReporter);
 
@@ -94,15 +87,9 @@ public class RunPluginAction extends AnAction {
 						errorReporter.addLoadingError(pluginId, "Couldn't find plugin startup script");
 						continue;
 					}
-					Function<Runnable, Void> runOnEDT = new Function<Runnable, Void>() {
-						@Override public Void fun(Runnable runnable) {
-							UIUtil.invokeLaterIfNeeded(runnable);
-							return null;
-						}
-					};
 
 					final Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
-					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, runOnEDT);
+					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, RUN_ON_EDT);
 
 					errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 						@Override public void display(String title, String message) {
@@ -110,20 +97,10 @@ public class RunPluginAction extends AnAction {
 						}
 					});
 				}
-
-				return null;
 			}
 		};
 
-		new Task.Backgroundable(project, "Running live plugin", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-			@Override public void run(@NotNull ProgressIndicator indicator) {
-				try {
-					singleThreadExecutor.submit(runPlugins).get();
-				} catch (InterruptedException ignored) {
-				} catch (ExecutionException ignored) {
-				}
-			}
-		}.queue();
+		backgroundRunner.run(project, "Loading plugin", runPlugins);
 	}
 
 	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {

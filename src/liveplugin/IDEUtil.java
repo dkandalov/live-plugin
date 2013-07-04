@@ -25,6 +25,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
@@ -35,6 +38,7 @@ import com.intellij.util.Function;
 import com.intellij.util.download.DownloadableFileDescription;
 import com.intellij.util.download.DownloadableFileService;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -42,9 +46,13 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadFactory;
 
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 public class IdeUtil {
 	// icons paths are inlined "in case API changes but path to icons does not"
@@ -139,5 +147,29 @@ public class IdeUtil {
 		//noinspection ThrowableResultOfMethodCallIgnored
 		throwable.printStackTrace(new PrintWriter(writer));
 		return UnscrambleDialog.normalizeText(writer.getBuffer().toString());
+	}
+
+	public static class SingleThreadBackgroundRunner {
+		private final ExecutorService singleThreadExecutor;
+
+		public SingleThreadBackgroundRunner(final String threadName) {
+			singleThreadExecutor = newSingleThreadExecutor(new ThreadFactory() {
+				@NotNull @Override public Thread newThread(@NotNull Runnable runnable) {
+					return new Thread(runnable, threadName);
+				}
+			});
+		}
+
+		public void run(Project project, String taskDescription, final Runnable runnable) {
+			new Task.Backgroundable(project, taskDescription, false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+				@Override public void run(@NotNull ProgressIndicator indicator) {
+					try {
+						singleThreadExecutor.submit(runnable).get();
+					} catch (InterruptedException ignored) {
+					} catch (ExecutionException ignored) {
+					}
+				}
+			}.queue();
+		}
 	}
 }
