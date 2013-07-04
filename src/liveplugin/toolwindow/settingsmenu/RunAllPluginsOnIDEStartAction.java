@@ -1,10 +1,10 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.settingsmenu;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import liveplugin.Settings;
 
-class RunAllPluginsOnIDEStartAction extends ToggleAction {
+public class RunAllPluginsOnIDEStartAction extends ToggleAction {
 	public RunAllPluginsOnIDEStartAction() {
 		super("Run All Live Plugins on IDE Start");
 	}

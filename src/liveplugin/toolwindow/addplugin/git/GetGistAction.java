@@ -1,4 +1,4 @@
-package liveplugin.toolwindow.git;
+package liveplugin.toolwindow.addplugin.git;
 
 
 public class GetGistAction {

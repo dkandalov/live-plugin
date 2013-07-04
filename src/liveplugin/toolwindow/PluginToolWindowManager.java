@@ -55,6 +55,16 @@ import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.RunPluginAction;
+import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
+import liveplugin.toolwindow.addplugin.AddNewPluginAction;
+import liveplugin.toolwindow.addplugin.AddPluginFromDiskAction;
+import liveplugin.toolwindow.settingsmenu.AddIDEAJarsAsDependencies;
+import liveplugin.toolwindow.settingsmenu.AddPluginJarAsDependency;
+import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
+import liveplugin.toolwindow.settingsmenu.languages.AddClojureLibsAsDependency;
+import liveplugin.toolwindow.settingsmenu.languages.AddScalaLibsAsDependency;
+import liveplugin.toolwindow.settingsmenu.languages.DownloadClojureLibs;
+import liveplugin.toolwindow.settingsmenu.languages.DownloadScalaLibs;
 import liveplugin.toolwindow.util.DisableHighlightingRunnable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -126,7 +136,7 @@ public class PluginToolWindowManager {
 	}
 
 	@SuppressWarnings("deprecation") // this is to make it compatible with as old intellij versions as possible
-	static void addRoots(FileChooserDescriptor descriptor, List<VirtualFile> virtualFiles) {
+	public static void addRoots(FileChooserDescriptor descriptor, List<VirtualFile> virtualFiles) {
 		if (virtualFiles.isEmpty()) {
 			descriptor.setRoot(null);
 		} else {

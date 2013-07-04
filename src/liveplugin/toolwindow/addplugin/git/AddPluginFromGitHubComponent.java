@@ -1,4 +1,4 @@
-package liveplugin.toolwindow.git;
+package liveplugin.toolwindow.addplugin.git;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 
 @SuppressWarnings("ComponentNotRegistered")
-public class GithubComponent implements ApplicationComponent {
+public class AddPluginFromGitHubComponent implements ApplicationComponent {
 	@Override public void initComponent() {
 		PluginToolWindowManager.addFromGitHubAction = new AddPluginFromGitHubAction();
 	}
@@ -40,7 +40,7 @@ public class GithubComponent implements ApplicationComponent {
 	}
 
 	@NotNull @Override public String getComponentName() {
-		return "GithubComponent";
+		return "AddPluginFromGitHubComponent";
 	}
 
 	/**

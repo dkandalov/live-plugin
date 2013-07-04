@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.addplugin;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -8,12 +8,13 @@ import com.intellij.openapi.ui.Messages;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
+import liveplugin.toolwindow.RefreshPluginTreeAction;
 import liveplugin.toolwindow.util.PluginsIO;
 
 import java.io.IOException;
 
 @SuppressWarnings("ComponentNotRegistered")
-class AddNewPluginAction extends AnAction {
+public class AddNewPluginAction extends AnAction {
 	private static final Logger LOG = Logger.getInstance(AddNewPluginAction.class);
 
 	public AddNewPluginAction() {

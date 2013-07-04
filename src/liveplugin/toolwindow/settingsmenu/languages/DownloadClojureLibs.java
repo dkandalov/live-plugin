@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.settingsmenu.languages;
 
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
@@ -15,7 +15,7 @@ import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
-class DownloadClojureLibs extends AnAction {
+public class DownloadClojureLibs extends AnAction {
 	public static final String LIB_FILES_PATTERN = "clojure-.*jar";
 	private static final String APPROXIMATE_SIZE = "(~4Mb)";
 

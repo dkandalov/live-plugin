@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.settingsmenu.languages;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -17,7 +17,7 @@ import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
-class AddClojureLibsAsDependency extends AnAction {
+public class AddClojureLibsAsDependency extends AnAction {
 	private static final String LIBRARY_NAME = "LivePlugin - Clojure";
 
 	@Override public void actionPerformed(AnActionEvent event) {

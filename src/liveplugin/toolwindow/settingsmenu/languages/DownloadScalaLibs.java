@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.settingsmenu.languages;
 
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
@@ -20,7 +20,7 @@ import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
-class DownloadScalaLibs extends AnAction {
+public class DownloadScalaLibs extends AnAction {
 	public static final String LIB_FILES_PATTERN = "(scala-|scalap).*jar";
 	private static final String APPROXIMATE_SIZE = "(~26Mb)";
 

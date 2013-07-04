@@ -22,6 +22,8 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.IconLoader;
 import liveplugin.IdeUtil;
+import liveplugin.toolwindow.addplugin.AddNewPluginAction;
+import liveplugin.toolwindow.addplugin.AddPluginFromDiskAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

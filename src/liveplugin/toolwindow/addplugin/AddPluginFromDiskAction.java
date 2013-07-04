@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.addplugin;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -14,6 +14,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
+import liveplugin.toolwindow.PluginToolWindowManager;
+import liveplugin.toolwindow.RefreshPluginTreeAction;
 import liveplugin.toolwindow.util.PluginsIO;
 
 import java.io.File;
@@ -21,7 +23,7 @@ import java.io.IOException;
 import java.util.*;
 
 @SuppressWarnings("ComponentNotRegistered")
-class AddPluginFromDiskAction extends AnAction {
+public class AddPluginFromDiskAction extends AnAction {
 	private static final Logger LOG = Logger.getInstance(AddPluginFromDiskAction.class);
 
 	public AddPluginFromDiskAction() {

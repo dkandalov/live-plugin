@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.settingsmenu;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -13,7 +13,7 @@ import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static com.intellij.openapi.util.Pair.create;
 
-class AddPluginJarAsDependency extends AnAction {
+public class AddPluginJarAsDependency extends AnAction {
 	private static final String LIVE_PLUGIN_LIBRARY = "LivePlugin";
 
 	@Override public void actionPerformed(AnActionEvent event) {

@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.settingsmenu;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -13,7 +13,7 @@ import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.util.Pair.create;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
-class AddIDEAJarsAsDependencies extends AnAction {
+public class AddIDEAJarsAsDependencies extends AnAction {
 	private static final String IDEA_JARS_LIBRARY = "IDEA jars";
 
 	@Override public void actionPerformed(AnActionEvent event) {
