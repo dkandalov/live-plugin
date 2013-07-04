@@ -23,6 +23,8 @@ import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.PluginToolWindowManager;
+import liveplugin.toolwindow.PluginsIO;
+import liveplugin.toolwindow.RefreshPluginTreeAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -101,7 +103,7 @@ public class GithubComponent implements ApplicationComponent {
 						try {
 
 							if (LivePluginAppComponent.isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
-								PluginToolWindowManager.PluginsIO.delete(clonedFolder.getPath());
+								PluginsIO.delete(clonedFolder.getPath());
 							}
 
 						} catch (Exception e) {
@@ -111,7 +113,7 @@ public class GithubComponent implements ApplicationComponent {
 							LOG.error(e);
 						}
 
-						new PluginToolWindowManager.RefreshPluginTreeAction().actionPerformed(null);
+						new RefreshPluginTreeAction().actionPerformed(null);
 					}
 				}, pluginsRoot);
 			}

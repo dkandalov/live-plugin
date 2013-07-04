@@ -13,9 +13,6 @@
  */
 package liveplugin.toolwindow;
 
-import com.intellij.CommonBundle;
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil;
 import com.intellij.ide.DefaultTreeExpander;
 import com.intellij.ide.DeleteProvider;
 import com.intellij.ide.actions.CollapseAllAction;
@@ -24,16 +21,10 @@ import com.intellij.ide.ui.customization.CustomizationUtil;
 import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.AbstractTreeStructure;
 import com.intellij.ide.util.treeView.NodeDescriptor;
-import com.intellij.lang.Language;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ApplicationBundle;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileSystemTree;
 import com.intellij.openapi.fileChooser.actions.VirtualFileDeleteProvider;
@@ -44,46 +35,32 @@ import com.intellij.openapi.fileChooser.ex.RootFileElement;
 import com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.keymap.KeymapManager;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.roots.*;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.pom.Navigatable;
-import com.intellij.psi.FileViewProvider;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.util.PsiUtilBase;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.*;
-import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.EditSourceOnDoubleClickHandler;
+import com.intellij.util.EditSourceOnEnterKeyHandler;
+import com.intellij.util.Function;
+import com.intellij.util.PathUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
-import liveplugin.Settings;
-import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.pluginrunner.RunPluginAction;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -93,8 +70,6 @@ import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
 
@@ -149,7 +124,7 @@ public class PluginToolWindowManager {
 		return toolWindowsByProject.get(project);
 	}
 
-	private static void reloadPluginTreesInAllProjects() {
+	static void reloadPluginTreesInAllProjects() {
 		for (Map.Entry<Project, PluginToolWindow> entry : toolWindowsByProject.entrySet()) {
 			Project project = entry.getKey();
 			PluginToolWindow toolWindow = entry.getValue();
@@ -167,7 +142,7 @@ public class PluginToolWindowManager {
 	}
 
 	@SuppressWarnings("deprecation") // this is to make it compatible with as old intellij versions as possible
-	private static void addRoots(FileChooserDescriptor descriptor, List<VirtualFile> virtualFiles) {
+	static void addRoots(FileChooserDescriptor descriptor, List<VirtualFile> virtualFiles) {
 		if (virtualFiles.isEmpty()) {
 			descriptor.setRoot(null);
 		} else {
@@ -385,7 +360,7 @@ public class PluginToolWindowManager {
 			return toolWindow.isActive();
 		}
 
-		private static Collection<VirtualFile> findPluginRootsFor(VirtualFile[] files) {
+		static Collection<VirtualFile> findPluginRootsFor(VirtualFile[] files) {
 			Set<VirtualFile> selectedPluginRoots = new HashSet<VirtualFile>();
 			for (VirtualFile file : files) {
 				VirtualFile root = pluginFolderOf(file);
@@ -479,302 +454,6 @@ public class PluginToolWindowManager {
 		}
 	}
 
-
-	@SuppressWarnings("ComponentNotRegistered")
-	public static class AddNewPluginAction extends AnAction {
-		private static final Logger LOG = Logger.getInstance(AddNewPluginAction.class);
-
-		public AddNewPluginAction() {
-			super("New Plugin");
-		}
-
-		@Override public void actionPerformed(AnActionEvent event) {
-			String newPluginId = Messages.showInputDialog(event.getProject(), "Enter new plugin name:", "New Plugin", null);
-
-			if (newPluginId == null) return;
-			if (LivePluginAppComponent.pluginExists(newPluginId)) {
-				Messages.showErrorDialog(event.getProject(), "Plugin \"" + newPluginId + "\" already exists.", "New Plugin");
-				return;
-			}
-
-			try {
-
-				String text = LivePluginAppComponent.defaultPluginScript();
-				PluginsIO.createFile(LivePluginAppComponent.pluginsRootPath() + "/" + newPluginId, GroovyPluginRunner.MAIN_SCRIPT, text);
-
-			} catch (IOException e) {
-				Project project = event.getProject();
-				if (project != null) {
-					IdeUtil.showErrorDialog(
-							project,
-							"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.pluginsRootPath(),
-							"Add Plugin"
-					);
-				}
-				LOG.error(e);
-			}
-
-			new RefreshPluginTreeAction().actionPerformed(event);
-		}
-	}
-
-	public static class ExamplePluginInstaller {
-		private final String pluginPath;
-		private final List<String> filePaths;
-		private final String pluginId;
-
-		public ExamplePluginInstaller(String pluginPath, List<String> filePaths) {
-			this.pluginPath = pluginPath;
-			this.filePaths = filePaths;
-			this.pluginId = extractPluginIdFrom(pluginPath);
-		}
-
-		public void installPlugin(Listener listener) {
-			for (String relativeFilePath : filePaths) {
-				try {
-
-					String text = LivePluginAppComponent.readSampleScriptFile(pluginPath, relativeFilePath);
-					Pair<String, String> pair = splitIntoPathAndFileName(LivePluginAppComponent.pluginsRootPath() + "/" + pluginId + "/" + relativeFilePath);
-					PluginsIO.createFile(pair.first, pair.second, text);
-
-				} catch (IOException e) {
-					listener.onException(e, pluginPath);
-				}
-			}
-		}
-
-		private static Pair<String, String> splitIntoPathAndFileName(String filePath) {
-			int index = filePath.lastIndexOf("/");
-			return new Pair<String, String>(filePath.substring(0, index), filePath.substring(index + 1));
-		}
-
-		public static String extractPluginIdFrom(String pluginPath) {
-			String[] split = pluginPath.split("/");
-			return split[split.length - 1];
-		}
-
-		public interface Listener {
-			void onException(Exception e, String pluginPath);
-		}
-	}
-
-	private static class AddExamplePluginAction extends AnAction {
-		private static final Logger LOG = Logger.getInstance(AddExamplePluginAction.class);
-
-		private final String pluginId;
-		private final ExamplePluginInstaller examplePluginInstaller;
-
-		public AddExamplePluginAction(String pluginPath, List<String> sampleFiles) {
-			examplePluginInstaller = new ExamplePluginInstaller(pluginPath, sampleFiles);
-			pluginId = ExamplePluginInstaller.extractPluginIdFrom(pluginPath);
-
-			getTemplatePresentation().setText(pluginId);
-		}
-
-		@Override public void actionPerformed(final AnActionEvent event) {
-			examplePluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
-				@Override public void onException(Exception e, String pluginPath) {
-					logException(e, event, pluginPath);
-				}
-			});
-			new RefreshPluginTreeAction().actionPerformed(event);
-		}
-
-		@Override public void update(AnActionEvent event) {
-			event.getPresentation().setEnabled(!LivePluginAppComponent.pluginExists(pluginId));
-		}
-
-		private void logException(Exception e, AnActionEvent event, String pluginPath) {
-			Project project = event.getProject();
-			if (project != null) {
-				IdeUtil.showErrorDialog(
-						project,
-						"Error adding plugin \"" + pluginPath + "\" to " + LivePluginAppComponent.pluginsRootPath(),
-						"Add Plugin"
-				);
-			}
-			LOG.error(e);
-		}
-	}
-
-	@SuppressWarnings("ComponentNotRegistered")
-	public static class AddPluginFromDiskAction extends AnAction {
-		private static final Logger LOG = Logger.getInstance(AddPluginFromDiskAction.class);
-
-		public AddPluginFromDiskAction() {
-			super("Plugin from Disk");
-		}
-
-		@Override public void actionPerformed(AnActionEvent event) {
-			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, true, true, false);
-
-			addRoots(descriptor, getFileSystemRoots());
-
-			VirtualFile virtualFile = FileChooser.chooseFile(descriptor, event.getProject(), null);
-			if (virtualFile == null) return;
-
-			if (LivePluginAppComponent.isInvalidPluginFolder(virtualFile) &&
-					userDoesNotWantToAddFolder(virtualFile, event.getProject())) return;
-
-			String folderToCopy = virtualFile.getPath();
-			String targetFolder = LivePluginAppComponent.pluginsRootPath();
-			try {
-
-				PluginsIO.copyFolder(folderToCopy, targetFolder);
-
-			} catch (IOException e) {
-				Project project = event.getProject();
-				if (project != null) {
-					IdeUtil.showErrorDialog(
-							project,
-							"Error adding plugin \"" + folderToCopy + "\" to " + targetFolder,
-							"Add Plugin"
-					);
-				}
-				LOG.error(e);
-			}
-
-			new RefreshPluginTreeAction().actionPerformed(event);
-		}
-
-		private static List<VirtualFile> getFileSystemRoots() {
-			LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
-			Set<VirtualFile> roots = new HashSet<VirtualFile>();
-			File[] ioRoots = File.listRoots();
-			if (ioRoots != null) {
-				for (File root : ioRoots) {
-					String path = FileUtil.toSystemIndependentName(root.getAbsolutePath());
-					VirtualFile file = localFileSystem.findFileByPath(path);
-					if (file != null) {
-						roots.add(file);
-					}
-				}
-			}
-			ArrayList<VirtualFile> result = new ArrayList<VirtualFile>();
-			Collections.addAll(result, VfsUtil.toVirtualFileArray(roots));
-			return result;
-		}
-
-		private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {
-			int answer = Messages.showYesNoDialog(
-					project,
-					"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + GroovyPluginRunner.MAIN_SCRIPT + "\"." +
-							"\nDo you want to add it anyway?",
-					"Add Plugin",
-					Messages.getQuestionIcon()
-			);
-			return answer != Messages.YES;
-		}
-	}
-
-	private static class DeletePluginAction extends AnAction {
-		private static final Logger LOG = Logger.getInstance(DeletePluginAction.class);
-
-
-		public DeletePluginAction() {
-			super("Delete Plugin", "Delete Plugin", IdeUtil.DELETE_PLUGIN_ICON);
-		}
-
-		@Override public void actionPerformed(AnActionEvent event) {
-			VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.getDataContext());
-			if (files == null || files.length == 0) return;
-
-			Collection<VirtualFile> pluginRoots = PluginToolWindow.findPluginRootsFor(files);
-			if (userDoesNotWantToRemovePlugins(pluginRoots, event.getProject())) return;
-
-			for (VirtualFile pluginRoot : pluginRoots) {
-				try {
-
-					PluginsIO.delete(pluginRoot.getPath());
-
-				} catch (IOException e) {
-					Project project = event.getProject();
-					if (project != null) {
-						IdeUtil.showErrorDialog(project, "Error deleting plugin \"" + pluginRoot.getPath(), "Delete Plugin");
-					}
-					LOG.error(e);
-				}
-			}
-
-			new RefreshPluginTreeAction().actionPerformed(event);
-		}
-
-		@Override public void update(AnActionEvent event) {
-			VirtualFile[] files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.getDataContext());
-
-			boolean enabled = true;
-			if (files == null || files.length == 0)
-				enabled = false;
-			else if (PluginToolWindow.findPluginRootsFor(files).isEmpty())
-				enabled = false;
-
-			event.getPresentation().setEnabled(enabled);
-		}
-
-		private static boolean userDoesNotWantToRemovePlugins(Collection<VirtualFile> pluginRoots, Project project) {
-			List<String> pluginIds = map(pluginRoots, new Function<VirtualFile, String>() {
-				@Override public String fun(VirtualFile virtualFile) {
-					return virtualFile.getName();
-				}
-			});
-
-			String message;
-			if (pluginIds.size() == 1) {
-				message = "Do you want to delete plugin \"" + pluginIds.get(0) + "\"?";
-			} else if (pluginIds.size() == 2) {
-				message = "Do you want to delete plugin \"" + pluginIds.get(0) + "\" and \"" + pluginIds.get(1) + "\"?";
-			} else {
-				message = "Do you want to delete plugins \"" + StringUtil.join(pluginIds, ", ") + "\"?";
-			}
-			int answer = Messages.showOkCancelDialog(
-					project,
-					message,
-					"Delete",
-					ApplicationBundle.message("button.delete"),
-					CommonBundle.getCancelButtonText(),
-					Messages.getQuestionIcon()
-			);
-			return answer != Messages.OK;
-		}
-	}
-
-	@SuppressWarnings("ComponentNotRegistered")
-	public static class RefreshPluginTreeAction extends AnAction {
-
-		public RefreshPluginTreeAction() {
-			super("Refresh Plugin Tree", "Refresh Plugin Tree", IdeUtil.REFRESH_PLUGIN_LIST_ICON);
-		}
-
-		@Override public void actionPerformed(@Nullable AnActionEvent e) {
-			ApplicationManager.getApplication().runWriteAction(new Runnable() {
-				@Override public void run() {
-					VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginAppComponent.pluginsRootPath());
-					if (pluginsRoot == null) return;
-
-					RefreshQueue.getInstance().refresh(false, true, new Runnable() {
-						@Override public void run() {
-							reloadPluginTreesInAllProjects();
-						}
-					}, pluginsRoot);
-				}
-			});
-		}
-	}
-
-
-	private static class RunAllPluginsOnIDEStartAction extends ToggleAction {
-		public RunAllPluginsOnIDEStartAction() {
-			super("Run All Live Plugins on IDE Start");
-		}
-
-		@Override public boolean isSelected(AnActionEvent event) {
-			return Settings.getInstance().runAllPluginsOnIDEStartup;
-		}
-
-		@Override public void setSelected(AnActionEvent event, boolean state) {
-			Settings.getInstance().runAllPluginsOnIDEStartup = state;
-		}
-	}
 
 	private static class AddScalaLibsAsDependency extends AnAction {
 		private static final String LIBRARY_NAME = "LivePlugin - Scala";
@@ -1024,193 +703,5 @@ public class PluginToolWindowManager {
 		}
 	}
 
-	private static class DependenciesUtil {
-		public static boolean allModulesHasLibraryAsDependencyIn(Project project, String libraryName) {
-			return findModulesWithoutLibrary(ModuleManager.getInstance(project).getModules(), libraryName).isEmpty();
-		}
-
-		public static void removeLibraryDependencyFrom(final Project project, final String libraryName) {
-			ApplicationManager.getApplication().runWriteAction(new Runnable() {
-				@Override public void run() {
-					Module[] modules = ModuleManager.getInstance(project).getModules();
-					for (Module module : findModulesWithLibrary(modules, libraryName)) {
-
-						ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
-						LibraryTable libraryTable = moduleRootManager.getModuleLibraryTable();
-
-						Library library = libraryTable.getLibraryByName(libraryName);
-						if (library != null) libraryTable.removeLibrary(library);
-						moduleRootManager.commit();
-
-					}
-				}
-			});
-		}
-
-		public static void addLibraryDependencyTo(final Project project, final String libraryName,
-		                                          final List<Pair<String, OrderRootType>> paths) {
-			ApplicationManager.getApplication().runWriteAction(new Runnable() {
-				@Override public void run() {
-					Module[] modules = ModuleManager.getInstance(project).getModules();
-					for (Module module : findModulesWithoutLibrary(modules, libraryName)) {
-
-						ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
-						LibraryTable libraryTable = moduleRootManager.getModuleLibraryTable();
-
-						Library library = libraryTable.createLibrary(libraryName);
-						Library.ModifiableModel modifiableLibrary = library.getModifiableModel();
-						for (Pair<String, OrderRootType> pathAndType : paths) {
-							modifiableLibrary.addRoot(pathAndType.first, pathAndType.second);
-						}
-						modifiableLibrary.commit();
-
-						LibraryOrderEntry libraryOrderEntry = moduleRootManager.findLibraryOrderEntry(library);
-						if (libraryOrderEntry != null) libraryOrderEntry.setScope(DependencyScope.PROVIDED);
-						moduleRootManager.commit();
-
-					}
-				}
-			});
-		}
-
-		private static List<Module> findModulesWithoutLibrary(Module[] modules, final String libraryName) {
-			return ContainerUtil.findAll(modules, new Condition<Module>() {
-				@Override public boolean value(Module module) {
-					return !dependsOn(libraryName, module);
-				}
-			});
-		}
-
-		private static List<Module> findModulesWithLibrary(Module[] modules, final String libraryName) {
-			return ContainerUtil.findAll(modules, new Condition<Module>() {
-				@Override public boolean value(Module module) {
-					return dependsOn(libraryName, module);
-				}
-			});
-		}
-
-		private static boolean dependsOn(String libraryName, Module module) {
-			ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
-			Library library = moduleRootManager.getModuleLibraryTable().getLibraryByName(libraryName);
-			return library != null;
-		}
-	}
-
-
-	public static class PluginsIO {
-		private static final String REQUESTOR = PluginsIO.class.getCanonicalName();
-
-		public static void createFile(final String parentPath, final String fileName, final String text) throws IOException {
-			runIOAction("createFile", new ThrowableRunnable<IOException>() {
-				@Override public void run() throws IOException {
-
-					VirtualFile parentFolder = VfsUtil.createDirectoryIfMissing(parentPath);
-					if (parentFolder == null) throw new IOException("Failed to create folder " + parentPath);
-
-					VirtualFile file = parentFolder.createChildData(REQUESTOR, fileName);
-					VfsUtil.saveText(file, text);
-
-				}
-			});
-		}
-
-		public static void copyFolder(final String folder, final String toFolder) throws IOException {
-			runIOAction("copyFolder", new ThrowableRunnable<IOException>() {
-				@Override public void run() throws IOException {
-
-					VirtualFile targetFolder = VfsUtil.createDirectoryIfMissing(toFolder);
-					if (targetFolder == null) throw new IOException("Failed to create folder " + toFolder);
-					VirtualFile folderToCopy = VirtualFileManager.getInstance().findFileByUrl("file://" + folder);
-					if (folderToCopy == null) throw new IOException("Failed to find folder " + folder);
-
-					VfsUtil.copy(REQUESTOR, folderToCopy, targetFolder);
-
-				}
-			});
-		}
-
-		public static void delete(final String filePath) throws IOException {
-			runIOAction("delete", new ThrowableRunnable<IOException>() {
-				@Override public void run() throws IOException {
-
-					VirtualFile file = VirtualFileManager.getInstance().findFileByUrl("file://" + filePath);
-					if (file == null) throw new IOException("Failed to find file " + filePath);
-
-					file.delete(REQUESTOR);
-
-				}
-			});
-		}
-
-		private static void runIOAction(String actionName, final ThrowableRunnable<IOException> runnable) throws IOException {
-			final IOException[] exception = new IOException[]{null};
-			CommandProcessor.getInstance().executeCommand(null, new Runnable() {
-				@Override public void run() {
-					ApplicationManager.getApplication().runWriteAction(new Runnable() {
-						public void run() {
-							try {
-
-								runnable.run();
-
-							} catch (IOException e) {
-								exception[0] = e;
-							}
-						}
-					});
-				}
-			}, actionName, "LivePlugin");
-
-			if (exception[0] != null) throw exception[0];
-		}
-	}
-
-	private static class DisableHighlightingRunnable implements Runnable {
-		private final Project project;
-		private final Ref<FileSystemTree> myFsTree;
-
-		public DisableHighlightingRunnable(Project project, Ref<FileSystemTree> myFsTree) {
-			this.project = project;
-			this.myFsTree = myFsTree;
-		}
-
-		@Override public void run() {
-			VirtualFile selectedFile = myFsTree.get().getSelectedFile();
-			if (selectedFile == null) return;
-
-			PsiFile psiFile = PsiManager.getInstance(project).findFile(selectedFile);
-			if (psiFile == null) return;
-
-			disableHighlightingFor(psiFile);
-		}
-
-		private static void disableHighlightingFor(PsiFile psiFile) {
-			FileViewProvider viewProvider = psiFile.getViewProvider();
-			List<Language> languages = new ArrayList<Language>(viewProvider.getLanguages());
-			Collections.sort(languages, PsiUtilBase.LANGUAGE_COMPARATOR);
-
-			for (Language language : languages) {
-				PsiElement root = viewProvider.getPsi(language);
-				skipHighlighting_IJ12_IJ13_compatibility_workaround(root);
-			}
-			DaemonCodeAnalyzer analyzer = DaemonCodeAnalyzer.getInstance(psiFile.getProject());
-			analyzer.restart();
-		}
-
-		private static void skipHighlighting_IJ12_IJ13_compatibility_workaround(PsiElement psiElement) {
-			try {
-				Class enumClass;
-				try {
-					enumClass = Class.forName("com.intellij.codeInsight.daemon.impl.analysis.FileHighlightingSetting");
-				} catch (ClassNotFoundException e) {
-					enumClass = Class.forName("com.intellij.codeInsight.daemon.impl.analysis.FileHighlighingSetting");
-				}
-				Enum skipHighlighting = Enum.valueOf(enumClass, "SKIP_HIGHLIGHTING");
-				Method method = HighlightLevelUtil.class.getMethod("forceRootHighlighting", PsiElement.class, enumClass);
-				method.invoke(null, psiElement, skipHighlighting);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
 
 }

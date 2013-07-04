@@ -50,7 +50,8 @@ import static java.util.Arrays.asList;
 import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
 import static liveplugin.IdeUtil.downloadFile;
 import static liveplugin.MyFileUtil.allFilesInDirectory;
-import static liveplugin.toolwindow.PluginToolWindowManager.ExamplePluginInstaller;
+
+import liveplugin.toolwindow.ExamplePluginInstaller;
 
 public class LivePluginAppComponent implements ApplicationComponent { // TODO implement DumbAware?
 	private static final Logger LOG = Logger.getInstance(LivePluginAppComponent.class);

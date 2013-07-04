@@ -66,8 +66,8 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 						new NewFileAction("Text File", AllIcons.FileTypes.Text, IdeUtil.TEXT_FILE_TYPE),
 						new NewFolderAction("Directory", "Directory", Folder),
 						new Separator(),
-						new PluginToolWindowManager.AddNewPluginAction(),
-						new PluginToolWindowManager.AddPluginFromDiskAction()
+						new AddNewPluginAction(),
+						new AddPluginFromDiskAction()
 				));
 				if (PluginToolWindowManager.addFromGitHubAction != null) {
 					actions.add(PluginToolWindowManager.addFromGitHubAction);
