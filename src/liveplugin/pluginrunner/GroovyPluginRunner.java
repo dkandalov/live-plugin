@@ -27,8 +27,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import static liveplugin.MyFileUtil.findSingleFileIn;
 import static liveplugin.MyFileUtil.asUrl;
+import static liveplugin.MyFileUtil.findSingleFileIn;
 
 public class GroovyPluginRunner implements PluginRunner {
 	public static final String MAIN_SCRIPT = "plugin.groovy";

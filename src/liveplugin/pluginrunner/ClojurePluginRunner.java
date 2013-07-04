@@ -11,6 +11,9 @@ import java.util.Map;
 
 import static liveplugin.MyFileUtil.findSingleFileIn;
 
+/**
+ * This class should not be loaded unless clojure libs are on classpath.
+ */
 class ClojurePluginRunner implements PluginRunner {
 	private static final String MAIN_SCRIPT = "plugin.clj";
 
@@ -18,6 +21,7 @@ class ClojurePluginRunner implements PluginRunner {
 
 	private final ErrorReporter errorReporter;
 	private final Map<String, String> environment; // TODO use it
+
 
 	public ClojurePluginRunner(ErrorReporter errorReporter, Map<String, String> environment) {
 		this.errorReporter = errorReporter;
