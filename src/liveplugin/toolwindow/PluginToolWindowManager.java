@@ -874,7 +874,7 @@ public class PluginToolWindowManager {
 
 				boolean downloaded = downloadFiles(urlAndFileNamePairs, LIVEPLUGIN_LIBS_PATH);
 				if (downloaded) {
-					askUserIfShouldRestartIde();
+					askUserIfShouldRestartIde(); // TODO load classes at runtime
 				} else {
 					NotificationGroup.balloonGroup("Live Plugin")
 							.createNotification("Failed to download Scala libraries", NotificationType.WARNING);
@@ -915,7 +915,7 @@ public class PluginToolWindowManager {
 
 				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar", LIVEPLUGIN_LIBS_PATH);
 				if (downloaded) {
-					askUserIfShouldRestartIde();
+					askUserIfShouldRestartIde(); // TODO load classes at runtime
 				} else {
 					NotificationGroup.balloonGroup("Live Plugin")
 							.createNotification("Failed to download Clojure libraries", NotificationType.WARNING);
