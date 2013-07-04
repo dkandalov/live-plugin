@@ -1,12 +1,19 @@
 package liveplugin.pluginrunner
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.Function
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
 class GroovyPluginRunnerTest {
-	private static final LinkedHashMap NO_BINDING = [:]
-	private static final LinkedHashMap NO_ENVIRONMENT = [:]
+	static final LinkedHashMap NO_BINDING = [:]
+	static final LinkedHashMap NO_ENVIRONMENT = [:]
+	static final Function RUN_ON_THE_SAME_THREAD = new Function<Runnable, Void>() {
+		@Override Void fun(Runnable runnable) {
+			runnable.run()
+			null
+		}
+	}
 
 	private final ErrorReporter errorReporter = new ErrorReporter()
 	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(errorReporter, NO_ENVIRONMENT)
@@ -25,7 +32,7 @@ class GroovyPluginRunnerTest {
 			a + b
 		"""
 		createFile("plugin.groovy", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -35,7 +42,7 @@ class GroovyPluginRunnerTest {
 			invalid code + 1
 		"""
 		createFile("plugin.groovy", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
 
 		def errors = collectErrorsFrom(errorReporter)
 		assert errors.size() == 1
@@ -58,7 +65,7 @@ class GroovyPluginRunnerTest {
 		createFile("plugin.groovy", scriptCode, rootFolder)
 		createFile("Util.groovy", scriptCode2, myPackageFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}

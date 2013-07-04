@@ -14,7 +14,7 @@
 package liveplugin.pluginrunner;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.util.Function;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
@@ -47,20 +47,22 @@ public class GroovyPluginRunner implements PluginRunner {
 		return findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
 	}
 
-	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding) {
+	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding,
+	                                Function<Runnable, Void> runPluginCallback) {
 		File mainScript = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
 		String pluginFolderUrl = "file:///" + pathToPluginFolder;
-		runGroovyScript(asUrl(mainScript), pluginFolderUrl, pluginId, binding);
+		runGroovyScript(asUrl(mainScript), pluginFolderUrl, pluginId, binding, runPluginCallback);
 	}
 
-	private void runGroovyScript(final String mainScriptUrl, String pluginFolderUrl, final String pluginId, final Map<String, ?> binding) {
+	private void runGroovyScript(final String mainScriptUrl, String pluginFolderUrl, final String pluginId,
+	                             final Map<String, ?> binding, Function<Runnable, Void> runPluginCallback) {
 		try {
 			environment.put("THIS_SCRIPT", mainScriptUrl);
 
 			GroovyClassLoader classLoader = createClassLoaderWithDependencies(pluginFolderUrl, mainScriptUrl, pluginId);
 			final GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
 
-			UIUtil.invokeAndWaitIfNeeded(new Runnable() {
+			runPluginCallback.fun(new Runnable() {
 				@Override public void run() {
 					try {
 						scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));

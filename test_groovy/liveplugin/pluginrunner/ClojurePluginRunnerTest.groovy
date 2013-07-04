@@ -5,13 +5,9 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 
-import static liveplugin.pluginrunner.GroovyPluginRunnerTest.collectErrorsFrom
-import static liveplugin.pluginrunner.GroovyPluginRunnerTest.createFile
+import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
 
 class ClojurePluginRunnerTest {
-	private static final LinkedHashMap NO_BINDING = [:]
-	private static final LinkedHashMap NO_ENVIRONMENT = [:]
-
 	private final ErrorReporter errorReporter = new ErrorReporter()
 	private final ClojurePluginRunner pluginRunner = new ClojurePluginRunner(errorReporter, NO_ENVIRONMENT)
 	private File rootFolder
@@ -27,7 +23,7 @@ class ClojurePluginRunnerTest {
 			(+ 1 2)
 		"""
 		createFile("plugin.clj", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -37,7 +33,7 @@ class ClojurePluginRunnerTest {
 			(this is not a proper clojure code)
 		"""
 		createFile("plugin.clj", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
 
 		collectErrorsFrom(errorReporter).with{
 			assert size() == 1
@@ -56,7 +52,7 @@ class ClojurePluginRunnerTest {
 		"""
 		createFile("plugin.clj", scriptCode, rootFolder)
 		createFile("util.clj", scriptCode2, myPackageFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}

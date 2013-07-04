@@ -4,7 +4,7 @@ import clojure.lang.Namespace;
 import clojure.lang.RT;
 import clojure.lang.Symbol;
 import clojure.lang.Var;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.util.Function;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,8 @@ class ClojurePluginRunner implements PluginRunner {
 		return findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
 	}
 
-	@Override public void runPlugin(final String pathToPluginFolder, final String pluginId, final Map<String, ?> binding) {
+	@Override public void runPlugin(final String pathToPluginFolder, final String pluginId,
+	                                final Map<String, ?> binding, Function<Runnable, Void> runPluginCallback) {
 		if (!initialized) {
 			// need this to avoid "java.lang.IllegalStateException: Attempting to call unbound fn: #'clojure.core/refer"
 			// use classloader of RunPluginAction assuming that clojure was first initialized from it
@@ -53,7 +54,7 @@ class ClojurePluginRunner implements PluginRunner {
 		final File scriptFile = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
 		assert scriptFile != null;
 
-		UIUtil.invokeAndWaitIfNeeded(new Runnable() {
+		runPluginCallback.fun(new Runnable() {
 			@Override public void run() {
 				try {
 

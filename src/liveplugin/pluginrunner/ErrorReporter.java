@@ -20,27 +20,30 @@ import java.util.Map;
 
 import static liveplugin.IdeUtil.unscrambleThrowable;
 
+/**
+ * Thread-safe.
+ */
 class ErrorReporter {
 	private final List<String> loadingErrors = new LinkedList<String>();
 	private final LinkedHashMap<String, String> runningPluginErrors = new LinkedHashMap<String, String>();
 
-	public void addLoadingError(String pluginId, String message) {
+	public synchronized void addLoadingError(String pluginId, String message) {
 		loadingErrors.add("Error loading plugin: \"" + pluginId + "\". " + message);
 	}
 
-	public void addLoadingError(String pluginId, Throwable e) {
+	public synchronized void addLoadingError(String pluginId, Throwable e) {
 		addLoadingError(pluginId, unscrambleThrowable(e));
 	}
 
-	public void addRunningError(String pluginId, String message) {
+	public synchronized void addRunningError(String pluginId, String message) {
 		runningPluginErrors.put(pluginId, message);
 	}
 
-	public void addRunningError(String pluginId, Throwable e) {
+	public synchronized void addRunningError(String pluginId, Throwable e) {
 		addRunningError(pluginId, unscrambleThrowable(e));
 	}
 
-	public void reportAllErrors(Callback callback) {
+	public synchronized void reportAllErrors(Callback callback) {
 		reportLoadingErrors(callback);
 		reportRunningPluginErrors(callback);
 	}

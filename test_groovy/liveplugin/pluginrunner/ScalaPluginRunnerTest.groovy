@@ -4,13 +4,9 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-import static liveplugin.pluginrunner.GroovyPluginRunnerTest.collectErrorsFrom
-import static liveplugin.pluginrunner.GroovyPluginRunnerTest.createFile
+import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
 
 class ScalaPluginRunnerTest {
-	private static final LinkedHashMap NO_BINDING = [:]
-	private static final LinkedHashMap NO_ENVIRONMENT = [:]
-
 	private final ErrorReporter errorReporter = new ErrorReporter()
 	private final ScalaPluginRunner pluginRunner = new ScalaPluginRunner(errorReporter, NO_ENVIRONMENT)
 	private File rootFolder
@@ -26,7 +22,7 @@ class ScalaPluginRunnerTest {
 			a + b
 		"""
 		createFile("plugin.scala", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -36,7 +32,7 @@ class ScalaPluginRunnerTest {
 			this is not proper scala code
 		"""
 		createFile("plugin.scala", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
 
 		def errors = collectErrorsFrom(errorReporter)
 		assert errors.size() == 1

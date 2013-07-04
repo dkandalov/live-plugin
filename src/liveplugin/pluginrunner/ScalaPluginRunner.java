@@ -4,7 +4,6 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.Function;
 import com.intellij.util.PathUtil;
-import com.intellij.util.ui.UIUtil;
 import liveplugin.MyFileUtil;
 import scala.tools.nsc.Settings;
 import scala.tools.nsc.interpreter.IMain;
@@ -46,7 +45,8 @@ class ScalaPluginRunner implements PluginRunner {
 		return findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
 	}
 
-	@Override public void runPlugin(String pathToPluginFolder, final String pluginId, Map<String, ?> binding) {
+	@Override public void runPlugin(String pathToPluginFolder, final String pluginId,
+	                                Map<String, ?> binding, Function<Runnable, Void> runPluginCallback) {
 		if (interpreter == null) {
 			try {
 				interpreter = initInterpreter();
@@ -67,7 +67,7 @@ class ScalaPluginRunner implements PluginRunner {
 		final File scriptFile = MyFileUtil.findSingleFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
 		assert scriptFile != null;
 
-		UIUtil.invokeAndWaitIfNeeded(new Runnable() {
+		runPluginCallback.fun(new Runnable() {
 			@Override public void run() {
 				Results.Result result;
 				try {

@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.Function;
+import com.intellij.util.ui.UIUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.PluginToolWindowManager;
@@ -92,9 +94,15 @@ public class RunPluginAction extends AnAction {
 						errorReporter.addLoadingError(pluginId, "Couldn't find plugin startup script");
 						continue;
 					}
+					Function<Runnable, Void> runOnEDT = new Function<Runnable, Void>() {
+						@Override public Void fun(Runnable runnable) {
+							UIUtil.invokeLaterIfNeeded(runnable);
+							return null;
+						}
+					};
 
 					final Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
-					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding);
+					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, runOnEDT);
 
 					errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 						@Override public void display(String title, String message) {
