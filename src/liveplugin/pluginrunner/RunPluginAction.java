@@ -19,9 +19,6 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
@@ -33,8 +30,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 
@@ -69,54 +64,36 @@ public class RunPluginAction extends AnAction {
 		runPlugins(pluginIds, event);
 	}
 
-	public static void runPlugins(final Collection<String> pluginIds, AnActionEvent event) {
+	public static void runPlugins(Collection<String> pluginIds, AnActionEvent event) {
 		checkThatGroovyIsOnClasspath();
 
 		final Project project = event.getProject();
-		final boolean isIdeStartup = event.getPlace().equals(IDE_STARTUP);
+		boolean isIdeStartup = event.getPlace().equals(IDE_STARTUP);
 
-		final Callable<Void> runPlugins = new Callable<Void>() {
-			@Override public Void call() throws Exception {
+		ErrorReporter errorReporter = new ErrorReporter();
+		List<PluginRunner> pluginRunners = createPluginRunners(errorReporter);
 
-				ErrorReporter errorReporter = new ErrorReporter();
-				List<PluginRunner> pluginRunners = createPluginRunners(errorReporter);
-
-				for (final String pluginId : pluginIds) {
-					final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
-					final PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
-						@Override public boolean value(PluginRunner it) {
-							return it.canRunPlugin(pathToPluginFolder);
-						}
-					});
-					if (pluginRunner == null) {
-						errorReporter.addLoadingError(pluginId, "Couldn't find plugin startup script");
-						continue;
-					}
-
-					final Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
-					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding);
-
-					errorReporter.reportAllErrors(new ErrorReporter.Callback() {
-						@Override public void display(String title, String message) {
-							IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
-						}
-					});
+		for (String pluginId : pluginIds) {
+			final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
+			PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
+				@Override public boolean value(PluginRunner it) {
+					return it.canRunPlugin(pathToPluginFolder);
 				}
-
-				return null;
+			});
+			if (pluginRunner == null) {
+				errorReporter.addLoadingError(pluginId, "Couldn't find plugin startup script");
+				continue;
 			}
-		};
 
-		new Task.Backgroundable(project, "Running live plugin", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-			@Override public void run(@NotNull ProgressIndicator indicator) {
-				try {
-					// this is to make running plugins thread-confined
-					singleThreadExecutor.submit(runPlugins).get();
-				} catch (InterruptedException ignored) {
-				} catch (ExecutionException ignored) {
+			Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
+			pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding);
+
+			errorReporter.reportAllErrors(new ErrorReporter.Callback() {
+				@Override public void display(String title, String message) {
+					IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
 				}
-			}
-		}.queue();
+			});
+		}
 	}
 
 	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
