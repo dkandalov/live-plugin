@@ -50,7 +50,7 @@ public class DownloadScalaLibs extends AnAction {
 
 			boolean downloaded = downloadFiles(urlAndFileNamePairs, LIVEPLUGIN_LIBS_PATH);
 			if (downloaded) {
-				askUserIfShouldRestartIde(); // TODO load classes at runtime
+				askUserIfShouldRestartIde();
 			} else {
 				NotificationGroup.balloonGroup("Live Plugin")
 						.createNotification("Failed to download Scala libraries", NotificationType.WARNING);

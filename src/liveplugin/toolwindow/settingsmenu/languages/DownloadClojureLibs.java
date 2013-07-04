@@ -37,7 +37,7 @@ public class DownloadClojureLibs extends AnAction {
 
 			boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar", LIVEPLUGIN_LIBS_PATH);
 			if (downloaded) {
-				askUserIfShouldRestartIde(); // TODO load classes at runtime
+				askUserIfShouldRestartIde();
 			} else {
 				NotificationGroup.balloonGroup("Live Plugin")
 						.createNotification("Failed to download Clojure libraries", NotificationType.WARNING);
