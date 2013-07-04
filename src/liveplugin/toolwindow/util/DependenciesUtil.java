@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.util;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
@@ -13,7 +13,7 @@ import com.intellij.util.containers.ContainerUtil;
 
 import java.util.List;
 
-class DependenciesUtil {
+public class DependenciesUtil {
 	public static boolean allModulesHasLibraryAsDependencyIn(Project project, String libraryName) {
 		return findModulesWithoutLibrary(ModuleManager.getInstance(project).getModules(), libraryName).isEmpty();
 	}

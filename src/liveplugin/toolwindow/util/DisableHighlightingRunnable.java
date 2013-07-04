@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.util;
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightLevelUtil;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-class DisableHighlightingRunnable implements Runnable {
+public class DisableHighlightingRunnable implements Runnable {
 	private final Project project;
 	private final Ref<FileSystemTree> myFsTree;
 

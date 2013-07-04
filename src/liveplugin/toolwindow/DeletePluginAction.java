@@ -12,6 +12,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
 import liveplugin.IdeUtil;
+import liveplugin.toolwindow.util.PluginsIO;
 
 import java.io.IOException;
 import java.util.Collection;

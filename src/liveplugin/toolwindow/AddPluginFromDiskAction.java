@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
+import liveplugin.toolwindow.util.PluginsIO;
 
 import java.io.File;
 import java.io.IOException;

@@ -8,6 +8,7 @@ import com.intellij.openapi.ui.Messages;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
+import liveplugin.toolwindow.util.PluginsIO;
 
 import java.io.IOException;
 

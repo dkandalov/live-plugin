@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
+import liveplugin.toolwindow.util.ExamplePluginInstaller;
 
 import java.util.List;
 

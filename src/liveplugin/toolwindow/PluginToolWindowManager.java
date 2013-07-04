@@ -21,10 +21,7 @@ import com.intellij.ide.ui.customization.CustomizationUtil;
 import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.AbstractTreeStructure;
 import com.intellij.ide.util.treeView.NodeDescriptor;
-import com.intellij.notification.NotificationGroup;
-import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileSystemTree;
 import com.intellij.openapi.fileChooser.actions.VirtualFileDeleteProvider;
@@ -38,10 +35,7 @@ import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
-import com.intellij.openapi.roots.*;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -57,11 +51,11 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.Function;
-import com.intellij.util.PathUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.RunPluginAction;
+import liveplugin.toolwindow.util.DisableHighlightingRunnable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,19 +67,9 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
-import static com.intellij.openapi.roots.OrderRootType.CLASSES;
-import static com.intellij.openapi.roots.OrderRootType.SOURCES;
-import static com.intellij.openapi.util.Pair.create;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
-import static liveplugin.IdeUtil.*;
-import static liveplugin.LivePluginAppComponent.*;
-import static liveplugin.MyFileUtil.fileNamesMatching;
 
-/**
- * User: dima
- * Date: 11/08/2012
- */
 public class PluginToolWindowManager {
 
 	private static final String PLUGINS_TOOL_WINDOW_ID = "Plugins";
@@ -453,255 +437,4 @@ public class PluginToolWindowManager {
 			return fileDeleteProvider.canDeleteElement(dataContext);
 		}
 	}
-
-
-	private static class AddScalaLibsAsDependency extends AnAction {
-		private static final String LIBRARY_NAME = "LivePlugin - Scala";
-
-		@Override public void actionPerformed(AnActionEvent event) {
-			Project project = event.getProject();
-			if (project == null) return;
-
-			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
-				DependenciesUtil.removeLibraryDependencyFrom(project, LIBRARY_NAME);
-			} else {
-				List<Pair<String, OrderRootType>> paths = map(fileNamesMatching(DownloadScalaLibs.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH), new Function<String, Pair<String, OrderRootType>>() {
-					@Override public Pair<String, OrderRootType> fun(String fileName) {
-						return create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES);
-					}
-				});
-				DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, paths);
-			}
-		}
-
-		@Override public void update(AnActionEvent event) {
-			Project project = event.getProject();
-			if (project == null) return;
-
-			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
-				event.getPresentation().setText("Remove Scala Libraries from Project");
-				event.getPresentation().setDescription("Remove Scala Libraries from Project");
-			} else {
-				event.getPresentation().setText("Add Scala Libraries to Project");
-				event.getPresentation().setDescription("Add Scala Libraries to Project");
-				event.getPresentation().setEnabled(scalaIsOnClassPath());
-			}
-		}
-	}
-
-	private static class AddClojureLibsAsDependency extends AnAction {
-		private static final String LIBRARY_NAME = "LivePlugin - Clojure";
-
-		@Override public void actionPerformed(AnActionEvent event) {
-			Project project = event.getProject();
-			if (project == null) return;
-
-			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
-				DependenciesUtil.removeLibraryDependencyFrom(project, LIBRARY_NAME);
-			} else {
-				List<Pair<String, OrderRootType>> paths = map(fileNamesMatching(DownloadClojureLibs.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH), new Function<String, Pair<String, OrderRootType>>() {
-					@Override public Pair<String, OrderRootType> fun(String fileName) {
-						return create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES);
-					}
-				});
-				DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, paths);
-			}
-		}
-
-		@Override public void update(AnActionEvent event) {
-			Project project = event.getProject();
-			if (project == null) return;
-
-			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
-				event.getPresentation().setText("Remove Clojure Libraries from Project");
-				event.getPresentation().setDescription("Remove Clojure Libraries from Project");
-			} else {
-				event.getPresentation().setText("Add Clojure Libraries to Project");
-				event.getPresentation().setDescription("Add Clojure Libraries to Project");
-				event.getPresentation().setEnabled(clojureIsOnClassPath());
-			}
-		}
-	}
-
-	private static class DownloadScalaLibs extends AnAction {
-		public static final String LIB_FILES_PATTERN = "(scala-|scalap).*jar";
-		private static final String APPROXIMATE_SIZE = "(~26Mb)";
-
-		@Override public void actionPerformed(AnActionEvent event) {
-			if (scalaIsOnClassPath()) {
-				int answer = Messages.showYesNoDialog(event.getProject(),
-						"Do you want to remove Scala libraries from plugin classpath? This action cannot be undone.", "Live Plugin", null);
-				if (answer == Messages.YES) {
-					for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
-						FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
-					}
-					askUserIfShouldRestartIde();
-				}
-			} else {
-				int answer = Messages.showOkCancelDialog(event.getProject(),
-						"Scala libraries " + APPROXIMATE_SIZE + " will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
-						"\n(If you already have scala >= 2.10, you can copy it manually and restart IDE.)", "Live Plugin", null);
-				if (answer != Messages.OK) return;
-
-				List<String> scalaLibs = asList("scala-library", "scala-compiler", "scala-reflect", "scala-swing",
-						"scala-partest", "scala-actors", "scala-actors-migration", "scalap");
-				List<Pair<String, String>> urlAndFileNamePairs = map(scalaLibs, new Function<String, Pair<String, String>>() {
-					@Override public Pair<String, String> fun(String it) {
-						return Pair.create("http://repo1.maven.org/maven2/org/scala-lang/" + it + "/2.10.2/", it + "-2.10.jar");
-					}
-				});
-
-				boolean downloaded = downloadFiles(urlAndFileNamePairs, LIVEPLUGIN_LIBS_PATH);
-				if (downloaded) {
-					askUserIfShouldRestartIde(); // TODO load classes at runtime
-				} else {
-					NotificationGroup.balloonGroup("Live Plugin")
-							.createNotification("Failed to download Scala libraries", NotificationType.WARNING);
-				}
-			}
-		}
-
-		@Override public void update(AnActionEvent event) {
-			if (scalaIsOnClassPath()) {
-				event.getPresentation().setText("Remove Scala from Plugin Classpath");
-				event.getPresentation().setDescription("Remove Scala from Plugin Classpath");
-			} else {
-				event.getPresentation().setText("Download Scala to Plugin Classpath");
-				event.getPresentation().setDescription("Download Scala libraries to plugin classpath to enable scala plugins support " + APPROXIMATE_SIZE);
-			}
-		}
-	}
-
-	private static class DownloadClojureLibs extends AnAction {
-		public static final String LIB_FILES_PATTERN = "clojure-.*jar";
-		private static final String APPROXIMATE_SIZE = "(~4Mb)";
-
-		@Override public void actionPerformed(AnActionEvent event) {
-			if (clojureIsOnClassPath()) {
-				int answer = Messages.showYesNoDialog(event.getProject(),
-						"Do you want to remove Clojure libraries from plugin classpath? This action cannot be undone.", "Live Plugin", null);
-				if (answer == Messages.YES) {
-					for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
-						FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
-					}
-					askUserIfShouldRestartIde();
-				}
-			} else {
-				int answer = Messages.showOkCancelDialog(event.getProject(),
-						"Clojure libraries " + APPROXIMATE_SIZE + " will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
-						"\n(If you already have clojure >= 1.5.1, you can copy it manually and restart IDE.)", "Live Plugin", null);
-				if (answer != Messages.OK) return;
-
-				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar", LIVEPLUGIN_LIBS_PATH);
-				if (downloaded) {
-					askUserIfShouldRestartIde(); // TODO load classes at runtime
-				} else {
-					NotificationGroup.balloonGroup("Live Plugin")
-							.createNotification("Failed to download Clojure libraries", NotificationType.WARNING);
-				}
-			}
-		}
-
-		@Override public void update(AnActionEvent event) {
-			if (clojureIsOnClassPath()) {
-				event.getPresentation().setText("Remove Clojure from Plugin Classpath");
-				event.getPresentation().setDescription("Remove Clojure from Plugin Classpath");
-			} else {
-				event.getPresentation().setText("Download Clojure to Plugin Classpath");
-				event.getPresentation().setDescription("Download Clojure libraries to plugin classpath to enable clojure plugins support " + APPROXIMATE_SIZE);
-			}
-		}
-	}
-
-	private static class AddPluginJarAsDependency extends AnAction {
-		private static final String LIVE_PLUGIN_LIBRARY = "LivePlugin";
-
-		@Override public void actionPerformed(AnActionEvent event) {
-			Project project = event.getProject();
-			if (project == null) return;
-
-			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
-				DependenciesUtil.removeLibraryDependencyFrom(project, LIVE_PLUGIN_LIBRARY);
-			} else {
-				//noinspection unchecked
-				DependenciesUtil.addLibraryDependencyTo(project, LIVE_PLUGIN_LIBRARY, Arrays.asList(
-						create(findPathToMyClasses(), CLASSES),
-						create(findPathToMyClasses() + "src/", SOURCES)
-				));
-			}
-		}
-
-		private static String findPathToMyClasses() {
-			String pathToMyClasses = PathUtil.getJarPathForClass(LivePluginAppComponent.class);
-			// need trailing "/" because folder dependency doesn't work without it
-			if (pathToMyClasses.endsWith(".jar")) {
-				pathToMyClasses = "jar://" + pathToMyClasses + "!/";
-			} else {
-				pathToMyClasses = "file://" + pathToMyClasses + "/";
-			}
-			return pathToMyClasses;
-		}
-
-		@Override public void update(AnActionEvent event) {
-			Project project = event.getProject();
-			if (project == null) return;
-
-			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
-				event.getPresentation().setText("Remove LivePlugin Jar from Project");
-				event.getPresentation().setDescription(
-						"Remove LivePlugin jar from project dependencies. This will enable auto-complete and other IDE features for IntelliJ classes.");
-			} else {
-				event.getPresentation().setText("Add LivePlugin Jar to Project");
-				event.getPresentation().setDescription(
-						"Add LivePlugin jar to project dependencies. This will enable auto-complete and other IDE features for PluginUtil.");
-			}
-		}
-
-	}
-
-	private static class AddIDEAJarsAsDependencies extends AnAction {
-		private static final String IDEA_JARS_LIBRARY = "IDEA jars";
-
-		@Override public void actionPerformed(AnActionEvent event) {
-			Project project = event.getProject();
-			if (project == null) return;
-
-			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, IDEA_JARS_LIBRARY)) {
-				DependenciesUtil.removeLibraryDependencyFrom(project, IDEA_JARS_LIBRARY);
-			} else {
-				String ideaJarsPath = PathManager.getHomePath() + "/lib/";
-				//noinspection unchecked
-				DependenciesUtil.addLibraryDependencyTo(project, IDEA_JARS_LIBRARY, Arrays.asList(
-						create("jar://" + ideaJarsPath + "openapi.jar!/", CLASSES),
-						create("jar://" + ideaJarsPath + "idea.jar!/", CLASSES),
-						create("jar://" + ideaJarsPath + "idea_rt.jar!/", CLASSES),
-						create("jar://" + ideaJarsPath + "annotations.jar!/", CLASSES),
-						create("jar://" + ideaJarsPath + "util.jar!/", CLASSES),
-						create("jar://" + ideaJarsPath + "extensions.jar!/", CLASSES),
-						create("jar://" + ideaJarsPath + findGroovyJarOn(ideaJarsPath) + "!/", CLASSES)
-				));
-			}
-		}
-
-		private static String findGroovyJarOn(String ideaJarsPath) {
-			List<String> files = fileNamesMatching("groovy-all-.*jar", ideaJarsPath);
-			if (files.isEmpty()) return "could-not-find-groovy.jar";
-			else return files.get(0);
-		}
-
-		@Override public void update(AnActionEvent event) {
-			Project project = event.getProject();
-			if (project == null) return;
-
-			if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, IDEA_JARS_LIBRARY)) {
-				event.getPresentation().setText("Remove IDEA Jars from Project");
-				event.getPresentation().setDescription("Remove IDEA jars dependencies from project");
-			} else {
-				event.getPresentation().setText("Add IDEA Jars to Project");
-				event.getPresentation().setDescription("Add IDEA jars to project as dependencies");
-			}
-		}
-	}
-
-
 }

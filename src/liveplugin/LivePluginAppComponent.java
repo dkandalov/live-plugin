@@ -51,7 +51,7 @@ import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
 import static liveplugin.IdeUtil.downloadFile;
 import static liveplugin.MyFileUtil.allFilesInDirectory;
 
-import liveplugin.toolwindow.ExamplePluginInstaller;
+import liveplugin.toolwindow.util.ExamplePluginInstaller;
 
 public class LivePluginAppComponent implements ApplicationComponent { // TODO implement DumbAware?
 	private static final Logger LOG = Logger.getInstance(LivePluginAppComponent.class);

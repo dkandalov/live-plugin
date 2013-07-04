@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.util;
 
 import com.intellij.openapi.util.Pair;
 import liveplugin.LivePluginAppComponent;
