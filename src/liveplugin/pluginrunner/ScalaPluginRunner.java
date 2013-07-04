@@ -31,6 +31,7 @@ class ScalaPluginRunner implements PluginRunner {
 
 	private static IMain interpreter;
 	private static final StringWriter interpreterOutput = new StringWriter();
+	private static final Object interpreterLock = new Object();
 
 	private final ErrorReporter errorReporter;
 	private final Map<String, String> environment;  // TODO use it
@@ -47,21 +48,23 @@ class ScalaPluginRunner implements PluginRunner {
 
 	@Override public void runPlugin(String pathToPluginFolder, final String pluginId,
 	                                Map<String, ?> binding, Function<Runnable, Void> runPluginCallback) {
-		if (interpreter == null) {
-			try {
-				interpreter = initInterpreter();
-			} catch (Exception e) {
-				errorReporter.addLoadingError("Failed to init scala interpreter", e);
-				return;
-			} catch (LinkageError e) {
-				errorReporter.addLoadingError("Failed to init scala interpreter", e);
-				return;
+		synchronized (interpreterLock) {
+			if (interpreter == null) {
+				try {
+					interpreter = initInterpreter();
+				} catch (Exception e) {
+					errorReporter.addLoadingError("Failed to init scala interpreter", e);
+					return;
+				} catch (LinkageError e) {
+					errorReporter.addLoadingError("Failed to init scala interpreter", e);
+					return;
+				}
 			}
-		}
 
-		interpreterOutput.getBuffer().delete(0, interpreterOutput.getBuffer().length());
-		for (Map.Entry<String, ?> entry : binding.entrySet()) {
-			interpreter.bindValue(entry.getKey(), entry.getValue());
+			interpreterOutput.getBuffer().delete(0, interpreterOutput.getBuffer().length());
+			for (Map.Entry<String, ?> entry : binding.entrySet()) {
+				interpreter.bindValue(entry.getKey(), entry.getValue());
+			}
 		}
 
 		final File scriptFile = MyFileUtil.findSingleFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
@@ -69,18 +72,20 @@ class ScalaPluginRunner implements PluginRunner {
 
 		runPluginCallback.fun(new Runnable() {
 			@Override public void run() {
-				Results.Result result;
-				try {
-					result = interpreter.interpret(FileUtil.loadFile(scriptFile));
-				} catch (Exception e) {
-					errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
-					return;
-				} finally {
-					interpreter.reset();
-				}
+				synchronized (interpreterLock) {
+					Results.Result result;
+					try {
+						result = interpreter.interpret(FileUtil.loadFile(scriptFile));
+					} catch (Exception e) {
+						errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
+						return;
+					} finally {
+						interpreter.reset();
+					}
 
-				if (!(result instanceof Results.Success$)) {
-					errorReporter.addRunningError(pluginId, interpreterOutput.toString());
+					if (!(result instanceof Results.Success$)) {
+						errorReporter.addRunningError(pluginId, interpreterOutput.toString());
+					}
 				}
 			}
 		});
