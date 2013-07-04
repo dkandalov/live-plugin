@@ -22,8 +22,10 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
+import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.UIUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
@@ -84,7 +86,17 @@ public class RunPluginAction extends AnAction {
 						}
 					});
 					if (pluginRunner == null) {
-						errorReporter.addLoadingError(pluginId, "Couldn't find plugin startup script");
+						String runners = StringUtil.join(ContainerUtil.map(pluginRunners, new Function<PluginRunner, Object>() {
+							@Override public Object fun(PluginRunner it) {
+								return it.getClass().getSimpleName();
+							}
+						}), ", ");
+						errorReporter.addLoadingError(pluginId, "Startup script was not found. Tried: " + runners + ".");
+						errorReporter.reportAllErrors(new ErrorReporter.Callback() {
+							@Override public void display(String title, String message) {
+								IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
+							}
+						});
 						continue;
 					}
 
