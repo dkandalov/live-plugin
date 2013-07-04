@@ -24,7 +24,7 @@ import static java.util.Arrays.asList;
 import static liveplugin.MyFileUtil.findSingleFileIn;
 
 /**
- * Note that this class should not be loaded unless scala libs are on classpath.
+ * This class should not be loaded unless scala libs are on classpath.
  */
 class ScalaPluginRunner implements PluginRunner {
 	static final String MAIN_SCRIPT = "plugin.scala";
@@ -71,6 +71,8 @@ class ScalaPluginRunner implements PluginRunner {
 		} catch (Exception e) {
 			errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
 			return;
+		} finally {
+			interpreter.reset();
 		}
 
 		if (!(result instanceof Results.Success$)) {
