@@ -34,7 +34,7 @@ class ClojurePluginRunner implements PluginRunner {
 	}
 
 	@Override public void runPlugin(final String pathToPluginFolder, final String pluginId,
-	                                final Map<String, ?> binding, Function<Runnable, Void> runPluginCallback) {
+	                                final Map<String, ?> binding, Function<Runnable, Void> runOnEDTCallback) {
 		if (!initialized) {
 			// need this to avoid "java.lang.IllegalStateException: Attempting to call unbound fn: #'clojure.core/refer"
 			// use classloader of RunPluginAction assuming that clojure was first initialized from it
@@ -54,10 +54,11 @@ class ClojurePluginRunner implements PluginRunner {
 		final File scriptFile = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
 		assert scriptFile != null;
 
-		runPluginCallback.fun(new Runnable() {
+		runOnEDTCallback.fun(new Runnable() {
 			@Override public void run() {
 				try {
 
+					// assume that clojure Compile is thread-safe
 					clojure.lang.Compiler.loadFile(scriptFile.getAbsolutePath());
 
 				} catch (IOException e) {

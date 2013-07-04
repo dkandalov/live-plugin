@@ -47,7 +47,7 @@ class ScalaPluginRunner implements PluginRunner {
 	}
 
 	@Override public void runPlugin(String pathToPluginFolder, final String pluginId,
-	                                Map<String, ?> binding, Function<Runnable, Void> runPluginCallback) {
+	                                Map<String, ?> binding, Function<Runnable, Void> runOnEDTCallback) {
 		synchronized (interpreterLock) {
 			if (interpreter == null) {
 				try {
@@ -70,7 +70,7 @@ class ScalaPluginRunner implements PluginRunner {
 		final File scriptFile = MyFileUtil.findSingleFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
 		assert scriptFile != null;
 
-		runPluginCallback.fun(new Runnable() {
+		runOnEDTCallback.fun(new Runnable() {
 			@Override public void run() {
 				synchronized (interpreterLock) {
 					Results.Result result;

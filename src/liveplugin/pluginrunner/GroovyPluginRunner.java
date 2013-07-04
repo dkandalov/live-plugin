@@ -48,18 +48,17 @@ public class GroovyPluginRunner implements PluginRunner {
 	}
 
 	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding,
-	                                Function<Runnable, Void> runPluginCallback) {
+	                                Function<Runnable, Void> runOnEDTCallback) {
 		File mainScript = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
 		String pluginFolderUrl = "file:///" + pathToPluginFolder;
-		runGroovyScript(asUrl(mainScript), pluginFolderUrl, pluginId, binding, runPluginCallback);
+		runGroovyScript(asUrl(mainScript), pluginFolderUrl, pluginId, binding, runOnEDTCallback);
 	}
 
 	private void runGroovyScript(final String mainScriptUrl, String pluginFolderUrl, final String pluginId,
 	                             final Map<String, ?> binding, Function<Runnable, Void> runPluginCallback) {
 		try {
-			environment.put("THIS_SCRIPT", mainScriptUrl);
-
 			GroovyClassLoader classLoader = createClassLoaderWithDependencies(pluginFolderUrl, mainScriptUrl, pluginId);
+			// assume that GroovyScriptEngine is thread-safe
 			final GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
 			try {
 				scriptEngine.loadScriptByName(mainScriptUrl);
@@ -96,6 +95,8 @@ public class GroovyPluginRunner implements PluginRunner {
 	}
 
 	private GroovyClassLoader createClassLoaderWithDependencies(String pluginFolderUrl, String mainScriptUrl, String pluginId) {
+		environment.put("THIS_SCRIPT", mainScriptUrl);
+
 		GroovyClassLoader classLoader = new GroovyClassLoader(this.getClass().getClassLoader());
 
 		try {
