@@ -44,7 +44,7 @@ public class DownloadScalaLibs extends AnAction {
 					"scala-partest", "scala-actors", "scala-actors-migration", "scalap");
 			List<Pair<String, String>> urlAndFileNamePairs = map(scalaLibs, new Function<String, Pair<String, String>>() {
 				@Override public Pair<String, String> fun(String it) {
-					return Pair.create("http://repo1.maven.org/maven2/org/scala-lang/" + it + "/2.10.2/", it + "-2.10.jar");
+					return Pair.create("http://repo1.maven.org/maven2/org/scala-lang/" + it + "/2.10.2/", it + "-2.10.2.jar");
 				}
 			});
 
