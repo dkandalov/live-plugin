@@ -9,7 +9,7 @@ import com.intellij.openapi.util.io.FileUtil;
 
 import java.io.File;
 
-import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
+import static liveplugin.IdeUtil.askIsUserWantsToRestartIde;
 import static liveplugin.IdeUtil.downloadFile;
 import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
@@ -27,7 +27,7 @@ public class DownloadClojureLibs extends AnAction {
 				for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
 					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
 				}
-				askUserIfShouldRestartIde();
+				askIsUserWantsToRestartIde("For Clojure libraries to be unloaded IDE restart is required. Restart now?");
 			}
 		} else {
 			int answer = Messages.showOkCancelDialog(event.getProject(),
@@ -37,7 +37,7 @@ public class DownloadClojureLibs extends AnAction {
 
 			boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar", LIVEPLUGIN_LIBS_PATH);
 			if (downloaded) {
-				askUserIfShouldRestartIde();
+				askIsUserWantsToRestartIde("For Clojure libraries to be loaded IDE restart is required. Restart now?");
 			} else {
 				NotificationGroup.balloonGroup("Live Plugin")
 						.createNotification("Failed to download Clojure libraries", NotificationType.WARNING);

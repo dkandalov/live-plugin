@@ -14,7 +14,7 @@ import java.util.List;
 
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
-import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
+import static liveplugin.IdeUtil.askIsUserWantsToRestartIde;
 import static liveplugin.IdeUtil.downloadFiles;
 import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
@@ -32,7 +32,7 @@ public class DownloadScalaLibs extends AnAction {
 				for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
 					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
 				}
-				askUserIfShouldRestartIde();
+				askIsUserWantsToRestartIde("For Scala libraries to be unloaded IDE restart is required. Restart now?");
 			}
 		} else {
 			int answer = Messages.showOkCancelDialog(event.getProject(),
@@ -50,7 +50,7 @@ public class DownloadScalaLibs extends AnAction {
 
 			boolean downloaded = downloadFiles(urlAndFileNamePairs, LIVEPLUGIN_LIBS_PATH);
 			if (downloaded) {
-				askUserIfShouldRestartIde();
+				askIsUserWantsToRestartIde("For Scala libraries to be loaded IDE restart is required. Restart now?");
 			} else {
 				NotificationGroup.balloonGroup("Live Plugin")
 						.createNotification("Failed to download Scala libraries", NotificationType.WARNING);

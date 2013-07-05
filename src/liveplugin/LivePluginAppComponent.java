@@ -33,6 +33,7 @@ import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.pluginrunner.PluginRunner;
 import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.toolwindow.PluginToolWindowManager;
+import liveplugin.toolwindow.util.ExamplePluginInstaller;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.HyperlinkEvent;
@@ -47,11 +48,9 @@ import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static com.intellij.openapi.util.io.FileUtil.toSystemIndependentName;
 import static com.intellij.openapi.vfs.VfsUtilCore.pathToUrl;
 import static java.util.Arrays.asList;
-import static liveplugin.IdeUtil.askUserIfShouldRestartIde;
+import static liveplugin.IdeUtil.askIsUserWantsToRestartIde;
 import static liveplugin.IdeUtil.downloadFile;
 import static liveplugin.MyFileUtil.allFilesInDirectory;
-
-import liveplugin.toolwindow.util.ExamplePluginInstaller;
 
 public class LivePluginAppComponent implements ApplicationComponent { // TODO implement DumbAware?
 	private static final Logger LOG = Logger.getInstance(LivePluginAppComponent.class);
@@ -195,7 +194,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/", "groovy-all-2.0.6.jar", LIVEPLUGIN_LIBS_PATH);
 				if (downloaded) {
 					notification.expire();
-					askUserIfShouldRestartIde();
+					askIsUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?");
 				} else {
 					NotificationGroup.balloonGroup("Live Plugin")
 							.createNotification("Failed to download Groovy libraries", NotificationType.WARNING);

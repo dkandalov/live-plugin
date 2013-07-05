@@ -50,6 +50,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 
+import static com.intellij.openapi.ui.Messages.showOkCancelDialog;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
@@ -119,9 +120,9 @@ public class IdeUtil {
 		return resource != null;
 	}
 
-	public static void askUserIfShouldRestartIde() {
-		if (Messages.showOkCancelDialog("For the changes to take effect IDE restart is required. Restart now?",
-				"Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon()) == Messages.OK) {
+	public static void askIsUserWantsToRestartIde(String message) {
+		int answer = showOkCancelDialog(message, "Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon());
+		if (answer == Messages.OK) {
 			ApplicationManagerEx.getApplicationEx().restart(true);
 		}
 	}
