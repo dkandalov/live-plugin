@@ -65,6 +65,7 @@ class ScalaPluginRunner implements PluginRunner {
 			for (Map.Entry<String, ?> entry : binding.entrySet()) {
 				interpreter.bindValue(entry.getKey(), entry.getValue());
 			}
+			interpreter.bindValue("scalaInterpreter", interpreter);
 		}
 
 		final File scriptFile = MyFileUtil.findSingleFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
@@ -79,8 +80,6 @@ class ScalaPluginRunner implements PluginRunner {
 					} catch (Exception e) {
 						errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
 						return;
-					} finally {
-						interpreter.reset();
 					}
 
 					if (!(result instanceof Results.Success$)) {
