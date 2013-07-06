@@ -19,4 +19,4 @@ showInConsole("Hello console", "my console", project)
 showInConsole("....", "my console", project)
 
 // shows exception's stacktrace in console
-showInConsole(new Exception("This is a fake exception to show exception in a console"), "console with exception", event.project)
+showInConsole(new Exception("This is a fake exception to show exception in a console"), "console with exception", project)

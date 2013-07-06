@@ -73,6 +73,6 @@ class HelloWorldQuickFix implements LocalQuickFix {
 }
 
 
-addInspection(event.project, { new HelloWorldInspection() })
+addInspection(project, { new HelloWorldInspection() })
 
 show("Loaded hello world inspection<br/>It replaces \"hello\" string literal in java code with \"Hello world\"")

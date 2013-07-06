@@ -1,5 +1,4 @@
-import com.intellij.openapi.actionSystem.AnActionEvent
-import static liveplugin.PluginUtil.*
+import static liveplugin.PluginUtil.show
 
 // To run a plugin you can press "Run plugin" button or use "alt+C, alt+E" shortcut.
 // This will try to run plugin which you currently edit (determined by opened editor)
@@ -12,10 +11,8 @@ show("Hello IntelliJ")
 
 
 // There are couple implicit variables available in "plugin.groovy" files.
-// One of them is "event" which contains information about action executing this script.
-show(((AnActionEvent) event))
-// It can be used to get reference to the current project (e.g. if IntelliJ API needs to know it).
-show(event.project)
+// "project" - project in which plugin is executed, can be null if no projects are open
+show(project)
 
 // "pluginPath" - absolute path to this plugin folder.
 show(pluginPath)
