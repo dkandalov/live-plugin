@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.intellij.util.containers.ContainerUtil.addAll;
 import static liveplugin.MyFileUtil.*;
 
 public class GroovyPluginRunner implements PluginRunner {
@@ -66,7 +65,8 @@ public class GroovyPluginRunner implements PluginRunner {
 					return null;
 				}
 			});
-			GroovyClassLoader classLoader = createClassLoaderWithDependencies(addAll(pathsToAdd, pluginFolderUrl), mainScriptUrl, pluginId);
+			pathsToAdd.add(pluginFolderUrl);
+			GroovyClassLoader classLoader = createClassLoaderWithDependencies(pathsToAdd, mainScriptUrl, pluginId);
 
 			// assume that GroovyScriptEngine is thread-safe
 			final GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);

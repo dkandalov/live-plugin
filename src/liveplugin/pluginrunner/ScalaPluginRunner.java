@@ -22,9 +22,7 @@ import static com.intellij.openapi.util.text.StringUtil.join;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.io.File.pathSeparator;
 import static java.util.Arrays.asList;
-import static liveplugin.MyFileUtil.asUrl;
-import static liveplugin.MyFileUtil.findSingleFileIn;
-import static liveplugin.MyFileUtil.readLines;
+import static liveplugin.MyFileUtil.*;
 import static liveplugin.pluginrunner.GroovyPluginRunner.findClasspathAdditions;
 
 /**
