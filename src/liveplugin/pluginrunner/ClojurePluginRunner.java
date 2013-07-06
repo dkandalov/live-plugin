@@ -1,9 +1,6 @@
 package liveplugin.pluginrunner;
 
-import clojure.lang.Namespace;
-import clojure.lang.RT;
-import clojure.lang.Symbol;
-import clojure.lang.Var;
+import clojure.lang.*;
 import com.intellij.util.Function;
 
 import java.io.File;
@@ -47,17 +44,18 @@ class ClojurePluginRunner implements PluginRunner {
 			initialized = true;
 		}
 
-		for (Map.Entry<String, ?> entry : binding.entrySet()) {
-			Var key = createKey("*" + entry.getKey() + "*");
-			Var.pushThreadBindings(Var.getThreadBindings().assoc(key, entry.getValue()));
-		}
-
 		final File scriptFile = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
 		assert scriptFile != null;
 
 		runOnEDTCallback.fun(new Runnable() {
 			@Override public void run() {
 				try {
+					Associative bindings = Var.getThreadBindings();
+					for (Map.Entry<String, ?> entry : binding.entrySet()) {
+						Var key = createKey("*" + entry.getKey() + "*");
+						bindings = bindings.assoc(key, entry.getValue());
+					}
+					Var.pushThreadBindings(bindings);
 
 					// assume that clojure Compile is thread-safe
 					clojure.lang.Compiler.loadFile(scriptFile.getAbsolutePath());
