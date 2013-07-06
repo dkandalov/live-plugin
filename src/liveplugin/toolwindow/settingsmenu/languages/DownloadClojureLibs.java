@@ -5,19 +5,21 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 
 import java.io.File;
 
+import static java.util.Arrays.asList;
 import static liveplugin.IdeUtil.askIsUserWantsToRestartIde;
-import static liveplugin.IdeUtil.downloadFile;
+import static liveplugin.IdeUtil.downloadFiles;
 import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
 public class DownloadClojureLibs extends AnAction {
 	public static final String LIB_FILES_PATTERN = "clojure-.*jar";
-	private static final String APPROXIMATE_SIZE = "(~4Mb)";
+	private static final String APPROXIMATE_SIZE = "(~5Mb)";
 
 	@Override public void actionPerformed(AnActionEvent event) {
 		if (clojureIsOnClassPath()) {
@@ -35,7 +37,11 @@ public class DownloadClojureLibs extends AnAction {
 					"\n(If you already have clojure >= 1.5.1, you can copy it manually and restart IDE.)", "Live Plugin", null);
 			if (answer != Messages.OK) return;
 
-			boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar", LIVEPLUGIN_LIBS_PATH);
+			@SuppressWarnings("unchecked")
+			boolean downloaded = downloadFiles(asList(
+					Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar"),
+					Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure-contrib/1.2.0/", "clojure-contrib-1.2.0.jar")
+			), LIVEPLUGIN_LIBS_PATH);
 			if (downloaded) {
 				askIsUserWantsToRestartIde("For Clojure libraries to be loaded IDE restart is required. Restart now?");
 			} else {
