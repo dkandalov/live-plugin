@@ -20,19 +20,20 @@ import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
 import org.codehaus.groovy.control.CompilationFailedException;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static liveplugin.MyFileUtil.asUrl;
-import static liveplugin.MyFileUtil.findSingleFileIn;
+import static com.intellij.util.containers.ContainerUtil.addAll;
+import static liveplugin.MyFileUtil.*;
 
 public class GroovyPluginRunner implements PluginRunner {
 	public static final String MAIN_SCRIPT = "plugin.groovy";
+	private static final String GROOVY_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
 	private static final Logger LOG = Logger.getInstance(GroovyPluginRunner.class);
 
 	private final ErrorReporter errorReporter;
@@ -57,7 +58,16 @@ public class GroovyPluginRunner implements PluginRunner {
 	private void runGroovyScript(final String mainScriptUrl, String pluginFolderUrl, final String pluginId,
 	                             final Map<String, ?> binding, Function<Runnable, Void> runPluginCallback) {
 		try {
-			GroovyClassLoader classLoader = createClassLoaderWithDependencies(pluginFolderUrl, mainScriptUrl, pluginId);
+			environment.put("THIS_SCRIPT", mainScriptUrl);
+
+			List<String> pathsToAdd = findAdditionalPaths(readLines(mainScriptUrl), GROOVY_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
+				@Override public Void fun(String path) {
+					errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
+					return null;
+				}
+			});
+			GroovyClassLoader classLoader = createClassLoaderWithDependencies(addAll(pathsToAdd, pluginFolderUrl), mainScriptUrl, pluginId);
+
 			// assume that GroovyScriptEngine is thread-safe
 			final GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
 			try {
@@ -94,35 +104,42 @@ public class GroovyPluginRunner implements PluginRunner {
 		return result;
 	}
 
-	private GroovyClassLoader createClassLoaderWithDependencies(String pluginFolderUrl, String mainScriptUrl, String pluginId) {
-		environment.put("THIS_SCRIPT", mainScriptUrl);
-
+	private GroovyClassLoader createClassLoaderWithDependencies(List<String> pathsToAdd, String mainScriptUrl, String pluginId) {
 		GroovyClassLoader classLoader = new GroovyClassLoader(this.getClass().getClassLoader());
-
 		try {
-			URL url = new URL(pluginFolderUrl);
-			classLoader.addURL(url);
-			classLoader.addClasspath(url.getFile());
 
-			BufferedReader inputStream = new BufferedReader(new InputStreamReader(new URL(mainScriptUrl).openStream()));
-			String line;
-			while ((line = inputStream.readLine()) != null) {
-				if (line.startsWith(CLASSPATH_PREFIX)) {
-					String path = line.replace(CLASSPATH_PREFIX, "").trim();
-
-					path = inlineEnvironmentVariables(path, environment);
-					if (!new File(path).exists()) {
-						errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
-					} else {
-						classLoader.addURL(new URL("file:///" + path));
-						classLoader.addClasspath(path);
-					}
+			for (String path : pathsToAdd) {
+				if (path.startsWith("file:/")) {
+					URL url = new URL(path);
+					classLoader.addURL(url);
+					classLoader.addClasspath(url.getFile());
+				} else {
+					classLoader.addURL(new URL("file:///" + path));
+					classLoader.addClasspath(path);
 				}
 			}
+
 		} catch (IOException e) {
 			errorReporter.addLoadingError(pluginId, "Error while looking for dependencies. Main script: " + mainScriptUrl + ". " + e.getMessage());
 		}
 		return classLoader;
+	}
+
+	private static List<String> findAdditionalPaths(String[] lines, String prefix, Map<String, String> environment, Function<String, Void> onError) throws IOException {
+		List<String> pathsToAdd = new ArrayList<String>();
+		for (String line : lines) {
+			if (line.startsWith(prefix)) {
+				String path = line.replace(prefix, "").trim();
+
+				path = inlineEnvironmentVariables(path, environment);
+				if (!new File(path).exists()) {
+					onError.fun(path);
+				} else {
+					pathsToAdd.add(path);
+				}
+			}
+		}
+		return pathsToAdd;
 	}
 
 	private static String inlineEnvironmentVariables(String path, Map<String, String> environment) {

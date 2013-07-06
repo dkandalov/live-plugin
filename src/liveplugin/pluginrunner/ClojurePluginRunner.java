@@ -17,6 +17,7 @@ import static liveplugin.MyFileUtil.findSingleFileIn;
  */
 class ClojurePluginRunner implements PluginRunner {
 	private static final String MAIN_SCRIPT = "plugin.clj";
+	private static final String CLOJURE_COMMENT = "; ";
 
 	private static boolean initialized;
 

@@ -6,7 +6,7 @@ import java.util.Map;
 
 public interface PluginRunner {
 	String IDE_STARTUP = "IDE_STARTUP";
-	String CLASSPATH_PREFIX = "// add-to-classpath ";
+	String ADD_TO_CLASSPATH_KEYWORD = "add-to-classpath ";
 
 	/**
 	 * @param pathToPluginFolder absolute path to plugin folder

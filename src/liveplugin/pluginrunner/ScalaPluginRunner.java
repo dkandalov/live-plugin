@@ -27,7 +27,8 @@ import static liveplugin.MyFileUtil.findSingleFileIn;
  * This class should not be loaded unless scala libs are on classpath.
  */
 class ScalaPluginRunner implements PluginRunner {
-	static final String MAIN_SCRIPT = "plugin.scala";
+	private static final String MAIN_SCRIPT = "plugin.scala";
+	private static final String SCALA_COMMENT = "// ";
 
 	private static final StringWriter interpreterOutput = new StringWriter();
 	private static final Object interpreterLock = new Object();

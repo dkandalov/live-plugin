@@ -5,8 +5,12 @@ import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,5 +60,9 @@ public class MyFileUtil {
 		if (result.size() == 0) return null;
 		else if (result.size() == 1) return result.get(0);
 		else throw new IllegalStateException("Found several " + fileName + " files under " + path);
+	}
+
+	public static String[] readLines(String url) throws IOException {
+		return FileUtil.loadTextAndClose(new BufferedReader(new InputStreamReader(new URL(url).openStream()))).split("\n");
 	}
 }
