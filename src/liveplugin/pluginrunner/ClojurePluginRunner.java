@@ -65,6 +65,8 @@ class ClojurePluginRunner implements PluginRunner {
 					errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
 				} catch (Exception e) {
 					errorReporter.addRunningError(pluginId, e);
+				} finally {
+					Var.popThreadBindings();
 				}
 			}
 		});
