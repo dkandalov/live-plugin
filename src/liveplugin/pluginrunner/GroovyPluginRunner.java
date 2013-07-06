@@ -13,7 +13,6 @@
  */
 package liveplugin.pluginrunner;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.Function;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
@@ -23,17 +22,16 @@ import org.codehaus.groovy.control.CompilationFailedException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static liveplugin.MyFileUtil.*;
+import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions;
 
 public class GroovyPluginRunner implements PluginRunner {
 	public static final String MAIN_SCRIPT = "plugin.groovy";
 	private static final String GROOVY_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
-	private static final Logger LOG = Logger.getInstance(GroovyPluginRunner.class);
 
 	private final ErrorReporter errorReporter;
 	private final Map<String,String> environment;
@@ -123,32 +121,5 @@ public class GroovyPluginRunner implements PluginRunner {
 			errorReporter.addLoadingError(pluginId, "Error while looking for dependencies. Main script: " + mainScriptUrl + ". " + e.getMessage());
 		}
 		return classLoader;
-	}
-
-	static List<String> findClasspathAdditions(String[] lines, String prefix, Map<String, String> environment, Function<String, Void> onError) throws IOException {
-		List<String> pathsToAdd = new ArrayList<String>();
-		for (String line : lines) {
-			if (line.startsWith(prefix)) {
-				String path = line.replace(prefix, "").trim();
-
-				path = inlineEnvironmentVariables(path, environment);
-				if (!new File(path).exists()) {
-					onError.fun(path);
-				} else {
-					pathsToAdd.add(path);
-				}
-			}
-		}
-		return pathsToAdd;
-	}
-
-	private static String inlineEnvironmentVariables(String path, Map<String, String> environment) {
-		boolean wasModified = false;
-		for (Map.Entry<String, String> entry : environment.entrySet()) {
-			path = path.replace("$" + entry.getKey(), entry.getValue());
-			wasModified = true;
-		}
-		if (wasModified) LOG.info("Path with env variables: " + path);
-		return path;
 	}
 }

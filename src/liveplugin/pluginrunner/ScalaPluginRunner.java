@@ -23,7 +23,7 @@ import static com.intellij.util.containers.ContainerUtil.map;
 import static java.io.File.pathSeparator;
 import static java.util.Arrays.asList;
 import static liveplugin.MyFileUtil.*;
-import static liveplugin.pluginrunner.GroovyPluginRunner.findClasspathAdditions;
+import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions;
 
 /**
  * This class should not be loaded unless scala libs are on classpath.
