@@ -52,7 +52,8 @@ class ScalaPluginRunner implements PluginRunner {
 
 		synchronized (interpreterLock) {
 			try {
-				interpreter = initInterpreter();
+				String classpath = createInterpreterClasspath();
+				interpreter = initInterpreter(classpath);
 			} catch (Exception e) {
 				errorReporter.addLoadingError("Failed to init scala interpreter", e);
 				return;
@@ -89,10 +90,17 @@ class ScalaPluginRunner implements PluginRunner {
 		});
 	}
 
-	private static IMain initInterpreter() throws ClassNotFoundException {
+	private static IMain initInterpreter(String interpreterClasspath) throws ClassNotFoundException {
 		Settings settings = new Settings();
 		MutableSettings.PathSetting bootClasspath = (MutableSettings.PathSetting) settings.bootclasspath();
+		bootClasspath.append(interpreterClasspath);
 
+		((MutableSettings.BooleanSetting) settings.usejavacp()).tryToSetFromPropertyValue("true");
+
+		return new IMain(settings, new PrintWriter(interpreterOutput));
+	}
+
+	private static String createInterpreterClasspath() throws ClassNotFoundException {
 		Function<File, String> toAbsolutePath = new Function<File, String>() {
 			@Override public String fun(File it) {
 				return it.getAbsolutePath();
@@ -104,14 +112,8 @@ class ScalaPluginRunner implements PluginRunner {
 		String intellijLibPath = join(map(withDefault(new File[0], new File(getLibPath()).listFiles()), toAbsolutePath), pathSeparator);
 		String intellijPluginsPath = join(map(withDefault(new File[0], new File(getPluginsPath()).listFiles()), toAbsolutePath), pathSeparator);
 		String livePluginPath = PathManager.getResourceRoot(ScalaPluginRunner.class, "/liveplugin/"); // this is only useful when running liveplugin from IDE (it's not packed into jar)
-		String path =
-				join(asList(compilerPath, scalaLibPath, livePluginPath), pathSeparator) +
-						pathSeparator + intellijLibPath + pathSeparator + intellijPluginsPath;
-
-		bootClasspath.append(path);
-		((MutableSettings.BooleanSetting) settings.usejavacp()).tryToSetFromPropertyValue("true");
-
-		return new IMain(settings, new PrintWriter(interpreterOutput));
+		return join(asList(compilerPath, scalaLibPath, livePluginPath), pathSeparator) +
+				pathSeparator + intellijLibPath + pathSeparator + intellijPluginsPath;
 	}
 
 	private static <T> T withDefault(T defaultValue, T value) {

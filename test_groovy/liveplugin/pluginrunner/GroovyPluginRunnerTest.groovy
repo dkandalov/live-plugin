@@ -21,7 +21,7 @@ class GroovyPluginRunnerTest {
 	private File myPackageFolder
 
 
-	@Test void "should run correct groovy script without errors"() {
+	@Test void "run correct groovy script without errors"() {
 		def scriptCode = """
 			// import to ensure that script has access to parent classloader from which test is run
 			import com.intellij.openapi.util.io.FileUtil
@@ -37,7 +37,7 @@ class GroovyPluginRunnerTest {
 		assert collectErrorsFrom(errorReporter).empty
 	}
 
-	@Test void "should run incorrect groovy script with errors"() {
+	@Test void "run incorrect groovy script with errors"() {
 		def scriptCode = """
 			invalid code + 1
 		"""
@@ -52,7 +52,7 @@ class GroovyPluginRunnerTest {
 		}
 	}
 
-	@Test void "should run groovy script which uses groovy class from another file"() {
+	@Test void "run groovy script which uses groovy class from another file"() {
 		def scriptCode = """
 			import myPackage.Util
 			Util.myFunction()

@@ -11,7 +11,7 @@ class ScalaPluginRunnerTest {
 	private final ScalaPluginRunner pluginRunner = new ScalaPluginRunner(errorReporter, NO_ENVIRONMENT)
 	private File rootFolder
 
-	@Test void "should run correct scala script without errors"() {
+	@Test void "run correct scala script without errors"() {
 		def scriptCode = """
 			// import to ensure that script has access to parent classloader from which test is run
 			import com.intellij.openapi.util.io.FileUtil
@@ -27,7 +27,7 @@ class ScalaPluginRunnerTest {
 		assert collectErrorsFrom(errorReporter).empty
 	}
 
-	@Test void "should run incorrect scala script reporting errors"() {
+	@Test void "run incorrect scala script reporting errors"() {
 		def scriptCode = """
 			this is not proper scala code
 		"""
