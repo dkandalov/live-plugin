@@ -29,7 +29,6 @@ import static liveplugin.MyFileUtil.findSingleFileIn;
 class ScalaPluginRunner implements PluginRunner {
 	static final String MAIN_SCRIPT = "plugin.scala";
 
-	private static IMain interpreter;
 	private static final StringWriter interpreterOutput = new StringWriter();
 	private static final Object interpreterLock = new Object();
 
@@ -48,24 +47,23 @@ class ScalaPluginRunner implements PluginRunner {
 
 	@Override public void runPlugin(String pathToPluginFolder, final String pluginId,
 	                                Map<String, ?> binding, Function<Runnable, Void> runOnEDTCallback) {
+		final IMain interpreter;
+
 		synchronized (interpreterLock) {
-			if (interpreter == null) {
-				try {
-					interpreter = initInterpreter();
-				} catch (Exception e) {
-					errorReporter.addLoadingError("Failed to init scala interpreter", e);
-					return;
-				} catch (LinkageError e) {
-					errorReporter.addLoadingError("Failed to init scala interpreter", e);
-					return;
-				}
+			try {
+				interpreter = initInterpreter();
+			} catch (Exception e) {
+				errorReporter.addLoadingError("Failed to init scala interpreter", e);
+				return;
+			} catch (LinkageError e) {
+				errorReporter.addLoadingError("Failed to init scala interpreter", e);
+				return;
 			}
 
 			interpreterOutput.getBuffer().delete(0, interpreterOutput.getBuffer().length());
 			for (Map.Entry<String, ?> entry : binding.entrySet()) {
 				interpreter.bindValue(entry.getKey(), entry.getValue());
 			}
-			interpreter.bindValue("scalaInterpreter", interpreter);
 		}
 
 		final File scriptFile = MyFileUtil.findSingleFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
