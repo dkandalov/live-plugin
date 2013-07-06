@@ -60,7 +60,7 @@ public class GroovyPluginRunner implements PluginRunner {
 		try {
 			environment.put("THIS_SCRIPT", mainScriptUrl);
 
-			List<String> pathsToAdd = findAdditionalPaths(readLines(mainScriptUrl), GROOVY_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
+			List<String> pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), GROOVY_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
 				@Override public Void fun(String path) {
 					errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
 					return null;
@@ -125,7 +125,7 @@ public class GroovyPluginRunner implements PluginRunner {
 		return classLoader;
 	}
 
-	private static List<String> findAdditionalPaths(String[] lines, String prefix, Map<String, String> environment, Function<String, Void> onError) throws IOException {
+	static List<String> findClasspathAdditions(String[] lines, String prefix, Map<String, String> environment, Function<String, Void> onError) throws IOException {
 		List<String> pathsToAdd = new ArrayList<String>();
 		for (String line : lines) {
 			if (line.startsWith(prefix)) {

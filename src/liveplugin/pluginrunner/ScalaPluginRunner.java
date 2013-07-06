@@ -13,6 +13,7 @@ import scala.tools.nsc.settings.MutableSettings;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 import java.util.Map;
 
 import static com.intellij.openapi.application.PathManager.getLibPath;
@@ -21,20 +22,23 @@ import static com.intellij.openapi.util.text.StringUtil.join;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.io.File.pathSeparator;
 import static java.util.Arrays.asList;
+import static liveplugin.MyFileUtil.asUrl;
 import static liveplugin.MyFileUtil.findSingleFileIn;
+import static liveplugin.MyFileUtil.readLines;
+import static liveplugin.pluginrunner.GroovyPluginRunner.findClasspathAdditions;
 
 /**
  * This class should not be loaded unless scala libs are on classpath.
  */
 class ScalaPluginRunner implements PluginRunner {
 	private static final String MAIN_SCRIPT = "plugin.scala";
-	private static final String SCALA_COMMENT = "// ";
+	private static final String SCALA_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
 
 	private static final StringWriter interpreterOutput = new StringWriter();
 	private static final Object interpreterLock = new Object();
 
 	private final ErrorReporter errorReporter;
-	private final Map<String, String> environment;  // TODO use it
+	private final Map<String, String> environment;
 
 
 	public ScalaPluginRunner(ErrorReporter errorReporter, Map<String, String> environment) {
@@ -48,12 +52,21 @@ class ScalaPluginRunner implements PluginRunner {
 
 	@Override public void runPlugin(String pathToPluginFolder, final String pluginId,
 	                                Map<String, ?> binding, Function<Runnable, Void> runOnEDTCallback) {
-		final IMain interpreter;
+		final File scriptFile = MyFileUtil.findSingleFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
+		assert scriptFile != null;
 
+		final IMain interpreter;
 		synchronized (interpreterLock) {
 			try {
-				String classpath = createInterpreterClasspath();
+				List<String> additionalPaths = findClasspathAdditions(readLines(asUrl(scriptFile)), SCALA_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
+					@Override public Void fun(String path) {
+						errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
+						return null;
+					}
+				});
+				String classpath = createInterpreterClasspath(additionalPaths);
 				interpreter = initInterpreter(classpath);
+
 			} catch (Exception e) {
 				errorReporter.addLoadingError("Failed to init scala interpreter", e);
 				return;
@@ -67,9 +80,6 @@ class ScalaPluginRunner implements PluginRunner {
 				interpreter.bindValue(entry.getKey(), entry.getValue());
 			}
 		}
-
-		final File scriptFile = MyFileUtil.findSingleFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
-		assert scriptFile != null;
 
 		runOnEDTCallback.fun(new Runnable() {
 			@Override public void run() {
@@ -100,7 +110,7 @@ class ScalaPluginRunner implements PluginRunner {
 		return new IMain(settings, new PrintWriter(interpreterOutput));
 	}
 
-	private static String createInterpreterClasspath() throws ClassNotFoundException {
+	private static String createInterpreterClasspath(List<String> additionalPaths) throws ClassNotFoundException {
 		Function<File, String> toAbsolutePath = new Function<File, String>() {
 			@Override public String fun(File it) {
 				return it.getAbsolutePath();
@@ -112,8 +122,8 @@ class ScalaPluginRunner implements PluginRunner {
 		String intellijLibPath = join(map(withDefault(new File[0], new File(getLibPath()).listFiles()), toAbsolutePath), pathSeparator);
 		String intellijPluginsPath = join(map(withDefault(new File[0], new File(getPluginsPath()).listFiles()), toAbsolutePath), pathSeparator);
 		String livePluginPath = PathManager.getResourceRoot(ScalaPluginRunner.class, "/liveplugin/"); // this is only useful when running liveplugin from IDE (it's not packed into jar)
-		return join(asList(compilerPath, scalaLibPath, livePluginPath), pathSeparator) +
-				pathSeparator + intellijLibPath + pathSeparator + intellijPluginsPath;
+		return join(asList(compilerPath, scalaLibPath, livePluginPath, intellijLibPath, intellijPluginsPath), pathSeparator) +
+				pathSeparator + join(additionalPaths, pathSeparator);
 	}
 
 	private static <T> T withDefault(T defaultValue, T value) {
