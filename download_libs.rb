@@ -2,10 +2,14 @@
 # This is minimalistic script to download plugin dependencies from maven central
 
 def download(url, filename)
-  if File.exists?(filename)
+  require 'open-uri'
+  if File.exists?("lib/" + filename)
     puts "'#{filename}' is already downloaded... skipped"
   else
-    `curl -O #{url}/#{filename}`
+    puts "'#{filename}' downloading..."
+    File.open("lib/" + filename, "wb") do |saved_file|
+      open(url + filename, "rb") { |read_file| saved_file.write(read_file.read) }
+    end
   end
 end
 
