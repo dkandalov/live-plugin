@@ -3,7 +3,7 @@
 ### What is this?
 
 This is [IntelliJ](https://github.com/JetBrains/intellij-community) plugin for writing
-IDE plugins at runtime (or running any code inside IntelliJ).<br/>
+IDE plugins at runtime (or running any code inside IntelliJ).
 It currently uses [Groovy](http://groovy.codehaus.org/) as a main language and
 has experimental support for [Scala](http://www.scala-lang.org/) and [Clojure](http://clojure.org/).
 
