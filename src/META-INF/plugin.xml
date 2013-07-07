@@ -8,8 +8,8 @@
     <category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>
-This plugin has been renamed to LivePlugin (http://plugins.jetbrains.com/plugin/7282).
-Please see more details about changes here https://github.com/dkandalov/live-plugin/wiki/Changes-between-IntellijEval-and-LivePlugin
+This plugin has been renamed to <a href="http://plugins.jetbrains.com/plugin/7282">LivePlugin</a>.
+Please see more details about changes <a href="https://github.com/dkandalov/live-plugin/wiki/Changes-between-IntellijEval-and-LivePlugin">here</a>
 <br/>
 Main changes:
 <ul>
@@ -32,7 +32,7 @@ How to use:
 		]]>
 	</description>
     <change-notes>
-        This is the last update for this plugin since it has been renamed to LivePlugin
+        This is the last update. This plugin has been renamed to LivePlugin
         (http://plugins.jetbrains.com/plugin/7282). Please see more details about changes here
         https://github.com/dkandalov/live-plugin/wiki/Changes-between-IntellijEval-and-LivePlugin
     </change-notes>
