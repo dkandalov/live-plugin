@@ -121,5 +121,5 @@ so this is kind of "blog with working code" approach.
 
  - use download_libs.rb to get dependencies
  - open project in IntelliJ IDEA (you probably will have to configure IntelliJ SDK)
- - packages are structured in attempt to reflect UI structure
+ - packages are structured in attempt to reflect plugins toolwindow UI
 
