@@ -13,6 +13,8 @@
  */
 package intellijeval;
 
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -105,6 +107,18 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 	}
 
 	@Override public void initComponent() {
+		if (!isGroovyOnClasspath()) {
+			NotificationGroup.balloonGroup("IntelliJ Eval").createNotification(
+					"IntelliJEval didn't find Groovy libraries on classpath",
+					"Without it plugins won't work. You can download groovy-all.jar from maven " +
+							"(http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/groovy-all-2.0.6.jar) and" +
+							"copy it into " + PathManager.getLibPath(),
+					NotificationType.ERROR,
+					null
+			).notify(null);
+			return;
+		}
+
 		Settings settings = Settings.getInstance();
 		if (settings.justInstalled) {
 			installHelloWorldPlugin();
@@ -115,6 +129,14 @@ public class EvalComponent implements ApplicationComponent { // TODO implement D
 		}
 
 		new PluginToolWindowManager().init();
+	}
+
+	private static boolean isGroovyOnClasspath() {
+		try {
+			return Class.forName("org.codehaus.groovy.runtime.DefaultGroovyMethods") != null;
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
 	}
 
 	private static void runAllPlugins() {
