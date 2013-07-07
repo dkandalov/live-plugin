@@ -8,8 +8,8 @@
     <category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>
-Plugin for writing simple plugins in Groovy at runtime (or running any Groovy code inside IntelliJ).
-Has experimental support for Scala and Clojure.
+Plugin for writing simple plugins in Groovy at runtime (or running any Groovy code inside IntelliJ)
+with experimental support for Scala and Clojure.
 <br/><br/>
 How to use:
 <ul>
@@ -17,8 +17,10 @@ How to use:
 <li>select one of "plugin.groovy" files (these are entry points for plugins)</li>
 <li>use "alt + C, alt + E" to execute it</li>
 </ul>
-<br/><br/>
+<br/>
 For more details please see <a href="https://github.com/dkandalov/live-plugin">readme on GitHub</a>.
+<br/>
+(This is new renamed version of <a href="http://plugins.jetbrains.com/plugin/7173">IntelliJEval plugin</a>.)
 </body></html>
 		]]>
 	</description>
