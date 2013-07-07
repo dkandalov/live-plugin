@@ -15,18 +15,17 @@ package liveplugin.pluginrunner;
 
 import com.intellij.util.Function;
 import groovy.lang.Binding;
-import groovy.lang.GroovyClassLoader;
 import groovy.util.GroovyScriptEngine;
 import org.codehaus.groovy.control.CompilationFailedException;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static liveplugin.MyFileUtil.*;
+import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies;
 import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions;
 
 public class GroovyPluginRunner implements PluginRunner {
@@ -64,7 +63,7 @@ public class GroovyPluginRunner implements PluginRunner {
 				}
 			});
 			pathsToAdd.add(pluginFolderUrl);
-			GroovyClassLoader classLoader = createClassLoaderWithDependencies(pathsToAdd, mainScriptUrl, pluginId);
+			ClassLoader classLoader = createClassLoaderWithDependencies(pathsToAdd, mainScriptUrl, pluginId, errorReporter);
 
 			// assume that GroovyScriptEngine is thread-safe
 			final GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
@@ -100,26 +99,5 @@ public class GroovyPluginRunner implements PluginRunner {
 			result.setVariable(entry.getKey(), entry.getValue());
 		}
 		return result;
-	}
-
-	private GroovyClassLoader createClassLoaderWithDependencies(List<String> pathsToAdd, String mainScriptUrl, String pluginId) {
-		GroovyClassLoader classLoader = new GroovyClassLoader(this.getClass().getClassLoader());
-		try {
-
-			for (String path : pathsToAdd) {
-				if (path.startsWith("file:/")) {
-					URL url = new URL(path);
-					classLoader.addURL(url);
-					classLoader.addClasspath(url.getFile());
-				} else {
-					classLoader.addURL(new URL("file:///" + path));
-					classLoader.addClasspath(path);
-				}
-			}
-
-		} catch (IOException e) {
-			errorReporter.addLoadingError(pluginId, "Error while looking for dependencies. Main script: " + mainScriptUrl + ". " + e.getMessage());
-		}
-		return classLoader;
 	}
 }
