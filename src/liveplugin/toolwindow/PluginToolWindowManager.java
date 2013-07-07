@@ -327,6 +327,8 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloFileStats", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/utilExample", asList("plugin.groovy", "util/AClass.groovy")));
 			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/classpathExample", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloScala", asList("plugin.scala")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloClojure", asList("plugin.clj")));
 			actionGroup.addSeparator();
 			actionGroup.add(new AnAction("Add All") {
 				@Override public void actionPerformed(AnActionEvent e) {
