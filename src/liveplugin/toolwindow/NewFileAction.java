@@ -49,7 +49,7 @@ public class NewFileAction extends FileChooserAction {
 		VirtualFile selectedFile = fileSystemTree.getNewFileParent();
 		presentation.setEnabled(selectedFile != null);
 		// FORK DIFF (got rid of layered "new" icon because it's ugly)
-		presentation.setIcon(fileType.getIcon());
+		presentation.setIcon(fileType != null ? fileType.getIcon() : null);
 	}
 
 	protected void actionPerformed(FileSystemTree fileSystemTree, AnActionEvent e) {
