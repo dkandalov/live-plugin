@@ -13,6 +13,7 @@
  */
 package liveplugin;
 
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
@@ -44,6 +45,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.intellij.openapi.extensions.PluginId.getId;
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static com.intellij.openapi.util.io.FileUtil.toSystemIndependentName;
 import static com.intellij.openapi.vfs.VfsUtilCore.pathToUrl;
@@ -133,6 +135,13 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 	}
 
 	@Override public void initComponent() {
+		if (PluginManager.isPluginInstalled(getId("IntelliJEval"))) {
+			NotificationGroup.balloonGroup("Live Plugin").createNotification(
+					"It seems that you IntelliJEval plugin enabled.<br/>Please disable it to use LivePlugin.",
+					NotificationType.ERROR
+			).notify(null);
+			return;
+		}
 		checkThatGroovyIsOnClasspath();
 
 		Settings settings = Settings.getInstance();
