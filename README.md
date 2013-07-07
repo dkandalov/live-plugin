@@ -48,7 +48,7 @@ and [Clojure plugin example](https://gist.github.com/dkandalov/5943754).
 
 ### How to install
 Through IntelliJ plugin manager. Search for "liveplugin".
-(Just in case this is the [plugin page](http://plugins.jetbrains.com/plugin?pr=idea&pluginId=7173).) TODO
+(Just in case this is the [plugin page](http://plugins.jetbrains.com/plugin/7282).)
 
 
 ### How to start
