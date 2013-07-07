@@ -3,8 +3,9 @@
 ### What is this?
 
 This is [IntelliJ](https://github.com/JetBrains/intellij-community) plugin for writing
-IDE plugins at runtime in [Groovy](http://groovy.codehaus.org/)<br/> (or running any code inside IntelliJ).
-There is experimental support for [Scala](http://www.scala-lang.org/) and [Clojure](http://clojure.org/).
+IDE plugins at runtime (or running any code inside IntelliJ).<br/>
+It currently uses [Groovy](http://groovy.codehaus.org/) as a main language and
+has experimental support for [Scala](http://www.scala-lang.org/) and [Clojure](http://clojure.org/).
 
 
 ### Why?
@@ -111,8 +112,9 @@ The idea of running code inside IntelliJ is not original. There are similar plug
  The old meta-version was too broken to be released and two years later was replaced with this.
 
 ### If you want to contribute
-Please be aware this is a proof-of-concept, don't expect good source code.
-I could writte a blog post about extendable IDEs but probably not many people would read it
+That's great!
+But please be aware this is a proof-of-concept project, don't expect to see great code.
+I could write a blog post about extendable IDEs but probably not many people would read it
 so this is kind of "blog with working code" approach.
 
  - use download_libs.rb to get dependencies
