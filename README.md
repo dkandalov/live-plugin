@@ -2,14 +2,17 @@
 
 ### What is this?
 
-This is experimental IntelliJ IDEA plugin for writing plugins in Groovy at runtime<br/>
-(or running Groovy code inside IntelliJ).
+This is [IntelliJ](https://github.com/JetBrains/intellij-community) plugin for writing
+IDE plugins at runtime in [Groovy](http://groovy.codehaus.org/)<br/> (or running any code inside IntelliJ).
+There is experimental support for [Scala](http://www.scala-lang.org/) and [Clojure](http://clojure.org/).
 
 
 ### Why?
- - it should be possible to write a simple plugin without setting up new project
- - plugins source code should be easily available and editable
- - time between writing code and seeing how it works should be short
+ - to make writing plugins easier. There is no need to set up and configure a separate project.
+ - faster feedback loop. There is no need to start new IDE instance to run plugin.
+   If you change plugin code, there is no need to restart IDE.
+ - great goodness of customized IDE. In a way even Excel can be "customized" at runtime with VB script.
+ This is an attempt to fix this and empower yourself with easy-to-extend IDE.
 
 
 ### Example plugin
@@ -38,10 +41,12 @@ registerAction("InsertNewLineAbove", "alt shift ENTER") { AnActionEvent event ->
 show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
 ```
 
+See also [Scala example](https://gist.github.com/dkandalov/5921340) and [Clojure example](https://gist.github.com/dkandalov/5943754).
+
 
 ### How to install
-Through IntelliJ plugin manager. Search for "eval".
-(Just in case this is the [plugin page](http://plugins.jetbrains.com/plugin?pr=idea&pluginId=7173).)
+Through IntelliJ plugin manager. Search for "liveplugin".
+(Just in case this is the [plugin page](http://plugins.jetbrains.com/plugin?pr=idea&pluginId=7173).) TODO
 
 
 ### How to start
@@ -51,12 +56,13 @@ Through IntelliJ plugin manager. Search for "eval".
  - add plugin examples and experiment with them
 
 
-### It might be useful
- - to have auto-completion by adding IDEA and IntelliJEval jars to project
-   (can be done in "Settings" drop-down at the top of "Plugins" tool window).
- - install Groovy plugin
- - look at [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy) class
- - get [IntelliJ source code](https://github.com/JetBrains/intellij-community)
+### "Advanced" usage
+ - it helps to have [JetGroovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin installed (available only for IntelliJ IDEA)
+ - you can get auto-completion in plugins code by adding IDEA and LivePlugin jars to project
+   (in "Settings" drop-down at the top of "Plugins" tool window).
+ - check [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy) class.
+ Even if you don't want to use it, it might be a good place to see how to interact with IntelliJ API.
+ - get [IntelliJ source code](https://github.com/JetBrains/intellij-community), look how some feature is implemented, rip it off
 
 
 ### More examples
@@ -75,18 +81,22 @@ Through IntelliJ plugin manager. Search for "eval".
  - [Evaluate selection as Groovy](https://gist.github.com/dkandalov/5024580) - that's exactly what it does
 
 
-### Under the hood
- - this is essentially a host plugin for other plugins
- - each plugin is evaluated with its own classloader using GroovyScriptEngine
- - it uses Groovy bundled with IntelliJ (v1.8.5 at the moment)
+### How this plugin works?
+It just evaluates code inside JVM, like this:
+```java
+GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
+scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));
+```
+ - each plugin is evaluated with its own classloader
+ - it uses Groovy bundled with IntelliJ
  - plugins are stored in "$HOME/.$INTELLIJ_VERSION/config/live-plugins"
 (on Mac "$HOME/Library/Application Support/IntelliJIdea12/live-plugins").
 You can also use standard "ctrl + shift + C" shortcut to copy file/folder path.
 
 
 ### Similar plugins
-The idea of running code inside IntelliJ is not original. There are similar plugins:
- - [PMIP - Poor Mans IDE Plugin](http://plugins.intellij.net/plugin/?idea&pluginId=4571) (it's for Ruby)
+The idea of running code inside IntelliJ is not original. There are similar plugins (although I wasn't too happy with them):
+ - [PMIP - Poor Mans IDE Plugin](http://plugins.intellij.net/plugin/?idea&pluginId=4571) (for Ruby)
  - [Remote Groovy Console](http://plugins.intellij.net/plugin/?id=5373)
  - [Script Monkey](http://plugins.intellij.net/plugin?pr=idea&pluginId=3674)
  - [Groovy Console Plugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=4660)
@@ -94,8 +104,18 @@ The idea of running code inside IntelliJ is not original. There are similar plug
 
 
 ### It would be interesting
+ - try writing a language plugin
  - to have nice object tree pattern-matching API for Groovy (can be good for writing inspections/intentions to match/replace syntax tree).
- Or may be there is one and I just don't know about it.
- - use another language (e.g. Scala or Ruby).
+ - more languages, e.g. Ruby, Kotlin or Java.
  - go meta! Rewrite this plugin as its own plugin. This is really how it was started (loads of fun with classloaders).
  The old meta-version was too broken to be released and two years later was replaced with this.
+
+### If you want to contribute
+Please be aware this is a proof-of-concept, don't expect good source code.
+I could writte a blog post about extendable IDEs but probably not many people would read it
+so this is kind of "blog with working code" approach.
+
+ - use download_libs.rb to get dependencies
+ - open project in IntelliJ IDEA (you probably will have to configure IntelliJ SDK)
+ - packages are structured in attempt to reflect UI dialog structure
+
