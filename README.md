@@ -64,7 +64,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
    (in "Settings" drop-down at the top of "Plugins" tool window).
  - check [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy) class.
  Even if you don't want to use it, it might be a good place to see how to interact with IntelliJ API.
- - get [IntelliJ source code](https://github.com/JetBrains/intellij-community), look how some feature is implemented, rip it off
+ - get [IntelliJ source code](https://github.com/JetBrains/intellij-community), look at how some feature is implemented, steal the code
 
 
 ### More examples
