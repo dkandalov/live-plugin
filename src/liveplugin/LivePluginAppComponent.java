@@ -13,6 +13,7 @@
  */
 package liveplugin;
 
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
@@ -135,7 +136,8 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 	}
 
 	@Override public void initComponent() {
-		if (PluginManager.isPluginInstalled(getId("IntelliJEval"))) {
+		IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(getId("IntelliJEval"));
+		if (pluginDescriptor != null && pluginDescriptor.isEnabled()) {
 			NotificationGroup.balloonGroup("Live Plugin").createNotification(
 					"It seems that you IntelliJEval plugin enabled.<br/>Please disable it to use LivePlugin.",
 					NotificationType.ERROR
