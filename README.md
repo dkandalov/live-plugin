@@ -42,7 +42,8 @@ registerAction("InsertNewLineAbove", "alt shift ENTER") { AnActionEvent event ->
 show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
 ```
 
-See also [Scala example](https://gist.github.com/dkandalov/5921340) and [Clojure example](https://gist.github.com/dkandalov/5943754).
+See also [Scala plugin example](https://gist.github.com/dkandalov/5921340)
+and [Clojure plugin example](https://gist.github.com/dkandalov/5943754).
 
 
 ### How to install
