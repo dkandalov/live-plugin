@@ -8,6 +8,16 @@
     <category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>
+This plugin has been renamed to LivePlugin (http://plugins.jetbrains.com/plugin/7282).
+Please see more details about changes here https://github.com/dkandalov/live-plugin/wiki/Changes-between-IntellijEval-and-LivePlugin
+<br/>
+Main changes:
+<ul>
+<li>"intellijeval" package renamed to "liveplugin"</li>
+<li>plugins are initialised in background thread</li>
+<li>experimental support for Scala and Clojure plugins</li>
+</ul>
+<br/><br/>
 Plugin for writing simple plugins in Groovy at runtime (or running Groovy code inside IntelliJ).
 <br/><br/>
 How to use:
@@ -21,6 +31,11 @@ How to use:
 </body></html>
 		]]>
 	</description>
+    <change-notes>
+        This is the last update for this plugin since it has been renamed to LivePlugin
+        (http://plugins.jetbrains.com/plugin/7282). Please see more details about changes here
+        https://github.com/dkandalov/live-plugin/wiki/Changes-between-IntellijEval-and-LivePlugin
+    </change-notes>
 
 	<depends>com.intellij.modules.platform</depends>
     <depends optional="true" config-file="github-integration.xml">org.jetbrains.plugins.github</depends>
