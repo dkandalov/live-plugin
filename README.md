@@ -10,10 +10,10 @@ has experimental support for [Scala](http://www.scala-lang.org/) and [Clojure](h
 
 ### Why?
  - to make writing plugins easier. There is no need to set up and configure a separate project.
- - faster feedback loop. There is no need to start new IDE instance to run plugin.
+ - faster feedback loop. There is no need to start new IDE instance to run a plugin.
    If you change plugin code, there is no need to restart IDE.
  - great goodness of customized IDE. In a way even Excel can be "customized" at runtime with VB script.
- This is an attempt to fix this and empower yourself with easy-to-extend IDE.
+ This is an attempt to fix this and empower us with easy-to-extend IDE.
 
 
 ### Example plugin
