@@ -27,7 +27,7 @@
 (show "Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
 
 
-(show (string/join "" ["Implicit variables:<br/>"
-                       "project = " *project* "<br/>"
-                       "isIdeStartup = " *isIdeStartup* "<br/>"
-                       "pluginPath = " *pluginPath*]))
+;(show (string/join "" ["Implicit variables:<br/>"
+;                       "project = " *project* "<br/>"
+;                       "isIdeStartup = " *isIdeStartup* "<br/>"
+;                       "pluginPath = " *pluginPath*]))
