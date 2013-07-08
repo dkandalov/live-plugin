@@ -40,8 +40,8 @@ public class DownloadScalaLibs extends AnAction {
 					"\n(If you already have scala >= 2.10, you can copy it manually and restart IDE.)", "Live Plugin", null);
 			if (answer != Messages.OK) return;
 
-			List<String> scalaLibs = asList("scala-library", "scala-compiler", "scala-reflect", "scala-swing",
-					"scala-partest", "scala-actors", "scala-actors-migration", "scalap");
+			List<String> scalaLibs = asList("scala-library", "scala-compiler",
+					"scala-reflect", "scala-swing", "scala-partest", "scala-actors", "scalap");
 			List<Pair<String, String>> urlAndFileNamePairs = map(scalaLibs, new Function<String, Pair<String, String>>() {
 				@Override public Pair<String, String> fun(String it) {
 					return Pair.create("http://repo1.maven.org/maven2/org/scala-lang/" + it + "/2.10.2/", it + "-2.10.2.jar");
