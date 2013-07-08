@@ -244,10 +244,11 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 
 		public static void migrateOldPlugins() {
 			try {
-				FileUtil.rename(new File(oldPluginsRootPath()), new File(pluginsRootPath()));
+				FileUtil.copyDir(new File(oldPluginsRootPath()), new File(pluginsRootPath()));
 				for (File file : allFilesInDirectory(new File(pluginsRootPath()))) {
 					migrate(file);
 				}
+				FileUtil.rename(new File(oldPluginsRootPath()), new File(oldPluginsRootPath() + "_migrated_to_liveplugin"));
 			} catch (IOException e) {
 				LOG.error("Error while migrating old plugins", e);
 			}
