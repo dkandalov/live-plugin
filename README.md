@@ -71,6 +71,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
  - [Symbolize keywords](https://gist.github.com/dkandalov/5553999) - collapses Java keywords into shorter symbols
  - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622) - micro-plugin to show warning when change list size exceeds threshold
  - [Template completion on "Tab"](https://gist.github.com/dkandalov/5222759) - simplistic prototype for auto-completion on tab key (in case built-in live templates are not enough)
+ - [Example of adding custom search](https://gist.github.com/dkandalov/5956923) - only gives an idea which part of IntelliJ API to use
  - [No copy-paste](https://gist.github.com/dkandalov/5430282) - disables copy/paste actions
  - [Wrap selection](https://gist.github.com/dkandalov/5129543) - micro-plugin to wrap long lines with separator
  - [Wrap selected text to column width](https://gist.github.com/dkandalov/5557393) - copy of this plugin https://github.com/abrookins/WrapToColumn
