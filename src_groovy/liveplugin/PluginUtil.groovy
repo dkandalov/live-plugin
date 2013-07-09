@@ -227,6 +227,7 @@ class PluginUtil {
 				assignKeyStrokeTo(actionId, keyStroke)
 				actionManager.registerAction(actionId, action)
 				actionGroup?.add(action)
+				action.templatePresentation.setText(displayText, true)
 
 				log("Action '${actionId}' registered")
 
