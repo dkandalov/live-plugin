@@ -13,7 +13,7 @@ has experimental support for [Scala](http://www.scala-lang.org/) and [Clojure](h
  - faster feedback loop. There is no need to start new IDE instance to run a plugin.
    If you change plugin code, there is no need to restart IDE.
  - great goodness of customized IDE. In a way even Excel can be "customized" at runtime with VB script.
- This is an attempt to fix this and empower us with easy-to-extend IDE.
+ This is an attempt to fix this and have easy-to-extend IDE.
 
 
 ### Example plugin
@@ -111,8 +111,6 @@ The idea of running code inside IntelliJ is not original. There are similar plug
  - try writing a language plugin
  - to have nice object tree pattern-matching API for Groovy (can be good for writing inspections/intentions to match/replace syntax tree).
  - more languages, e.g. Ruby, Kotlin or Java.
- - go meta! Rewrite this plugin as its own plugin. This is really how it was started (loads of fun with classloaders).
- The old meta-version was too broken to be released and two years later was replaced with this.
 
 ### If you want to contribute
 That's great!
