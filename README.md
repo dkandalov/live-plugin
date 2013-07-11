@@ -73,6 +73,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
  - [Template completion on "Tab"](https://gist.github.com/dkandalov/5222759) - simplistic prototype for auto-completion on tab key (in case built-in live templates are not enough)
  - [Example of adding completion contributor](https://gist.github.com/dkandalov/5977888) - only gives an idea which part of IntelliJ API to use
  - [Example of adding custom search](https://gist.github.com/dkandalov/5956923) - only gives an idea which part of IntelliJ API to use
+ - [Show PSI view dialog](https://gist.github.com/dkandalov/5979943) - one-liner to show PSI viewer dialog. Normally it's only enabled in plugin projects.
  - [No copy-paste](https://gist.github.com/dkandalov/5430282) - disables copy/paste actions
  - [Wrap selection](https://gist.github.com/dkandalov/5129543) - micro-plugin to wrap long lines with separator
  - [Wrap selected text to column width](https://gist.github.com/dkandalov/5557393) - copy of this plugin https://github.com/abrookins/WrapToColumn
