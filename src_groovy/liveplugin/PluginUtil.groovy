@@ -46,6 +46,7 @@ import com.intellij.openapi.project.ProjectManagerAdapter
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.util.Pair
 import com.intellij.openapi.vfs.VirtualFile
@@ -56,6 +57,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.ProjectScope
+import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.ui.UIUtil
@@ -645,6 +647,48 @@ class PluginUtil {
 		}.queue()
 	}
 
+	/**
+	 * @param description nested maps that represent a tree of actions. Leaves of the tree should be closures, e.g.
+	 *        ["Level1": { show("-" + it) },
+	 *         "Level2":
+	 *          ["SubLevel": { show("--" + it) }]]
+	 * @param actionGroup (optional) action group to which actions will be added
+	 * @return actionGroup with actions
+	 */
+	static ActionGroup createNestedActionGroup(Map description, actionGroup = new DefaultActionGroup()) {
+		description.each { entry ->
+			if (entry.value instanceof Closure) {
+				actionGroup.add(new AnAction(entry.key as String) {
+					@Override void actionPerformed(AnActionEvent event) {
+						entry.value.call(entry.key)
+					}
+				})
+			} else if (entry.value instanceof Map) {
+				Map subMenuDescription = entry.value as Map
+				def actionGroupName = entry.key.toString()
+				def isPopup = true
+				actionGroup.add(createNestedActionGroup(subMenuDescription, new DefaultActionGroup(actionGroupName, isPopup)))
+			}
+		}
+		actionGroup
+	}
+
+	/**
+	 * Shows popup menu in which each leaf item is associated with action.
+	 *
+	 * @param menuDescription see javadoc for {@link #createNestedActionGroup(java.util.Map)}
+	 * @param popupTitle (optional)
+	 */
+	static showPopupMenu(Map menuDescription, String popupTitle = "") {
+		def dummyDataContext = new MapDataContext()
+		JBPopupFactory.instance.createActionGroupPopup(
+				popupTitle,
+				createNestedActionGroup(menuDescription),
+				dummyDataContext,
+				JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+				true
+		).showInFocusCenter()
+	}
 
 	static accessField(Object o, String fieldName, Closure callback) {
 		catchingAll {
