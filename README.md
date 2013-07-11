@@ -84,7 +84,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
  - [Project TreeMap View](https://github.com/dkandalov/project-treemap) - shows project structure (packages/classes) as treemap based on size of classes
  - [Method History](https://github.com/dkandalov/history-slider-plugin) - combines built-in method history based on selection and method history based on method name
  - [Evaluate selection as Groovy](https://gist.github.com/dkandalov/5024580) - that's exactly what it does
- - [Code History Mining](https://github.com/dkandalov/code-history-mining) - allows to grab, analyze and visualize project source code history
+ - [Code History Mining](https://github.com/dkandalov/code-history-mining) - (not a tiny project) allows to grab, analyze and visualize project source code history
 
 
 ### How this plugin works?
