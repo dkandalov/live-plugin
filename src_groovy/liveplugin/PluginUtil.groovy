@@ -53,6 +53,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
@@ -573,6 +574,16 @@ class PluginUtil {
 				callback.call(document)
 			}, name, groupId, UndoConfirmationPolicy.DEFAULT, document)
 		}
+	}
+
+	@CanCallWithinRunReadActionOrFromEDT
+	static VirtualFile file(Document document) {
+		FileDocumentManager.instance.getFile(document)
+	}
+
+	@CanCallWithinRunReadActionOrFromEDT
+	static PsiFile psiFile(Document document, Project project) {
+		PsiDocumentManager.getInstance(project).getPsiFile(document)
 	}
 
 	/**
