@@ -66,6 +66,7 @@ public class GroovyPluginRunner implements PluginRunner {
 			ClassLoader classLoader = createClassLoaderWithDependencies(pathsToAdd, mainScriptUrl, pluginId, errorReporter);
 
 			// assume that GroovyScriptEngine is thread-safe
+			// (according to this http://groovy.329449.n5.nabble.com/Is-the-GroovyScriptEngine-thread-safe-td331407.html)
 			final GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
 			try {
 				scriptEngine.loadScriptByName(mainScriptUrl);
