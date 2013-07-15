@@ -189,6 +189,14 @@ class PluginUtil {
 	}
 
 	/**
+	 * Action group id for Main Menu -> Tools.
+	 * It can be used in {@link #registerAction(java.lang.String, com.intellij.openapi.actionSystem.AnAction)}.
+	 *
+	 * The only reason to have it as a constant is to avoid "magic" string literals.
+	 */
+	static String TOOLS_MENU = "ToolsMenu"
+
+	/**
 	 * Registers action in IDE.
 	 * If there is already an action with {@code actionId}, it will be replaced.
 	 * (The main reason to replace action is to be able to incrementally add code to it without restarting IDE.)
