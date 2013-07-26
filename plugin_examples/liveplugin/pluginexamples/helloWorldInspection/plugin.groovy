@@ -1,16 +1,11 @@
 import com.intellij.codeInsight.daemon.GroupNames
-import com.intellij.codeInspection.BaseJavaLocalInspectionTool
-import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.codeInspection.LocalQuickFix
-import com.intellij.codeInspection.ProblemDescriptor
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.*
 import com.intellij.codeInspection.ex.InspectionProfileImpl
 import com.intellij.codeInspection.ex.InspectionToolRegistrar
 import com.intellij.codeInspection.ex.InspectionToolWrapper
 import com.intellij.codeInspection.ex.LocalInspectionToolWrapper
 import com.intellij.ide.ui.search.SearchableOptionsRegistrar
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Factory
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.JavaElementVisitor
 import com.intellij.psi.JavaPsiFacade
@@ -19,29 +14,9 @@ import com.intellij.psi.PsiLiteralExpression
 
 import static liveplugin.PluginUtil.show
 
+addInspection(project){ new HelloWorldInspection() }
+show("Loaded hello world inspection<br/>It replaces \"hello\" string literal in Java code with \"Hello world\"")
 
-static addInspection(Project project, Closure<LocalInspectionTool> inspectionFactory) {
-	def registrar = new InspectionToolRegistrar(SearchableOptionsRegistrar.instance)
-	registrar.registerInspectionToolFactory(new Factory<InspectionToolWrapper>() {
-		@Override InspectionToolWrapper create() {
-			new LocalInspectionToolWrapper(inspectionFactory.call())
-		}
-	}, true)
-
-	// there is also InspectionProfileManager which keeps global IDE profiles
-	def projectProfileManager = InspectionProjectProfileManager.getInstance(project)
-	def oldProfile = projectProfileManager.inspectionProfile
-
-	// create new profile to make it ask registrar for newly added inspection
-	def newProfile = new InspectionProfileImpl(oldProfile.name, registrar, projectProfileManager)
-	newProfile.copyFrom(oldProfile)
-	newProfile.baseProfile = null // can break if baseProfile is set to default profile? (e.g. in com.intellij.codeInspection.ex.InspectionProfileImpl#readExternal)
-	newProfile.initInspectionTools(null)
-
-	projectProfileManager.deleteProfile(oldProfile.name)
-	projectProfileManager.updateProfile(newProfile)
-	projectProfileManager.projectProfile = newProfile.name
-}
 
 class HelloWorldInspection extends BaseJavaLocalInspectionTool {
 	@Override String getGroupDisplayName() { GroupNames.BUGS_GROUP_NAME }
@@ -72,7 +47,26 @@ class HelloWorldQuickFix implements LocalQuickFix {
 	}
 }
 
+static addInspection(Project project, Closure inspectionFactory) {
+	def registrar = new InspectionToolRegistrar(SearchableOptionsRegistrar.instance)
+	registrar.registerInspectionToolFactory(new com.intellij.openapi.util.Factory<InspectionToolWrapper>() {
+		@Override InspectionToolWrapper create() {
+			new LocalInspectionToolWrapper((LocalInspectionTool) inspectionFactory.call())
+		}
+	}, true)
 
-addInspection(project, { new HelloWorldInspection() })
+	// there is also InspectionProfileManager which keeps global IDE profiles
+	def projectProfileManager = InspectionProjectProfileManager.getInstance(project)
+	def oldProfile = projectProfileManager.inspectionProfile
 
-show("Loaded hello world inspection<br/>It replaces \"hello\" string literal in java code with \"Hello world\"")
+	// create new profile to make it ask registrar for newly added inspection
+	def newProfile = new InspectionProfileImpl(oldProfile.name, registrar, projectProfileManager)
+	newProfile.copyFrom(oldProfile)
+	newProfile.baseProfile = null // can break if baseProfile is set to default profile? (e.g. in com.intellij.codeInspection.ex.InspectionProfileImpl#readExternal)
+	newProfile.initInspectionTools(null)
+
+	projectProfileManager.deleteProfile(oldProfile.name)
+	projectProfileManager.updateProfile(newProfile)
+	projectProfileManager.projectProfile = newProfile.name
+}
+

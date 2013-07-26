@@ -1,6 +1,6 @@
 import javax.swing.*
 
-import static liveplugin.PluginUtil.*
+import static liveplugin.PluginUtil.registerToolWindow
 
 static createPanelWithButton(JPanel panel = new JPanel()) {
 	def selfReproducingButton = new JButton("Hello")
@@ -10,9 +10,7 @@ static createPanelWithButton(JPanel panel = new JPanel()) {
 	panel
 }
 
-invokeOnEDT {
-	registerToolWindow("helloToolWindow") { createPanelWithButton() }
-}
+registerToolWindow("helloToolWindow") { createPanelWithButton() }
 
 // To remove the above toolwindow, you can run the following code.
 //unregisterToolWindow("helloToolWindow")
