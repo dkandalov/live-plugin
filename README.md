@@ -9,6 +9,8 @@ has experimental support for [Scala](http://www.scala-lang.org/) and [Clojure](h
 
 
 ### Why?
+It's difficult to explain better than Martin Fowler does in 
+[this post](http://martinfowler.com/bliki/InternalReprogrammability.html) but in short:
  - to make writing plugins easier. There is no need to set up and configure a separate project.
  - faster feedback loop. There is no need to start new IDE instance to run a plugin.
    If you change plugin code, there is no need to restart IDE.
