@@ -34,10 +34,10 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.unscramble.UnscrambleDialog;
 import com.intellij.util.Function;
 import com.intellij.util.download.DownloadableFileDescription;
 import com.intellij.util.download.DownloadableFileService;
+import com.intellij.util.text.CharArrayUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -149,7 +149,7 @@ public class IdeUtil {
 		StringWriter writer = new StringWriter();
 		//noinspection ThrowableResultOfMethodCallIgnored
 		throwable.printStackTrace(new PrintWriter(writer));
-		return UnscrambleDialog.normalizeText(writer.getBuffer().toString());
+		return Unscramble.normalizeText(writer.getBuffer().toString());
 	}
 
 	public static class SingleThreadBackgroundRunner {
@@ -173,6 +173,70 @@ public class IdeUtil {
 					}
 				}
 			}.queue();
+		}
+	}
+
+	/**
+	 * Copy-pasted from {@link com.intellij.unscramble.UnscrambleDialog#normalizeText(java.lang.String)}
+	 * because PhpStorm doesn't have this class.
+	 */
+	private static class Unscramble {
+		public static String normalizeText(@NonNls String text) {
+			StringBuilder builder = new StringBuilder(text.length());
+
+			text = text.replaceAll("(\\S[ \\t\\x0B\\f\\r]+)(at\\s+)", "$1\n$2");
+			String[] lines = text.split("\n");
+
+			boolean first = true;
+			boolean inAuxInfo = false;
+			for (String line : lines) {
+				//noinspection HardCodedStringLiteral
+				if (!inAuxInfo && (line.startsWith("JNI global references") || line.trim().equals("Heap"))) {
+					builder.append("\n");
+					inAuxInfo = true;
+				}
+				if (inAuxInfo) {
+					builder.append(trimSuffix(line)).append("\n");
+					continue;
+				}
+				if (!first && mustHaveNewLineBefore(line)) {
+					builder.append("\n");
+					if (line.startsWith("\"")) builder.append("\n"); // Additional line break for thread names
+				}
+				first = false;
+				int i = builder.lastIndexOf("\n");
+				CharSequence lastLine = i == -1 ? builder : builder.subSequence(i + 1, builder.length());
+				if (lastLine.toString().matches("\\s*at") && !line.matches("\\s+.*")) builder.append(" "); // separate 'at' from file name
+				builder.append(trimSuffix(line));
+			}
+			return builder.toString();
+		}
+
+		@SuppressWarnings("RedundantIfStatement")
+		private static boolean mustHaveNewLineBefore(String line) {
+			final int nonWs = CharArrayUtil.shiftForward(line, 0, " \t");
+			if (nonWs < line.length()) {
+				line = line.substring(nonWs);
+			}
+
+			if (line.startsWith("at")) return true;        // Start of the new stack frame entry
+			if (line.startsWith("Caused")) return true;    // Caused by message
+			if (line.startsWith("- locked")) return true;  // "Locked a monitor" logging
+			if (line.startsWith("- waiting")) return true; // "Waiting for monitor" logging
+			if (line.startsWith("- parking to wait")) return true;
+			if (line.startsWith("java.lang.Thread.State")) return true;
+			if (line.startsWith("\"")) return true;        // Start of the new thread (thread name)
+
+			return false;
+		}
+
+		private static String trimSuffix(final String line) {
+			int len = line.length();
+
+			while ((0 < len) && (line.charAt(len-1) <= ' ')) {
+				len--;
+			}
+			return (len < line.length()) ? line.substring(0, len) : line;
 		}
 	}
 }
