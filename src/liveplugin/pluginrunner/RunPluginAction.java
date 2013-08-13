@@ -29,6 +29,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.UIUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
+import liveplugin.Settings;
 import liveplugin.toolwindow.PluginToolWindowManager;
 
 import java.io.File;
@@ -72,6 +73,10 @@ public class RunPluginAction extends AnAction {
 
 		final Project project = event.getProject();
 		final boolean isIdeStartup = event.getPlace().equals(IDE_STARTUP);
+
+		if (!isIdeStartup) {
+			Settings.countPluginsUsage(pluginIds);
+		}
 
 		Runnable runPlugins = new Runnable() {
 			@Override public void run() {
