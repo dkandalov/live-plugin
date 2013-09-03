@@ -60,16 +60,20 @@ Through IntelliJ plugin manager. Search for "liveplugin".
  - add plugin examples and experiment with them
 
 
-### "Advanced" usage
+### Advanced usage
  - it helps to have [JetGroovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin installed (available only for IntelliJ IDEA)
  - you can get auto-completion in plugins code by adding IDEA and LivePlugin jars to project
    (in "Settings" drop-down at the top of "Plugins" tool window).
  - check [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy) class.
  Even if you don't want to use it, it might be a good place to see how to interact with IntelliJ API.
- - get [IntelliJ source code](https://github.com/JetBrains/intellij-community), look at how some feature is implemented, steal the code
+ - get [IntelliJ source code](https://github.com/JetBrains/intellij-community), look how your favorite feature is implemented,
+ steal the code and adapt for your needs
+ - if your plugins are stable enough, you can enable "Settings -> Run All Live Plugins on IDE Startup" option.
+ If some of them are not meant to be executed at startup, add "if (isIdeStartup) return" statement at the top.
 
 
 ### More examples
+ - [Watching projects open/close events](https://gist.github.com/dkandalov/6427087) - an example of reloadable project listener
  - [Symbolize keywords](https://gist.github.com/dkandalov/5553999) - collapses Java keywords into shorter symbols
  - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622) - micro-plugin to show warning when change list size exceeds threshold
  - [Template completion on "Tab"](https://gist.github.com/dkandalov/5222759) - simplistic prototype for auto-completion on tab key (in case built-in live templates are not enough)
