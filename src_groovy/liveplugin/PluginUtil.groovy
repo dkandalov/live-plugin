@@ -25,6 +25,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
@@ -48,6 +49,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Computable
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Pair
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
@@ -329,6 +331,23 @@ class PluginUtil {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Registers project manager listener which will be replaced between plugin reloads.
+	 *
+	 * @param listenerId unique id of this project manager listener
+	 * @param listener see https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/project/ProjectManagerListener.java
+	 */
+	@CanCallWithinRunReadActionOrFromEDT
+	static def registerProjectListener(String listenerId, ProjectManagerListener listener) {
+		Disposable disposable = (Disposable) changeGlobalVar(listenerId) { Disposable previousDisposable ->
+			if (previousDisposable != null) Disposer.dispose(previousDisposable)
+			new Disposable() {
+				@Override void dispose() {}
+			}
+		}
+		ProjectManager.instance.addProjectManagerListener(listener, disposable)
 	}
 
 	/**
