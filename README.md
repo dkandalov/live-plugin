@@ -74,6 +74,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
 
 ### More examples
  - [Move and split tabs](https://gist.github.com/dkandalov/6643735) - moves tabs left/right with splitting
+ - [Show text diff](https://gist.github.com/dkandalov/6728950) - really lame example of using IntelliJ text diff dialog (don't use it!)
  - [Watching projects open/close events](https://gist.github.com/dkandalov/6427087) - an example of reloadable project listener
  - [Symbolize keywords](https://gist.github.com/dkandalov/5553999) - collapses Java keywords into shorter symbols
  - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622) - micro-plugin to show warning when change list size exceeds threshold
