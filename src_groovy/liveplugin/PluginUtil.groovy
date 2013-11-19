@@ -34,6 +34,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.SelectionModel
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
@@ -459,9 +460,7 @@ class PluginUtil {
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
 	@Nullable static PsiFile currentPsiFileIn(@NotNull Project project) {
-		def file = currentFileIn(project)
-		if (file == null) return null
-		PsiManager.getInstance(project).findFile(file)
+		psiFile(currentFileIn(project), project)
 	}
 
 	/**
@@ -469,9 +468,7 @@ class PluginUtil {
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
 	@Nullable static Document currentDocumentIn(@NotNull Project project) {
-		def file = currentFileIn(project)
-		if (file == null) return null
-		FileDocumentManager.instance.getDocument(file)
+		document(currentFileIn(project))
 	}
 
 	/**
@@ -480,6 +477,28 @@ class PluginUtil {
 	@CanCallWithinRunReadActionOrFromEDT
 	@Nullable static VirtualFile currentFileIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
+	}
+
+	// TODO use category?
+	@Nullable static Document document(@Nullable PsiFile psiFile) {
+		document(psiFile?.virtualFile)
+	}
+
+	@Nullable static PsiFile psiFile(@Nullable VirtualFile file, @NotNull Project project) {
+		file == null ? null : PsiManager.getInstance(project).findFile(file)
+	}
+
+	@Nullable static Document document(@Nullable VirtualFile file) {
+		file == null ? null : FileDocumentManager.instance.getDocument(file)
+	}
+
+	@Nullable static PsiFile psiFile(@Nullable Editor editor, @NotNull Project project) {
+		psiFile(virtualFile(editor), project)
+	}
+
+	@Nullable static VirtualFile virtualFile(@Nullable Editor editor) {
+		if (editor == null || !(editor instanceof EditorEx)) null
+		else ((EditorEx) editor).virtualFile
 	}
 
 	/**

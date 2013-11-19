@@ -17,7 +17,7 @@ class PluginUtilTest {
 		assert asKeyboardShortcut("alt A, B") == new KeyboardShortcut(KeyStroke.getKeyStroke("alt A"), KeyStroke.getKeyStroke("B"))
 	}
 
-	@Test void "should explicitly fail if keystroke cannot be converted in KeyboardShortcut object"() {
+	@Test void "should explicitly fail if keystroke cannot be converted into KeyboardShortcut object"() {
 		try {
 			asKeyboardShortcut("alt")
 			fail()
