@@ -75,6 +75,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
 ### More examples
  - [Move and split tabs](https://gist.github.com/dkandalov/6643735) - moves tabs left/right with splitting
  - [Show text diff](https://gist.github.com/dkandalov/6728950) - really lame example of opening IntelliJ text diff window (please don't use it!)
+ - [Find all recursive methods in project (for Java)](https://gist.github.com/dkandalov/7248184) - quick plugin as a follow up for this [talk](http://skillsmatter.com/podcast/nosql/using-graphs-for-source-code-analysis)
  - [Watching projects open/close events](https://gist.github.com/dkandalov/6427087) - an example of reloadable project listener
  - [Symbolize keywords](https://gist.github.com/dkandalov/5553999) - collapses Java keywords into shorter symbols
  - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622) - micro-plugin to show warning when change list size exceeds threshold
