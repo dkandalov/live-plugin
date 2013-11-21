@@ -140,7 +140,7 @@ public class PluginToolWindowManager {
 		if (virtualFiles.isEmpty()) {
 			descriptor.setRoot(null);
 		} else {
-			descriptor.setRoot(virtualFiles.remove(0));
+			descriptor.setRoots(virtualFiles.remove(0));
 			for (VirtualFile virtualFile : virtualFiles) {
 				if (virtualFile != null)
 					descriptor.addRoot(virtualFile);
