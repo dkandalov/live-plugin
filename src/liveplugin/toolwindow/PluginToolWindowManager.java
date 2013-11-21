@@ -77,6 +77,8 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
+import static com.intellij.openapi.util.Condition.NOT_NULL;
+import static com.intellij.util.containers.ContainerUtil.filter;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
 
@@ -135,19 +137,17 @@ public class PluginToolWindowManager {
 		return toolWindowsByProject.remove(project);
 	}
 
-	@SuppressWarnings("deprecation") // this is to make it compatible with as old intellij versions as possible
 	public static void addRoots(FileChooserDescriptor descriptor, List<VirtualFile> virtualFiles) {
 		if (virtualFiles.isEmpty()) {
-			descriptor.setRoot(null);
+			descriptor.setRoots();
 		} else {
-			descriptor.setRoots(virtualFiles.remove(0));
-			for (VirtualFile virtualFile : virtualFiles) {
-				if (virtualFile != null)
-					descriptor.addRoot(virtualFile);
-			}
+			virtualFiles = new ArrayList<VirtualFile>(filter(virtualFiles, NOT_NULL));
+
 			// adding "null" is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement
 			// (if there is only one plugin, this forces tree show it as a package)
-			descriptor.addRoot(null);
+			virtualFiles.add(null);
+
+			descriptor.setRoots(virtualFiles);
 		}
 	}
 
