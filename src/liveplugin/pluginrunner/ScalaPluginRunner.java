@@ -85,6 +85,9 @@ class ScalaPluginRunner implements PluginRunner {
 					Results.Result result;
 					try {
 						result = interpreter.interpret(FileUtil.loadFile(scriptFile));
+					} catch (LinkageError e) {
+						errorReporter.addLoadingError(pluginId, "Error linking script file: " + scriptFile);
+						return;
 					} catch (Exception e) {
 						errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
 						return;

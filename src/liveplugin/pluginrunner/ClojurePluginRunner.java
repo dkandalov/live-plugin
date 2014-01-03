@@ -83,6 +83,8 @@ class ClojurePluginRunner implements PluginRunner {
 
 				} catch (IOException e) {
 					errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
+				} catch (LinkageError e) {
+					errorReporter.addLoadingError(pluginId, "Error linking script file: " + scriptFile);
 				} catch (Exception e) {
 					errorReporter.addRunningError(pluginId, e);
 				} finally {

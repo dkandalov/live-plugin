@@ -86,11 +86,11 @@ public class GroovyPluginRunner implements PluginRunner {
 			});
 
 		} catch (IOException e) {
-			errorReporter.addLoadingError(pluginId, "Error while creating scripting engine. " + e.getMessage());
+			errorReporter.addLoadingError(pluginId, "Error creating scripting engine. " + e.getMessage());
 		} catch (CompilationFailedException e) {
-			errorReporter.addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
-		} catch (VerifyError e) {
-			errorReporter.addLoadingError(pluginId, "Error while compiling script. " + e.getMessage());
+			errorReporter.addLoadingError(pluginId, "Error compiling script. " + e.getMessage());
+		} catch (LinkageError e) {
+			errorReporter.addLoadingError(pluginId, "Error linking script. " + e.getMessage());
 		}
 	}
 
