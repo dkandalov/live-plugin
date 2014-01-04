@@ -60,10 +60,12 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
+import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.ProjectScope
 import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
+import com.intellij.util.indexing.FindSymbolParameters
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
@@ -574,6 +576,11 @@ class PluginUtil {
 			def psiItem = (file.isDirectory() ? psiManager.findDirectory(file) : psiManager.findFile(file))
 			callback.call(file, document, psiItem)
 		}
+	}
+
+	static List<PsiFileSystemItem> filesByName(String name, @NotNull Project project, boolean searchInLibraries = false) {
+		def scope = FindSymbolParameters.searchScopeFor(project, searchInLibraries)
+		FilenameIndex.getFilesByName(project, name, scope, true).toList()
 	}
 
 	/**
