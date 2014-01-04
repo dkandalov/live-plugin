@@ -52,6 +52,8 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Pair
+import com.intellij.openapi.vcs.ProjectLevelVcsManager
+import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
@@ -65,7 +67,6 @@ import com.intellij.psi.search.ProjectScope
 import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
-import com.intellij.util.indexing.FindSymbolParameters
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
@@ -78,6 +79,7 @@ import java.util.concurrent.atomic.AtomicReference
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only for reference.
@@ -578,9 +580,20 @@ class PluginUtil {
 		}
 	}
 
+
 	static List<PsiFileSystemItem> filesByName(String name, @NotNull Project project, boolean searchInLibraries = false) {
-		def scope = FindSymbolParameters.searchScopeFor(project, searchInLibraries)
-		FilenameIndex.getFilesByName(project, name, scope, true).toList()
+		def scope = searchInLibraries? ProjectScope.getAllScope(project) : ProjectScope.getProjectScope(project);
+		FilenameIndex.getFilesByName(project, name, scope).toList()
+	}
+
+	static List<VirtualFile> sourceRootsIn(Project project) {
+		ProjectRootManager.getInstance(project).contentSourceRoots.toList()
+	}
+
+	static List<VcsRoot> vcsRootsIn(Project project) {
+		ProjectRootManager.getInstance(project).contentSourceRoots
+				.collect{ ProjectLevelVcsManager.getInstance(project).getVcsRootObjectFor(it) }
+				.findAll{ it.path != null }.unique()
 	}
 
 	/**
@@ -611,6 +624,7 @@ class PluginUtil {
 	static <T> T runReadAction(Closure callback) {
 		ApplicationManager.application.runReadAction(callback as Computable)
 	}
+
 
 	/**
 	 * Changes document so that modification is added to "Main menu - Edit - Undo/Redo".
