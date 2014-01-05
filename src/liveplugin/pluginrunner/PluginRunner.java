@@ -2,12 +2,16 @@ package liveplugin.pluginrunner;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.Function;
+import com.intellij.util.containers.ContainerUtil;
 import groovy.lang.GroovyClassLoader;
+import org.apache.oro.io.GlobFilenameFilter;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -57,18 +61,34 @@ public interface PluginRunner {
 		public static List<String> findClasspathAdditions(String[] lines, String prefix, Map<String, String> environment, Function<String, Void> onError) throws IOException {
 			List<String> pathsToAdd = new ArrayList<String>();
 			for (String line : lines) {
-				if (line.startsWith(prefix)) {
-					String path = line.replace(prefix, "").trim();
+				if (!line.startsWith(prefix)) continue;
 
-					path = inlineEnvironmentVariables(path, environment);
-					if (!new File(path).exists()) {
-						onError.fun(path);
-					} else {
-						pathsToAdd.add(path);
-					}
+				String path = line.replace(prefix, "").trim();
+				path = inlineEnvironmentVariables(path, environment);
+
+				List<String> matchingFiles = findMatchingFiles(path);
+				if (matchingFiles.isEmpty()) {
+					onError.fun(path);
+				} else {
+					pathsToAdd.addAll(matchingFiles);
 				}
 			}
 			return pathsToAdd;
+		}
+
+		private static List<String> findMatchingFiles(String pathAndPattern) {
+			if (new File(pathAndPattern).exists()) return Collections.singletonList(pathAndPattern);
+
+			int separatorIndex = pathAndPattern.lastIndexOf(File.separator);
+			String path = pathAndPattern.substring(0, separatorIndex + 1);
+			String pattern = pathAndPattern.substring(separatorIndex + 1);
+
+			File[] files = new File(path).listFiles((FileFilter) new GlobFilenameFilter(pattern));
+			return ContainerUtil.map(files, new Function<File, String>() {
+				@Override public String fun(File file) {
+					return file.getAbsolutePath();
+				}
+			});
 		}
 
 		private static String inlineEnvironmentVariables(String path, Map<String, String> environment) {
