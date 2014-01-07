@@ -23,7 +23,7 @@ import static liveplugin.IdeUtil.unscrambleThrowable;
 /**
  * Thread-safe.
  */
-class ErrorReporter {
+public class ErrorReporter {
 	private final List<String> loadingErrors = new LinkedList<String>();
 	private final LinkedHashMap<String, String> runningPluginErrors = new LinkedHashMap<String, String>();
 

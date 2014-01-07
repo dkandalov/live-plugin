@@ -13,13 +13,13 @@ class IntegrationTestsRunner {
 
 	// TODO use standard intellij unit test window
 
-	private static void runTestsInClass(Class testClass) {
+	private static String runTestsInClass(Class testClass) {
 		def testMethods = testClass.declaredMethods.findAll{
 			it.annotations.find{ it instanceof Test } != null && it.annotations.find{ it instanceof Ignore } == null
 		}
 
 		testMethods.collect{ method ->
-			testClass + ": " + runTest(method.name){ method.invoke(testClass.newInstance()) }
+			testClass.simpleName + ": " + runTest(method.name){ method.invoke(testClass.newInstance()) }
 		}.join("\n")
 	}
 

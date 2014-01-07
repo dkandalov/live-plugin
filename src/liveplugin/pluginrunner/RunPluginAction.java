@@ -43,7 +43,7 @@ import static liveplugin.pluginrunner.GroovyPluginRunner.MAIN_SCRIPT;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
 public class RunPluginAction extends AnAction {
-	private static final SingleThreadBackgroundRunner backgroundRunner = new SingleThreadBackgroundRunner("RunLivePlugin thread");
+	private static final SingleThreadBackgroundRunner backgroundRunner = new SingleThreadBackgroundRunner("LivePlugin thread");
 	private static final Function<Runnable,Void> RUN_ON_EDT = new Function<Runnable, Void>() {
 		@Override public Void fun(Runnable runnable) {
 			UIUtil.invokeAndWaitIfNeeded(runnable);
@@ -66,10 +66,12 @@ public class RunPluginAction extends AnAction {
 	private void runCurrentPlugin(AnActionEvent event) {
 		IdeUtil.saveAllFiles();
 		List<String> pluginIds = findCurrentPluginIds(event);
-		runPlugins(pluginIds, event);
+		ErrorReporter errorReporter = new ErrorReporter();
+		runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter));
 	}
 
-	public static void runPlugins(final Collection<String> pluginIds, AnActionEvent event) {
+	public static void runPlugins(final Collection<String> pluginIds, AnActionEvent event,
+	                              final ErrorReporter errorReporter, final List<PluginRunner> pluginRunners) {
 		checkThatGroovyIsOnClasspath();
 
 		final Project project = event.getProject();
@@ -81,9 +83,6 @@ public class RunPluginAction extends AnAction {
 
 		Runnable runPlugins = new Runnable() {
 			@Override public void run() {
-				ErrorReporter errorReporter = new ErrorReporter();
-				List<PluginRunner> pluginRunners = createPluginRunners(errorReporter);
-
 				for (final String pluginId : pluginIds) {
 					final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
 					final PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
@@ -121,7 +120,7 @@ public class RunPluginAction extends AnAction {
 		backgroundRunner.run(project, "Loading plugin", runPlugins);
 	}
 
-	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
+	public static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
 		List<PluginRunner> result = new ArrayList<PluginRunner>();
 		result.add(new GroovyPluginRunner(MAIN_SCRIPT, errorReporter, environment()));
 		if (scalaIsOnClassPath()) result.add(new ScalaPluginRunner(errorReporter, environment()));
@@ -137,7 +136,7 @@ public class RunPluginAction extends AnAction {
 		return binding;
 	}
 
-	private static Map<String, String> environment() {
+	static Map<String, String> environment() {
 		Map<String, String> result = new HashMap<String, String>(System.getenv());
 		result.put("INTELLIJ_PLUGINS_PATH", PathManager.getPluginsPath());
 		result.put("INTELLIJ_LIBS", PathManager.getLibPath());

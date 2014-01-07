@@ -31,6 +31,7 @@ import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import liveplugin.pluginrunner.ErrorReporter;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.pluginrunner.PluginRunner;
 import liveplugin.pluginrunner.RunPluginAction;
@@ -176,7 +177,8 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 						ActionManager.getInstance(),
 						0
 				);
-				RunPluginAction.runPlugins(pluginIdToPathMap().keySet(), event);
+				final ErrorReporter errorReporter = new ErrorReporter();
+				RunPluginAction.runPlugins(pluginIdToPathMap().keySet(), event, errorReporter, RunPluginAction.createPluginRunners(errorReporter));
 			}
 		});
 	}
