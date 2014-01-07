@@ -139,7 +139,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 		IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(getId("IntelliJEval"));
 		if (pluginDescriptor != null && pluginDescriptor.isEnabled()) {
 			NotificationGroup.balloonGroup("Live Plugin").createNotification(
-					"It seems that you IntelliJEval plugin enabled.<br/>Please disable it to use LivePlugin.",
+					"It seems that you have IntelliJEval plugin enabled.<br/>Please disable it to use LivePlugin.",
 					NotificationType.ERROR
 			).notify(null);
 			return;

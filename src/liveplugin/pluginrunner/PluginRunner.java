@@ -33,6 +33,7 @@ public interface PluginRunner {
 	 */
 	void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding, Function<Runnable, Void> runOnEDTCallback);
 
+	String scriptName();
 
 	class ClasspathAddition {
 		private static final Logger LOG = Logger.getInstance(ClasspathAddition.class);

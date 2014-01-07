@@ -18,9 +18,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.UIUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
@@ -29,9 +27,11 @@ import liveplugin.Settings;
 import java.util.*;
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
+import static com.intellij.openapi.util.text.StringUtil.join;
 import static com.intellij.util.containers.ContainerUtil.find;
+import static com.intellij.util.containers.ContainerUtil.map;
 import static liveplugin.IdeUtil.SingleThreadBackgroundRunner;
-import static liveplugin.LivePluginAppComponent.*;
+import static liveplugin.LivePluginAppComponent.checkThatGroovyIsOnClasspath;
 import static liveplugin.pluginrunner.GroovyPluginRunner.TEST_SCRIPT;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
@@ -86,9 +86,9 @@ public class TestPluginAction extends AnAction {
 						}
 					});
 					if (pluginRunner == null) {
-						String runners = StringUtil.join(ContainerUtil.map(pluginRunners, new Function<PluginRunner, Object>() {
+						String runners = join(map(pluginRunners, new Function<PluginRunner, Object>() {
 							@Override public Object fun(PluginRunner it) {
-								return it.getClass().getSimpleName();
+								return it.scriptName();
 							}
 						}), ", ");
 						errorReporter.addLoadingError(pluginId, "Test script was not found. Tried: " + runners + ".");

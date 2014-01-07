@@ -54,6 +54,10 @@ public class GroovyPluginRunner implements PluginRunner {
 		runGroovyScript(asUrl(mainScript), pluginFolderUrl, pluginId, binding, runOnEDTCallback);
 	}
 
+	@Override public String scriptName() {
+		return scriptName;
+	}
+
 	private void runGroovyScript(final String mainScriptUrl, String pluginFolderUrl, final String pluginId,
 	                             final Map<String, ?> binding, Function<Runnable, Void> runPluginCallback) {
 		try {

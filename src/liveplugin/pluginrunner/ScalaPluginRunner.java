@@ -101,6 +101,10 @@ class ScalaPluginRunner implements PluginRunner {
 		});
 	}
 
+	@Override public String scriptName() {
+		return MAIN_SCRIPT;
+	}
+
 	private static IMain initInterpreter(String interpreterClasspath) throws ClassNotFoundException {
 		Settings settings = new Settings();
 		MutableSettings.PathSetting bootClasspath = (MutableSettings.PathSetting) settings.bootclasspath();

@@ -94,6 +94,10 @@ class ClojurePluginRunner implements PluginRunner {
 		});
 	}
 
+	@Override public String scriptName() {
+		return MAIN_SCRIPT;
+	}
+
 	private static Var createKey(String name) {
 		return Var.intern(Namespace.findOrCreate(Symbol.intern("clojure.core")), Symbol.intern(name), "no_" + name).setDynamic();
 	}
