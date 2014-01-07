@@ -65,6 +65,7 @@ public class IdeUtil {
 	public static final Icon PLUGIN_TOOLWINDOW_ICON = IconLoader.getIcon("/liveplugin/plugin-toolwindow-icon.png");
 
 	public static final Icon RUN_PLUGIN_ICON = AllIcons.Actions.Execute;
+	public static final Icon TEST_PLUGIN_ICON = AllIcons.RunConfigurations.Junit;
 	public static final Icon EXPAND_ALL_ICON = AllIcons.Actions.Expandall;
 	public static final Icon COLLAPSE_ALL_ICON = AllIcons.Actions.Collapseall;
 	public static final Icon SETTINGS_ICON = AllIcons.General.ProjectSettings;

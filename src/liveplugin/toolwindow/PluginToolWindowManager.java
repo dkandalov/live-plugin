@@ -55,6 +55,7 @@ import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.RunPluginAction;
+import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.AddPluginFromDiskAction;
@@ -264,6 +265,7 @@ public class PluginToolWindowManager {
 			actionGroup.add(withIcon(IdeUtil.ADD_PLUGIN_ICON, createAddPluginsGroup()));
 			actionGroup.add(new DeletePluginAction());
 			actionGroup.add(new RunPluginAction());
+			actionGroup.add(new TestPluginAction());
 			actionGroup.addSeparator();
 			actionGroup.add(new RefreshPluginTreeAction());
 			actionGroup.add(withIcon(IdeUtil.EXPAND_ALL_ICON, new ExpandAllAction()));

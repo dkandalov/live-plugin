@@ -30,23 +30,26 @@ import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspa
 
 public class GroovyPluginRunner implements PluginRunner {
 	public static final String MAIN_SCRIPT = "plugin.groovy";
+	public static final String TEST_SCRIPT = "plugin-test.groovy";
 	private static final String GROOVY_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
 
+	private final String scriptName;
 	private final ErrorReporter errorReporter;
 	private final Map<String,String> environment;
 
-	public GroovyPluginRunner(ErrorReporter errorReporter, Map<String, String> environment) {
+	public GroovyPluginRunner(String scriptName, ErrorReporter errorReporter, Map<String, String> environment) {
+		this.scriptName = scriptName;
 		this.errorReporter = errorReporter;
 		this.environment = new HashMap<String, String>(environment);
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
-		return findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
+		return findSingleFileIn(pathToPluginFolder, scriptName) != null;
 	}
 
 	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding,
 	                                Function<Runnable, Void> runOnEDTCallback) {
-		File mainScript = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
+		File mainScript = findSingleFileIn(pathToPluginFolder, scriptName);
 		String pluginFolderUrl = "file:///" + pathToPluginFolder;
 		runGroovyScript(asUrl(mainScript), pluginFolderUrl, pluginId, binding, runOnEDTCallback);
 	}

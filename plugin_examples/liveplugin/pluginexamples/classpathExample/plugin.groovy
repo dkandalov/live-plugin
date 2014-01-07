@@ -9,6 +9,6 @@ import org.mockito.Mockito
 // Any environment variable can be used with '$' as a prefix (e.g. "$ENV_VARIABLE").
 // Glob wildcards can be used in file name.
 //
-// (Note that new classloader is created on each plugin evaluation.)
+// (Note that new classloader is created each time plugin is executed.)
 show(Mockito.class.name)
 

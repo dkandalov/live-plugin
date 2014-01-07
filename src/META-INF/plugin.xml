@@ -33,8 +33,11 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
 	</application-components>
 
 	<actions>
-		<action id="LivePlugin.EvalPlugin" class="liveplugin.pluginrunner.RunPluginAction" text="Run Current Plugin">
+		<action id="LivePlugin.RunPlugin" class="liveplugin.pluginrunner.RunPluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
+		</action>
+		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.TestPluginAction" text="Test Current Plugin">
+			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
 
         <group id="LivePlugin.Popup.MainActions">

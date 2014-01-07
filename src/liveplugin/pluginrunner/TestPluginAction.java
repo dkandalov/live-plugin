@@ -16,34 +16,27 @@ package liveplugin.pluginrunner;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.UIUtil;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.Settings;
-import liveplugin.toolwindow.PluginToolWindowManager;
 
-import java.io.File;
 import java.util.*;
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.util.containers.ContainerUtil.find;
 import static liveplugin.IdeUtil.SingleThreadBackgroundRunner;
 import static liveplugin.LivePluginAppComponent.*;
-import static liveplugin.pluginrunner.GroovyPluginRunner.MAIN_SCRIPT;
+import static liveplugin.pluginrunner.GroovyPluginRunner.TEST_SCRIPT;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
-public class RunPluginAction extends AnAction {
-	private static final SingleThreadBackgroundRunner backgroundRunner = new SingleThreadBackgroundRunner("RunLivePlugin thread");
+public class TestPluginAction extends AnAction {
+	private static final SingleThreadBackgroundRunner backgroundRunner = new SingleThreadBackgroundRunner("TestLivePlugin thread");
 	private static final Function<Runnable,Void> RUN_ON_EDT = new Function<Runnable, Void>() {
 		@Override public Void fun(Runnable runnable) {
 			UIUtil.invokeAndWaitIfNeeded(runnable);
@@ -51,24 +44,25 @@ public class RunPluginAction extends AnAction {
 		}
 	};
 
-	public RunPluginAction() {
-		super("Run Plugin", "Run selected plugins", IdeUtil.RUN_PLUGIN_ICON);
+	public TestPluginAction() {
+		super("Test Plugin", "Test selected plugins", IdeUtil.TEST_PLUGIN_ICON);
 	}
 
 	@Override public void actionPerformed(AnActionEvent event) {
-		runCurrentPlugin(event);
+		testCurrentPlugin(event);
 	}
 
 	@Override public void update(AnActionEvent event) {
-		event.getPresentation().setEnabled(!findCurrentPluginIds(event).isEmpty());
+		event.getPresentation().setEnabled(!RunPluginAction.findCurrentPluginIds(event).isEmpty());
 	}
 
-	private void runCurrentPlugin(AnActionEvent event) {
+	private void testCurrentPlugin(AnActionEvent event) {
 		IdeUtil.saveAllFiles();
-		List<String> pluginIds = findCurrentPluginIds(event);
+		List<String> pluginIds = RunPluginAction.findCurrentPluginIds(event);
 		runPlugins(pluginIds, event);
 	}
 
+	// TODO refactor to avoid duplication with RunPluginAction
 	public static void runPlugins(final Collection<String> pluginIds, AnActionEvent event) {
 		checkThatGroovyIsOnClasspath();
 
@@ -97,7 +91,7 @@ public class RunPluginAction extends AnAction {
 								return it.getClass().getSimpleName();
 							}
 						}), ", ");
-						errorReporter.addLoadingError(pluginId, "Startup script was not found. Tried: " + runners + ".");
+						errorReporter.addLoadingError(pluginId, "Test script was not found. Tried: " + runners + ".");
 						errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 							@Override public void display(String title, String message) {
 								IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
@@ -123,9 +117,7 @@ public class RunPluginAction extends AnAction {
 
 	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
 		List<PluginRunner> result = new ArrayList<PluginRunner>();
-		result.add(new GroovyPluginRunner(MAIN_SCRIPT, errorReporter, environment()));
-		if (scalaIsOnClassPath()) result.add(new ScalaPluginRunner(errorReporter, environment()));
-		if (clojureIsOnClassPath()) result.add(new ClojurePluginRunner(errorReporter, environment()));
+		result.add(new GroovyPluginRunner(TEST_SCRIPT, errorReporter, environment()));
 		return result;
 	}
 
@@ -142,46 +134,5 @@ public class RunPluginAction extends AnAction {
 		result.put("INTELLIJ_PLUGINS_PATH", PathManager.getPluginsPath());
 		result.put("INTELLIJ_LIBS", PathManager.getLibPath());
 		return result;
-	}
-
-	static List<String> findCurrentPluginIds(AnActionEvent event) {
-		List<String> pluginIds = pluginsSelectedInToolWindow(event);
-		if (!pluginIds.isEmpty() && pluginToolWindowHasFocus(event)) {
-			return pluginIds;
-		} else {
-			return pluginForCurrentlyOpenFile(event);
-		}
-	}
-
-	private static boolean pluginToolWindowHasFocus(AnActionEvent event) {
-		PluginToolWindowManager.PluginToolWindow pluginToolWindow = PluginToolWindowManager.getToolWindowFor(event.getProject());
-		return pluginToolWindow != null && pluginToolWindow.isActive();
-	}
-
-	private static List<String> pluginsSelectedInToolWindow(AnActionEvent event) { // TODO get selected plugins through DataContext
-		PluginToolWindowManager.PluginToolWindow pluginToolWindow = PluginToolWindowManager.getToolWindowFor(event.getProject());
-		if (pluginToolWindow == null) return Collections.emptyList();
-		return pluginToolWindow.selectedPluginIds();
-	}
-
-	private static List<String> pluginForCurrentlyOpenFile(AnActionEvent event) {
-		Project project = event.getProject();
-		if (project == null) return Collections.emptyList();
-		Editor selectedTextEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
-		if (selectedTextEditor == null) return Collections.emptyList();
-
-		VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(selectedTextEditor.getDocument());
-		if (virtualFile == null) return Collections.emptyList();
-
-		final File file = new File(virtualFile.getPath());
-		Map.Entry<String, String> entry = find(LivePluginAppComponent.pluginIdToPathMap().entrySet(), new Condition<Map.Entry<String, String>>() {
-			@Override
-			public boolean value(Map.Entry<String, String> entry) {
-				String pluginPath = entry.getValue();
-				return FileUtil.isAncestor(new File(pluginPath), file, false);
-			}
-		});
-		if (entry == null) return Collections.emptyList();
-		return Collections.singletonList(entry.getKey());
 	}
 }
