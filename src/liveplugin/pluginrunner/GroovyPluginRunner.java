@@ -98,6 +98,10 @@ public class GroovyPluginRunner implements PluginRunner {
 			errorReporter.addLoadingError(pluginId, "Error compiling script. " + e.getMessage());
 		} catch (LinkageError e) {
 			errorReporter.addLoadingError(pluginId, "Error linking script. " + e.getMessage());
+		} catch (Error e) {
+			errorReporter.addLoadingError(pluginId, e);
+		} catch (Exception e) {
+			errorReporter.addLoadingError(pluginId, e);
 		}
 	}
 
