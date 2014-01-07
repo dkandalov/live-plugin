@@ -83,6 +83,8 @@ import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only for reference.
+ *
+ * See also http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
@@ -722,6 +724,13 @@ class PluginUtil {
 			@Override void run(ProgressIndicator indicator) { result.set(task.call(indicator)) }
 			@Override void onSuccess() { whenDone.call(result.get()) }
 			@Override void onCancel() { whenCancelled.call() }
+		}.queue()
+	}
+
+	@CanCallFromAnyThread
+	static doInModalMode(String taskDescription = "A task", boolean canBeCancelledByUser = true, Closure task) {
+		new Task.Modal(null, taskDescription, canBeCancelledByUser) {
+			@Override void run(ProgressIndicator indicator) { task.call(indicator) }
 		}.queue()
 	}
 
