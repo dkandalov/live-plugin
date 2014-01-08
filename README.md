@@ -53,7 +53,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
 (Just in case this is the [plugin page](http://plugins.jetbrains.com/plugin/7282).)
 
 
-### How to start
+### How to start writing plugins
  - open "Plugins" tool window on the right side
  - select "helloWorld" plugin and press "alt + C, alt + E" to execute it
    ("plugin.groovy" are plugin entry points)

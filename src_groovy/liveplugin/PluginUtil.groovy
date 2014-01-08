@@ -362,8 +362,8 @@ class PluginUtil {
 	 * If there is already a tool window with {@code toolWindowId}, it will be replaced.
 	 *
 	 * @param toolWindowId unique identifier for tool window
-	 * @param createComponent closure that creates tool window content (will be called for each open project)
 	 * @param location (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/wm/ToolWindowAnchor.java
+	 * @param createComponent closure that creates tool window content (will be called for each open project)
 	 */
 	@CanCallFromAnyThread
 	static registerToolWindow(String toolWindowId, ToolWindowAnchor location = RIGHT, Closure<JComponent> createComponent) {
@@ -376,13 +376,13 @@ class PluginUtil {
 				}
 
 				def listener = new ProjectManagerAdapter() {
-					@Override void projectOpened(Project project) { registerToolWindowIn(project, toolWindowId, createComponent()) }
+					@Override void projectOpened(Project project) { registerToolWindowIn(project, toolWindowId, createComponent(), location) }
 					@Override void projectClosed(Project project) { unregisterToolWindowIn(project, toolWindowId) }
 				}
 				pmListenerToToolWindowId[listener] = toolWindowId
 				ProjectManager.instance.addProjectManagerListener(listener)
 
-				ProjectManager.instance.openProjects.each { project -> registerToolWindowIn(project, toolWindowId, createComponent()) }
+				ProjectManager.instance.openProjects.each { project -> registerToolWindowIn(project, toolWindowId, createComponent(), location) }
 
 				log("Toolwindow '${toolWindowId}' registered")
 			}
