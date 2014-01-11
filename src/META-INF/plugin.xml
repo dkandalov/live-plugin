@@ -25,6 +25,7 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
 
 	<depends>com.intellij.modules.platform</depends>
     <depends optional="true" config-file="github-integration.xml">org.jetbrains.plugins.github</depends>
+    <depends>JUnit</depends> <!-- TODO make sure it's ok to depend on JUnit for all platforms -->
 
 	<application-components>
 		<component>

@@ -7,14 +7,12 @@ import org.junit.Ignore
 import org.junit.Test
 
 @SuppressWarnings(["GroovyUnusedDeclaration"])
-class IntegrationTestsRunner {
+class IntegrationTestsTextRunner {
 	static def runIntegrationTests(List<Class> testClasses, @NotNull Project project, @Nullable String pluginPath = null) {
 		def context = [project: project, pluginPath: pluginPath]
 		def result = testClasses.collect{ runTestsInClass(it, context) }.join("\n\n")
 		PluginUtil.showInConsole(result, "Integration tests", project)
 	}
-
-	// TODO use standard intellij unit test window
 
 	private static String runTestsInClass(Class testClass, Map context) {
 		def testMethods = testClass.declaredMethods.findAll{
@@ -41,7 +39,7 @@ class IntegrationTestsRunner {
 		}
 	}
 
-	private static Object createInstanceOf(Class testClass, Map context) {
+	static Object createInstanceOf(Class testClass, Map context) {
 		def hasConstructorWithContext = testClass.constructors.any{
 			it.parameterTypes.size() == 1 && it.parameterTypes.first() == Map
 		}
