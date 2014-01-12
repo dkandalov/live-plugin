@@ -132,7 +132,7 @@ But please be aware this is a proof-of-concept project, don't expect to see grea
 I could write a blog post about extendable IDEs but probably not many people would read it
 so this is kind of "blog with working code" approach.
 
- - use download_libs.rb to get dependencies
+ - use "gradle downloadLibs" to get dependencies
  - open project in IntelliJ IDEA (you probably will have to configure IntelliJ SDK)
  - packages are structured in attempt to reflect plugins toolwindow UI
 

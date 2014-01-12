@@ -1,0 +1,20 @@
+apply plugin: 'java'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.0.6'
+	compile group: 'junit', name: 'junit', version: '4.10'
+	compile group: 'org.clojure', name: 'clojure', version: '1.5.1'
+	compile group: 'org.scala-lang', name: 'scala-compiler', version: '2.10.2'
+	compile group: 'org.scala-lang', name: 'scala-library', version: '2.10.2'
+	compile group: 'org.scala-lang', name: 'scala-reflect', version: '2.10.2'
+}
+
+task downloadLibs(type: Copy) {
+	from configurations.runtime
+	into './lib2'
+}
+
