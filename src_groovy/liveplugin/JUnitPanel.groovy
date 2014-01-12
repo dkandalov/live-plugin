@@ -1,8 +1,5 @@
 package liveplugin
-import com.intellij.execution.ExecutionManager
-import com.intellij.execution.Location
-import com.intellij.execution.RunManager
-import com.intellij.execution.RunnerAndConfigurationSettings
+import com.intellij.execution.*
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.ConfigurationPerRunnerSettings
 import com.intellij.execution.configurations.RunnerSettings
@@ -23,6 +20,7 @@ import com.intellij.execution.junit2.ui.properties.JUnitConsoleProperties
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.BasicProgramRunner
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.Printer
 import com.intellij.execution.testframework.TestConsoleProperties
@@ -34,7 +32,9 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
@@ -44,6 +44,27 @@ import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import static com.intellij.rt.execution.junit.states.PoolOfTestStates.*
 
 class JUnitPanel {
+	private static Class treeConsoleViewClass
+
+	@SuppressWarnings("GroovyAssignabilityCheck")
+	static ExecutionEnvironment newExecutionEnvironment(Executor executor, ProgramRunner programRunner,
+	                                                    RunnerAndConfigurationSettings runnerAndConfigSettings, Project project) {
+		if (ApplicationInfo.instance.build.baselineVersion < 130) {
+			new ExecutionEnvironment(programRunner, runnerAndConfigSettings, project)
+		} else {
+			new ExecutionEnvironment(executor, programRunner, runnerAndConfigSettings, project)
+		}
+	}
+
+	static BaseTestsOutputConsoleView newConsoleView(JUnitConsoleProperties consoleProperties, ExecutionEnvironment myEnvironment,
+	                                                 TestProxy rootTestProxy, AppendAdditionalActions additionalActions) {
+		if (ApplicationInfo.instance.build.baselineVersion < 130) {
+			new MyTreeConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
+		} else {
+			newTreeConsoleView13(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
+		}
+	}
+
 	@Delegate private TestProxyUpdater testProxyUpdater
 	private ProcessHandler handler
 	private JUnitRunningModel model
@@ -57,8 +78,8 @@ class JUnitPanel {
 		JUnitConsoleProperties consoleProperties = new JUnitConsoleProperties(myConfiguration, executor)
 
 		ConfigurationFactory factory = new JUnitConfigurationType().configurationFactories.first()
-		RunnerAndConfigurationSettings runnerAndConfigSettings = RunManager.getInstance(project).createRunConfiguration("Temp config", factory)
-		ExecutionEnvironment myEnvironment = new ExecutionEnvironment(new BasicProgramRunner(), runnerAndConfigSettings, (Project) project)
+		RunnerAndConfigurationSettings runnerAndConfigSettings = RunManager.getInstance(project).createRunConfiguration("Temp run config", factory)
+		ExecutionEnvironment myEnvironment = newExecutionEnvironment(executor, new BasicProgramRunner(), runnerAndConfigSettings, (Project) project)
 
 		handler = new ProcessHandler() {
 			@Override protected void destroyProcessImpl() { notifyProcessTerminated(0) }
@@ -71,7 +92,7 @@ class JUnitPanel {
 		model = new JUnitRunningModel(rootTestProxy, consoleProperties)
 
 		def additionalActions = new AppendAdditionalActions(project, "Integration tests")
-		def consoleView = new MyTreeConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
+		def consoleView = newConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
 		consoleView.initUI()
 		consoleView.attachToProcess(handler)
 		consoleView.attachToModel(model)
@@ -102,6 +123,7 @@ class JUnitPanel {
 			@Override String getComment() { comment }
 			@Override void readFrom(ObjectReader objectReader) {}
 			@Override Location getLocation(Project project) { null }
+			/*@Override*/ Location getLocation(Project project, GlobalSearchScope globalSearchScope) { null }
 		}
 	}
 
@@ -209,7 +231,8 @@ class JUnitPanel {
 		}
 	}
 
-	private static class AppendAdditionalActions {
+
+	static class AppendAdditionalActions {
 		private final Project project
 		private final String consoleTitle
 		RunContentDescriptor descriptor
@@ -230,6 +253,7 @@ class JUnitPanel {
 			actionGroup.addAction(closeAction)
 		}
 	}
+
 
 	/**
 	 * Copy-pasted com.intellij.execution.junit2.ui.JUnitTreeConsoleView in attempt to "reconfigure" ConsolePanel
@@ -294,6 +318,134 @@ class JUnitPanel {
 				new TreeCollapser().setModel(model);
 			}
 		}
+	}
+
+	private static BaseTestsOutputConsoleView newTreeConsoleView13(JUnitConsoleProperties consoleProperties, ExecutionEnvironment myEnvironment,
+	                                                               TestProxy rootTestProxy, AppendAdditionalActions additionalActions) {
+		if (treeConsoleViewClass == null) {
+			def s = """
+import com.intellij.execution.*
+import com.intellij.execution.configurations.ConfigurationFactory
+import com.intellij.execution.configurations.ConfigurationPerRunnerSettings
+import com.intellij.execution.configurations.RunnerSettings
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.junit.JUnitConfiguration
+import com.intellij.execution.junit.JUnitConfigurationType
+import com.intellij.execution.junit2.TestProxy
+import com.intellij.execution.junit2.info.TestInfo
+import com.intellij.execution.junit2.segments.ObjectReader
+import com.intellij.execution.junit2.states.Statistics
+import com.intellij.execution.junit2.states.TestState
+import com.intellij.execution.junit2.ui.ConsolePanel
+import com.intellij.execution.junit2.ui.actions.JUnitToolbarPanel
+import com.intellij.execution.junit2.ui.model.CompletionEvent
+import com.intellij.execution.junit2.ui.model.JUnitRunningModel
+import com.intellij.execution.junit2.ui.model.TreeCollapser
+import com.intellij.execution.junit2.ui.properties.JUnitConsoleProperties
+import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.runners.BasicProgramRunner
+import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.runners.ProgramRunner
+import com.intellij.execution.testframework.AbstractTestProxy
+import com.intellij.execution.testframework.Printer
+import com.intellij.execution.testframework.TestConsoleProperties
+import com.intellij.execution.testframework.ToolbarPanel
+import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
+import com.intellij.execution.testframework.ui.TestResultsPanel
+import com.intellij.execution.testframework.ui.TestsOutputConsolePrinter
+import com.intellij.execution.ui.ConsoleView
+import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.ui.actions.CloseAction
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.application.ApplicationInfo
+import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.annotations.NotNull
+
+import liveplugin.JUnitPanel.AppendAdditionalActions
+
+import javax.swing.*
+
+class MyTreeConsoleView13 extends BaseTestsOutputConsoleView {
+	private ConsolePanel myConsolePanel;
+	private final JUnitConsoleProperties myProperties;
+	private final ExecutionEnvironment myEnvironment;
+	private final AppendAdditionalActions appendAdditionalActions
+
+	public MyTreeConsoleView13(final JUnitConsoleProperties properties,
+	                         final ExecutionEnvironment environment,
+	                         final AbstractTestProxy unboundOutputRoot,
+	                         AppendAdditionalActions appendAdditionalActions) {
+		super(properties, unboundOutputRoot);
+		myProperties = properties;
+		myEnvironment = environment;
+		this.appendAdditionalActions = appendAdditionalActions
+	}
+
+	class MyConsolePanel extends ConsolePanel {
+		MyConsolePanel(JComponent console, TestsOutputConsolePrinter printer, JUnitConsoleProperties properties,
+		               ExecutionEnvironment environment, AnAction[] consoleActions) {
+			super(console, printer, properties, environment, consoleActions)
+		}
+
+		@Override protected ToolbarPanel createToolbarPanel() {
+			return new MyJUnitToolbarPanel13(myProperties, myEnvironment, MyConsolePanel.this)
+		}
+	}
+
+	class MyJUnitToolbarPanel13 extends JUnitToolbarPanel {
+		MyJUnitToolbarPanel13(TestConsoleProperties properties, ExecutionEnvironment environment, JComponent parentComponent) {
+			super(properties, environment, parentComponent)
+		}
+
+		@Override protected void appendAdditionalActions(DefaultActionGroup defaultActionGroup, TestConsoleProperties testConsoleProperties,
+		                                                 ExecutionEnvironment environment, JComponent jComponent) {
+			super.appendAdditionalActions(defaultActionGroup, testConsoleProperties, (ExecutionEnvironment) environment, (JComponent) jComponent)
+
+			MyTreeConsoleView13.this.appendAdditionalActions.appendTo(defaultActionGroup, getConsole(), jComponent)
+		}
+	}
+
+	@SuppressWarnings("GroovyAssignabilityCheck")
+	protected TestResultsPanel createTestResultsPanel() {
+		myConsolePanel = new MyConsolePanel(
+				getConsole().getComponent(), getPrinter(), myProperties,
+				(ExecutionEnvironment) myEnvironment, (AnAction[]) getConsole().createConsoleActions()
+		)
+		return myConsolePanel;
+	}
+
+	public void attachToProcess(final ProcessHandler processHandler) {
+		super.attachToProcess(processHandler);
+		myConsolePanel.onProcessStarted(processHandler);
+	}
+
+	public void dispose() {
+		super.dispose();
+		myConsolePanel = null;
+	}
+
+	@Override
+	public JComponent getPreferredFocusableComponent() {
+		return myConsolePanel.getTreeView();
+	}
+
+	public void attachToModel(@NotNull JUnitRunningModel model) {
+		if (myConsolePanel != null) {
+			myConsolePanel.getTreeView().attachToModel(model);
+			model.attachToTree(myConsolePanel.getTreeView());
+			myConsolePanel.setModel(model);
+			model.onUIBuilt();
+			new TreeCollapser().setModel(model);
+		}
+	}
+}
+"""
+			treeConsoleViewClass = new GroovyClassLoader(JUnitPanel.classLoader).parseClass(s)
+		}
+		treeConsoleViewClass.newInstance(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
 	}
 
 }
