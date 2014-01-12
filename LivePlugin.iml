@@ -9,7 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/plugin_examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test_groovy" isTestSource="true" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="IDEA IU-12" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library" scope="PROVIDED">
       <library>
@@ -65,17 +65,10 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="LivePlugin - Clojure">
-        <CLASSES />
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/plugins/junit/lib/idea-junit.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/idea-junit-IJ12-jarjar.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -84,7 +77,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/plugins/junit/lib/junit-rt.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/idea-junit-IJ13-jarjar.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

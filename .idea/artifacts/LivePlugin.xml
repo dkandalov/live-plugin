@@ -14,6 +14,8 @@
               <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/plugin.xml" />
               <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/github-integration.xml" />
             </element>
+            <element id="extracted-dir" path="$PROJECT_DIR$/lib/idea-junit-IJ12-jarjar.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/lib/idea-junit-IJ13-jarjar.jar" path-in-jar="/" />
           </element>
         </element>
       </element>
