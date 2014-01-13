@@ -328,6 +328,7 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloFileStats", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/utilExample", asList("plugin.groovy", "util/AClass.groovy")));
 			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/classpathExample", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/integrationTestExample", asList("plugin.groovy", "plugin-test.groovy")));
 			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloScala", asList("plugin.scala")));
 			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloClojure", asList("plugin.clj")));
 			actionGroup.addSeparator();
