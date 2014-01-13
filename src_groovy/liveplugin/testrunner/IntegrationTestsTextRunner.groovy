@@ -1,6 +1,7 @@
-package liveplugin
+package liveplugin.testrunner
 
 import com.intellij.openapi.project.Project
+import liveplugin.PluginUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 import org.junit.Ignore
@@ -30,11 +31,11 @@ class IntegrationTestsTextRunner {
 		try {
 
 			closure()
-			methodName + " - OK"
+			"\"${methodName}\" - OK"
 
 		} catch (AssertionError assertionError) {
 			def writer = new StringWriter()
-			assertionError.printStackTrace(new PrintWriter(writer))
+			assertionError.cause.printStackTrace(new PrintWriter(writer))
 			methodName + " - FAILED \n" + writer.buffer.toString()
 		}
 	}

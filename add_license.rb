@@ -30,7 +30,7 @@ EXCLUDE_LIST = []
 def process_file filename
   return if EXCLUDE_LIST.include? filename
   text = IO.readlines(filename)
-  unless text.include? LICENSE_SNIPPET
+  if not text.include? LICENSE_SNIPPET then
     file = File.new(filename, "w")
     file.write A2_LICENSE
     file.write text

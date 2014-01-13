@@ -1,6 +1,5 @@
-package liveplugin
+package liveplugin.testrunner
 
-import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
@@ -9,22 +8,20 @@ import org.junit.Test
 
 import java.lang.reflect.Method
 
-import static liveplugin.IntegrationTestsTextRunner.createInstanceOf
+import static IntegrationTestsTextRunner.createInstanceOf
 
 @SuppressWarnings(["GroovyUnusedDeclaration"])
 class IntegrationTestsUIRunner {
-
 	static def runIntegrationTests(List<Class> testClasses, @NotNull Project project, @Nullable String pluginPath = null) {
 		def context = [project: project, pluginPath: pluginPath]
 
-		def version = ApplicationInfo.instance.build.baselineVersion
-		def jUnitPanel = (version < 130) ? new JUnitPanel12().showIn(project) : new JUnitPanel13().showIn(project)
+		def jUnitPanel = new JUnitPanel().showIn(project)
 		jUnitPanel.startedAllTests()
 		testClasses.collect{ runTestsInClass(it, context, jUnitPanel) }
 		jUnitPanel.finishedAllTests()
 	}
 
-	private static runTestsInClass(Class testClass, Map context, jUnitPanel) {
+	private static runTestsInClass(Class testClass, Map context, JUnitPanel jUnitPanel) {
 		def isTest = { Method method -> method.annotations.find{ it instanceof Test} }
 		def isIgnored = { Method method -> method.annotations.find{ it instanceof Ignore} }
 
@@ -38,12 +35,12 @@ class IntegrationTestsUIRunner {
 		jUnitPanel.finishedClass(testClass.name)
 	}
 
-	private static ignoreTest(String className, String methodName, jUnitPanel) {
+	private static ignoreTest(String className, String methodName, JUnitPanel jUnitPanel) {
 		jUnitPanel.running(className, methodName)
 		jUnitPanel.ignored(methodName)
 	}
 
-	private static runTest(String className, String methodName, jUnitPanel, Closure closure) {
+	private static runTest(String className, String methodName, JUnitPanel jUnitPanel, Closure closure) {
 		try {
 			jUnitPanel.running(className, methodName)
 			closure()
