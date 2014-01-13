@@ -5,6 +5,11 @@ import com.intellij.openapi.project.Project
 import liveplugin.PluginUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
+import org.junit.Ignore
+import org.junit.Test
+
+import java.lang.reflect.Method
+
 
 class IntegrationTestsRunner implements ApplicationComponent {
 	private static runTests = IntegrationTestsTextRunner.&runIntegrationTests
@@ -14,7 +19,7 @@ class IntegrationTestsRunner implements ApplicationComponent {
 	 * or in text console (for other IDEs).
 	 *
 	 * @param testClasses classes with tests. Note that this is not standard JUnit runner and it only supports
-	 *                    {@link org.junit.Test} and {@link org.junit.Ignore} annotations.
+	 *                    {@link Test} and {@link Ignore} annotations.
 	 *                    (New class instance is created for each test method.)
 	 * @param project current project
 	 * @param pluginPath (optional)
@@ -32,4 +37,61 @@ class IntegrationTestsRunner implements ApplicationComponent {
 	@Override void disposeComponent() {}
 
 	@Override String getComponentName() { this.class.simpleName }
+
+
+	static runTestsInClass(Class testClass, Map context, TestReport testReport, long now) {
+		def isTest = { Method method -> method.annotations.find{ it instanceof Test} }
+		def isIgnored = { Method method -> method.annotations.find{ it instanceof Ignore} }
+
+		testClass.declaredMethods.findAll{ isTest(it) }.each{ method ->
+			if (isIgnored(method)) {
+				ignoreTest(testClass.name, method.name, testReport, now)
+			} else {
+				runTest(testClass.name, method.name, testReport, now) {
+					method.invoke(createInstanceOf(testClass, context))
+				}
+			}
+		}
+
+		testReport.finishedClass(testClass.name, now)
+	}
+
+	private static ignoreTest(String className, String methodName, TestReport testReport, long now) {
+		testReport.running(className, methodName, now)
+		testReport.ignored(methodName)
+	}
+
+	private static runTest(String className, String methodName, TestReport testReport, long now, Closure closure) {
+		try {
+			testReport.running(className, methodName, now)
+			closure()
+			testReport.passed(methodName, now)
+		} catch (AssertionError e) {
+			testReport.failed(methodName, asString(e.cause), now)
+		} catch (Throwable t) {
+			testReport.error(methodName, asString(t.cause), now)
+		}
+	}
+
+	private static String asString(Throwable throwable) {
+		if (throwable == null) ""
+		else {
+			def writer = new StringWriter()
+			throwable.printStackTrace(new PrintWriter(writer))
+			writer.buffer.toString()
+		}
+	}
+
+	private static Object createInstanceOf(Class testClass, Map context) {
+		def hasConstructorWithContext = testClass.constructors.any{
+			it.parameterTypes.size() == 1 && it.parameterTypes.first() == Map
+		}
+		if (hasConstructorWithContext) return testClass.newInstance(context)
+
+		def hasDefaultConstructor = testClass.constructors.any{ it.parameterTypes.size() == 0 }
+		if (hasDefaultConstructor) return testClass.newInstance()
+
+		throw new IllegalStateException("Failed to create test class ${testClass}")
+	}
+
 }
