@@ -1,5 +1,10 @@
 package liveplugin.testrunner
-import com.intellij.execution.*
+
+import com.intellij.execution.ExecutionManager
+import com.intellij.execution.Executor
+import com.intellij.execution.Location
+import com.intellij.execution.RunManager
+import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.ConfigurationPerRunnerSettings
 import com.intellij.execution.configurations.RunnerSettings
@@ -43,27 +48,8 @@ import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import static com.intellij.rt.execution.junit.states.PoolOfTestStates.*
 
-class JUnitPanel {
+class JUnitPanel implements TestReport {
 	private static Class treeConsoleViewClass
-
-	@SuppressWarnings("GroovyAssignabilityCheck")
-	static ExecutionEnvironment newExecutionEnvironment(Executor executor, ProgramRunner programRunner,
-	                                                    RunnerAndConfigurationSettings runnerAndConfigSettings, Project project) {
-		if (ApplicationInfo.instance.build.baselineVersion < 130) {
-			new ExecutionEnvironment(programRunner, runnerAndConfigSettings, project)
-		} else {
-			new ExecutionEnvironment(executor, programRunner, runnerAndConfigSettings, project)
-		}
-	}
-
-	static BaseTestsOutputConsoleView newConsoleView(JUnitConsoleProperties consoleProperties, ExecutionEnvironment myEnvironment,
-	                                                 TestProxy rootTestProxy, AppendAdditionalActions additionalActions) {
-		if (ApplicationInfo.instance.build.baselineVersion < 130) {
-			new MyTreeConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
-		} else {
-			newTreeConsoleView13(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
-		}
-	}
 
 	@Delegate private TestProxyUpdater testProxyUpdater
 	private ProcessHandler handler
@@ -123,7 +109,7 @@ class JUnitPanel {
 			@Override String getComment() { comment }
 			@Override void readFrom(ObjectReader objectReader) {}
 			@Override Location getLocation(Project project) { null }
-			/*@Override*/ Location getLocation(Project project, GlobalSearchScope globalSearchScope) { null }
+			/*@Override*/ Location getLocation(Project project, GlobalSearchScope globalSearchScope) { null } // for IJ13 compatibility
 		}
 	}
 
@@ -209,6 +195,29 @@ class JUnitPanel {
 			if (hasChildWith(FAILED_INDEX)) rootTestProxy.state = failedState
 			else if (hasChildWith(ERROR_INDEX)) rootTestProxy.state = errorState
 			else rootTestProxy.state = passedState
+		}
+
+		@SuppressWarnings("GroovyAssignabilityCheck")
+		static ExecutionEnvironment newExecutionEnvironment(Executor executor, ProgramRunner programRunner,
+		                                                    RunnerAndConfigurationSettings runnerAndConfigSettings, Project project) {
+			if (beforeIJ13()) {
+				new ExecutionEnvironment(programRunner, runnerAndConfigSettings, project)
+			} else {
+				new ExecutionEnvironment(executor, programRunner, runnerAndConfigSettings, project)
+			}
+		}
+
+		static BaseTestsOutputConsoleView newConsoleView(JUnitConsoleProperties consoleProperties, ExecutionEnvironment myEnvironment,
+		                                                 TestProxy rootTestProxy, AppendAdditionalActions additionalActions) {
+			if (beforeIJ13()) {
+				new MyTreeConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
+			} else {
+				newTreeConsoleView13(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
+			}
+		}
+
+		private static boolean beforeIJ13() {
+			ApplicationInfo.instance.build.baselineVersion < 130
 		}
 
 		private static Statistics statisticsWithDuration(int testMethodDuration) {
