@@ -1,5 +1,4 @@
 package liveplugin.testrunner
-
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Executor
 import com.intellij.execution.Location
@@ -109,10 +108,34 @@ class JUnitPanel implements TestReport {
 			@Override String getComment() { comment }
 			@Override void readFrom(ObjectReader objectReader) {}
 			@Override Location getLocation(Project project) { null }
-			/*@Override*/ Location getLocation(Project project, GlobalSearchScope globalSearchScope) { null } // for IJ13 compatibility
+			@IJ13Compatibility /*@Override*/ Location getLocation(Project project, GlobalSearchScope globalSearchScope) { null }
 		}
 	}
 
+	@SuppressWarnings("GroovyAssignabilityCheck")
+	@IJ13Compatibility
+	private static ExecutionEnvironment newExecutionEnvironment(Executor executor, ProgramRunner programRunner,
+	                                                            RunnerAndConfigurationSettings runnerAndConfigSettings, Project project) {
+		if (beforeIJ13()) {
+			new ExecutionEnvironment(programRunner, runnerAndConfigSettings, project)
+		} else {
+			new ExecutionEnvironment(executor, programRunner, runnerAndConfigSettings, project)
+		}
+	}
+
+	@IJ13Compatibility
+	private static BaseTestsOutputConsoleView newConsoleView(JUnitConsoleProperties consoleProperties, ExecutionEnvironment myEnvironment,
+	                                                         TestProxy rootTestProxy, AppendAdditionalActions additionalActions) {
+		if (beforeIJ13()) {
+			new MyTreeConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
+		} else {
+			newTreeConsoleView13(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
+		}
+	}
+
+	private static boolean beforeIJ13() {
+		ApplicationInfo.instance.build.baselineVersion < 130
+	}
 
 	private static class TestProxyUpdater {
 		private static final runningState = newTestState(RUNNING_INDEX, null, false)
@@ -195,29 +218,6 @@ class JUnitPanel implements TestReport {
 			if (hasChildWith(FAILED_INDEX)) rootTestProxy.state = failedState
 			else if (hasChildWith(ERROR_INDEX)) rootTestProxy.state = errorState
 			else rootTestProxy.state = passedState
-		}
-
-		@SuppressWarnings("GroovyAssignabilityCheck")
-		static ExecutionEnvironment newExecutionEnvironment(Executor executor, ProgramRunner programRunner,
-		                                                    RunnerAndConfigurationSettings runnerAndConfigSettings, Project project) {
-			if (beforeIJ13()) {
-				new ExecutionEnvironment(programRunner, runnerAndConfigSettings, project)
-			} else {
-				new ExecutionEnvironment(executor, programRunner, runnerAndConfigSettings, project)
-			}
-		}
-
-		static BaseTestsOutputConsoleView newConsoleView(JUnitConsoleProperties consoleProperties, ExecutionEnvironment myEnvironment,
-		                                                 TestProxy rootTestProxy, AppendAdditionalActions additionalActions) {
-			if (beforeIJ13()) {
-				new MyTreeConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
-			} else {
-				newTreeConsoleView13(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
-			}
-		}
-
-		private static boolean beforeIJ13() {
-			ApplicationInfo.instance.build.baselineVersion < 130
 		}
 
 		private static Statistics statisticsWithDuration(int testMethodDuration) {
@@ -458,3 +458,9 @@ class MyTreeConsoleView13 extends BaseTestsOutputConsoleView {
 	}
 
 }
+
+/**
+ * Annotation for "switches" to make code compatible with both IJ12 and IJ13 api
+ * (this still seems to be simpler than having two branches/versions of plugin)
+ */
+@interface IJ13Compatibility {}
