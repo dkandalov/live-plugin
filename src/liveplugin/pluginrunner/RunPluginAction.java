@@ -34,7 +34,6 @@ import java.io.File;
 import java.util.*;
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
-import static com.intellij.openapi.util.text.StringUtil.join;
 import static com.intellij.util.containers.ContainerUtil.find;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static liveplugin.IdeUtil.SingleThreadBackgroundRunner;
@@ -91,12 +90,12 @@ public class RunPluginAction extends AnAction {
 						}
 					});
 					if (pluginRunner == null) {
-						String runners = join(map(pluginRunners, new Function<PluginRunner, Object>() {
-							@Override public Object fun(PluginRunner it) {
+						List<String> scriptNames = map(pluginRunners, new Function<PluginRunner, String>() {
+							@Override public String fun(PluginRunner it) {
 								return it.scriptName();
 							}
-						}), ", ");
-						errorReporter.addLoadingError(pluginId, "Startup script was not found. Tried: " + runners + ".");
+						});
+						errorReporter.addNoScriptError(pluginId, scriptNames);
 						errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 							@Override public void display(String title, String message) {
 								IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, project);

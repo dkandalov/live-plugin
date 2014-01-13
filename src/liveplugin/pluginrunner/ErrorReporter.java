@@ -13,11 +13,15 @@
  */
 package liveplugin.pluginrunner;
 
+import com.intellij.util.Function;
+
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.intellij.openapi.util.text.StringUtil.join;
+import static com.intellij.util.containers.ContainerUtil.map;
 import static liveplugin.IdeUtil.unscrambleThrowable;
 
 /**
@@ -27,8 +31,17 @@ public class ErrorReporter {
 	private final List<String> loadingErrors = new LinkedList<String>();
 	private final LinkedHashMap<String, String> runningPluginErrors = new LinkedHashMap<String, String>();
 
+	public synchronized void addNoScriptError(String pluginId, List<String> scriptNames) {
+		String scripts = join(map(scriptNames, new Function<String, String>() {
+			@Override public String fun(String it) {
+				return "\"" + it + "\"";
+			}
+		}), ", ");
+		loadingErrors.add("Plugin: \"" + pluginId + "\". Startup script was not found. Tried: " + scripts);
+	}
+
 	public synchronized void addLoadingError(String pluginId, String message) {
-		loadingErrors.add("Error loading plugin: \"" + pluginId + "\". " + message);
+		loadingErrors.add("Couldn't load plugin: \"" + pluginId + "\". " + message);
 	}
 
 	public synchronized void addLoadingError(String pluginId, Throwable e) {

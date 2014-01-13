@@ -64,6 +64,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 
 	private static final String DEFAULT_PLUGIN_PATH = PLUGIN_EXAMPLES_PATH;
 	private static final String DEFAULT_PLUGIN_SCRIPT = "default-plugin.groovy";
+	private static final String DEFAULT_PLUGIN_TEST_SCRIPT = "default-plugin-test.groovy";
 
 	private static final String DEFAULT_IDEA_OUTPUT_FOLDER = "out";
 	private static final String COMPONENT_NAME = "LivePluginComponent";
@@ -108,6 +109,10 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 
 	public static String defaultPluginScript() {
 		return readSampleScriptFile(DEFAULT_PLUGIN_PATH, DEFAULT_PLUGIN_SCRIPT);
+	}
+
+	public static String defaultPluginTestScript() {
+		return readSampleScriptFile(DEFAULT_PLUGIN_PATH, DEFAULT_PLUGIN_TEST_SCRIPT);
 	}
 
 	public static String readSampleScriptFile(String pluginPath, String file) {

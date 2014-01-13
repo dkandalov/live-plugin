@@ -24,7 +24,7 @@ public class DownloadClojureLibs extends AnAction {
 	@Override public void actionPerformed(AnActionEvent event) {
 		if (clojureIsOnClassPath()) {
 			int answer = Messages.showYesNoDialog(event.getProject(),
-					"Do you want to remove Clojure libraries from plugin classpath? This action cannot be undone.", "Live Plugin", null);
+					"Do you want to remove Clojure libraries from LivePlugin classpath? This action cannot be undone.", "Live Plugin", null);
 			if (answer == Messages.YES) {
 				for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
 					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
@@ -53,11 +53,11 @@ public class DownloadClojureLibs extends AnAction {
 
 	@Override public void update(AnActionEvent event) {
 		if (clojureIsOnClassPath()) {
-			event.getPresentation().setText("Remove Clojure from Plugin Classpath");
-			event.getPresentation().setDescription("Remove Clojure from Plugin Classpath");
+			event.getPresentation().setText("Remove Clojure from LivePlugin Classpath");
+			event.getPresentation().setDescription("Remove Clojure from LivePlugin Classpath");
 		} else {
-			event.getPresentation().setText("Download Clojure to Plugin Classpath");
-			event.getPresentation().setDescription("Download Clojure libraries to plugin classpath to enable clojure plugins support " + APPROXIMATE_SIZE);
+			event.getPresentation().setText("Download Clojure to LivePlugin Classpath");
+			event.getPresentation().setDescription("Download Clojure libraries to LivePlugin classpath to enable clojure plugins support " + APPROXIMATE_SIZE);
 		}
 	}
 }

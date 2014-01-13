@@ -27,7 +27,7 @@ public class DownloadScalaLibs extends AnAction {
 	@Override public void actionPerformed(AnActionEvent event) {
 		if (scalaIsOnClassPath()) {
 			int answer = Messages.showYesNoDialog(event.getProject(),
-					"Do you want to remove Scala libraries from plugin classpath? This action cannot be undone.", "Live Plugin", null);
+					"Do you want to remove Scala libraries from LivePlugin classpath? This action cannot be undone.", "Live Plugin", null);
 			if (answer == Messages.YES) {
 				for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
 					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
@@ -60,11 +60,11 @@ public class DownloadScalaLibs extends AnAction {
 
 	@Override public void update(AnActionEvent event) {
 		if (scalaIsOnClassPath()) {
-			event.getPresentation().setText("Remove Scala from Plugin Classpath");
-			event.getPresentation().setDescription("Remove Scala from Plugin Classpath");
+			event.getPresentation().setText("Remove Scala from LivePlugin Classpath");
+			event.getPresentation().setDescription("Remove Scala from LivePlugin Classpath");
 		} else {
-			event.getPresentation().setText("Download Scala to Plugin Classpath");
-			event.getPresentation().setDescription("Download Scala libraries to plugin classpath to enable scala plugins support " + APPROXIMATE_SIZE);
+			event.getPresentation().setText("Download Scala to LivePlugin Classpath");
+			event.getPresentation().setDescription("Download Scala libraries to LivePlugin classpath to enable scala plugins support " + APPROXIMATE_SIZE);
 		}
 	}
 }
