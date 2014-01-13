@@ -35,6 +35,7 @@ class ExampleTest {
 	}
 }
 
+// (Please note this test won't work in IDEs without Java support.)
 class ExamplePsiTest {
 	@Test void "count amount of PsiElements in Java file"() {
 		def javaPsi = parseAsJavaPsi("Sample.java", """
