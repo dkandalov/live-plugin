@@ -89,18 +89,18 @@ class JUnitPanel implements TestReport {
 		this
 	}
 
-	def startedAllTests(long now = System.currentTimeMillis()) {
+	def startedAllTests(long time = System.currentTimeMillis()) {
 		handler.startNotify()
-		allTestsStartTime = now
+		allTestsStartTime = time
 	}
 
-	def finishedAllTests(long now = System.currentTimeMillis()) {
+	def finishedAllTests(long time = System.currentTimeMillis()) {
 		handler.destroyProcess()
 
 		testProxyUpdater.finished()
 
 		model.notifier.onFinished()
-		model.notifier.fireRunnerStateChanged(new CompletionEvent(true, now - allTestsStartTime))
+		model.notifier.fireRunnerStateChanged(new CompletionEvent(true, time - allTestsStartTime))
 	}
 
 	static TestInfo newTestInfo(String name, String comment = "") {
@@ -143,42 +143,42 @@ class JUnitPanel implements TestReport {
 			this.rootTestProxy = rootTestProxy
 		}
 
-		def running(String className, String methodName, long now = System.currentTimeMillis()) {
+		def running(String className, String methodName, long time = System.currentTimeMillis()) {
 			def classTestProxy = testProxyByClassName.get(className)
 			if (!rootTestProxy.children.contains(classTestProxy)) {
 				rootTestProxy.addChild(classTestProxy)
 				classTestProxy.setState(runningState)
-				testStartTimeByClassName.put(className, now)
+				testStartTimeByClassName.put(className, time)
 			}
 
 			def methodTestProxy = testProxyByMethodName.get(methodName)
 			if (!classTestProxy.children.contains(methodTestProxy)) {
 				classTestProxy.addChild(methodTestProxy)
 				methodTestProxy.setState(runningState)
-				testStartTimeByMethodName.put(methodName, now)
+				testStartTimeByMethodName.put(methodName, time)
 			}
 		}
 
-		def passed(String methodName, long now = System.currentTimeMillis()) {
+		def passed(String methodName, long time = System.currentTimeMillis()) {
 			testProxyByMethodName.get(methodName).state = passedState
-			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) now - testStartTimeByMethodName.get(methodName))
+			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
 		}
 
-		def failed(String methodName, String error, long now = System.currentTimeMillis()) {
+		def failed(String methodName, String error, long time = System.currentTimeMillis()) {
 			testProxyByMethodName.get(methodName).state = newTestState(FAILED_INDEX, error)
-			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) now - testStartTimeByMethodName.get(methodName))
+			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
 		}
 
-		def error(String methodName, String error, long now = System.currentTimeMillis()) {
+		def error(String methodName, String error, long time = System.currentTimeMillis()) {
 			testProxyByMethodName.get(methodName).state = newTestState(ERROR_INDEX, error)
-			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) now - testStartTimeByMethodName.get(methodName))
+			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
 		}
 
 		def ignored(String methodName) {
 			testProxyByMethodName.get(methodName).state = ignoredState
 		}
 
-		def finishedClass(String className, long now = System.currentTimeMillis()) {
+		def finishedClass(String className, long time = System.currentTimeMillis()) {
 			def testProxy = testProxyByClassName.get(className)
 			def hasChildWith = { int state -> testProxy.children.any{ it.state.magnitude == state } }
 
@@ -186,7 +186,7 @@ class JUnitPanel implements TestReport {
 			else if (hasChildWith(ERROR_INDEX)) testProxy.state = errorState
 			else testProxy.state = passedState
 
-			testProxy.statistics = statisticsWithDuration((int) now - testStartTimeByClassName.get(className))
+			testProxy.statistics = statisticsWithDuration((int) time - testStartTimeByClassName.get(className))
 		}
 
 		def finished() {

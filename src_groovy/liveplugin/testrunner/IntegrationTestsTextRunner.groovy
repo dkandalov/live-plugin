@@ -23,21 +23,21 @@ class IntegrationTestsTextRunner {
 	private static class TextTestReport implements TestReport {
 		String result = ""
 
-		@Override def startedAllTests(long now) {}
-		@Override def finishedAllTests(long now) {}
-		@Override def running(String className, String methodName, long now) {}
-		@Override def passed(String methodName, long now) {
+		@Override def startedAllTests(long time) {}
+		@Override def finishedAllTests(long time) {}
+		@Override def running(String className, String methodName, long time) {}
+		@Override def passed(String methodName, long time) {
 			result += "\"${methodName}\" - OK\n"
 		}
-		@Override def failed(String methodName, String error, long now) {
+		@Override def failed(String methodName, String error, long time) {
 			result += methodName + " - FAILED\n" + error + "\n"
 		}
-		@Override def error(String methodName, String error, long now) {
+		@Override def error(String methodName, String error, long time) {
 			result += methodName + " - ERROR\n" + error + "\n"
 		}
 		@Override def ignored(String methodName) {
 			result += "\"${methodName}\" - IGNORED\n"
 		}
-		@Override def finishedClass(String className, long now) {}
+		@Override def finishedClass(String className, long time) {}
 	}
 }
