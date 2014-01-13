@@ -13,7 +13,7 @@ import org.junit.Test
 // to run tests inside IntelliJ without need for potentially long or complex initialisation.
 
 // "plugin-test.groovy" is an entry point just like "plugin.groovy",
-// therefore running tests has to be done manually, e.g. using IntegrationTestsRunner.runIntegrationTests().
+// therefore, tests need to be run explicitly, e.g. with IntegrationTestsRunner.runIntegrationTests().
 // (Note that this is not original JUnit runner and it only supports @Test and @Ignore annotations.)
 IntegrationTestsRunner.runIntegrationTests([ExampleTest, ExamplePsiTest], project, pluginPath)
 

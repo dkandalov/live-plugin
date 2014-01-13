@@ -54,7 +54,7 @@ public class NewFileAction extends FileChooserAction {
 
 	protected void actionPerformed(FileSystemTree fileSystemTree, AnActionEvent e) {
 		String initialContent = e.getData(FileChooserKeys.NEW_FILE_TEMPLATE_TEXT);
-		// FORK DIFF (don't really care if initial content if null)
+		// FORK DIFF (don't really care if initial content is null)
 		if (initialContent == null) initialContent = "";
 		createNewFile(fileSystemTree, fileType, initialContent);
 	}

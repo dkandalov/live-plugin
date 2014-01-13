@@ -408,10 +408,8 @@ public class PluginToolWindowManager {
 			if (dataId.equals(FileSystemTree.DATA_KEY.getName())) return fileSystemTree.get();
 			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return IdeUtil.GROOVY_FILE_TYPE;
 			if (dataId.equals(FileChooserKeys.DELETE_ACTION_AVAILABLE.getName())) return true;
-			if (dataId.equals(PlatformDataKeys.VIRTUAL_FILE_ARRAY.getName()))
-				return fileSystemTree.get().getSelectedFiles();
-			if (dataId.equals(PlatformDataKeys.TREE_EXPANDER.getName()))
-				return new DefaultTreeExpander(fileSystemTree.get().getTree());
+			if (dataId.equals(PlatformDataKeys.VIRTUAL_FILE_ARRAY.getName())) return fileSystemTree.get().getSelectedFiles();
+			if (dataId.equals(PlatformDataKeys.TREE_EXPANDER.getName())) return new DefaultTreeExpander(fileSystemTree.get().getTree());
 			return super.getData(dataId);
 		}
 	}
