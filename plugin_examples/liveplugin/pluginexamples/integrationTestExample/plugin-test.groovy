@@ -17,6 +17,7 @@ import org.junit.Test
 // (Note that this is not original JUnit runner and it only supports @Test and @Ignore annotations.)
 IntegrationTestsRunner.runIntegrationTests([ExampleTest, ExamplePsiTest], project, pluginPath)
 
+
 class ExampleTest {
 	@Test void "passing test"() {
 		assert 123 == 123
@@ -35,7 +36,9 @@ class ExampleTest {
 	}
 }
 
-// (Please note this test won't work in IDEs without Java support.)
+// (Please note this test won't work in IDEs without Java support.
+// You might be able to run it by removing all code referring to Java,
+// although it's probably better to write plugins in IDE with Groovy and Java support.)
 class ExamplePsiTest {
 	@Test void "count amount of PsiElements in Java file"() {
 		def javaPsi = parseAsJavaPsi("Sample.java", """

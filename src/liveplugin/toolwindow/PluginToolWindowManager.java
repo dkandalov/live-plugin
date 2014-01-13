@@ -82,6 +82,7 @@ import static com.intellij.openapi.util.Condition.NOT_NULL;
 import static com.intellij.util.containers.ContainerUtil.filter;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
+import static liveplugin.LivePluginAppComponent.PLUGIN_EXAMPLES_PATH;
 
 public class PluginToolWindowManager {
 
@@ -317,20 +318,20 @@ public class PluginToolWindowManager {
 
 		private AnAction createAddPluginsExamplesGroup() {
 			final DefaultActionGroup actionGroup = new DefaultActionGroup("Examples", true);
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloWorldAction", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloPopupAction", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloToolwindow", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloTextEditor", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/transformSelectedText", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/insertNewLineAbove", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloWorldInspection", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloFileStats", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/utilExample", asList("plugin.groovy", "util/AClass.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/classpathExample", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/integrationTestExample", asList("plugin.groovy", "plugin-test.groovy")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloScala", asList("plugin.scala")));
-			actionGroup.add(new AddExamplePluginAction(LivePluginAppComponent.PLUGIN_EXAMPLES_PATH + "/helloClojure", asList("plugin.clj")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloWorldAction", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloPopupAction", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloToolwindow", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloTextEditor", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/transformSelectedText", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/insertNewLineAbove", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloWorldInspection", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloFileStats", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/utilExample", asList("plugin.groovy", "util/AClass.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/classpathExample", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/integrationTestExample", asList("plugin.groovy", "plugin-test.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloScala", asList("plugin.scala")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloClojure", asList("plugin.clj")));
 			actionGroup.addSeparator();
 			actionGroup.add(new AnAction("Add All") {
 				@Override public void actionPerformed(AnActionEvent e) {
