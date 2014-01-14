@@ -1,11 +1,5 @@
-package liveplugin
-/**
- * User: jason
- * Date: 2/5/13
- */
 
 def ctx = context(scope: scriptScope(), pathRegexp: '.*plugin(?:-test)?\\.groovy$')
-
 contributor(ctx) {
     property name: 'project', type: 'com.intellij.openapi.project.Project'
     property name: 'isIdeStartup', type: Boolean.name
