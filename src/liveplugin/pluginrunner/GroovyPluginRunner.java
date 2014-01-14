@@ -35,7 +35,7 @@ public class GroovyPluginRunner implements PluginRunner {
 
 	private final String scriptName;
 	private final ErrorReporter errorReporter;
-	private final Map<String,String> environment;
+	private final Map<String, String> environment;
 
 	public GroovyPluginRunner(String scriptName, ErrorReporter errorReporter, Map<String, String> environment) {
 		this.scriptName = scriptName;
@@ -50,18 +50,17 @@ public class GroovyPluginRunner implements PluginRunner {
 	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding,
 	                                Function<Runnable, Void> runOnEDTCallback) {
 		File mainScript = findSingleFileIn(pathToPluginFolder, scriptName);
-		String pluginFolderUrl = "file:///" + pathToPluginFolder;
-		runGroovyScript(asUrl(mainScript), pluginFolderUrl, pluginId, binding, runOnEDTCallback);
+		runGroovyScript(asUrl(mainScript), pathToPluginFolder, pluginId, binding, runOnEDTCallback);
 	}
 
 	@Override public String scriptName() {
 		return scriptName;
 	}
 
-	private void runGroovyScript(final String mainScriptUrl, String pluginFolderUrl, final String pluginId,
+	private void runGroovyScript(final String mainScriptUrl, String pathToPluginFolder, final String pluginId,
 	                             final Map<String, ?> binding, Function<Runnable, Void> runPluginCallback) {
 		try {
-			environment.put("THIS_SCRIPT", mainScriptUrl);
+			environment.put("PLUGIN_PATH", pathToPluginFolder);
 
 			List<String> pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), GROOVY_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
 				@Override public Void fun(String path) {
@@ -69,6 +68,7 @@ public class GroovyPluginRunner implements PluginRunner {
 					return null;
 				}
 			});
+			String pluginFolderUrl = "file:///" + pathToPluginFolder; // prefix with "file:///" for GroovyScriptEngine
 			pathsToAdd.add(pluginFolderUrl);
 			ClassLoader classLoader = createClassLoaderWithDependencies(pathsToAdd, mainScriptUrl, pluginId, errorReporter);
 

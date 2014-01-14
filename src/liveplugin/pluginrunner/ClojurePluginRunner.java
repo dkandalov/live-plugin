@@ -54,6 +54,8 @@ class ClojurePluginRunner implements PluginRunner {
 
 		final List<String> additionalPaths = new ArrayList<String>();
 		try {
+			environment.put("PLUGIN_PATH", pathToPluginFolder);
+
 			additionalPaths.addAll(findClasspathAdditions(readLines(asUrl(scriptFile)), CLOJURE_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
 				@Override public Void fun(String path) {
 					errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");

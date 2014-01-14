@@ -56,6 +56,8 @@ class ScalaPluginRunner implements PluginRunner {
 		final IMain interpreter;
 		synchronized (interpreterLock) {
 			try {
+				environment.put("PLUGIN_PATH", pathToPluginFolder);
+
 				List<String> additionalPaths = findClasspathAdditions(readLines(asUrl(scriptFile)), SCALA_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
 					@Override public Void fun(String path) {
 						errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
