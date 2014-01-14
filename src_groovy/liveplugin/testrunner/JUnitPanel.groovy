@@ -88,12 +88,12 @@ class JUnitPanel implements TestReport {
 		this
 	}
 
-	def startedAllTests(long time = System.currentTimeMillis()) {
+	void startedAllTests(long time) {
 		handler.startNotify()
 		allTestsStartTime = time
 	}
 
-	def finishedAllTests(long time = System.currentTimeMillis()) {
+	void finishedAllTests(long time) {
 		handler.destroyProcess()
 
 		testProxyUpdater.finished()
