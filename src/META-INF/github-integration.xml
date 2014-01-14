@@ -1,7 +1,7 @@
 <idea-plugin>
     <application-components>
         <component>
-            <implementation-class>liveplugin.toolwindow.addplugin.git.AddPluginFromGitHubComponent</implementation-class>
+            <implementation-class>liveplugin.toolwindow.addplugin.git.AddPluginFromGitComponent</implementation-class>
         </component>
     </application-components>
 </idea-plugin>

@@ -31,25 +31,25 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 
 @SuppressWarnings("ComponentNotRegistered")
-public class AddPluginFromGitHubComponent implements ApplicationComponent {
+public class AddPluginFromGitComponent implements ApplicationComponent {
 	@Override public void initComponent() {
-		PluginToolWindowManager.addFromGitHubAction = new AddPluginFromGitHubAction();
+		PluginToolWindowManager.addFromGitHubAction = new AddPluginFromGitAction();
 	}
 
 	@Override public void disposeComponent() {
 	}
 
 	@NotNull @Override public String getComponentName() {
-		return "AddPluginFromGitHubComponent";
+		return "AddPluginFromGitComponent";
 	}
 
 	/**
 	 * Partially copied from {@link org.jetbrains.plugins.github.GithubCheckoutProvider}.
 	 */
-	private static class AddPluginFromGitHubAction extends AnAction {
-		private static final Logger LOG = Logger.getInstance(AddPluginFromGitHubAction.class);
+	private static class AddPluginFromGitAction extends AnAction {
+		private static final Logger LOG = Logger.getInstance(AddPluginFromGitAction.class);
 
-		private AddPluginFromGitHubAction() {
+		private AddPluginFromGitAction() {
 			super("Plugin from Git", "Plugin from Git", GithubIcons.Github_icon);
 		}
 
