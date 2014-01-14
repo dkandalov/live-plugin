@@ -1,4 +1,5 @@
 package liveplugin.testrunner
+
 import com.intellij.openapi.project.Project
 import liveplugin.PluginUtil
 import org.jetbrains.annotations.NotNull
@@ -12,15 +13,17 @@ class IntegrationTestsTextRunner {
 		def context = [project: project, pluginPath: pluginPath]
 		def now = System.currentTimeMillis()
 
-		def textReport = new TextTestReport()
-		textReport.startedAllTests(now)
-		testClasses.collect{ runTestsInClass(it, context, textReport, now) }
-		textReport.finishedAllTests(now)
+		PluginUtil.doInBackground("Running integration tests", false) {
+			def textReporter = new TextTestReporter()
+			textReporter.startedAllTests(now)
+			testClasses.collect{ runTestsInClass(it, context, textReporter, now) }
+			textReporter.finishedAllTests(now)
 
-		PluginUtil.showInConsole(textReport.result, "Integration tests", project)
+			PluginUtil.showInConsole(textReporter.result, "Integration tests", project)
+		}
 	}
 
-	private static class TextTestReport implements TestReport {
+	private static class TextTestReporter implements TestReporter {
 		String result = ""
 
 		@Override void startedAllTests(long time) {}

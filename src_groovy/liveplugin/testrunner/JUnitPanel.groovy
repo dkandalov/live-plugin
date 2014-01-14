@@ -47,7 +47,7 @@ import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import static com.intellij.rt.execution.junit.states.PoolOfTestStates.*
 
-class JUnitPanel implements TestReport {
+class JUnitPanel implements TestReporter {
 	private static Class treeConsoleViewClass
 
 	@Delegate private TestProxyUpdater testProxyUpdater
@@ -166,7 +166,7 @@ class JUnitPanel implements TestReport {
 			this.rootTestProxy = rootTestProxy
 		}
 
-		def running(String className, String methodName, long time = System.currentTimeMillis()) {
+		void running(String className, String methodName, long time = System.currentTimeMillis()) {
 			def classTestProxy = testProxyByClassName.get(className)
 			if (!rootTestProxy.children.contains(classTestProxy)) {
 				rootTestProxy.addChild(classTestProxy)
@@ -182,26 +182,26 @@ class JUnitPanel implements TestReport {
 			}
 		}
 
-		def passed(String methodName, long time = System.currentTimeMillis()) {
+		void passed(String methodName, long time = System.currentTimeMillis()) {
 			testProxyByMethodName.get(methodName).state = passedState
 			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
 		}
 
-		def failed(String methodName, String error, long time = System.currentTimeMillis()) {
+		void failed(String methodName, String error, long time = System.currentTimeMillis()) {
 			testProxyByMethodName.get(methodName).state = newTestState(FAILED_INDEX, error)
 			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
 		}
 
-		def error(String methodName, String error, long time = System.currentTimeMillis()) {
+		void error(String methodName, String error, long time = System.currentTimeMillis()) {
 			testProxyByMethodName.get(methodName).state = newTestState(ERROR_INDEX, error)
 			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
 		}
 
-		def ignored(String methodName) {
+		void ignored(String methodName) {
 			testProxyByMethodName.get(methodName).state = ignoredState
 		}
 
-		def finishedClass(String className, long time = System.currentTimeMillis()) {
+		void finishedClass(String className, long time = System.currentTimeMillis()) {
 			def testProxy = testProxyByClassName.get(className)
 			def hasChildWith = { int state -> testProxy.children.any{ it.state.magnitude == state } }
 
@@ -212,7 +212,7 @@ class JUnitPanel implements TestReport {
 			testProxy.statistics = statisticsWithDuration((int) time - testStartTimeByClassName.get(className))
 		}
 
-		def finished() {
+		void finished() {
 			def hasChildWith = { state -> rootTestProxy.children.any{ it.state.magnitude == state } }
 
 			if (hasChildWith(FAILED_INDEX)) rootTestProxy.state = failedState

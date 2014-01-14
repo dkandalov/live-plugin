@@ -8,6 +8,8 @@ import liveplugin.testrunner.IntegrationTestsRunner
 import org.junit.Ignore
 import org.junit.Test
 
+import static liveplugin.PluginUtil.runReadAction
+
 // This is example of integration test.
 // The idea is that for code which heavily uses IntelliJ API it can be faster
 // to run tests inside IntelliJ without need for potentially long or complex initialisation.
@@ -63,8 +65,10 @@ class ExamplePsiTest {
 	}
 
 	private PsiJavaFile parseAsJavaPsi(String fileName, String javaCode) {
-		def fileFactory = PsiFileFactory.getInstance(project)
-		fileFactory.createFileFromText(fileName, JavaFileType.INSTANCE, javaCode) as PsiJavaFile
+		runReadAction{
+			def fileFactory = PsiFileFactory.getInstance(project)
+			fileFactory.createFileFromText(fileName, JavaFileType.INSTANCE, javaCode) as PsiJavaFile
+		}
 	}
 
 	// "context" is optional argument passed in by test runner

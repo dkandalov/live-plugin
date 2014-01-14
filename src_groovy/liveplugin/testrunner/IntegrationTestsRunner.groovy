@@ -15,8 +15,9 @@ class IntegrationTestsRunner implements ApplicationComponent {
 	private static runTests = IntegrationTestsTextRunner.&runIntegrationTests
 
 	/**
-	 * Runs tests in specified {@code testClasses} reporting results using JUnit panel (for IDEs with JUnit and Java support)
-	 * or in text console (for other IDEs).
+	 * Runs tests in specified {@code testClasses} reporting results using
+	 * JUnit panel (for IDEs with JUnit and Java support) or in text console (for other IDEs).
+	 * All tests are executed on the same non-EDT thread.
 	 *
 	 * @param testClasses classes with tests. Note that this is not standard JUnit runner and it only supports
 	 *                    {@link Test} and {@link Ignore} annotations.
@@ -39,7 +40,7 @@ class IntegrationTestsRunner implements ApplicationComponent {
 	@Override String getComponentName() { this.class.simpleName }
 
 
-	static runTestsInClass(Class testClass, Map context, TestReport testReport, long now) {
+	static runTestsInClass(Class testClass, Map context, TestReporter testReport, long now) {
 		def isTest = { Method method -> method.annotations.find{ it instanceof Test} }
 		def isIgnored = { Method method -> method.annotations.find{ it instanceof Ignore} }
 
@@ -56,12 +57,12 @@ class IntegrationTestsRunner implements ApplicationComponent {
 		testReport.finishedClass(testClass.name, now)
 	}
 
-	private static ignoreTest(String className, String methodName, TestReport testReport, long now) {
+	private static ignoreTest(String className, String methodName, TestReporter testReport, long now) {
 		testReport.running(className, methodName, now)
 		testReport.ignored(methodName)
 	}
 
-	private static runTest(String className, String methodName, TestReport testReport, long now, Closure closure) {
+	private static runTest(String className, String methodName, TestReporter testReport, long now, Closure closure) {
 		try {
 			testReport.running(className, methodName, now)
 			closure()
