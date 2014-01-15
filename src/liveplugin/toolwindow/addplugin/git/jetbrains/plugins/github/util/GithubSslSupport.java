@@ -15,7 +15,6 @@
  */
 package liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.util;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.CalledInAwt;
 import com.intellij.util.ThrowableConvertor;
@@ -39,9 +38,13 @@ import java.io.IOException;
  * @author Kirill Likhodedov
  */
 public class GithubSslSupport {
+  private static GithubSslSupport instance;
 
   public static GithubSslSupport getInstance() {
-    return ServiceManager.getService(GithubSslSupport.class);
+	  if (instance == null) {
+		  instance = new GithubSslSupport();
+	  }
+	  return instance;
   }
 
   /**

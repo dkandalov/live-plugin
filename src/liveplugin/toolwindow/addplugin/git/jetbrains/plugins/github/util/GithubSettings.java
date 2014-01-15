@@ -22,10 +22,10 @@ import com.intellij.ide.passwordSafe.impl.PasswordSafeImpl;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.text.StringUtil;
+import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.GithubUtil;
 import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.api.GithubApiUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.github.GithubUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +43,8 @@ import static liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.util.
 public class GithubSettings implements PersistentStateComponent<GithubSettings.State> {
   private static final Logger LOG = GithubUtil.LOG;
   private static final String GITHUB_SETTINGS_PASSWORD_KEY = "GITHUB_SETTINGS_PASSWORD_KEY";
+
+  private static GithubSettings instance;
 
   private State myState = new State();
 
@@ -67,7 +69,11 @@ public class GithubSettings implements PersistentStateComponent<GithubSettings.S
   }
 
   public static GithubSettings getInstance() {
-    return ServiceManager.getService(GithubSettings.class);
+	  if (instance == null) {
+		  instance = new GithubSettings();
+	  }
+	  return instance;
+//    return ServiceManager.getService(GithubSettings.class);
   }
 
   public int getConnectionTimeout() {

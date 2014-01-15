@@ -49,7 +49,7 @@ class DeletePluginAction extends AnAction {
 			}
 		}
 
-		new RefreshPluginTreeAction().actionPerformed(event);
+		RefreshPluginTreeAction.refreshPluginTree();
 	}
 
 	@Override public void update(AnActionEvent event) {

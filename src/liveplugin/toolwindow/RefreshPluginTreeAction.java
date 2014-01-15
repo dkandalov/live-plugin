@@ -18,6 +18,10 @@ public class RefreshPluginTreeAction extends AnAction {
 	}
 
 	@Override public void actionPerformed(@Nullable AnActionEvent e) {
+		refreshPluginTree();
+	}
+
+	public static void refreshPluginTree() {
 		ApplicationManager.getApplication().runWriteAction(new Runnable() {
 			@Override public void run() {
 				VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginAppComponent.pluginsRootPath());

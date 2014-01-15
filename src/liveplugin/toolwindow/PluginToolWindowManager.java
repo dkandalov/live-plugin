@@ -311,9 +311,9 @@ public class PluginToolWindowManager {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
 			actionGroup.add(new AddNewPluginAction());
 			actionGroup.add(new AddPluginFromDiskAction());
+			actionGroup.add(new AddPluginFromGistAction());
 			if (addFromGitHubAction != null)
 				actionGroup.add(addFromGitHubAction);
-			actionGroup.add(new AddPluginFromGistAction());
 			actionGroup.add(createAddPluginsExamplesGroup());
 			return actionGroup;
 		}
@@ -445,7 +445,7 @@ public class PluginToolWindowManager {
 
 		@Override public void deleteElement(@NotNull DataContext dataContext) {
 			fileDeleteProvider.deleteElement(dataContext);
-			new RefreshPluginTreeAction().actionPerformed(null);
+			RefreshPluginTreeAction.refreshPluginTree();
 		}
 
 		@Override public boolean canDeleteElement(@NotNull DataContext dataContext) {

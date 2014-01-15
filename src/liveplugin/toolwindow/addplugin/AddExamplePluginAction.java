@@ -30,7 +30,7 @@ public class AddExamplePluginAction extends AnAction {
 				logException(e, event, pluginPath);
 			}
 		});
-		new RefreshPluginTreeAction().actionPerformed(event);
+		RefreshPluginTreeAction.refreshPluginTree();
 	}
 
 	@Override public void update(AnActionEvent event) {

@@ -59,7 +59,7 @@ public class AddPluginFromDiskAction extends AnAction {
 			LOG.error(e);
 		}
 
-		new RefreshPluginTreeAction().actionPerformed(event);
+		RefreshPluginTreeAction.refreshPluginTree();
 	}
 
 	private static List<VirtualFile> getFileSystemRoots() {

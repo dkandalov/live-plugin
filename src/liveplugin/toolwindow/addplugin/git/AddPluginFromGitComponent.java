@@ -113,7 +113,7 @@ public class AddPluginFromGitComponent implements ApplicationComponent {
 							LOG.error(e);
 						}
 
-						new RefreshPluginTreeAction().actionPerformed(null);
+						RefreshPluginTreeAction.refreshPluginTree();
 					}
 				}, pluginsRoot);
 			}

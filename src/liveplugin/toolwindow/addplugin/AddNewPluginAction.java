@@ -48,6 +48,6 @@ public class AddNewPluginAction extends AnAction {
 			LOG.error(e);
 		}
 
-		new RefreshPluginTreeAction().actionPerformed(event);
+		RefreshPluginTreeAction.refreshPluginTree();
 	}
 }

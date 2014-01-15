@@ -20,6 +20,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ThrowableConvertor;
 import com.intellij.util.net.HttpConfigurable;
+import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.GithubUtil;
 import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.exceptions.*;
 import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.util.GithubAuthData;
 import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.util.GithubSettings;
@@ -46,7 +47,7 @@ public class GithubApiUtil {
 
 	public static final String DEFAULT_GITHUB_HOST = "github.com";
 
-	private static final Logger LOG = Logger.getInstance(GithubApiUtil.class);
+	public static final Logger LOG = GithubUtil.LOG;
 
 	private static final Header ACCEPT_V3_JSON = new Header("Accept", "application/vnd.github.v3+json");
 
