@@ -31,7 +31,6 @@ import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.github.GithubUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,10 +46,8 @@ public class GithubApiUtil {
 
 	public static final String DEFAULT_GITHUB_HOST = "github.com";
 
-	private static final String PER_PAGE = "per_page=100";
-	private static final Logger LOG = GithubUtil.LOG;
+	private static final Logger LOG = Logger.getInstance(GithubApiUtil.class);
 
-	private static final Header ACCEPT_V3_JSON_HTML_MARKUP = new Header("Accept", "application/vnd.github.v3.html+json");
 	private static final Header ACCEPT_V3_JSON = new Header("Accept", "application/vnd.github.v3+json");
 
 	@NotNull private static final Gson gson = initGson();

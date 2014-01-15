@@ -59,6 +59,7 @@ import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.AddPluginFromDiskAction;
+import liveplugin.toolwindow.addplugin.git.AddPluginFromGistAction;
 import liveplugin.toolwindow.settingsmenu.AddIDEAJarsAsDependencies;
 import liveplugin.toolwindow.settingsmenu.AddPluginJarAsDependency;
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
@@ -312,6 +313,7 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddPluginFromDiskAction());
 			if (addFromGitHubAction != null)
 				actionGroup.add(addFromGitHubAction);
+			actionGroup.add(new AddPluginFromGistAction());
 			actionGroup.add(createAddPluginsExamplesGroup());
 			return actionGroup;
 		}

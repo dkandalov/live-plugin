@@ -24,6 +24,7 @@ public class AddNewPluginAction extends AnAction {
 	@Override public void actionPerformed(AnActionEvent event) {
 		String newPluginId = Messages.showInputDialog(event.getProject(), "Enter new plugin name:", "New Plugin", null);
 
+		// TODO use liveplugin.toolwindow.addplugin.git.AddPluginFromGistAction.PluginIdValidator
 		if (newPluginId == null) return;
 		if (LivePluginAppComponent.pluginExists(newPluginId)) {
 			Messages.showErrorDialog(event.getProject(), "Plugin \"" + newPluginId + "\" already exists.", "New Plugin");
