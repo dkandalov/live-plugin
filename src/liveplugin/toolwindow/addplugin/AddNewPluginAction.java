@@ -4,32 +4,34 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.RefreshPluginTreeAction;
 import liveplugin.toolwindow.util.PluginsIO;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
 @SuppressWarnings("ComponentNotRegistered")
 public class AddNewPluginAction extends AnAction {
-	private static final Logger LOG = Logger.getInstance(AddNewPluginAction.class);
+	private static final Logger log = Logger.getInstance(AddNewPluginAction.class);
+	private static final String addNewPluginTitle = "Add New Plugin";
 
 	public AddNewPluginAction() {
 		super("New Plugin");
 	}
 
 	@Override public void actionPerformed(AnActionEvent event) {
-		String newPluginId = Messages.showInputDialog(event.getProject(), "Enter new plugin name:", "New Plugin", null);
-
-		// TODO use liveplugin.toolwindow.addplugin.git.AddPluginFromGistAction.PluginIdValidator
+		String newPluginId = Messages.showInputDialog(
+				event.getProject(),
+				"Enter new plugin name:",
+				addNewPluginTitle,
+				null, "", new PluginIdValidator()
+		);
 		if (newPluginId == null) return;
-		if (LivePluginAppComponent.pluginExists(newPluginId)) {
-			Messages.showErrorDialog(event.getProject(), "Plugin \"" + newPluginId + "\" already exists.", "New Plugin");
-			return;
-		}
 
 		try {
 
@@ -42,12 +44,30 @@ public class AddNewPluginAction extends AnAction {
 				IdeUtil.showErrorDialog(
 						project,
 						"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.pluginsRootPath(),
-						"Add Plugin"
+						addNewPluginTitle
 				);
 			}
-			LOG.error(e);
+			log.error(e);
 		}
 
 		RefreshPluginTreeAction.refreshPluginTree();
+	}
+
+	public static class PluginIdValidator implements InputValidatorEx {
+		private String errorText;
+
+		@Override public boolean checkInput(String pluginId) {
+			boolean isValid = !LivePluginAppComponent.pluginExists(pluginId);
+			errorText = isValid ? null : "There is already a plugin with this name";
+			return isValid;
+		}
+
+		@Nullable @Override public String getErrorText(String pluginId) {
+			return errorText;
+		}
+
+		@Override public boolean canClose(String pluginId) {
+			return true;
+		}
 	}
 }

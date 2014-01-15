@@ -13,6 +13,7 @@ import com.intellij.openapi.ui.Messages;
 import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.RefreshPluginTreeAction;
+import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.api.GithubApiUtil;
 import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.api.GithubGist;
 import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.util.GithubAuthData;
@@ -28,6 +29,7 @@ import static liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.Githu
 
 public class AddPluginFromGistAction extends AnAction {
 	private static final Logger log = Logger.getInstance(AddPluginFromGistAction.class);
+	private static final String addPluginFromGistTitle = "Add Plugin From Gist";
 	private static final Icon defaultIcon = null;
 
 	public AddPluginFromGistAction() {
@@ -64,7 +66,7 @@ public class AddPluginFromGistAction extends AnAction {
 		return Messages.showInputDialog(
 				event.getProject(),
 				"Enter gist URL:",
-				"Add Plugin From Gist",
+				addPluginFromGistTitle,
 				defaultIcon, "", new GistUrlValidator());
 	}
 
@@ -95,8 +97,8 @@ public class AddPluginFromGistAction extends AnAction {
 		return Messages.showInputDialog(
 				project,
 				"Enter new plugin name:",
-				"New Plugin",
-				defaultIcon, "", new PluginIdValidator());
+				addPluginFromGistTitle,
+				defaultIcon, "", new AddNewPluginAction.PluginIdValidator());
 	}
 
 	private static void createPluginFrom(GithubGist gist, String pluginId) throws IOException {
@@ -109,13 +111,13 @@ public class AddPluginFromGistAction extends AnAction {
 		IdeUtil.showErrorDialog(
 				project,
 				"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.pluginsRootPath(),
-				"Add Plugin"
+				addPluginFromGistTitle
 		);
 		log.info(e);
 	}
 
 	private static void showMessageThatFetchingGistFailed(IOException e, Project project) {
-		IdeUtil.showErrorDialog(project, "Failed to fetch gist", "LivePlugin");
+		IdeUtil.showErrorDialog(project, "Failed to fetch gist", addPluginFromGistTitle);
 		log.info(e);
 	}
 
@@ -145,24 +147,6 @@ public class AddPluginFromGistAction extends AnAction {
 		public static String extractGistIdFrom(String gistUrl) {
 			int i = gistUrl.lastIndexOf('/');
 			return gistUrl.substring(i + 1);
-		}
-	}
-
-	private static class PluginIdValidator implements InputValidatorEx {
-		private String errorText;
-
-		@Override public boolean checkInput(String pluginId) {
-			boolean isValid = !LivePluginAppComponent.pluginExists(pluginId);
-			errorText = isValid ? null : "There is already a plugin with this name";
-			return isValid;
-		}
-
-		@Nullable @Override public String getErrorText(String pluginId) {
-			return errorText;
-		}
-
-		@Override public boolean canClose(String pluginId) {
-			return true;
 		}
 	}
 }
