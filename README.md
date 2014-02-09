@@ -73,6 +73,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
 
 
 ### More examples
+ - [VCS update listener example](https://gist.github.com/dkandalov/8840509) - example of adding callback on VCS update
  - [Move and split tabs](https://gist.github.com/dkandalov/6643735) - moves tabs left/right with splitting
  - [Show text diff](https://gist.github.com/dkandalov/6728950) - really lame example of opening IntelliJ text diff window (please don't use it!)
  - [Find all recursive methods in project (for Java)](https://gist.github.com/dkandalov/7248184) - quick plugin as a follow up for this [talk](http://skillsmatter.com/podcast/nosql/using-graphs-for-source-code-analysis)
