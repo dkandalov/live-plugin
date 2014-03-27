@@ -232,27 +232,25 @@ class PluginUtil {
 	@CanCallFromAnyThread
 	static AnAction registerAction(String actionId, String keyStroke = "",
 	                               String actionGroupId = null, String displayText = actionId, AnAction action) {
-		invokeOnEDT{
-			runWriteAction{
-				def actionManager = ActionManager.instance
-				def actionGroup = findActionGroup(actionGroupId)
+		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
 
-				def alreadyRegistered = (actionManager.getAction(actionId) != null)
-				if (alreadyRegistered) {
-					actionGroup?.remove(actionManager.getAction(actionId))
-					actionManager.unregisterAction(actionId)
-				}
+		def actionManager = ActionManager.instance
+		def actionGroup = findActionGroup(actionGroupId)
 
-				assignKeyStrokeTo(actionId, keyStroke)
-				actionManager.registerAction(actionId, action)
-				actionGroup?.add(action)
-				action.templatePresentation.setText(displayText, true)
-
-				log("Action '${actionId}' registered")
-
-				action
-			}
+		def alreadyRegistered = (actionManager.getAction(actionId) != null)
+		if (alreadyRegistered) {
+			actionGroup?.remove(actionManager.getAction(actionId))
+			actionManager.unregisterAction(actionId)
 		}
+
+		assignKeyStrokeTo(actionId, keyStroke)
+		actionManager.registerAction(actionId, action)
+		actionGroup?.add(action)
+		action.templatePresentation.setText(displayText, true)
+
+		log("Action '${actionId}' registered")
+
+		action
 	}
 
 	/**
@@ -264,43 +262,41 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	static def wrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
-		invokeOnEDT{
-			runWriteAction{
-				ActionManager.instance.with {
-					AnAction action = it.getAction(actionId)
-					if (action == null) {
-						log("Couldn't wrap action '${actionId}' because it was not found")
-						return null
-					}
+		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
 
-					AnAction newAction = new AnAction() {
-						AnAction originalAction = action
+		ActionManager.instance.with {
+			AnAction action = it.getAction(actionId)
+			if (action == null) {
+				log("Couldn't wrap action '${actionId}' because it was not found")
+				return null
+			}
 
-						@Override void actionPerformed(AnActionEvent event) {
-							callback.call(event, this.originalAction)
-						}
+			AnAction newAction = new AnAction() {
+				AnAction originalAction = action
 
-						@Override void update(AnActionEvent event) {
-							this.originalAction.update(event)
-						}
-					}
-					newAction.templatePresentation.text = action.templatePresentation.text
-					newAction.templatePresentation.icon = action.templatePresentation.icon
-					newAction.templatePresentation.hoveredIcon = action.templatePresentation.hoveredIcon
-					newAction.templatePresentation.description = action.templatePresentation.description
-					newAction.copyShortcutFrom(action)
+				@Override void actionPerformed(AnActionEvent event) {
+					callback.call(event, this.originalAction)
+				}
 
-					actionGroups.each {
-						replaceActionInGroup(it, actionId, newAction)
-					}
-
-					it.unregisterAction(actionId)
-					it.registerAction(actionId, newAction)
-					log("Wrapped action '${actionId}'")
-
-					newAction
+				@Override void update(AnActionEvent event) {
+					this.originalAction.update(event)
 				}
 			}
+			newAction.templatePresentation.text = action.templatePresentation.text
+			newAction.templatePresentation.icon = action.templatePresentation.icon
+			newAction.templatePresentation.hoveredIcon = action.templatePresentation.hoveredIcon
+			newAction.templatePresentation.description = action.templatePresentation.description
+			newAction.copyShortcutFrom(action)
+
+			actionGroups.each {
+				replaceActionInGroup(it, actionId, newAction)
+			}
+
+			it.unregisterAction(actionId)
+			it.registerAction(actionId, newAction)
+			log("Wrapped action '${actionId}'")
+
+			newAction
 		}
 	}
 
@@ -312,30 +308,28 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	static def unwrapAction(String actionId, List<String> actionGroupIds = []) {
-		invokeOnEDT {
-			runWriteAction {
-				ActionManager.instance.with {
-					AnAction wrappedAction = it.getAction(actionId)
-					if (wrappedAction == null) {
-						log("Couldn't unwrap action '${actionId}' because it was not found")
-						return null
-					}
-					if (!wrappedAction.hasProperty("originalAction")) {
-						log("Action '${actionId}' is not wrapped")
-						return wrappedAction
-					}
+		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
 
-					actionGroupIds.each {
-						replaceActionInGroup(it, actionId, wrappedAction.originalAction)
-					}
-
-					it.unregisterAction(actionId)
-					it.registerAction(actionId, wrappedAction.originalAction)
-					log("Unwrapped action '${actionId}'")
-
-					wrappedAction.originalAction
-				}
+		ActionManager.instance.with {
+			AnAction wrappedAction = it.getAction(actionId)
+			if (wrappedAction == null) {
+				log("Couldn't unwrap action '${actionId}' because it was not found")
+				return null
 			}
+			if (!wrappedAction.hasProperty("originalAction")) {
+				log("Action '${actionId}' is not wrapped")
+				return wrappedAction
+			}
+
+			actionGroupIds.each {
+				replaceActionInGroup(it, actionId, wrappedAction.originalAction)
+			}
+
+			it.unregisterAction(actionId)
+			it.registerAction(actionId, wrappedAction.originalAction)
+			log("Unwrapped action '${actionId}'")
+
+			wrappedAction.originalAction
 		}
 	}
 
@@ -961,6 +955,18 @@ class PluginUtil {
 				editor.document.insertString(selectionModel.selectionEnd, "\n")
 			}
 		}
+	}
+
+	private static void assertNoNeedForEdtOrWriteActionWhenUsingActionManager() {
+		// Dummy method to document that there is no need for EDT or writeAction since ActionManager uses its own internal lock.
+
+		// Also using writeAction on IDE startup can cause deadlock, e.g. when running at the same time as ServiceManager:
+		//    at com.intellij.openapi.application.impl.ApplicationImpl.getStateStore(ApplicationImpl.java:197)
+		//    at com.intellij.openapi.application.impl.ApplicationImpl.initializeComponent(ApplicationImpl.java:205)
+		//    at com.intellij.openapi.components.impl.ServiceManagerImpl$MyComponentAdapter.initializeInstance(ServiceManagerImpl.java:164)
+		//    at com.intellij.openapi.components.impl.ServiceManagerImpl$MyComponentAdapter$1.compute(ServiceManagerImpl.java:147)
+		//    at com.intellij.openapi.application.impl.ApplicationImpl.runReadAction(ApplicationImpl.java:932)
+		//    at com.intellij.openapi.components.impl.ServiceManagerImpl$MyComponentAdapter.getComponentInstance(ServiceManagerImpl.java:139)
 	}
 
 	private static class MyConsolePanel extends JPanel {
