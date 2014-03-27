@@ -15,6 +15,8 @@
  */
 package liveplugin.toolwindow.addplugin.git;
 
+import com.intellij.dvcs.DvcsRememberedInputs;
+import com.intellij.dvcs.ui.DvcsBundle;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
@@ -28,7 +30,6 @@ import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandlerPasswordRequestAware;
 import git4idea.commands.GitTask;
 import git4idea.commands.GitTaskResult;
-import git4idea.i18n.GitBundle;
 import git4idea.remote.GitRememberedInputs;
 import liveplugin.LivePluginAppComponent;
 import org.jetbrains.annotations.NonNls;
@@ -84,8 +85,8 @@ public class GitCloneDialog extends DialogWrapper {
     myProject = project;
     init();
     initListeners();
-    setTitle(GitBundle.getString("clone.title"));
-    setOKButtonText(GitBundle.getString("clone.button"));
+    setTitle(DvcsBundle.getString("clone.title"));
+    setOKButtonText(DvcsBundle.getString("clone.button"));
   }
 
   public String getSourceRepositoryURL() {
@@ -106,8 +107,8 @@ public class GitCloneDialog extends DialogWrapper {
   private void initListeners() {
     FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor();
     fcd.setShowFileSystemRoots(true);
-    fcd.setTitle(GitBundle.getString("clone.destination.directory.title"));
-    fcd.setDescription(GitBundle.getString("clone.destination.directory.description"));
+    fcd.setTitle(DvcsBundle.getString("clone.destination.directory.title"));
+    fcd.setDescription(DvcsBundle.getString("clone.destination.directory.description"));
     fcd.setHideIgnored(false);
     myParentDirectory.addActionListener(
       new ComponentWithBrowseButton.BrowseFolderActionListener<JTextField>(fcd.getTitle(), fcd.getDescription(), myParentDirectory,
@@ -157,8 +158,8 @@ public class GitCloneDialog extends DialogWrapper {
     boolean testResult = test(myTestURL);
 
     if (testResult) {
-      Messages.showInfoMessage(myTestButton, GitBundle.message("clone.test.success.message", myTestURL),
-		      GitBundle.getString("clone.test.connection.title"));
+      Messages.showInfoMessage(myTestButton, DvcsBundle.message("clone.test.success.message", myTestURL),
+		      DvcsBundle.getString("clone.test.connection.title"));
       myTestResult = Boolean.TRUE;
     } else {
       myTestResult = Boolean.FALSE;
@@ -174,7 +175,7 @@ public class GitCloneDialog extends DialogWrapper {
   private boolean test(String url) {
     final GitLineHandlerPasswordRequestAware handler = new GitLineHandlerPasswordRequestAware(myProject, new File("."), GitCommand.LS_REMOTE);
     handler.addParameters(url, "master");
-    GitTask task = new GitTask(myProject, handler, GitBundle.message("clone.testing", url));
+    GitTask task = new GitTask(myProject, handler, DvcsBundle.message("clone.testing", url));
     GitTaskResult result = task.executeModal();
     boolean authFailed = handler.hadAuthRequest();
     return result.isOK() || authFailed;
@@ -207,12 +208,12 @@ public class GitCloneDialog extends DialogWrapper {
     }
     File file = new File(myParentDirectory.getText(), myDirectoryName.getText());
     if (file.exists()) {
-      setErrorText(GitBundle.message("clone.destination.exists.error", file));
+      setErrorText(DvcsBundle.message("clone.destination.exists.error", file));
       setOKActionEnabled(false);
       return false;
     }
     else if (!file.getParentFile().exists()) {
-      setErrorText(GitBundle.message("clone.parent.missing.error", file.getParent()));
+      setErrorText(DvcsBundle.message("clone.parent.missing.error", file.getParent()));
       setOKActionEnabled(false);
       return false;
     }
@@ -233,7 +234,7 @@ public class GitCloneDialog extends DialogWrapper {
     }
     if (myTestResult != null && repository.equals(myTestURL)) {
       if (!myTestResult.booleanValue()) {
-        setErrorText(GitBundle.getString("clone.test.failed.error"));
+        setErrorText(DvcsBundle.getString("clone.test.failed.error"));
         setOKActionEnabled(false);
         return false;
       }
@@ -257,7 +258,7 @@ public class GitCloneDialog extends DialogWrapper {
       File file = new File(repository);
       if (file.exists()) {
         if (!file.isDirectory()) {
-          setErrorText(GitBundle.getString("clone.url.is.not.directory.error"));
+          setErrorText(DvcsBundle.getString("clone.url.is.not.directory.error"));
           setOKActionEnabled(false);
         }
         return true;
@@ -266,7 +267,7 @@ public class GitCloneDialog extends DialogWrapper {
     catch (Exception fileExp) {
       // do nothing
     }
-    setErrorText(GitBundle.getString("clone.invalid.url"));
+    setErrorText(DvcsBundle.getString("clone.invalid.url"));
     setOKActionEnabled(false);
     return false;
   }
@@ -277,7 +278,7 @@ public class GitCloneDialog extends DialogWrapper {
 
   private void createUIComponents() {
     myRepositoryURL = new EditorComboBox("");
-    final GitRememberedInputs rememberedInputs = GitRememberedInputs.getInstance();
+    final DvcsRememberedInputs rememberedInputs = GitRememberedInputs.getInstance();
     myRepositoryURL.setHistory(ArrayUtil.toObjectArray(rememberedInputs.getVisitedUrls(), String.class));
     myRepositoryURL.addDocumentListener(new com.intellij.openapi.editor.event.DocumentAdapter() {
       @Override
@@ -300,7 +301,7 @@ public class GitCloneDialog extends DialogWrapper {
   }
 
   public void rememberSettings() {
-    final GitRememberedInputs rememberedInputs = GitRememberedInputs.getInstance();
+    final DvcsRememberedInputs rememberedInputs = GitRememberedInputs.getInstance();
     rememberedInputs.addUrl(getSourceRepositoryURL());
     rememberedInputs.setCloneParentDir(getParentDirectory());
   }

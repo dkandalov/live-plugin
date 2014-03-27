@@ -44,7 +44,7 @@ public class AddPluginFromGitComponent implements ApplicationComponent {
 	}
 
 	/**
-	 * Partially copied from {@link org.jetbrains.plugins.github.GithubCheckoutProvider}.
+	 * Partially copied from org.jetbrains.plugins.github.GithubCheckoutProvider (became com.intellij.dvcs.ui.CloneDvcsDialog in IJ13)
 	 */
 	private static class AddPluginFromGitAction extends AnAction {
 		private static final Logger LOG = Logger.getInstance(AddPluginFromGitAction.class);

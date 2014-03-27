@@ -20,7 +20,6 @@ import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.api.GithubAp
 import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.api.GithubFullPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.github.GithubSettings;
 
 /**
  * @author Aleksey Pivovarov
