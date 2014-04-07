@@ -73,7 +73,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
 
 
 ### More examples
- - [Console filter/transform example](https://gist.github.com/dkandalov/10068485) - example of filtering and changing console output
+ - [Console filter/transform example](https://github.com/dkandalov/live-plugin/wiki/Console-filtering) - example of filtering and changing console output
  - [VCS update listener example](https://gist.github.com/dkandalov/8840509) - example of adding callback on VCS update
  - [Move and split tabs](https://gist.github.com/dkandalov/6643735) - moves tabs left/right with splitting
  - [Show text diff](https://gist.github.com/dkandalov/6728950) - really lame example of opening IntelliJ text diff window (please don't use it!)
