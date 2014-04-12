@@ -61,18 +61,23 @@ Through IntelliJ plugin manager. Search for "liveplugin".
 
 
 ### Advanced usage
- - it helps to have [JetGroovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin installed (available only for IntelliJ IDEA)
+ - it helps to be familiar with IntelliJ API (e.g. look at [plugin development wiki page][http://confluence.jetbrains.com/display/IDEADEV/PluginDevelopment]).
+ Some parts of it which I found useful for small plugins are in
+ [PluginUtil class](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy).
+ Even if you don't use it, it might be a good place to look up bits of IntelliJ API.
+ - it helps to have [JetGroovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin installed (available only for IntelliJ IDEA).
  - you can get auto-completion in plugins code by adding IDEA and LivePlugin jars to project
-   (in "Settings" drop-down at the top of "Plugins" tool window).
- - check [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy) class.
- Even if you don't want to use it, it might be a good place to see how to interact with IntelliJ API.
- - get [IntelliJ source code](https://github.com/JetBrains/intellij-community), look how your favorite feature is implemented,
- steal the code and adapt for your needs
+   (in "Settings" drop-down at the top of "Plugins" tool window). This is a bit of a hack, but seems much easier than
+   setting up a new project for every tiny experiment.
+ - get [IntelliJ source code](https://github.com/JetBrains/intellij-community), find out how your favorite feature is implemented,
+ steal the code and adapt it for your needs
  - if your plugins are stable enough, you can enable "Settings -> Run All Live Plugins on IDE Startup" option.
  If some of them are not meant to be executed at startup, add "if (isIdeStartup) return" statement at the top.
+ - when plugin seems to be big enough, you can create a separate project for it but still use live plugin for loading.
+ Or you can use liveplugin with existing plugins, the only thing is to make it reloadable.
+ See [liveplugin as an entry point for standard plugins](https://github.com/dkandalov/live-plugin/wiki/Liveplugin-as-an-entry-point-for-standard-plugins).
 
-
-### More examples
+### Misc examples
  - [Console filter/transform example](https://github.com/dkandalov/live-plugin/wiki/Console-filtering) - example of filtering and changing console output
  - [VCS update listener example](https://gist.github.com/dkandalov/8840509) - example of adding callback on VCS update
  - [Move and split tabs](https://gist.github.com/dkandalov/6643735) - moves tabs left/right with splitting
@@ -102,7 +107,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
 
 
 ### How this plugin works?
-It just evaluates code inside JVM, like this:
+It just runs your code in JVM, like this:
 ```java
 GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
 scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));
