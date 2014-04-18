@@ -78,6 +78,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
  See [liveplugin as an entry point for standard plugins](https://github.com/dkandalov/live-plugin/wiki/Liveplugin-as-an-entry-point-for-standard-plugins).
 
 ### Misc examples
+ - [Simplistic "compile and run haskell" action](https://gist.github.com/dkandalov/11051113) - obviously this can be done for other languages/environments
  - [Console filter/transform example](https://github.com/dkandalov/live-plugin/wiki/Console-filtering) - example of filtering and changing console output
  - [VCS update listener example](https://gist.github.com/dkandalov/8840509) - example of adding callback on VCS update
  - [Move and split tabs](https://gist.github.com/dkandalov/6643735) - moves tabs left/right with splitting
