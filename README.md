@@ -100,6 +100,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
  - [Create .jar patch file for current change list](https://gist.github.com/dkandalov/5502872) - that's what it does
  - [Remove getters/setters](https://gist.github.com/dkandalov/5476562) - removes all setters or getters in a class
  - [ISO DateTime / Epoch timestamp converter](https://gist.github.com/xhanin/4948901) - converts Epoch time to/from ISO format
+ - [Make cursor move in circle](https://gist.github.com/dkandalov/11326385) - definitely not practical but gives an idea about threading
  - [Word Cloud](https://github.com/dkandalov/intellij-wordcloud) - shows world cloud for the selected item (file/package/folder)
  - [Project TreeMap View](https://github.com/dkandalov/project-treemap) - shows project structure (packages/classes) as treemap based on size of classes
  - [Method History](https://github.com/dkandalov/history-slider-plugin) - combines built-in method history based on selection and method history based on method name
