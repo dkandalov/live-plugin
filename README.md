@@ -132,6 +132,6 @@ The idea of running code inside IntelliJ is not original. There are similar plug
 
 
 ### It would be interesting
- - try writing a language plugin
+ - to try writing a language plugin
  - to have nice object tree pattern-matching API for Groovy (can be good for writing inspections/intentions to match/replace syntax tree).
- - more languages, e.g. Ruby, Kotlin or Java.
+ - add more languages, e.g. Ruby, Kotlin or Java.
