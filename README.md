@@ -61,8 +61,8 @@ Through IntelliJ plugin manager. Search for "liveplugin".
 
 
 ### Advanced usage
- - it helps to be familiar with IntelliJ API (e.g. look at [plugin development wiki page][http://confluence.jetbrains.com/display/IDEADEV/PluginDevelopment]).
- Some parts of it which I found useful for small plugins are in
+ - it helps to be familiar with IntelliJ API (e.g. look at [plugin development wiki page](http://confluence.jetbrains.com/display/IDEADEV/PluginDevelopment)).
+ Some parts of it which seem to be useful for small plugins are in
  [PluginUtil class](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy).
  Even if you don't use it, it might be a good place to look up bits of IntelliJ API.
  - it helps to have [JetGroovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin installed (available only for IntelliJ IDEA).
@@ -133,6 +133,6 @@ The idea of running code inside IntelliJ is not original. There are similar plug
 
 
 ### It would be interesting
- - try writing a language plugin
+ - to try writing a language plugin
  - to have nice object tree pattern-matching API for Groovy (can be good for writing inspections/intentions to match/replace syntax tree).
- - more languages, e.g. Ruby, Kotlin or Java.
+ - add more languages, e.g. Ruby, Kotlin or Java.
