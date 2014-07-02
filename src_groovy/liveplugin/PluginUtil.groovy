@@ -761,7 +761,9 @@ class PluginUtil {
 	 */
 	static showPopupMenu(Map menuDescription, String popupTitle = "") {
 		def dummyDataContext = new MapDataContext()
-		JBPopupFactory.instance.createActionGroupPopup(
+        def dummyComponent = new JPanel()
+        dummyDataContext.put(PlatformDataKeys.CONTEXT_COMPONENT, dummyComponent)
+        JBPopupFactory.instance.createActionGroupPopup(
 				popupTitle,
 				createNestedActionGroup(menuDescription),
 				dummyDataContext,
