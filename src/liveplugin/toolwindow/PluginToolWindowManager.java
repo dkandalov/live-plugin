@@ -13,6 +13,7 @@
  */
 package liveplugin.toolwindow;
 
+import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.DefaultTreeExpander;
 import com.intellij.ide.DeleteProvider;
 import com.intellij.ide.actions.CollapseAllAction;
@@ -345,7 +346,13 @@ public class PluginToolWindowManager {
 					}
 				}
 			});
-			return actionGroup;
+            actionGroup.addSeparator();
+            actionGroup.add(new AnAction("Examples on GitHub") {
+                @Override public void actionPerformed(AnActionEvent e) {
+                    BrowserUtil.open("https://github.com/dkandalov/live-plugin#more-examples");
+                }
+            });
+            return actionGroup;
 		}
 
 		public List<String> selectedPluginIds() {
