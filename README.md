@@ -77,7 +77,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
  Or you can use liveplugin with existing plugins, the only thing is to make it reloadable.
  See [liveplugin as an entry point for standard plugins](https://github.com/dkandalov/live-plugin/wiki/Liveplugin-as-an-entry-point-for-standard-plugins).
 
-### Misc examples
+### More examples
  - [Simplistic "compile and run haskell" action](https://gist.github.com/dkandalov/11051113) - obviously this can be done for other languages/environments
  - [Scripting a macros](https://github.com/dkandalov/live-plugin/wiki/Scripting-a-macros) - example of finding and invoking built-in actions
  - [Console filter/transform example](https://github.com/dkandalov/live-plugin/wiki/Console-filtering) - example of filtering and changing console output
@@ -97,6 +97,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
  - [Show PSI view dialog](https://gist.github.com/dkandalov/5979943) - one-liner to show PSI viewer dialog. Normally it's only enabled in plugin projects.
  - [Simplistic "generify return type"](https://gist.github.com/dkandalov/5992191) - attempt to pattern-match PSI tree
  - [No copy-paste](https://gist.github.com/dkandalov/5430282) - disables copy/paste actions
+ - [Text munging actions](https://gist.github.com/dkandalov/34daca651fb3fbb9b33f) - simple actions on text (sort, unique, keep/delete lines)
  - [Wrap selection](https://gist.github.com/dkandalov/5129543) - micro-plugin to wrap long lines with separator
  - [Wrap selected text to column width](https://gist.github.com/dkandalov/5557393) - copy of this plugin https://github.com/abrookins/WrapToColumn
  - [Create .jar patch file for current change list](https://gist.github.com/dkandalov/5502872) - that's what it does
