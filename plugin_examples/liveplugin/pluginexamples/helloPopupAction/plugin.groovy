@@ -1,18 +1,27 @@
+import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnActionEvent
 
 import static liveplugin.PluginUtil.*
 
 registerAction("helloPopupAction", "ctrl alt shift P") { AnActionEvent event ->
 	def popupMenuDescription = [
-			"World 1": [
-					"sub-world 11": { show "Hello sub-world 11!!" },
-					"sub-world 12": { show "hello sub-world 12" },
+			"Hello World": [
+					"hello, hello": { show("hello, hello") },
+					"hello, how low?": { show("hello, how low?") },
 			],
-			"World 2": [
-					"sub-world 21": { show "sub-world 21 hello" },
-					"sub-world 22": { show "sub-world hello 22" },
+			"Open in browser": [
+                    "Live plugin github": {
+                        BrowserUtil.open("https://github.com/dkandalov/live-plugin")
+                    },
+					"IntelliJ Architectural Overview": {
+                        BrowserUtil.open("http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview")
+                    },
 			],
-			"World 3": { show "Hey world 3!" }
+			"Execute command": {
+                def command = showInputDialog("Enter a command:", "")
+                if (command == null) return
+                show(execute(command))
+            }
 	]
 	def popupTitle = "Say hello to..."
 	showPopupMenu(popupMenuDescription, popupTitle)
