@@ -85,6 +85,7 @@ public interface PluginRunner {
 			String pattern = pathAndPattern.substring(separatorIndex + 1);
 
 			File[] files = new File(path).listFiles((FileFilter) new GlobFilenameFilter(pattern));
+			files = (files == null ? new File[0] : files);
 			return ContainerUtil.map(files, new Function<File, String>() {
 				@Override public String fun(File file) {
 					return file.getAbsolutePath();
