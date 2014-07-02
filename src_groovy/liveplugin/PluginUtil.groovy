@@ -728,17 +728,17 @@ class PluginUtil {
 	}
 
 	/**
-	 * @param description nested maps that represent a tree of actions. Leaves of the tree should be closures, e.g.
-	 *        ["Level1": { show("-" + it) },
-	 *         "Level2":
-	 *          ["SubLevel": { show("--" + it) }]]
+	 * @param description map that represents a tree of actions.
+     *                   Entry keys will be used as text presentation of items.
+     *                   Entry values can be map, closure (will be called with {@link AnActionEvent})
+     *                   or {@link AnAction} (in this case entry key is ignored).
 	 * @param actionGroup (optional) action group to which actions will be added
 	 * @return actionGroup with actions
 	 */
 	static ActionGroup createNestedActionGroup(Map description, actionGroup = new DefaultActionGroup()) {
 		description.each { entry ->
 			if (entry.value instanceof Closure) {
-				actionGroup.add(new AnAction(entry.key as String) {
+				actionGroup.add(new AnAction(entry.key.toString()) {
 					@Override void actionPerformed(AnActionEvent event) {
 						entry.value.call(entry.key)
 					}
@@ -748,7 +748,9 @@ class PluginUtil {
 				def actionGroupName = entry.key.toString()
 				def isPopup = true
 				actionGroup.add(createNestedActionGroup(subMenuDescription, new DefaultActionGroup(actionGroupName, isPopup)))
-			}
+			} else if (entry.value instanceof AnAction) {
+                actionGroup.add(entry.value)
+            }
 		}
 		actionGroup
 	}
