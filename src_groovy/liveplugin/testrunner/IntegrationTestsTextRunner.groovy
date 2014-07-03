@@ -1,10 +1,10 @@
 package liveplugin.testrunner
-
 import com.intellij.openapi.project.Project
-import liveplugin.PluginUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
+import static liveplugin.PluginUtil.doInBackground
+import static liveplugin.PluginUtil.showInConsole
 import static liveplugin.testrunner.IntegrationTestsRunner.runTestsInClass
 
 @SuppressWarnings(["GroovyUnusedDeclaration"])
@@ -13,13 +13,13 @@ class IntegrationTestsTextRunner {
 		def context = [project: project, pluginPath: pluginPath]
 		def now = System.currentTimeMillis()
 
-		PluginUtil.doInBackground("Running integration tests", false) {
+		doInBackground("Running integration tests", false) {
 			def textReporter = new TextTestReporter()
 			textReporter.startedAllTests(now)
 			testClasses.collect{ runTestsInClass(it, context, textReporter, now) }
 			textReporter.finishedAllTests(now)
 
-			PluginUtil.showInConsole(textReporter.result, "Integration tests", project)
+			showInConsole(textReporter.result, "Integration tests", project)
 		}
 	}
 

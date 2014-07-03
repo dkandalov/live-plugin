@@ -12,6 +12,7 @@ import java.lang.reflect.Method
 
 
 class IntegrationTestsRunner implements ApplicationComponent {
+    // by default use text runner because it will work in all IntelliJ IDEs
 	private static runTests = IntegrationTestsTextRunner.&runIntegrationTests
 
 	/**
@@ -31,8 +32,9 @@ class IntegrationTestsRunner implements ApplicationComponent {
 	}
 
 	@Override void initComponent() {
+        // only initialized if there is junit plugin (which might not be the case for some IntelliJ IDEs)
 		runTests = IntegrationTestsUIRunner.&runIntegrationTests
-		PluginUtil.log("junit found")
+		PluginUtil.log("Enabled junit panel output for integration tests")
 	}
 
 	@Override void disposeComponent() {}
