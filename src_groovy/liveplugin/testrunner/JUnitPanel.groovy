@@ -1,9 +1,6 @@
 package liveplugin.testrunner
-import com.intellij.execution.ExecutionManager
-import com.intellij.execution.Executor
-import com.intellij.execution.Location
-import com.intellij.execution.RunManager
-import com.intellij.execution.RunnerAndConfigurationSettings
+
+import com.intellij.execution.*
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.ConfigurationPerRunnerSettings
 import com.intellij.execution.configurations.RunnerSettings
@@ -18,6 +15,7 @@ import com.intellij.execution.junit2.states.TestState
 import com.intellij.execution.junit2.ui.ConsolePanel
 import com.intellij.execution.junit2.ui.actions.JUnitToolbarPanel
 import com.intellij.execution.junit2.ui.model.CompletionEvent
+import com.intellij.execution.junit2.ui.model.JUnitListenersNotifier
 import com.intellij.execution.junit2.ui.model.JUnitRunningModel
 import com.intellij.execution.junit2.ui.model.TreeCollapser
 import com.intellij.execution.junit2.ui.properties.JUnitConsoleProperties
@@ -75,8 +73,9 @@ class JUnitPanel implements TestReporter {
 
 		rootTestProxy = new TestProxy(newTestInfo("Integration tests"))
 		model = new JUnitRunningModel(rootTestProxy, consoleProperties)
+        model.notifier.onFinished() // disable listening for events (see also JUnitListenersNotifier.onEvent)
 
-		def additionalActions = new AppendAdditionalActions(project, "Integration tests")
+        def additionalActions = new AppendAdditionalActions(project, "Integration tests")
 		def consoleView = newConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
 		consoleView.initUI()
 		consoleView.attachToProcess(handler)
@@ -84,7 +83,7 @@ class JUnitPanel implements TestReporter {
 
 		ExecutionManager.getInstance(project).contentManager.showRunContent(executor, additionalActions.descriptor)
 
-		testProxyUpdater = new TestProxyUpdater(rootTestProxy)
+		testProxyUpdater = new TestProxyUpdater(rootTestProxy, model.notifier)
 		this
 	}
 
@@ -98,7 +97,6 @@ class JUnitPanel implements TestReporter {
 
 		testProxyUpdater.finished()
 
-		model.notifier.onFinished()
 		model.notifier.fireRunnerStateChanged(new CompletionEvent(true, time - allTestsStartTime))
 	}
 
@@ -160,17 +158,23 @@ class JUnitPanel implements TestReporter {
 		private final def testStartTimeByMethodName = new HashMap<String, Long>()
 		private final def testStartTimeByClassName = new HashMap<String, Long>()
 
-		private final TestProxy rootTestProxy
+        private final TestProxy rootTestProxy
+        private final JUnitListenersNotifier listenersNotifier
 
-		TestProxyUpdater(TestProxy rootTestProxy) {
-			this.rootTestProxy = rootTestProxy
+        TestProxyUpdater(TestProxy rootTestProxy, JUnitListenersNotifier listenersNotifier) {
+            this.listenersNotifier = listenersNotifier
+            this.rootTestProxy = rootTestProxy
 		}
 
 		void running(String className, String methodName, long time = System.currentTimeMillis()) {
 			def classTestProxy = testProxyByClassName.get(className)
 			if (!rootTestProxy.children.contains(classTestProxy)) {
-				rootTestProxy.addChild(classTestProxy)
-				classTestProxy.setState(runningState)
+
+                listenersNotifier.onStarted() // onStarted/onFinished to fix https://github.com/dkandalov/live-plugin/issues/39
+                rootTestProxy.addChild(classTestProxy)
+                listenersNotifier.onFinished()
+
+                classTestProxy.setState(runningState)
 				testStartTimeByClassName.put(className, time)
 			}
 
