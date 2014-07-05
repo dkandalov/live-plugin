@@ -15,6 +15,7 @@
               <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/github-integration.xml" />
               <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/junit-panel-integration.xml" />
             </element>
+            <element id="dir-copy" path="$PROJECT_DIR$/plugin_examples" />
           </element>
         </element>
       </element>
