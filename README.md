@@ -82,6 +82,7 @@ Through IntelliJ plugin manager. Search for "liveplugin".
  - [Scripting a macros](https://github.com/dkandalov/live-plugin/wiki/Scripting-a-macros) - example of finding and invoking built-in actions
  - [Console filter/transform example](https://github.com/dkandalov/live-plugin/wiki/Console-filtering) - example of filtering and changing console output
  - [VCS update listener example](https://gist.github.com/dkandalov/8840509) - example of adding callback on VCS update
+ - [Find class dependencies](https://gist.github.com/dkandalov/6976133) - simple action to find all class dependencies within current project
  - [Module transitive dependencies](https://gist.github.com/dkandalov/80d8d4f71bef54290a71) - finds all transitive dependencies for modules in IDEA project
  - [Move and split tabs](https://gist.github.com/dkandalov/6643735) - moves tabs left/right with splitting (see also [Tab Shifter plugin](https://github.com/dkandalov/tab-shift))
  - [Show text diff](https://gist.github.com/dkandalov/6728950) - really lame example of opening IntelliJ text diff window (please don't use it!)
