@@ -1,6 +1,6 @@
 ### IntelliJ API mini cheat sheet
 
-Getting source code (see also [jetbrains.org](http://www.jetbrains.org/pages/viewpage.action?pageId=983225)):
+Getting source code (see also [Build Community Edition page](http://www.jetbrains.org/pages/viewpage.action?pageId=983225)):
 ```
 git clone https://github.com/JetBrains/intellij-community.git
 ```
@@ -47,13 +47,11 @@ selects text in editor and retries information about the selection
 highlights ranges of text in a document, paints markers on the gutter and so on
 - [FileEditorManager](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/fileEditor/FileEditorManager.java) - 
 open/close/get current editor
-
 - [Document](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/editor/Document.java) - 
 represents the contents of a text file loaded into memory and possibly opened in a text editor
 (see also [confluence page](http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview#IntelliJIDEAArchitecturalOverview-Documents))
 - [FileDocumentManager](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/fileEditor/FileDocumentManager.java) - 
 gets document for VirtualFile, etc.
-
 - [VirtualFile](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/vfs/VirtualFile.java) - 
 represent a file on disk, in archive, HTTP server, etc. 
 (see also [confluence page](http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview#IntelliJIDEAArchitecturalOverview-VirtualFiles))
@@ -63,9 +61,11 @@ abstraction on top of file systems; delete/move/rename files (see also [confluen
 receives notifications about changes in the virtual file system
 - [VirtualFileManager](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/vfs/VirtualFileManager.java) - 
 add VirtualFile listener, refresh VirtualFileSystem
-
 - [PsiElement](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/PsiElement.java) - 
 the common base interface for all elements of the PSI tree (see also [confluence page](http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview#IntelliJIDEAArchitecturalOverview-PsiFiles))
+
+
+#### Syntax tree
 - [PsiFile](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/PsiFile.java) - 
 PSI element representing a file
 - [PsiManager](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/PsiManager.java) - 
