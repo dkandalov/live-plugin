@@ -198,9 +198,9 @@ class PluginUtil {
 
 	/**
 	 * Action group id for Main Menu -> Tools.
-	 * It can be used in {@link #registerAction(java.lang.String, com.intellij.openapi.actionSystem.AnAction)}.
+	 * Can be used in {@link #registerAction(java.lang.String, com.intellij.openapi.actionSystem.AnAction)}.
 	 *
-	 * The only reason to have it as a constant is to avoid "magic" string literals.
+	 * The only reason to have it here is that there is no constant for it in IntelliJ source code.
 	 */
 	static String TOOLS_MENU = "ToolsMenu"
 
@@ -385,7 +385,7 @@ class PluginUtil {
 	/**
 	 * Unregisters a tool window from all open IDE windows.
 	 */
-  @CanCallFromAnyThread
+    @CanCallFromAnyThread
 	static unregisterToolWindow(String toolWindowId) {
 	  invokeOnEDT {
 		  runWriteAction {
@@ -504,7 +504,8 @@ class PluginUtil {
 	 * @return lazy iterator for all {@link VirtualFile}s in project (in breadth-first order)
 	 */
 	static Iterator<VirtualFile> allFilesIn(@NotNull Project project) {
-		def projectScope = ProjectScope.getAllScope(project)
+        // TODO use ProjectRootManager.getInstance(project).fileIndex
+        def projectScope = ProjectScope.getAllScope(project)
 		def sourceRoots = ProjectRootManager.getInstance(project).contentSourceRoots
 		def queue = new LinkedList<VirtualFile>(sourceRoots.toList())
 
@@ -670,7 +671,7 @@ class PluginUtil {
 	 *
 	 * @param varName
 	 * @param initialValue
-	 * @param callback should calculate new value given previous one
+	 * @param callback receives single parameter with old value, should return new value
 	 * @return new value
 	 */
 	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure callback) {
@@ -730,7 +731,7 @@ class PluginUtil {
 	/**
 	 * @param description map that represents a tree of actions.
      *                   Entry keys will be used as text presentation of items.
-     *                   Entry values can be map, closure (will be called with {@link AnActionEvent})
+     *                   Entry values can be map, closure (will be called with key and {@link AnActionEvent})
      *                   or {@link AnAction} (in this case entry key is ignored).
 	 * @param actionGroup (optional) action group to which actions will be added
 	 * @return actionGroup with actions
@@ -740,7 +741,7 @@ class PluginUtil {
 			if (entry.value instanceof Closure) {
 				actionGroup.add(new AnAction(entry.key.toString()) {
 					@Override void actionPerformed(AnActionEvent event) {
-						entry.value.call(entry.key)
+						entry.value.call(entry.key, event)
 					}
 				})
 			} else if (entry.value instanceof Map) {
@@ -749,8 +750,8 @@ class PluginUtil {
 				def isPopup = true
 				actionGroup.add(createNestedActionGroup(subMenuDescription, new DefaultActionGroup(actionGroupName, isPopup)))
 			} else if (entry.value instanceof AnAction) {
-                actionGroup.add(entry.value)
-            }
+				actionGroup.add(entry.value)
+			}
 		}
 		actionGroup
 	}
