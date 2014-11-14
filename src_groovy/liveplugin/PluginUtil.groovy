@@ -48,6 +48,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerAdapter
 import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.popup.JBPopupFactory
@@ -516,60 +517,41 @@ class PluginUtil {
 	}
 
 	/**
-	 * @return lazy iterator for all {@link VirtualFile}s in project (in breadth-first order)
+	 * @return all {@link VirtualFile}s in project
 	 */
-	static Iterator<VirtualFile> allFilesIn(@NotNull Project project) {
-        // TODO use ProjectRootManager.getInstance(project).fileIndex
-        def projectScope = ProjectScope.getAllScope(project)
-		def sourceRoots = ProjectRootManager.getInstance(project).contentSourceRoots
-		def queue = new LinkedList<VirtualFile>(sourceRoots.toList())
-
-		new Iterator<VirtualFile>() {
-			@Override boolean hasNext() { !queue.empty }
-
-			@Override VirtualFile next() {
-				if (queue.first.isDirectory()) {
-					def childrenInProjectScope = queue.first.children.findAll{ projectScope.contains(it) }
-					queue.addAll(childrenInProjectScope)
-				}
-				queue.removeFirst()
+	static Collection<VirtualFile> allFilesIn(@NotNull Project project) {
+		def result = []
+		def projectScope = ProjectScope.getAllScope(project)
+		ProjectRootManager.getInstance(project).fileIndex.iterateContent(new ContentIterator() {
+			@Override boolean processFile(VirtualFile fileOrDir) {
+				if (projectScope.contains(fileOrDir)) result.add(fileOrDir)
+				true
 			}
-
-			@Override void remove() { throw new UnsupportedOperationException() }
-		}
+		})
+		result
 	}
 
 	/**
-	 * @return lazy iterator for all {@link Document}s in project (in breadth-first order).
-	 *         Note that iterator can return null elements.
+	 * @return all {@link Document}s in project.
+	 *         Note that some {@link VirtualFile}s might not have {@link Document},
+	 *         so result of this method might have fewer elements than {@link #allFilesIn}.
 	 */
-	static Iterator<Document> allDocumentsIn(@NotNull Project project) {
-		def fileIterator = allFilesIn(project)
+	static Collection<Document> allDocumentsIn(@NotNull Project project) {
 		def documentManager = FileDocumentManager.instance
-
-		new Iterator<Document>() {
-			@Override boolean hasNext() { fileIterator.hasNext() }
-			@Override Document next() { documentManager.getDocument(fileIterator.next()) }
-			@Override void remove() { throw new UnsupportedOperationException() }
+		allFilesIn(project).findResults { VirtualFile file ->
+			documentManager.getDocument(file)
 		}
 	}
 
 	/**
-	 * @return lazy iterator for all {@link PsiFileSystemItem}s in project (in breadth-first order).
-	 *         Note that iterator can return null elements.
+	 * @return all {@link PsiFileSystemItem}s in project.
+	 *         Note that some {@link VirtualFile}s might not have {@link PsiFileSystemItem},
+	 *         so result of this method might have fewer elements than {@link #allFilesIn}.
 	 */
-	static Iterator<PsiFileSystemItem> allPsiItemsIn(@NotNull Project project) {
-		def fileIterator = allFilesIn(project)
+	static Collection<PsiFileSystemItem> allPsiItemsIn(@NotNull Project project) {
 		def psiManager = PsiManager.getInstance(project)
-
-		new Iterator<PsiFileSystemItem>() {
-			@Override boolean hasNext() { fileIterator.hasNext() }
-			@Override PsiFileSystemItem next() {
-				def file = fileIterator.next()
-				def psiItem = file.isDirectory() ? psiManager.findDirectory(file) : psiManager.findFile(file)
-				psiItem
-			}
-			@Override void remove() { throw new UnsupportedOperationException() }
+		allFilesIn(project).findResults { VirtualFile file ->
+			file.isDirectory() ? psiManager.findDirectory(file) : psiManager.findFile(file)
 		}
 	}
 
@@ -583,8 +565,7 @@ class PluginUtil {
 		def documentManager = FileDocumentManager.instance
 		def psiManager = PsiManager.getInstance(project)
 
-		def filesIterator = allFilesIn(project)
-		for (VirtualFile file in filesIterator) {
+		for (VirtualFile file in allFilesIn(project)) {
 			def document = documentManager.getDocument(file)
 			def psiItem = (file.isDirectory() ? psiManager.findDirectory(file) : psiManager.findFile(file))
 			callback.call(file, document, psiItem)
