@@ -12,6 +12,9 @@
  * limitations under the License.
  */
 package liveplugin
+
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
@@ -70,6 +73,7 @@ import com.intellij.psi.search.ProjectScope
 import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -253,6 +257,38 @@ class PluginUtil {
 		log("Action '${actionId}' registered")
 
 		action
+	}
+
+	@CanCallFromAnyThread
+	static IntentionAction registerIntention(String intentionId, String text = intentionId,
+	                                         String familyName = text, Closure callback) {
+		def intention = new IntentionAction() {
+			@Override void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
+				callback.call([checkAvailability: false, project: project, editor: editor, file: file])
+			}
+
+			@Override boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
+				callback.call([checkAvailability: true, project: project, editor: editor, file: file])
+			}
+
+			@Override boolean startInWriteAction() { false }
+			@Override String getFamilyName() { familyName }
+			@Override String getText() { text }
+		}
+		registerIntention(intentionId, intention)
+	}
+
+	@CanCallFromAnyThread
+	static IntentionAction registerIntention(String intentionId, IntentionAction intention) {
+		runWriteAction {
+			changeGlobalVar(intentionId) { IntentionAction oldIntention ->
+				if (oldIntention != null) {
+					IntentionManager.instance.unregisterIntention(oldIntention)
+				}
+				IntentionManager.instance.addAction(intention)
+				intention
+			}
+		}
 	}
 
 	/**
