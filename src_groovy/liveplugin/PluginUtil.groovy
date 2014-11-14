@@ -22,6 +22,7 @@ import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
+import com.intellij.internal.psiView.PsiViewerDialog
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
@@ -415,6 +416,20 @@ class PluginUtil {
 
 	static unregisterToolWindowIn(Project project, String toolWindowId) {
 		ToolWindowManager.getInstance(project).unregisterToolWindow(toolWindowId)
+	}
+
+	@CanCallFromAnyThread
+	static void inspect(Object object) {
+		invokeOnEDT {
+			ObjectInspector.inspect(object)
+		}
+	}
+
+	@CanCallFromAnyThread
+	static showPsiDialog(@NotNull Project project) {
+		invokeOnEDT {
+			new PsiViewerDialog(project, false, null, null).show()
+		}
 	}
 
 	/**
