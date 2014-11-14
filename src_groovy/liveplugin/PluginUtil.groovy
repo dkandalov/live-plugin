@@ -746,8 +746,9 @@ class PluginUtil {
 	/**
 	 * @param description map that represents a tree of actions.
      *                   Entry keys will be used as text presentation of items.
-     *                   Entry values can be map, closure (will be called with key and {@link AnActionEvent})
-     *                   or {@link AnAction} (in this case entry key is ignored).
+     *                   Entry values can be map, closure or {@link AnAction}
+	 *                   Map is interpreter as description.
+	 *                   Close is a callback which takes one parameter with "key" and "event" attributes.
 	 * @param actionGroup (optional) action group to which actions will be added
 	 * @return actionGroup with actions
 	 */
@@ -756,7 +757,7 @@ class PluginUtil {
 			if (entry.value instanceof Closure) {
 				actionGroup.add(new AnAction(entry.key.toString()) {
 					@Override void actionPerformed(AnActionEvent event) {
-						entry.value.call(entry.key, event)
+						entry.value.call([key: entry.key, event: event])
 					}
 				})
 			} else if (entry.value instanceof Map) {
