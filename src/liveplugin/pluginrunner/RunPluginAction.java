@@ -83,7 +83,7 @@ public class RunPluginAction extends AnAction {
 			@Override public void run() {
 				for (final String pluginId : pluginIds) {
 					final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
-					final PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
+					PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
 						@Override public boolean value(PluginRunner it) {
 							return it.canRunPlugin(pathToPluginFolder);
 						}
@@ -103,7 +103,7 @@ public class RunPluginAction extends AnAction {
 						continue;
 					}
 
-					final Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
+					Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
 					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, RUN_ON_EDT);
 
 					errorReporter.reportAllErrors(new ErrorReporter.Callback() {

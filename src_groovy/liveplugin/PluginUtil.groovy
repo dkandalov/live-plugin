@@ -291,6 +291,17 @@ class PluginUtil {
 		}
 	}
 
+	@CanCallFromAnyThread
+	static IntentionAction unregisterIntention(String intentionId) {
+		runWriteAction {
+			changeGlobalVar(intentionId) { IntentionAction oldIntention ->
+				if (oldIntention != null) {
+					IntentionManager.instance.unregisterIntention(oldIntention)
+				}
+			}
+		}
+	}
+
 	/**
 	 * @param actionId id of action to wrap
 	 * @param actionGroupIds (optional) action groups ids in which action is registered;

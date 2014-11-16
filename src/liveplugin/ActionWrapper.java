@@ -15,6 +15,28 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
+/*
+class ActionWrapperTest {
+	@Test void "can wrap and unwrap actions"() {
+		unwrapAction("EditorDown")
+		assert !isWrapped("EditorDown")
+
+		wrapAction("EditorDown", new ActionWrapper.Listener() {
+			@Override void beforeAction() {}
+		})
+		assert isWrapped("EditorDown")
+
+		unwrapAction("EditorDown")
+		assert !isWrapped("EditorDown")
+	}
+
+	private static boolean isWrapped(String actionId) {
+		def actionClassName = ActionManager.instance.getAction(actionId).class.name
+		def actionHandlerClassName = ((EditorAction) ActionManager.instance.getAction(actionId)).handler.class.name
+		actionClassName.endsWith("WrappedEditorAction") && actionHandlerClassName.contains("WrappedEditorAction")
+	}
+}
+*/
 // TODO use in PluginUtil because EditorActions needs special support
 public class ActionWrapper {
     private static final Logger LOG = Logger.getInstance(ActionWrapper.class);
