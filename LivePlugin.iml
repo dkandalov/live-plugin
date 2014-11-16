@@ -76,15 +76,5 @@
       </library>
     </orderEntry>
     <orderEntry type="library" scope="PROVIDED" name="groovy-all-2.2.1" level="application" />
-    <orderEntry type="module" module-name="openapi" />
-    <orderEntry type="module" module-name="platform-impl" />
-    <orderEntry type="module" module-name="git4idea" />
-    <orderEntry type="module" module-name="github" />
-    <orderEntry type="module" module-name="lang-impl" />
-    <orderEntry type="module" module-name="execution-impl" />
-    <orderEntry type="library" name="OroMatcher" level="project" />
-    <orderEntry type="module" module-name="testFramework" />
-    <orderEntry type="module" module-name="java-impl" />
   </component>
 </module>
-
