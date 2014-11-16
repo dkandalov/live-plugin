@@ -72,7 +72,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 	public static String pluginsRootPath() {
 		return FileUtilRt.toSystemIndependentName(PathManager.getPluginsPath() + "/live-plugins");
 	}
-	private static String oldPluginsRootPath() {
+	private static String oldPluginsRootPath() { // TODO remove
 		return FileUtilRt.toSystemIndependentName(PathManager.getPluginsPath() + "/intellij-eval-plugins");
 	}
 
