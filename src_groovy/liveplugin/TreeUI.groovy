@@ -10,7 +10,7 @@ import com.intellij.ui.treeStructure.SimpleTreeStructure
 import javax.swing.*
 import javax.swing.tree.DefaultTreeModel
 
-class TreeUIUtil {
+class TreeUI {
 	interface TreeNode<T> {
 		Collection<TreeNode<T>> children()
 		PresentationData presentation()

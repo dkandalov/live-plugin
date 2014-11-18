@@ -74,6 +74,7 @@ import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.IncorrectOperationException
+import liveplugin.implementation.ObjectInspector
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -434,7 +435,7 @@ class PluginUtil {
 	/**
 	 * Unregisters a tool window from all open IDE windows.
 	 */
-    @CanCallFromAnyThread
+  @CanCallFromAnyThread
 	static unregisterToolWindow(String toolWindowId) {
 	  invokeOnEDT {
 		  runWriteAction {

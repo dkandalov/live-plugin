@@ -1,9 +1,10 @@
-package liveplugin
+package liveplugin.implementation
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.ui.popup.IconButton
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import liveplugin.TreeUI
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -20,7 +21,7 @@ class FieldWithValue {
 	}
 }
 
-class ObjectInspector implements TreeUIUtil.TreeNode<FieldWithValue> {
+class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 	static final Map defaultConfig = [
 			showStatic: false,
 			showModifiers: false,
@@ -31,7 +32,7 @@ class ObjectInspector implements TreeUIUtil.TreeNode<FieldWithValue> {
 	private final Map config
 
 	static void inspect(Object object) {
-		def component = TreeUIUtil.createTree(new ObjectInspector(new FieldWithValue(object, null)))
+		def component = TreeUI.createTree(new ObjectInspector(new FieldWithValue(object, null)))
 
 		JBPopupFactory.instance.createComponentPopupBuilder(component, null)
 				.setTitle("Object inspector")
