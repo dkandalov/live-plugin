@@ -60,6 +60,10 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
         <applicationService serviceInterface="liveplugin.Settings" serviceImplementation="liveplugin.Settings"/>
         <statistics.usagesCollector implementation="liveplugin.LivePluginUsagesCollector"/>
         <nonProjectFileWritingAccessExtension implementation="liveplugin.MakePluginFilesAlwaysEditable"/>
+        <intentionAction>
+            <className>liveplugin.intention.AddToClassPathGroovyIntention</className>
+            <category>LivePlugin</category>
+        </intentionAction>
     </extensions>
 
 </idea-plugin>

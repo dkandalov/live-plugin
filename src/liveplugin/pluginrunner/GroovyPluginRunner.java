@@ -31,7 +31,7 @@ import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspa
 public class GroovyPluginRunner implements PluginRunner {
 	public static final String MAIN_SCRIPT = "plugin.groovy";
 	public static final String TEST_SCRIPT = "plugin-test.groovy";
-	private static final String GROOVY_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
+	public static final String GROOVY_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
 
 	private final String scriptName;
 	private final ErrorReporter errorReporter;

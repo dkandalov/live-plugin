@@ -1,0 +1,4 @@
+import org.mockito.Mockito
+import static liveplugin.PluginUtil.show
+
+show(Mockito.class.name)

@@ -1,0 +1,13 @@
+import org.mockito.Mockito
+import static liveplugin.PluginUtil.show
+
+// add-to-classpath $HOME/.m2/repository/org/mockito/mockito-all/1.8.4/mockito*.jar
+
+// - Any environment variable can be used with '$' as prefix (e.g. "$JAVA_HOME").
+// - $PLUGIN_PATH variable points to current plugin folder
+// - Glob wildcards can be used in file name.
+
+show(Mockito.class.name)
+
+
+
