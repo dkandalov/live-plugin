@@ -2,7 +2,7 @@ import util.AClass
 
 import static liveplugin.PluginUtil.*
 
-// For more util methods please see
+// For more util methods see
 // https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy
 
 // log message in "Event Log"
