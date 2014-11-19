@@ -1,4 +1,3 @@
-import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -8,20 +7,13 @@ import com.intellij.psi.PsiField
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.NotNull
 
-import static liveplugin.PluginUtil.*
+import static liveplugin.PluginUtil.registerIntention
+import static liveplugin.PluginUtil.show
 
-def intentions = [
-		new AddRemoveFinalIntentionAction("Make 'final'", true),
-		new AddRemoveFinalIntentionAction("Make non-final", false)
-]
 
-changeGlobalVar("finalIntention"){ previousIntentions ->
-	if (previousIntentions != null) {
-		previousIntentions.each{ IntentionManager.instance.unregisterIntention(it) }
-	}
-	intentions.each{ IntentionManager.instance.registerIntentionAndMetaData(it, "Modifiers") }
-	intentions
-}
+registerIntention("MakeFieldFinal", new AddRemoveFinalIntentionAction("Make 'final'", true))
+registerIntention("MakeFieldNonFinal", new AddRemoveFinalIntentionAction("Make non-final", false))
+
 if (!isIdeStartup) show("Reloaded finalIntention plugin")
 
 
