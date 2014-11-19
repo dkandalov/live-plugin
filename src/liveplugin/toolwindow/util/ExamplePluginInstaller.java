@@ -33,7 +33,7 @@ public class ExamplePluginInstaller {
 
 	private static Pair<String, String> splitIntoPathAndFileName(String filePath) {
 		int index = filePath.lastIndexOf("/");
-		return new Pair<String, String>(filePath.substring(0, index), filePath.substring(index + 1));
+		return Pair.create(filePath.substring(0, index), filePath.substring(index + 1));
 	}
 
 	public static String extractPluginIdFrom(String pluginPath) {

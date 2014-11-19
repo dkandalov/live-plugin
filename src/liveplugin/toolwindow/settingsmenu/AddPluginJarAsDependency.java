@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.PathUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.util.DependenciesUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -16,7 +17,7 @@ import static com.intellij.openapi.util.Pair.create;
 public class AddPluginJarAsDependency extends AnAction {
 	private static final String LIVE_PLUGIN_LIBRARY = "LivePlugin";
 
-	@Override public void actionPerformed(AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		Project project = event.getProject();
 		if (project == null) return;
 
@@ -42,7 +43,7 @@ public class AddPluginJarAsDependency extends AnAction {
 		return pathToMyClasses;
 	}
 
-	@Override public void update(AnActionEvent event) {
+	@Override public void update(@NotNull AnActionEvent event) {
 		Project project = event.getProject();
 		if (project == null) return;
 

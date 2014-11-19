@@ -36,7 +36,7 @@ public class AddPluginFromGistAction extends AnAction {
 		super("Plugin from Gist", "Plugin from Gist", Github_icon);
 	}
 
-	@Override public void actionPerformed(AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		final Project project = event.getProject();
 
 		String gistUrl = askUserForGistUrl(event);

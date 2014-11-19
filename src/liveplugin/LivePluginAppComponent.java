@@ -81,7 +81,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 
 		File[] files = new File(pluginsRootPath()).listFiles(new FileFilter() {
 			@SuppressWarnings("SimplifiableIfStatement")
-			@Override public boolean accept(File file) {
+			@Override public boolean accept(@NotNull File file) {
 				if (containsIdeaProjectFolder && file.getName().equals(DEFAULT_IDEA_OUTPUT_FOLDER)) return false;
 				if (file.getName().equals(DIRECTORY_STORE_FOLDER)) return false;
 				return file.isDirectory();
@@ -100,7 +100,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 		File file = new File(virtualFile.getPath());
 		if (!file.isDirectory()) return false;
 		String[] files = file.list(new FilenameFilter() {
-			@Override public boolean accept(File dir, String name) {
+			@Override public boolean accept(@NotNull File dir, @NotNull String name) {
 				return name.equals(GroovyPluginRunner.MAIN_SCRIPT);
 			}
 		});

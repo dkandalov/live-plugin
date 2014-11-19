@@ -23,7 +23,7 @@ import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.IconLoader;
 import liveplugin.IdeUtil;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
-import liveplugin.toolwindow.addplugin.AddPluginFromDiskAction;
+import liveplugin.toolwindow.addplugin.AddPluginFromPathAction;
 import liveplugin.toolwindow.addplugin.git.AddPluginFromGistAction;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +39,7 @@ import static liveplugin.pluginrunner.GroovyPluginRunner.TEST_SCRIPT;
 class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 	public static final Icon Folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
 
-	@Override public void actionPerformed(final AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull final AnActionEvent event) {
 		showPopup(event.getDataContext());
 	}
 
@@ -79,7 +79,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 				actions.addAll(asList(
 						new Separator(),
 						new AddNewPluginAction(),
-						new AddPluginFromDiskAction()
+						new AddPluginFromPathAction()
 				));
 				actions.add(new AddPluginFromGistAction());
 				if (PluginToolWindowManager.addFromGitHubAction != null) {
@@ -90,7 +90,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 		};
 	}
 
-	@Override public void update(AnActionEvent e) {
+	@Override public void update(@NotNull AnActionEvent e) {
 		Presentation presentation = e.getPresentation();
 		presentation.setEnabled(true);
 	}

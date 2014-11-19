@@ -8,6 +8,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.Function;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.List;
@@ -24,7 +25,7 @@ public class DownloadScalaLibs extends AnAction {
 	public static final String LIB_FILES_PATTERN = "(scala-|scalap).*jar";
 	private static final String APPROXIMATE_SIZE = "(~26Mb)";
 
-	@Override public void actionPerformed(AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		if (scalaIsOnClassPath()) {
 			int answer = Messages.showYesNoDialog(event.getProject(),
 					"Do you want to remove Scala libraries from LivePlugin classpath? This action cannot be undone.", "Live Plugin", null);
@@ -62,7 +63,7 @@ public class DownloadScalaLibs extends AnAction {
 		}
 	}
 
-	@Override public void update(AnActionEvent event) {
+	@Override public void update(@NotNull AnActionEvent event) {
 		if (scalaIsOnClassPath()) {
 			event.getPresentation().setText("Remove Scala from LivePlugin Classpath");
 			event.getPresentation().setDescription("Remove Scala from LivePlugin Classpath");

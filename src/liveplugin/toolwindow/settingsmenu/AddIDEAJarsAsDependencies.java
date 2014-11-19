@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.project.Project;
 import liveplugin.toolwindow.util.DependenciesUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +17,7 @@ import static liveplugin.MyFileUtil.fileNamesMatching;
 public class AddIDEAJarsAsDependencies extends AnAction {
 	private static final String IDEA_JARS_LIBRARY = "IDEA jars";
 
-	@Override public void actionPerformed(AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		Project project = event.getProject();
 		if (project == null) return;
 
@@ -43,7 +44,7 @@ public class AddIDEAJarsAsDependencies extends AnAction {
 		else return files.get(0);
 	}
 
-	@Override public void update(AnActionEvent event) {
+	@Override public void update(@NotNull AnActionEvent event) {
 		Project project = event.getProject();
 		if (project == null) return;
 

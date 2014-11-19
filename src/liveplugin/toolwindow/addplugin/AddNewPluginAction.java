@@ -11,6 +11,7 @@ import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.RefreshPluginTreeAction;
 import liveplugin.toolwindow.util.PluginsIO;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class AddNewPluginAction extends AnAction {
 		super("New Plugin");
 	}
 
-	@Override public void actionPerformed(AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		String newPluginId = Messages.showInputDialog(
 				event.getProject(),
 				"Enter new plugin name:",

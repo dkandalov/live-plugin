@@ -28,6 +28,7 @@ import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.Settings;
 import liveplugin.toolwindow.PluginToolWindowManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
@@ -53,11 +54,11 @@ public class RunPluginAction extends AnAction {
 		super("Run Plugin", "Run selected plugins", IdeUtil.RUN_PLUGIN_ICON);
 	}
 
-	@Override public void actionPerformed(AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		runCurrentPlugin(event);
 	}
 
-	@Override public void update(AnActionEvent event) {
+	@Override public void update(@NotNull AnActionEvent event) {
 		event.getPresentation().setEnabled(!findCurrentPluginIds(event).isEmpty());
 	}
 

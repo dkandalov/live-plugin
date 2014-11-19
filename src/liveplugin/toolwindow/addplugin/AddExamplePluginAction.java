@@ -8,6 +8,7 @@ import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.RefreshPluginTreeAction;
 import liveplugin.toolwindow.util.ExamplePluginInstaller;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class AddExamplePluginAction extends AnAction {
 		getTemplatePresentation().setText(pluginId);
 	}
 
-	@Override public void actionPerformed(final AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull final AnActionEvent event) {
 		examplePluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
 			@Override public void onException(Exception e, String pluginPath) {
 				logException(e, event, pluginPath);
@@ -33,7 +34,7 @@ public class AddExamplePluginAction extends AnAction {
 		RefreshPluginTreeAction.refreshPluginTree();
 	}
 
-	@Override public void update(AnActionEvent event) {
+	@Override public void update(@NotNull AnActionEvent event) {
 		event.getPresentation().setEnabled(!LivePluginAppComponent.pluginExists(pluginId));
 	}
 

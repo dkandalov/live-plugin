@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -21,7 +22,7 @@ public class DownloadClojureLibs extends AnAction {
 	public static final String LIB_FILES_PATTERN = "clojure-.*jar";
 	private static final String APPROXIMATE_SIZE = "(~5Mb)";
 
-	@Override public void actionPerformed(AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		if (clojureIsOnClassPath()) {
 			int answer = Messages.showYesNoDialog(event.getProject(),
 					"Do you want to remove Clojure libraries from LivePlugin classpath? This action cannot be undone.", "Live Plugin", null);
@@ -51,7 +52,7 @@ public class DownloadClojureLibs extends AnAction {
 		}
 	}
 
-	@Override public void update(AnActionEvent event) {
+	@Override public void update(@NotNull AnActionEvent event) {
 		if (clojureIsOnClassPath()) {
 			event.getPresentation().setText("Remove Clojure from LivePlugin Classpath");
 			event.getPresentation().setDescription("Remove Clojure from LivePlugin Classpath");

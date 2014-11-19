@@ -59,7 +59,7 @@ import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
-import liveplugin.toolwindow.addplugin.AddPluginFromDiskAction;
+import liveplugin.toolwindow.addplugin.AddPluginFromPathAction;
 import liveplugin.toolwindow.addplugin.git.AddPluginFromGistAction;
 import liveplugin.toolwindow.settingsmenu.AddIDEAJarsAsDependencies;
 import liveplugin.toolwindow.settingsmenu.AddPluginJarAsDependency;
@@ -311,7 +311,7 @@ public class PluginToolWindowManager {
 		private AnAction createAddPluginsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
 			actionGroup.add(new AddNewPluginAction());
-			actionGroup.add(new AddPluginFromDiskAction());
+			actionGroup.add(new AddPluginFromPathAction());
 			actionGroup.add(new AddPluginFromGistAction());
 			if (addFromGitHubAction != null)
 				actionGroup.add(addFromGitHubAction);
@@ -337,7 +337,7 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloClojure", asList("plugin.clj")));
 			actionGroup.addSeparator();
 			actionGroup.add(new AnAction("Add All") {
-				@Override public void actionPerformed(AnActionEvent e) {
+				@Override public void actionPerformed(@NotNull AnActionEvent e) {
 					AnAction[] actions = actionGroup.getChildActionsOrStubs();
 					for (AnAction action : actions) {
 						if (action instanceof AddExamplePluginAction) {
@@ -348,7 +348,7 @@ public class PluginToolWindowManager {
 			});
             actionGroup.addSeparator();
             actionGroup.add(new AnAction("Examples on GitHub") {
-                @Override public void actionPerformed(AnActionEvent e) {
+                @Override public void actionPerformed(@NotNull AnActionEvent e) {
                     BrowserUtil.open("https://github.com/dkandalov/live-plugin#more-examples");
                 }
             });

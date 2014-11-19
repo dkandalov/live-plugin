@@ -33,6 +33,7 @@ import git4idea.commands.GitTaskResult;
 import git4idea.remote.GitRememberedInputs;
 import liveplugin.LivePluginAppComponent;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -144,7 +145,7 @@ public class GitCloneDialog extends DialogWrapper {
     myDirectoryName.getDocument().addDocumentListener(updateOkButtonListener);
 
     myTestButton.addActionListener(new ActionListener() {
-      public void actionPerformed(final ActionEvent e) {
+      public void actionPerformed(@NotNull final ActionEvent e) {
         test();
       }
     });

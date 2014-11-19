@@ -7,6 +7,7 @@ import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.Function;
 import liveplugin.toolwindow.util.DependenciesUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ import static liveplugin.MyFileUtil.fileNamesMatching;
 public class AddClojureLibsAsDependency extends AnAction {
 	private static final String LIBRARY_NAME = "LivePlugin - Clojure";
 
-	@Override public void actionPerformed(AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		Project project = event.getProject();
 		if (project == null) return;
 
@@ -36,7 +37,7 @@ public class AddClojureLibsAsDependency extends AnAction {
 		}
 	}
 
-	@Override public void update(AnActionEvent event) {
+	@Override public void update(@NotNull AnActionEvent event) {
 		Project project = event.getProject();
 		if (project == null) return;
 

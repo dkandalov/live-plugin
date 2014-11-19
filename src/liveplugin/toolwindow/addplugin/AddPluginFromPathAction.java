@@ -17,20 +17,21 @@ import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import liveplugin.toolwindow.RefreshPluginTreeAction;
 import liveplugin.toolwindow.util.PluginsIO;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
 @SuppressWarnings("ComponentNotRegistered")
-public class AddPluginFromDiskAction extends AnAction {
-	private static final Logger LOG = Logger.getInstance(AddPluginFromDiskAction.class);
+public class AddPluginFromPathAction extends AnAction {
+	private static final Logger LOG = Logger.getInstance(AddPluginFromPathAction.class);
 
-	public AddPluginFromDiskAction() {
-		super("Plugin from Disk");
+	public AddPluginFromPathAction() {
+		super("Plugin from Path");
 	}
 
-	@Override public void actionPerformed(AnActionEvent event) {
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, true, true, false);
 
 		PluginToolWindowManager.addRoots(descriptor, getFileSystemRoots());

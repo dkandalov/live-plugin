@@ -23,8 +23,8 @@ import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.PluginToolWindowManager;
-import liveplugin.toolwindow.util.PluginsIO;
 import liveplugin.toolwindow.RefreshPluginTreeAction;
+import liveplugin.toolwindow.util.PluginsIO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +53,7 @@ public class AddPluginFromGitComponent implements ApplicationComponent {
 			super("Plugin from Git", "Plugin from Git", GithubIcons.Github_icon);
 		}
 
-		@Override public void actionPerformed(AnActionEvent event) {
+		@Override public void actionPerformed(@NotNull AnActionEvent event) {
 			GitCloneDialog dialog = new GitCloneDialog(event.getProject());
 			dialog.show();
 			if (!dialog.isOK()) return;
