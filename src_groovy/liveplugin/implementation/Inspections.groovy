@@ -88,7 +88,7 @@ class Inspections {
 
 			def newProjectProfile = new InspectionProfileImpl(projectProfile.name, registrar, projectProfileManager)
 			newProjectProfile.copyFrom(projectProfile)
-			newProjectProfile.baseProfile = profileManager.getProfile(projectProfile.modifiableModel.baseProfileName)
+			newProjectProfile.baseProfile = profileManager.getProfile(projectProfile.modifiableModel.baseProfileName) as InspectionProfile
 			newProjectProfile.initInspectionTools(project)
 
 			projectProfileManager.deleteProfile(projectProfile.name)

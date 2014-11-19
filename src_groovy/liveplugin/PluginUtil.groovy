@@ -15,6 +15,7 @@ package liveplugin
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.IntentionManager
+import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
@@ -74,6 +75,7 @@ import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.IncorrectOperationException
+import liveplugin.implementation.Inspections
 import liveplugin.implementation.ObjectInspector
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
@@ -196,13 +198,6 @@ class PluginUtil {
 		result.get()
 	}
 
-	@Deprecated // please use showInConsole() instead (it was a bad idea to have two methods)
-	@CanCallFromAnyThread
-	static ConsoleView showInNewConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
-	                                    ConsoleViewContentType contentType = guessContentTypeOf(message)) {
-		showInConsole(message, consoleTitle, project, contentType)
-	}
-
 	/**
 	 * Action group id for Main Menu -> Tools.
 	 * Can be used in {@link #registerAction(java.lang.String, com.intellij.openapi.actionSystem.AnAction)}.
@@ -300,6 +295,20 @@ class PluginUtil {
 					IntentionManager.instance.unregisterIntention(oldIntention)
 				}
 			}
+		}
+	}
+
+	@CanCallFromAnyThread
+	static registerInspection(Project project, InspectionProfileEntry inspection) {
+		runWriteAction {
+			Inspections.registerInspection(project, inspection)
+		}
+	}
+
+	@CanCallFromAnyThread
+	static unregisterInspection(Project project, InspectionProfileEntry inspection) {
+		runWriteAction {
+			Inspections.unregisterInspection(project, inspection)
 		}
 	}
 
