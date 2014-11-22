@@ -1,9 +1,6 @@
 package liveplugin.implementation
 
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Caret
 import com.intellij.openapi.editor.Editor
@@ -12,6 +9,8 @@ import com.intellij.openapi.editor.actionSystem.EditorAction
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.PossiblyDumbAware
+import com.intellij.openapi.util.Pair
+import liveplugin.PluginUtil
 import org.jetbrains.annotations.NotNull
 
 import java.lang.reflect.Method
@@ -34,7 +33,7 @@ class ActionWrapper {
 	}
 
 
-	static AnAction wrapAction(String actionId, Closure callback) {
+	static AnAction wrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
 		AnAction action = ActionManager.instance.getAction(actionId)
 		if (action == null) {
 			LOG.warn("Couldn't wrap action " + actionId + " because it was not found")
@@ -47,52 +46,66 @@ class ActionWrapper {
 		doWrapAction(actionId, callback)
 	}
 
-	static AnAction doWrapAction(String actionId, Closure callback) {
+	static AnAction doWrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
 		AnAction action = ActionManager.instance.getAction(actionId)
 		if (action == null) {
 			LOG.warn("Couldn't wrap action " + actionId + " because it was not found")
 			return null
 		}
 
-		AnAction newAction
+		AnAction wrapperAction
 		if (action instanceof EditorAction) {
-			newAction = new WrappedEditorAction(callback as Listener, (EditorAction) action)
+			wrapperAction = new WrappedEditorAction(callback as Listener, (EditorAction) action)
 		} else if (action instanceof DumbAware || action instanceof PossiblyDumbAware) {
-			newAction = new WrappedActionPossiblyDumbAware(callback as Listener, action)
+			wrapperAction = new WrappedActionPossiblyDumbAware(callback as Listener, action)
 		} else {
-			newAction = new WrappedAction(callback as Listener, action)
+			wrapperAction = new WrappedAction(callback as Listener, action)
 		}
-		newAction.getTemplatePresentation().setText(action.getTemplatePresentation().getText())
-		newAction.getTemplatePresentation().setIcon(action.getTemplatePresentation().getIcon())
-		newAction.getTemplatePresentation().setHoveredIcon(action.getTemplatePresentation().getHoveredIcon())
-		newAction.getTemplatePresentation().setDescription(action.getTemplatePresentation().getDescription())
-		newAction.copyShortcutFrom(action)
+		wrapperAction.getTemplatePresentation().setText(action.getTemplatePresentation().getText())
+		wrapperAction.getTemplatePresentation().setIcon(action.getTemplatePresentation().getIcon())
+		wrapperAction.getTemplatePresentation().setHoveredIcon(action.getTemplatePresentation().getHoveredIcon())
+		wrapperAction.getTemplatePresentation().setDescription(action.getTemplatePresentation().getDescription())
+		wrapperAction.copyShortcutFrom(action)
 
 		ActionManager.instance.unregisterAction(actionId)
-		ActionManager.instance.registerAction(actionId, newAction)
+		ActionManager.instance.registerAction(actionId, wrapperAction)
 		LOG.info("Wrapped action " + actionId)
 
-		newAction
+		actionGroups.each { replaceActionInGroup(it, actionId, wrapperAction) }
+
+		wrapperAction
 	}
 
-	static void unwrapAction(String actionId) {
+	static AnAction unwrapAction(String actionId, List<String> actionGroups = []) {
 		ActionManager actionManager = ActionManager.instance
 		AnAction action = actionManager.getAction(actionId)
 		if (action == null) {
 			LOG.warn("Couldn't unwrap action " + actionId + " because it was not found")
-			return
+			return null
 		}
-		if (isWrapped(action)) {
-			actionManager.unregisterAction(actionId)
-			actionManager.registerAction(actionId, originalActionOf(action))
-			LOG.info("Unwrapped action " + actionId)
-		} else {
+		if (!isWrapped(action)) {
 			LOG.warn("Action " + actionId + " is not wrapped")
+			return action
 		}
+
+		def originalAction = originalActionOf(action)
+		actionManager.unregisterAction(actionId)
+		actionManager.registerAction(actionId, originalAction)
+		LOG.info("Unwrapped action " + actionId)
+
+		actionGroups.each { replaceActionInGroup(it, actionId, originalAction) }
+
+		originalAction
 	}
 
-	// TODO
-	static void doUnwrapAction(String actionId) {
+	static AnAction doUnwrapAction(String actionId, List<String> actionGroups = []) {
+		def lastAction = unwrapAction(actionId)
+		def action = unwrapAction(actionId)
+		while (lastAction != action) {
+			lastAction = action
+			action = unwrapAction(actionId, actionGroups)
+		}
+		action
 	}
 
 	private static AnAction originalActionOf(AnAction wrappedAction) {
@@ -116,6 +129,36 @@ class ActionWrapper {
 			}
 		}
 		false
+	}
+
+	private static replaceActionInGroup(String actionGroupId, String actionId, AnAction newAction) {
+		def group = ActionManager.instance.getAction(actionGroupId)
+		if (!group instanceof DefaultActionGroup) {
+			LOG.warn("'${actionGroupId}' has type '${actionGroupId.class}' which is not supported")
+			return
+		}
+
+		PluginUtil.accessField(group, "mySortedChildren") { List<AnAction> actions ->
+			def actionIndex = actions.findIndexOf {
+				if (it == null) return
+				def id = 	ActionManager.instance.getId(it)
+				id == actionId
+			}
+			if (actionIndex >= 0) {
+				actions.set(actionIndex, newAction)
+			}
+		}
+		PluginUtil.accessField(group, "myPairs") { List<Pair<AnAction, Constraints>> pairs ->
+			def pairIndex = pairs.findIndexOf {
+				if (it == null || it.first == null) return
+				def id = 	ActionManager.instance.getId(it.first)
+				id == actionId
+			}
+			if (pairIndex >= 0) {
+				def oldPair = pairs.get(pairIndex)
+				pairs.set(pairIndex, new Pair(newAction, oldPair.second))
+			}
+		}
 	}
 
 

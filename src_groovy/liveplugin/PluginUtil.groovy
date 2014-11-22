@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 package liveplugin
-
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.codeInspection.InspectionProfileEntry
@@ -58,7 +57,6 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.util.Pair
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
@@ -75,6 +73,7 @@ import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.IncorrectOperationException
+import liveplugin.implementation.ActionWrapper
 import liveplugin.implementation.Inspections
 import liveplugin.implementation.ObjectInspector
 import org.jetbrains.annotations.NotNull
@@ -313,53 +312,35 @@ class PluginUtil {
 	}
 
 	/**
+	 * Wraps action if it's not already wrapped.
+	 *
 	 * @param actionId id of action to wrap
 	 * @param actionGroupIds (optional) action groups ids in which action is registered;
 	 *        can be used to update actions in menus, etc. (this is needed because action groups reference actions directly)
-	 * @param callback will be invoked instead of existing action; takes {@link AnActionEvent} and original action as parameters
+	 * @param callback will be invoked instead of wrapped action;
+	 *        {@link ActionWrapper.Context} is passed as parameter
 	 * @return wrapped action or null if there are no actions for {@code actionId}
 	 */
 	@CanCallFromAnyThread
-	static def wrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
+	static AnAction wrapAction(String actionId, List<String> actionGroupIds = [], Closure callback) {
 		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
-
-		ActionManager.instance.with {
-			AnAction action = it.getAction(actionId)
-			if (action == null) {
-				log("Couldn't wrap action '${actionId}' because it was not found")
-				return null
-			}
-
-			AnAction newAction = new AnAction() {
-				AnAction originalAction = action
-
-				@Override void actionPerformed(AnActionEvent event) {
-					callback.call(event, this.originalAction)
-				}
-
-				@Override void update(AnActionEvent event) {
-					this.originalAction.update(event)
-				}
-			}
-			newAction.templatePresentation.text = action.templatePresentation.text
-			newAction.templatePresentation.icon = action.templatePresentation.icon
-			newAction.templatePresentation.hoveredIcon = action.templatePresentation.hoveredIcon
-			newAction.templatePresentation.description = action.templatePresentation.description
-			newAction.copyShortcutFrom(action)
-
-			actionGroups.each {
-				replaceActionInGroup(it, actionId, newAction)
-			}
-
-			it.unregisterAction(actionId)
-			it.registerAction(actionId, newAction)
-			log("Wrapped action '${actionId}'")
-
-			newAction
-		}
+		ActionWrapper.wrapAction(actionId, actionGroupIds, callback)
 	}
 
 	/**
+	 * Wraps action even it's already wrapped.
+	 *
+	 * @see #wrapAction(java.lang.String, java.util.List, groovy.lang.Closure)
+	 */
+	@CanCallFromAnyThread
+	static AnAction doWrapAction(String actionId, List<String> actionGroupIds = [], Closure callback) {
+		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
+		ActionWrapper.doWrapAction(actionId, actionGroupIds, callback)
+	}
+
+	/**
+	 * Removes one wrapper around action.
+	 *
 	 * @param actionId id of action to unwrap
 	 * @param actionGroupIds (optional) action groups ids in which action is registered;
 	 *        can be used to update actions in menus, etc. (this is needed because action groups reference actions directly)
@@ -368,28 +349,18 @@ class PluginUtil {
 	@CanCallFromAnyThread
 	static def unwrapAction(String actionId, List<String> actionGroupIds = []) {
 		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
+		ActionWrapper.unwrapAction(actionId, actionGroupIds)
+	}
 
-		ActionManager.instance.with {
-			AnAction wrappedAction = it.getAction(actionId)
-			if (wrappedAction == null) {
-				log("Couldn't unwrap action '${actionId}' because it was not found")
-				return null
-			}
-			if (!wrappedAction.hasProperty("originalAction")) {
-				log("Action '${actionId}' is not wrapped")
-				return wrappedAction
-			}
-
-			actionGroupIds.each {
-				replaceActionInGroup(it, actionId, wrappedAction.originalAction)
-			}
-
-			it.unregisterAction(actionId)
-			it.registerAction(actionId, wrappedAction.originalAction)
-			log("Unwrapped action '${actionId}'")
-
-			wrappedAction.originalAction
-		}
+	/**
+	 * Removes all wrappers around action.
+	 *
+	 * @see #unwrapAction(java.lang.String, java.util.List)
+	 */
+	@CanCallFromAnyThread
+	static def doUnwrapAction(String actionId, List<String> actionGroupIds = []) {
+		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
+		ActionWrapper.doUnwrapAction(actionId, actionGroupIds)
 	}
 
 	/**
@@ -682,13 +653,13 @@ class PluginUtil {
 	 * @param callback takes {@link Document}
 	 */
 	@CanCallFromAnyThread
-	static runDocumentWriteAction(@NotNull Project project, Document document = currentDocumentIn(project), Closure callback) {
-		def name = "runDocumentWriteAction"
-		def groupId = "PluginUtil"
+	static runDocumentWriteAction(@NotNull Project project, Document document = currentDocumentIn(project),
+	                              String modificationName = "runDocumentWriteAction", String modificationGroup = "LivePlugin",
+	                              Closure callback) {
 		runWriteAction {
 			CommandProcessor.instance.executeCommand(project, {
 				callback.call(document)
-			}, name, groupId, UndoConfirmationPolicy.DEFAULT, document)
+			}, modificationName, modificationGroup, UndoConfirmationPolicy.DEFAULT, document)
 		}
 	}
 
@@ -927,36 +898,6 @@ class PluginUtil {
 		"LivePlugin-" + globalVarKey
 	}
 
-	private static replaceActionInGroup(String actionGroupId, String actionId, AnAction newAction) {
-		def group = ActionManager.instance.getAction(actionGroupId)
-		if (!group instanceof DefaultActionGroup) {
-			log("'${actionGroupId}' has type '${actionGroupId.class}' which is not supported")
-			return
-		}
-
-		accessField(group, "mySortedChildren") { List<AnAction> actions ->
-			def actionIndex = actions.findIndexOf {
-				if (it == null) return
-				def id = 	ActionManager.instance.getId(it)
-				id == actionId
-			}
-			if (actionIndex >= 0) {
-				actions.set(actionIndex, newAction)
-			}
-		}
-		accessField(group, "myPairs") { List<Pair<AnAction, Constraints>> pairs ->
-			def pairIndex = pairs.findIndexOf {
-				if (it == null || it.first == null) return
-				def id = 	ActionManager.instance.getId(it.first)
-				id == actionId
-			}
-			if (pairIndex >= 0) {
-				def oldPair = pairs.get(pairIndex)
-				pairs.set(pairIndex, new Pair(newAction, oldPair.second))
-			}
-		}
-	}
-
 
 	static String asString(@Nullable message) {
 		if (message?.getClass()?.isArray()) Arrays.toString(message)
@@ -1018,8 +959,9 @@ class PluginUtil {
 
 	private static void assertNoNeedForEdtOrWriteActionWhenUsingActionManager() {
 		// Dummy method to document that there is no need for EDT or writeAction since ActionManager uses its own internal lock.
-
-		// Also using writeAction on IDE startup can cause deadlock, e.g. when running at the same time as ServiceManager:
+		// Obviously, to be properly "thread-safe" group of operations on ActionManager should be atomic,
+		// this is not the case. The assumption is that normally mini-plugins don't change the same actions and
+		// using writeAction on IDE startup can cause deadlock, e.g. when running at the same time as ServiceManager:
 		//    at com.intellij.openapi.application.impl.ApplicationImpl.getStateStore(ApplicationImpl.java:197)
 		//    at com.intellij.openapi.application.impl.ApplicationImpl.initializeComponent(ApplicationImpl.java:205)
 		//    at com.intellij.openapi.components.impl.ServiceManagerImpl$MyComponentAdapter.initializeInstance(ServiceManagerImpl.java:164)
