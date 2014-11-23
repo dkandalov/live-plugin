@@ -570,7 +570,7 @@ class PluginUtil {
 	}
 
 
-	static List<PsiFileSystemItem> filesByName(String name, @NotNull Project project, boolean searchInLibraries = false) {
+	static List<PsiFileSystemItem> findFilesByName(String name, @NotNull Project project, boolean searchInLibraries = false) {
 		def scope = searchInLibraries? ProjectScope.getAllScope(project) : ProjectScope.getProjectScope(project)
 		FilenameIndex.getFilesByName(project, name, scope).toList()
 	}
@@ -584,6 +584,7 @@ class PluginUtil {
 				.collect{ ProjectLevelVcsManager.getInstance(project).getVcsRootObjectFor(it) }
 				.findAll{ it.path != null }.unique()
 	}
+
 
 	static void addCompilationListener(String id, Project project, CompilationStatusAdapter listener) {
 		Compilation.addCompilationListener(id, project, listener)

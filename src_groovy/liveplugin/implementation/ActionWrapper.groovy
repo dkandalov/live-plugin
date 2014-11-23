@@ -42,7 +42,7 @@ class ActionWrapper {
 			log.info("Action " + actionId + " is already wrapped")
 			return null
 		}
-		doWrapAction(actionId, callback)
+		doWrapAction(actionId, actionGroups, callback)
 	}
 
 	static AnAction doWrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
@@ -226,9 +226,9 @@ class ActionWrapper {
 				}
 
 				// TODO
-//                @Override protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
-//                    return originalAction.getHandler().isEnabled(editor, caret, dataContext)
-//                }
+//      @Override protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
+//        return originalAction.getHandler().isEnabled(editor, caret, dataContext)
+//      }
 
 				@Override DocCommandGroupId getCommandGroupId(Editor editor) {
 					originalAction.handler.getCommandGroupId(editor)

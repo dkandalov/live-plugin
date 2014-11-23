@@ -43,11 +43,13 @@ class Console {
 					null
 				}
 			}
-			new ConsoleInputFilterProvider() {
+		  def inputFilterProvider = new ConsoleInputFilterProvider() {
 				@Override InputFilter[] getDefaultFilters(@NotNull Project project) {
 					[notFilteringListener]
 				}
 			}
+			extensionPoint.registerExtension(inputFilterProvider)
+			inputFilterProvider
 		}
 	}
 
