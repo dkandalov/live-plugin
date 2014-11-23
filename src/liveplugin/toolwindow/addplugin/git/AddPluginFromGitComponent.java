@@ -19,7 +19,7 @@ import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.Git;
 import icons.GithubIcons;
-import liveplugin.IdeUtil;
+import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.PluginToolWindowManager;
@@ -84,6 +84,29 @@ public class AddPluginFromGitComponent implements ApplicationComponent {
 				this.project = project;
 			}
 
+			/**
+			 * Copied from {@link com.intellij.openapi.vcs.checkout.CompositeCheckoutListener}
+			 */
+			private static VirtualFile refreshVFS(final File directory) {
+				final Ref<VirtualFile> result = new Ref<VirtualFile>();
+				ApplicationManager.getApplication().runWriteAction(new Runnable() {
+					public void run() {
+						final LocalFileSystem lfs = LocalFileSystem.getInstance();
+						final VirtualFile vDir = lfs.refreshAndFindFileByIoFile(directory);
+						result.set(vDir);
+						if (vDir != null) {
+							final LocalFileSystem.WatchRequest watchRequest = lfs.addRootToWatch(vDir.getPath(), true);
+							((NewVirtualFile)vDir).markDirtyRecursively();
+							vDir.refresh(false, true);
+							if (watchRequest != null) {
+								lfs.removeWatchedRoot(watchRequest);
+							}
+						}
+					}
+				});
+				return result.get();
+			}
+
 			@Override public void directoryCheckedOut(File directory, VcsKey vcs) {
 				refreshVFS(directory);
 			}
@@ -108,7 +131,7 @@ public class AddPluginFromGitComponent implements ApplicationComponent {
 
 						} catch (Exception e) {
 							if (project != null) {
-								IdeUtil.showErrorDialog(project, "Error deleting plugin \"" + clonedFolder.getPath(), "Delete Plugin");
+								IDEUtil.showErrorDialog(project, "Error deleting plugin \"" + clonedFolder.getPath(), "Delete Plugin");
 							}
 							LOG.error(e);
 						}
@@ -127,29 +150,6 @@ public class AddPluginFromGitComponent implements ApplicationComponent {
 						Messages.getQuestionIcon()
 				);
 				return answer != Messages.YES;
-			}
-
-			/**
-			 * Copied from {@link com.intellij.openapi.vcs.checkout.CompositeCheckoutListener}
-			 */
-			private static VirtualFile refreshVFS(final File directory) {
-				final Ref<VirtualFile> result = new Ref<VirtualFile>();
-				ApplicationManager.getApplication().runWriteAction(new Runnable() {
-					public void run() {
-						final LocalFileSystem lfs = LocalFileSystem.getInstance();
-						final VirtualFile vDir = lfs.refreshAndFindFileByIoFile(directory);
-						result.set(vDir);
-						if (vDir != null) {
-							final LocalFileSystem.WatchRequest watchRequest = lfs.addRootToWatch(vDir.getPath(), true);
-							((NewVirtualFile)vDir).markDirtyRecursively();
-							vDir.refresh(false, true);
-							if (watchRequest != null) {
-								lfs.removeWatchedRoot(watchRequest);
-							}
-						}
-					}
-				});
-				return result.get();
 			}
 		}
 	}

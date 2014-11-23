@@ -21,7 +21,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.IconLoader;
-import liveplugin.IdeUtil;
+import liveplugin.IDEUtil;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.AddPluginFromPathAction;
 import liveplugin.toolwindow.addplugin.git.AddPluginFromGistAction;
@@ -63,18 +63,18 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 				Icon iconByFileType = null;
 
 				List<AnAction> actions = new ArrayList<AnAction>();
-				actions.add(new NewFileAction("Groovy File", iconByFileType, IdeUtil.GROOVY_FILE_TYPE));
+				actions.add(new NewFileAction("Groovy File", iconByFileType, IDEUtil.GROOVY_FILE_TYPE));
 
-				if (scalaIsOnClassPath()) actions.add(new NewFileAction("Scala File", iconByFileType, IdeUtil.SCALA_FILE_TYPE));
-				if (clojureIsOnClassPath()) actions.add(new NewFileAction("Clojure File", iconByFileType, IdeUtil.CLOJURE_FILE_TYPE));
+				if (scalaIsOnClassPath()) actions.add(new NewFileAction("Scala File", iconByFileType, IDEUtil.SCALA_FILE_TYPE));
+				if (clojureIsOnClassPath()) actions.add(new NewFileAction("Clojure File", iconByFileType, IDEUtil.CLOJURE_FILE_TYPE));
 
 				actions.addAll(asList(
-						new NewFileAction("Text File", AllIcons.FileTypes.Text, IdeUtil.TEXT_FILE_TYPE),
+						new NewFileAction("Text File", AllIcons.FileTypes.Text, IDEUtil.TEXT_FILE_TYPE),
 						new NewFolderAction("Directory", "Directory", Folder)
 				));
 				actions.addAll(asList(
-						new CreateRootFileAction(MAIN_SCRIPT, MAIN_SCRIPT, defaultPluginScript(), iconByFileType, IdeUtil.GROOVY_FILE_TYPE),
-						new CreateRootFileAction(TEST_SCRIPT, TEST_SCRIPT, defaultPluginTestScript(), iconByFileType, IdeUtil.GROOVY_FILE_TYPE)
+						new CreateRootFileAction(MAIN_SCRIPT, MAIN_SCRIPT, defaultPluginScript(), iconByFileType, IDEUtil.GROOVY_FILE_TYPE),
+						new CreateRootFileAction(TEST_SCRIPT, TEST_SCRIPT, defaultPluginTestScript(), iconByFileType, IDEUtil.GROOVY_FILE_TYPE)
 				));
 				actions.addAll(asList(
 						new Separator(),

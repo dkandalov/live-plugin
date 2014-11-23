@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import liveplugin.IdeUtil;
+import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.RefreshPluginTreeAction;
 import liveplugin.toolwindow.util.ExamplePluginInstaller;
@@ -41,7 +41,7 @@ public class AddExamplePluginAction extends AnAction {
 	private void logException(Exception e, AnActionEvent event, String pluginPath) {
 		Project project = event.getProject();
 		if (project != null) {
-			IdeUtil.showErrorDialog(
+			IDEUtil.showErrorDialog(
 					project,
 					"Error adding plugin \"" + pluginPath + "\" to " + LivePluginAppComponent.pluginsRootPath(),
 					"Add Plugin"

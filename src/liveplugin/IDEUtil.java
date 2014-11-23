@@ -38,6 +38,7 @@ import com.intellij.util.Function;
 import com.intellij.util.download.DownloadableFileDescription;
 import com.intellij.util.download.DownloadableFileService;
 import com.intellij.util.text.CharArrayUtil;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,13 +57,17 @@ import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
-public class IdeUtil {
+public class IDEUtil {
 	public static final Icon ADD_PLUGIN_ICON = AllIcons.General.Add;
 	public static final Icon DELETE_PLUGIN_ICON = AllIcons.General.Remove;
 	public static final Icon REFRESH_PLUGIN_LIST_ICON = AllIcons.Actions.Refresh;
 	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
 	// this is resized icon because IntelliJ requires toolwindow icons to be 13x13
-	public static final Icon PLUGIN_TOOLWINDOW_ICON = IconLoader.getIcon("/liveplugin/plugin-toolwindow-icon.png");
+	public static final Icon PLUGIN_TOOLWINDOW_ICON = (
+			UIUtil.isUnderDarcula() ?
+				IconLoader.getIcon("/liveplugin/plugin-toolwindow-icon_dark.png") :
+				IconLoader.getIcon("/liveplugin/plugin-toolwindow-icon.png")
+	);
 
 	public static final Icon RUN_PLUGIN_ICON = AllIcons.Actions.Execute;
 	public static final Icon TEST_PLUGIN_ICON = AllIcons.RunConfigurations.Junit;
@@ -74,13 +79,12 @@ public class IdeUtil {
 	public static final FileType SCALA_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".scala");
 	public static final FileType CLOJURE_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".clj");
 	public static final FileType TEXT_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".txt");
-
-	private static final Logger LOG = Logger.getInstance(IdeUtil.class);
 	public static final DataContext DUMMY_DATA_CONTEXT = new DataContext() {
 		@Nullable @Override public Object getData(@NonNls String dataId) {
 			return null;
 		}
 	};
+	private static final Logger LOG = Logger.getInstance(IDEUtil.class);
 
 	public static ConsoleView displayInConsole(String consoleTitle, String text, ConsoleViewContentType contentType, Project project) {
 		if (project == null) {
@@ -119,7 +123,7 @@ public class IdeUtil {
 	}
 
 	public static boolean isOnClasspath(String className) {
-		URL resource = IdeUtil.class.getClassLoader().getResource(className.replace(".", "/") + ".class");
+		URL resource = IDEUtil.class.getClassLoader().getResource(className.replace(".", "/") + ".class");
 		return resource != null;
 	}
 

@@ -6,7 +6,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
-import liveplugin.IdeUtil;
+import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,11 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class RefreshPluginTreeAction extends AnAction {
 
 	public RefreshPluginTreeAction() {
-		super("Refresh Plugin Tree", "Refresh Plugin Tree", IdeUtil.REFRESH_PLUGIN_LIST_ICON);
-	}
-
-	@Override public void actionPerformed(@Nullable AnActionEvent e) {
-		refreshPluginTree();
+		super("Refresh Plugin Tree", "Refresh Plugin Tree", IDEUtil.REFRESH_PLUGIN_LIST_ICON);
 	}
 
 	public static void refreshPluginTree() {
@@ -34,5 +30,9 @@ public class RefreshPluginTreeAction extends AnAction {
 				}, pluginsRoot);
 			}
 		});
+	}
+
+	@Override public void actionPerformed(@Nullable AnActionEvent e) {
+		refreshPluginTree();
 	}
 }

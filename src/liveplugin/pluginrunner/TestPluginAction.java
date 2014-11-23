@@ -15,7 +15,7 @@ package liveplugin.pluginrunner;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import liveplugin.IdeUtil;
+import liveplugin.IDEUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -25,7 +25,13 @@ import static liveplugin.pluginrunner.GroovyPluginRunner.TEST_SCRIPT;
 
 public class TestPluginAction extends AnAction {
 	public TestPluginAction() {
-		super("Test Plugin", "Test selected plugins", IdeUtil.TEST_PLUGIN_ICON);
+		super("Test Plugin", "Test selected plugins", IDEUtil.TEST_PLUGIN_ICON);
+	}
+
+	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
+		List<PluginRunner> result = new ArrayList<PluginRunner>();
+		result.add(new GroovyPluginRunner(TEST_SCRIPT, errorReporter, RunPluginAction.environment()));
+		return result;
 	}
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {
@@ -37,15 +43,9 @@ public class TestPluginAction extends AnAction {
 	}
 
 	private void testCurrentPlugin(AnActionEvent event) {
-		IdeUtil.saveAllFiles();
+		IDEUtil.saveAllFiles();
 		List<String> pluginIds = RunPluginAction.findCurrentPluginIds(event);
 		ErrorReporter errorReporter = new ErrorReporter();
 		RunPluginAction.runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter));
-	}
-
-	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
-		List<PluginRunner> result = new ArrayList<PluginRunner>();
-		result.add(new GroovyPluginRunner(TEST_SCRIPT, errorReporter, RunPluginAction.environment()));
-		return result;
 	}
 }

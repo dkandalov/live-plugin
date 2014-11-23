@@ -53,7 +53,7 @@ import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.Function;
 import com.intellij.util.ui.tree.TreeUtil;
-import liveplugin.IdeUtil;
+import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.pluginrunner.TestPluginAction;
@@ -94,31 +94,6 @@ public class PluginToolWindowManager {
 
 	public static AnAction addFromGitHubAction; // TODO refactor this!!!
 
-
-	public PluginToolWindowManager init() {
-		ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
-			@Override public void projectOpened(Project project) {
-				PluginToolWindow pluginToolWindow = new PluginToolWindow();
-				pluginToolWindow.registerWindowFor(project);
-
-				putToolWindow(pluginToolWindow, project);
-			}
-
-			@Override public void projectClosed(Project project) {
-				PluginToolWindow pluginToolWindow = removeToolWindow(project);
-				if (pluginToolWindow != null) pluginToolWindow.unregisterWindowFrom(project);
-			}
-
-			@Override public boolean canCloseProject(Project project) {
-				return true;
-			}
-
-			@Override public void projectClosing(Project project) {
-			}
-		});
-		return this;
-	}
-
 	@Nullable public static PluginToolWindow getToolWindowFor(@Nullable Project project) {
 		if (project == null) return null;
 		return toolWindowsByProject.get(project);
@@ -155,15 +130,104 @@ public class PluginToolWindowManager {
 		}
 	}
 
+	public PluginToolWindowManager init() {
+		ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
+			@Override public void projectOpened(Project project) {
+				PluginToolWindow pluginToolWindow = new PluginToolWindow();
+				pluginToolWindow.registerWindowFor(project);
+
+				putToolWindow(pluginToolWindow, project);
+			}
+
+			@Override public void projectClosed(Project project) {
+				PluginToolWindow pluginToolWindow = removeToolWindow(project);
+				if (pluginToolWindow != null) pluginToolWindow.unregisterWindowFrom(project);
+			}
+
+			@Override public boolean canCloseProject(Project project) {
+				return true;
+			}
+
+			@Override public void projectClosing(Project project) {
+			}
+		});
+		return this;
+	}
+
 	public static class PluginToolWindow {
 		private Ref<FileSystemTree> myFsTreeRef = new Ref<FileSystemTree>();
 		private SimpleToolWindowPanel panel;
 		private ToolWindow toolWindow;
 
+		private static void installPopupMenuInto(FileSystemTree fsTree) {
+			AnAction action = new NewElementPopupAction();
+			action.registerCustomShortcutSet(new CustomShortcutSet(shortcutsOf("NewElement")), fsTree.getTree());
+
+			CustomizationUtil.installPopupHandler(fsTree.getTree(), "LivePlugin.Popup", ActionPlaces.UNKNOWN);
+		}
+
+		private static Shortcut[] shortcutsOf(String actionId) {
+			return KeymapManager.getInstance().getActiveKeymap().getShortcuts(actionId);
+		}
+
+		private static FileChooserDescriptor createFileChooserDescriptor() {
+			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
+				@Override public Icon getIcon(VirtualFile file) {
+					if (LivePluginAppComponent.pluginIdToPathMap().values().contains(file.getPath())) return IDEUtil.PLUGIN_ICON;
+					return super.getIcon(file);
+				}
+
+				@Override public String getName(VirtualFile virtualFile) {
+					return virtualFile.getName();
+				}
+
+				@Nullable @Override public String getComment(VirtualFile virtualFile) {
+					return "";
+				}
+			};
+			descriptor.setShowFileSystemRoots(false);
+			descriptor.setIsTreeRootVisible(false);
+
+			Collection<String> pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values();
+			List<VirtualFile> virtualFiles = map(pluginPaths, new Function<String, VirtualFile>() {
+				@Override public VirtualFile fun(String path) {
+					return VirtualFileManager.getInstance().findFileByUrl("file://" + path);
+				}
+			});
+			addRoots(descriptor, virtualFiles);
+
+			return descriptor;
+		}
+
+		static Collection<VirtualFile> findPluginRootsFor(VirtualFile[] files) {
+			Set<VirtualFile> selectedPluginRoots = new HashSet<VirtualFile>();
+			for (VirtualFile file : files) {
+				VirtualFile root = pluginFolderOf(file);
+				if (root != null) selectedPluginRoots.add(root);
+			}
+			return selectedPluginRoots;
+		}
+
+		private static VirtualFile pluginFolderOf(VirtualFile file) {
+			if (file.getParent() == null) return null;
+
+			File pluginsRoot = new File(LivePluginAppComponent.pluginsRootPath());
+			// comparing files because string comparison was observed not work on windows (e.g. "c:/..." and "C:/...")
+			if (!FileUtil.filesEqual(new File(file.getParent().getPath()), pluginsRoot))
+				return pluginFolderOf(file.getParent());
+			else
+				return file;
+		}
+
+		private static AnAction withIcon(Icon icon, AnAction action) {
+			action.getTemplatePresentation().setIcon(icon);
+			return action;
+		}
+
 		public void registerWindowFor(Project project) {
 			ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
 			toolWindow = toolWindowManager.registerToolWindow(PLUGINS_TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
-			toolWindow.setIcon(IdeUtil.PLUGIN_TOOLWINDOW_ICON);
+			toolWindow.setIcon(IDEUtil.PLUGIN_TOOLWINDOW_ICON);
 
 			toolWindow.getContentManager().addContent(createContent(project));
 		}
@@ -198,17 +262,6 @@ public class PluginToolWindowManager {
 			panel.add(scrollPane, 0);
 		}
 
-		private static void installPopupMenuInto(FileSystemTree fsTree) {
-			AnAction action = new NewElementPopupAction();
-			action.registerCustomShortcutSet(new CustomShortcutSet(shortcutsOf("NewElement")), fsTree.getTree());
-
-			CustomizationUtil.installPopupHandler(fsTree.getTree(), "LivePlugin.Popup", ActionPlaces.UNKNOWN);
-		}
-
-		private static Shortcut[] shortcutsOf(String actionId) {
-			return KeymapManager.getInstance().getActiveKeymap().getShortcuts(actionId);
-		}
-
 		private FileSystemTree createFsTree(Project project) {
 			Ref<FileSystemTree> myFsTreeRef = new Ref<FileSystemTree>();
 			MyTree myTree = new MyTree(project);
@@ -234,47 +287,18 @@ public class PluginToolWindowManager {
 			return result;
 		}
 
-		private static FileChooserDescriptor createFileChooserDescriptor() {
-			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
-				@Override public Icon getIcon(VirtualFile file) {
-					if (LivePluginAppComponent.pluginIdToPathMap().values().contains(file.getPath())) return IdeUtil.PLUGIN_ICON;
-					return super.getIcon(file);
-				}
-
-				@Override public String getName(VirtualFile virtualFile) {
-					return virtualFile.getName();
-				}
-
-				@Nullable @Override public String getComment(VirtualFile virtualFile) {
-					return "";
-				}
-			};
-			descriptor.setShowFileSystemRoots(false);
-			descriptor.setIsTreeRootVisible(false);
-
-			Collection<String> pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values();
-			List<VirtualFile> virtualFiles = map(pluginPaths, new Function<String, VirtualFile>() {
-				@Override public VirtualFile fun(String path) {
-					return VirtualFileManager.getInstance().findFileByUrl("file://" + path);
-				}
-			});
-			addRoots(descriptor, virtualFiles);
-
-			return descriptor;
-		}
-
 		private JComponent createToolBar() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
-			actionGroup.add(withIcon(IdeUtil.ADD_PLUGIN_ICON, createAddPluginsGroup()));
+			actionGroup.add(withIcon(IDEUtil.ADD_PLUGIN_ICON, createAddPluginsGroup()));
 			actionGroup.add(new DeletePluginAction());
 			actionGroup.add(new RunPluginAction());
 			actionGroup.add(new TestPluginAction());
 			actionGroup.addSeparator();
 			actionGroup.add(new RefreshPluginTreeAction());
-			actionGroup.add(withIcon(IdeUtil.EXPAND_ALL_ICON, new ExpandAllAction()));
-			actionGroup.add(withIcon(IdeUtil.COLLAPSE_ALL_ICON, new CollapseAllAction()));
+			actionGroup.add(withIcon(IDEUtil.EXPAND_ALL_ICON, new ExpandAllAction()));
+			actionGroup.add(withIcon(IDEUtil.COLLAPSE_ALL_ICON, new CollapseAllAction()));
 			actionGroup.addSeparator();
-			actionGroup.add(withIcon(IdeUtil.SETTINGS_ICON, createSettingsGroup()));
+			actionGroup.add(withIcon(IDEUtil.SETTINGS_ICON, createSettingsGroup()));
 
 			// this is a "hack" to force drop-down box appear below button
 			// (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
@@ -342,7 +366,7 @@ public class PluginToolWindowManager {
 					AnAction[] actions = actionGroup.getChildActionsOrStubs();
 					for (AnAction action : actions) {
 						if (action instanceof AddExamplePluginAction) {
-							IdeUtil.runAction(action, "ADD_ALL_EXAMPLES");
+							IDEUtil.runAction(action, "ADD_ALL_EXAMPLES");
 						}
 					}
 				}
@@ -368,31 +392,6 @@ public class PluginToolWindowManager {
 		public boolean isActive() {
 			return toolWindow.isActive();
 		}
-
-		static Collection<VirtualFile> findPluginRootsFor(VirtualFile[] files) {
-			Set<VirtualFile> selectedPluginRoots = new HashSet<VirtualFile>();
-			for (VirtualFile file : files) {
-				VirtualFile root = pluginFolderOf(file);
-				if (root != null) selectedPluginRoots.add(root);
-			}
-			return selectedPluginRoots;
-		}
-
-		private static VirtualFile pluginFolderOf(VirtualFile file) {
-			if (file.getParent() == null) return null;
-
-			File pluginsRoot = new File(LivePluginAppComponent.pluginsRootPath());
-			// comparing files because string comparison was observed not work on windows (e.g. "c:/..." and "C:/...")
-			if (!FileUtil.filesEqual(new File(file.getParent().getPath()), pluginsRoot))
-				return pluginFolderOf(file.getParent());
-			else
-				return file;
-		}
-
-		private static AnAction withIcon(Icon icon, AnAction action) {
-			action.getTemplatePresentation().setIcon(icon);
-			return action;
-		}
 	}
 
 	private static class MySimpleToolWindowPanel extends SimpleToolWindowPanel {
@@ -416,7 +415,7 @@ public class PluginToolWindowManager {
 			// this is used by create directory/file to get context in which they're executed
 			// (without this they would be disabled or won't work)
 			if (dataId.equals(FileSystemTree.DATA_KEY.getName())) return fileSystemTree.get();
-			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return IdeUtil.GROOVY_FILE_TYPE;
+			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return IDEUtil.GROOVY_FILE_TYPE;
 			if (dataId.equals(FileChooserKeys.DELETE_ACTION_AVAILABLE.getName())) return true;
 			if (dataId.equals(PlatformDataKeys.VIRTUAL_FILE_ARRAY.getName())) return fileSystemTree.get().getSelectedFiles();
 			if (dataId.equals(PlatformDataKeys.TREE_EXPANDER.getName())) return new DefaultTreeExpander(fileSystemTree.get().getTree());

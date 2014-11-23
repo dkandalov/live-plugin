@@ -52,16 +52,14 @@ import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static com.intellij.openapi.util.io.FileUtil.toSystemIndependentName;
 import static com.intellij.openapi.vfs.VfsUtilCore.pathToUrl;
 import static java.util.Arrays.asList;
-import static liveplugin.IdeUtil.askIsUserWantsToRestartIde;
-import static liveplugin.IdeUtil.downloadFile;
+import static liveplugin.IDEUtil.askIsUserWantsToRestartIde;
+import static liveplugin.IDEUtil.downloadFile;
 import static liveplugin.MyFileUtil.allFilesInDirectory;
 
 public class LivePluginAppComponent implements ApplicationComponent { // TODO implement DumbAware?
-	private static final Logger LOG = Logger.getInstance(LivePluginAppComponent.class);
-
 	public static final String PLUGIN_EXAMPLES_PATH = "/liveplugin/pluginexamples";
 	public static final String LIVEPLUGIN_LIBS_PATH = PathManager.getPluginsPath() + "/LivePlugin/lib/";
-
+	private static final Logger LOG = Logger.getInstance(LivePluginAppComponent.class);
 	private static final String DEFAULT_PLUGIN_PATH = PLUGIN_EXAMPLES_PATH;
 	private static final String DEFAULT_PLUGIN_SCRIPT = "default-plugin.groovy";
 	private static final String DEFAULT_PLUGIN_TEST_SCRIPT = "default-plugin-test.groovy";
@@ -130,15 +128,64 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 	}
 
 	private static boolean isGroovyOnClasspath() {
-		return IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods");
+		return IDEUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods");
 	}
 
 	public static boolean scalaIsOnClassPath() {
-		return IdeUtil.isOnClasspath("scala.Some");
+		return IDEUtil.isOnClasspath("scala.Some");
 	}
 
 	public static boolean clojureIsOnClassPath() {
-		return IdeUtil.isOnClasspath("clojure.core.Vec");
+		return IDEUtil.isOnClasspath("clojure.core.Vec");
+	}
+
+	private static void runAllPlugins() {
+		ApplicationManager.getApplication().invokeLater(new Runnable() {
+			@Override public void run() {
+				AnActionEvent event = new AnActionEvent(
+						null,
+						IDEUtil.DUMMY_DATA_CONTEXT,
+						PluginRunner.IDE_STARTUP,
+						new Presentation(),
+						ActionManager.getInstance(),
+						0
+				);
+				final ErrorReporter errorReporter = new ErrorReporter();
+				RunPluginAction.runPlugins(pluginIdToPathMap().keySet(), event, errorReporter, RunPluginAction.createPluginRunners(errorReporter));
+			}
+		});
+	}
+
+	private static void installHelloWorldPlugin() {
+		ExamplePluginInstaller pluginInstaller = new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy"));
+		pluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
+			@Override public void onException(Exception e, String pluginPath) {
+				LOG.warn("Failed to install plugin: " + pluginPath, e);
+			}
+		});
+	}
+
+	public static void checkThatGroovyIsOnClasspath() {
+		if (isGroovyOnClasspath()) return;
+
+		NotificationListener listener = new NotificationListener() {
+			@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
+				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/", "groovy-all-2.0.6.jar", LIVEPLUGIN_LIBS_PATH);
+				if (downloaded) {
+					notification.expire();
+					askIsUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?");
+				} else {
+					NotificationGroup.balloonGroup("Live Plugin")
+							.createNotification("Failed to download Groovy libraries", NotificationType.WARNING);
+				}
+			}
+		};
+		NotificationGroup.balloonGroup("Live Plugin").createNotification(
+				"LivePlugin didn't find Groovy libraries on classpath",
+				"Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~6Mb)",
+				NotificationType.ERROR,
+				listener
+		).notify(null);
 	}
 
 	@Override public void initComponent() {
@@ -171,60 +218,11 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 		new PluginToolWindowManager().init();
 	}
 
-	private static void runAllPlugins() {
-		ApplicationManager.getApplication().invokeLater(new Runnable() {
-			@Override public void run() {
-				AnActionEvent event = new AnActionEvent(
-						null,
-						IdeUtil.DUMMY_DATA_CONTEXT,
-						PluginRunner.IDE_STARTUP,
-						new Presentation(),
-						ActionManager.getInstance(),
-						0
-				);
-				final ErrorReporter errorReporter = new ErrorReporter();
-				RunPluginAction.runPlugins(pluginIdToPathMap().keySet(), event, errorReporter, RunPluginAction.createPluginRunners(errorReporter));
-			}
-		});
-	}
-
-	private static void installHelloWorldPlugin() {
-		ExamplePluginInstaller pluginInstaller = new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy"));
-		pluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
-			@Override public void onException(Exception e, String pluginPath) {
-				LOG.warn("Failed to install plugin: " + pluginPath, e);
-			}
-		});
-	}
-
 	@Override public void disposeComponent() {
 	}
 
 	@Override @NotNull public String getComponentName() {
 		return COMPONENT_NAME;
-	}
-
-	public static void checkThatGroovyIsOnClasspath() {
-		if (isGroovyOnClasspath()) return;
-
-		NotificationListener listener = new NotificationListener() {
-			@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
-				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.0.6/", "groovy-all-2.0.6.jar", LIVEPLUGIN_LIBS_PATH);
-				if (downloaded) {
-					notification.expire();
-					askIsUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?");
-				} else {
-					NotificationGroup.balloonGroup("Live Plugin")
-							.createNotification("Failed to download Groovy libraries", NotificationType.WARNING);
-				}
-			}
-		};
-		NotificationGroup.balloonGroup("Live Plugin").createNotification(
-				"LivePlugin didn't find Groovy libraries on classpath",
-				"Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~6Mb)",
-				NotificationType.ERROR,
-				listener
-		).notify(null);
 	}
 
 	private static class Migration {

@@ -6,7 +6,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
-import liveplugin.IdeUtil;
+import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.RefreshPluginTreeAction;
@@ -42,7 +42,7 @@ public class AddNewPluginAction extends AnAction {
 		} catch (IOException e) {
 			Project project = event.getProject();
 			if (project != null) {
-				IdeUtil.showErrorDialog(
+				IDEUtil.showErrorDialog(
 						project,
 						"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.pluginsRootPath(),
 						addNewPluginTitle

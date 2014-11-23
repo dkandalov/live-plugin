@@ -10,7 +10,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
-import liveplugin.IdeUtil;
+import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.RefreshPluginTreeAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
@@ -34,32 +34,6 @@ public class AddPluginFromGistAction extends AnAction {
 
 	public AddPluginFromGistAction() {
 		super("Plugin from Gist", "Plugin from Gist", Github_icon);
-	}
-
-	@Override public void actionPerformed(@NotNull AnActionEvent event) {
-		final Project project = event.getProject();
-
-		String gistUrl = askUserForGistUrl(event);
-		if (gistUrl == null) return;
-
-		fetchGistFrom(gistUrl, event, new FetchGistCallback() {
-			@Override public void onSuccess(GithubGist gist) {
-				String newPluginId = askUserForPluginId(project);
-				if (newPluginId == null) return;
-
-				try {
-					createPluginFrom(gist, newPluginId);
-				} catch (IOException e) {
-					showMessageThatCreatingPluginFailed(e, newPluginId, project);
-				}
-
-				new RefreshPluginTreeAction().actionPerformed(null);
-			}
-
-			@Override public void onFailure(IOException e) {
-				showMessageThatFetchingGistFailed(e, project);
-			}
-		});
 	}
 
 	private static String askUserForGistUrl(AnActionEvent event) {
@@ -107,17 +81,43 @@ public class AddPluginFromGistAction extends AnAction {
 		}
 	}
 
+	private static void showMessageThatFetchingGistFailed(IOException e, Project project) {
+		IDEUtil.showErrorDialog(project, "Failed to fetch gist", addPluginFromGistTitle);
+		log.info(e);
+	}
+
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
+		final Project project = event.getProject();
+
+		String gistUrl = askUserForGistUrl(event);
+		if (gistUrl == null) return;
+
+		fetchGistFrom(gistUrl, event, new FetchGistCallback() {
+			@Override public void onSuccess(GithubGist gist) {
+				String newPluginId = askUserForPluginId(project);
+				if (newPluginId == null) return;
+
+				try {
+					createPluginFrom(gist, newPluginId);
+				} catch (IOException e) {
+					showMessageThatCreatingPluginFailed(e, newPluginId, project);
+				}
+
+				new RefreshPluginTreeAction().actionPerformed(null);
+			}
+
+			@Override public void onFailure(IOException e) {
+				showMessageThatFetchingGistFailed(e, project);
+			}
+		});
+	}
+
 	private void showMessageThatCreatingPluginFailed(IOException e, String newPluginId, Project project) {
-		IdeUtil.showErrorDialog(
+		IDEUtil.showErrorDialog(
 				project,
 				"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.pluginsRootPath(),
 				addPluginFromGistTitle
 		);
-		log.info(e);
-	}
-
-	private static void showMessageThatFetchingGistFailed(IOException e, Project project) {
-		IdeUtil.showErrorDialog(project, "Failed to fetch gist", addPluginFromGistTitle);
 		log.info(e);
 	}
 
@@ -129,6 +129,11 @@ public class AddPluginFromGistAction extends AnAction {
 
 	private static class GistUrlValidator implements InputValidatorEx {
 		private String errorText;
+
+		public static String extractGistIdFrom(String gistUrl) {
+			int i = gistUrl.lastIndexOf('/');
+			return gistUrl.substring(i + 1);
+		}
 
 		@Override public boolean checkInput(String inputString) {
 			boolean isValid = inputString.lastIndexOf('/') != -1;
@@ -142,11 +147,6 @@ public class AddPluginFromGistAction extends AnAction {
 
 		@Override public boolean canClose(String inputString) {
 			return true;
-		}
-
-		public static String extractGistIdFrom(String gistUrl) {
-			int i = gistUrl.lastIndexOf('/');
-			return gistUrl.substring(i + 1);
 		}
 	}
 }

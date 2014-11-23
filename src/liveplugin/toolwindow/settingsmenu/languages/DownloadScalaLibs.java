@@ -15,8 +15,8 @@ import java.util.List;
 
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
-import static liveplugin.IdeUtil.askIsUserWantsToRestartIde;
-import static liveplugin.IdeUtil.downloadFiles;
+import static liveplugin.IDEUtil.askIsUserWantsToRestartIde;
+import static liveplugin.IDEUtil.downloadFiles;
 import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 import static liveplugin.MyFileUtil.fileNamesMatching;

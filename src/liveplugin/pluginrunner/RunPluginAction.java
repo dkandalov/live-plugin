@@ -24,7 +24,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
 import com.intellij.util.ui.UIUtil;
-import liveplugin.IdeUtil;
+import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.Settings;
 import liveplugin.toolwindow.PluginToolWindowManager;
@@ -36,7 +36,7 @@ import java.util.*;
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.util.containers.ContainerUtil.find;
 import static com.intellij.util.containers.ContainerUtil.map;
-import static liveplugin.IdeUtil.SingleThreadBackgroundRunner;
+import static liveplugin.IDEUtil.SingleThreadBackgroundRunner;
 import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.pluginrunner.GroovyPluginRunner.MAIN_SCRIPT;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
@@ -51,22 +51,7 @@ public class RunPluginAction extends AnAction {
 	};
 
 	public RunPluginAction() {
-		super("Run Plugin", "Run selected plugins", IdeUtil.RUN_PLUGIN_ICON);
-	}
-
-	@Override public void actionPerformed(@NotNull AnActionEvent event) {
-		runCurrentPlugin(event);
-	}
-
-	@Override public void update(@NotNull AnActionEvent event) {
-		event.getPresentation().setEnabled(!findCurrentPluginIds(event).isEmpty());
-	}
-
-	private void runCurrentPlugin(AnActionEvent event) {
-		IdeUtil.saveAllFiles();
-		List<String> pluginIds = findCurrentPluginIds(event);
-		ErrorReporter errorReporter = new ErrorReporter();
-		runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter));
+		super("Run Plugin", "Run selected plugins", IDEUtil.RUN_PLUGIN_ICON);
 	}
 
 	public static void runPlugins(final Collection<String> pluginIds, AnActionEvent event,
@@ -98,7 +83,7 @@ public class RunPluginAction extends AnAction {
 						errorReporter.addNoScriptError(pluginId, scriptNames);
 						errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 							@Override public void display(String title, String message) {
-								IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
+								IDEUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
 							}
 						});
 						continue;
@@ -109,7 +94,7 @@ public class RunPluginAction extends AnAction {
 
 					errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 						@Override public void display(String title, String message) {
-							IdeUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
+							IDEUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
 						}
 					});
 				}
@@ -178,5 +163,20 @@ public class RunPluginAction extends AnAction {
 		});
 		if (entry == null) return Collections.emptyList();
 		return Collections.singletonList(entry.getKey());
+	}
+
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
+		runCurrentPlugin(event);
+	}
+
+	@Override public void update(@NotNull AnActionEvent event) {
+		event.getPresentation().setEnabled(!findCurrentPluginIds(event).isEmpty());
+	}
+
+	private void runCurrentPlugin(AnActionEvent event) {
+		IDEUtil.saveAllFiles();
+		List<String> pluginIds = findCurrentPluginIds(event);
+		ErrorReporter errorReporter = new ErrorReporter();
+		runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter));
 	}
 }

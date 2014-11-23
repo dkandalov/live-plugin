@@ -11,7 +11,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import liveplugin.IdeUtil;
+import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.PluginToolWindowManager;
@@ -29,6 +29,24 @@ public class AddPluginFromPathAction extends AnAction {
 
 	public AddPluginFromPathAction() {
 		super("Plugin from Path");
+	}
+
+	private static List<VirtualFile> getFileSystemRoots() {
+		LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
+		Set<VirtualFile> roots = new HashSet<VirtualFile>();
+		File[] ioRoots = File.listRoots();
+		if (ioRoots != null) {
+			for (File root : ioRoots) {
+				String path = FileUtil.toSystemIndependentName(root.getAbsolutePath());
+				VirtualFile file = localFileSystem.findFileByPath(path);
+				if (file != null) {
+					roots.add(file);
+				}
+			}
+		}
+		ArrayList<VirtualFile> result = new ArrayList<VirtualFile>();
+		Collections.addAll(result, VfsUtil.toVirtualFileArray(roots));
+		return result;
 	}
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {
@@ -51,7 +69,7 @@ public class AddPluginFromPathAction extends AnAction {
 		} catch (IOException e) {
 			Project project = event.getProject();
 			if (project != null) {
-				IdeUtil.showErrorDialog(
+				IDEUtil.showErrorDialog(
 						project,
 						"Error adding plugin \"" + folderToCopy + "\" to " + targetFolder,
 						"Add Plugin"
@@ -61,24 +79,6 @@ public class AddPluginFromPathAction extends AnAction {
 		}
 
 		RefreshPluginTreeAction.refreshPluginTree();
-	}
-
-	private static List<VirtualFile> getFileSystemRoots() {
-		LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
-		Set<VirtualFile> roots = new HashSet<VirtualFile>();
-		File[] ioRoots = File.listRoots();
-		if (ioRoots != null) {
-			for (File root : ioRoots) {
-				String path = FileUtil.toSystemIndependentName(root.getAbsolutePath());
-				VirtualFile file = localFileSystem.findFileByPath(path);
-				if (file != null) {
-					roots.add(file);
-				}
-			}
-		}
-		ArrayList<VirtualFile> result = new ArrayList<VirtualFile>();
-		Collections.addAll(result, VfsUtil.toVirtualFileArray(roots));
-		return result;
 	}
 
 	private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {

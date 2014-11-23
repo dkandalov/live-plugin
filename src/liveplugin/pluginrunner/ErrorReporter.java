@@ -22,7 +22,7 @@ import java.util.Map;
 
 import static com.intellij.openapi.util.text.StringUtil.join;
 import static com.intellij.util.containers.ContainerUtil.map;
-import static liveplugin.IdeUtil.unscrambleThrowable;
+import static liveplugin.IDEUtil.unscrambleThrowable;
 
 /**
  * Thread-safe.
