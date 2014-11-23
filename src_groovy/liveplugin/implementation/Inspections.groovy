@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 
-import static liveplugin.PluginUtil.changeGlobalVar
+import static liveplugin.implementation.GlobalVars.changeGlobalVar
 
 class Inspections {
 	private static final String livePluginInspections = "LivePluginInspections"

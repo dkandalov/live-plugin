@@ -630,6 +630,14 @@ class PluginUtil {
 		Compilation.addCompilationListener(id, project, listener)
 	}
 
+	static addVcsListener(String id, Project project, VcsActions.Listener listener) {
+		VcsActions.addVcsListener(id, project, listener)
+	}
+
+	static removeVcsListener(String id) {
+		VcsActions.removeVcsListener(id)
+	}
+
 	/**
 	 * Executes callback as write action ensuring that it's run in Swing event-dispatch thread.
 	 * For details see javadoc {@link com.intellij.openapi.application.Application}
