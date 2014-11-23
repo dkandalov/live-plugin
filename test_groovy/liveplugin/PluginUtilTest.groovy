@@ -1,11 +1,12 @@
 package liveplugin
+
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import org.junit.Test
 
 import javax.swing.*
 
-import static liveplugin.PluginUtil.asKeyboardShortcut
 import static liveplugin.PluginUtil.asString
+import static liveplugin.implementation.Actions.asKeyboardShortcut
 import static org.junit.Assert.fail
 
 class PluginUtilTest {

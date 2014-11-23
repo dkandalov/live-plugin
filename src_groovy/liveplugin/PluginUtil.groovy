@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 package liveplugin
-
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.codeInspection.InspectionProfileEntry
@@ -45,7 +44,6 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
-import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.progress.PerformInBackgroundOption
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
@@ -87,7 +85,6 @@ import java.util.concurrent.atomic.AtomicReference
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only for reference.
@@ -226,33 +223,20 @@ class PluginUtil {
 	@CanCallFromAnyThread
 	static AnAction registerAction(String actionId, String keyStroke = "",
 	                               String actionGroupId = null, String displayText = actionId, Closure callback) {
-		registerAction(actionId, keyStroke, actionGroupId, displayText, new AnAction() {
-			@Override void actionPerformed(AnActionEvent event) { callback(event) }
-		})
+		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
+		Actions.registerAction(actionId, keyStroke, actionGroupId, displayText, callback)
 	}
 
 	@CanCallFromAnyThread
 	static AnAction registerAction(String actionId, String keyStroke = "",
 	                               String actionGroupId = null, String displayText = actionId, AnAction action) {
 		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
+		Actions.registerAction(actionId, keyStroke, actionGroupId, displayText, action)
+	}
 
-		def actionManager = ActionManager.instance
-		def actionGroup = findActionGroup(actionGroupId)
-
-		def alreadyRegistered = (actionManager.getAction(actionId) != null)
-		if (alreadyRegistered) {
-			actionGroup?.remove(actionManager.getAction(actionId))
-			actionManager.unregisterAction(actionId)
-		}
-
-		assignKeyStrokeTo(actionId, keyStroke)
-		actionManager.registerAction(actionId, action)
-		actionGroup?.add(action)
-		action.templatePresentation.setText(displayText, true)
-
-		log("Action '${actionId}' registered")
-
-		action
+	@CanCallFromAnyThread
+	static unregisterAction(String actionId) {
+		Actions.unregisterAction(actionId)
 	}
 
 	@CanCallFromAnyThread
@@ -860,43 +844,10 @@ class PluginUtil {
 		}
 	}
 
-	private static DefaultActionGroup findActionGroup(String actionGroupId) {
-		if (actionGroupId != null && actionGroupId) {
-			def action = ActionManager.instance.getAction(actionGroupId)
-			action instanceof DefaultActionGroup ? action : null
-		} else {
-			null
-		}
-	}
-
-	private static void assignKeyStrokeTo(String actionId, String keyStroke) {
-		def keymap = KeymapManager.instance.activeKeymap
-		keymap.removeAllActionShortcuts(actionId)
-		def shortcut = asKeyboardShortcut(keyStroke)
-		if (shortcut != null) {
-			keymap.addShortcut(actionId, shortcut)
-		}
-	}
-
-	static KeyboardShortcut asKeyboardShortcut(String keyStroke) {
-		if (keyStroke.trim().empty) return null
-
-		def firstKeystroke
-		def secondsKeystroke = null
-		if (keyStroke.contains(",")) {
-			firstKeystroke = KeyStroke.getKeyStroke(keyStroke[0..<keyStroke.indexOf(",")].trim())
-			secondsKeystroke = KeyStroke.getKeyStroke(keyStroke[(keyStroke.indexOf(",") + 1)..-1].trim())
-		} else {
-			firstKeystroke = KeyStroke.getKeyStroke(keyStroke)
-		}
-		if (firstKeystroke == null) throw new IllegalStateException("Invalid keystroke '$keyStroke'")
-		new KeyboardShortcut(firstKeystroke, secondsKeystroke)
-	}
 
 	private static ConsoleViewContentType guessContentTypeOf(text) {
 		text instanceof Throwable ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT
 	}
-
 
 
 	static String asString(@Nullable message) {

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull
 import java.lang.reflect.Method
 
 class ActionWrapper {
-	private static final Logger LOG = Logger.getInstance(ActionWrapper.class)
+	private static final Logger log = Logger.getInstance(ActionWrapper.class)
 
 	static class Context {
 		final AnActionEvent event
@@ -36,11 +36,11 @@ class ActionWrapper {
 	static AnAction wrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
 		AnAction action = ActionManager.instance.getAction(actionId)
 		if (action == null) {
-			LOG.warn("Couldn't wrap action " + actionId + " because it was not found")
+			log.warn("Couldn't wrap action " + actionId + " because it was not found")
 			return null
 		}
 		if (isWrapped(action)) {
-			LOG.info("Action " + actionId + " is already wrapped")
+			log.info("Action " + actionId + " is already wrapped")
 			return null
 		}
 		doWrapAction(actionId, callback)
@@ -49,7 +49,7 @@ class ActionWrapper {
 	static AnAction doWrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
 		AnAction action = ActionManager.instance.getAction(actionId)
 		if (action == null) {
-			LOG.warn("Couldn't wrap action " + actionId + " because it was not found")
+			log.warn("Couldn't wrap action " + actionId + " because it was not found")
 			return null
 		}
 
@@ -69,7 +69,7 @@ class ActionWrapper {
 
 		ActionManager.instance.unregisterAction(actionId)
 		ActionManager.instance.registerAction(actionId, wrapperAction)
-		LOG.info("Wrapped action " + actionId)
+		log.info("Wrapped action " + actionId)
 
 		actionGroups.each { replaceActionInGroup(it, actionId, wrapperAction) }
 
@@ -80,18 +80,18 @@ class ActionWrapper {
 		ActionManager actionManager = ActionManager.instance
 		AnAction action = actionManager.getAction(actionId)
 		if (action == null) {
-			LOG.warn("Couldn't unwrap action " + actionId + " because it was not found")
+			log.warn("Couldn't unwrap action " + actionId + " because it was not found")
 			return null
 		}
 		if (!isWrapped(action)) {
-			LOG.warn("Action " + actionId + " is not wrapped")
+			log.warn("Action " + actionId + " is not wrapped")
 			return action
 		}
 
 		def originalAction = originalActionOf(action)
 		actionManager.unregisterAction(actionId)
 		actionManager.registerAction(actionId, originalAction)
-		LOG.info("Unwrapped action " + actionId)
+		log.info("Unwrapped action " + actionId)
 
 		actionGroups.each { replaceActionInGroup(it, actionId, originalAction) }
 
@@ -116,7 +116,7 @@ class ActionWrapper {
 					method.accessible = true
 					return (AnAction) method.invoke(wrappedAction)
 				} catch (Exception e) {
-					LOG.warn(e)
+					log.warn(e)
 				}
 			}
 		}
@@ -135,7 +135,7 @@ class ActionWrapper {
 	private static replaceActionInGroup(String actionGroupId, String actionId, AnAction newAction) {
 		def group = ActionManager.instance.getAction(actionGroupId)
 		if (!group instanceof DefaultActionGroup) {
-			LOG.warn("'${actionGroupId}' has type '${actionGroupId.class}' which is not supported")
+			log.warn("'${actionGroupId}' has type '${actionGroupId.class}' which is not supported")
 			return
 		}
 
