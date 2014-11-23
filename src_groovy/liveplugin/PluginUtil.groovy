@@ -73,6 +73,7 @@ import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.IncorrectOperationException
+import liveplugin.implementation.ActionSearch
 import liveplugin.implementation.ActionWrapper
 import liveplugin.implementation.Inspections
 import liveplugin.implementation.ObjectInspector
@@ -312,6 +313,15 @@ class PluginUtil {
 	}
 
 	/**
+	 * @param searchString string which is contained in action id, text or class name
+	 * @return collection of tuples (arrays) in the form of [id, action instance]
+	 */
+	@CanCallFromAnyThread
+	static Collection findAllActions(String searchString) {
+		ActionSearch.findAllActions(searchString)
+	}
+
+	/**
 	 * Wraps action if it's not already wrapped.
 	 *
 	 * @param actionId id of action to wrap
@@ -347,7 +357,7 @@ class PluginUtil {
 	 * @return unwrapped action or null if there are no actions for {@code actionId}
 	 */
 	@CanCallFromAnyThread
-	static def unwrapAction(String actionId, List<String> actionGroupIds = []) {
+	static AnAction unwrapAction(String actionId, List<String> actionGroupIds = []) {
 		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
 		ActionWrapper.unwrapAction(actionId, actionGroupIds)
 	}
@@ -358,7 +368,7 @@ class PluginUtil {
 	 * @see #unwrapAction(java.lang.String, java.util.List)
 	 */
 	@CanCallFromAnyThread
-	static def doUnwrapAction(String actionId, List<String> actionGroupIds = []) {
+	static AnAction doUnwrapAction(String actionId, List<String> actionGroupIds = []) {
 		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
 		ActionWrapper.doUnwrapAction(actionId, actionGroupIds)
 	}

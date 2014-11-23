@@ -108,6 +108,7 @@ class ActionWrapper {
 		action
 	}
 
+
 	private static AnAction originalActionOf(AnAction wrappedAction) {
 		for (Method method : wrappedAction.class.methods) {
 			if (method.name.equals("originalAction")) {
