@@ -59,7 +59,6 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
-import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.ProjectScope
 import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
@@ -70,11 +69,11 @@ import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
 import java.util.concurrent.atomic.AtomicReference
+import java.util.regex.Pattern
 
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only for reference.
@@ -492,7 +491,6 @@ class PluginUtil {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
 	}
 
-	// TODO use category?
 	@Nullable static Document document(@Nullable PsiFile psiFile) {
 		document(psiFile?.virtualFile)
 	}
@@ -570,10 +568,12 @@ class PluginUtil {
 		}
 	}
 
+	static PsiFile findFileByName(String filePath, @NotNull Project project, boolean searchInLibraries = false) {
+		FileSearch.findFileByName(filePath, project, searchInLibraries)
+	}
 
-	static List<PsiFileSystemItem> findFilesByName(String name, @NotNull Project project, boolean searchInLibraries = false) {
-		def scope = searchInLibraries? ProjectScope.getAllScope(project) : ProjectScope.getProjectScope(project)
-		FilenameIndex.getFilesByName(project, name, scope).toList()
+	static List<PsiFile> findAllFilesByName(String filePath, @NotNull Project project, boolean searchInLibraries = false) {
+		FileSearch.findAllFilesByName(filePath, project, searchInLibraries)
 	}
 
 	static List<VirtualFile> sourceRootsIn(Project project) {
@@ -649,12 +649,39 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	static runDocumentWriteAction(@NotNull Project project, Document document = currentDocumentIn(project),
-	                              String modificationName = "runDocumentWriteAction", String modificationGroup = "LivePlugin",
+	                              String modificationName = "Modified from LivePlugin", String modificationGroup = "LivePlugin",
 	                              Closure callback) {
 		runWriteAction {
 			CommandProcessor.instance.executeCommand(project, {
 				callback.call(document)
 			}, modificationName, modificationGroup, UndoConfirmationPolicy.DEFAULT, document)
+		}
+	}
+
+	static replace(Document document, String regexp, String... replacement) {
+		def replacementAsClosures = replacement.collect{ String s ->
+			return { matchingString -> s }
+		}
+		replace(document, regexp, replacementAsClosures)
+	}
+
+	static replace(Document document, String regexp, Closure<String>... replacement) {
+		replace(document, regexp, replacement.toList())
+	}
+
+	static replace(Document document, String regexp, List<Closure<String>> replacement) {
+		regexp = "(?s).*" + regexp + ".*"
+
+		def matcher = Pattern.compile(regexp).matcher(document.text)
+		if (!matcher.matches()) throw new IllegalStateException("Nothing matched '${regexp}' in ${document}")
+
+		def matchResult = matcher.toMatchResult()
+		if (matchResult.groupCount() != replacement.size())
+			throw new IllegalStateException("Expected ${matchResult.groupCount()} replacements but was: ${replacement.size()}")
+
+		(1..matchResult.groupCount()).each { i ->
+			def replacementString = replacement[i - 1].call(matchResult.group(i))
+			document.replaceString(matchResult.start(i), matchResult.end(i), replacementString)
 		}
 	}
 
