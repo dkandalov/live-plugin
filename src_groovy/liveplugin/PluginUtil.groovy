@@ -618,6 +618,14 @@ class PluginUtil {
 		Compilation.removeCompilationListener(id)
 	}
 
+	static addUnitTestListener(String id, Project project, UnitTests.Listener listener) {
+		UnitTests.addUnitTestListener(id, project, listener)
+	}
+
+	static removeUnitTestListener(String id) {
+		UnitTests.removeUnitTestListener(id)
+	}
+
 	static addVcsListener(String id, Project project, VcsActions.Listener listener) {
 		VcsActions.addVcsListener(id, project, listener)
 	}
