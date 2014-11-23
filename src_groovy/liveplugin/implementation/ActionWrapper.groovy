@@ -10,7 +10,6 @@ import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.PossiblyDumbAware
 import com.intellij.openapi.util.Pair
-import liveplugin.PluginUtil
 import org.jetbrains.annotations.NotNull
 
 import java.lang.reflect.Method
@@ -139,7 +138,7 @@ class ActionWrapper {
 			return
 		}
 
-		PluginUtil.accessField(group, "mySortedChildren") { List<AnAction> actions ->
+		Misc.accessField(group, "mySortedChildren") { List<AnAction> actions ->
 			def actionIndex = actions.findIndexOf {
 				if (it == null) return
 				def id = 	ActionManager.instance.getId(it)
@@ -149,7 +148,7 @@ class ActionWrapper {
 				actions.set(actionIndex, newAction)
 			}
 		}
-		PluginUtil.accessField(group, "myPairs") { List<Pair<AnAction, Constraints>> pairs ->
+		Misc.accessField(group, "myPairs") { List<Pair<AnAction, Constraints>> pairs ->
 			def pairIndex = pairs.findIndexOf {
 				if (it == null || it.first == null) return
 				def id = 	ActionManager.instance.getId(it.first)

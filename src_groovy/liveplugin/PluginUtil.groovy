@@ -15,16 +15,8 @@ package liveplugin
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.codeInspection.InspectionProfileEntry
-import com.intellij.execution.ExecutionManager
-import com.intellij.execution.Executor
-import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
-import com.intellij.execution.ui.ExecutionConsole
-import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.execution.ui.actions.CloseAction
-import com.intellij.icons.AllIcons
 import com.intellij.internal.psiView.PsiViewerDialog
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -71,15 +63,12 @@ import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.ProjectScope
 import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
-import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.IncorrectOperationException
 import liveplugin.implementation.*
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
-import java.awt.*
-import java.util.List
 import java.util.concurrent.atomic.AtomicReference
 
 import static com.intellij.notification.NotificationType.*
@@ -126,7 +115,7 @@ class PluginUtil {
 	@CanCallFromAnyThread
 	static void log(@Nullable message, NotificationType notificationType = INFORMATION) {
 		if (!(message instanceof Throwable)) {
-			message = asString(message)
+			message = Misc.asString(message)
 		}
 		if (notificationType == INFORMATION) LOG.info(message)
 		else if (notificationType == WARNING) LOG.warn(message)
@@ -149,7 +138,7 @@ class PluginUtil {
 	static show(@Nullable message, @Nullable String title = "",
 	            NotificationType notificationType = INFORMATION, String groupDisplayId = "") {
 		invokeLaterOnEDT {
-			message = asString(message)
+			message = Misc.asString(message)
 			// this is because Notification doesn't accept empty messages
 			if (message.trim().empty) message = "[empty message]"
 
@@ -169,30 +158,8 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	static ConsoleView showInConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
-	                                 ConsoleViewContentType contentType = guessContentTypeOf(message)) {
-		AtomicReference<ConsoleView> result = new AtomicReference(null)
-		// Use reference for consoleTitle because get groovy Reference class like in this bug http://jira.codehaus.org/browse/GROOVY-5101
-		AtomicReference<String> titleRef = new AtomicReference(consoleTitle)
-
-		invokeOnEDT {
-			ConsoleView console = TextConsoleBuilderFactory.instance.createBuilder(project).console
-			console.print(asString(message), contentType)
-
-			DefaultActionGroup toolbarActions = new DefaultActionGroup()
-			def consoleComponent = new MyConsolePanel(console, toolbarActions)
-			RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, titleRef.get()) {
-				@Override boolean isContentReuseProhibited() { true }
-				@Override Icon getIcon() { AllIcons.Nodes.Plugin }
-			}
-			Executor executor = DefaultRunExecutor.runExecutorInstance
-
-			toolbarActions.add(new CloseAction(executor, descriptor, project))
-			console.createConsoleActions().each{ toolbarActions.add(it) }
-
-			ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
-			result.set(console)
-		}
-		result.get()
+	                                 ConsoleViewContentType contentType = Console.guessContentTypeOf(message)) {
+		Console.showInConsole(message, consoleTitle, project, contentType)
 	}
 
 	/**
@@ -799,18 +766,6 @@ class PluginUtil {
 		).showInFocusCenter()
 	}
 
-	static accessField(Object o, String fieldName, Closure callback) {
-		catchingAll {
-			for (field in o.class.declaredFields) {
-				if (field.name == fieldName) {
-					field.setAccessible(true)
-					callback(field.get(o))
-					return
-				}
-			}
-		}
-	}
-
 	static registerInMetaClassesContextOf(AnActionEvent actionEvent, List metaClasses = [Object.metaClass],
 	                                      Map contextKeys = ["project": PlatformDataKeys.PROJECT]) {
 		metaClasses.each { aMetaClass ->
@@ -844,36 +799,13 @@ class PluginUtil {
 	}
 
 	@Nullable static <T> T catchingAll(Closure<T> closure) {
-		try {
-
-			closure.call()
-
-		} catch (Exception e) {
-			ProjectManager.instance.openProjects.each { Project project ->
-				showInConsole(e, e.class.simpleName, project)
-			}
-			null
-		}
+		Misc.catchingAll(closure)
 	}
 
-
-	private static ConsoleViewContentType guessContentTypeOf(text) {
-		text instanceof Throwable ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT
+	static accessField(Object o, String fieldName, Closure callback) {
+		Misc.accessField(o, fieldName, callback)
 	}
 
-
-	static String asString(@Nullable message) {
-		if (message?.getClass()?.isArray()) Arrays.toString(message)
-		else if (message instanceof MapWithDefault) "{" + message.entrySet().join(", ") + "}"
-		else if (message instanceof Throwable) {
-			def writer = new StringWriter()
-			message.printStackTrace(new PrintWriter(writer))
-			UnscrambleDialog.normalizeText(writer.buffer.toString())
-		} else {
-			String.valueOf(message)
-		}
-	}
-	
 	/**
 	 * Original version borrowed from here
 	 * http://code.google.com/p/idea-string-manip/source/browse/trunk/src/main/java/osmedile/intellij/stringmanip/AbstractStringManipAction.java
@@ -933,15 +865,6 @@ class PluginUtil {
 		//    at com.intellij.openapi.components.impl.ServiceManagerImpl$MyComponentAdapter.getComponentInstance(ServiceManagerImpl.java:139)
 	}
 
-	private static class MyConsolePanel extends JPanel {
-		MyConsolePanel(ExecutionConsole consoleView, ActionGroup toolbarActions) {
-			super(new BorderLayout())
-			def toolbarPanel = new JPanel(new BorderLayout())
-			toolbarPanel.add(ActionManager.instance.createActionToolbar(ActionPlaces.UNKNOWN, toolbarActions, false).component)
-			add(toolbarPanel, BorderLayout.WEST)
-			add(consoleView.component, BorderLayout.CENTER)
-		}
-	}
 
 	static final Logger LOG = Logger.getInstance("LivePlugin")
 

@@ -1,9 +1,13 @@
 package liveplugin.implementation
 
+import com.intellij.execution.ProgramRunnerUtil
+import com.intellij.execution.RunManager
+import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
+import com.intellij.openapi.project.Project
 
 import javax.swing.*
 
@@ -47,6 +51,12 @@ class Actions {
 			actionGroup?.remove(actionManager.getAction(actionId))
 			actionManager.unregisterAction(actionId)
 		}
+	}
+
+	// there is no "Run" action for each run configuration, so the only way is to do it in code
+	static runConfiguration(String configurationName, Project project) {
+		def settings = RunManager.getInstance(project).allSettings.find{ it.name.contains(configurationName) }
+		ProgramRunnerUtil.executeConfiguration(project, settings, DefaultRunExecutor.runExecutorInstance)
 	}
 
 	/**

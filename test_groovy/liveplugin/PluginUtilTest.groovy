@@ -5,8 +5,8 @@ import org.junit.Test
 
 import javax.swing.*
 
-import static liveplugin.PluginUtil.asString
 import static liveplugin.implementation.Actions.asKeyboardShortcut
+import static liveplugin.implementation.Misc.asString
 import static org.junit.Assert.fail
 
 class PluginUtilTest {
