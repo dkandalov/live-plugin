@@ -7,7 +7,7 @@ import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.project.Project
 
 class Compilation {
-	static void addCompilationListener(String id, Project project, CompilationStatusAdapter listener) {
+	static void registerCompilationListener(String id, Project project, CompilationStatusAdapter listener) {
 		GlobalVars.changeGlobalVar(id){ oldListener ->
 			def compilerManager = CompilerManager.getInstance(project)
 			if (oldListener != null) {
@@ -18,7 +18,7 @@ class Compilation {
 		}
 	}
 
-	static void removeCompilationListener(String id, Project project) {
+	static void unregisterCompilationListener(String id, Project project) {
 		def oldListener = GlobalVars.removeGlobalVar(id)
 		if (oldListener != null) {
 			CompilerManager.getInstance(project).removeCompilationStatusListener(oldListener)

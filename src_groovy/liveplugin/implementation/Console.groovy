@@ -32,7 +32,7 @@ import static liveplugin.PluginUtil.invokeOnEDT
 class Console {
 	private static final extensionPoint = Extensions.rootArea.getExtensionPoint(ConsoleInputFilterProvider.INPUT_FILTER_PROVIDERS)
 
-	static addConsoleListener(String id, Closure callback) {
+	static registerConsoleListener(String id, Closure callback) {
 		GlobalVars.changeGlobalVar(id) { lastInputFilterProvider ->
 			if (lastInputFilterProvider != null && extensionPoint.hasExtension(lastInputFilterProvider)) {
 				extensionPoint.unregisterExtension(lastInputFilterProvider)
@@ -53,7 +53,7 @@ class Console {
 		}
 	}
 
-	static removeConsoleListener(String id) {
+	static unregisterConsoleListener(String id) {
 		def lastInputFilterProvider = GlobalVars.removeGlobalVar(id)
 		if (lastInputFilterProvider != null && extensionPoint.hasExtension(lastInputFilterProvider)) {
 			extensionPoint.unregisterExtension(lastInputFilterProvider)

@@ -13,14 +13,14 @@ class UnitTests {
 	private final MessageBusConnection busConnection
 	private final Listener listener
 
-	static addUnitTestListener(String id, Project project, Listener listener) {
+	static registerUnitTestListener(String id, Project project, Listener listener) {
 		GlobalVars.changeGlobalVar(id) { oldUnitTests ->
 			if (oldUnitTests != null) oldUnitTests.stop()
 			new UnitTests(project, listener).start()
 		}
 	}
 
-	static removeUnitTestListener(String id) {
+	static unregisterUnitTestListener(String id) {
 		def oldUnitTests = GlobalVars.removeGlobalVar(id)
 		if (oldUnitTests != null) oldUnitTests.stop()
 	}

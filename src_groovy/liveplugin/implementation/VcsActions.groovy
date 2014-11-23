@@ -19,14 +19,14 @@ class VcsActions {
 	private final CheckinHandlerFactory checkinListener
 	private final NotificationsAdapter pushListener
 
-	static addVcsListener(String id, Project project, Listener listener) {
+	static registerVcsListener(String id, Project project, Listener listener) {
 		GlobalVars.changeGlobalVar(id){ oldVcsActions ->
 			if (oldVcsActions != null) oldVcsActions.stop()
 			new VcsActions(project, listener).start()
 		}
 	}
 
-	static removeVcsListener(String id) {
+	static unregisterVcsListener(String id) {
 		def oldVcsActions = GlobalVars.removeGlobalVar(id)
 		if (oldVcsActions != null) oldVcsActions.stop()
 	}

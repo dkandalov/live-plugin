@@ -74,6 +74,7 @@ import java.util.regex.Pattern
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only for reference.
@@ -162,12 +163,12 @@ class PluginUtil {
 		Console.showInConsole(message, consoleTitle, project, contentType)
 	}
 
-	static addConsoleListener(String id, Closure callback) {
-		Console.addConsoleListener(id, callback)
+	static registerConsoleListener(String id, Closure callback) {
+		Console.registerConsoleListener(id, callback)
 	}
 
-	static removeConsoleListener(String id) {
-		Console.removeConsoleListener(id)
+	static unregisterConsoleListener(String id) {
+		Console.unregisterConsoleListener(id)
 	}
 
 	/**
@@ -587,28 +588,28 @@ class PluginUtil {
 	}
 
 
-	static void addCompilationListener(String id, Project project, CompilationStatusAdapter listener) {
-		Compilation.addCompilationListener(id, project, listener)
+	static void registerCompilationListener(String id, Project project, CompilationStatusAdapter listener) {
+		Compilation.registerCompilationListener(id, project, listener)
 	}
 
-	static void removeCompilationListener(String id) {
-		Compilation.removeCompilationListener(id)
+	static void unregisterCompilationListener(String id, Project project) {
+		Compilation.unregisterCompilationListener(id, project)
 	}
 
-	static addUnitTestListener(String id, Project project, UnitTests.Listener listener) {
-		UnitTests.addUnitTestListener(id, project, listener)
+	static registerUnitTestListener(String id, Project project, UnitTests.Listener listener) {
+		UnitTests.registerUnitTestListener(id, project, listener)
 	}
 
-	static removeUnitTestListener(String id) {
-		UnitTests.removeUnitTestListener(id)
+	static unregisterUnitTestListener(String id) {
+		UnitTests.unregisterUnitTestListener(id)
 	}
 
-	static addVcsListener(String id, Project project, VcsActions.Listener listener) {
-		VcsActions.addVcsListener(id, project, listener)
+	static registerVcsListener(String id, Project project, VcsActions.Listener listener) {
+		VcsActions.registerVcsListener(id, project, listener)
 	}
 
-	static removeVcsListener(String id) {
-		VcsActions.removeVcsListener(id)
+	static unregisterVcsListener(String id) {
+		VcsActions.unregisterVcsListener(id)
 	}
 
 	/**
