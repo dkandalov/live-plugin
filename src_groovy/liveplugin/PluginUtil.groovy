@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 package liveplugin
+
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.codeInspection.InspectionProfileEntry
@@ -35,6 +36,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
+import com.intellij.openapi.compiler.CompilationStatusAdapter
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
@@ -73,10 +75,7 @@ import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
 import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.IncorrectOperationException
-import liveplugin.implementation.ActionSearch
-import liveplugin.implementation.ActionWrapper
-import liveplugin.implementation.Inspections
-import liveplugin.implementation.ObjectInspector
+import liveplugin.implementation.*
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -88,6 +87,7 @@ import java.util.concurrent.atomic.AtomicReference
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only for reference.
@@ -612,7 +612,7 @@ class PluginUtil {
 
 
 	static List<PsiFileSystemItem> filesByName(String name, @NotNull Project project, boolean searchInLibraries = false) {
-		def scope = searchInLibraries? ProjectScope.getAllScope(project) : ProjectScope.getProjectScope(project);
+		def scope = searchInLibraries? ProjectScope.getAllScope(project) : ProjectScope.getProjectScope(project)
 		FilenameIndex.getFilesByName(project, name, scope).toList()
 	}
 
@@ -624,6 +624,10 @@ class PluginUtil {
 		ProjectRootManager.getInstance(project).contentSourceRoots
 				.collect{ ProjectLevelVcsManager.getInstance(project).getVcsRootObjectFor(it) }
 				.findAll{ it.path != null }.unique()
+	}
+
+	static void addCompilationListener(String id, Project project, CompilationStatusAdapter listener) {
+		Compilation.addCompilationListener(id, project, listener)
 	}
 
 	/**
@@ -904,7 +908,7 @@ class PluginUtil {
 		text instanceof Throwable ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT
 	}
 
-	private static asActionId(String globalVarKey) {
+	private static String asActionId(String globalVarKey) {
 		"LivePlugin-" + globalVarKey
 	}
 
