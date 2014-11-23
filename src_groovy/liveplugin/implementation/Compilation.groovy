@@ -1,9 +1,10 @@
 package liveplugin.implementation
+
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.compiler.CompilationStatusAdapter
 import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.project.Project
-import org.jdesktop.swingx.action.ActionManager
 
 class Compilation {
 	static void addCompilationListener(String id, Project project, CompilationStatusAdapter listener) {
@@ -17,11 +18,15 @@ class Compilation {
 		}
 	}
 
-	static void removeCompilationListner(String id) {
+	static void removeCompilationListener(String id) {
 		GlobalVars.removeGlobalVar(id)
 	}
 
 	static AnAction compileAction() {
 		ActionManager.instance.getAction("CompileDirty")
+	}
+
+	static AnAction rebuildProjectAction() {
+		ActionManager.instance.getAction("CompileProject")
 	}
 }

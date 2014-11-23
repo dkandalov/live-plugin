@@ -1,5 +1,6 @@
 package liveplugin.implementation
 
+import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
@@ -46,6 +47,16 @@ class Actions {
 			actionGroup?.remove(actionManager.getAction(actionId))
 			actionManager.unregisterAction(actionId)
 		}
+	}
+
+	/**
+	 * See http://devnet.jetbrains.com/message/5195728#5195728
+	 * https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/actionSystem/ex/CheckboxAction.java#L60
+	 */
+	static anActionEvent(DataContext dataContext = DataManager.instance.dataContextFromFocus.resultSync,
+	                     Presentation templatePresentation = new Presentation()) {
+		def actionManager = ActionManager.instance
+		new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, templatePresentation, actionManager, 0)
 	}
 
 	private static DefaultActionGroup findActionGroup(String actionGroupId) {

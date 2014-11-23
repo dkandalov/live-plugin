@@ -614,6 +614,10 @@ class PluginUtil {
 		Compilation.addCompilationListener(id, project, listener)
 	}
 
+	static void removeCompilationListener(String id) {
+		Compilation.removeCompilationListener(id)
+	}
+
 	static addVcsListener(String id, Project project, VcsActions.Listener listener) {
 		VcsActions.addVcsListener(id, project, listener)
 	}
