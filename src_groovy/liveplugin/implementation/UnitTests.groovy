@@ -21,7 +21,8 @@ class UnitTests {
 	}
 
 	static removeUnitTestListener(String id) {
-		GlobalVars.removeGlobalVar(id)
+		def oldUnitTests = GlobalVars.removeGlobalVar(id)
+		if (oldUnitTests != null) oldUnitTests.stop()
 	}
 
 	UnitTests(Project project, Listener listener) {

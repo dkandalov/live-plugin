@@ -162,6 +162,14 @@ class PluginUtil {
 		Console.showInConsole(message, consoleTitle, project, contentType)
 	}
 
+	static addConsoleListener(String id, Closure callback) {
+		Console.addConsoleListener(id, callback)
+	}
+
+	static removeConsoleListener(String id) {
+		Console.removeConsoleListener(id)
+	}
+
 	/**
 	 * Action group id for Main Menu -> Tools.
 	 * Can be used in {@link #registerAction(java.lang.String, com.intellij.openapi.actionSystem.AnAction)}.

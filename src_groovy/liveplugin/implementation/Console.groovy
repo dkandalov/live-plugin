@@ -1,7 +1,10 @@
 package liveplugin.implementation
+
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.filters.ConsoleInputFilterProvider
+import com.intellij.execution.filters.InputFilter
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
@@ -13,17 +16,49 @@ import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Pair
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
 import java.awt.*
+import java.util.List
 import java.util.concurrent.atomic.AtomicReference
 
 import static liveplugin.PluginUtil.invokeOnEDT
 
 class Console {
+	private static final extensionPoint = Extensions.rootArea.getExtensionPoint(ConsoleInputFilterProvider.INPUT_FILTER_PROVIDERS)
+
+	static addConsoleListener(String id, Closure callback) {
+		GlobalVars.changeGlobalVar(id) { lastInputFilterProvider ->
+			if (lastInputFilterProvider != null && extensionPoint.hasExtension(lastInputFilterProvider)) {
+				extensionPoint.unregisterExtension(lastInputFilterProvider)
+			}
+			def notFilteringListener = new InputFilter() {
+				@Override List<Pair<String, ConsoleViewContentType>> applyFilter(String consoleText, ConsoleViewContentType contentType) {
+					callback(consoleText)
+					null
+				}
+			}
+			new ConsoleInputFilterProvider() {
+				@Override InputFilter[] getDefaultFilters(@NotNull Project project) {
+					[notFilteringListener]
+				}
+			}
+		}
+	}
+
+	static removeConsoleListener(String id) {
+		def lastInputFilterProvider = GlobalVars.removeGlobalVar(id)
+		if (lastInputFilterProvider != null && extensionPoint.hasExtension(lastInputFilterProvider)) {
+			extensionPoint.unregisterExtension(lastInputFilterProvider)
+		}
+	}
+
+
 	static ConsoleView showInConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
 	                                 ConsoleViewContentType contentType = guessContentTypeOf(message)) {
 		AtomicReference<ConsoleView> result = new AtomicReference(null)
