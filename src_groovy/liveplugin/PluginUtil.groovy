@@ -713,38 +713,19 @@ class PluginUtil {
 	 * @return new value
 	 */
 	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure callback) {
-		def actionManager = ActionManager.instance
-		def action = actionManager.getAction(asActionId(varName))
-
-		def prevValue = (action == null ? initialValue : action.value)
-		T newValue = (T) callback.call(prevValue)
-
-		// unregister action only after callback has been invoked in case it crashes
-		if (action != null) actionManager.unregisterAction(asActionId(varName))
-
-		// anonymous class below will keep reference to outer object but that should be ok
-		// because its class is not a part of reloadable plugin
-		actionManager.registerAction(asActionId(varName), new AnAction() {
-			final def value = newValue
-			@Override void actionPerformed(AnActionEvent e) {}
-		})
-
-		newValue
+		GlobalVars.changeGlobalVar(varName, initialValue, callback)
 	}
 
 	@Nullable static <T> T setGlobalVar(String varName, @Nullable varValue) {
-		changeGlobalVar(varName){ varValue }
+		GlobalVars.setGlobalVar(varName, varValue)
 	}
 
 	@Nullable static <T> T getGlobalVar(String varName, @Nullable initialValue = null) {
-		changeGlobalVar(varName, initialValue, {it})
+		GlobalVars.getGlobalVar(varName, initialValue)
 	}
 
 	@Nullable static <T> T removeGlobalVar(String varName) {
-		def action = ActionManager.instance.getAction(asActionId(varName))
-		if (action == null) return null
-		ActionManager.instance.unregisterAction(asActionId(varName))
-		action.value
+		GlobalVars.removeGlobalVar(varName)
 	}
 
 	@CanCallFromAnyThread
@@ -908,9 +889,6 @@ class PluginUtil {
 		text instanceof Throwable ? ConsoleViewContentType.ERROR_OUTPUT : ConsoleViewContentType.NORMAL_OUTPUT
 	}
 
-	private static String asActionId(String globalVarKey) {
-		"LivePlugin-" + globalVarKey
-	}
 
 
 	static String asString(@Nullable message) {
