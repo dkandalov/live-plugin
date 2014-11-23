@@ -74,6 +74,7 @@ import java.util.concurrent.atomic.AtomicReference
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only for reference.
@@ -785,26 +786,15 @@ class PluginUtil {
 	}
 
 	static Map execute(String fullCommand) {
-		fullCommand.split(" ").toList().with { execute(it.head(), it.tail()) }
+		ShellCommands.execute(fullCommand)
 	}
 
 	static Map execute(String command, String parameters) {
-		execute(command, parameters.split(" ").toList())
+		ShellCommands.execute(command, parameters)
 	}
 
 	static Map execute(String command, Collection<String> parameters) {
-		def ant = new AntBuilder()
-		ant.exec(outputproperty:"cmdOut",
-				errorproperty: "cmdErr",
-				resultproperty:"cmdExit",
-				failonerror: "false",
-				executable: command) {
-			arg(line: parameters.join(" "))
-		}
-
-		[exitCode: Integer.parseInt(ant.project.properties.cmdExit),
-		 stderr: ant.project.properties.cmdErr,
-		 stdout: ant.project.properties.cmdOut]
+		ShellCommands.execute(command, parameters)
 	}
 
 	@Nullable static <T> T catchingAll(Closure<T> closure) {
