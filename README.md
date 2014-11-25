@@ -50,7 +50,9 @@ and [Clojure plugin example](https://gist.github.com/dkandalov/5943754).
 
 
 ### How to install
-Through IntelliJ plugin manager. Search for "liveplugin".
+Through IntelliJ plugin manager. In "Preferences -> Plugins -> Browse Repositories" search for "liveplugin".
+Alternatively, download [LivePlugin.zip](https://raw.github.com/dkandalov/live-plugin/master/LivePlugin.zip)
+and use "Install plugin from disk".
 
 
 ### How to start writing plugins
