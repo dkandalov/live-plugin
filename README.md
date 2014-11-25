@@ -2,6 +2,7 @@
 
 This is [IntelliJ](https://github.com/JetBrains/intellij-community) plugin for writing
 IDE plugins at runtime in [Groovy](http://groovy.codehaus.org/).
+(See also [plugin repository page](http://plugins.jetbrains.com/plugin/7282).)
 
 
 ### Short Demo
@@ -50,7 +51,6 @@ and [Clojure plugin example](https://gist.github.com/dkandalov/5943754).
 
 ### How to install
 Through IntelliJ plugin manager. Search for "liveplugin".
-(Just in case this is the [plugin page](http://plugins.jetbrains.com/plugin/7282).)
 
 
 ### How to start writing plugins
