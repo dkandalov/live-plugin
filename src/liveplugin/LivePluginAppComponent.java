@@ -28,9 +28,7 @@ import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import liveplugin.pluginrunner.ErrorReporter;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.pluginrunner.PluginRunner;
@@ -49,12 +47,9 @@ import java.util.Map;
 
 import static com.intellij.openapi.extensions.PluginId.getId;
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
-import static com.intellij.openapi.util.io.FileUtil.toSystemIndependentName;
-import static com.intellij.openapi.vfs.VfsUtilCore.pathToUrl;
 import static java.util.Arrays.asList;
 import static liveplugin.IDEUtil.askIsUserWantsToRestartIde;
 import static liveplugin.IDEUtil.downloadFile;
-import static liveplugin.MyFileUtil.allFilesInDirectory;
 
 public class LivePluginAppComponent implements ApplicationComponent { // TODO implement DumbAware?
 	public static final String PLUGIN_EXAMPLES_PATH = "/liveplugin/pluginexamples";
@@ -69,9 +64,6 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 
 	public static String pluginsRootPath() {
 		return FileUtilRt.toSystemIndependentName(PathManager.getPluginsPath() + "/live-plugins");
-	}
-	private static String oldPluginsRootPath() { // TODO remove
-		return FileUtilRt.toSystemIndependentName(PathManager.getPluginsPath() + "/intellij-eval-plugins");
 	}
 
 	public static Map<String, String> pluginIdToPathMap() {
@@ -204,13 +196,6 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 			installHelloWorldPlugin();
 			settings.justInstalled = false;
 		}
-		if (new File(oldPluginsRootPath()).exists()) {
-			Migration.askIfUserWantsToMigrate(new Runnable() {
-				@Override public void run() {
-					Migration.migrateOldPlugins();
-				}
-			});
-		}
 		if (settings.runAllPluginsOnIDEStartup) {
 			runAllPlugins();
 		}
@@ -223,53 +208,5 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 
 	@Override @NotNull public String getComponentName() {
 		return COMPONENT_NAME;
-	}
-
-	private static class Migration {
-		private static final String OLD_STATIC_IMPORT = "import static intellijeval";
-		private static final String OLD_IMPORT = "import intellijeval";
-		private static final String NEW_STATIC_IMPORT = "import static liveplugin";
-		private static final String NEW_IMPORT = "import liveplugin";
-
-		public static void askIfUserWantsToMigrate(final Runnable migrationCallback) {
-			NotificationListener listener = new NotificationListener() {
-				@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
-					migrationCallback.run();
-					notification.expire();
-				}
-			};
-
-			NotificationGroup.balloonGroup("Live Plugin Migration").createNotification(
-					"Detected plugins for IntelliJEval",
-					"<a href=\"\">Migrate plugins.</a> This includes replacing 'intellijeval' with 'liveplugin' package name in imports.",
-					NotificationType.INFORMATION,
-					listener
-			).notify(null);
-		}
-
-		public static void migrateOldPlugins() {
-			try {
-				FileUtil.copyDir(new File(oldPluginsRootPath()), new File(pluginsRootPath()));
-				for (File file : allFilesInDirectory(new File(pluginsRootPath()))) {
-					migrate(file);
-				}
-				FileUtil.rename(new File(oldPluginsRootPath()), new File(oldPluginsRootPath() + "_migrated_to_liveplugin"));
-			} catch (IOException e) {
-				LOG.error("Error while migrating old plugins", e);
-			}
-		}
-
-		private static void migrate(File file) throws IOException {
-			String text = FileUtil.loadFile(file);
-			if (text.contains(OLD_STATIC_IMPORT) || text.contains(OLD_IMPORT)) {
-				String[] lines = text.split("\n");
-				for (int i = 0; i < lines.length; i++) {
-					lines[i] = lines[i].replace(OLD_STATIC_IMPORT, NEW_STATIC_IMPORT).replace(OLD_IMPORT, NEW_IMPORT);
-				}
-				FileUtil.writeToFile(file, StringUtil.join(lines, "\n"));
-
-				VirtualFileManager.getInstance().refreshAndFindFileByUrl(pathToUrl(toSystemIndependentName(pluginsRootPath())));
-			}
-		}
 	}
 }
