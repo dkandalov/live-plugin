@@ -2,25 +2,31 @@ package liveplugin.pluginrunner;
 
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.PathUtil;
+import com.intellij.util.containers.ContainerUtil;
 import liveplugin.MyFileUtil;
 import scala.Option;
 import scala.Some;
 import scala.tools.nsc.Settings;
+import scala.tools.nsc.backend.icode.TypeKinds;
 import scala.tools.nsc.interpreter.IMain;
 import scala.tools.nsc.interpreter.Results;
 import scala.tools.nsc.settings.MutableSettings;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import static com.intellij.openapi.application.PathManager.getLibPath;
 import static com.intellij.openapi.application.PathManager.getPluginsPath;
 import static com.intellij.openapi.util.text.StringUtil.join;
+import static com.intellij.util.containers.ContainerUtil.flatten;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.io.File.pathSeparator;
 import static java.util.Arrays.asList;
@@ -133,11 +139,21 @@ class ScalaPluginRunner implements PluginRunner {
 				return it.getAbsolutePath();
 			}
 		};
+		Function<File, Collection<File>> getPluginJars = new Function<File, Collection<File>>(){
+			@Override public Collection<File> fun(File pluginDir) {
+				return ContainerUtil.newArrayList(withDefault(new File[0], new File(pluginDir, "lib").listFiles(new FilenameFilter() {
+					@Override
+					public boolean accept(File file, String fileName) {
+						return fileName.endsWith(".jar") || fileName.endsWith(".zip");
+					}
+				})));
+			}
+		};
 
 		String compilerPath = PathUtil.getJarPathForClass(Class.forName("scala.tools.nsc.Interpreter"));
 		String scalaLibPath = PathUtil.getJarPathForClass(Class.forName("scala.Some"));
 		String intellijLibPath = join(map(withDefault(new File[0], new File(getLibPath()).listFiles()), toAbsolutePath), pathSeparator);
-		String intellijPluginsPath = join(map(withDefault(new File[0], new File(getPluginsPath()).listFiles()), toAbsolutePath), pathSeparator);
+		String intellijPluginsPath = join(map(flatten(map(withDefault(new File[0], new File(getPluginsPath()).listFiles()), getPluginJars)), toAbsolutePath), pathSeparator);
 		String livePluginPath = PathManager.getResourceRoot(ScalaPluginRunner.class, "/liveplugin/"); // this is only useful when running liveplugin from IDE (it's not packed into jar)
 		return join(asList(compilerPath, scalaLibPath, livePluginPath, intellijLibPath, intellijPluginsPath), pathSeparator) +
 				pathSeparator + join(additionalPaths, pathSeparator);
