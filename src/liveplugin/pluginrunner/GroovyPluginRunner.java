@@ -27,11 +27,13 @@ import java.util.Map;
 import static liveplugin.MyFileUtil.*;
 import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies;
 import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions;
+import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies;
 
 public class GroovyPluginRunner implements PluginRunner {
 	public static final String MAIN_SCRIPT = "plugin.groovy";
 	public static final String TEST_SCRIPT = "plugin-test.groovy";
 	public static final String GROOVY_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
+	public static final String GROOVY_DEPENDS_ON_PLUGIN_KEYWORD = "// " + DEPENDS_ON_PLUGIN_KEYWORD;
 
 	private final String scriptName;
 	private final ErrorReporter errorReporter;
@@ -62,6 +64,7 @@ public class GroovyPluginRunner implements PluginRunner {
 		try {
 			environment.put("PLUGIN_PATH", pathToPluginFolder);
 
+			List<String> dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), GROOVY_DEPENDS_ON_PLUGIN_KEYWORD);
 			List<String> pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), GROOVY_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
 				@Override public Void fun(String path) {
 					errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
@@ -70,7 +73,7 @@ public class GroovyPluginRunner implements PluginRunner {
 			});
 			String pluginFolderUrl = "file:///" + pathToPluginFolder; // prefix with "file:///" for GroovyScriptEngine
 			pathsToAdd.add(pluginFolderUrl);
-			ClassLoader classLoader = createClassLoaderWithDependencies(pathsToAdd, mainScriptUrl, pluginId, errorReporter);
+			ClassLoader classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, mainScriptUrl, pluginId, errorReporter);
 
 			// assume that GroovyScriptEngine is thread-safe
 			// (according to this http://groovy.329449.n5.nabble.com/Is-the-GroovyScriptEngine-thread-safe-td331407.html)
