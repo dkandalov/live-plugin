@@ -1,6 +1,10 @@
 package liveplugin.pluginrunner;
 
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import groovy.lang.GroovyClassLoader;
@@ -39,8 +43,9 @@ public interface PluginRunner {
 	class ClasspathAddition {
 		private static final Logger LOG = Logger.getInstance(ClasspathAddition.class);
 
-		public static ClassLoader createClassLoaderWithDependencies(List<String> pathsToAdd, String mainScriptUrl, String pluginId, ErrorReporter errorReporter) {
-			GroovyClassLoader classLoader = new GroovyClassLoader(PluginRunner.class.getClassLoader());
+		public static ClassLoader createClassLoaderWithDependencies(List<String> pathsToAdd, List<String> pluginsToAdd, String mainScriptUrl, String pluginId, ErrorReporter errorReporter) {
+			ClassLoader parentLoader = createParentClassLoader(pluginsToAdd, pluginId, errorReporter);
+			GroovyClassLoader classLoader = new GroovyClassLoader(parentLoader);
 			try {
 
 				for (String path : pathsToAdd) {
@@ -58,6 +63,47 @@ public interface PluginRunner {
 				errorReporter.addLoadingError(pluginId, "Error while looking for dependencies in '" + mainScriptUrl + "'. " + e.getMessage());
 			}
 			return classLoader;
+		}
+
+		public static ClassLoader createParentClassLoader(List<String> pluginsToAdd, final String pluginId, final ErrorReporter errorReporter) {
+			List<ClassLoader> parentLoaders = getParentLoaders(pluginsToAdd, new Function<String, Void>() {
+				@Override
+				public Void fun(String dependentPluginId) {
+					errorReporter.addLoadingError(pluginId, "Couldn't find dependent plugin '" + dependentPluginId + "'");
+					return null;
+				}
+			});
+			parentLoaders.add(PluginRunner.class.getClassLoader());
+
+			String pluginVersion = "1.0.0";
+			return new PluginClassLoader(new ArrayList<URL>(), parentLoaders.toArray(new ClassLoader[parentLoaders.size()]),
+										 PluginId.getId(pluginId), pluginVersion, null);
+		}
+
+		private static List<ClassLoader> getParentLoaders(List<String> pluginIds, Function<String, Void> onError) {
+			final List<ClassLoader> classLoaders = new ArrayList<ClassLoader>();
+			for (String rawPluginId : pluginIds) {
+				final PluginId pluginId = PluginId.getId(rawPluginId);
+				final IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(pluginId);
+
+				if (pluginDescriptor == null) {
+					onError.fun(rawPluginId);
+				} else {
+					classLoaders.add(pluginDescriptor.getPluginClassLoader());
+				}
+			}
+			return classLoaders;
+		}
+
+		public static List<String> findPluginDependencies(String[] lines, String prefix) {
+			List<String> pluginsToAdd = new ArrayList<String>();
+			for (String line : lines) {
+				if (!line.startsWith(prefix)) continue;
+
+				String pluginId = line.replace(prefix, "").trim();
+				pluginsToAdd.add(pluginId);
+			}
+			return pluginsToAdd;
 		}
 
 		public static List<String> findClasspathAdditions(String[] lines, String prefix, Map<String, String> environment, Function<String, Void> onError) throws IOException {
@@ -88,7 +134,8 @@ public interface PluginRunner {
 			File[] files = new File(path).listFiles((FileFilter) new GlobFilenameFilter(pattern));
 			files = (files == null ? new File[0] : files);
 			return ContainerUtil.map(files, new Function<File, String>() {
-				@Override public String fun(File file) {
+				@Override
+				public String fun(File file) {
 					return file.getAbsolutePath();
 				}
 			});

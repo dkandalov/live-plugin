@@ -13,6 +13,7 @@ import java.util.Map;
 import static liveplugin.MyFileUtil.*;
 import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies;
 import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions;
+import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies;
 
 /**
  * This class should not be loaded unless clojure libs are on classpath.
@@ -53,10 +54,12 @@ class ClojurePluginRunner implements PluginRunner {
 		final File scriptFile = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
 		assert scriptFile != null;
 
+		final List<String> dependentPlugins = new ArrayList<String>();
 		final List<String> additionalPaths = new ArrayList<String>();
 		try {
 			environment.put("PLUGIN_PATH", pathToPluginFolder);
 
+			dependentPlugins.addAll(findPluginDependencies(readLines(asUrl(scriptFile)), CLOJURE_DEPENDS_ON_PLUGIN_KEYWORD));
 			additionalPaths.addAll(findClasspathAdditions(readLines(asUrl(scriptFile)), CLOJURE_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
 				@Override public Void fun(String path) {
 					errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
@@ -67,7 +70,7 @@ class ClojurePluginRunner implements PluginRunner {
 			errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
 			return;
 		}
-		final ClassLoader classLoader = createClassLoaderWithDependencies(additionalPaths, asUrl(scriptFile), pluginId, errorReporter);
+		final ClassLoader classLoader = createClassLoaderWithDependencies(additionalPaths, dependentPlugins, asUrl(scriptFile), pluginId, errorReporter);
 
 
 		runOnEDTCallback.fun(new Runnable() {
