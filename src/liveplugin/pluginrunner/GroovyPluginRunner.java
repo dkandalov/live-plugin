@@ -32,6 +32,7 @@ public class GroovyPluginRunner implements PluginRunner {
 	public static final String MAIN_SCRIPT = "plugin.groovy";
 	public static final String TEST_SCRIPT = "plugin-test.groovy";
 	public static final String GROOVY_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
+	public static final String GROOVY_DEPENDS_ON_PLUGIN_KEYWORD = "// " + DEPENDS_ON_PLUGIN_KEYWORD;
 
 	private final String scriptName;
 	private final ErrorReporter errorReporter;

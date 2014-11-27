@@ -31,6 +31,7 @@ import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspa
 class ScalaPluginRunner implements PluginRunner {
 	private static final String MAIN_SCRIPT = "plugin.scala";
 	private static final String SCALA_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
+	public static final String SCALA_DEPENDS_ON_PLUGIN_KEYWORD = "// " + DEPENDS_ON_PLUGIN_KEYWORD;
 
 	private static final StringWriter interpreterOutput = new StringWriter();
 	private static final Object interpreterLock = new Object();

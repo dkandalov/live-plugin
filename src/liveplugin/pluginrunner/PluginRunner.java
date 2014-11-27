@@ -18,6 +18,7 @@ import java.util.Map;
 public interface PluginRunner {
 	String IDE_STARTUP = "IDE_STARTUP";
 	String ADD_TO_CLASSPATH_KEYWORD = "add-to-classpath ";
+	String DEPENDS_ON_PLUGIN_KEYWORD = "depends-on-plugin ";
 
 	/**
 	 * @param pathToPluginFolder absolute path to plugin folder
