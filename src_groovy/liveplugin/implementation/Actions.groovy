@@ -5,6 +5,7 @@ import com.intellij.execution.RunManager
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
@@ -51,6 +52,24 @@ class Actions {
 			actionGroup?.remove(actionManager.getAction(actionId))
 			actionManager.unregisterAction(actionId)
 		}
+	}
+
+	static AnActionListener registerActionListener(String listenerId, AnActionListener actionListener) {
+		GlobalVars.changeGlobalVar(listenerId) { oldListener ->
+			if (oldListener != null) {
+				ActionManager.instance.removeAnActionListener(oldListener)
+			}
+			ActionManager.instance.addAnActionListener(actionListener)
+			actionListener
+		}
+	}
+
+	static AnActionListener unregisterActionListener(String listenerId) {
+		def oldListener = GlobalVars.removeGlobalVar(listenerId) as AnActionListener
+		if (oldListener != null) {
+			ActionManager.instance.removeAnActionListener(oldListener)
+		}
+		oldListener
 	}
 
 	// there is no "Run" action for each run configuration, so the only way is to do it in code

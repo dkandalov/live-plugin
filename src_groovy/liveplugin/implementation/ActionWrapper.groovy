@@ -19,15 +19,24 @@ class ActionWrapper {
 
 	static class Context {
 		final AnActionEvent event
-		private final Closure originalActionCallback
+		private final Closure invokeActionCallback
 
-		Context(AnActionEvent event, Closure originalActionCallback) {
+		Context(AnActionEvent event, Closure invokeActionCallback) {
 			this.event = event
-			this.originalActionCallback = originalActionCallback
+			this.invokeActionCallback = invokeActionCallback
 		}
 
-		def callOriginalAction() {
-			originalActionCallback.call()
+		def invokeAction() {
+			invokeActionCallback.call()
+		}
+
+		/**
+		 * @param actionEvent event context which will be used to invoke original action.
+		 * The main reason is to be able to wrap action with some other long running action
+		 * and then call original action in different context (e.g. wrap with "compile project" action)
+		 */
+		def invokeAction(AnActionEvent actionEvent) {
+			invokeActionCallback.call(actionEvent)
 		}
 	}
 
@@ -39,8 +48,7 @@ class ActionWrapper {
 			return null
 		}
 		if (isWrapped(action)) {
-			log.info("Action " + actionId + " is already wrapped")
-			return null
+			unwrapAction(actionId, actionGroups)
 		}
 		doWrapAction(actionId, actionGroups, callback)
 	}
@@ -184,7 +192,8 @@ class ActionWrapper {
 
 		@Override void actionPerformed(@NotNull AnActionEvent event) {
 			listener.onAction(new Context(event, {
-				originalAction.actionPerformed(event)
+				if (it != null) originalAction.actionPerformed(it)
+				else originalAction.actionPerformed(event)
 			}))
 		}
 

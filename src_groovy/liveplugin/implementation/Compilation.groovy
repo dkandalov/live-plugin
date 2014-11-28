@@ -18,11 +18,12 @@ class Compilation {
 		}
 	}
 
-	static void unregisterCompilationListener(String id, Project project) {
-		def oldListener = GlobalVars.removeGlobalVar(id)
+	static CompilationStatusAdapter unregisterCompilationListener(String id, Project project) {
+		def oldListener = GlobalVars.removeGlobalVar(id) as CompilationStatusAdapter
 		if (oldListener != null) {
 			CompilerManager.getInstance(project).removeCompilationStatusListener(oldListener)
 		}
+		oldListener
 	}
 
 	static AnAction compileAction() {

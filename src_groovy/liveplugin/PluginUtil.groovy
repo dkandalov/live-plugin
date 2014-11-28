@@ -23,6 +23,7 @@ import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.command.CommandProcessor
@@ -333,6 +334,15 @@ class PluginUtil {
 		ActionWrapper.doUnwrapAction(actionId, actionGroupIds)
 	}
 
+	@CanCallFromAnyThread
+	static AnActionListener registerActionListener(String listenerId, AnActionListener actionListener) {
+		Actions.registerActionListener(listenerId, actionListener)
+	}
+
+	@CanCallFromAnyThread
+	static AnActionListener unregisterActionListener(String listenerId) {
+		Actions.unregisterActionListener(listenerId)
+	}
 	/**
 	 * Registers project manager listener which will be replaced between plugin reloads.
 	 *
