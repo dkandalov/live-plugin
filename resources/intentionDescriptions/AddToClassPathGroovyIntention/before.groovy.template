@@ -1,4 +1,6 @@
 import org.mockito.Mockito
 import static liveplugin.PluginUtil.show
 
+// will fail because by default there is no Mockito on IntelliJ classpath
+
 show(Mockito.class.name)

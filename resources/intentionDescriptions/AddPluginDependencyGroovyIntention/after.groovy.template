@@ -1,0 +1,6 @@
+import static liveplugin.PluginUtil.*
+
+// depends-on-plugin Scratch
+
+// Will work. 'Scratch' above is plugin id.
+show(scratch.ide.Actions)

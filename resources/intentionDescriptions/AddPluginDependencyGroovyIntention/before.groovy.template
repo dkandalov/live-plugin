@@ -1,0 +1,4 @@
+import static liveplugin.PluginUtil.*
+
+// Won't work because mini-plugin only depends on core IntelliJ classes and plugins.
+show(scratch.ide.Actions)
