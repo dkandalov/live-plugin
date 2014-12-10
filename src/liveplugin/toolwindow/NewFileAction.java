@@ -31,32 +31,12 @@ import javax.swing.*;
 /**
  * Originally forked from {@link com.intellij.openapi.fileChooser.actions.NewFileAction}
  */
-public class NewFileAction extends FileChooserAction {
-
-	private FileType fileType;
-
-	public NewFileAction() {
-	}
+class NewFileAction extends FileChooserAction {
+	private final FileType fileType;
 
 	public NewFileAction(String text, @Nullable Icon icon, @NotNull FileType fileType) {
 		super(text, text, icon);
 		this.fileType = fileType;
-	}
-
-	protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {
-		Presentation presentation = e.getPresentation();
-		presentation.setVisible(true);
-		VirtualFile selectedFile = fileSystemTree.getNewFileParent();
-		presentation.setEnabled(selectedFile != null);
-		// FORK DIFF (got rid of layered "new" icon because it's ugly)
-		presentation.setIcon(fileType != null ? fileType.getIcon() : null);
-	}
-
-	protected void actionPerformed(FileSystemTree fileSystemTree, AnActionEvent e) {
-		String initialContent = e.getData(FileChooserKeys.NEW_FILE_TEMPLATE_TEXT);
-		// FORK DIFF (don't really care if initial content is null)
-		if (initialContent == null) initialContent = "";
-		createNewFile(fileSystemTree, fileType, initialContent);
 	}
 
 	private static void createNewFile(FileSystemTree fileSystemTree, final FileType fileType, final String initialContent) {
@@ -83,5 +63,21 @@ public class NewFileAction extends FileChooserAction {
 			}
 			return;
 		}
+	}
+
+	protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {
+		Presentation presentation = e.getPresentation();
+		presentation.setVisible(true);
+		VirtualFile selectedFile = fileSystemTree.getNewFileParent();
+		presentation.setEnabled(selectedFile != null);
+		// FORK DIFF (got rid of layered "new" icon because it's ugly)
+		presentation.setIcon(fileType.getIcon());
+	}
+
+	protected void actionPerformed(FileSystemTree fileSystemTree, AnActionEvent e) {
+		String initialContent = e.getData(FileChooserKeys.NEW_FILE_TEMPLATE_TEXT);
+		// FORK DIFF (don't really care if initial content is null)
+		if (initialContent == null) initialContent = "";
+		createNewFile(fileSystemTree, fileType, initialContent);
 	}
 }

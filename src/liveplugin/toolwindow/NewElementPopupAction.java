@@ -32,12 +32,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static liveplugin.LivePluginAppComponent.*;
+import static liveplugin.LivePluginAppComponent.defaultPluginScript;
+import static liveplugin.LivePluginAppComponent.defaultPluginTestScript;
 import static liveplugin.pluginrunner.GroovyPluginRunner.MAIN_SCRIPT;
 import static liveplugin.pluginrunner.GroovyPluginRunner.TEST_SCRIPT;
 
 class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 	public static final Icon Folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
+	public static final Icon inferIconFromFileType = null;
+
 
 	@Override public void actionPerformed(@NotNull final AnActionEvent event) {
 		showPopup(event.getDataContext());
@@ -60,21 +63,18 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 		return new ActionGroup() {
 			@NotNull @Override
 			public AnAction[] getChildren(AnActionEvent e) {
-				Icon iconByFileType = null;
-
 				List<AnAction> actions = new ArrayList<AnAction>();
-				actions.add(new NewFileAction("Groovy File", iconByFileType, IDEUtil.GROOVY_FILE_TYPE));
-
-				if (scalaIsOnClassPath()) actions.add(new NewFileAction("Scala File", iconByFileType, IDEUtil.SCALA_FILE_TYPE));
-				if (clojureIsOnClassPath()) actions.add(new NewFileAction("Clojure File", iconByFileType, IDEUtil.CLOJURE_FILE_TYPE));
+				actions.add(new NewGroovyFileAction());
+				actions.add(new NewScalaFileAction());
+				actions.add(new NewClojureFileAction());
 
 				actions.addAll(asList(
 						new NewFileAction("Text File", AllIcons.FileTypes.Text, IDEUtil.TEXT_FILE_TYPE),
 						new NewFolderAction("Directory", "Directory", Folder)
 				));
 				actions.addAll(asList(
-						new CreateRootFileAction(MAIN_SCRIPT, MAIN_SCRIPT, defaultPluginScript(), iconByFileType, IDEUtil.GROOVY_FILE_TYPE),
-						new CreateRootFileAction(TEST_SCRIPT, TEST_SCRIPT, defaultPluginTestScript(), iconByFileType, IDEUtil.GROOVY_FILE_TYPE)
+						new CreateRootFileAction(MAIN_SCRIPT, MAIN_SCRIPT, defaultPluginScript(), inferIconFromFileType, IDEUtil.GROOVY_FILE_TYPE),
+						new CreateRootFileAction(TEST_SCRIPT, TEST_SCRIPT, defaultPluginTestScript(), inferIconFromFileType, IDEUtil.GROOVY_FILE_TYPE)
 				));
 				actions.addAll(asList(
 						new Separator(),

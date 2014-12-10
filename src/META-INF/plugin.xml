@@ -44,7 +44,9 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
 		</action>
 
         <group id="LivePlugin.Popup.MainActions">
-            <action id="LivePlugin.NewFileAction" class="liveplugin.toolwindow.NewFileAction" text="New Groovy Script"/>
+            <action id="LivePlugin.NewGroovyFileAction" class="liveplugin.toolwindow.NewGroovyFileAction" text="New Groovy File"/>
+            <action id="LivePlugin.NewScalaFileAction" class="liveplugin.toolwindow.NewScalaFileAction" text="New Scala File"/>
+            <action id="LivePlugin.NewClojureFileAction" class="liveplugin.toolwindow.NewClojureFileAction" text="New Clojure File"/>
             <action id="LivePlugin.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
                     text="New Directory" icon="/nodes/folder.png"/>
             <action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.RenameFileAction" text="Rename"
