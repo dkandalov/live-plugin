@@ -40,10 +40,12 @@ public interface PluginRunner {
 
 	String scriptName();
 
+
 	class ClasspathAddition {
 		private static final Logger LOG = Logger.getInstance(ClasspathAddition.class);
 
-		public static ClassLoader createClassLoaderWithDependencies(List<String> pathsToAdd, List<String> pluginsToAdd, String mainScriptUrl, String pluginId, ErrorReporter errorReporter) {
+		public static ClassLoader createClassLoaderWithDependencies(List<String> pathsToAdd, List<String> pluginsToAdd,
+		                                                            String mainScriptUrl, String pluginId, ErrorReporter errorReporter) {
 			ClassLoader parentLoader = createParentClassLoader(pluginsToAdd, pluginId, errorReporter);
 			GroovyClassLoader classLoader = new GroovyClassLoader(parentLoader);
 			try {
@@ -65,10 +67,9 @@ public interface PluginRunner {
 			return classLoader;
 		}
 
-		public static ClassLoader createParentClassLoader(List<String> pluginsToAdd, final String pluginId, final ErrorReporter errorReporter) {
-			List<ClassLoader> parentLoaders = getParentLoaders(pluginsToAdd, new Function<String, Void>() {
-				@Override
-				public Void fun(String dependentPluginId) {
+		public static ClassLoader createParentClassLoader(List<String> dependentPlugins, final String pluginId, final ErrorReporter errorReporter) {
+			List<ClassLoader> parentLoaders = classLoadersOf(dependentPlugins, new Function<String, Void>() {
+				@Override public Void fun(String dependentPluginId) {
 					errorReporter.addLoadingError(pluginId, "Couldn't find dependent plugin '" + dependentPluginId + "'");
 					return null;
 				}
@@ -80,19 +81,19 @@ public interface PluginRunner {
 										 PluginId.getId(pluginId), pluginVersion, null);
 		}
 
-		private static List<ClassLoader> getParentLoaders(List<String> pluginIds, Function<String, Void> onError) {
-			final List<ClassLoader> classLoaders = new ArrayList<ClassLoader>();
+		private static List<ClassLoader> classLoadersOf(List<String> pluginIds, Function<String, Void> onError) {
+			List<ClassLoader> result = new ArrayList<ClassLoader>();
 			for (String rawPluginId : pluginIds) {
-				final PluginId pluginId = PluginId.getId(rawPluginId);
-				final IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(pluginId);
+				PluginId pluginId = PluginId.getId(rawPluginId);
+				IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(pluginId);
 
 				if (pluginDescriptor == null) {
 					onError.fun(rawPluginId);
 				} else {
-					classLoaders.add(pluginDescriptor.getPluginClassLoader());
+					result.add(pluginDescriptor.getPluginClassLoader());
 				}
 			}
-			return classLoaders;
+			return result;
 		}
 
 		public static List<String> findPluginDependencies(String[] lines, String prefix) {

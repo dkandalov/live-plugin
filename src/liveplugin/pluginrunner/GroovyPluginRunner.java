@@ -25,9 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static liveplugin.MyFileUtil.*;
-import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies;
-import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions;
-import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies;
+import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*;
 
 public class GroovyPluginRunner implements PluginRunner {
 	public static final String MAIN_SCRIPT = "plugin.groovy";
@@ -43,6 +41,14 @@ public class GroovyPluginRunner implements PluginRunner {
 		this.scriptName = scriptName;
 		this.errorReporter = errorReporter;
 		this.environment = new HashMap<String, String>(environment);
+	}
+
+	private static Binding createGroovyBinding(Map<String, ?> binding) {
+		Binding result = new Binding();
+		for (Map.Entry<String, ?> entry : binding.entrySet()) {
+			result.setVariable(entry.getKey(), entry.getValue());
+		}
+		return result;
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
@@ -106,13 +112,5 @@ public class GroovyPluginRunner implements PluginRunner {
 		} catch (Exception e) {
 			errorReporter.addLoadingError(pluginId, e);
 		}
-	}
-
-	private static Binding createGroovyBinding(Map<String, ?> binding) {
-		Binding result = new Binding();
-		for (Map.Entry<String, ?> entry : binding.entrySet()) {
-			result.setVariable(entry.getKey(), entry.getValue());
-		}
-		return result;
 	}
 }

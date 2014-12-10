@@ -2,15 +2,12 @@ package liveplugin.pluginrunner;
 
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.PathUtil;
-import com.intellij.util.containers.ContainerUtil;
 import liveplugin.MyFileUtil;
-import scala.Option;
+import org.jetbrains.annotations.NotNull;
 import scala.Some;
 import scala.tools.nsc.Settings;
-import scala.tools.nsc.backend.icode.TypeKinds;
 import scala.tools.nsc.interpreter.IMain;
 import scala.tools.nsc.interpreter.Results;
 import scala.tools.nsc.settings.MutableSettings;
@@ -28,21 +25,19 @@ import static com.intellij.openapi.application.PathManager.getPluginsPath;
 import static com.intellij.openapi.util.text.StringUtil.join;
 import static com.intellij.util.containers.ContainerUtil.flatten;
 import static com.intellij.util.containers.ContainerUtil.map;
+import static com.intellij.util.containers.ContainerUtilRt.newArrayList;
 import static java.io.File.pathSeparator;
 import static java.util.Arrays.asList;
 import static liveplugin.MyFileUtil.*;
-import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createParentClassLoader;
-import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions;
-import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies;
+import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*;
 
 /**
  * This class should not be loaded unless scala libs are on classpath.
  */
 class ScalaPluginRunner implements PluginRunner {
+	public static final String SCALA_DEPENDS_ON_PLUGIN_KEYWORD = "// " + DEPENDS_ON_PLUGIN_KEYWORD;
 	private static final String MAIN_SCRIPT = "plugin.scala";
 	private static final String SCALA_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
-	public static final String SCALA_DEPENDS_ON_PLUGIN_KEYWORD = "// " + DEPENDS_ON_PLUGIN_KEYWORD;
-
 	private static final StringWriter interpreterOutput = new StringWriter();
 	private static final Object interpreterLock = new Object();
 
@@ -53,6 +48,51 @@ class ScalaPluginRunner implements PluginRunner {
 	public ScalaPluginRunner(ErrorReporter errorReporter, Map<String, String> environment) {
 		this.errorReporter = errorReporter;
 		this.environment = environment;
+	}
+
+	private static IMain initInterpreter(String interpreterClasspath, ClassLoader parentClassLoader) throws ClassNotFoundException {
+		Settings settings = new Settings();
+		MutableSettings.PathSetting bootClasspath = (MutableSettings.PathSetting) settings.bootclasspath();
+		bootClasspath.append(interpreterClasspath);
+
+		settings.explicitParentLoader_$eq(new Some<ClassLoader>(parentClassLoader));
+
+		((MutableSettings.BooleanSetting) settings.usejavacp()).tryToSetFromPropertyValue("true");
+
+		return new IMain(settings, new PrintWriter(interpreterOutput));
+	}
+
+	private static String createInterpreterClasspath(List<String> additionalPaths) throws ClassNotFoundException {
+		Function<File, String> toAbsolutePath = new Function<File, String>() {
+			@Override public String fun(File it) {
+				return it.getAbsolutePath();
+			}
+		};
+		Function<File, Collection<File>> findPluginJars = new Function<File, Collection<File>>(){
+			@Override public Collection<File> fun(File pluginPath) {
+				if (pluginPath.isFile()) {
+					return newArrayList(pluginPath);
+				} else {
+					return newArrayList(withDefault(new File[0], new File(pluginPath, "lib").listFiles(new FilenameFilter() {
+						@Override public boolean accept(@NotNull File file, @NotNull String fileName) {
+							return fileName.endsWith(".jar") || fileName.endsWith(".zip");
+						}
+					})));
+				}
+			}
+		};
+
+		String compilerPath = PathUtil.getJarPathForClass(Class.forName("scala.tools.nsc.Interpreter"));
+		String scalaLibPath = PathUtil.getJarPathForClass(Class.forName("scala.Some"));
+		String intellijLibPath = join(map(withDefault(new File[0], new File(getLibPath()).listFiles()), toAbsolutePath), pathSeparator);
+		String allNonCorePluginsPath = join(map(flatten(map(withDefault(new File[0], new File(getPluginsPath()).listFiles()), findPluginJars)), toAbsolutePath), pathSeparator);
+		String livePluginPath = PathManager.getResourceRoot(ScalaPluginRunner.class, "/liveplugin/"); // this is only useful when running liveplugin from IDE (it's not packed into jar)
+		return join(asList(compilerPath, scalaLibPath, livePluginPath, intellijLibPath, allNonCorePluginsPath), pathSeparator) +
+				pathSeparator + join(additionalPaths, pathSeparator);
+	}
+
+	private static <T> T withDefault(T defaultValue, T value) {
+		return value == null ? defaultValue : value;
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
@@ -119,47 +159,5 @@ class ScalaPluginRunner implements PluginRunner {
 
 	@Override public String scriptName() {
 		return MAIN_SCRIPT;
-	}
-
-	private static IMain initInterpreter(String interpreterClasspath, ClassLoader parentClassLoader) throws ClassNotFoundException {
-		Settings settings = new Settings();
-		MutableSettings.PathSetting bootClasspath = (MutableSettings.PathSetting) settings.bootclasspath();
-		bootClasspath.append(interpreterClasspath);
-
-		settings.explicitParentLoader_$eq(new Some<ClassLoader>(parentClassLoader));
-
-		((MutableSettings.BooleanSetting) settings.usejavacp()).tryToSetFromPropertyValue("true");
-
-		return new IMain(settings, new PrintWriter(interpreterOutput));
-	}
-
-	private static String createInterpreterClasspath(List<String> additionalPaths) throws ClassNotFoundException {
-		Function<File, String> toAbsolutePath = new Function<File, String>() {
-			@Override public String fun(File it) {
-				return it.getAbsolutePath();
-			}
-		};
-		Function<File, Collection<File>> getPluginJars = new Function<File, Collection<File>>(){
-			@Override public Collection<File> fun(File pluginDir) {
-				return ContainerUtil.newArrayList(withDefault(new File[0], new File(pluginDir, "lib").listFiles(new FilenameFilter() {
-					@Override
-					public boolean accept(File file, String fileName) {
-						return fileName.endsWith(".jar") || fileName.endsWith(".zip");
-					}
-				})));
-			}
-		};
-
-		String compilerPath = PathUtil.getJarPathForClass(Class.forName("scala.tools.nsc.Interpreter"));
-		String scalaLibPath = PathUtil.getJarPathForClass(Class.forName("scala.Some"));
-		String intellijLibPath = join(map(withDefault(new File[0], new File(getLibPath()).listFiles()), toAbsolutePath), pathSeparator);
-		String intellijPluginsPath = join(map(flatten(map(withDefault(new File[0], new File(getPluginsPath()).listFiles()), getPluginJars)), toAbsolutePath), pathSeparator);
-		String livePluginPath = PathManager.getResourceRoot(ScalaPluginRunner.class, "/liveplugin/"); // this is only useful when running liveplugin from IDE (it's not packed into jar)
-		return join(asList(compilerPath, scalaLibPath, livePluginPath, intellijLibPath, intellijPluginsPath), pathSeparator) +
-				pathSeparator + join(additionalPaths, pathSeparator);
-	}
-
-	private static <T> T withDefault(T defaultValue, T value) {
-		return value == null ? defaultValue : value;
 	}
 }
