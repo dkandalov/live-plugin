@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>LivePlugin</id>
 	<name>LivePlugin</name>
-	<version>0.5.0 beta</version>
+	<version>0.5.1 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
     <!-- https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges -->
@@ -65,6 +65,10 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
         <nonProjectFileWritingAccessExtension implementation="liveplugin.MakePluginFilesAlwaysEditable"/>
         <intentionAction>
             <className>liveplugin.intention.AddToClassPathGroovyIntention</className>
+            <category>LivePlugin</category>
+        </intentionAction>
+        <intentionAction>
+            <className>liveplugin.intention.AddPluginDependencyGroovyIntention</className>
             <category>LivePlugin</category>
         </intentionAction>
     </extensions>
