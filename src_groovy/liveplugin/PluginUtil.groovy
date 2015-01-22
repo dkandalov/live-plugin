@@ -596,6 +596,8 @@ class PluginUtil {
 	}
 
 
+	// note that com.intellij.openapi.compiler.CompilationStatusAdapter is not imported because
+	// it doesn't exist in IDEs without compilation (e.g. in PhpStorm)
 	static void registerCompilationListener(String id, Project project, /*CompilationStatusAdapter*/ listener) {
 		Compilation.registerCompilationListener(id, project, listener)
 	}
