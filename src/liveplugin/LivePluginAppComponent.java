@@ -160,10 +160,14 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 	}
 
 	public static void checkThatGroovyIsOnClasspath() {
-		if (isGroovyOnClasspath()) return;
+		final File oldGroovyLibrary = new File(LIVEPLUGIN_LIBS_PATH + File.separator + "groovy-all-2.0.6.jar");
 
 		NotificationListener listener = new NotificationListener() {
 			@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
+				if (oldGroovyLibrary.exists()) {
+					FileUtil.delete(oldGroovyLibrary);
+				}
+
 				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.2.1/", "groovy-all-2.2.1.jar", LIVEPLUGIN_LIBS_PATH);
 				if (downloaded) {
 					notification.expire();
@@ -174,6 +178,18 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 				}
 			}
 		};
+
+		if (oldGroovyLibrary.exists()) {
+			livePluginNotificationGroup.createNotification(
+					"There is old version of groovy library on LivePlugin classpath",
+					"It might work incorrectly. <a href=\"\">Click here to update groovy to 2.2.1</a> (~6Mb)",
+					NotificationType.ERROR,
+					listener
+			).notify(null);
+		}
+
+		if (isGroovyOnClasspath()) return;
+
 		livePluginNotificationGroup.createNotification(
 				"LivePlugin didn't find Groovy libraries on classpath",
 				"Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~6Mb)",
