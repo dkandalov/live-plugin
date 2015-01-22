@@ -28,7 +28,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
-import com.intellij.openapi.compiler.CompilationStatusAdapter
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
@@ -75,7 +74,6 @@ import java.util.regex.Pattern
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only for reference.
@@ -598,7 +596,7 @@ class PluginUtil {
 	}
 
 
-	static void registerCompilationListener(String id, Project project, CompilationStatusAdapter listener) {
+	static void registerCompilationListener(String id, Project project, /*CompilationStatusAdapter*/ listener) {
 		Compilation.registerCompilationListener(id, project, listener)
 	}
 
