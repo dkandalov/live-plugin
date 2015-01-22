@@ -17,3 +17,18 @@ task downloadLibs(type: Copy) {
 	from configurations.runtime
 	into './lib'
 }
+
+task installLivePlugin() << {
+	def version = new File("src/META-INF/plugin.xml").readLines()
+			.find{ it.contains("<version>") }
+	        .replaceFirst(".*<version>", "")
+	        .replaceFirst("</version>.*", "")
+	def localMavenPath = repositories.mavenLocal().url.path + "/liveplugin/live-plugin/"
+
+	ant.copy(
+			file: "LivePlugin.jar",
+			toFile: "${localMavenPath}/${version}/live-plugin-${version}.jar"
+	)
+
+	println("Installed to local maven liveplugin version " + version)
+}
