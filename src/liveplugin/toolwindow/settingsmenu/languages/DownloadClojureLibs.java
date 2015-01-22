@@ -1,6 +1,5 @@
 package liveplugin.toolwindow.settingsmenu.languages;
 
-import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -14,8 +13,7 @@ import java.io.File;
 import static java.util.Arrays.asList;
 import static liveplugin.IDEUtil.askIsUserWantsToRestartIde;
 import static liveplugin.IDEUtil.downloadFiles;
-import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
-import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
+import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
 public class DownloadClojureLibs extends AnAction {
@@ -46,7 +44,7 @@ public class DownloadClojureLibs extends AnAction {
 			if (downloaded) {
 				askIsUserWantsToRestartIde("For Clojure libraries to be loaded IDE restart is required. Restart now?");
 			} else {
-				NotificationGroup.balloonGroup("Live Plugin")
+				livePluginNotificationGroup
 						.createNotification("Failed to download Clojure libraries", NotificationType.WARNING);
 			}
 		}

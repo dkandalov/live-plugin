@@ -54,6 +54,8 @@ import static liveplugin.IDEUtil.downloadFile;
 public class LivePluginAppComponent implements ApplicationComponent { // TODO implement DumbAware?
 	public static final String PLUGIN_EXAMPLES_PATH = "/liveplugin/pluginexamples";
 	public static final String LIVEPLUGIN_LIBS_PATH = PathManager.getPluginsPath() + "/LivePlugin/lib/";
+	public static final NotificationGroup livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin");
+
 	private static final Logger LOG = Logger.getInstance(LivePluginAppComponent.class);
 	private static final String DEFAULT_PLUGIN_PATH = PLUGIN_EXAMPLES_PATH;
 	private static final String DEFAULT_PLUGIN_SCRIPT = "default-plugin.groovy";
@@ -167,12 +169,12 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 					notification.expire();
 					askIsUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?");
 				} else {
-					NotificationGroup.balloonGroup("Live Plugin")
+					livePluginNotificationGroup
 							.createNotification("Failed to download Groovy libraries", NotificationType.WARNING);
 				}
 			}
 		};
-		NotificationGroup.balloonGroup("Live Plugin").createNotification(
+		livePluginNotificationGroup.createNotification(
 				"LivePlugin didn't find Groovy libraries on classpath",
 				"Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~6Mb)",
 				NotificationType.ERROR,
@@ -183,7 +185,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 	@Override public void initComponent() {
 		IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(getId("IntelliJEval"));
 		if (pluginDescriptor != null && pluginDescriptor.isEnabled()) {
-			NotificationGroup.balloonGroup("Live Plugin").createNotification(
+			livePluginNotificationGroup.createNotification(
 					"It seems that you have IntelliJEval plugin enabled.<br/>Please disable it to use LivePlugin.",
 					NotificationType.ERROR
 			).notify(null);

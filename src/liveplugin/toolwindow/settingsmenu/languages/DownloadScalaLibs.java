@@ -1,6 +1,5 @@
 package liveplugin.toolwindow.settingsmenu.languages;
 
-import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -17,8 +16,7 @@ import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
 import static liveplugin.IDEUtil.askIsUserWantsToRestartIde;
 import static liveplugin.IDEUtil.downloadFiles;
-import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
-import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
+import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
 public class DownloadScalaLibs extends AnAction {
@@ -57,7 +55,7 @@ public class DownloadScalaLibs extends AnAction {
 			if (downloaded) {
 				askIsUserWantsToRestartIde("For Scala libraries to be loaded IDE restart is required. Restart now?");
 			} else {
-				NotificationGroup.balloonGroup("Live Plugin")
+				livePluginNotificationGroup
 						.createNotification("Failed to download Scala libraries", NotificationType.WARNING);
 			}
 		}
