@@ -76,6 +76,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" scope="PROVIDED" name="groovy-all-2.2.1" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="groovy-2.3.9" level="application" />
   </component>
 </module>

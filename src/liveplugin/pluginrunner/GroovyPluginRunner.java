@@ -77,7 +77,7 @@ public class GroovyPluginRunner implements PluginRunner {
 					return null;
 				}
 			});
-			String pluginFolderUrl = "file:///" + pathToPluginFolder; // prefix with "file:///" for GroovyScriptEngine
+			String pluginFolderUrl = "file:///" + pathToPluginFolder + "/"; // prefix with "file:///" for GroovyScriptEngine
 			pathsToAdd.add(pluginFolderUrl);
 			ClassLoader classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, mainScriptUrl, pluginId, errorReporter);
 

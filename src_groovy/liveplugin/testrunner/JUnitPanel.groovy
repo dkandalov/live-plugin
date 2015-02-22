@@ -1,9 +1,6 @@
 package liveplugin.testrunner
-
 import com.intellij.execution.*
 import com.intellij.execution.configurations.ConfigurationFactory
-import com.intellij.execution.configurations.ConfigurationPerRunnerSettings
-import com.intellij.execution.configurations.RunnerSettings
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.junit.JUnitConfigurationType
@@ -105,7 +102,6 @@ class JUnitPanel implements TestReporter {
 			@Override String getName() { name }
 			@Override String getComment() { comment }
 			@Override void readFrom(ObjectReader objectReader) {}
-			@Override Location getLocation(Project project) { null }
 			@IJ13Compatibility /*@Override*/ Location getLocation(Project project, GlobalSearchScope globalSearchScope) { null }
 		}
 	}
@@ -288,16 +284,13 @@ class JUnitPanel implements TestReporter {
 		}
 
 		protected TestResultsPanel createTestResultsPanel() {
-			def runnerSettings2 = (RunnerSettings) myEnvironment.getRunnerSettings()
-			def configurationSettings2 = (ConfigurationPerRunnerSettings) myEnvironment.configurationSettings
-
-			myConsolePanel = new ConsolePanel(getConsole().getComponent(), getPrinter(), myProperties, runnerSettings2, configurationSettings2, getConsole().createConsoleActions()) {
+			myConsolePanel = new ConsolePanel(getConsole().getComponent(), getPrinter(), myProperties, myEnvironment, getConsole().createConsoleActions()) {
 				@Override protected ToolbarPanel createToolbarPanel() {
 
-					return new JUnitToolbarPanel(myProperties, runnerSettings2, configurationSettings2, this) {
+					return new JUnitToolbarPanel(myProperties, myEnvironment, getConsole().getComponent()) {
 						@Override protected void appendAdditionalActions(DefaultActionGroup defaultActionGroup, TestConsoleProperties testConsoleProperties,
-						                                                 RunnerSettings runnerSettings, ConfigurationPerRunnerSettings configurationPerRunnerSettings, JComponent jComponent) {
-							super.appendAdditionalActions(defaultActionGroup, testConsoleProperties, runnerSettings, configurationPerRunnerSettings, jComponent)
+						                                                 ExecutionEnvironment environment, JComponent jComponent) {
+							super.appendAdditionalActions(defaultActionGroup, testConsoleProperties, environment, jComponent)
 
 							MyTreeConsoleView.this.appendAdditionalActions.appendTo(defaultActionGroup, getConsole(), jComponent)
 						}
