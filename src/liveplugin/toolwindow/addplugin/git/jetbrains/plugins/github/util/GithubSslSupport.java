@@ -15,8 +15,6 @@
  */
 package liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.util;
 
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vcs.CalledInAwt;
 import com.intellij.util.ThrowableConvertor;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -44,36 +42,6 @@ public class GithubSslSupport {
 		  instance = new GithubSslSupport();
 	  }
 	  return instance;
-  }
-
-  /**
-   * Tries to execute the {@link org.apache.commons.httpclient.HttpMethod} and captures the {@link sun.security.validator.ValidatorException exception} which is thrown if user connects
-   * to an HTTPS server with a non-trusted (probably, self-signed) SSL certificate. In which case proposes to cancel the connection
-   * or to proceed without certificate check.
-   *
-   * @param methodCreator a function to create the HttpMethod. This is required instead of just {@link org.apache.commons.httpclient.HttpMethod} instance, because the
-   *                      implementation requires the HttpMethod to be recreated in certain circumstances.
-   * @return the HttpMethod instance which was actually executed
-   * and which can be {@link org.apache.commons.httpclient.HttpMethod#getResponseBodyAsString() asked for the response}.
-   * @throws java.io.IOException in case of other errors or if user declines the proposal of non-trusted connection.
-   */
-  @NotNull
-  public HttpMethod executeSelfSignedCertificateAwareRequest(@NotNull HttpClient client,
-                                                             @NotNull String uri,
-                                                             @NotNull ThrowableConvertor<String, HttpMethod, IOException> methodCreator)
-    throws IOException {
-    HttpMethod method = methodCreator.convert(uri);
-    try {
-      client.executeMethod(method);
-      return method;
-    }
-    catch (IOException e) {
-      HttpMethod m = handleCertificateExceptionAndRetry(e, method.getURI().getHost(), client, method.getURI(), methodCreator);
-      if (m == null) {
-        throw e;
-      }
-      return m;
-    }
   }
 
   @Nullable
@@ -112,21 +80,33 @@ public class GithubSslSupport {
     return GithubSettings.getInstance().getTrustedHosts().contains(host.toLowerCase());
   }
 
-  private static void saveToTrusted(@NotNull String host) {
-    GithubSettings.getInstance().addTrustedHost(host.toLowerCase());
-  }
-
-  @CalledInAwt
-  public boolean askIfShouldProceed(final String url) {
-    String host = GithubUrlUtil.getHostFromUrl(url);
-
-    int choice = Messages.showYesNoDialog("The security certificate of " + host + " is not trusted. Do you want to proceed anyway?",
-                                          "Not Trusted Certificate", "Proceed anyway", "No, I don't trust", Messages.getErrorIcon());
-    boolean trust = (choice == Messages.YES);
-    if (trust) {
-      saveToTrusted(host);
+  /**
+   * Tries to execute the {@link org.apache.commons.httpclient.HttpMethod} and captures the {@link sun.security.validator.ValidatorException exception} which is thrown if user connects
+   * to an HTTPS server with a non-trusted (probably, self-signed) SSL certificate. In which case proposes to cancel the connection
+   * or to proceed without certificate check.
+   *
+   * @param methodCreator a function to create the HttpMethod. This is required instead of just {@link org.apache.commons.httpclient.HttpMethod} instance, because the
+   *                      implementation requires the HttpMethod to be recreated in certain circumstances.
+   * @return the HttpMethod instance which was actually executed
+   * and which can be {@link org.apache.commons.httpclient.HttpMethod#getResponseBodyAsString() asked for the response}.
+   * @throws java.io.IOException in case of other errors or if user declines the proposal of non-trusted connection.
+   */
+  @NotNull
+  public HttpMethod executeSelfSignedCertificateAwareRequest(@NotNull HttpClient client,
+                                                             @NotNull String uri,
+                                                             @NotNull ThrowableConvertor<String, HttpMethod, IOException> methodCreator)
+    throws IOException {
+    HttpMethod method = methodCreator.convert(uri);
+    try {
+      client.executeMethod(method);
+      return method;
     }
-    return trust;
+    catch (IOException e) {
+      HttpMethod m = handleCertificateExceptionAndRetry(e, method.getURI().getHost(), client, method.getURI(), methodCreator);
+      if (m == null) {
+        throw e;
+      }
+      return m;
+    }
   }
-
 }

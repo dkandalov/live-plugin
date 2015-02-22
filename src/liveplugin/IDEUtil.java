@@ -146,8 +146,8 @@ public class IDEUtil {
 				return service.createFileDescription(it.first + it.second, it.second);
 			}
 		});
-		VirtualFile[] files = service.createDownloader(descriptions, null, null, "").toDirectory(targetPath).download();
-		return files != null && files.length == urlAndFileNames.size();
+		List<VirtualFile> files = service.createDownloader(descriptions, "").downloadFilesWithProgress(targetPath, null, null);
+		return files != null && files.size() == urlAndFileNames.size();
 	}
 
 	public static String unscrambleThrowable(Throwable throwable) {

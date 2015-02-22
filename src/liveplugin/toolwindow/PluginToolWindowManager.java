@@ -185,8 +185,8 @@ public class PluginToolWindowManager {
 					return "";
 				}
 			};
-			descriptor.setShowFileSystemRoots(false);
-			descriptor.setIsTreeRootVisible(false);
+			descriptor.withShowFileSystemRoots(false);
+			descriptor.withTreeRootVisible(false);
 
 			Collection<String> pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values();
 			List<VirtualFile> virtualFiles = map(pluginPaths, new Function<String, VirtualFile>() {
