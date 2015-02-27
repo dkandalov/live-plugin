@@ -82,6 +82,7 @@ and use "Install plugin from disk".
 ### More examples
  - [intellij-emacs](https://github.com/kenfox/intellij-emacs) - macros for making IntelliJ more friendly to emacs users (see also [blog post](http://spin.atomicobject.com/2014/08/07/intellij-emacs/))
  - [Simplistic "compile and run haskell" action](https://gist.github.com/dkandalov/11051113) - obviously this can be done for other languages/environments
+ - [Google quick search popup](https://gist.github.com/dkandalov/277800d12ecbfc533fcd) - prototype of google popup search mini-plugin
  - [Scripting a macros](https://github.com/dkandalov/live-plugin/wiki/Scripting-a-macros) - example of finding and invoking built-in actions
  - [Console filter/transform example](https://github.com/dkandalov/live-plugin/wiki/Console-filtering) - example of filtering and changing console output
  - [VCS update listener example](https://gist.github.com/dkandalov/8840509) - example of adding callback on VCS update
