@@ -13,6 +13,7 @@
  */
 package liveplugin.pluginrunner;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
@@ -20,6 +21,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
@@ -49,8 +51,11 @@ public class RunPluginAction extends AnAction {
 			return null;
 		}
 	};
+    private static final String DISPOSABLE_KEY = "pluginDisposable";
+    private static final WeakHashMap<String, Map<String, Object>> bindingByPluginId = new WeakHashMap<String, Map<String, Object>>();
 
-	public RunPluginAction() {
+
+    public RunPluginAction() {
 		super("Run Plugin", "Run selected plugins", IDEUtil.RUN_PLUGIN_ICON);
 	}
 
@@ -88,9 +93,18 @@ public class RunPluginAction extends AnAction {
 						});
 						continue;
 					}
+                    Map<String, Object> oldBinding = bindingByPluginId.get(pluginId);
+                    if (oldBinding != null) {
+                        try {
+                            Disposer.dispose((Disposable) oldBinding.get(DISPOSABLE_KEY));
+                        } catch (Exception e) {
+                            errorReporter.addRunningError(pluginId, e);
+                        }
+                    }
+                    Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
+                    bindingByPluginId.put(pluginId, binding);
 
-					Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
-					pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, RUN_ON_EDT);
+                    pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, RUN_ON_EDT);
 
 					errorReporter.reportAllErrors(new ErrorReporter.Callback() {
 						@Override public void display(String title, String message) {
@@ -117,6 +131,9 @@ public class RunPluginAction extends AnAction {
 		binding.put("project", project);
 		binding.put("isIdeStartup", isIdeStartup);
 		binding.put("pluginPath", pathToPluginFolder);
+		binding.put(DISPOSABLE_KEY, new Disposable() {
+            @Override public void dispose() {}
+        });
 		return binding;
 	}
 
