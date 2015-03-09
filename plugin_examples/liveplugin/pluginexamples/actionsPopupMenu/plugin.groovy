@@ -1,5 +1,6 @@
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.Separator
 
 import static liveplugin.PluginUtil.*
 
@@ -21,6 +22,10 @@ registerAction("helloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 				def command = showInputDialog("Enter a command:", "")
 				if (command == null) return
 				show(execute(command))
+			},
+			"": Separator.instance,
+			"Edit Popup Menu...": {
+				openInEditor(pluginPath, event.project)
 			}
 	]
 	def popupTitle = "Say hello to..."
