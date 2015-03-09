@@ -4,6 +4,7 @@ import com.intellij.execution.ProgramRunnerUtil
 import com.intellij.execution.RunManager
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.ide.DataManager
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.diagnostic.Logger
@@ -52,6 +53,11 @@ class Actions {
 			actionGroup?.remove(actionManager.getAction(actionId))
 			actionManager.unregisterAction(actionId)
 		}
+	}
+
+	static AnActionListener registerActionListener(Disposable parentDisposable, AnActionListener actionListener) {
+		ActionManager.instance.addAnActionListener(actionListener, parentDisposable)
+		actionListener
 	}
 
 	static AnActionListener registerActionListener(String listenerId, AnActionListener actionListener) {

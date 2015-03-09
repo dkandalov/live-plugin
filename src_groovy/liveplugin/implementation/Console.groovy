@@ -43,7 +43,7 @@ class Console {
 					null
 				}
 			}
-		  def inputFilterProvider = new ConsoleInputFilterProvider() {
+		    def inputFilterProvider = new ConsoleInputFilterProvider() {
 				@Override InputFilter[] getDefaultFilters(@NotNull Project project) {
 					[notFilteringListener]
 				}

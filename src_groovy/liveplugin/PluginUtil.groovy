@@ -74,6 +74,7 @@ import java.util.regex.Pattern
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only for reference.
@@ -333,6 +334,11 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
+	static AnActionListener registerActionListener(Disposable parentDisposable, AnActionListener actionListener) {
+		Actions.registerActionListener(parentDisposable, actionListener)
+	}
+
+	@CanCallFromAnyThread
 	static AnActionListener registerActionListener(String listenerId, AnActionListener actionListener) {
 		Actions.registerActionListener(listenerId, actionListener)
 	}
@@ -341,12 +347,18 @@ class PluginUtil {
 	static AnActionListener unregisterActionListener(String listenerId) {
 		Actions.unregisterActionListener(listenerId)
 	}
+
 	/**
 	 * Registers project manager listener which will be replaced between plugin reloads.
 	 *
 	 * @param listenerId unique id of this project manager listener
 	 * @param listener see https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/project/ProjectManagerListener.java
 	 */
+	@CanCallWithinRunReadActionOrFromEDT
+	static def registerProjectListener(Disposable parentDisposable, ProjectManagerListener listener) {
+		ProjectManager.instance.addProjectManagerListener(listener, parentDisposable)
+	}
+
 	@CanCallWithinRunReadActionOrFromEDT
 	static def registerProjectListener(String listenerId, ProjectManagerListener listener) {
 		Disposable disposable = (Disposable) changeGlobalVar(listenerId) { Disposable previousDisposable ->
@@ -393,7 +405,7 @@ class PluginUtil {
 	/**
 	 * Unregisters a tool window from all open IDE windows.
 	 */
-  @CanCallFromAnyThread
+	@CanCallFromAnyThread
 	static unregisterToolWindow(String toolWindowId) {
 	  invokeOnEDT {
 		  runWriteAction {
