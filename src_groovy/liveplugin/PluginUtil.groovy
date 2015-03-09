@@ -816,14 +816,16 @@ class PluginUtil {
 	 * @param menuDescription see javadoc for {@link #createNestedActionGroup(java.util.Map)}
 	 * @param popupTitle (optional)
 	 */
-	static showPopupMenu(Map menuDescription, String popupTitle = "") {
-		def dummyDataContext = new MapDataContext()
-        def dummyComponent = new JPanel()
-        dummyDataContext.put(PlatformDataKeys.CONTEXT_COMPONENT, dummyComponent)
-        JBPopupFactory.instance.createActionGroupPopup(
+	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null) {
+		if (dataContext == null) {
+			dataContext = new MapDataContext()
+			def dummyComponent = new JPanel()
+			dataContext.put(PlatformDataKeys.CONTEXT_COMPONENT, dummyComponent)
+		}
+		JBPopupFactory.instance.createActionGroupPopup(
 				popupTitle,
 				createNestedActionGroup(menuDescription),
-				dummyDataContext,
+				dataContext,
 				JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
 				true
 		).showInFocusCenter()
@@ -838,7 +840,7 @@ class PluginUtil {
 		}
 	}
 
-	static Project currentProjectInFrame() {
+	@Nullable static Project currentProjectInFrame() {
 		def visibleJFrame = WindowManager.instance.findVisibleFrame()
 		def ideFrame = WindowManager.instance.allProjectFrames.find {
 			visibleJFrame == WindowManager.instance.getFrame(it.project)
@@ -850,7 +852,7 @@ class PluginUtil {
 		openUrlInEditor("file://${filePath}", project)
 	}
 
-	static VirtualFile openUrlInEditor(String fileUrl, Project project = currentProjectInFrame()) {
+	@Nullable static VirtualFile openUrlInEditor(String fileUrl, Project project = currentProjectInFrame()) {
 		def virtualFile = VirtualFileManager.instance.findFileByUrl(fileUrl)
 		if (virtualFile == null) return null
 		FileEditorManager.getInstance(project).openFile(virtualFile, true, true)
