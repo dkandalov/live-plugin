@@ -1,11 +1,10 @@
-### What is this?
+### LivePlugin
 
 This is [IntelliJ](https://github.com/JetBrains/intellij-community) plugin for writing
 IDE plugins at runtime in [Groovy](http://groovy.codehaus.org/).
 (See also [plugin repository page](http://plugins.jetbrains.com/plugin/7282).)
 
 
-### Short Demo
 <img src="https://raw.github.com/dkandalov/live-plugin/master/live-plugin-demo.gif" alt="demo" title="demo" align="center"/>
 
 
@@ -93,7 +92,7 @@ and use "Install plugin from disk".
  - [Watching projects open/close events](https://gist.github.com/dkandalov/6427087) - an example of reloadable project listener
  - [Minimalistic view for java code](https://gist.github.com/dkandalov/708664109a37c3c0ff15) - collapses most of Java keywords and types leaving only variable names
  - [Symbolize keywords](https://gist.github.com/dkandalov/5553999) - collapses Java keywords into shorter symbols
- - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622) - micro-plugin to show warning when change list size exceeds threshold
+ - [Change List Size Watchdog](https://gist.github.com/dkandalov/5004622) - micro-plugin to show warning when change list size exceeds threshold (see also [Limited WIP plugin](https://github.com/dkandalov/limited-wip))
  - [Template completion on "Tab"](https://gist.github.com/dkandalov/5222759) - simplistic prototype for auto-completion on tab key (in case built-in live templates are not enough)
  - [Completion contributor example](https://gist.github.com/dkandalov/5977888) - only gives an idea which part of IntelliJ API to use
  - [Google auto-completion contributor example](https://github.com/dkandalov/live-plugin/wiki/Google-auto-complete) - same as above but with google search plugged in
