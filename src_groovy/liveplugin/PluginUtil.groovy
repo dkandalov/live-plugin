@@ -17,6 +17,7 @@ import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.ide.BrowserUtil
 import com.intellij.internal.psiView.PsiViewerDialog
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -34,6 +35,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.progress.PerformInBackgroundOption
@@ -52,9 +54,11 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
@@ -832,6 +836,30 @@ class PluginUtil {
 				aMetaClass."${entry.key}" = actionEvent.getData(entry.value as DataKey)
 			}
 		}
+	}
+
+	static Project currentProjectInFrame() {
+		def visibleJFrame = WindowManager.instance.findVisibleFrame()
+		def ideFrame = WindowManager.instance.allProjectFrames.find {
+			visibleJFrame == WindowManager.instance.getFrame(it.project)
+		}
+		ideFrame?.project
+	}
+
+	static openInEditor(String filePath, Project project = currentProjectInFrame()) {
+		openUrlInEditor("file://${filePath}", project)
+	}
+
+	static VirtualFile openUrlInEditor(String fileUrl, Project project = currentProjectInFrame()) {
+		def virtualFile = VirtualFileManager.instance.findFileByUrl(fileUrl)
+		if (virtualFile == null) return null
+		FileEditorManager.getInstance(project).openFile(virtualFile, true, true)
+		virtualFile
+	}
+
+	static String openInBrowser(String url) {
+		BrowserUtil.open(url)
+		url
 	}
 
 	static Map execute(String fullCommand) {
