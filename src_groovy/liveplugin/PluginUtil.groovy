@@ -337,6 +337,9 @@ class PluginUtil {
 		ActionWrapper.doUnwrapAction(actionId, actionGroupIds)
 	}
 
+	/**
+	 * @param parentDisposable disposable for this listener (can be "pluginDisposable" to remove listener on plugin reload)
+	 */
 	@CanCallFromAnyThread
 	static AnActionListener registerActionListener(Disposable parentDisposable, AnActionListener actionListener) {
 		Actions.registerActionListener(parentDisposable, actionListener)
@@ -355,7 +358,7 @@ class PluginUtil {
 	/**
 	 * Registers project manager listener which will be replaced between plugin reloads.
 	 *
-	 * @param listenerId unique id of this project manager listener
+	 * @param parentDisposable disposable for this listener (can be "pluginDisposable" to remove listener on plugin reload)
 	 * @param listener see https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/project/ProjectManagerListener.java
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
@@ -363,6 +366,12 @@ class PluginUtil {
 		ProjectManager.instance.addProjectManagerListener(listener, parentDisposable)
 	}
 
+	/**
+	 * Registers project manager listener which will be replaced between plugin reloads.
+	 *
+	 * @param listenerId unique id of this project manager listener
+	 * @param listener see https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/project/ProjectManagerListener.java
+	 */
 	@CanCallWithinRunReadActionOrFromEDT
 	static def registerProjectListener(String listenerId, ProjectManagerListener listener) {
 		Disposable disposable = (Disposable) changeGlobalVar(listenerId) { Disposable previousDisposable ->
