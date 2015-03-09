@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>LivePlugin</id>
 	<name>LivePlugin</name>
-	<version>0.5.3 beta</version>
+	<version>0.5.4 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
     <!-- https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges -->
