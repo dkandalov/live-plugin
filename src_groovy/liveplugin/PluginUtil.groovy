@@ -382,7 +382,7 @@ class PluginUtil {
 	static registerToolWindow(String toolWindowId, ToolWindowAnchor location = RIGHT, Closure<JComponent> createComponent) {
 		invokeOnEDT {
 			runWriteAction {
-				def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
+				def previousListener = pmListenerToToolWindowId.find{ it.value == toolWindowId }?.key
 				if (previousListener != null) {
 					ProjectManager.instance.removeProjectManagerListener(previousListener)
 					pmListenerToToolWindowId.remove(previousListener)
@@ -409,7 +409,7 @@ class PluginUtil {
 	static unregisterToolWindow(String toolWindowId) {
 	  invokeOnEDT {
 		  runWriteAction {
-				def previousListener = pmListenerToToolWindowId.find{ it == toolWindowId }?.key
+				def previousListener = pmListenerToToolWindowId.find{ it.value == toolWindowId }?.key
 				if (previousListener != null) {
 					ProjectManager.instance.removeProjectManagerListener(previousListener)
 					pmListenerToToolWindowId.remove(previousListener)
