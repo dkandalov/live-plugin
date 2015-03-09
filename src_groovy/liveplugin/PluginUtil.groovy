@@ -456,7 +456,7 @@ class PluginUtil {
 	 * For more dialogs see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/Messages.java
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
-	@Nullable static String showInputDialog(String message, String title, @Nullable Icon icon = null) {
+	@Nullable static String showInputDialog(String message = "", String title = "", @Nullable Icon icon = null) {
 		Messages.showInputDialog(message, title, icon)
 	}
 
@@ -779,11 +779,10 @@ class PluginUtil {
 	}
 
 	/**
-	 * @param description map that represents a tree of actions.
-     *                   Entry keys will be used as text presentation of items.
-     *                   Entry values can be map, closure or {@link AnAction}
-	 *                   Map is interpreter as description.
-	 *                   Close is a callback which takes one parameter with "key" and "event" attributes.
+	 * @param description map describing popup menu. Keys are text presentation of items.
+     *                   Entries can be map, closure or {@link AnAction} (note that {@link com.intellij.openapi.actionSystem.Separator)} is also an action)
+	 *                   - Map is interpreted as nested popup menu.
+	 *                   - Close is a callback which takes one parameter with "key" and "event" attributes.
 	 * @param actionGroup (optional) action group to which actions will be added
 	 * @return actionGroup with actions
 	 */
