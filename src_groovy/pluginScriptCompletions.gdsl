@@ -2,6 +2,7 @@
 def ctx = context(scope: scriptScope(), pathRegexp: '.*plugin(?:-test)?\\.groovy$')
 contributor(ctx) {
     property name: 'project', type: 'com.intellij.openapi.project.Project'
+    property name: 'pluginDisposable', type: 'com.intellij.openapi.Disposable'
     property name: 'isIdeStartup', type: Boolean.name
     property name: 'pluginPath', type: String.name
 }

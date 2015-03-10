@@ -1,4 +1,3 @@
-import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Separator
 
@@ -12,20 +11,20 @@ registerAction("helloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 			],
 			"Open in browser": [
 					"Live plugin github": {
-						BrowserUtil.open("https://github.com/dkandalov/live-plugin")
+						openInBrowser("https://github.com/dkandalov/live-plugin")
 					},
 					"IntelliJ Architectural Overview": {
-						BrowserUtil.open("http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview")
+						openInBrowser("http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview")
 					},
 			],
 			"Execute command": {
-				def command = showInputDialog("Enter a command:", "")
+				def command = showInputDialog("Enter a command:")
 				if (command == null) return
 				show(execute(command))
 			},
 			"": Separator.instance,
 			"Edit Popup Menu...": {
-				openInEditor(pluginPath, event.project)
+				openInEditor(pluginPath + "/plugin.groovy")
 			}
 	]
 	def popupTitle = "Say hello to..."

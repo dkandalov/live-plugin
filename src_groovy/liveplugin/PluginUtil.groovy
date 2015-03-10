@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 package liveplugin
+
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.codeInspection.InspectionProfileEntry
@@ -55,10 +56,10 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
-import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
@@ -849,12 +850,14 @@ class PluginUtil {
 		}
 	}
 
+	/**
+	 * Please note this is NOT the right way to get current project.
+	 * This method only exists to be used in "quick-and-dirty" code.
+	 *
+	 * For non-throwaway code get project from {@AnActionEvent}, {@DataContext} or in some other proper way.
+	 */
 	@Nullable static Project currentProjectInFrame() {
-		def visibleJFrame = WindowManager.instance.findVisibleFrame()
-		def ideFrame = WindowManager.instance.allProjectFrames.find {
-			visibleJFrame == WindowManager.instance.getFrame(it.project)
-		}
-		ideFrame?.project
+		IdeFocusManager.findInstance().lastFocusedFrame?.project
 	}
 
 	static openInEditor(String filePath, Project project = currentProjectInFrame()) {
