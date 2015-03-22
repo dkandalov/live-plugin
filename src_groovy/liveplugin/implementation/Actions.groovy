@@ -1,8 +1,8 @@
 package liveplugin.implementation
-
-import com.intellij.execution.ProgramRunnerUtil
+import com.intellij.execution.ExecutionException
 import com.intellij.execution.RunManager
 import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.ide.DataManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
@@ -10,6 +10,8 @@ import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
+import liveplugin.PluginUtil
+import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
 
@@ -78,10 +80,26 @@ class Actions {
 		oldListener
 	}
 
-	// there is no "Run" action for each run configuration, so the only way is to do it in code
-	static runConfiguration(String configurationName, Project project) {
-		def settings = RunManager.getInstance(project).allSettings.find{ it.name.contains(configurationName) }
-		ProgramRunnerUtil.executeConfiguration(project, settings, DefaultRunExecutor.runExecutorInstance)
+	static executeRunConfiguration(@NotNull String configurationName, @NotNull Project project) {
+		// there are no "Run" actions corresponding to "Run configurations", so the only way seems to be the API below
+		try {
+
+			def settings = RunManager.getInstance(project).allSettings.find{ it.name.contains(configurationName) }
+			if (settings == null) {
+				return PluginUtil.show("There is no run configuration: <b>${configurationName}</b>.<br/>" +
+						"Please create one or change source code to use some other configuration.")
+			}
+			def builder = ExecutionEnvironmentBuilder.create(DefaultRunExecutor.runExecutorInstance, settings)
+			def environment = builder.contentToReuse(null).dataContext(null).activeTarget().build()
+
+			// Execute runner directly instead of using ProgramRunnerUtil.executeConfiguration()
+			// because it doesn't allow running multiple instances of the same configuration
+			environment.assignNewExecutionId()
+			environment.runner.execute(environment)
+
+		} catch (ExecutionException e) {
+			return PluginUtil.show(e)
+		}
 	}
 
 	/**

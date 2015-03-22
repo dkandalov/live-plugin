@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
 
 class ActionSearch {
-
 	static Collection findAllActions(String s) {
 		s = s.toLowerCase().trim()
 

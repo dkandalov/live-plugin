@@ -12,14 +12,9 @@
  * limitations under the License.
  */
 package liveplugin
-
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.codeInspection.InspectionProfileEntry
-import com.intellij.execution.ExecutionException
-import com.intellij.execution.RunManager
-import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.BrowserUtil
@@ -80,7 +75,6 @@ import java.util.regex.Pattern
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them might be very simple and exist only for reference.
@@ -221,6 +215,22 @@ class PluginUtil {
 		Actions.unregisterAction(actionId)
 	}
 
+	/**
+	 * @param searchString string which is contained in action id, text or class name
+	 * @return collection of tuples (arrays) in the form of [id, action instance]
+	 */
+	@CanCallFromAnyThread
+	static Collection findAllActions(String searchString) {
+		ActionSearch.findAllActions(searchString)
+	}
+
+	/**
+	 * Executes first "Run configuration" which matches {@code configurationName}.
+	 */
+	static executeRunConfiguration(@NotNull String configurationName, @NotNull Project project) {
+		Actions.executeRunConfiguration(configurationName, project)
+	}
+
 	@CanCallFromAnyThread
 	static IntentionAction registerIntention(String intentionId, String text = intentionId,
 	                                         String familyName = text, Closure callback) {
@@ -275,40 +285,6 @@ class PluginUtil {
 	static unregisterInspection(Project project, InspectionProfileEntry inspection) {
 		runWriteAction {
 			Inspections.unregisterInspection(project, inspection)
-		}
-	}
-
-	/**
-	 * @param searchString string which is contained in action id, text or class name
-	 * @return collection of tuples (arrays) in the form of [id, action instance]
-	 */
-	@CanCallFromAnyThread
-	static Collection findAllActions(String searchString) {
-		ActionSearch.findAllActions(searchString)
-	}
-
-	/**
-	 * Executes first "Run configuration" which matches {@code configurationName}.
-	 */
-	static executeRunConfiguration(@NotNull String configurationName, @NotNull Project project) {
-		// there are no "Run" actions corresponding to "Run configurations", so the only way seems to be the API below
-		try {
-
-			def settings = RunManager.getInstance(project).allSettings.find{ it.name.contains(configurationName) }
-			if (settings == null) {
-				return show("There is no run configuration: <b>${configurationName}</b>.<br/>" +
-						"Please create one or change source code to use some other configuration.")
-			}
-			def builder = ExecutionEnvironmentBuilder.create(DefaultRunExecutor.runExecutorInstance, settings)
-			def environment = builder.contentToReuse(null).dataContext(null).activeTarget().build()
-
-			// Execute runner directly instead of using ProgramRunnerUtil.executeConfiguration()
-			// because it doesn't allow running multiple instances of the same configuration
-			environment.assignNewExecutionId()
-			environment.runner.execute(environment)
-
-		} catch (ExecutionException e) {
-			return show(e)
 		}
 	}
 
