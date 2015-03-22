@@ -77,7 +77,7 @@ public class RunPluginAction extends AnAction {
 					final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
 					PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
 						@Override public boolean value(PluginRunner it) {
-							return it.canRunPlugin(pathToPluginFolder);
+							return pathToPluginFolder != null && it.canRunPlugin(pathToPluginFolder);
 						}
 					});
 					if (pluginRunner == null) {
