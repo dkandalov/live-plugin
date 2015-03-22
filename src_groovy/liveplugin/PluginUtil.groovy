@@ -18,6 +18,7 @@ import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.BrowserUtil
+import com.intellij.ide.DataManager
 import com.intellij.internal.psiView.PsiViewerDialog
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -75,11 +76,13 @@ import java.util.regex.Pattern
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
- * Some of them might be very simple and exist only for reference.
+ * Some of them are very simple and were added to this class only for reference.
  *
- * See also http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview
+ * If you are new to IntelliJ API,
+ * see also http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
@@ -213,6 +216,12 @@ class PluginUtil {
 	@CanCallFromAnyThread
 	static unregisterAction(String actionId) {
 		Actions.unregisterAction(actionId)
+	}
+
+	@CanCallFromAnyThread
+	@NotNull static anActionEvent(DataContext dataContext = DataManager.instance.dataContextFromFocus.resultSync,
+	                              Presentation templatePresentation = new Presentation()) {
+		Actions.anActionEvent(dataContext, templatePresentation)
 	}
 
 	/**
