@@ -882,15 +882,20 @@ class PluginUtil {
 	 * Loads and opens project from specified path.
 	 * If project is already open, switches focus to its frame.
 	 */
-	static openProject(@NotNull String projectPath) {
+	static Project openProject(@NotNull String projectPath) {
 		def projectManager = ProjectManager.instance
 		def project = projectManager.openProjects.find{ it.basePath == projectPath }
-		if (project != null) {
+		if (project != null) project
+		else projectManager.loadAndOpenProject(projectPath)
+	}
+
+	@CanCallFromAnyThread
+	@NotNull static JFrame switchToFrameOf(@NotNull Project project) {
+		invokeOnEDT {
 			def frame = WindowManager.instance.getFrame(project)
 			frame.toFront()
 			frame.requestFocus()
-		} else {
-			projectManager.loadAndOpenProject(projectPath)
+			frame
 		}
 	}
 
