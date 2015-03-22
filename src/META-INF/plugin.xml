@@ -4,10 +4,10 @@
 	<version>0.5.4 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
-    <!-- https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges -->
-    <!-- since IJ 14 EAP 140.2493 -->
+	<!-- https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges -->
+	<!-- since IJ 14 EAP 140.2493 which has updated groovy libs and API changes -->
 	<idea-version since-build="140.2493"/>
-    <category>Plugin Development</category>
+	<category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>
 Plugin for writing simple plugins at runtime.
@@ -26,8 +26,8 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
 	</description>
 
 	<depends>com.intellij.modules.platform</depends>
-    <depends optional="true" config-file="github-integration.xml">org.jetbrains.plugins.github</depends>
-    <depends optional="true" config-file="junit-panel-integration.xml">JUnit</depends>
+	<depends optional="true" config-file="github-integration.xml">org.jetbrains.plugins.github</depends>
+	<depends optional="true" config-file="junit-panel-integration.xml">JUnit</depends>
 
 	<application-components>
 		<component>
@@ -43,34 +43,34 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
 
-        <group id="LivePlugin.Popup.MainActions">
-            <action id="LivePlugin.NewGroovyFileAction" class="liveplugin.toolwindow.NewGroovyFileAction" text="New Groovy File"/>
-            <action id="LivePlugin.NewScalaFileAction" class="liveplugin.toolwindow.NewScalaFileAction" text="New Scala File"/>
-            <action id="LivePlugin.NewClojureFileAction" class="liveplugin.toolwindow.NewClojureFileAction" text="New Clojure File"/>
-            <action id="LivePlugin.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
-                    text="New Directory" icon="/nodes/folder.png"/>
-            <action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.RenameFileAction" text="Rename"
-                    use-shortcut-of="RenameElement"/>
-        </group>
-        <group id="LivePlugin.Popup">
-            <reference id="LivePlugin.Popup.MainActions"/>
-            <separator/>
-            <action id="LivePlugin.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction" text="Delete"/>
-        </group>
-    </actions>
+		<group id="LivePlugin.Popup.MainActions">
+			<action id="LivePlugin.NewGroovyFileAction" class="liveplugin.toolwindow.NewGroovyFileAction" text="New Groovy File"/>
+			<action id="LivePlugin.NewScalaFileAction" class="liveplugin.toolwindow.NewScalaFileAction" text="New Scala File"/>
+			<action id="LivePlugin.NewClojureFileAction" class="liveplugin.toolwindow.NewClojureFileAction" text="New Clojure File"/>
+			<action id="LivePlugin.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
+			        text="New Directory" icon="/nodes/folder.png"/>
+			<action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.RenameFileAction" text="Rename"
+			        use-shortcut-of="RenameElement"/>
+		</group>
+		<group id="LivePlugin.Popup">
+			<reference id="LivePlugin.Popup.MainActions"/>
+			<separator/>
+			<action id="LivePlugin.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction" text="Delete"/>
+		</group>
+	</actions>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceInterface="liveplugin.Settings" serviceImplementation="liveplugin.Settings"/>
-        <statistics.usagesCollector implementation="liveplugin.LivePluginUsagesCollector"/>
-        <nonProjectFileWritingAccessExtension implementation="liveplugin.MakePluginFilesAlwaysEditable"/>
-        <intentionAction>
-            <className>liveplugin.intention.AddToClassPathGroovyIntention</className>
-            <category>LivePlugin</category>
-        </intentionAction>
-        <intentionAction>
-            <className>liveplugin.intention.AddPluginDependencyGroovyIntention</className>
-            <category>LivePlugin</category>
-        </intentionAction>
-    </extensions>
+	<extensions defaultExtensionNs="com.intellij">
+		<applicationService serviceInterface="liveplugin.Settings" serviceImplementation="liveplugin.Settings"/>
+		<statistics.usagesCollector implementation="liveplugin.LivePluginUsagesCollector"/>
+		<nonProjectFileWritingAccessExtension implementation="liveplugin.MakePluginFilesAlwaysEditable"/>
+		<intentionAction>
+			<className>liveplugin.intention.AddToClassPathGroovyIntention</className>
+			<category>LivePlugin</category>
+		</intentionAction>
+		<intentionAction>
+			<className>liveplugin.intention.AddPluginDependencyGroovyIntention</className>
+			<category>LivePlugin</category>
+		</intentionAction>
+	</extensions>
 
 </idea-plugin>
