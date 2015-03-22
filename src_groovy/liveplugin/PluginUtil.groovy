@@ -805,7 +805,7 @@ class PluginUtil {
 
 	/**
 	 * @param description map describing popup menu. Keys are text presentation of items.
-     *                   Entries can be map, closure or {@link AnAction} (note that {@link com.intellij.openapi.actionSystem.Separator)} is also an action)
+	 *                   Entries can be map, closure or {@link AnAction} (note that {@link com.intellij.openapi.actionSystem.Separator)} is also an action)
 	 *                   - Map is interpreted as nested popup menu.
 	 *                   - Close is a callback which takes one parameter with "key" and "event" attributes.
 	 * @param actionGroup (optional) action group to which actions will be added

@@ -28,12 +28,6 @@ public class TestPluginAction extends AnAction {
 		super("Test Plugin", "Test selected plugins", IDEUtil.TEST_PLUGIN_ICON);
 	}
 
-	private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
-		List<PluginRunner> result = new ArrayList<PluginRunner>();
-		result.add(new GroovyPluginRunner(TEST_SCRIPT, errorReporter, RunPluginAction.environment()));
-		return result;
-	}
-
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		testCurrentPlugin(event);
 	}
@@ -42,10 +36,16 @@ public class TestPluginAction extends AnAction {
 		event.getPresentation().setEnabled(!RunPluginAction.findCurrentPluginIds(event).isEmpty());
 	}
 
-	private void testCurrentPlugin(AnActionEvent event) {
-		IDEUtil.saveAllFiles();
-		List<String> pluginIds = RunPluginAction.findCurrentPluginIds(event);
-		ErrorReporter errorReporter = new ErrorReporter();
-		RunPluginAction.runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter));
-	}
+    private void testCurrentPlugin(AnActionEvent event) {
+        IDEUtil.saveAllFiles();
+        List<String> pluginIds = RunPluginAction.findCurrentPluginIds(event);
+        ErrorReporter errorReporter = new ErrorReporter();
+        RunPluginAction.runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter));
+    }
+
+    private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
+        List<PluginRunner> result = new ArrayList<PluginRunner>();
+        result.add(new GroovyPluginRunner(TEST_SCRIPT, errorReporter, RunPluginAction.environment()));
+        return result;
+    }
 }
