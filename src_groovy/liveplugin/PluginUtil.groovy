@@ -240,6 +240,13 @@ class PluginUtil {
 		Actions.executeRunConfiguration(configurationName, project)
 	}
 
+	static runLivePlugin(@NotNull String pluginId, @NotNull Project project = currentProjectInFrame()) {
+		Actions.runLivePlugin(pluginId, project)
+	}
+	static testLivePlugin(@NotNull String pluginId, @NotNull Project project = currentProjectInFrame()) {
+		Actions.testLivePlugin(pluginId, project)
+	}
+
 	@CanCallFromAnyThread
 	static IntentionAction registerIntention(String intentionId, String text = intentionId,
 	                                         String familyName = text, Closure callback) {

@@ -38,6 +38,7 @@ import java.util.*;
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.util.containers.ContainerUtil.find;
 import static com.intellij.util.containers.ContainerUtil.map;
+import static java.util.Collections.emptyList;
 import static liveplugin.IDEUtil.SingleThreadBackgroundRunner;
 import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.pluginrunner.GroovyPluginRunner.MAIN_SCRIPT;
@@ -157,18 +158,18 @@ public class RunPluginAction extends AnAction {
 
 	private static List<String> pluginsSelectedInToolWindow(AnActionEvent event) { // TODO get selected plugins through DataContext
 		PluginToolWindowManager.PluginToolWindow pluginToolWindow = PluginToolWindowManager.getToolWindowFor(event.getProject());
-		if (pluginToolWindow == null) return Collections.emptyList();
+		if (pluginToolWindow == null) return emptyList();
 		return pluginToolWindow.selectedPluginIds();
 	}
 
 	private static List<String> pluginForCurrentlyOpenFile(AnActionEvent event) {
 		Project project = event.getProject();
-		if (project == null) return Collections.emptyList();
+		if (project == null) return emptyList();
 		Editor selectedTextEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
-		if (selectedTextEditor == null) return Collections.emptyList();
+		if (selectedTextEditor == null) return emptyList();
 
 		VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(selectedTextEditor.getDocument());
-		if (virtualFile == null) return Collections.emptyList();
+		if (virtualFile == null) return emptyList();
 
 		final File file = new File(virtualFile.getPath());
 		Map.Entry<String, String> entry = find(LivePluginAppComponent.pluginIdToPathMap().entrySet(), new Condition<Map.Entry<String, String>>() {
@@ -178,7 +179,7 @@ public class RunPluginAction extends AnAction {
 				return FileUtil.isAncestor(new File(pluginPath), file, false);
 			}
 		});
-		if (entry == null) return Collections.emptyList();
+		if (entry == null) return emptyList();
 		return Collections.singletonList(entry.getKey());
 	}
 

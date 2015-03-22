@@ -43,7 +43,7 @@ public class TestPluginAction extends AnAction {
         RunPluginAction.runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter));
     }
 
-    private static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
+    public static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
         List<PluginRunner> result = new ArrayList<PluginRunner>();
         result.add(new GroovyPluginRunner(TEST_SCRIPT, errorReporter, RunPluginAction.environment()));
         return result;

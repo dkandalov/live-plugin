@@ -10,7 +10,11 @@ import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
+import com.intellij.testFramework.MapDataContext
 import liveplugin.PluginUtil
+import liveplugin.pluginrunner.ErrorReporter
+import liveplugin.pluginrunner.RunPluginAction
+import liveplugin.pluginrunner.TestPluginAction
 import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
@@ -100,6 +104,27 @@ class Actions {
 		} catch (ExecutionException e) {
 			return PluginUtil.show(e)
 		}
+	}
+
+	static runLivePlugin(@NotNull String pluginId, @NotNull Project project) {
+		executeLivePlugin(pluginId, project) { ErrorReporter errorReporter ->
+			RunPluginAction.createPluginRunners(errorReporter)
+		}
+	}
+
+	static testLivePlugin(@NotNull String pluginId, @NotNull Project project) {
+		executeLivePlugin(pluginId, project) { ErrorReporter errorReporter ->
+			TestPluginAction.createPluginRunners(errorReporter)
+		}
+	}
+
+	private static executeLivePlugin(@NotNull String pluginId, @NotNull Project project, Closure<List> createRunners) {
+		def dataContext = new MapDataContext()
+		dataContext.put(CommonDataKeys.PROJECT, project)
+		def dummyEvent = new AnActionEvent(null, dataContext, "", new Presentation(), ActionManager.instance, 0)
+		def errorReporter = new ErrorReporter()
+		def pluginRunners = createRunners(errorReporter)
+		RunPluginAction.runPlugins([pluginId], dummyEvent, errorReporter, pluginRunners)
 	}
 
 	/**
