@@ -60,10 +60,7 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.openapi.wm.IdeFocusManager
-import com.intellij.openapi.wm.ToolWindow
-import com.intellij.openapi.wm.ToolWindowAnchor
-import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.openapi.wm.*
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
@@ -293,7 +290,7 @@ class PluginUtil {
 	/**
 	 * Executes first "Run configuration" which matches {@code configurationName}.
 	 */
-	static executeRunConfiguration(String configurationName, Project project) {
+	static executeRunConfiguration(@NotNull String configurationName, @NotNull Project project) {
 		// there are no "Run" actions corresponding to "Run configurations", so the only way seems to be the API below
 		try {
 
@@ -889,7 +886,23 @@ class PluginUtil {
 		IdeFocusManager.findInstance().lastFocusedFrame?.project
 	}
 
-	static openInEditor(String filePath, Project project = currentProjectInFrame()) {
+	/**
+	 * Loads and opens project from specified path.
+	 * If project is already open, switches focus to its frame.
+	 */
+	static openProject(@NotNull String projectPath) {
+		def projectManager = ProjectManager.instance
+		def project = projectManager.openProjects.find{ it.basePath == projectPath }
+		if (project != null) {
+			def frame = WindowManager.instance.getFrame(project)
+			frame.toFront()
+			frame.requestFocus()
+		} else {
+			projectManager.loadAndOpenProject(projectPath)
+		}
+	}
+
+	static openInEditor(@NotNull String filePath, Project project = currentProjectInFrame()) {
 		openUrlInEditor("file://${filePath}", project)
 	}
 
@@ -900,7 +913,7 @@ class PluginUtil {
 		virtualFile
 	}
 
-	static String openInBrowser(String url) {
+	static String openInBrowser(@NotNull String url) {
 		BrowserUtil.open(url)
 		url
 	}
