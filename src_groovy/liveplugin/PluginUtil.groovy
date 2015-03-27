@@ -218,8 +218,12 @@ class PluginUtil {
 		Actions.unregisterAction(actionId)
 	}
 
+	/**
+	 * Can be used to invoke actions in code which doesn't have access to any valid {@code AnActionEvent}s.
+	 * E.g. from between two different callbacks on EDT or from background thread.
+	 */
 	@CanCallFromAnyThread
-	@NotNull static anActionEvent(DataContext dataContext = DataManager.instance.dataContextFromFocus.resultSync,
+	@NotNull static AnActionEvent anActionEvent(DataContext dataContext = DataManager.instance.dataContextFromFocus.resultSync,
 	                              Presentation templatePresentation = new Presentation()) {
 		Actions.anActionEvent(dataContext, templatePresentation)
 	}
