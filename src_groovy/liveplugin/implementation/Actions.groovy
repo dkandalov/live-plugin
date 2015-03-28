@@ -7,6 +7,7 @@ import com.intellij.ide.DataManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.AnActionListener
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
@@ -131,10 +132,15 @@ class Actions {
 	 * See http://devnet.jetbrains.com/message/5195728#5195728
 	 * https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/actionSystem/ex/CheckboxAction.java#L60
 	 */
-	static anActionEvent(DataContext dataContext = DataManager.instance.dataContextFromFocus.resultSync,
+	static anActionEvent(DataContext dataContext = dataContextFromFocus(),
 	                     Presentation templatePresentation = new Presentation()) {
 		def actionManager = ActionManager.instance
 		new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, templatePresentation, actionManager, 0)
+	}
+
+	static DataContext dataContextFromFocus() {
+		def asyncResult = DataManager.instance.dataContextFromFocus
+		ApplicationManager.application.isDispatchThread() ? asyncResult.result : asyncResult.resultSync
 	}
 
 	private static DefaultActionGroup findActionGroup(String actionGroupId) {

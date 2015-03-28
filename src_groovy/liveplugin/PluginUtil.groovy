@@ -18,7 +18,6 @@ import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.BrowserUtil
-import com.intellij.ide.DataManager
 import com.intellij.internal.psiView.PsiViewerDialog
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -76,7 +75,6 @@ import java.util.regex.Pattern
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them are very simple and were added to this class only for reference.
@@ -223,7 +221,7 @@ class PluginUtil {
 	 * E.g. from between two different callbacks on EDT or from background thread.
 	 */
 	@CanCallFromAnyThread
-	@NotNull static AnActionEvent anActionEvent(DataContext dataContext = DataManager.instance.dataContextFromFocus.resultSync,
+	@NotNull static AnActionEvent anActionEvent(DataContext dataContext = Actions.dataContextFromFocus(),
 	                              Presentation templatePresentation = new Presentation()) {
 		Actions.anActionEvent(dataContext, templatePresentation)
 	}
