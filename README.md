@@ -130,6 +130,7 @@ You can also use standard "ctrl + shift + C" shortcut to copy file/folder path.
 
 ### Similar plugins
 The idea of running code inside IntelliJ is not original. There are similar plugins (although I wasn't too happy with them):
+ - [IDE Scripting Console](https://youtrack.jetbrains.com/issue/IDEA-138252) (experimental feature, bundled with IntelliJ since 14.1)
  - [PMIP - Poor Mans IDE Plugin](http://plugins.intellij.net/plugin/?idea&pluginId=4571) (for Ruby)
  - [Remote Groovy Console](http://plugins.intellij.net/plugin/?id=5373)
  - [Script Monkey](http://plugins.intellij.net/plugin?pr=idea&pluginId=3674)
