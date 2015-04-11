@@ -173,7 +173,9 @@ public class PluginToolWindowManager {
 		private static FileChooserDescriptor createFileChooserDescriptor() {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
 				@Override public Icon getIcon(VirtualFile file) {
-					if (LivePluginAppComponent.pluginIdToPathMap().values().contains(file.getPath())) return IDEUtil.PLUGIN_ICON;
+                    for (String path : LivePluginAppComponent.pluginIdToPathMap().values()) {
+                        if (file.getPath().toLowerCase().equals(path.toLowerCase())) return IDEUtil.PLUGIN_ICON;
+                    }
 					return super.getIcon(file);
 				}
 
