@@ -7,15 +7,16 @@ import com.intellij.ide.DataManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.AnActionListener
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.testFramework.MapDataContext
 import liveplugin.PluginUtil
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.TestPluginAction
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
@@ -138,9 +139,16 @@ class Actions {
 		new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, templatePresentation, actionManager, 0)
 	}
 
+	static DataContext newDataContext(Map map = [:]) {
+		new DataContext() {
+			@Override Object getData(@NonNls String dataId) {
+				map[dataId]
+			}
+		}
+	}
+
 	static DataContext dataContextFromFocus() {
-		def asyncResult = DataManager.instance.dataContextFromFocus
-		ApplicationManager.application.isDispatchThread() ? asyncResult.result : asyncResult.resultSync
+		DataManager.instance.getDataContext(IdeFocusManager.globalInstance.focusOwner)
 	}
 
 	private static DefaultActionGroup findActionGroup(String actionGroupId) {

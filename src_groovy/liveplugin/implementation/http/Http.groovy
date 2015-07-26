@@ -14,18 +14,18 @@ class Http {
 
 		def noRequestHandler = { null }
 		def loggingErrorHandler = { log.warn("Error handling http request: " + it.toString()) }
-		def server = registerHttpServer(serverId, tempDir.absolutePath, noRequestHandler, loggingErrorHandler)
+		def server = restartHttpServer(serverId, tempDir.absolutePath, noRequestHandler, loggingErrorHandler)
 
 		"http://localhost:${server.port}/${fileName}"
 	}
 
-	private static SimpleHttpServer registerHttpServer(String id, String webRootPath,
-	                                                   Closure handler = {null}, Closure errorListener = {}) {
-		GlobalVars.changeGlobalVar(id) { previousServer ->
+	static SimpleHttpServer restartHttpServer(String serverId, String webRootPath,
+	                                          Closure handler = {null}, Closure errorListener = {}) {
+		GlobalVars.changeGlobalVar(serverId) { previousServer ->
 			if (previousServer != null) previousServer.stop()
 
 			def server = SimpleHttpServer.start(8100..9000, webRootPath, handler, errorListener)
-			if (server == null) throw new IllegalStateException("Failed to start server '${id}'")
+			if (server == null) throw new IllegalStateException("Failed to start server '${serverId}'")
 			server
 		}
 	}
