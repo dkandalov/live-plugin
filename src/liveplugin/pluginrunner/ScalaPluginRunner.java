@@ -7,6 +7,7 @@ import com.intellij.util.PathUtil;
 import liveplugin.MyFileUtil;
 import org.jetbrains.annotations.NotNull;
 import scala.Some;
+import scala.package$;
 import scala.tools.nsc.Settings;
 import scala.tools.nsc.interpreter.IMain;
 import scala.tools.nsc.interpreter.Results;
@@ -131,7 +132,12 @@ class ScalaPluginRunner implements PluginRunner {
 
 			interpreterOutput.getBuffer().delete(0, interpreterOutput.getBuffer().length());
 			for (Map.Entry<String, ?> entry : binding.entrySet()) {
-				interpreter.bindValue(entry.getKey(), entry.getValue());
+                interpreter.bind(
+                        entry.getKey(),
+                        entry.getValue().getClass().getCanonicalName(),
+                        entry.getValue(),
+                        package$.MODULE$.List().<String>empty()
+                );
 			}
 		}
 

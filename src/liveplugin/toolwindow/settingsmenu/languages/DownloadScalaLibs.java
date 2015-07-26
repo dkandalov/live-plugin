@@ -36,7 +36,7 @@ public class DownloadScalaLibs extends AnAction {
 		} else {
 			int answer = Messages.showOkCancelDialog(event.getProject(),
 					"Scala libraries " + APPROXIMATE_SIZE + " will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
-					"\n(If you already have scala >= 2.10, you can copy it manually and restart IDE.)", "Live Plugin", null);
+					"\n(If you already have scala >= 2.11, you can copy it manually and restart IDE.)", "Live Plugin", null);
 			if (answer != Messages.OK) return;
 
 			List<String> scalaLibs = asList(
@@ -47,7 +47,7 @@ public class DownloadScalaLibs extends AnAction {
 					// Using alternative maven repo instead of "repo1.maven.org" because standard repo for some reason
 					// returns 403 when requested scala libs from IntelliJ downloader (even though the same code works for clojure libs)
 					// (using this particular repo because it seems to be the fastest mirror http://docs.codehaus.org/display/MAVENUSER/Mirrors+Repositories)
-					return Pair.create("http://maven.antelink.com/content/repositories/central/org/scala-lang/" + it + "/2.10.2/", it + "-2.10.2.jar");
+					return Pair.create("http://maven.antelink.com/content/repositories/central/org/scala-lang/" + it + "/2.11.7/", it + "-2.11.7.jar");
 				}
 			});
 

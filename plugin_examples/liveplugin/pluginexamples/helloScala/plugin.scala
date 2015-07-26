@@ -3,8 +3,12 @@ import groovy.lang.Closure
 import liveplugin.PluginUtil._
 
 
-implicit def functionToGroovyClosure_ActionEvent[F](f: (AnActionEvent) => F) = new Closure[F]() { def doCall(event: AnActionEvent): F = f(event) }
-implicit def functionToGroovyClosure_Unit[F](f: () => F) = new Closure[F]() { def doCall(arg: Any): F = f() }
+implicit def functionToGroovyClosure_ActionEvent[F](f: (AnActionEvent) => F): Closure[F] = {
+  new Closure[F]() { def doCall(event: AnActionEvent): F = f(event) }
+}
+implicit def functionToGroovyClosure_Unit[F](f: () => F): Closure[F] = {
+  new Closure[F]() { def doCall(arg: Any): F = f() }
+}
 
 
 registerAction("InsertNewLineAbove", "alt shift ENTER", (event: AnActionEvent) => {
