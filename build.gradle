@@ -7,7 +7,7 @@ repositories {
 dependencies {
 	compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.9'
 	compile group: 'junit', name: 'junit', version: '4.10'
-	compile group: 'org.clojure', name: 'clojure', version: '1.5.1'
+	compile group: 'org.clojure', name: 'clojure', version: '1.7.0'
 	compile group: 'org.scala-lang', name: 'scala-compiler', version: '2.11.7'
 	compile group: 'org.scala-lang', name: 'scala-library', version: '2.11.7'
 	compile group: 'org.scala-lang', name: 'scala-reflect', version: '2.11.7'

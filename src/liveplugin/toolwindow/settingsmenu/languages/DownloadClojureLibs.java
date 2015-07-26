@@ -33,12 +33,12 @@ public class DownloadClojureLibs extends AnAction {
 		} else {
 			int answer = Messages.showOkCancelDialog(event.getProject(),
 					"Clojure libraries " + APPROXIMATE_SIZE + " will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
-					"\n(If you already have clojure >= 1.5.1, you can copy it manually and restart IDE.)", "Live Plugin", null);
+					"\n(If you already have clojure >= 1.7.0, you can copy it manually and restart IDE.)", "Live Plugin", null);
 			if (answer != Messages.OK) return;
 
 			@SuppressWarnings("unchecked")
 			boolean downloaded = downloadFiles(asList(
-					Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure/1.5.1/", "clojure-1.5.1.jar"),
+					Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure/1.7.0/", "clojure-1.7.0.jar"),
 					Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure-contrib/1.2.0/", "clojure-contrib-1.2.0.jar")
 			), LIVEPLUGIN_LIBS_PATH);
 			if (downloaded) {
