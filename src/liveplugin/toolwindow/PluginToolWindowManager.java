@@ -324,12 +324,10 @@ public class PluginToolWindowManager {
 			actionGroup.add(new Separator());
 			actionGroup.add(new RunAllPluginsOnIDEStartAction());
 			actionGroup.add(new Separator());
-			actionGroup.add(new DefaultActionGroup("Languages Support", true) {{
-				add(new AddScalaLibsAsDependency());
-				add(new AddClojureLibsAsDependency());
-				add(new DownloadScalaLibs());
-				add(new DownloadClojureLibs());
-			}});
+            actionGroup.add(new AddScalaLibsAsDependency());
+            actionGroup.add(new AddClojureLibsAsDependency());
+            actionGroup.add(new DownloadScalaLibs());
+            actionGroup.add(new DownloadClojureLibs());
 
 			return actionGroup;
 		}
