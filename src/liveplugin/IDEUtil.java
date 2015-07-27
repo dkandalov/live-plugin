@@ -78,7 +78,6 @@ public class IDEUtil {
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
 	public static final FileType SCALA_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".scala");
 	public static final FileType CLOJURE_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".clj");
-	public static final FileType TEXT_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".txt");
 	public static final DataContext DUMMY_DATA_CONTEXT = new DataContext() {
 		@Nullable @Override public Object getData(@NonNls String dataId) {
 			return null;

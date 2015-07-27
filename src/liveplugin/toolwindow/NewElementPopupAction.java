@@ -38,8 +38,8 @@ import static liveplugin.pluginrunner.GroovyPluginRunner.MAIN_SCRIPT;
 import static liveplugin.pluginrunner.GroovyPluginRunner.TEST_SCRIPT;
 
 class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
-	public static final Icon Folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
-	public static final Icon inferIconFromFileType = null;
+	private static final Icon Folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
+	private static final Icon inferIconFromFileType = null;
 
 
 	@Override public void actionPerformed(@NotNull final AnActionEvent event) {
@@ -69,7 +69,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 				actions.add(new NewClojureFileAction());
 
 				actions.addAll(asList(
-						new NewFileAction("Text File", AllIcons.FileTypes.Text, IDEUtil.TEXT_FILE_TYPE),
+						new NewFileAction("File", AllIcons.FileTypes.Text),
 						new NewFolderAction("Directory", "Directory", Folder)
 				));
 				actions.addAll(asList(
