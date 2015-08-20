@@ -105,6 +105,7 @@ and use "Install plugin from disk".
  - [Wrap selection](https://gist.github.com/dkandalov/5129543) - micro-plugin to wrap long lines with separator
  - [Wrap selected text to column width](https://gist.github.com/dkandalov/5557393) - copy of this plugin https://github.com/abrookins/WrapToColumn
  - [Create .jar patch file for current change list](https://gist.github.com/dkandalov/5502872) - that's what it does
+ - [Create .jar patch file for specified favorites list](https://gist.github.com/chanshuikay/9850327817fbedceba75) - similar to the above mini-plugin
  - [Remove getters/setters](https://gist.github.com/dkandalov/5476562) - removes all setters or getters in a class
  - [ISO DateTime / Epoch timestamp converter](https://gist.github.com/xhanin/4948901) - converts Epoch time to/from ISO format
  - [Make cursor move in circle](https://gist.github.com/dkandalov/11326385) - definitely not practical but gives an idea about threading
