@@ -43,14 +43,6 @@ public class GroovyPluginRunner implements PluginRunner {
 		this.environment = new HashMap<String, String>(environment);
 	}
 
-	private static Binding createGroovyBinding(Map<String, ?> binding) {
-		Binding result = new Binding();
-		for (Map.Entry<String, ?> entry : binding.entrySet()) {
-			result.setVariable(entry.getKey(), entry.getValue());
-		}
-		return result;
-	}
-
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
 		return findSingleFileIn(pathToPluginFolder, scriptName) != null;
 	}
@@ -87,7 +79,7 @@ public class GroovyPluginRunner implements PluginRunner {
 			try {
 				scriptEngine.loadScriptByName(mainScriptUrl);
 			} catch (Exception e) {
-				errorReporter.addRunningError(pluginId, e);
+				errorReporter.addRunningError(pluginId, e); // TODO why this is a running error?
 				return;
 			}
 
@@ -113,4 +105,12 @@ public class GroovyPluginRunner implements PluginRunner {
 			errorReporter.addLoadingError(pluginId, e);
 		}
 	}
+
+    private static Binding createGroovyBinding(Map<String, ?> binding) {
+        Binding result = new Binding();
+        for (Map.Entry<String, ?> entry : binding.entrySet()) {
+            result.setVariable(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
 }

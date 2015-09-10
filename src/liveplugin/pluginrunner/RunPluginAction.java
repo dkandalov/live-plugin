@@ -60,7 +60,15 @@ public class RunPluginAction extends AnAction {
 		super("Run Plugin", "Run selected plugins", IDEUtil.RUN_PLUGIN_ICON);
 	}
 
-	public static void runPlugins(final Collection<String> pluginIds, AnActionEvent event,
+    @Override public void actionPerformed(@NotNull AnActionEvent event) {
+        runCurrentPlugin(event);
+    }
+
+    @Override public void update(@NotNull AnActionEvent event) {
+        event.getPresentation().setEnabled(!findCurrentPluginIds(event).isEmpty());
+    }
+
+    public static void runPlugins(final Collection<String> pluginIds, AnActionEvent event,
 	                              final ErrorReporter errorReporter, final List<PluginRunner> pluginRunners) {
 		checkThatGroovyIsOnClasspath();
 
@@ -181,14 +189,6 @@ public class RunPluginAction extends AnAction {
 		});
 		if (entry == null) return emptyList();
 		return Collections.singletonList(entry.getKey());
-	}
-
-	@Override public void actionPerformed(@NotNull AnActionEvent event) {
-		runCurrentPlugin(event);
-	}
-
-	@Override public void update(@NotNull AnActionEvent event) {
-		event.getPresentation().setEnabled(!findCurrentPluginIds(event).isEmpty());
 	}
 
 	private void runCurrentPlugin(AnActionEvent event) {
