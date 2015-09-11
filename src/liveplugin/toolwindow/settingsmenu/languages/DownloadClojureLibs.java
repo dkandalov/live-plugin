@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 import static java.util.Arrays.asList;
-import static liveplugin.IDEUtil.askIsUserWantsToRestartIde;
+import static liveplugin.IDEUtil.askIfUserWantsToRestartIde;
 import static liveplugin.IDEUtil.downloadFiles;
 import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.MyFileUtil.fileNamesMatching;
@@ -28,7 +28,7 @@ public class DownloadClojureLibs extends AnAction {
 				for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
 					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
 				}
-				askIsUserWantsToRestartIde("For Clojure libraries to be unloaded IDE restart is required. Restart now?");
+				askIfUserWantsToRestartIde("For Clojure libraries to be unloaded IDE restart is required. Restart now?");
 			}
 		} else {
 			int answer = Messages.showOkCancelDialog(event.getProject(),
@@ -42,7 +42,7 @@ public class DownloadClojureLibs extends AnAction {
 					Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure-contrib/1.2.0/", "clojure-contrib-1.2.0.jar")
 			), LIVEPLUGIN_LIBS_PATH);
 			if (downloaded) {
-				askIsUserWantsToRestartIde("For Clojure libraries to be loaded IDE restart is required. Restart now?");
+				askIfUserWantsToRestartIde("For Clojure libraries to be loaded IDE restart is required. Restart now?");
 			} else {
 				livePluginNotificationGroup
 						.createNotification("Failed to download Clojure libraries", NotificationType.WARNING);

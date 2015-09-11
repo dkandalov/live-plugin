@@ -126,7 +126,7 @@ public class IDEUtil {
 		return resource != null;
 	}
 
-	public static void askIsUserWantsToRestartIde(String message) {
+	public static void askIfUserWantsToRestartIde(String message) {
 		int answer = showOkCancelDialog(message, "Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon());
 		if (answer == Messages.OK) {
 			ApplicationManagerEx.getApplicationEx().restart(true);

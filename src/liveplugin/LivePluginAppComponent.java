@@ -48,7 +48,7 @@ import java.util.Map;
 import static com.intellij.openapi.extensions.PluginId.getId;
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static java.util.Arrays.asList;
-import static liveplugin.IDEUtil.askIsUserWantsToRestartIde;
+import static liveplugin.IDEUtil.askIfUserWantsToRestartIde;
 import static liveplugin.IDEUtil.downloadFile;
 
 public class LivePluginAppComponent implements ApplicationComponent { // TODO implement DumbAware?
@@ -171,7 +171,7 @@ public class LivePluginAppComponent implements ApplicationComponent { // TODO im
 				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.2.1/", "groovy-all-2.2.1.jar", LIVEPLUGIN_LIBS_PATH);
 				if (downloaded) {
 					notification.expire();
-					askIsUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?");
+					askIfUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?");
 				} else {
 					livePluginNotificationGroup
 							.createNotification("Failed to download Groovy libraries", NotificationType.WARNING);
