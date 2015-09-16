@@ -1,3 +1,5 @@
+import com.intellij.execution.ui.ConsoleView
+import liveplugin.implementation.Console
 import util.AClass
 
 import static liveplugin.PluginUtil.*
@@ -15,8 +17,9 @@ show("IntelliJ", "Hello")
 show(AClass.sayHello(), "Hello")
 
 // shows text in console
-showInConsole("Hello console", "my console", project)
-showInConsole("....", "my console", project)
+ConsoleView console = showInConsole("Hello console", "my console", project)
+console.print("....", Console.guessContentTypeOf("....")) // append text to the same console
+
 
 // shows exception's stacktrace in console
 showInConsole(new Exception("This is a fake exception to show exception in a console"), "console with exception", project)
