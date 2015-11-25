@@ -31,7 +31,6 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.NotNull
@@ -102,33 +101,19 @@ class JUnitPanel implements TestReporter {
 			@Override String getName() { name }
 			@Override String getComment() { comment }
 			@Override void readFrom(ObjectReader objectReader) {}
-			@IJ13Compatibility /*@Override*/ Location getLocation(Project project, GlobalSearchScope globalSearchScope) { null }
+			@Override Location getLocation(Project project, GlobalSearchScope globalSearchScope) { null }
 		}
 	}
 
 	@SuppressWarnings("GroovyAssignabilityCheck")
-	@IJ13Compatibility
 	private static ExecutionEnvironment newExecutionEnvironment(Executor executor, ProgramRunner programRunner,
 	                                                            RunnerAndConfigurationSettings runnerAndConfigSettings, Project project) {
-		if (beforeIJ13()) {
-			new ExecutionEnvironment(programRunner, runnerAndConfigSettings, project)
-		} else {
-			new ExecutionEnvironment(executor, programRunner, runnerAndConfigSettings, project)
-		}
+		new ExecutionEnvironment(executor, programRunner, runnerAndConfigSettings, project)
 	}
 
-	@IJ13Compatibility
 	private static BaseTestsOutputConsoleView newConsoleView(JUnitConsoleProperties consoleProperties, ExecutionEnvironment myEnvironment,
 	                                                         TestProxy rootTestProxy, AppendAdditionalActions additionalActions) {
-		if (beforeIJ13()) {
-			new MyTreeConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
-		} else {
-			newTreeConsoleView13(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
-		}
-	}
-
-	private static boolean beforeIJ13() {
-		ApplicationInfo.instance.build.baselineVersion < 130
+		newTreeConsoleView13(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
 	}
 
 	private static class TestProxyUpdater {
@@ -455,9 +440,3 @@ class MyTreeConsoleView13 extends BaseTestsOutputConsoleView {
 	}
 
 }
-
-/**
- * Annotation for "switches" to make code compatible with both IJ12 and IJ13 api
- * (this still seems to be simpler than having two branches/versions of plugin)
- */
-@interface IJ13Compatibility {}
