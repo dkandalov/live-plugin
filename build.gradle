@@ -1,34 +1,81 @@
+apply plugin: 'java'
 apply plugin: 'groovy'
+apply plugin: 'idea'
 
-repositories {
-	mavenCentral()
-}
+ext.ideaPath = "/Applications/IntelliJ IDEA 14.app/Contents"
+
+repositories { mavenCentral() }
+enableProvidedScope()
+generateModuleFileConguredForPluginDevelopment()
 
 dependencies {
-	compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.9'
-	compile group: 'junit', name: 'junit', version: '4.10' // also includes hamcrest-core
-	compile group: 'org.clojure', name: 'clojure', version: '1.7.0'
-	compile group: 'org.scala-lang', name: 'scala-compiler', version: '2.11.7' // also includes scala-parser-combinators, scala-xml
-	compile group: 'org.scala-lang', name: 'scala-library', version: '2.11.7'
-	compile group: 'org.scala-lang', name: 'scala-reflect', version: '2.11.7'
+	provided group: 'junit', name: 'junit', version: '4.10' // also includes hamcrest-core
+	provided group: 'org.clojure', name: 'clojure', version: '1.7.0'
+	provided group: 'org.scala-lang', name: 'scala-compiler', version: '2.11.7'
+	// also includes scala-parser-combinators, scala-xml
+	provided group: 'org.scala-lang', name: 'scala-library', version: '2.11.7'
+	provided group: 'org.scala-lang', name: 'scala-reflect', version: '2.11.7'
+	provided fileTree(dir: "${ideaPath}/lib/", include: "groovy*.jar")
+	provided fileTree(dir: "${ideaPath}/plugins/github/lib/", include: "*.jar")
+	provided fileTree(dir: "${ideaPath}/plugins/git4idea/lib/", include: "*.jar")
+	provided fileTree(dir: "${ideaPath}/plugins/junit/lib/", include: "*.jar")
+}
+sourceSets {
+	main {
+		java { srcDir "src" }
+		resources { srcDir "resources" }
+		groovy { srcDir "src_groovy" }
+		groovy { srcDir "plugin_examples" }
+	}
+	test {
+		groovy { srcDir "test_groovy" }
+	}
 }
 
-task downloadLibs(type: Copy) {
+task downloadDependenciesToLibFolder(type: Copy) {
 	from configurations.runtime
 	into './lib'
 }
 
 task installLivePlugin() << {
 	def version = new File("src/META-INF/plugin.xml").readLines()
-			.find{ it.contains("<version>") }
-	        .replaceFirst(".*<version>", "")
-	        .replaceFirst("</version>.*", "")
+			.find { it.contains("<version>") }
+			.replaceFirst(".*<version>", "")
+			.replaceFirst("</version>.*", "")
 	def localMavenPath = repositories.mavenLocal().url.path + "/liveplugin/live-plugin/"
 
 	ant.copy(
-			file: "LivePlugin.jar",
-			toFile: "${localMavenPath}/${version}/live-plugin-${version}.jar"
+		file: "LivePlugin.jar",
+		toFile: "${localMavenPath}/${version}/live-plugin-${version}.jar"
 	)
 
 	println("Installed to local maven liveplugin version " + version)
+}
+
+
+def enableProvidedScope() {
+	configurations {
+		provided
+		compile.extendsFrom provided
+	}
+	idea {
+		module { scopes.PROVIDED.plus += [configurations.provided] }
+	}
+}
+
+// see http://blog.xebia.com/building-intellij-plugins-from-the-command-line/
+def generateModuleFileConguredForPluginDevelopment() {
+	idea {
+		module {
+			iml {
+				withXml {
+					it.asNode().@type = 'PLUGIN_MODULE'
+					//  setting url for <component name="DevKit.ModuleBuildProperties" ... />
+					def cmp = it.node.appendNode('component')
+					cmp.@name = 'DevKit.ModuleBuildProperties'
+					cmp.@url = 'file://$MODULE_DIR$/resources/META-INF/plugin.xml'
+				}
+			}
+		}
+	}
 }
