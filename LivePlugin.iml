@@ -113,7 +113,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: groovy-all-2.3.9">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/lib/groovy-all-2.3.9.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/lib/groovy-all-2.3.9.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -122,7 +122,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: github">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/github/lib/github.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/github/lib/github.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -131,7 +131,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: git4idea-rt">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/git4idea-rt.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/git4idea/lib/git4idea-rt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -140,7 +140,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: git4idea">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/git4idea.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/git4idea/lib/git4idea.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -149,7 +149,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: ini4j-0.5.2-patched">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/ini4j-0.5.2-patched.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/git4idea/lib/ini4j-0.5.2-patched.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -158,7 +158,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: remote-servers-git">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/remote-servers-git.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/git4idea/lib/remote-servers-git.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -167,7 +167,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: resources_en">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/resources_en.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/git4idea/lib/resources_en.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -176,7 +176,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: trilead-ssh2">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/trilead-ssh2.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/git4idea/lib/trilead-ssh2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -185,7 +185,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: idea-junit">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/junit/lib/idea-junit.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/junit/lib/idea-junit.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -194,7 +194,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: junit-rt">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/junit/lib/junit-rt.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/junit/lib/junit-rt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -203,7 +203,7 @@
     <orderEntry type="module-library">
       <library name="Gradle: resources_en">
         <CLASSES>
-          <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/junit/lib/resources_en.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/junit/lib/resources_en.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

@@ -1,6 +1,6 @@
 ### Compiling
  - open project in IntelliJ
- - configure project JDK to use "IntelliJ Platform Plugin SDK" for IJ 14 
+ - configure project JDK to use "IntelliJ Platform Plugin SDK" for IJ 15 
  - edit ```build.gradle``` so that ```ext.ideaPath``` points to the same IntelliJ SDK as in previous step 
  - in "Gradle project" toolwindow refresh LivePlugin module (this will update module dependencies)
  - compile the project
