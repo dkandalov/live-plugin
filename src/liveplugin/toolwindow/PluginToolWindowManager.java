@@ -345,7 +345,24 @@ public class PluginToolWindowManager {
 
 		private AnAction createAddPluginsExamplesGroup() {
 			final DefaultActionGroup actionGroup = new DefaultActionGroup("Examples", true);
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy")));
+            actionGroup.add(new AnAction("Add All") {
+                @Override public void actionPerformed(@NotNull AnActionEvent e) {
+                    AnAction[] actions = actionGroup.getChildActionsOrStubs();
+                    for (AnAction action : actions) {
+                        if (action instanceof AddExamplePluginAction) {
+                            IDEUtil.runAction(action, "ADD_ALL_EXAMPLES");
+                        }
+                    }
+                }
+            });
+            actionGroup.addSeparator();
+            actionGroup.add(new AnAction("Examples on GitHub") {
+                @Override public void actionPerformed(@NotNull AnActionEvent e) {
+                    BrowserUtil.open("https://github.com/dkandalov/live-plugin#more-examples");
+                }
+            });
+            actionGroup.addSeparator();
+            actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/registerAction", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/actionsPopupMenu", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/registerToolWindow", asList("plugin.groovy")));
@@ -360,23 +377,6 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/integrationTestExample", asList("plugin.groovy", "plugin-test.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloScala", asList("plugin.scala")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/helloClojure", asList("plugin.clj")));
-			actionGroup.addSeparator();
-			actionGroup.add(new AnAction("Add All") {
-				@Override public void actionPerformed(@NotNull AnActionEvent e) {
-					AnAction[] actions = actionGroup.getChildActionsOrStubs();
-					for (AnAction action : actions) {
-						if (action instanceof AddExamplePluginAction) {
-							IDEUtil.runAction(action, "ADD_ALL_EXAMPLES");
-						}
-					}
-				}
-			});
-            actionGroup.addSeparator();
-            actionGroup.add(new AnAction("Examples on GitHub") {
-                @Override public void actionPerformed(@NotNull AnActionEvent e) {
-                    BrowserUtil.open("https://github.com/dkandalov/live-plugin#more-examples");
-                }
-            });
             return actionGroup;
 		}
 

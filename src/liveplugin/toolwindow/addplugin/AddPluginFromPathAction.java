@@ -26,9 +26,11 @@ import java.util.*;
 @SuppressWarnings("ComponentNotRegistered")
 public class AddPluginFromPathAction extends AnAction {
 	private static final Logger LOG = Logger.getInstance(AddPluginFromPathAction.class);
+    private static final String dialogTitle = "Copy Plugin From Path";
 
-	public AddPluginFromPathAction() {
-		super("Plugin from Path");
+
+    public AddPluginFromPathAction() {
+		super("Copy from Path");
 	}
 
 	private static List<VirtualFile> getFileSystemRoots() {
@@ -72,7 +74,7 @@ public class AddPluginFromPathAction extends AnAction {
 				IDEUtil.showErrorDialog(
 						project,
 						"Error adding plugin \"" + folderToCopy + "\" to " + targetFolder,
-						"Add Plugin"
+                        dialogTitle
 				);
 			}
 			LOG.error(e);
@@ -86,7 +88,7 @@ public class AddPluginFromPathAction extends AnAction {
 				project,
 				"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + GroovyPluginRunner.MAIN_SCRIPT + "\"." +
 						"\nDo you want to add it anyway?",
-				"Add Plugin",
+                dialogTitle,
 				Messages.getQuestionIcon()
 		);
 		return answer != Messages.YES;

@@ -32,6 +32,8 @@ import java.io.File;
 
 @SuppressWarnings("ComponentNotRegistered")
 public class AddPluginFromGitComponent implements ApplicationComponent {
+    private static final String dialogTitle = "Clone Plugin From Git";
+
 	@Override public void initComponent() {
 		PluginToolWindowManager.addFromGitHubAction = new AddPluginFromGitAction();
 	}
@@ -50,7 +52,7 @@ public class AddPluginFromGitComponent implements ApplicationComponent {
 		private static final Logger LOG = Logger.getInstance(AddPluginFromGitAction.class);
 
 		private AddPluginFromGitAction() {
-			super("Plugin from Git", "Plugin from Git", GithubIcons.Github_icon);
+			super("Clone from Git", "Clone from Git", GithubIcons.Github_icon);
 		}
 
 		@Override public void actionPerformed(@NotNull AnActionEvent event) {
@@ -146,7 +148,7 @@ public class AddPluginFromGitComponent implements ApplicationComponent {
 						project,
 						"It looks like \"" + pluginName + "\" is not a valid plugin because it does not contain \"" +
 								GroovyPluginRunner.MAIN_SCRIPT + "\".\n\nDo you want to add it anyway?",
-						"Add Plugin",
+                        dialogTitle,
 						Messages.getQuestionIcon()
 				);
 				return answer != Messages.YES;

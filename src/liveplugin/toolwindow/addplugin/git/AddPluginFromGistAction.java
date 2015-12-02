@@ -29,18 +29,18 @@ import static liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.Githu
 
 public class AddPluginFromGistAction extends AnAction {
 	private static final Logger log = Logger.getInstance(AddPluginFromGistAction.class);
-	private static final String addPluginFromGistTitle = "Add Plugin From Gist";
+	private static final String dialogTitle = "Clone Plugin From Gist";
 	private static final Icon defaultIcon = null;
 
 	public AddPluginFromGistAction() {
-		super("Plugin from Gist", "Plugin from Gist", Github_icon);
+		super("Clone from Gist", "Clone from Gist", Github_icon);
 	}
 
 	private static String askUserForGistUrl(AnActionEvent event) {
 		return Messages.showInputDialog(
 				event.getProject(),
 				"Enter gist URL:",
-				addPluginFromGistTitle,
+                dialogTitle,
 				defaultIcon, "", new GistUrlValidator());
 	}
 
@@ -71,7 +71,7 @@ public class AddPluginFromGistAction extends AnAction {
 		return Messages.showInputDialog(
 				project,
 				"Enter new plugin name:",
-				addPluginFromGistTitle,
+                dialogTitle,
 				defaultIcon, "", new AddNewPluginAction.PluginIdValidator());
 	}
 
@@ -82,7 +82,7 @@ public class AddPluginFromGistAction extends AnAction {
 	}
 
 	private static void showMessageThatFetchingGistFailed(IOException e, Project project) {
-		IDEUtil.showErrorDialog(project, "Failed to fetch gist", addPluginFromGistTitle);
+		IDEUtil.showErrorDialog(project, "Failed to fetch gist", dialogTitle);
 		log.info(e);
 	}
 
@@ -116,7 +116,7 @@ public class AddPluginFromGistAction extends AnAction {
 		IDEUtil.showErrorDialog(
 				project,
 				"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.pluginsRootPath(),
-				addPluginFromGistTitle
+                dialogTitle
 		);
 		log.info(e);
 	}
