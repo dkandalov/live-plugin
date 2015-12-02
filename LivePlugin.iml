@@ -11,20 +11,19 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/groovy" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src_groovy" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/groovy" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/test_groovy" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
-    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: junit:junit:4.10">
         <CLASSES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/junit/junit/4.10/e4f1766ce7404a08f45d859fb9c226fc9e41a861/junit-4.10.jar!/" />
         </CLASSES>
@@ -35,7 +34,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: org.clojure:clojure:1.7.0">
         <CLASSES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clojure/clojure/1.7.0/4953eb1ffa4adca22760c9324c9c26d2038c392a/clojure-1.7.0.jar!/" />
         </CLASSES>
@@ -46,7 +45,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: org.scala-lang:scala-compiler:2.11.7">
         <CLASSES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.scala-lang/scala-compiler/2.11.7/1454c21d39a4d991006a2a47c164f675ea1dafaf/scala-compiler-2.11.7.jar!/" />
         </CLASSES>
@@ -57,7 +56,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: org.scala-lang:scala-library:2.11.7">
         <CLASSES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.scala-lang/scala-library/2.11.7/f75e7acabd57b213d6f61483240286c07213ec0e/scala-library-2.11.7.jar!/" />
         </CLASSES>
@@ -68,7 +67,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: org.scala-lang:scala-reflect:2.11.7">
         <CLASSES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.scala-lang/scala-reflect/2.11.7/bf1649c9d33da945dea502180855b56caf06288c/scala-reflect-2.11.7.jar!/" />
         </CLASSES>
@@ -79,7 +78,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: org.hamcrest:hamcrest-core:1.1">
         <CLASSES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.1/860340562250678d1a344907ac75754e259cdb14/hamcrest-core-1.1.jar!/" />
         </CLASSES>
@@ -90,7 +89,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: org.scala-lang.modules:scala-xml_2.11:1.0.4">
         <CLASSES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.scala-lang.modules/scala-xml_2.11/1.0.4/b67c76af885ba3323ce51bbed4c9232f4bd5d8fd/scala-xml_2.11-1.0.4.jar!/" />
         </CLASSES>
@@ -101,7 +100,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4">
         <CLASSES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.scala-lang.modules/scala-parser-combinators_2.11/1.0.4/7369d653bcfa95d321994660477a4d7e81d7f490/scala-parser-combinators_2.11-1.0.4.jar!/" />
         </CLASSES>
@@ -112,7 +111,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: groovy-all-2.3.9">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/lib/groovy-all-2.3.9.jar!/" />
         </CLASSES>
@@ -121,7 +120,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: github">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/github/lib/github.jar!/" />
         </CLASSES>
@@ -130,7 +129,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: git4idea-rt">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/git4idea-rt.jar!/" />
         </CLASSES>
@@ -139,7 +138,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: git4idea">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/git4idea.jar!/" />
         </CLASSES>
@@ -148,7 +147,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: ini4j-0.5.2-patched">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/ini4j-0.5.2-patched.jar!/" />
         </CLASSES>
@@ -157,7 +156,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: remote-servers-git">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/remote-servers-git.jar!/" />
         </CLASSES>
@@ -166,7 +165,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: resources_en">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/resources_en.jar!/" />
         </CLASSES>
@@ -175,7 +174,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: trilead-ssh2">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/git4idea/lib/trilead-ssh2.jar!/" />
         </CLASSES>
@@ -184,7 +183,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: idea-junit">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/junit/lib/idea-junit.jar!/" />
         </CLASSES>
@@ -193,7 +192,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+      <library name="Gradle: junit-rt">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/junit/lib/junit-rt.jar!/" />
         </CLASSES>
@@ -201,8 +200,8 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library>
+    <orderEntry type="module-library">
+      <library name="Gradle: resources_en">
         <CLASSES>
           <root url="jar:///Applications/IntelliJ IDEA 14.app/Contents/plugins/junit/lib/resources_en.jar!/" />
         </CLASSES>

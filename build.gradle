@@ -2,7 +2,9 @@ apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'idea'
 
+ext.home = System.env.HOME
 ext.ideaPath = "/Applications/IntelliJ IDEA 14.app/Contents"
+ext.pluginsSandbox = "${home}/Library/Caches/IntelliJIdea14/plugins-sandbox"
 
 repositories { mavenCentral() }
 enableProvidedScope()
@@ -30,6 +32,15 @@ sourceSets {
 	test {
 		groovy { srcDir "test_groovy" }
 	}
+}
+
+// Need this task to be executed before plugin run configuration
+// because for some reason IntelliJ doesn't reliably copy resources with current project layout
+task copyResources(type: Copy) {
+	from './plugin_examples'
+	into "${pluginsSandbox}/plugins/LivePlugin/classes"
+	from './resources'
+	into "${pluginsSandbox}/plugins/LivePlugin/classes"
 }
 
 task downloadDependenciesToLibFolder(type: Copy) {
