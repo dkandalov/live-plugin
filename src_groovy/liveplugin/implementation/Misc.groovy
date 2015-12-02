@@ -1,5 +1,4 @@
 package liveplugin.implementation
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.unscramble.UnscrambleDialog
@@ -21,7 +20,15 @@ class Misc {
 
 	static accessField(Object o, String fieldName, Closure callback) {
 		catchingAll {
-			for (field in o.class.declaredFields) {
+			Class aClass = o.class
+			List<Class> allClasses = []
+			while (aClass != Object) {
+				allClasses.add(aClass)
+				aClass = aClass.superclass
+			}
+			def allFields = allClasses*.declaredFields.toList().flatten()
+
+			for (field in allFields) {
 				if (field.name == fieldName) {
 					field.setAccessible(true)
 					callback(field.get(o))

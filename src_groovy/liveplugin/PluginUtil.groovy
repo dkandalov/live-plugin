@@ -306,6 +306,13 @@ class PluginUtil {
 		}
 	}
 
+	@CanCallFromAnyThread
+	static unregisterInspection(Project project, String inspectionName) {
+		runWriteAction {
+			Inspections.unregisterInspection(project, inspectionName)
+		}
+	}
+
 	/**
 	 * Wraps action if it's not already wrapped.
 	 *
