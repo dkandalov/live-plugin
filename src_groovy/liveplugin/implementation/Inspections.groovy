@@ -37,6 +37,47 @@ class Inspections {
 		reloadAdditionalProjectInspections(project, inspections)
 	}
 
+	// TODO registerInspection2 seems to better solution in terms of using IntelliJ API.
+	// However, it doesn't really work:
+	//  - causes NPE at com.intellij.codeInspection.ex.InspectionProfileImpl.serializeInto(InspectionProfileImpl.java:325)
+	//  - causes NPE at com.intellij.profile.codeInspection.ui.header.InspectionToolsConfigurable$3.customize(InspectionToolsConfigurable.java:208)
+
+	static registerInspection2(Project project, InspectionProfileEntry inspection) {
+		def inspections = changeGlobalVar(livePluginInspections) { List<InspectionProfileEntry> inspections ->
+			if (inspections == null) inspections = []
+			inspections.removeAll{ it.shortName == inspection.shortName }
+			inspections.add(inspection)
+			inspections
+		} as List<InspectionProfileEntry>
+
+		def projectProfile = inspectionsProfileOf(project)
+		inspections.each {
+			// remove using different instance of inspection should work because inspection is looked up by shortName
+			projectProfile.removeTool(InspectionToolRegistrar.wrapTool(it))
+			projectProfile.addTool(project, InspectionToolRegistrar.wrapTool(it), [:])
+		}
+		inspections.each{ projectProfile.enableTool(it.shortName, project) }
+	}
+
+	static unregisterInspection2(Project project, String inspectionName) {
+		List<InspectionProfileEntry> inspectionsToDelete = []
+		changeGlobalVar(livePluginInspections) { List<InspectionProfileEntry> inspections ->
+			if (inspections == null) inspections = []
+			inspectionsToDelete = inspections.findAll{ it.shortName == inspectionName }
+			inspections.removeAll(inspectionsToDelete)
+			inspections
+		}
+
+		def projectProfile = inspectionsProfileOf(project)
+		inspectionsToDelete.each {
+			projectProfile.removeTool(InspectionToolRegistrar.wrapTool(it))
+		}
+	}
+
+	private static def inspectionsProfileOf(Project project) {
+		InspectionProjectProfileManager.getInstance(project).inspectionProfile as InspectionProfileImpl
+	}
+
 	private static void reloadAdditionalProjectInspections(Project project, List<InspectionProfileEntry> inspections) {
 		def inspectionFactories = inspections.collect { inspection ->
 			new Factory<InspectionToolWrapper>() {
