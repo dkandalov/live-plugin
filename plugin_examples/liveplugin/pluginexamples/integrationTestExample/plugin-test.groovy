@@ -9,7 +9,6 @@ import org.junit.Ignore
 import org.junit.Test
 
 import static liveplugin.PluginUtil.runReadAction
-
 // This is example of integration test.
 // The idea is that for code which heavily uses IntelliJ API it can be faster
 // to run tests inside IntelliJ without need for potentially long or complex initialisation.
@@ -17,7 +16,7 @@ import static liveplugin.PluginUtil.runReadAction
 // "plugin-test.groovy" is an entry point just like "plugin.groovy",
 // therefore, tests need to be run explicitly, e.g. with IntegrationTestsRunner.runIntegrationTests().
 // (Note that this is not original JUnit runner and it only supports @Test and @Ignore annotations.)
-IntegrationTestsRunner.runIntegrationTests([ExampleTest, ExamplePsiTest], project, pluginPath)
+IntegrationTestsRunner.runIntegrationTests([ExampleTest, PsiElementsTest], project, pluginPath)
 
 
 class ExampleTest {
@@ -41,7 +40,16 @@ class ExampleTest {
 // (Please note this test won't work in IDEs without Java support.
 // You might be able to run it by removing all code referring to Java,
 // although it's probably better to write plugins in IDE with Groovy and Java support.)
-class ExamplePsiTest {
+class PsiElementsTest {
+	private final Project project
+	private final String pluginPath
+
+	// "context" is optional argument passed in by test runner
+	PsiElementsTest(Map context) {
+		this.project = context.project
+		this.pluginPath = context.pluginPath
+	}
+
 	@Test void "count amount of PsiElements in Java file"() {
 		def javaPsi = parseAsJavaPsi("Sample.java", """
 			class Sample {
@@ -70,13 +78,4 @@ class ExamplePsiTest {
 			fileFactory.createFileFromText(fileName, JavaFileType.INSTANCE, javaCode) as PsiJavaFile
 		}
 	}
-
-	// "context" is optional argument passed in by test runner
-	ExamplePsiTest(Map context) {
-		this.project = context.project
-		this.pluginPath = context.pluginPath
-	}
-
-	private final Project project
-	private final String pluginPath
 }
