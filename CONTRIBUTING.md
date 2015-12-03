@@ -1,3 +1,10 @@
+### Reporting an issue/question
+Some notes just in case:
+ - don't hesitate, you're welcome because it makes plugin better
+ - if something doesn't work, code example might be useful 
+ - if you get an exception, full stacktrace and IDE name/version can make it easier to reproduce the bug  
+
+
 ### Compiling
  - open project in IntelliJ
  - configure project JDK to use "IntelliJ Platform Plugin SDK" for IJ 15 
