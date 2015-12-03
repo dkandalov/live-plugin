@@ -10,11 +10,11 @@ import static liveplugin.testrunner.IntegrationTestsRunner.runTestsInClass
 class IntegrationTestsUIRunner {
 	static void runIntegrationTests(List<Class> testClasses, @NotNull Project project, @Nullable String pluginPath = null) {
 		def context = [project: project, pluginPath: pluginPath]
-		def now = System.currentTimeMillis()
 		def jUnitPanel = new JUnitPanel().showIn(project)
 
 		ApplicationManager.application.executeOnPooledThread {
 			def testReporter = new TestReporterOnEdt(jUnitPanel)
+			def now = System.currentTimeMillis()
 			testReporter.startedAllTests(now)
 			testClasses.collect{ runTestsInClass(it, context, testReporter, now) }
 			testReporter.finishedAllTests(now)
