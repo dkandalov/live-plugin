@@ -38,17 +38,18 @@ import javax.swing.*
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import static com.intellij.rt.execution.junit.states.PoolOfTestStates.*
+import static liveplugin.PluginUtil.show
 
 class JUnitPanel implements TestReporter {
 	@Delegate private TestProxyUpdater testProxyUpdater
-	private ProcessHandler handler
+	private ProcessHandler processHandler
 	private JUnitRunningModel model
 	private TestProxy rootTestProxy
 	private long allTestsStartTime
 
 
 	def showIn(Project project) {
-		def executor = DefaultRunExecutor.getRunExecutorInstance()
+		def executor = DefaultRunExecutor.runExecutorInstance
 
 		JUnitConfiguration myConfiguration = new JUnitConfiguration("Temp config", project, new JUnitConfigurationType().configurationFactories.first())
 		JUnitConsoleProperties consoleProperties = new JUnitConsoleProperties(myConfiguration, executor)
@@ -57,7 +58,7 @@ class JUnitPanel implements TestReporter {
 		RunnerAndConfigurationSettings runnerAndConfigSettings = RunManager.getInstance(project).createRunConfiguration("Temp run config", factory)
 		ExecutionEnvironment myEnvironment = newExecutionEnvironment(executor, new BasicProgramRunner(), runnerAndConfigSettings, project)
 
-		handler = new ProcessHandler() {
+		processHandler = new ProcessHandler() {
 			@Override protected void destroyProcessImpl() { notifyProcessTerminated(0) }
 			@Override protected void detachProcessImpl() { notifyProcessDetached() }
 			@Override boolean detachIsDefault() { true }
@@ -68,25 +69,24 @@ class JUnitPanel implements TestReporter {
 		model = new JUnitRunningModel(rootTestProxy, consoleProperties)
         model.notifier.onFinished() // disable listening for events (see also JUnitListenersNotifier.onEvent)
 
-        def additionalActions = new AppendAdditionalActions(project, "Integration tests")
-		def consoleView = newConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
+		def consoleView = new MyTreeConsoleView(consoleProperties, myEnvironment, rootTestProxy, project, "Integration tests")
 		consoleView.initUI()
-		consoleView.attachToProcess(handler)
+		consoleView.attachToProcess(processHandler)
 		consoleView.attachToModel(model)
 
-		ExecutionManager.getInstance(project).contentManager.showRunContent(executor, additionalActions.descriptor)
+		ExecutionManager.getInstance(project).contentManager.showRunContent(executor, consoleView.descriptor)
 
 		testProxyUpdater = new TestProxyUpdater(rootTestProxy, model.notifier)
 		this
 	}
 
 	void startedAllTests(long time) {
-		handler.startNotify()
+		processHandler.startNotify()
 		allTestsStartTime = time
 	}
 
 	void finishedAllTests(long time) {
-		handler.destroyProcess()
+		processHandler.destroyProcess()
 
 		testProxyUpdater.finished()
 
@@ -106,11 +106,6 @@ class JUnitPanel implements TestReporter {
 	private static ExecutionEnvironment newExecutionEnvironment(Executor executor, ProgramRunner programRunner,
 	                                                            RunnerAndConfigurationSettings runnerAndConfigSettings, Project project) {
 		new ExecutionEnvironment(executor, programRunner, runnerAndConfigSettings, project)
-	}
-
-	private static newConsoleView(JUnitConsoleProperties consoleProperties, ExecutionEnvironment myEnvironment,
-	                                                         TestProxy rootTestProxy, AppendAdditionalActions additionalActions) {
-		new MyTreeConsoleView(consoleProperties, myEnvironment, rootTestProxy, additionalActions)
 	}
 
 
@@ -146,6 +141,7 @@ class JUnitPanel implements TestReporter {
 		}
 
 		void running(String className, String methodName, long time = System.currentTimeMillis()) {
+			show("running")
 			def classTestProxy = testProxyByClassName.get(className)
 			if (!rootTestProxy.children.contains(classTestProxy)) {
 
@@ -171,11 +167,13 @@ class JUnitPanel implements TestReporter {
 		}
 
 		void failed(String methodName, String error, long time = System.currentTimeMillis()) {
+			show("failed")
 			testProxyByMethodName.get(methodName).state = newTestState(FAILED_INDEX, error)
 			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
 		}
 
 		void error(String methodName, String error, long time = System.currentTimeMillis()) {
+			show("error")
 			testProxyByMethodName.get(methodName).state = newTestState(ERROR_INDEX, error)
 			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
 		}
@@ -196,6 +194,8 @@ class JUnitPanel implements TestReporter {
 		}
 
 		void finished() {
+			show("finished")
+
 			def hasChildWith = { state -> rootTestProxy.children.any{ it.state.magnitude == state } }
 
 			if (hasChildWith(FAILED_INDEX)) rootTestProxy.state = failedState
@@ -225,65 +225,54 @@ class JUnitPanel implements TestReporter {
 
 
 	/**
-	 * Copy-pasted com.intellij.execution.junit2.ui.JUnitTreeConsoleView in attempt to "reconfigure" ConsolePanel
+	 * Originally a copy of com.intellij.execution.junit2.ui.JUnitTreeConsoleView in attempt to "reconfigure" ConsolePanel
 	 */
 	private static class MyTreeConsoleView extends BaseTestsOutputConsoleView {
-		private ConsolePanel myConsolePanel;
-		private final JUnitConsoleProperties myProperties;
-		private final ExecutionEnvironment myEnvironment;
+		private final JUnitConsoleProperties properties
+		private final ExecutionEnvironment environment
 		private final AppendAdditionalActions appendAdditionalActions
+		private final RunContentDescriptor descriptor
+		private ConsolePanel consolePanel
 
-		public MyTreeConsoleView(final JUnitConsoleProperties properties,
-		                         final ExecutionEnvironment environment,
-		                         final AbstractTestProxy unboundOutputRoot,
-		                         AppendAdditionalActions appendAdditionalActions) {
-			super(properties, unboundOutputRoot);
-			myProperties = properties;
-			myEnvironment = environment;
-			this.appendAdditionalActions = appendAdditionalActions
+		MyTreeConsoleView(JUnitConsoleProperties properties, ExecutionEnvironment environment,
+		                         AbstractTestProxy unboundOutputRoot, Project project, String consoleTitle) {
+			super(properties, unboundOutputRoot)
+			this.properties = properties
+			this.environment = environment
+			this.descriptor = new RunContentDescriptor(console, null, console.component, consoleTitle) {
+				@Override boolean isContentReuseProhibited() { true }
+				@Override Icon getIcon() { AllIcons.Nodes.Plugin }
+			}
+			this.appendAdditionalActions = new AppendAdditionalActions(project, consoleTitle) // TODO
 		}
 
-		protected TestResultsPanel createTestResultsPanel() {
-
-			def actions = (MyTreeConsoleView.this.appendAdditionalActions.appendTo(console, console.component) + console.createConsoleActions().toList()).toArray(new AnAction[0])
-			myConsolePanel = new ConsolePanel(console.component, printer, myProperties, actions) /*{
-				@Override protected ToolbarPanel createToolbarPanel() {
-					return new JUnitToolbarPanel(myProperties, console.component) {
-
-						@Override protected void appendAdditionalActions(DefaultActionGroup defaultActionGroup, TestConsoleProperties testConsoleProperties,
-						                                                 ExecutionEnvironment environment, JComponent jComponent) {
-							super.appendAdditionalActions(defaultActionGroup, testConsoleProperties, environment, jComponent)
-
-							MyTreeConsoleView.this.appendAdditionalActions.appendTo(defaultActionGroup, getConsole(), jComponent)
-						}
-					}
-				}
-			}*/
-			return myConsolePanel;
+		@Override protected TestResultsPanel createTestResultsPanel() {
+			show("createTestResultsPanel")
+			consolePanel = new ConsolePanel(console.component, printer, properties, console.createConsoleActions())
+			consolePanel
 		}
 
-		public void attachToProcess(final ProcessHandler processHandler) {
-			super.attachToProcess(processHandler);
-			myConsolePanel.onProcessStarted(processHandler);
+		@Override void attachToProcess(final ProcessHandler processHandler) {
+			super.attachToProcess(processHandler)
+			consolePanel.onProcessStarted(processHandler)
 		}
 
-		public void dispose() {
-			super.dispose();
-			myConsolePanel = null;
+		@Override void dispose() {
+			super.dispose()
+			consolePanel = null
 		}
 
-		@Override
-		public JComponent getPreferredFocusableComponent() {
-			return myConsolePanel.getTreeView();
+		@Override JComponent getPreferredFocusableComponent() {
+			consolePanel.treeView
 		}
 
-		public void attachToModel(@NotNull JUnitRunningModel model) {
-			if (myConsolePanel != null) {
-				myConsolePanel.getTreeView().attachToModel(model);
-				model.attachToTree(myConsolePanel.getTreeView());
-				myConsolePanel.setModel(model);
-				model.onUIBuilt();
-				new TreeCollapser().setModel(model);
+		void attachToModel(@NotNull JUnitRunningModel model) {
+			if (consolePanel != null) {
+				consolePanel.getTreeView().attachToModel(model)
+				model.attachToTree(consolePanel.getTreeView())
+				consolePanel.setModel(model)
+				model.onUIBuilt()
+				new TreeCollapser().setModel(model)
 			}
 		}
 	}
