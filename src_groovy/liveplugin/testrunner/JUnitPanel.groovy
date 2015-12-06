@@ -53,7 +53,6 @@ class JUnitPanel implements TestReporter {
 
 		JUnitConfiguration junitConfiguration = new JUnitConfiguration("Temp config", project, new JUnitConfigurationType().configurationFactories.first())
 		JUnitConsoleProperties consoleProperties = new JUnitConsoleProperties(junitConfiguration, executor)
-		consoleProperties.appendAdditionalActions()
 
 		ConfigurationFactory factory = new JUnitConfigurationType().configurationFactories.first()
 		RunnerAndConfigurationSettings runnerAndConfigSettings = RunManager.getInstance(project).createRunConfiguration("Temp run config", factory)
