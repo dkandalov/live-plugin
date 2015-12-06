@@ -2,8 +2,6 @@ package liveplugin.testrunner
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Location
 import com.intellij.execution.RunManager
-import com.intellij.execution.RunnerAndConfigurationSettings
-import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.junit.JUnitConfigurationType
@@ -28,14 +26,17 @@ import com.intellij.execution.testframework.ui.TestResultsPanel
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.Separator
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.ui.components.panels.NonOpaquePanel
 import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
+import java.awt.*
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
@@ -51,12 +52,12 @@ class JUnitPanel implements TestReporter {
 	def showIn(Project project) {
 		def executor = DefaultRunExecutor.runExecutorInstance
 
-		JUnitConfiguration junitConfiguration = new JUnitConfiguration("Temp config", project, new JUnitConfigurationType().configurationFactories.first())
-		JUnitConsoleProperties consoleProperties = new JUnitConsoleProperties(junitConfiguration, executor)
+		def junitConfiguration = new JUnitConfiguration("Temp config", project, new JUnitConfigurationType().configurationFactories.first())
+		def consoleProperties = new JUnitConsoleProperties(junitConfiguration, executor)
 
-		ConfigurationFactory factory = new JUnitConfigurationType().configurationFactories.first()
-		RunnerAndConfigurationSettings runnerAndConfigSettings = RunManager.getInstance(project).createRunConfiguration("Temp run config", factory)
-		ExecutionEnvironment environment = new ExecutionEnvironment(executor, new BasicProgramRunner(), runnerAndConfigSettings, project)
+		def configurationFactory = new JUnitConfigurationType().configurationFactories.first()
+		def runnerAndConfigSettings = RunManager.getInstance(project).createRunConfiguration("Temp run config", configurationFactory)
+		def environment = new ExecutionEnvironment(executor, new BasicProgramRunner(), runnerAndConfigSettings, project)
 
 		processHandler = new ProcessHandler() {
 			@Override protected void destroyProcessImpl() { notifyProcessTerminated(0) }
@@ -65,12 +66,12 @@ class JUnitPanel implements TestReporter {
 			@Override OutputStream getProcessInput() { new ByteArrayOutputStream() }
 		}
 
-		TestProxy rootTestProxy = new TestProxy(newTestInfo("Integration tests"))
+		def rootTestProxy = new TestProxy(newTestInfo("Integration tests"))
 		model = new JUnitRunningModel(rootTestProxy, consoleProperties)
         model.notifier.onFinished() // disable listening for events (see also JUnitListenersNotifier.onEvent)
 
 		def consoleView = new MyTreeConsoleView(
-				consoleProperties, environment, rootTestProxy, project,
+				consoleProperties, environment, rootTestProxy,
 				"Plugin integration tests", processHandler
 		)
 		consoleView.initUI()
@@ -78,12 +79,26 @@ class JUnitPanel implements TestReporter {
 		consoleView.attachToModel(model)
 		rootTestProxy.setPrinter(consoleView.printer)
 
-		// disposers it's done in com.intellij.execution.junit.TestObject.execute
+		def wrapper = new NonOpaquePanel(new BorderLayout(0, 0))
+		def descriptor = new RunContentDescriptor(consoleView.console, processHandler, wrapper, "Plugin integration tests") {
+			@Override Icon getIcon() { AllIcons.Nodes.TestSourceFolder }
+			@Override boolean isContentReuseProhibited() { true }
+		}
+		def actionGroup = new DefaultActionGroup()
+		actionGroup.add(new CloseAction(DefaultRunExecutor.runExecutorInstance, descriptor, project))
+		def toolbar = ActionManager.instance.createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, false)
+		toolbar.setTargetComponent(wrapper)
+
+		wrapper.add(toolbar.component, BorderLayout.WEST)
+		wrapper.add(consoleView.component, BorderLayout.CENTER)
+
+		// disposers as it's done in com.intellij.execution.junit.TestObject.execute
 		Disposer.register(project, consoleView)
 		Disposer.register(consoleView, rootTestProxy)
 
 		// TODO try to reuse content descriptor
-		ExecutionManager.getInstance(project).contentManager.showRunContent(executor, consoleView.descriptor)
+		// the line below was picked up from com.intellij.execution.impl.ExecutionManagerImpl.startRunProfile
+		ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
 
 		testProxyUpdater = new TestProxyUpdater(rootTestProxy, model.notifier)
 		this
@@ -229,32 +244,19 @@ class JUnitPanel implements TestReporter {
 	private static class MyTreeConsoleView extends BaseTestsOutputConsoleView {
 		private final JUnitConsoleProperties properties
 		private final ExecutionEnvironment environment
-		private final AppendAdditionalActions appendAdditionalActions
-
 		private final String consoleTitle
 		private final ProcessHandler processHandler
-		private RunContentDescriptor descriptor
 
 		private ConsolePanel consolePanel
 
 
 		MyTreeConsoleView(JUnitConsoleProperties properties, ExecutionEnvironment environment,
-                          AbstractTestProxy unboundOutputRoot, Project project,
-                          String consoleTitle, ProcessHandler processHandler) {
+		                  AbstractTestProxy unboundOutputRoot, String consoleTitle, ProcessHandler processHandler) {
 			super(properties, unboundOutputRoot)
 			this.properties = properties
 			this.environment = environment
-			this.appendAdditionalActions = new AppendAdditionalActions(project, descriptor)
 			this.consoleTitle = consoleTitle
 			this.processHandler = processHandler
-		}
-
-		@Override void initUI() {
-			super.initUI()
-			descriptor = new RunContentDescriptor(console, processHandler, component, consoleTitle) {
-				@Override boolean isContentReuseProhibited() { true }
-				@Override Icon getIcon() { AllIcons.Nodes.TestSourceFolder }
-			}
 		}
 
 		@Override protected TestResultsPanel createTestResultsPanel() {
@@ -265,10 +267,6 @@ class JUnitPanel implements TestReporter {
 		@Override void attachToProcess(final ProcessHandler processHandler) {
 			super.attachToProcess(processHandler)
 			consolePanel.onProcessStarted(processHandler)
-		}
-
-		@Override AnAction[] createConsoleActions() {
-			appendAdditionalActions.create().toArray(new AnAction[0])
 		}
 
 		@Override void dispose() {
@@ -290,21 +288,4 @@ class JUnitPanel implements TestReporter {
 			}
 		}
 	}
-
-
-	private static class AppendAdditionalActions {
-		private final Project project
-		private final RunContentDescriptor descriptor
-
-		AppendAdditionalActions(Project project, RunContentDescriptor descriptor) {
-			this.descriptor = descriptor
-			this.project = project
-		}
-
-		List<AnAction> create() {
-			def closeAction = new CloseAction(DefaultRunExecutor.runExecutorInstance, descriptor, project)
-			[Separator.getInstance(), closeAction]
-		}
-	}
-
 }
