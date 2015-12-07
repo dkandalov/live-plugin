@@ -17,7 +17,8 @@ dependencies {
 	// also includes scala-parser-combinators, scala-xml
 	provided group: 'org.scala-lang', name: 'scala-library', version: '2.11.7'
 	provided group: 'org.scala-lang', name: 'scala-reflect', version: '2.11.7'
-	provided fileTree(dir: "${ideaPath}/lib/", include: "groovy*.jar")
+	provided fileTree(dir: "${ideaPath}/lib/", include: "groovy-all-*.jar")
+	provided fileTree(dir: "${ideaPath}/lib/", include: "gson-*.jar") // required by github plugin classes
 	provided fileTree(dir: "${ideaPath}/plugins/github/lib/", include: "*.jar")
 	provided fileTree(dir: "${ideaPath}/plugins/git4idea/lib/", include: "*.jar")
 	provided fileTree(dir: "${ideaPath}/plugins/junit/lib/", include: "*.jar")
