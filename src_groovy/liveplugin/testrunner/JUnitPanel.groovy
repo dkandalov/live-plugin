@@ -1,4 +1,5 @@
 package liveplugin.testrunner
+
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Location
 import com.intellij.execution.RunManager
@@ -28,11 +29,14 @@ import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.components.panels.NonOpaquePanel
+import liveplugin.IDEUtil
 import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
@@ -48,8 +52,7 @@ class JUnitPanel implements TestReporter {
 	private JUnitRunningModel model
 	private long allTestsStartTime
 
-
-	def showIn(Project project) {
+	def showIn(Project project, Closure rerunCallback, RunContentDescriptor descriptorToReuse = null) {
 		def executor = DefaultRunExecutor.runExecutorInstance
 
 		def junitConfiguration = new JUnitConfiguration("Temp config", project, new JUnitConfigurationType().configurationFactories.first())
@@ -70,6 +73,46 @@ class JUnitPanel implements TestReporter {
 		model = new JUnitRunningModel(rootTestProxy, consoleProperties)
         model.notifier.onFinished() // disable listening for events (see also JUnitListenersNotifier.onEvent)
 
+		def consoleView = createConsoleView(consoleProperties, environment, rootTestProxy, processHandler, model)
+		rootTestProxy.setPrinter(consoleView.printer)
+
+		def wrapper = new NonOpaquePanel(new BorderLayout(0, 0))
+		def descriptor = new RunContentDescriptor(consoleView.console, processHandler, wrapper, "Plugin integration tests") {
+			@Override Icon getIcon() { AllIcons.Nodes.TestSourceFolder }
+			@Override boolean isContentReuseProhibited() { false }
+		}
+		def toolbar = createActionToolbar(rerunCallback, descriptor, project, wrapper)
+		wrapper.add(toolbar.component, BorderLayout.WEST)
+		wrapper.add(consoleView.component, BorderLayout.CENTER)
+
+		// disposers as it's done in com.intellij.execution.junit.TestObject.execute
+		Disposer.register(project, consoleView)
+		Disposer.register(consoleView, rootTestProxy)
+		Disposer.register(consoleView, descriptor)
+
+		// the line below was picked up from com.intellij.execution.impl.ExecutionManagerImpl.startRunProfile
+		ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor, descriptorToReuse)
+
+		testProxyUpdater = new TestProxyUpdater(rootTestProxy, model.notifier)
+		this
+	}
+
+	private static createActionToolbar(Closure rerunCallback, RunContentDescriptor descriptor, Project project, JComponent targetComponent) {
+		def actionGroup = new DefaultActionGroup()
+		actionGroup.add(new AnAction("Rerun plugin integration tests", "", IDEUtil.RUN_PLUGIN_ICON) {
+			@Override void actionPerformed(AnActionEvent e) {
+				rerunCallback(descriptor)
+			}
+		})
+		actionGroup.add(new CloseAction(DefaultRunExecutor.runExecutorInstance, descriptor, project))
+
+		def toolbar = ActionManager.instance.createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, false)
+		toolbar.setTargetComponent(targetComponent)
+		toolbar
+	}
+
+	private static createConsoleView(JUnitConsoleProperties consoleProperties, ExecutionEnvironment environment,
+	                                 TestProxy rootTestProxy, ProcessHandler processHandler, JUnitRunningModel model) {
 		def consoleView = new MyTreeConsoleView(
 				consoleProperties, environment, rootTestProxy,
 				"Plugin integration tests", processHandler
@@ -77,31 +120,7 @@ class JUnitPanel implements TestReporter {
 		consoleView.initUI()
 		consoleView.attachToProcess(processHandler)
 		consoleView.attachToModel(model)
-		rootTestProxy.setPrinter(consoleView.printer)
-
-		def wrapper = new NonOpaquePanel(new BorderLayout(0, 0))
-		def descriptor = new RunContentDescriptor(consoleView.console, processHandler, wrapper, "Plugin integration tests") {
-			@Override Icon getIcon() { AllIcons.Nodes.TestSourceFolder }
-			@Override boolean isContentReuseProhibited() { true }
-		}
-		def actionGroup = new DefaultActionGroup()
-		actionGroup.add(new CloseAction(DefaultRunExecutor.runExecutorInstance, descriptor, project))
-		def toolbar = ActionManager.instance.createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, false)
-		toolbar.setTargetComponent(wrapper)
-
-		wrapper.add(toolbar.component, BorderLayout.WEST)
-		wrapper.add(consoleView.component, BorderLayout.CENTER)
-
-		// disposers as it's done in com.intellij.execution.junit.TestObject.execute
-		Disposer.register(project, consoleView)
-		Disposer.register(consoleView, rootTestProxy)
-
-		// TODO try to reuse content descriptor
-		// the line below was picked up from com.intellij.execution.impl.ExecutionManagerImpl.startRunProfile
-		ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
-
-		testProxyUpdater = new TestProxyUpdater(rootTestProxy, model.notifier)
-		this
+		consoleView
 	}
 
 	void startedAllTests(long time) {
@@ -111,9 +130,7 @@ class JUnitPanel implements TestReporter {
 
 	void finishedAllTests(long time) {
 		processHandler.destroyProcess()
-
 		testProxyUpdater.finished()
-
 		model.notifier.fireRunnerStateChanged(new CompletionEvent(true, time - allTestsStartTime))
 	}
 
