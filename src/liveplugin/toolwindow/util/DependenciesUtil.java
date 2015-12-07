@@ -31,6 +31,7 @@ public class DependenciesUtil {
 					if (library != null) libraryTable.removeLibrary(library);
 					moduleRootManager.commit();
 
+                    moduleRootManager.dispose();
 				}
 			}
 		});
@@ -57,7 +58,8 @@ public class DependenciesUtil {
 					if (libraryOrderEntry != null) libraryOrderEntry.setScope(DependencyScope.PROVIDED);
 					moduleRootManager.commit();
 
-				}
+                    moduleRootManager.dispose();
+                }
 			}
 		});
 	}
@@ -81,6 +83,7 @@ public class DependenciesUtil {
 	private static boolean dependsOn(String libraryName, Module module) {
 		ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
 		Library library = moduleRootManager.getModuleLibraryTable().getLibraryByName(libraryName);
+        moduleRootManager.dispose();
 		return library != null;
 	}
 }
