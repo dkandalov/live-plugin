@@ -60,6 +60,7 @@ class GroovyPluginRunnerTest {
 			Util.myFunction()
 		"""
 		def scriptCode2 = """
+			package myPackage
 			class Util {
 				static myFunction() { 42 }
 			}
