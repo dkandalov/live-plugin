@@ -40,9 +40,7 @@ public class DownloadScalaLibs extends AnAction implements DumbAware {
 					"\n(If you already have scala >= 2.11, you can copy it manually and restart IDE.)", "Live Plugin", null);
 			if (answer != Messages.OK) return;
 
-			List<String> scalaLibs = asList(
-					"scala-library", "scala-compiler", "scala-reflect", "scala-swing", "scala-partest", "scala-actors", "scalap"
-			);
+			List<String> scalaLibs = asList("scala-library", "scala-compiler", "scala-reflect", "scalap");
 			List<Pair<String, String>> urlAndFileNamePairs = map(scalaLibs, new Function<String, Pair<String, String>>() {
 				@Override public Pair<String, String> fun(String it) {
 					// Using alternative maven repo instead of "repo1.maven.org" because standard repo for some reason
