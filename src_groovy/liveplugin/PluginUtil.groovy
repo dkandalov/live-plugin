@@ -316,7 +316,10 @@ class PluginUtil {
 	/**
 	 * Wraps action if it's not already wrapped.
 	 *
-	 * @param actionId id of action to wrap
+	 * @param actionId id of action to wrap.
+	 *        To find id of existing action you can try {@link liveplugin.PluginUtil#findAllActions(java.lang.String)}.
+	 *        For some of built-in editor actions see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-resources/src/idea/PlatformActions.xml#L50
+	 *        And obviously, you can look at IntelliJ source code for implementations of {@link AnAction}.
 	 * @param actionGroupIds (optional) action groups ids in which action is registered;
 	 *        can be used to update actions in menus, etc. (this is needed because action groups reference actions directly)
 	 * @param callback will be invoked instead of wrapped action,
