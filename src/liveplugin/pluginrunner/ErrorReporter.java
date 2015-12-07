@@ -59,6 +59,8 @@ public class ErrorReporter {
 	public synchronized void reportAllErrors(Callback callback) {
 		reportLoadingErrors(callback);
 		reportRunningPluginErrors(callback);
+        loadingErrors.clear();
+        runningPluginErrors.clear();
 	}
 
 	private void reportLoadingErrors(Callback callback) {

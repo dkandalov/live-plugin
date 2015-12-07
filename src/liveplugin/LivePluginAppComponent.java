@@ -145,7 +145,7 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 						ActionManager.getInstance(),
 						0
 				);
-				final ErrorReporter errorReporter = new ErrorReporter();
+				ErrorReporter errorReporter = new ErrorReporter();
 				RunPluginAction.runPlugins(pluginIdToPathMap().keySet(), event, errorReporter, RunPluginAction.createPluginRunners(errorReporter));
 			}
 		});
@@ -161,7 +161,7 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	}
 
 	public static void checkThatGroovyIsOnClasspath() {
-		final File oldGroovyLibrary = new File(LIVEPLUGIN_LIBS_PATH + File.separator + "groovy-all-2.0.6.jar");
+		final File oldGroovyLibrary = new File(LIVEPLUGIN_LIBS_PATH + File.separator + "groovy-all-2.0.6.jar"); // TODO update groovy version
 
 		NotificationListener listener = new NotificationListener() {
 			@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {

@@ -13,7 +13,6 @@
  */
 package liveplugin;
 
-import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -90,12 +89,12 @@ public class IDEUtil {
 	};
 	private static final Logger LOG = Logger.getInstance(IDEUtil.class);
 
-    public static ConsoleView displayInConsole(String consoleTitle, String text, ConsoleViewContentType contentType, Project project) {
+    public static void displayError(String consoleTitle, String text, ConsoleViewContentType contentType, Project project) {
 		if (project == null) {
-			LOG.warn("Failed to display console because project was 'null'. Text not shown in console: " + text);
-			return null;
-		}
-		return PluginUtil.showInConsole(text, consoleTitle, project, contentType);
+			LOG.error(text);
+		} else {
+            PluginUtil.showInConsole(text, consoleTitle, project, contentType);
+        }
 	}
 
 	public static void showErrorDialog(Project project, String message, String title) {

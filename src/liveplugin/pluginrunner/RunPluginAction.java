@@ -70,63 +70,62 @@ public class RunPluginAction extends AnAction implements DumbAware {
     }
 
     public static void runPlugins(final Collection<String> pluginIds, AnActionEvent event,
-	                              final ErrorReporter errorReporter, final List<PluginRunner> pluginRunners) {
-		checkThatGroovyIsOnClasspath();
+                                  final ErrorReporter errorReporter, final List<PluginRunner> pluginRunners) {
+        checkThatGroovyIsOnClasspath();
 
-		final Project project = event.getProject();
-		final boolean isIdeStartup = event.getPlace().equals(IDE_STARTUP);
+        final Project project = event.getProject();
+        final boolean isIdeStartup = event.getPlace().equals(IDE_STARTUP);
 
-		if (!isIdeStartup) {
-			Settings.countPluginsUsage(pluginIds);
-		}
+        if (!isIdeStartup) {
+            Settings.countPluginsUsage(pluginIds);
+        }
 
-		Runnable runPlugins = new Runnable() {
-			@Override public void run() {
-				for (final String pluginId : pluginIds) {
-					final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
-					PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
-						@Override public boolean value(PluginRunner it) {
-							return pathToPluginFolder != null && it.canRunPlugin(pathToPluginFolder);
-						}
-					});
-					if (pluginRunner == null) {
-						List<String> scriptNames = map(pluginRunners, new Function<PluginRunner, String>() {
-							@Override public String fun(PluginRunner it) {
-								return it.scriptName();
-							}
-						});
-						errorReporter.addNoScriptError(pluginId, scriptNames);
-						errorReporter.reportAllErrors(new ErrorReporter.Callback() {
-							@Override public void display(String title, String message) {
-								IDEUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
-							}
-						});
-						continue;
-					}
-                    Map<String, Object> oldBinding = bindingByPluginId.get(pluginId);
-                    if (oldBinding != null) {
-                        try {
-                            Disposer.dispose((Disposable) oldBinding.get(DISPOSABLE_KEY));
-                        } catch (Exception e) {
-                            errorReporter.addRunningError(pluginId, e);
+        Runnable runPlugins = new Runnable() {
+            @Override public void run() {
+                for (final String pluginId : pluginIds) {
+                    try {
+                        final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
+                        PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
+                            @Override public boolean value(PluginRunner it) {
+                                return pathToPluginFolder != null && it.canRunPlugin(pathToPluginFolder);
+                            }
+                        });
+                        if (pluginRunner == null) {
+                            List<String> scriptNames = map(pluginRunners, new Function<PluginRunner, String>() {
+                                @Override public String fun(PluginRunner it) {
+                                    return it.scriptName();
+                                }
+                            });
+                            errorReporter.addNoScriptError(pluginId, scriptNames);
+                        } else {
+                            Map<String, Object> oldBinding = bindingByPluginId.get(pluginId);
+                            if (oldBinding != null) {
+                                try {
+                                    Disposer.dispose((Disposable) oldBinding.get(DISPOSABLE_KEY));
+                                } catch (Exception e) {
+                                    errorReporter.addRunningError(pluginId, e);
+                                }
+                            }
+                            Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
+                            bindingByPluginId.put(pluginId, binding);
+
+                            pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, RUN_ON_EDT);
                         }
+                    } catch (Exception e) {
+                        errorReporter.addLoadingError(pluginId, e);
+                    } finally {
+                        errorReporter.reportAllErrors(new ErrorReporter.Callback() {
+                            @Override public void display(String title, String message) {
+                                IDEUtil.displayError(title, message, ERROR_OUTPUT, project);
+                            }
+                        });
                     }
-                    Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
-                    bindingByPluginId.put(pluginId, binding);
+                }
+            }
+        };
 
-                    pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, RUN_ON_EDT);
-
-					errorReporter.reportAllErrors(new ErrorReporter.Callback() {
-						@Override public void display(String title, String message) {
-							IDEUtil.displayInConsole(title, message, ERROR_OUTPUT, project);
-						}
-					});
-				}
-			}
-		};
-
-		backgroundRunner.run(project, "Loading plugin", runPlugins);
-	}
+        backgroundRunner.run(project, "Loading plugin", runPlugins);
+    }
 
 	public static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
 		List<PluginRunner> result = new ArrayList<PluginRunner>();
