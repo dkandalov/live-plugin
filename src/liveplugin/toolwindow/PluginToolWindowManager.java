@@ -301,6 +301,7 @@ public class PluginToolWindowManager {
 			actionGroup.add(withIcon(IDEUtil.COLLAPSE_ALL_ICON, new CollapseAllAction()));
 			actionGroup.addSeparator();
 			actionGroup.add(withIcon(IDEUtil.SETTINGS_ICON, createSettingsGroup()));
+			actionGroup.add(withIcon(IDEUtil.HELP_ICON, createHelpAction()));
 
 			// this is a "hack" to force drop-down box appear below button
 			// (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
@@ -311,7 +312,15 @@ public class PluginToolWindowManager {
 			return toolBarPanel;
 		}
 
-		private AnAction createSettingsGroup() {
+        private static AnAction createHelpAction() {
+            return new AnAction("Show help on GitHub") {
+                @Override public void actionPerformed(@NotNull AnActionEvent e) {
+                    BrowserUtil.open("https://github.com/dkandalov/live-plugin#liveplugin");
+                }
+            };
+        }
+
+        private static AnAction createSettingsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Settings", true) {
 				@Override public boolean disableIfNoVisibleChildren() {
 					// without this IntelliJ calls update() on first action in the group
@@ -332,7 +341,7 @@ public class PluginToolWindowManager {
 			return actionGroup;
 		}
 
-		private AnAction createAddPluginsGroup() {
+		private static AnAction createAddPluginsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
 			actionGroup.add(new AddNewPluginAction());
 			actionGroup.add(new AddPluginFromPathAction());
@@ -343,7 +352,7 @@ public class PluginToolWindowManager {
 			return actionGroup;
 		}
 
-		private AnAction createAddPluginsExamplesGroup() {
+		private static AnAction createAddPluginsExamplesGroup() {
 			final DefaultActionGroup actionGroup = new DefaultActionGroup("Examples", true);
             actionGroup.add(new AnAction("Add All") {
                 @Override public void actionPerformed(@NotNull AnActionEvent e) {
@@ -353,12 +362,6 @@ public class PluginToolWindowManager {
                             IDEUtil.runAction(action, "ADD_ALL_EXAMPLES");
                         }
                     }
-                }
-            });
-            actionGroup.addSeparator();
-            actionGroup.add(new AnAction("Examples on GitHub") {
-                @Override public void actionPerformed(@NotNull AnActionEvent e) {
-                    BrowserUtil.open("https://github.com/dkandalov/live-plugin#more-examples");
                 }
             });
             actionGroup.addSeparator();

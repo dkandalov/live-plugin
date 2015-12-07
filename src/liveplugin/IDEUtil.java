@@ -34,6 +34,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.unscramble.UnscrambleDialog;
 import com.intellij.util.Function;
 import com.intellij.util.download.DownloadableFileDescription;
 import com.intellij.util.download.DownloadableFileService;
@@ -74,8 +75,12 @@ public class IDEUtil {
 	public static final Icon EXPAND_ALL_ICON = AllIcons.Actions.Expandall;
 	public static final Icon COLLAPSE_ALL_ICON = AllIcons.Actions.Collapseall;
 	public static final Icon SETTINGS_ICON = AllIcons.General.ProjectSettings;
+	public static final Icon HELP_ICON = AllIcons.Actions.Help;
 
-	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
+    public static final Icon INTEGRATION_TAB_ICON = AllIcons.Nodes.TestSourceFolder;
+    public static final Icon RERUN_PLUGIN_TEST_ICON = RUN_PLUGIN_ICON;
+
+    public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
 	public static final FileType SCALA_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".scala");
 	public static final FileType CLOJURE_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".clj");
 	public static final DataContext DUMMY_DATA_CONTEXT = new DataContext() {
@@ -85,7 +90,7 @@ public class IDEUtil {
 	};
 	private static final Logger LOG = Logger.getInstance(IDEUtil.class);
 
-	public static ConsoleView displayInConsole(String consoleTitle, String text, ConsoleViewContentType contentType, Project project) {
+    public static ConsoleView displayInConsole(String consoleTitle, String text, ConsoleViewContentType contentType, Project project) {
 		if (project == null) {
 			LOG.warn("Failed to display console because project was 'null'. Text not shown in console: " + text);
 			return null;
@@ -181,7 +186,7 @@ public class IDEUtil {
 	}
 
 	/**
-	 * Copy-pasted from {@link com.intellij.unscramble.UnscrambleDialog#normalizeText(java.lang.String)}
+	 * Copy-pasted from {@link UnscrambleDialog#normalizeText(String)}
 	 * because PhpStorm doesn't have this class.
 	 */
 	private static class Unscramble {
