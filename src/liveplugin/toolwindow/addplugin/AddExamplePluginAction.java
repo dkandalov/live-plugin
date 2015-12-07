@@ -7,7 +7,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
-import liveplugin.toolwindow.RefreshPluginTreeAction;
+import liveplugin.toolwindow.RefreshPluginsPanelAction;
 import liveplugin.toolwindow.util.ExamplePluginInstaller;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +32,7 @@ public class AddExamplePluginAction extends AnAction implements DumbAware {
 				logException(e, event, pluginPath);
 			}
 		});
-		RefreshPluginTreeAction.refreshPluginTree();
+		RefreshPluginsPanelAction.refreshPluginTree();
 	}
 
 	@Override public void update(@NotNull AnActionEvent event) {

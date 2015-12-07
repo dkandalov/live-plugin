@@ -16,7 +16,7 @@ import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.PluginToolWindowManager;
-import liveplugin.toolwindow.RefreshPluginTreeAction;
+import liveplugin.toolwindow.RefreshPluginsPanelAction;
 import liveplugin.toolwindow.util.PluginsIO;
 import org.jetbrains.annotations.NotNull;
 
@@ -81,7 +81,7 @@ public class AddPluginFromPathAction extends AnAction implements DumbAware {
 			LOG.error(e);
 		}
 
-		RefreshPluginTreeAction.refreshPluginTree();
+		RefreshPluginsPanelAction.refreshPluginTree();
 	}
 
 	private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {

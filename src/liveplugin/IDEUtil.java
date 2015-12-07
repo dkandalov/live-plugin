@@ -61,7 +61,7 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 public class IDEUtil {
 	public static final Icon ADD_PLUGIN_ICON = AllIcons.General.Add;
 	public static final Icon DELETE_PLUGIN_ICON = AllIcons.General.Remove;
-	public static final Icon REFRESH_PLUGIN_LIST_ICON = AllIcons.Actions.Refresh;
+	public static final Icon REFRESH_PLUGINS_PANEL_ICON = AllIcons.Actions.Refresh;
 	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
 	// this is resized icon because IntelliJ requires toolwindow icons to be 13x13
 	public static final Icon PLUGIN_TOOLWINDOW_ICON = (

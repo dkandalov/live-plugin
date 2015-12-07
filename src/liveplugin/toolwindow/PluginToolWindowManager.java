@@ -32,6 +32,7 @@ import com.intellij.openapi.fileChooser.ex.RootFileElement;
 import com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.keymap.KeymapManager;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
@@ -295,7 +296,7 @@ public class PluginToolWindowManager {
 			actionGroup.add(new RunPluginAction());
 			actionGroup.add(new TestPluginAction());
 			actionGroup.addSeparator();
-			actionGroup.add(new RefreshPluginTreeAction());
+			actionGroup.add(new RefreshPluginsPanelAction());
 			actionGroup.add(withIcon(IDEUtil.EXPAND_ALL_ICON, new ExpandAllAction()));
 			actionGroup.add(withIcon(IDEUtil.COLLAPSE_ALL_ICON, new CollapseAllAction()));
 			actionGroup.addSeparator();
@@ -345,7 +346,7 @@ public class PluginToolWindowManager {
 
 		private static AnAction createAddPluginsExamplesGroup() {
 			final DefaultActionGroup actionGroup = new DefaultActionGroup("Examples", true);
-            actionGroup.add(new AnAction("Add All") {
+            actionGroup.add(new DumbAwareAction("Add All") {
                 @Override public void actionPerformed(@NotNull AnActionEvent e) {
                     AnAction[] actions = actionGroup.getChildActionsOrStubs();
                     for (AnAction action : actions) {
@@ -449,7 +450,7 @@ public class PluginToolWindowManager {
 
 		@Override public void deleteElement(@NotNull DataContext dataContext) {
 			fileDeleteProvider.deleteElement(dataContext);
-			RefreshPluginTreeAction.refreshPluginTree();
+			RefreshPluginsPanelAction.refreshPluginTree();
 		}
 
 		@Override public boolean canDeleteElement(@NotNull DataContext dataContext) {

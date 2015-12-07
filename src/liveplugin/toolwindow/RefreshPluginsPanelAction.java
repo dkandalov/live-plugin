@@ -12,10 +12,10 @@ import liveplugin.LivePluginAppComponent;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("ComponentNotRegistered")
-public class RefreshPluginTreeAction extends AnAction implements DumbAware {
+public class RefreshPluginsPanelAction extends AnAction implements DumbAware {
 
-	public RefreshPluginTreeAction() {
-		super("Refresh Plugin Tree", "Refresh Plugin Tree", IDEUtil.REFRESH_PLUGIN_LIST_ICON);
+	public RefreshPluginsPanelAction() {
+		super("Refresh Plugins Panel", "Refresh Plugins Panel", IDEUtil.REFRESH_PLUGINS_PANEL_ICON);
 	}
 
 	public static void refreshPluginTree() {

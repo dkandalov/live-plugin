@@ -10,7 +10,7 @@ import com.intellij.openapi.ui.Messages;
 import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
-import liveplugin.toolwindow.RefreshPluginTreeAction;
+import liveplugin.toolwindow.RefreshPluginsPanelAction;
 import liveplugin.toolwindow.util.PluginsIO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +52,7 @@ public class AddNewPluginAction extends AnAction implements DumbAware {
 			log.error(e);
 		}
 
-		RefreshPluginTreeAction.refreshPluginTree();
+		RefreshPluginsPanelAction.refreshPluginTree();
 	}
 
 	public static class PluginIdValidator implements InputValidatorEx {

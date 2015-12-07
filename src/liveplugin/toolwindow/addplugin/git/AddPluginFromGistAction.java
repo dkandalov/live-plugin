@@ -13,7 +13,7 @@ import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
 import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
-import liveplugin.toolwindow.RefreshPluginTreeAction;
+import liveplugin.toolwindow.RefreshPluginsPanelAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.api.GithubApiUtil;
 import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.api.GithubGist;
@@ -104,7 +104,7 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 					showMessageThatCreatingPluginFailed(e, newPluginId, project);
 				}
 
-				new RefreshPluginTreeAction().actionPerformed(null);
+				new RefreshPluginsPanelAction().actionPerformed(null);
 			}
 
 			@Override public void onFailure(IOException e) {

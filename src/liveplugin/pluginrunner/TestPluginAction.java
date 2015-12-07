@@ -26,7 +26,7 @@ import static liveplugin.pluginrunner.GroovyPluginRunner.TEST_SCRIPT;
 
 public class TestPluginAction extends AnAction implements DumbAware {
 	public TestPluginAction() {
-		super("Test Plugin", "Test selected plugins", IDEUtil.TEST_PLUGIN_ICON);
+		super("Run Plugin Tests", "Run Plugin Integration Tests", IDEUtil.TEST_PLUGIN_ICON);
 	}
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {

@@ -77,7 +77,7 @@ class DeletePluginAction extends AnAction implements DumbAware {
 			}
 		}
 
-		RefreshPluginTreeAction.refreshPluginTree();
+		RefreshPluginsPanelAction.refreshPluginTree();
 	}
 
 	@Override public void update(@NotNull AnActionEvent event) {
