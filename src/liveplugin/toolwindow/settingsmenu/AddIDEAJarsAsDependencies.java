@@ -3,6 +3,7 @@ package liveplugin.toolwindow.settingsmenu;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import liveplugin.toolwindow.util.DependenciesUtil;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +15,7 @@ import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.util.Pair.create;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
-public class AddIDEAJarsAsDependencies extends AnAction {
+public class AddIDEAJarsAsDependencies extends AnAction implements DumbAware {
 	private static final String IDEA_JARS_LIBRARY = "IDEA jars";
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {

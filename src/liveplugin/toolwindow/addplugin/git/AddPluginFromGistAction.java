@@ -7,6 +7,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
@@ -27,7 +28,7 @@ import java.io.IOException;
 import static liveplugin.LivePluginAppComponent.pluginsRootPath;
 import static liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.GithubIcons.Github_icon;
 
-public class AddPluginFromGistAction extends AnAction {
+public class AddPluginFromGistAction extends AnAction implements DumbAware {
 	private static final Logger log = Logger.getInstance(AddPluginFromGistAction.class);
 	private static final String dialogTitle = "Clone Plugin From Gist";
 	private static final Icon defaultIcon = null;

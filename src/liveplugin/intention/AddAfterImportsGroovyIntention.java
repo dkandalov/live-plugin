@@ -6,6 +6,7 @@ import com.intellij.openapi.command.UndoConfirmationPolicy;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -14,7 +15,7 @@ import com.intellij.util.IncorrectOperationException;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import org.jetbrains.annotations.NotNull;
 
-public class AddAfterImportsGroovyIntention implements IntentionAction {
+public class AddAfterImportsGroovyIntention implements IntentionAction, DumbAware {
 	private final String stringToInsert;
 	private final String modificationName;
 	private final String popupText;

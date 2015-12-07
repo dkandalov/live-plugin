@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
@@ -24,7 +25,7 @@ import java.io.IOException;
 import java.util.*;
 
 @SuppressWarnings("ComponentNotRegistered")
-public class AddPluginFromPathAction extends AnAction {
+public class AddPluginFromPathAction extends AnAction implements DumbAware {
 	private static final Logger LOG = Logger.getInstance(AddPluginFromPathAction.class);
     private static final String dialogTitle = "Copy Plugin From Path";
 

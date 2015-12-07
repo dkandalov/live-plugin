@@ -3,6 +3,7 @@ package liveplugin.toolwindow.addplugin;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class AddExamplePluginAction extends AnAction {
+public class AddExamplePluginAction extends AnAction implements DumbAware {
 	private static final Logger LOG = Logger.getInstance(AddExamplePluginAction.class);
 
 	private final String pluginId;

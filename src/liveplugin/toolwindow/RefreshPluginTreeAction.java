@@ -3,6 +3,7 @@ package liveplugin.toolwindow;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
@@ -11,7 +12,7 @@ import liveplugin.LivePluginAppComponent;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("ComponentNotRegistered")
-public class RefreshPluginTreeAction extends AnAction {
+public class RefreshPluginTreeAction extends AnAction implements DumbAware {
 
 	public RefreshPluginTreeAction() {
 		super("Refresh Plugin Tree", "Refresh Plugin Tree", IDEUtil.REFRESH_PLUGIN_LIST_ICON);

@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Ref;
@@ -31,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 
 @SuppressWarnings("ComponentNotRegistered")
-public class AddPluginFromGitComponent implements ApplicationComponent {
+public class AddPluginFromGitComponent implements ApplicationComponent, DumbAware {
     private static final String dialogTitle = "Clone Plugin From Git";
 
 	@Override public void initComponent() {
@@ -48,7 +49,7 @@ public class AddPluginFromGitComponent implements ApplicationComponent {
 	/**
 	 * Partially copied from org.jetbrains.plugins.github.GithubCheckoutProvider (became com.intellij.dvcs.ui.CloneDvcsDialog in IJ13)
 	 */
-	private static class AddPluginFromGitAction extends AnAction {
+	private static class AddPluginFromGitAction extends AnAction implements DumbAware {
 		private static final Logger LOG = Logger.getInstance(AddPluginFromGitAction.class);
 
 		private AddPluginFromGitAction() {

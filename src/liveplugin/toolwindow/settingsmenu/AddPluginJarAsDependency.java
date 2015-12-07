@@ -2,6 +2,7 @@ package liveplugin.toolwindow.settingsmenu;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.PathUtil;
 import liveplugin.LivePluginAppComponent;
@@ -14,7 +15,7 @@ import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static com.intellij.openapi.util.Pair.create;
 
-public class AddPluginJarAsDependency extends AnAction {
+public class AddPluginJarAsDependency extends AnAction implements DumbAware {
 	private static final String LIVE_PLUGIN_LIBRARY = "LivePlugin";
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {

@@ -3,6 +3,7 @@ package liveplugin.toolwindow.addplugin;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 
 @SuppressWarnings("ComponentNotRegistered")
-public class AddNewPluginAction extends AnAction {
+public class AddNewPluginAction extends AnAction implements DumbAware {
 	private static final Logger log = Logger.getInstance(AddNewPluginAction.class);
 	private static final String addNewPluginTitle = "Add New Plugin";
 

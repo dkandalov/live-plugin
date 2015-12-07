@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.text.StringUtil;
@@ -21,7 +22,7 @@ import java.util.List;
 
 import static com.intellij.util.containers.ContainerUtil.map;
 
-class DeletePluginAction extends AnAction {
+class DeletePluginAction extends AnAction implements DumbAware {
 	private static final Logger LOG = Logger.getInstance(DeletePluginAction.class);
 
 

@@ -17,10 +17,6 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-/**
- * User: dima
- * Date: 20/01/2013
- */
 public class RenameFileAction extends FileChooserAction {
 
 	@Override protected void actionPerformed(final FileSystemTree fileSystemTree, final AnActionEvent event) {

@@ -1,4 +1,5 @@
 package liveplugin.testrunner
+
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Location
 import com.intellij.execution.RunManager
@@ -25,7 +26,11 @@ import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.testframework.ui.TestResultsPanel
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
@@ -93,7 +98,7 @@ class JUnitPanel implements TestReporter {
 
 	private static createActionToolbar(Closure rerunCallback, RunContentDescriptor descriptor, Project project, JComponent targetComponent) {
 		def actionGroup = new DefaultActionGroup()
-		actionGroup.add(new AnAction("Rerun plugin integration tests", "", IDEUtil.RERUN_PLUGIN_TEST_ICON) {
+		actionGroup.add(new DumbAwareAction("Rerun plugin integration tests", "", IDEUtil.RERUN_PLUGIN_TEST_ICON) {
 			@Override void actionPerformed(AnActionEvent e) {
 				rerunCallback(descriptor)
 			}

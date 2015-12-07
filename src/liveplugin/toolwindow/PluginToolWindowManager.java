@@ -13,7 +13,6 @@
  */
 package liveplugin.toolwindow;
 
-import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.DefaultTreeExpander;
 import com.intellij.ide.DeleteProvider;
 import com.intellij.ide.actions.CollapseAllAction;
@@ -228,7 +227,7 @@ public class PluginToolWindowManager {
 
 		public void registerWindowFor(Project project) {
 			ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-			toolWindow = toolWindowManager.registerToolWindow(PLUGINS_TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
+			toolWindow = toolWindowManager.registerToolWindow(PLUGINS_TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT, project, true);
 			toolWindow.setIcon(IDEUtil.PLUGIN_TOOLWINDOW_ICON);
 
 			toolWindow.getContentManager().addContent(createContent(project));
@@ -301,7 +300,7 @@ public class PluginToolWindowManager {
 			actionGroup.add(withIcon(IDEUtil.COLLAPSE_ALL_ICON, new CollapseAllAction()));
 			actionGroup.addSeparator();
 			actionGroup.add(withIcon(IDEUtil.SETTINGS_ICON, createSettingsGroup()));
-			actionGroup.add(withIcon(IDEUtil.HELP_ICON, createHelpAction()));
+            actionGroup.add(withIcon(IDEUtil.HELP_ICON, new ShowHelpAction()));
 
 			// this is a "hack" to force drop-down box appear below button
 			// (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
@@ -311,14 +310,6 @@ public class PluginToolWindowManager {
 			toolBarPanel.add(ActionManager.getInstance().createActionToolbar(place, actionGroup, true).getComponent());
 			return toolBarPanel;
 		}
-
-        private static AnAction createHelpAction() {
-            return new AnAction("Show help on GitHub") {
-                @Override public void actionPerformed(@NotNull AnActionEvent e) {
-                    BrowserUtil.open("https://github.com/dkandalov/live-plugin#liveplugin");
-                }
-            };
-        }
 
         private static AnAction createSettingsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Settings", true) {
@@ -395,7 +386,8 @@ public class PluginToolWindowManager {
 		public boolean isActive() {
 			return toolWindow.isActive();
 		}
-	}
+
+    }
 
 	private static class MySimpleToolWindowPanel extends SimpleToolWindowPanel {
 		private final Ref<FileSystemTree> fileSystemTree;
@@ -464,4 +456,5 @@ public class PluginToolWindowManager {
 			return fileDeleteProvider.canDeleteElement(dataContext);
 		}
 	}
+
 }

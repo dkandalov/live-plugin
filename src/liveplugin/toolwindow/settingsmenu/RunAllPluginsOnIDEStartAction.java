@@ -2,9 +2,10 @@ package liveplugin.toolwindow.settingsmenu;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.project.DumbAware;
 import liveplugin.Settings;
 
-public class RunAllPluginsOnIDEStartAction extends ToggleAction {
+public class RunAllPluginsOnIDEStartAction extends ToggleAction implements DumbAware {
 	public RunAllPluginsOnIDEStartAction() {
 		super("Run All Live Plugins on IDE Start");
 	}

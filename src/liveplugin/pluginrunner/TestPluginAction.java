@@ -15,6 +15,7 @@ package liveplugin.pluginrunner;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.DumbAware;
 import liveplugin.IDEUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +24,7 @@ import java.util.List;
 
 import static liveplugin.pluginrunner.GroovyPluginRunner.TEST_SCRIPT;
 
-public class TestPluginAction extends AnAction {
+public class TestPluginAction extends AnAction implements DumbAware {
 	public TestPluginAction() {
 		super("Test Plugin", "Test selected plugins", IDEUtil.TEST_PLUGIN_ICON);
 	}

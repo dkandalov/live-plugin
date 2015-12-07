@@ -19,6 +19,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Disposer;
@@ -44,7 +45,7 @@ import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.pluginrunner.GroovyPluginRunner.MAIN_SCRIPT;
 import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
-public class RunPluginAction extends AnAction {
+public class RunPluginAction extends AnAction implements DumbAware {
 	private static final SingleThreadBackgroundRunner backgroundRunner = new SingleThreadBackgroundRunner("LivePlugin thread");
 	private static final Function<Runnable,Void> RUN_ON_EDT = new Function<Runnable, Void>() {
 		@Override public Void fun(Runnable runnable) {

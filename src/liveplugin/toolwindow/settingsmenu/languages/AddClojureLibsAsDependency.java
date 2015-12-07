@@ -2,6 +2,7 @@ package liveplugin.toolwindow.settingsmenu.languages;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.util.Pair;
@@ -18,7 +19,7 @@ import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
-public class AddClojureLibsAsDependency extends AnAction {
+public class AddClojureLibsAsDependency extends AnAction implements DumbAware {
 	private static final String LIBRARY_NAME = "LivePlugin - Clojure";
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {

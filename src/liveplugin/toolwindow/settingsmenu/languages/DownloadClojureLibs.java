@@ -3,6 +3,7 @@ package liveplugin.toolwindow.settingsmenu.languages;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
@@ -16,7 +17,7 @@ import static liveplugin.IDEUtil.downloadFiles;
 import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
-public class DownloadClojureLibs extends AnAction {
+public class DownloadClojureLibs extends AnAction implements DumbAware {
 	public static final String LIB_FILES_PATTERN = "clojure-.*jar";
 	private static final String APPROXIMATE_SIZE = "(~5Mb)";
 
