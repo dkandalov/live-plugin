@@ -319,8 +319,10 @@ class PluginUtil {
 	 * @param actionId id of action to wrap
 	 * @param actionGroupIds (optional) action groups ids in which action is registered;
 	 *        can be used to update actions in menus, etc. (this is needed because action groups reference actions directly)
-	 * @param callback will be invoked instead of wrapped action;
-	 *        {@link ActionWrapper.Context} is passed as parameter
+	 * @param callback will be invoked instead of wrapped action,
+	 *        it takes as arguments {@link AnActionEvent} representing current event
+	 *        and {@link Closure} which will delegate to original action
+	 *        (it can optionally take another {@link AnActionEvent} if the original one need to be substituted).
 	 * @return wrapped action or null if there are no actions for {@code actionId}
 	 */
 	@CanCallFromAnyThread

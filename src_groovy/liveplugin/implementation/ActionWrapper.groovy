@@ -16,29 +16,6 @@ import java.lang.reflect.Method
 class ActionWrapper {
 	private static final Logger log = Logger.getInstance(ActionWrapper.class)
 
-	static class Context {
-		final AnActionEvent event
-		private final Closure invokeActionCallback
-
-		Context(AnActionEvent event, Closure invokeActionCallback) {
-			this.event = event
-			this.invokeActionCallback = invokeActionCallback
-		}
-
-		def invokeAction() {
-			invokeActionCallback.call()
-		}
-
-		/**
-		 * @param actionEvent event context which will be used to invoke original action.
-		 * The main reason is to be able to wrap action with some other long running action
-		 * and then call original action in different context (e.g. wrap with "compile project" action)
-		 */
-		def invokeAction(AnActionEvent actionEvent) {
-			invokeActionCallback.call(actionEvent)
-		}
-	}
-
 
 	static AnAction wrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
 		AnAction action = ActionManager.instance.getAction(actionId)
@@ -160,11 +137,11 @@ class ActionWrapper {
 
 
 	private static interface Listener {
-		void onAction(Context context)
+		void onAction(AnActionEvent event, Closure originalActionCallback)
 	}
 
 
-	static interface DelegatesToAction {
+	private static interface DelegatesToAction {
 		static final methodName = "originalAction"
 
 		@SuppressWarnings([ "GroovyUnusedDeclaration" ]) // used via reflection
@@ -182,10 +159,10 @@ class ActionWrapper {
 		}
 
 		@Override void actionPerformed(@NotNull AnActionEvent event) {
-			listener.onAction(new Context(event, {
-				if (it != null) originalAction.actionPerformed(it)
-				else originalAction.actionPerformed(event)
-			}))
+			listener.onAction(event) { AnActionEvent event2 ->
+				if (event2 != null) event = event2
+				originalAction.actionPerformed(event)
+			}
 		}
 
 		@Override void update(@NotNull AnActionEvent event) {
@@ -259,15 +236,15 @@ class ActionWrapper {
 		}
 
 		@Override protected void doExecute(Editor editor, Caret caret, DataContext dataContext) {
-			listener.onAction(new Context(event, {
-				originalAction.handler.execute(editor, caret, dataContext)
-			}))
+			listener.onAction(event) { AnActionEvent event ->
+				if (event != null) dataContext = event.dataContext
+				originalAction.handler.doExecute(editor, caret, dataContext)
+			}
 		}
 
-		// TODO
-//		@Override protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
-//		    return originalAction.getHandler().isEnabled(editor, caret, dataContext)
-//		}
+		@Override protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
+		    originalAction.handler.isEnabled(editor, caret, dataContext)
+		}
 
 		@Override DocCommandGroupId getCommandGroupId(Editor editor) {
 			originalAction.handler.getCommandGroupId(editor)
