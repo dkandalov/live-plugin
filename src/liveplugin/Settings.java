@@ -45,11 +45,10 @@ public class Settings implements PersistentStateComponent<Settings> {
 	public static void countPluginsUsage(Collection<String> pluginIds) {
 		Map<String, Integer> pluginsUsage = Settings.getInstance().pluginsUsage;
 		for (String pluginId : pluginIds) {
-			if (pluginsUsage.containsKey(pluginId))
-				pluginsUsage.put(pluginId, pluginsUsage.get(pluginId) + 1);
-			else
-				pluginsUsage.put(pluginId, 1);
-		}
+            Integer count = pluginsUsage.get(pluginId);
+            if (count == null) count = 0;
+            pluginsUsage.put(pluginId, count + 1);
+        }
 	}
 
 }
