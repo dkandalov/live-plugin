@@ -12,6 +12,7 @@ import scala.tools.nsc.Settings;
 import scala.tools.nsc.interpreter.IMain;
 import scala.tools.nsc.interpreter.Results;
 import scala.tools.nsc.settings.MutableSettings;
+import scala.xml.Null;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -132,12 +133,10 @@ class ScalaPluginRunner implements PluginRunner {
 
 			interpreterOutput.getBuffer().delete(0, interpreterOutput.getBuffer().length());
 			for (Map.Entry<String, ?> entry : binding.entrySet()) {
-                interpreter.bind(
-                        entry.getKey(),
-                        entry.getValue().getClass().getCanonicalName(),
-                        entry.getValue(),
-                        package$.MODULE$.List().<String>empty()
-                );
+				String key = entry.getKey();
+				Object value = entry.getValue();
+				String valueClassName = value == null ? Null.class.getCanonicalName() : value.getClass().getCanonicalName();
+				interpreter.bind(key, valueClassName, value, package$.MODULE$.List().<String>empty());
 			}
 		}
 
