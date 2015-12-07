@@ -62,11 +62,11 @@ class ActionWrapper {
 
 		AnAction wrapperAction
 		if (action instanceof EditorAction) {
-			wrapperAction = new WrappedEditorAction(callback as Listener, (EditorAction) action)
+			wrapperAction = new WrappedEditorAction((EditorAction) action, callback as Listener)
 		} else if (action instanceof DumbAware || action instanceof PossiblyDumbAware) {
-			wrapperAction = new WrappedActionPossiblyDumbAware(callback as Listener, action)
+			wrapperAction = new WrappedActionPossiblyDumbAware(action, callback as Listener)
 		} else {
-			wrapperAction = new WrappedAction(callback as Listener, action)
+			wrapperAction = new WrappedAction(action, callback as Listener)
 		}
 		wrapperAction.getTemplatePresentation().setText(action.getTemplatePresentation().getText())
 		wrapperAction.getTemplatePresentation().setIcon(action.getTemplatePresentation().getIcon())
@@ -118,7 +118,7 @@ class ActionWrapper {
 
 	private static AnAction originalActionOf(AnAction wrappedAction) {
 		for (Method method : wrappedAction.class.methods) {
-			if (method.name.equals("originalAction")) {
+			if (method.name.equals(DelegatesToAction.methodName)) {
 				try {
 					method.accessible = true
 					return (AnAction) method.invoke(wrappedAction)
@@ -149,7 +149,7 @@ class ActionWrapper {
 		Misc.accessField(group, "mySortedChildren") { List<AnAction> actions ->
 			def actionIndex = actions.findIndexOf {
 				if (it == null) return
-				def id = 	ActionManager.instance.getId(it)
+				def id = ActionManager.instance.getId(it)
 				id == actionId
 			}
 			if (actionIndex >= 0) {
@@ -159,7 +159,7 @@ class ActionWrapper {
 		Misc.accessField(group, "myPairs") { List<Pair<AnAction, Constraints>> pairs ->
 			def pairIndex = pairs.findIndexOf {
 				if (it == null || it.first == null) return
-				def id = 	ActionManager.instance.getId(it.first)
+				def id = ActionManager.instance.getId(it.first)
 				id == actionId
 			}
 			if (pairIndex >= 0) {
@@ -176,7 +176,9 @@ class ActionWrapper {
 
 
 	static interface DelegatesToAction {
-		@SuppressWarnings("UnusedDeclaration") // used via reflection
+		static final methodName = "originalAction"
+
+		@SuppressWarnings([ "GroovyUnusedDeclaration" ]) // used via reflection
 		AnAction originalAction()
 	}
 
@@ -185,7 +187,7 @@ class ActionWrapper {
 		private final Listener listener
 		private final AnAction originalAction
 
-		WrappedAction(Listener listener, AnAction originalAction) {
+		WrappedAction(AnAction originalAction, Listener listener) {
 			this.listener = listener
 			this.originalAction = originalAction
 		}
@@ -210,8 +212,8 @@ class ActionWrapper {
 	private static class WrappedActionPossiblyDumbAware extends WrappedAction implements PossiblyDumbAware, DelegatesToAction {
 		private final AnAction originalAction
 
-		WrappedActionPossiblyDumbAware(Listener listener, AnAction originalAction) {
-			super(listener, originalAction)
+		WrappedActionPossiblyDumbAware(AnAction originalAction, Listener listener) {
+			super(originalAction, listener)
 			this.originalAction = originalAction
 		}
 
@@ -226,7 +228,7 @@ class ActionWrapper {
 		private final EditorAction originalAction
 		private AnActionEvent event
 
-		protected WrappedEditorAction(final Listener listener, final EditorAction originalAction) {
+		protected WrappedEditorAction(EditorAction originalAction, Listener listener) {
 			super(new EditorActionHandler() {
 				@Override protected void doExecute(Editor editor, Caret caret, DataContext dataContext) {
 					listener.onAction(new Context(event, {
@@ -235,9 +237,9 @@ class ActionWrapper {
 				}
 
 				// TODO
-//      @Override protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
-//        return originalAction.getHandler().isEnabled(editor, caret, dataContext)
-//      }
+//				@Override protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
+//					return originalAction.getHandler().isEnabled(editor, caret, dataContext)
+//				}
 
 				@Override DocCommandGroupId getCommandGroupId(Editor editor) {
 					originalAction.handler.getCommandGroupId(editor)
