@@ -13,8 +13,6 @@
  */
 package liveplugin;
 
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
@@ -46,7 +44,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.intellij.openapi.extensions.PluginId.getId;
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static java.util.Arrays.asList;
 import static liveplugin.IDEUtil.askIfUserWantsToRestartIde;
@@ -200,14 +197,6 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	}
 
 	@Override public void initComponent() {
-		IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(getId("IntelliJEval"));
-		if (pluginDescriptor != null && pluginDescriptor.isEnabled()) {
-			livePluginNotificationGroup.createNotification(
-					"It seems that you have IntelliJEval plugin enabled.<br/>Please disable it to use LivePlugin.",
-					NotificationType.ERROR
-			).notify(null);
-			return;
-		}
 		checkThatGroovyIsOnClasspath();
 
 		Settings settings = Settings.getInstance();
