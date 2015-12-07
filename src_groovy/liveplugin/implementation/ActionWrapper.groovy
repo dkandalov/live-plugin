@@ -1,5 +1,4 @@
 package liveplugin.implementation
-
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Caret
@@ -43,10 +42,8 @@ class ActionWrapper {
 
 	static AnAction wrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
 		AnAction action = ActionManager.instance.getAction(actionId)
-		if (action == null) {
-			log.warn("Couldn't wrap action " + actionId + " because it was not found")
-			return null
-		}
+		if (action == null) throw new IllegalStateException("Couldn't wrap action '" + actionId + "' because it was not found")
+
 		if (isWrapped(action)) {
 			unwrapAction(actionId, actionGroups)
 		}
@@ -55,14 +52,11 @@ class ActionWrapper {
 
 	static AnAction doWrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
 		AnAction action = ActionManager.instance.getAction(actionId)
-		if (action == null) {
-			log.warn("Couldn't wrap action " + actionId + " because it was not found")
-			return null
-		}
+		if (action == null) throw new IllegalStateException("Couldn't wrap action '" + actionId + "' because it was not found")
 
 		AnAction wrapperAction
 		if (action instanceof EditorAction) {
-			wrapperAction = new WrappedEditorAction((EditorAction) action, callback as Listener)
+			wrapperAction = new WrappedEditorAction(new WrappedEditorActionHandler(action, callback as Listener)).init(action)
 		} else if (action instanceof DumbAware || action instanceof PossiblyDumbAware) {
 			wrapperAction = new WrappedActionPossiblyDumbAware(action, callback as Listener)
 		} else {
@@ -86,19 +80,13 @@ class ActionWrapper {
 	static AnAction unwrapAction(String actionId, List<String> actionGroups = []) {
 		ActionManager actionManager = ActionManager.instance
 		AnAction action = actionManager.getAction(actionId)
-		if (action == null) {
-			log.warn("Couldn't unwrap action " + actionId + " because it was not found")
-			return null
-		}
-		if (!isWrapped(action)) {
-			log.warn("Action " + actionId + " is not wrapped")
-			return action
-		}
+		if (action == null) throw new IllegalStateException("Couldn't unwrap action '" + actionId + "' because it was not found")
+		if (!isWrapped(action)) throw new IllegalStateException("Action '" + actionId + "' is not wrapped")
 
 		def originalAction = originalActionOf(action)
 		actionManager.unregisterAction(actionId)
 		actionManager.registerAction(actionId, originalAction)
-		log.info("Unwrapped action " + actionId)
+		log.info("Unwrapped action '" + actionId + "'")
 
 		actionGroups.each { replaceActionInGroup(it, actionId, originalAction) }
 
@@ -117,17 +105,19 @@ class ActionWrapper {
 
 
 	private static AnAction originalActionOf(AnAction wrappedAction) {
+		def lastException = null
 		for (Method method : wrappedAction.class.methods) {
 			if (method.name.equals(DelegatesToAction.methodName)) {
 				try {
 					method.accessible = true
 					return (AnAction) method.invoke(wrappedAction)
 				} catch (Exception e) {
-					log.warn(e)
+					lastException = e
 				}
 			}
 		}
-		throw new IllegalStateException()
+		if (lastException != null) throw lastException
+		else throw new IllegalStateException()
 	}
 
 	private static boolean isWrapped(AnAction wrappedAction) {
@@ -142,8 +132,7 @@ class ActionWrapper {
 	private static replaceActionInGroup(String actionGroupId, String actionId, AnAction newAction) {
 		def group = ActionManager.instance.getAction(actionGroupId)
 		if (!group instanceof DefaultActionGroup) {
-			log.warn("'${actionGroupId}' has type '${actionGroupId.class}' which is not supported")
-			return
+			throw new IllegalStateException("'${actionGroupId}' has type '${actionGroupId.class}' which is not supported")
 		}
 
 		Misc.accessField(group, "mySortedChildren") { List<AnAction> actions ->
@@ -225,44 +214,29 @@ class ActionWrapper {
 
 
 	private static class WrappedEditorAction extends EditorAction implements DelegatesToAction {
-		private final EditorAction originalAction
-		private AnActionEvent event
+		private EditorAction originalAction
+		private final WrappedEditorActionHandler editorActionHandler
 
-		protected WrappedEditorAction(EditorAction originalAction, Listener listener) {
-			super(new EditorActionHandler() {
-				@Override protected void doExecute(Editor editor, Caret caret, DataContext dataContext) {
-					listener.onAction(new Context(event, {
-						originalAction.handler.execute(editor, caret, dataContext)
-					}))
-				}
+		protected WrappedEditorAction(WrappedEditorActionHandler editorActionHandler) {
+			super(editorActionHandler)
+			this.editorActionHandler = editorActionHandler
+		}
 
-				// TODO
-//				@Override protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
-//					return originalAction.getHandler().isEnabled(editor, caret, dataContext)
-//				}
-
-				@Override DocCommandGroupId getCommandGroupId(Editor editor) {
-					originalAction.handler.getCommandGroupId(editor)
-				}
-
-				@Override boolean runForAllCarets() {
-					originalAction.handler.runForAllCarets()
-				}
-
-				@Override boolean executeInCommand(Editor editor, DataContext dataContext) {
-					originalAction.handler.executeInCommand(editor, dataContext)
-				}
-			})
+		// use init() method to avoid anything complex in constructor,
+		// otherwise groovy fails with obscure "java.lang.VerifyError ... Expecting to find object/array on stack"
+		WrappedEditorAction init(EditorAction originalAction) {
 			this.originalAction = originalAction
 
 			// Force loading action handler.
 			// (It seems that handlers cannot be re-wrapped without calling
 			// com.intellij.openapi.editor.actionSystem.EditorAction#ensureHandlersLoaded.)
-			setupHandler(handler)
+			setupHandler(getHandler())
+			this
 		}
 
 		@Override void beforeActionPerformedUpdate(@NotNull AnActionEvent event) {
 			super.beforeActionPerformedUpdate(event)
+			editorActionHandler.event = event
 		}
 
 		@Override void update(@NotNull AnActionEvent event) {
@@ -271,6 +245,40 @@ class ActionWrapper {
 
 		@Override AnAction originalAction() {
 			originalAction
+		}
+	}
+
+	private static class WrappedEditorActionHandler extends EditorActionHandler {
+		private final EditorAction originalAction
+		private final Listener listener
+		AnActionEvent event
+
+		WrappedEditorActionHandler(EditorAction originalAction, Listener listener) {
+			this.originalAction = originalAction
+			this.listener = listener
+		}
+
+		@Override protected void doExecute(Editor editor, Caret caret, DataContext dataContext) {
+			listener.onAction(new Context(event, {
+				originalAction.handler.execute(editor, caret, dataContext)
+			}))
+		}
+
+		// TODO
+//		@Override protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
+//		    return originalAction.getHandler().isEnabled(editor, caret, dataContext)
+//		}
+
+		@Override DocCommandGroupId getCommandGroupId(Editor editor) {
+			originalAction.handler.getCommandGroupId(editor)
+		}
+
+		@Override boolean runForAllCarets() {
+			originalAction.handler.runForAllCarets()
+		}
+
+		@Override boolean executeInCommand(Editor editor, DataContext dataContext) {
+			originalAction.handler.executeInCommand(editor, dataContext)
 		}
 	}
 }
