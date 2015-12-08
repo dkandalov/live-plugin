@@ -228,11 +228,16 @@ class PluginUtil {
 
 	/**
 	 * @param searchString string which is contained in action id, text or class name
-	 * @return collection of tuples (arrays) in the form of [id, action instance]
+	 * @return collection of matching actions
 	 */
 	@CanCallFromAnyThread
-	static Collection findAllActions(String searchString) {
+	static Collection<AnAction> findAllActions(String searchString) {
 		ActionSearch.findAllActions(searchString)
+	}
+
+	@CanCallFromAnyThread
+	@Nullable static AnAction actionById(String actionId) {
+		ActionSearch.actionById(actionId)
 	}
 
 	/**

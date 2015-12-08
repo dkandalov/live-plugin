@@ -2,21 +2,21 @@ package liveplugin.implementation
 
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
+import org.jetbrains.annotations.Nullable
 
 class ActionSearch {
-	static Collection findAllActions(String s) {
+	static Collection<AnAction> findAllActions(String s) {
 		s = s.toLowerCase().trim()
-
-		allActionIds().findResults{ String id ->
-			def action = actionById(id)
-			if (id.toLowerCase().contains(s) ||
-					action.class.simpleName.toLowerCase().contains(s) ||
-					action.templatePresentation?.text?.toLowerCase()?.contains(s)) {
-				[id, action]
-			} else {
-				null
-			}
+		def matches = { AnAction action ->
+			action.class.simpleName.toLowerCase().contains(s) ||
+			action.templatePresentation?.text?.toLowerCase()?.contains(s)
 		}
+		allActionIds()
+			.collect{ String id ->
+				def action = actionById(id)
+				id.toLowerCase().contains(s) || matches(action) ? action : null
+			}
+			.findAll{ it != null }
 	}
 
 	static Collection<AnAction> allActions() {
@@ -27,7 +27,7 @@ class ActionSearch {
 		ActionManager.instance.getActionIds("")
 	}
 
-	static AnAction actionById(String id) {
+	@Nullable static AnAction actionById(String id) {
 		ActionManager.instance.getAction(id)
 	}
 }
