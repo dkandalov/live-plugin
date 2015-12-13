@@ -867,7 +867,7 @@ class PluginUtil {
 		if (dataContext == null) {
 			dataContext = new MapDataContext()
 			def dummyComponent = new JPanel()
-			dataContext.put(PlatformDataKeys.CONTEXT_COMPONENT, dummyComponent)
+			dataContext.put(PlatformDataKeys.CONTEXT_COMPONENT.name, dummyComponent)
 		}
 		JBPopupFactory.instance.createActionGroupPopup(
 				popupTitle,

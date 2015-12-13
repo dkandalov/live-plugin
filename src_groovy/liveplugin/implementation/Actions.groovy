@@ -122,7 +122,7 @@ class Actions {
 
 	private static executeLivePlugin(@NotNull String pluginId, @NotNull Project project, Closure<List> createRunners) {
 		def dataContext = new MapDataContext()
-		dataContext.put(CommonDataKeys.PROJECT, project)
+		dataContext.put(CommonDataKeys.PROJECT.name, project)
 		def dummyEvent = new AnActionEvent(null, dataContext, "", new Presentation(), ActionManager.instance, 0)
 		def errorReporter = new ErrorReporter()
 		def pluginRunners = createRunners(errorReporter)
