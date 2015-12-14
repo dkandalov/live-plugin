@@ -61,7 +61,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.ProjectScope
-import com.intellij.testFramework.MapDataContext
 import com.intellij.ui.content.ContentFactory
 import com.intellij.util.IncorrectOperationException
 import liveplugin.implementation.*
@@ -857,17 +856,22 @@ class PluginUtil {
 		actionGroup
 	}
 
+	static showPopupMenu(Map menuDescription, String popupTitle = "", JComponent contextComponent) {
+		showPopupMenu(menuDescription, popupTitle, new MapDataContext().put(PlatformDataKeys.CONTEXT_COMPONENT.name, contextComponent))
+	}
+
 	/**
 	 * Shows popup menu in which each leaf item is associated with action.
 	 *
 	 * @param menuDescription see javadoc for {@link #createNestedActionGroup(java.util.Map)}
-	 * @param popupTitle (optional)
+	 * @param popupTitle (optional) the title of the popup
+	 * @param dataContext (optional) the data context which provides the data for the selected action
 	 */
 	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null) {
 		if (dataContext == null) {
-			dataContext = new MapDataContext()
+			// this is to prevent createActionGroupPopup() from crashing without context component
 			def dummyComponent = new JPanel()
-			dataContext.put(PlatformDataKeys.CONTEXT_COMPONENT.name, dummyComponent)
+			dataContext = new MapDataContext().put(PlatformDataKeys.CONTEXT_COMPONENT.name, dummyComponent)
 		}
 		JBPopupFactory.instance.createActionGroupPopup(
 				popupTitle,

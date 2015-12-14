@@ -11,7 +11,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.IdeFocusManager
-import com.intellij.testFramework.MapDataContext
 import liveplugin.PluginUtil
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.RunPluginAction
@@ -121,8 +120,7 @@ class Actions {
 	}
 
 	private static executeLivePlugin(@NotNull String pluginId, @NotNull Project project, Closure<List> createRunners) {
-		def dataContext = new MapDataContext()
-		dataContext.put(CommonDataKeys.PROJECT.name, project)
+		def dataContext = new MapDataContext().put(CommonDataKeys.PROJECT.name, project)
 		def dummyEvent = new AnActionEvent(null, dataContext, "", new Presentation(), ActionManager.instance, 0)
 		def errorReporter = new ErrorReporter()
 		def pluginRunners = createRunners(errorReporter)
