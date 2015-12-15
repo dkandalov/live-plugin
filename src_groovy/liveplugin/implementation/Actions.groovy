@@ -15,7 +15,6 @@ import liveplugin.PluginUtil
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.TestPluginAction
-import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
@@ -135,14 +134,6 @@ class Actions {
 	                     Presentation templatePresentation = new Presentation()) {
 		def actionManager = ActionManager.instance
 		new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, templatePresentation, actionManager, 0)
-	}
-
-	static DataContext newDataContext(Map map = [:]) {
-		new DataContext() {
-			@Override Object getData(@NonNls String dataId) {
-				map[dataId]
-			}
-		}
 	}
 
 	static DataContext dataContextFromFocus() {

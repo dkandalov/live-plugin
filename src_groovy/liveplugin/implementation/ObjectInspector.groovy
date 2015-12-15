@@ -4,7 +4,6 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.ui.popup.IconButton
 import com.intellij.openapi.ui.popup.JBPopupFactory
-import liveplugin.TreeUI
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier

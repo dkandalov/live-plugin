@@ -1,4 +1,4 @@
-package liveplugin
+package liveplugin.implementation
 
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.ui.ScrollPaneFactory

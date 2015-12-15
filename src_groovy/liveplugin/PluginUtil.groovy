@@ -64,6 +64,7 @@ import com.intellij.psi.search.ProjectScope
 import com.intellij.ui.content.ContentFactory
 import com.intellij.util.IncorrectOperationException
 import liveplugin.implementation.*
+import org.jetbrains.annotations.Contract
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -79,7 +80,7 @@ import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
  * Some of them are very simple and were added to this class only for reference.
  *
  * If you are new to IntelliJ API,
- * see also http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview
+ * see also http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview.html
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
@@ -297,21 +298,21 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
-	static registerInspection(Project project, InspectionProfileEntry inspection) {
+	static registerInspection(@NotNull Project project, InspectionProfileEntry inspection) {
 		runWriteAction {
 			Inspections.registerInspection(project, inspection)
 		}
 	}
 
 	@CanCallFromAnyThread
-	static unregisterInspection(Project project, InspectionProfileEntry inspection) {
+	static unregisterInspection(@NotNull Project project, InspectionProfileEntry inspection) {
 		runWriteAction {
 			Inspections.unregisterInspection(project, inspection)
 		}
 	}
 
 	@CanCallFromAnyThread
-	static unregisterInspection(Project project, String inspectionName) {
+	static unregisterInspection(@NotNull Project project, String inspectionName) {
 		runWriteAction {
 			Inspections.unregisterInspection(project, inspectionName)
 		}
@@ -470,7 +471,7 @@ class PluginUtil {
 	  }
 	}
 
-	static ToolWindow registerToolWindowIn(Project project, String toolWindowId, JComponent component, ToolWindowAnchor location = RIGHT) {
+	static ToolWindow registerToolWindowIn(@NotNull Project project, String toolWindowId, JComponent component, ToolWindowAnchor location = RIGHT) {
 		def manager = ToolWindowManager.getInstance(project)
 
 		if (manager.getToolWindow(toolWindowId) != null) {
@@ -483,7 +484,7 @@ class PluginUtil {
 		toolWindow
 	}
 
-	static unregisterToolWindowIn(Project project, String toolWindowId) {
+	static unregisterToolWindowIn(@NotNull Project project, String toolWindowId) {
 		ToolWindowManager.getInstance(project).unregisterToolWindow(toolWindowId)
 	}
 
@@ -647,11 +648,11 @@ class PluginUtil {
 		FileSearch.findAllFilesByName(filePath, project, searchInLibraries)
 	}
 
-	static List<VirtualFile> sourceRootsIn(Project project) {
+	static List<VirtualFile> sourceRootsIn(@NotNull Project project) {
 		ProjectRootManager.getInstance(project).contentSourceRoots.toList()
 	}
 
-	static List<VcsRoot> vcsRootsIn(Project project) {
+	static List<VcsRoot> vcsRootsIn(@NotNull Project project) {
 		ProjectRootManager.getInstance(project).contentSourceRoots
 				.collect{ ProjectLevelVcsManager.getInstance(project).getVcsRootObjectFor(it) }
 				.findAll{ it.path != null }.unique()
@@ -836,6 +837,7 @@ class PluginUtil {
 	 * @param actionGroup (optional) action group to which actions will be added
 	 * @return actionGroup with actions
 	 */
+	@Contract(pure = true)
 	static ActionGroup createNestedActionGroup(Map description, actionGroup = new DefaultActionGroup()) {
 		description.each { entry ->
 			if (entry.value instanceof Closure) {
