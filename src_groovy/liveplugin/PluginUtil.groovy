@@ -81,13 +81,18 @@ import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
+	static final Logger LOG = Logger.getInstance("LivePlugin")
+
 	/**
 	 * Action group id for Main Menu -> Tools.
 	 * Can be used in {@link #registerAction(java.lang.String, com.intellij.openapi.actionSystem.AnAction)}.
 	 *
 	 * The only reason to have it here is that there is no constant for it in IntelliJ source code.
 	 */
-	static String TOOLS_MENU = "ToolsMenu"
+	static final String TOOLS_MENU = "ToolsMenu"
+
+	// thread-confined to EDT
+	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new HashMap()
 
 
 	@CanCallFromAnyThread
@@ -917,14 +922,17 @@ class PluginUtil {
 		url
 	}
 
+	@CanCallFromAnyThread
 	static Map execute(String fullCommand) {
 		ShellCommands.execute(fullCommand)
 	}
 
+	@CanCallFromAnyThread
 	static Map execute(String command, String parameters) {
 		ShellCommands.execute(command, parameters)
 	}
 
+	@CanCallFromAnyThread
 	static Map execute(String command, Collection<String> parameters) {
 		ShellCommands.execute(command, parameters)
 	}
@@ -995,12 +1003,6 @@ class PluginUtil {
 		//    at com.intellij.openapi.application.impl.ApplicationImpl.runReadAction(ApplicationImpl.java:932)
 		//    at com.intellij.openapi.components.impl.ServiceManagerImpl$MyComponentAdapter.getComponentInstance(ServiceManagerImpl.java:139)
 	}
-
-
-	static final Logger LOG = Logger.getInstance("LivePlugin")
-
-	// thread-confined to EDT
-	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new HashMap()
 }
 
 // Annotations to make clear which thread particular method can be invoked from.
