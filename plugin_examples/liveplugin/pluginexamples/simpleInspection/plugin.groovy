@@ -14,7 +14,7 @@ import static liveplugin.PluginUtil.show
 
 // (Please note this example won't work in IDEs without Java support.)
 
-registerInspection(project, new HelloWorldInspection())
+registerInspection(pluginDisposable, new HelloWorldInspection())
 show("Loaded hello world inspection<br/>It replaces \"hello\" string literal in Java code with \"Hello world\"")
 
 
