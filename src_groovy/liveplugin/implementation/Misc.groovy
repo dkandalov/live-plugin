@@ -54,12 +54,18 @@ class Misc {
 		}
 	}
 
-	static Disposable newDisposable(Disposable... parents) {
+	static Disposable newDisposable(Disposable parent, Closure closure = {}) {
+		newDisposable([parent], closure)
+	}
+
+	static Disposable newDisposable(Collection<Disposable> parents, Closure closure = {}) {
 		def disposable = new Disposable() {
-			@Override void dispose() {}
+			@Override void dispose() {
+				closure()
+			}
 		}
-		parents.each {
-			Disposer.register(it, disposable)
+		parents.each { parent ->
+			Disposer.register(parent, disposable)
 		}
 		disposable
 	}

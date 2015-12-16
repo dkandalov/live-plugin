@@ -204,17 +204,17 @@ class PluginUtil {
 	 * @return instance of created action
 	 */
 	@CanCallFromAnyThread
-	static AnAction registerAction(String actionId, String keyStroke = "",
-	                               String actionGroupId = null, String displayText = actionId, Closure callback) {
+	static AnAction registerAction(String actionId, String keyStroke = "", String actionGroupId = null,
+	                               String displayText = actionId, Disposable disposable = null, Closure callback) {
 		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
-		Actions.registerAction(actionId, keyStroke, actionGroupId, displayText, callback)
+		Actions.registerAction(actionId, keyStroke, actionGroupId, displayText, disposable, callback)
 	}
 
 	@CanCallFromAnyThread
-	static AnAction registerAction(String actionId, String keyStroke = "",
-	                               String actionGroupId = null, String displayText = actionId, AnAction action) {
+	static AnAction registerAction(String actionId, String keyStroke = "", String actionGroupId = null,
+	                               String displayText = actionId, Disposable disposable = null, AnAction action) {
 		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
-		Actions.registerAction(actionId, keyStroke, actionGroupId, displayText, action)
+		Actions.registerAction(actionId, keyStroke, actionGroupId, displayText, disposable, action)
 	}
 
 	@CanCallFromAnyThread

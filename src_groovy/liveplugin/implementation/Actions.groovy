@@ -19,18 +19,20 @@ import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
 
+import static liveplugin.implementation.Misc.newDisposable
+
 class Actions {
 	private static final Logger log = Logger.getInstance(ActionWrapper.class)
 
-	static AnAction registerAction(String actionId, String keyStroke = "",
-	                               String actionGroupId = null, String displayText = actionId, Closure callback) {
-		registerAction(actionId, keyStroke, actionGroupId, displayText, new AnAction() {
+	static AnAction registerAction(String actionId, String keyStroke = "", String actionGroupId = null,
+	                               String displayText = actionId, Disposable disposable = null, Closure callback) {
+		registerAction(actionId, keyStroke, actionGroupId, displayText, disposable, new AnAction() {
 			@Override void actionPerformed(AnActionEvent event) { callback(event) }
 		})
 	}
 
-	static AnAction registerAction(String actionId, String keyStroke = "",
-	                               String actionGroupId = null, String displayText = actionId, AnAction action) {
+	static AnAction registerAction(String actionId, String keyStroke = "", String actionGroupId = null,
+	                               String displayText = actionId, Disposable disposable = null, AnAction action) {
 		def actionManager = ActionManager.instance
 		def actionGroup = findActionGroup(actionGroupId)
 
@@ -44,6 +46,10 @@ class Actions {
 		actionManager.registerAction(actionId, action)
 		actionGroup?.add(action)
 		action.templatePresentation.setText(displayText, true)
+
+		if (disposable != null) {
+			newDisposable(disposable) { unregisterAction(actionId) }
+		}
 
 		log.info("Action '${actionId}' registered")
 

@@ -31,7 +31,7 @@ class Projects {
 	static def registerProjectListener(String listenerId, ProjectManagerListener listener) {
 		Disposable disposable = (Disposable) changeGlobalVar(listenerId) { Disposable previousDisposable ->
 			if (previousDisposable != null) Disposer.dispose(previousDisposable)
-			newDisposable()
+			newDisposable([])
 		}
 		ProjectManager.instance.addProjectManagerListener(listener, disposable)
 	}

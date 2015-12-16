@@ -12,13 +12,14 @@ import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 
 import static liveplugin.implementation.GlobalVars.changeGlobalVar
+import static liveplugin.implementation.Misc.newDisposable
 
 class Inspections {
 	private static final String livePluginInspections = "LivePluginInspections"
 
 	static registerInspection(Disposable disposable, InspectionProfileEntry inspection) {
 		Projects.registerProjectListener(disposable) { Project project ->
-			def multiParentDisposable = Misc.newDisposable(disposable, project)
+			def multiParentDisposable = newDisposable([disposable, project])
 			registerInspection(project, multiParentDisposable, inspection)
 		}
 	}
