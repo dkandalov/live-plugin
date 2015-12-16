@@ -4,7 +4,9 @@ import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.codeInspection.ex.InspectionProfileImpl
 import com.intellij.codeInspection.ex.InspectionToolRegistrar
 import com.intellij.codeInspection.ex.InspectionToolWrapper
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Factory
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
@@ -14,14 +16,30 @@ import static liveplugin.implementation.GlobalVars.changeGlobalVar
 class Inspections {
 	private static final String livePluginInspections = "LivePluginInspections"
 
-	static registerInspection(Project project, InspectionProfileEntry inspection) {
+	static registerInspection(Disposable disposable, InspectionProfileEntry inspection) {
+		Projects.registerProjectListener(disposable) { Project project ->
+			def multiParentDisposable = Misc.newDisposable(disposable, project)
+			registerInspection(project, multiParentDisposable, inspection)
+		}
+	}
+
+	static registerInspection(Project project, Disposable disposable = project, InspectionProfileEntry inspection) {
 		def inspections = changeGlobalVar(livePluginInspections) { List<InspectionProfileEntry> inspections ->
 			if (inspections == null) inspections = []
 			inspections.removeAll{ it.shortName == inspection.shortName }
 			inspections.add(inspection)
 			inspections
 		} as List<InspectionProfileEntry>
+
 		reloadAdditionalProjectInspections(project, inspections)
+
+		if (disposable != null) {
+			Disposer.register(disposable, new Disposable() {
+				@Override void dispose() {
+					unregisterInspection(project, inspection)
+				}
+			})
+		}
 	}
 
 	static unregisterInspection(Project project, InspectionProfileEntry inspection) {

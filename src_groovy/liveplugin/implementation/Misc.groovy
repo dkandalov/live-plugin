@@ -1,6 +1,9 @@
 package liveplugin.implementation
+
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.util.Disposer
 import com.intellij.unscramble.UnscrambleDialog
 import liveplugin.PluginUtil
 import org.jetbrains.annotations.Nullable
@@ -49,5 +52,15 @@ class Misc {
 			}
 			null
 		}
+	}
+
+	static Disposable newDisposable(Disposable... parents) {
+		def disposable = new Disposable() {
+			@Override void dispose() {}
+		}
+		parents.each {
+			Disposer.register(it, disposable)
+		}
+		disposable
 	}
 }

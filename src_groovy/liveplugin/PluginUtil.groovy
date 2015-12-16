@@ -72,9 +72,12 @@ import java.util.regex.Pattern
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
+
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
- * Some of them are very simple and were added to this class only for reference.
+ * Some of them are very simple and were added only for reference.
+ *
+ * API of this class should be backward-compatible between major releases.
  *
  * If you are new to IntelliJ API,
  * see also http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview.html
@@ -285,6 +288,13 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
+	static registerInspection(@NotNull Disposable disposable, InspectionProfileEntry inspection) {
+		runWriteAction {
+			Inspections.registerInspection(disposable, inspection)
+		}
+	}
+
+	@CanCallFromAnyThread
 	static registerInspection(@NotNull Project project, InspectionProfileEntry inspection) {
 		runWriteAction {
 			Inspections.registerInspection(project, inspection)
@@ -381,9 +391,22 @@ class PluginUtil {
 	}
 
 	/**
+	 *
+	 * @param disposable disposable to automatically unregister listener
+	 *                   (e.g. "pluginDisposable" to remove listener on plugin reload)
+	 * @param listener invoked for all open projects and on project open events
+	 *                 (cleanup on project closed is supposed to be done through {@code disposable}
+	 */
+	@CanCallWithinRunReadActionOrFromEDT
+	static def registerProjectListener(Disposable disposable, Closure listener) {
+		Projects.registerProjectListener(disposable, listener)
+	}
+
+	/**
 	 * Registers project manager listener which will be replaced between plugin reloads.
 	 *
-	 * @param parentDisposable disposable for this listener (can be "pluginDisposable" to remove listener on plugin reload)
+	 * @param parentDisposable disposable to automatically unregister this listener
+	 *                         (e.g. "pluginDisposable" to remove listener on plugin reload)
 	 * @param listener see https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/project/ProjectManagerListener.java
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
