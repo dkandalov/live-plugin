@@ -49,7 +49,6 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Computable
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
@@ -82,6 +81,14 @@ import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
+	/**
+	 * Action group id for Main Menu -> Tools.
+	 * Can be used in {@link #registerAction(java.lang.String, com.intellij.openapi.actionSystem.AnAction)}.
+	 *
+	 * The only reason to have it here is that there is no constant for it in IntelliJ source code.
+	 */
+	static String TOOLS_MENU = "ToolsMenu"
+
 
 	@CanCallFromAnyThread
 	static <T> T invokeOnEDT(Closure closure) {
@@ -170,13 +177,6 @@ class PluginUtil {
 		Console.unregisterConsoleListener(id)
 	}
 
-	/**
-	 * Action group id for Main Menu -> Tools.
-	 * Can be used in {@link #registerAction(java.lang.String, com.intellij.openapi.actionSystem.AnAction)}.
-	 *
-	 * The only reason to have it here is that there is no constant for it in IntelliJ source code.
-	 */
-	static String TOOLS_MENU = "ToolsMenu"
 
 	/**
 	 * Registers action in IDE.
@@ -383,7 +383,7 @@ class PluginUtil {
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
 	static def registerProjectListener(Disposable parentDisposable, ProjectManagerListener listener) {
-		ProjectManager.instance.addProjectManagerListener(listener, parentDisposable)
+		Projects.registerProjectListener(parentDisposable, listener)
 	}
 
 	/**
@@ -394,13 +394,7 @@ class PluginUtil {
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
 	static def registerProjectListener(String listenerId, ProjectManagerListener listener) {
-		Disposable disposable = (Disposable) changeGlobalVar(listenerId) { Disposable previousDisposable ->
-			if (previousDisposable != null) Disposer.dispose(previousDisposable)
-			new Disposable() {
-				@Override void dispose() {}
-			}
-		}
-		ProjectManager.instance.addProjectManagerListener(listener, disposable)
+		Projects.registerProjectListener(listenerId, listener)
 	}
 
 	/**
@@ -881,19 +875,20 @@ class PluginUtil {
 	 *
 	 * For non-throwaway code get project from {@AnActionEvent}, {@DataContext} or in some other proper way.
 	 */
+	@CanCallFromAnyThread
 	@Nullable static Project currentProjectInFrame() {
-		IdeFocusManager.findInstance().lastFocusedFrame?.project
+		invokeOnEDT {
+			Projects.currentProjectInFrame()
+		}
 	}
 
 	/**
 	 * Loads and opens project from specified path.
 	 * If project is already open, switches focus to its frame.
 	 */
-	static Project openProject(@NotNull String projectPath) {
-		def projectManager = ProjectManager.instance
-		def project = projectManager.openProjects.find{ it.basePath == projectPath }
-		if (project != null) project
-		else projectManager.loadAndOpenProject(projectPath)
+	@CanCallFromAnyThread
+	@Nullable static Project openProject(@NotNull String projectPath) {
+		Projects.openProject(projectPath)
 	}
 
 	@CanCallFromAnyThread
