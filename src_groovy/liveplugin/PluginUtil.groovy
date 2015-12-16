@@ -13,7 +13,6 @@
  */
 package liveplugin
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
@@ -62,7 +61,6 @@ import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.ProjectScope
 import com.intellij.ui.content.ContentFactory
-import com.intellij.util.IncorrectOperationException
 import liveplugin.implementation.*
 import org.jetbrains.annotations.Contract
 import org.jetbrains.annotations.NotNull
@@ -226,6 +224,11 @@ class PluginUtil {
 		Actions.anActionEvent(dataContext, templatePresentation)
 	}
 
+	@CanCallFromAnyThread
+	static Collection<AnAction> allActions() {
+		ActionSearch.allActions()
+	}
+
 	/**
 	 * @param searchString string which is contained in action id, text or class name
 	 * @return collection of matching actions
@@ -257,43 +260,22 @@ class PluginUtil {
 	@CanCallFromAnyThread
 	static IntentionAction registerIntention(String intentionId, String text = intentionId,
 	                                         String familyName = text, Closure callback) {
-		def intention = new IntentionAction() {
-			@Override void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
-				callback.call([checkAvailability: false, project: project, editor: editor, file: file])
-			}
-
-			@Override boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
-				callback.call([checkAvailability: true, project: project, editor: editor, file: file])
-			}
-
-			@Override boolean startInWriteAction() { false }
-			@Override String getFamilyName() { familyName }
-			@Override String getText() { text }
+		runWriteAction {
+			Intentions.registerIntention(intentionId, text, familyName, callback)
 		}
-		registerIntention(intentionId, intention)
 	}
 
 	@CanCallFromAnyThread
 	static IntentionAction registerIntention(String intentionId, IntentionAction intention) {
 		runWriteAction {
-			changeGlobalVar(intentionId) { IntentionAction oldIntention ->
-				if (oldIntention != null) {
-					IntentionManager.instance.unregisterIntention(oldIntention)
-				}
-				IntentionManager.instance.addAction(intention)
-				intention
-			}
+			Intentions.registerIntention(intentionId, intention)
 		}
 	}
 
 	@CanCallFromAnyThread
 	static IntentionAction unregisterIntention(String intentionId) {
 		runWriteAction {
-			changeGlobalVar(intentionId) { IntentionAction oldIntention ->
-				if (oldIntention != null) {
-					IntentionManager.instance.unregisterIntention(oldIntention)
-				}
-			}
+			Intentions.unregisterIntention(intentionId)
 		}
 	}
 
@@ -1026,5 +1008,7 @@ class PluginUtil {
 	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new HashMap()
 }
 
+// Annotations to make clear which thread particular method can be invoked from.
+// See also http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/general_threading_rules.html
 @interface CanCallFromAnyThread {}
 @interface CanCallWithinRunReadActionOrFromEDT {}
