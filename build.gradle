@@ -36,12 +36,14 @@ sourceSets {
 }
 
 // Need this task to be executed before plugin run configuration
-// because for some reason IntelliJ doesn't reliably copy resources with current project layout
+// because for some reason IntelliJ doesn't reliably copy resources with current project configuration
 task copyResources(type: Copy) {
 	from './plugin_examples'
 	into "${pluginsSandbox}/plugins/LivePlugin/classes"
 	from './resources'
 	into "${pluginsSandbox}/plugins/LivePlugin/classes"
+	from './src_groovy'
+	into "${pluginsSandbox}/plugins/LivePlugin/classes/src"
 }
 
 task downloadDependenciesToLibFolder(type: Copy) {
