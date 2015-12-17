@@ -274,24 +274,38 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
+	static IntentionAction registerIntention(Disposable disposable, String text = intentionId,
+	                                         String familyName = text, Closure callback) {
+		runWriteAction {
+			Intentions.registerIntention(disposable, text, familyName, callback)
+		}
+	}
+
+	@CanCallFromAnyThread
+	static IntentionAction registerIntention(Disposable disposable, IntentionAction intention) {
+		runWriteAction {
+			Intentions.registerIntention(disposable, intention)
+		}
+	}
+	@CanCallFromAnyThread
 	static IntentionAction registerIntention(String intentionId, String text = intentionId,
 	                                         String familyName = text, Closure callback) {
 		runWriteAction {
-			Intentions.registerIntention(intentionId, text, familyName, callback)
+			Intentions.registerIntention(registerDisposable(intentionId), text, familyName, callback)
 		}
 	}
 
 	@CanCallFromAnyThread
 	static IntentionAction registerIntention(String intentionId, IntentionAction intention) {
 		runWriteAction {
-			Intentions.registerIntention(intentionId, intention)
+			Intentions.registerIntention(registerDisposable(intentionId), intention)
 		}
 	}
 
 	@CanCallFromAnyThread
 	static IntentionAction unregisterIntention(String intentionId) {
 		runWriteAction {
-			Intentions.unregisterIntention(intentionId)
+			unregisterDisposable(intentionId)
 		}
 	}
 
@@ -390,12 +404,12 @@ class PluginUtil {
 
 	@CanCallFromAnyThread
 	static AnActionListener registerActionListener(String listenerId, AnActionListener actionListener) {
-		Actions.registerActionListener(listenerId, actionListener)
+		Actions.registerActionListener(registerDisposable(listenerId), actionListener)
 	}
 
 	@CanCallFromAnyThread
-	static AnActionListener unregisterActionListener(String listenerId) {
-		Actions.unregisterActionListener(listenerId)
+	static void unregisterActionListener(String listenerId) {
+		unregisterDisposable(listenerId)
 	}
 
 	/**

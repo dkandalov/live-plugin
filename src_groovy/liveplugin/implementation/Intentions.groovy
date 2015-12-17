@@ -1,16 +1,15 @@
 package liveplugin.implementation
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.IntentionManager
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.NotNull
 
-import static liveplugin.implementation.GlobalVars.changeGlobalVar
-
 class Intentions {
-	static IntentionAction registerIntention(String intentionId, String text,
+	static IntentionAction registerIntention(Disposable disposable, String text,
 	                                         String familyName, Closure callback) {
 		def intention = new IntentionAction() {
 			@Override void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
@@ -25,24 +24,14 @@ class Intentions {
 			@Override String getFamilyName() { familyName }
 			@Override String getText() { text }
 		}
-		registerIntention(intentionId, intention)
+		registerIntention(disposable, intention)
 	}
 
-	static IntentionAction registerIntention(String intentionId, IntentionAction intention) {
-		changeGlobalVar(intentionId) { IntentionAction oldIntention ->
-			if (oldIntention != null) {
-				IntentionManager.instance.unregisterIntention(oldIntention)
-			}
-			IntentionManager.instance.addAction(intention)
-			intention
+	static IntentionAction registerIntention(Disposable disposable, IntentionAction intention) {
+		IntentionManager.instance.addAction(intention)
+		Misc.newDisposable(disposable) {
+			IntentionManager.instance.unregisterIntention(intention)
 		}
-	}
-
-	static IntentionAction unregisterIntention(String intentionId) {
-		changeGlobalVar(intentionId) { IntentionAction oldIntention ->
-			if (oldIntention != null) {
-				IntentionManager.instance.unregisterIntention(oldIntention)
-			}
-		}
+		intention
 	}
 }

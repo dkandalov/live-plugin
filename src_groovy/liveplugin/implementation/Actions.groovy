@@ -67,27 +67,9 @@ class Actions {
 		}
 	}
 
-	static AnActionListener registerActionListener(Disposable parentDisposable, AnActionListener actionListener) {
-		ActionManager.instance.addAnActionListener(actionListener, parentDisposable)
+	static AnActionListener registerActionListener(Disposable disposable, AnActionListener actionListener) {
+		ActionManager.instance.addAnActionListener(actionListener, disposable)
 		actionListener
-	}
-
-	static AnActionListener registerActionListener(String listenerId, AnActionListener actionListener) {
-		GlobalVars.changeGlobalVar(listenerId) { oldListener ->
-			if (oldListener != null) {
-				ActionManager.instance.removeAnActionListener(oldListener)
-			}
-			ActionManager.instance.addAnActionListener(actionListener)
-			actionListener
-		}
-	}
-
-	static AnActionListener unregisterActionListener(String listenerId) {
-		def oldListener = GlobalVars.removeGlobalVar(listenerId) as AnActionListener
-		if (oldListener != null) {
-			ActionManager.instance.removeAnActionListener(oldListener)
-		}
-		oldListener
 	}
 
 	static executeRunConfiguration(@NotNull String configurationName, @NotNull Project project) {
