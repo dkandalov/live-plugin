@@ -8,6 +8,8 @@ import com.intellij.unscramble.UnscrambleDialog
 import liveplugin.PluginUtil
 import org.jetbrains.annotations.Nullable
 
+import java.util.concurrent.atomic.AtomicBoolean
+
 class Misc {
 
 	static String asString(@Nullable message) {
@@ -60,14 +62,18 @@ class Misc {
 	}
 
 	static Disposable newDisposable(Collection<Disposable> parents, Closure closure = {}) {
+		def isDisposed = new AtomicBoolean(false)
 		def disposable = new Disposable() {
 			@Override void dispose() {
-				closure()
+				if (!isDisposed.get()) {
+					isDisposed.set(true)
+					closure()
+				}
 			}
 		}
 		parents.each { parent ->
 			// can't use here "Disposer.register(parent, disposable)"
-			// because Disposer only allows one-to-one registration of Disposable objects
+			// because Disposer only allows one parent to one child registration of Disposable objects
 			Disposer.register(parent, new Disposable() {
 				@Override void dispose() {
 					Disposer.dispose(disposable)
