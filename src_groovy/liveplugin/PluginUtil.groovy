@@ -53,7 +53,10 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.openapi.wm.*
+import com.intellij.openapi.wm.ToolWindow
+import com.intellij.openapi.wm.ToolWindowAnchor
+import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
@@ -72,7 +75,8 @@ import java.util.regex.Pattern
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
-
+import static liveplugin.implementation.Misc.registerDisposable
+import static liveplugin.implementation.Misc.unregisterDisposable
 /**
  * Contains a bunch of utility methods on top of IntelliJ API.
  * Some of them are very simple and were added only for reference.
@@ -177,12 +181,16 @@ class PluginUtil {
 		Console.showInConsole(message, consoleTitle, project, contentType)
 	}
 
+	static registerConsoleListener(Disposable disposable, Closure callback) {
+		Console.registerConsoleListener(disposable, callback)
+	}
+
 	static registerConsoleListener(String id, Closure callback) {
-		Console.registerConsoleListener(id, callback)
+		registerConsoleListener(registerDisposable(id), callback)
 	}
 
 	static unregisterConsoleListener(String id) {
-		Console.unregisterConsoleListener(id)
+		unregisterDisposable(id)
 	}
 
 
@@ -391,7 +399,6 @@ class PluginUtil {
 	}
 
 	/**
-	 *
 	 * @param disposable disposable to automatically unregister listener
 	 *                   (e.g. "pluginDisposable" to remove listener on plugin reload)
 	 * @param listener invoked for all open projects and on project open events
@@ -414,16 +421,21 @@ class PluginUtil {
 		Projects.registerProjectListener(parentDisposable, listener)
 	}
 
-	/**
-	 * Registers project manager listener which will be replaced between plugin reloads.
-	 *
-	 * @param listenerId unique id of this project manager listener
-	 * @param listener see https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/project/ProjectManagerListener.java
-	 */
 	@CanCallWithinRunReadActionOrFromEDT
-	static def registerProjectListener(String listenerId, ProjectManagerListener listener) {
-		Projects.registerProjectListener(listenerId, listener)
+	static def registerProjectListener(String id, Closure closure) {
+		registerProjectListener(registerDisposable(id), closure)
 	}
+
+	@CanCallWithinRunReadActionOrFromEDT
+	static def registerProjectListener(String id, ProjectManagerListener listener) {
+		registerProjectListener(registerDisposable(id), listener)
+	}
+
+	@CanCallWithinRunReadActionOrFromEDT
+	static unregisterProjectListener(String id) {
+		unregisterDisposable(id)
+	}
+
 
 	/**
 	 * Registers a tool window in all open IDE windows.
@@ -663,15 +675,24 @@ class PluginUtil {
 	}
 
 
-	// note that com.intellij.openapi.compiler.CompilationStatusAdapter is not imported because
+	// note that com.intellij.openapi.compiler.CompilationStatusListener is not imported because
 	// it doesn't exist in IDEs without compilation (e.g. in PhpStorm)
-	static void registerCompilationListener(String id, Project project, /*CompilationStatusAdapter*/ listener) {
-		Compilation.registerCompilationListener(id, project, listener)
+	static void registerCompilationListener(Disposable disposable, /*CompilationStatusListener*/ listener) {
+		Compilation.registerCompilationListener(disposable, listener)
 	}
 
-	static void unregisterCompilationListener(String id, Project project) {
-		Compilation.unregisterCompilationListener(id, project)
+	static void registerCompilationListener(Disposable disposable, Project project, /*CompilationStatusListener*/ listener) {
+		Compilation.registerCompilationListener(disposable, project, listener)
 	}
+
+	static void registerCompilationListener(String id, Project project, /*CompilationStatusListener*/ listener) {
+		registerCompilationListener(registerDisposable(id), project, listener)
+	}
+
+	static void unregisterCompilationListener(String id) {
+		unregisterDisposable(id)
+	}
+
 
 	static registerUnitTestListener(String id, Project project, UnitTests.Listener listener) {
 		UnitTests.registerUnitTestListener(id, project, listener)

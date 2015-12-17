@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import org.jetbrains.annotations.Nullable
 
 class GlobalVars {
-	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure callback) {
+	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure<T> callback) {
 		def actionManager = ActionManager.instance
 		def action = actionManager.getAction(asActionId(varName))
 

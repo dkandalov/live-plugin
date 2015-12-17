@@ -4,13 +4,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerAdapter
 import com.intellij.openapi.project.ProjectManagerListener
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.IdeFocusManager
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
-
-import static liveplugin.implementation.GlobalVars.changeGlobalVar
-import static liveplugin.implementation.Misc.newDisposable
 
 class Projects {
 	static def registerProjectListener(Disposable disposable, Closure closure) {
@@ -28,17 +24,9 @@ class Projects {
 		ProjectManager.instance.addProjectManagerListener(listener, disposable)
 	}
 
-	static def registerProjectListener(String listenerId, ProjectManagerListener listener) {
-		Disposable disposable = (Disposable) changeGlobalVar(listenerId) { Disposable previousDisposable ->
-			if (previousDisposable != null) Disposer.dispose(previousDisposable)
-			newDisposable([])
-		}
-		ProjectManager.instance.addProjectManagerListener(listener, disposable)
-	}
-
 	@Nullable static Project openProject(@NotNull String projectPath) {
 		def projectManager = ProjectManager.instance
-		def project = projectManager.openProjects.find{ it.basePath == projectPath }
+			def project = projectManager.openProjects.find{ it.basePath == projectPath }
 		if (project != null) project
 		else projectManager.loadAndOpenProject(projectPath)
 	}

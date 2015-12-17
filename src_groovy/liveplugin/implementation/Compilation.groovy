@@ -1,29 +1,27 @@
 package liveplugin.implementation
-
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.compiler.CompilationStatusAdapter
+import com.intellij.openapi.compiler.CompilationStatusListener
 import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.project.Project
 
+import static liveplugin.implementation.Misc.newDisposable
+
 class Compilation {
-	static void registerCompilationListener(String id, Project project, CompilationStatusAdapter listener) {
-		GlobalVars.changeGlobalVar(id){ oldListener ->
-			def compilerManager = CompilerManager.getInstance(project)
-			if (oldListener != null) {
-				compilerManager.removeCompilationStatusListener(oldListener)
-			}
-			compilerManager.addCompilationStatusListener(listener)
-			listener
+	static void registerCompilationListener(Disposable disposable, CompilationStatusListener listener) {
+		Projects.registerProjectListener(disposable) { Project project ->
+			registerCompilationListener(newDisposable([project, disposable]), project, listener)
 		}
 	}
 
-	static CompilationStatusAdapter unregisterCompilationListener(String id, Project project) {
-		def oldListener = GlobalVars.removeGlobalVar(id) as CompilationStatusAdapter
-		if (oldListener != null) {
-			CompilerManager.getInstance(project).removeCompilationStatusListener(oldListener)
+	static void registerCompilationListener(Disposable disposable, Project project, CompilationStatusListener listener) {
+		def compilerManager = CompilerManager.getInstance(project)
+		compilerManager.addCompilationStatusListener(listener)
+
+		newDisposable(disposable) {
+			compilerManager.removeCompilationStatusListener(listener)
 		}
-		oldListener
 	}
 
 	static AnAction compileAction() {

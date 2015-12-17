@@ -1,5 +1,4 @@
 package liveplugin.implementation
-
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
@@ -12,6 +11,7 @@ import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
@@ -28,38 +28,33 @@ import java.util.List
 import java.util.concurrent.atomic.AtomicReference
 
 import static liveplugin.PluginUtil.invokeOnEDT
+import static liveplugin.implementation.Misc.newDisposable
 
 class Console {
 	private static final extensionPoint = Extensions.rootArea.getExtensionPoint(ConsoleInputFilterProvider.INPUT_FILTER_PROVIDERS)
 
-	static registerConsoleListener(String id, Closure callback) {
-		GlobalVars.changeGlobalVar(id) { lastInputFilterProvider ->
-			if (lastInputFilterProvider != null && extensionPoint.hasExtension(lastInputFilterProvider)) {
-				extensionPoint.unregisterExtension(lastInputFilterProvider)
+	static registerConsoleListener(Disposable disposable, Closure callback) {
+		def notFilteringListener = new InputFilter() {
+			@Override List<Pair<String, ConsoleViewContentType>> applyFilter(String consoleText, ConsoleViewContentType contentType) {
+				callback(consoleText)
+				null
 			}
-			def notFilteringListener = new InputFilter() {
-				@Override List<Pair<String, ConsoleViewContentType>> applyFilter(String consoleText, ConsoleViewContentType contentType) {
-					callback(consoleText)
-					null
-				}
-			}
-		    def inputFilterProvider = new ConsoleInputFilterProvider() {
-				@Override InputFilter[] getDefaultFilters(@NotNull Project project) {
-					[notFilteringListener]
-				}
-			}
-			extensionPoint.registerExtension(inputFilterProvider)
-			inputFilterProvider
 		}
-	}
-
-	static unregisterConsoleListener(String id) {
-		def lastInputFilterProvider = GlobalVars.removeGlobalVar(id)
-		if (lastInputFilterProvider != null && extensionPoint.hasExtension(lastInputFilterProvider)) {
-			extensionPoint.unregisterExtension(lastInputFilterProvider)
+	    def inputFilterProvider = new ConsoleInputFilterProvider() {
+			@Override InputFilter[] getDefaultFilters(@NotNull Project project) {
+				[notFilteringListener]
+			}
 		}
-	}
+		extensionPoint.registerExtension(inputFilterProvider)
 
+		newDisposable(disposable) {
+			if (extensionPoint.hasExtension(inputFilterProvider)) {
+				extensionPoint.unregisterExtension(inputFilterProvider)
+			}
+		}
+
+		inputFilterProvider
+	}
 
 	static ConsoleView showInConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
 	                                 ConsoleViewContentType contentType = guessContentTypeOf(message)) {

@@ -19,8 +19,7 @@ class Inspections {
 
 	static registerInspection(Disposable disposable, InspectionProfileEntry inspection) {
 		Projects.registerProjectListener(disposable) { Project project ->
-			def multiParentDisposable = newDisposable([disposable, project])
-			registerInspection(project, multiParentDisposable, inspection)
+			registerInspection(project, newDisposable([disposable, project]), inspection)
 		}
 	}
 

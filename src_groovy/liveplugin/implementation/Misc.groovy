@@ -9,6 +9,7 @@ import liveplugin.PluginUtil
 import org.jetbrains.annotations.Nullable
 
 class Misc {
+
 	static String asString(@Nullable message) {
 		if (message?.getClass()?.isArray()) Arrays.toString(message)
 		else if (message instanceof MapWithDefault) "{" + message.entrySet().join(", ") + "}"
@@ -65,8 +66,30 @@ class Misc {
 			}
 		}
 		parents.each { parent ->
-			Disposer.register(parent, disposable)
+			// can't use here "Disposer.register(parent, disposable)"
+			// because Disposer only allows one-to-one registration of Disposable objects
+			Disposer.register(parent, new Disposable() {
+				@Override void dispose() {
+					Disposer.dispose(disposable)
+				}
+			})
 		}
 		disposable
+	}
+
+	// TODO consider using com.intellij.openapi.util.Disposer.ourKeyDisposables
+	static Disposable registerDisposable(String id) {
+		def disposable = GlobalVars.changeGlobalVar(id) { Disposable oldDisposable ->
+			if (oldDisposable != null) Disposer.dispose(oldDisposable)
+			Disposer.newDisposable()
+		}
+		disposable
+	}
+
+	static void unregisterDisposable(String id) {
+		def disposable = GlobalVars.removeGlobalVar(id) as Disposable
+		if (disposable != null) {
+			Disposer.dispose(disposable)
+		}
 	}
 }
