@@ -9,75 +9,67 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Pair;
-import com.intellij.util.containers.ContainerUtil;
 
 import java.util.List;
 
+import static com.intellij.util.containers.ContainerUtil.findAll;
+
 public class DependenciesUtil {
-	public static boolean allModulesHasLibraryAsDependencyIn(Project project, String libraryName) {
-		return findModulesWithoutLibrary(ModuleManager.getInstance(project).getModules(), libraryName).isEmpty();
+	public static boolean allModulesHaveLibraryAsDependencyIn(Project project, final String libraryName) {
+		List<Module> modulesWithoutDependency = findAll(ModuleManager.getInstance(project).getModules(), new Condition<Module>() {
+			@Override public boolean value(Module module) {
+				return !dependsOn(libraryName, module);
+			}
+		});
+		return modulesWithoutDependency.isEmpty();
 	}
 
 	public static void removeLibraryDependencyFrom(final Project project, final String libraryName) {
 		ApplicationManager.getApplication().runWriteAction(new Runnable() {
 			@Override public void run() {
-				Module[] modules = ModuleManager.getInstance(project).getModules();
-				for (Module module : findModulesWithLibrary(modules, libraryName)) {
-
-					ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
-					LibraryTable libraryTable = moduleRootManager.getModuleLibraryTable();
-
-					Library library = libraryTable.getLibraryByName(libraryName);
-					if (library != null) libraryTable.removeLibrary(library);
-					moduleRootManager.commit();
-
-                    moduleRootManager.dispose();
+				for (Module module : ModuleManager.getInstance(project).getModules()) {
+					removeLibraryDependencyFrom(module, libraryName);
 				}
 			}
 		});
+	}
+
+	private static void removeLibraryDependencyFrom(Module module, String libraryName) {
+		ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(module).getModifiableModel();
+		LibraryTable libraryTable = modifiableModel.getModuleLibraryTable();
+
+		Library library = libraryTable.getLibraryByName(libraryName);
+		if (library != null) libraryTable.removeLibrary(library);
+
+		modifiableModel.commit();
 	}
 
 	public static void addLibraryDependencyTo(final Project project, final String libraryName,
 	                                          final List<Pair<String, OrderRootType>> paths) {
 		ApplicationManager.getApplication().runWriteAction(new Runnable() {
 			@Override public void run() {
-				Module[] modules = ModuleManager.getInstance(project).getModules();
-				for (Module module : findModulesWithoutLibrary(modules, libraryName)) {
-
-					ModifiableRootModel moduleRootManager = ModuleRootManager.getInstance(module).getModifiableModel();
-					LibraryTable libraryTable = moduleRootManager.getModuleLibraryTable();
-
-					Library library = libraryTable.createLibrary(libraryName);
-					Library.ModifiableModel modifiableLibrary = library.getModifiableModel();
-					for (Pair<String, OrderRootType> pathAndType : paths) {
-						modifiableLibrary.addRoot(pathAndType.first, pathAndType.second);
-					}
-					modifiableLibrary.commit();
-
-					LibraryOrderEntry libraryOrderEntry = moduleRootManager.findLibraryOrderEntry(library);
-					if (libraryOrderEntry != null) libraryOrderEntry.setScope(DependencyScope.PROVIDED);
-					moduleRootManager.commit();
-
-                    moduleRootManager.dispose();
+				for (Module module : ModuleManager.getInstance(project).getModules()) {
+					addLibraryDependencyTo(module, libraryName, paths);
                 }
 			}
 		});
 	}
 
-	private static List<Module> findModulesWithoutLibrary(Module[] modules, final String libraryName) {
-		return ContainerUtil.findAll(modules, new Condition<Module>() {
-			@Override public boolean value(Module module) {
-				return !dependsOn(libraryName, module);
-			}
-		});
-	}
+	private static void addLibraryDependencyTo(Module module, String libraryName, List<Pair<String, OrderRootType>> paths) {
+		ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(module).getModifiableModel();
+		LibraryTable libraryTable = modifiableModel.getModuleLibraryTable();
+		if (dependsOn(libraryName, libraryTable)) return;
 
-	private static List<Module> findModulesWithLibrary(Module[] modules, final String libraryName) {
-		return ContainerUtil.findAll(modules, new Condition<Module>() {
-			@Override public boolean value(Module module) {
-				return dependsOn(libraryName, module);
-			}
-		});
+		Library library = libraryTable.createLibrary(libraryName);
+		Library.ModifiableModel modifiableLibrary = library.getModifiableModel();
+		for (Pair<String, OrderRootType> pathAndType : paths) {
+			modifiableLibrary.addRoot(pathAndType.first, pathAndType.second);
+		}
+		modifiableLibrary.commit();
+
+		LibraryOrderEntry libraryOrderEntry = modifiableModel.findLibraryOrderEntry(library);
+		if (libraryOrderEntry != null) libraryOrderEntry.setScope(DependencyScope.PROVIDED);
+		modifiableModel.commit();
 	}
 
 	private static boolean dependsOn(String libraryName, Module module) {
@@ -85,5 +77,9 @@ public class DependenciesUtil {
 		Library library = moduleRootManager.getModuleLibraryTable().getLibraryByName(libraryName);
         moduleRootManager.dispose();
 		return library != null;
+	}
+
+	private static boolean dependsOn(String libraryName, LibraryTable libraryTable) {
+		return libraryTable.getLibraryByName(libraryName) != null;
 	}
 }

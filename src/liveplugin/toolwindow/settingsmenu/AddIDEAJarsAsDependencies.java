@@ -22,7 +22,7 @@ public class AddIDEAJarsAsDependencies extends AnAction implements DumbAware {
 		Project project = event.getProject();
 		if (project == null) return;
 
-		if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, IDEA_JARS_LIBRARY)) {
+		if (DependenciesUtil.allModulesHaveLibraryAsDependencyIn(project, IDEA_JARS_LIBRARY)) {
 			DependenciesUtil.removeLibraryDependencyFrom(project, IDEA_JARS_LIBRARY);
 		} else {
 			String ideaJarsPath = PathManager.getHomePath() + "/lib/";
@@ -49,7 +49,7 @@ public class AddIDEAJarsAsDependencies extends AnAction implements DumbAware {
 		Project project = event.getProject();
 		if (project == null) return;
 
-		if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, IDEA_JARS_LIBRARY)) {
+		if (DependenciesUtil.allModulesHaveLibraryAsDependencyIn(project, IDEA_JARS_LIBRARY)) {
 			event.getPresentation().setText("Remove IDEA Jars from Project");
 			event.getPresentation().setDescription("Remove IDEA jars dependencies from project");
 		} else {

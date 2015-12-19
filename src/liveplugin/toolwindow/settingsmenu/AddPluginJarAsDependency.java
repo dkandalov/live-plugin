@@ -22,7 +22,7 @@ public class AddPluginJarAsDependency extends AnAction implements DumbAware {
 		Project project = event.getProject();
 		if (project == null) return;
 
-		if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
+		if (DependenciesUtil.allModulesHaveLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
 			DependenciesUtil.removeLibraryDependencyFrom(project, LIVE_PLUGIN_LIBRARY);
 		} else {
 			//noinspection unchecked
@@ -48,7 +48,7 @@ public class AddPluginJarAsDependency extends AnAction implements DumbAware {
 		Project project = event.getProject();
 		if (project == null) return;
 
-		if (DependenciesUtil.allModulesHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
+		if (DependenciesUtil.allModulesHaveLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
 			event.getPresentation().setText("Remove LivePlugin Jar from Project");
 			event.getPresentation().setDescription(
 					"Remove LivePlugin jar from project dependencies. This will enable auto-complete and other IDE features for IntelliJ classes.");
