@@ -41,8 +41,6 @@ import com.intellij.openapi.progress.PerformInBackgroundOption
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManager
-import com.intellij.openapi.project.ProjectManagerAdapter
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.roots.ProjectRootManager
@@ -55,14 +53,12 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
-import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.ProjectScope
-import com.intellij.ui.content.ContentFactory
 import liveplugin.implementation.*
 import org.jetbrains.annotations.Contract
 import org.jetbrains.annotations.NotNull
@@ -97,9 +93,6 @@ class PluginUtil {
 	 * The only reason to have it here is that there is no constant for it in IntelliJ source code.
 	 */
 	static final String TOOLS_MENU = "ToolsMenu"
-
-	// thread-confined to EDT
-	private static final Map<ProjectManagerListener, String> pmListenerToToolWindowId = new HashMap()
 
 
 	@CanCallFromAnyThread
@@ -274,7 +267,7 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
-	static IntentionAction registerIntention(Disposable disposable, String text = intentionId,
+	static IntentionAction registerIntention(Disposable disposable, String text = "",
 	                                         String familyName = text, Closure callback) {
 		runWriteAction {
 			Intentions.registerIntention(disposable, text, familyName, callback)
@@ -463,22 +456,7 @@ class PluginUtil {
 	static registerToolWindow(String toolWindowId, ToolWindowAnchor location = RIGHT, Closure<JComponent> createComponent) {
 		invokeOnEDT {
 			runWriteAction {
-				def previousListener = pmListenerToToolWindowId.find{ it.value == toolWindowId }?.key
-				if (previousListener != null) {
-					ProjectManager.instance.removeProjectManagerListener(previousListener)
-					pmListenerToToolWindowId.remove(previousListener)
-				}
-
-				def listener = new ProjectManagerAdapter() {
-					@Override void projectOpened(Project project) { registerToolWindowIn(project, toolWindowId, createComponent(), location) }
-					@Override void projectClosed(Project project) { unregisterToolWindowIn(project, toolWindowId) }
-				}
-				pmListenerToToolWindowId[listener] = toolWindowId
-				ProjectManager.instance.addProjectManagerListener(listener)
-
-				ProjectManager.instance.openProjects.each { project -> registerToolWindowIn(project, toolWindowId, createComponent(), location) }
-
-				log("Toolwindow '${toolWindowId}' registered")
+				ToolWindows.registerToolWindow(toolWindowId, location, createComponent)
 			}
 		}
 	}
@@ -490,32 +468,17 @@ class PluginUtil {
 	static unregisterToolWindow(String toolWindowId) {
 	  invokeOnEDT {
 		  runWriteAction {
-				def previousListener = pmListenerToToolWindowId.find{ it.value == toolWindowId }?.key
-				if (previousListener != null) {
-					ProjectManager.instance.removeProjectManagerListener(previousListener)
-					pmListenerToToolWindowId.remove(previousListener)
-				}
-
-				ProjectManager.instance.openProjects.each { project -> unregisterToolWindowIn(project, toolWindowId) }
+				ToolWindows.unregisterToolWindow(toolWindowId)
 		  }
 	  }
 	}
 
 	static ToolWindow registerToolWindowIn(@NotNull Project project, String toolWindowId, JComponent component, ToolWindowAnchor location = RIGHT) {
-		def manager = ToolWindowManager.getInstance(project)
-
-		if (manager.getToolWindow(toolWindowId) != null) {
-			manager.unregisterToolWindow(toolWindowId)
-		}
-
-		def toolWindow = manager.registerToolWindow(toolWindowId, false, location)
-		def content = ContentFactory.SERVICE.instance.createContent(component, "", false)
-		toolWindow.contentManager.addContent(content)
-		toolWindow
+		ToolWindows.registerToolWindowIn(project, toolWindowId, component, location)
 	}
 
 	static unregisterToolWindowIn(@NotNull Project project, String toolWindowId) {
-		ToolWindowManager.getInstance(project).unregisterToolWindow(toolWindowId)
+		ToolWindows.unregisterToolWindowIn(project, toolWindowId)
 	}
 
 	@CanCallFromAnyThread
