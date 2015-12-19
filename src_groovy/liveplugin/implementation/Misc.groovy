@@ -1,6 +1,7 @@
 package liveplugin.implementation
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
@@ -87,7 +88,16 @@ class Misc {
 	static Disposable registerDisposable(String id) {
 		def disposable = GlobalVars.changeGlobalVar(id) { Disposable oldDisposable ->
 			if (oldDisposable != null) Disposer.dispose(oldDisposable)
-			Disposer.newDisposable()
+			def newDisposable = new Disposable() {
+				@Override public void dispose() {}
+				@Override public String toString() {
+					"LivePlugin disposable for id='${id}'"
+				}
+			}
+			// Use application as parent so that disposable is disposed on application close.
+			// Otherwise, IJ logs an error even though this "memory leak" is not important.
+			Disposer.register(ApplicationManager.application, newDisposable)
+			newDisposable
 		}
 		disposable
 	}

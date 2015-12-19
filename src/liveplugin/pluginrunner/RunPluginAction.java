@@ -16,6 +16,7 @@ package liveplugin.pluginrunner;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -135,14 +136,20 @@ public class RunPluginAction extends AnAction implements DumbAware {
 		return result;
 	}
 
-	private static Map<String, Object> createBinding(String pathToPluginFolder, Project project, boolean isIdeStartup) {
+	private static Map<String, Object> createBinding(final String pathToPluginFolder, Project project, boolean isIdeStartup) {
+		Disposable disposable = new Disposable() {
+			@Override public void dispose() {}
+			@Override public String toString() {
+				return "LivePlugin: " + pathToPluginFolder;
+			}
+		};
+		Disposer.register(ApplicationManager.getApplication(), disposable);
+
 		Map<String, Object> binding = new HashMap<String, Object>();
 		binding.put("project", project);
 		binding.put("isIdeStartup", isIdeStartup);
 		binding.put("pluginPath", pathToPluginFolder);
-		binding.put(DISPOSABLE_KEY, new Disposable() {
-            @Override public void dispose() {}
-        });
+		binding.put(DISPOSABLE_KEY, disposable);
 		return binding;
 	}
 
