@@ -153,7 +153,7 @@ class PluginUtil {
 			// this is because Notification doesn't accept empty messages
 			if (message.trim().empty) message = "[empty message]"
 
-			def notificatio     n = new Notification(groupDisplayId, title, message, notificationType)
+			def notification = new Notification(groupDisplayId, title, message, notificationType)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		}
 	}
@@ -403,6 +403,7 @@ class PluginUtil {
 	static void unregisterActionListener(String listenerId) {
 		unregisterDisposable(listenerId)
 	}
+
 
 	/**
 	 * @param disposable disposable to automatically unregister listener
