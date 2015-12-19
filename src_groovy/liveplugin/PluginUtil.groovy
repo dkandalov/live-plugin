@@ -51,7 +51,6 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiDocumentManager
@@ -154,7 +153,7 @@ class PluginUtil {
 			// this is because Notification doesn't accept empty messages
 			if (message.trim().empty) message = "[empty message]"
 
-			def notification = new Notification(groupDisplayId, title, message, notificationType)
+			def notificatio     n = new Notification(groupDisplayId, title, message, notificationType)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		}
 	}
@@ -453,10 +452,11 @@ class PluginUtil {
 	 * @param createComponent closure that creates tool window content (will be called for each open project)
 	 */
 	@CanCallFromAnyThread
-	static registerToolWindow(String toolWindowId, ToolWindowAnchor location = RIGHT, Closure<JComponent> createComponent) {
+	static registerToolWindow(String toolWindowId, Disposable disposable = null, ToolWindowAnchor location = RIGHT,
+	                          Closure<JComponent> createComponent) {
 		invokeOnEDT {
 			runWriteAction {
-				ToolWindows.registerToolWindow(toolWindowId, location, createComponent)
+				ToolWindows.registerToolWindow(toolWindowId, disposable, location, createComponent)
 			}
 		}
 	}
@@ -471,14 +471,6 @@ class PluginUtil {
 				ToolWindows.unregisterToolWindow(toolWindowId)
 		  }
 	  }
-	}
-
-	static ToolWindow registerToolWindowIn(@NotNull Project project, String toolWindowId, JComponent component, ToolWindowAnchor location = RIGHT) {
-		ToolWindows.registerToolWindowIn(project, toolWindowId, component, location)
-	}
-
-	static unregisterToolWindowIn(@NotNull Project project, String toolWindowId) {
-		ToolWindows.unregisterToolWindowIn(project, toolWindowId)
 	}
 
 	@CanCallFromAnyThread
@@ -671,12 +663,28 @@ class PluginUtil {
 	}
 
 
+	static registerUnitTestListener(Disposable disposable, UnitTests.Listener listener) {
+		UnitTests.registerUnitTestListener(disposable, listener)
+	}
+
+	static registerUnitTestListener(Disposable disposable, Project project, UnitTests.Listener listener) {
+		UnitTests.registerUnitTestListener(disposable, project, listener)
+	}
+
 	static registerUnitTestListener(String id, Project project, UnitTests.Listener listener) {
 		UnitTests.registerUnitTestListener(id, project, listener)
 	}
 
 	static unregisterUnitTestListener(String id) {
 		UnitTests.unregisterUnitTestListener(id)
+	}
+
+	static registerVcsListener(Disposable disposable, VcsActions.Listener listener) {
+		VcsActions.registerVcsListener(disposable, listener)
+	}
+
+	static registerVcsListener(Disposable disposable, Project project, VcsActions.Listener listener) {
+		VcsActions.registerVcsListener(disposable, project, listener)
 	}
 
 	static registerVcsListener(String id, Project project, VcsActions.Listener listener) {

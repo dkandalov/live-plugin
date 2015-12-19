@@ -3,6 +3,7 @@ package liveplugin.implementation
 import com.intellij.notification.Notification
 import com.intellij.notification.Notifications
 import com.intellij.notification.NotificationsAdapter
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.CheckinProjectPanel
 import com.intellij.openapi.vcs.changes.CommitContext
@@ -13,22 +14,36 @@ import com.intellij.openapi.vcs.update.UpdatedFilesListener
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.annotations.NotNull
 
+import static liveplugin.implementation.Misc.newDisposable
+import static liveplugin.implementation.Misc.registerDisposable
+import static liveplugin.implementation.Misc.unregisterDisposable
+
 class VcsActions {
 	private final MessageBusConnection busConnection
 	private final UpdatedFilesListener updatedListener
 	private final CheckinHandlerFactory checkinListener
 	private final NotificationsAdapter pushListener
 
-	static registerVcsListener(String id, Project project, Listener listener) {
-		GlobalVars.changeGlobalVar(id){ oldVcsActions ->
-			if (oldVcsActions != null) oldVcsActions.stop()
-			new VcsActions(project, listener).start()
+	static registerVcsListener(Disposable disposable, Listener listener) {
+		Projects.registerProjectListener(disposable) { Project project ->
+			registerVcsListener(newDisposable([project, disposable]), project, listener)
 		}
 	}
 
+	static registerVcsListener(Disposable disposable, Project project, Listener listener) {
+		def vcsActions = new VcsActions(project, listener)
+		newDisposable(disposable) {
+			vcsActions.stop()
+		}
+		vcsActions.start()
+	}
+
+	static registerVcsListener(String id, Project project, Listener listener) {
+		registerVcsListener(registerDisposable(id), project, listener)
+	}
+
 	static unregisterVcsListener(String id) {
-		def oldVcsActions = GlobalVars.removeGlobalVar(id)
-		if (oldVcsActions != null) oldVcsActions.stop()
+		unregisterDisposable(id)
 	}
 
 	VcsActions(Project project, Listener listener) {

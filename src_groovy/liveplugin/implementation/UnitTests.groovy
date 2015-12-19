@@ -5,24 +5,39 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.notification.NotificationsAdapter
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.annotations.NotNull
+
+import static liveplugin.implementation.Misc.newDisposable
+import static liveplugin.implementation.Misc.registerDisposable
+import static liveplugin.implementation.Misc.unregisterDisposable
 
 class UnitTests {
 	private final MessageBusConnection busConnection
 	private final Listener listener
 
-	static registerUnitTestListener(String id, Project project, Listener listener) {
-		GlobalVars.changeGlobalVar(id) { oldUnitTests ->
-			if (oldUnitTests != null) oldUnitTests.stop()
-			new UnitTests(project, listener).start()
+	static registerUnitTestListener(Disposable disposable, Listener listener) {
+		Projects.registerProjectListener(disposable) { Project project ->
+			registerUnitTestListener(newDisposable([project, disposable]), project, listener)
 		}
 	}
 
+	static registerUnitTestListener(Disposable disposable, Project project, Listener listener) {
+		def unitTests = new UnitTests(project, listener)
+		unitTests.start()
+		newDisposable(disposable) {
+			unitTests.stop()
+		}
+	}
+
+	static registerUnitTestListener(String id, Project project, Listener listener) {
+		registerUnitTestListener(registerDisposable(id), project, listener)
+	}
+
 	static unregisterUnitTestListener(String id) {
-		def oldUnitTests = GlobalVars.removeGlobalVar(id)
-		if (oldUnitTests != null) oldUnitTests.stop()
+		unregisterDisposable(id)
 	}
 
 	UnitTests(Project project, Listener listener) {
