@@ -21,4 +21,4 @@ registerAction("HelloTextEditorAction", "ctrl shift alt E") { AnActionEvent even
 	}
 }
 
-show("Loaded 'HelloTextEditorAction'<br/>Use ctrl+alt+shift+E to run it")
+if (!isIdeStartup) show("Loaded 'HelloTextEditorAction'<br/>Use ctrl+alt+shift+E to run it")

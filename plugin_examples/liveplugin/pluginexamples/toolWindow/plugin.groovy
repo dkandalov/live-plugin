@@ -10,7 +10,11 @@ static createPanelWithButton(JPanel panel = new JPanel()) {
 	panel
 }
 
-registerToolWindow("helloToolWindow") { createPanelWithButton() }
+registerToolWindow("HelloToolWindow", pluginDisposable) {
+	createPanelWithButton()
+}
 
-// Run the following code to remove toolwindow.
+// You can run the following statement to remove toolwindow
 //unregisterToolWindow("helloToolWindow")
+// Or you can comment out registration code and reload plugin.
+// This will cause "pluginDisposable" to be disposed what will unregister the toolwindow.

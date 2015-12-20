@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.Separator
 
 import static liveplugin.PluginUtil.*
 
-registerAction("helloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
+registerAction("HelloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 	def project = event.project
 	def popupMenuDescription = [
 			"Hello World"    : [
@@ -12,11 +12,11 @@ registerAction("helloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 					"hello, how low?": { show("hello, how low?") },
 			],
 			"Open in browser": [
-					"Live plugin github": {
-						openInBrowser("https://github.com/dkandalov/live-plugin")
+					"IntelliJ API mini cheat sheet": {
+						openInBrowser("https://github.com/dkandalov/live-plugin/blob/master/IntellijApiCheatSheet.md")
 					},
 					"IntelliJ Architectural Overview": {
-						openInBrowser("http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview")
+						openInBrowser("http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview.html")
 					}
 			],
 			"Execute command": {
@@ -45,4 +45,5 @@ registerAction("helloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 	def popupTitle = "Hello PopupMenu"
 	showPopupMenu(popupMenuDescription, popupTitle, event.dataContext)
 }
-show("Loaded 'helloPopupAction'<br/>Use ctrl+alt+shift+P to run it")
+
+if (!isIdeStartup) show("Loaded 'helloPopupAction'<br/>Use ctrl+alt+shift+P to run it")

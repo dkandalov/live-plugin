@@ -20,4 +20,4 @@ registerAction("InsertNewLineAbove", "alt shift ENTER") { AnActionEvent event ->
 		}
 	}
 }
-show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
+if (!isIdeStartup) show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")

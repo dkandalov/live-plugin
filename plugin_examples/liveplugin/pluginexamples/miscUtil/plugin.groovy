@@ -3,8 +3,8 @@ import liveplugin.implementation.Console
 import util.AClass
 
 import static liveplugin.PluginUtil.*
-// For more util methods see
-// https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy
+
+if (isIdeStartup) return
 
 // log message in "Event Log"
 log("Hello IntelliJ")
@@ -24,3 +24,6 @@ showInConsole(new Exception("This is a fake exception to show exception in a con
 
 // shows fields of "project" object
 inspect(project)
+
+// For more util methods see
+// https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy

@@ -1,5 +1,7 @@
 import static liveplugin.PluginUtil.show
 
+if (isIdeStartup) return
+
 // To run a plugin you can press "Run plugin" button or use "alt+C, alt+E" shortcut.
 // This will try to run plugin which you currently edit (determined by opened editor)
 // otherwise plugin selected in plugin tree will be run.

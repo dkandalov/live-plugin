@@ -23,7 +23,9 @@ registerAction("InsertNewLineAbove", "alt shift ENTER", (event: AnActionEvent) =
 		editor.getCaretModel.moveToOffset(offset + 1)
 	})
 })
-show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
+if (!isIdeStartup) {
+  show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
+}
 
 
 //show("Implicit variables:<br/>" +

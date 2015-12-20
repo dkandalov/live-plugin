@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent
 import static liveplugin.PluginUtil.*
 import static liveplugin.implementation.Misc.scheduleTask
 
+if (isIdeStartup) return
 
 def fibonacci(long n1 = 0, long n2 = 1) {
 	[n1 + n2, {-> fibonacci(n2, n1 + n2)}]
@@ -17,7 +18,7 @@ invokeOnEDT {
 	def (text, nextFibonacci) = fibonacci()
 
 	def presentation = new StatusBarWidget.TextPresentation() {
-		@Override String getText() { text }
+		@Override String getText() { "Fibonacci: ${text}" }
 		@Override float getAlignment() { Component.CENTER_ALIGNMENT }
 		@Override String getTooltipText() { "Click to reset Fibonacci counter" }
 		@Override Consumer<MouseEvent> getClickConsumer() {

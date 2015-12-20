@@ -1,3 +1,5 @@
-import liveplugin.PluginUtil
+import static liveplugin.PluginUtil.show
 
-PluginUtil.show("See plugin-test.groovy for test code.<br/>Use alt+C,T to run tests.")
+if (!isIdeStartup) {
+	show("See plugin-test.groovy for test code.<br/>Use alt+C,T to run tests.")
+}

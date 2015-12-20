@@ -7,4 +7,4 @@ registerAction("HelloWorldAction", "alt shift H", TOOLS_MENU) { AnActionEvent ev
 	show("Current project name: " + event.project.name)
 }
 
-show("Loaded 'HelloWorldAction'<br/>Use alt+shift+H to run it")
+if (!isIdeStartup) show("Loaded 'HelloWorldAction'<br/>Use alt+shift+H to run it")

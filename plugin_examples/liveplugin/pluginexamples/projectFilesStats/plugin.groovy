@@ -6,6 +6,8 @@ import com.intellij.util.indexing.FileBasedIndex
 
 import static liveplugin.PluginUtil.show
 
+if (isIdeStartup) return
+
 def fileStats = FileTypeManager.instance.registeredFileTypes.inject([:]) { Map stats, FileType fileType ->
 	def scope = GlobalSearchScope.projectScope(project)
 	int fileCount = FileBasedIndex.instance.getContainingFiles(FileTypeIndex.NAME, fileType, scope).size()
