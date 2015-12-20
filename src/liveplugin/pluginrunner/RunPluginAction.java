@@ -17,6 +17,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -101,7 +102,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
                         } else {
                             final Map<String, Object> oldBinding = bindingByPluginId.get(pluginId);
                             if (oldBinding != null) {
-	                            ApplicationManager.getApplication().invokeLater(new Runnable() {
+	                            ApplicationManager.getApplication().invokeAndWait(new Runnable() {
 		                            @Override public void run() {
 			                            try {
 				                            Disposer.dispose((Disposable) oldBinding.get(DISPOSABLE_KEY));
@@ -109,7 +110,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 				                            errorReporter.addRunningError(pluginId, e);
 			                            }
 		                            }
-	                            });
+	                            }, ModalityState.NON_MODAL);
                             }
                             Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
                             bindingByPluginId.put(pluginId, binding);
