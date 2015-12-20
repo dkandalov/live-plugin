@@ -361,6 +361,7 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/registerAction", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/actionsPopupMenu", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/registerToolWindow", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/toolbarWidget", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/modifyTextEditor", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/transformSelectedText", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "/insertNewLineAbove", asList("plugin.groovy")));

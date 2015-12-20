@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.unscramble.UnscrambleDialog
+import com.intellij.util.Alarm
 import liveplugin.PluginUtil
 import org.jetbrains.annotations.Nullable
 
@@ -108,4 +109,12 @@ class Misc {
 			Disposer.dispose(disposable)
 		}
 	}
+
+	static scheduleTask(Alarm alarm, int delayMillis, Closure closure) {
+		alarm.addRequest({
+			closure()
+			scheduleTask(alarm, delayMillis, closure)
+		} as Runnable, delayMillis)
+	}
+
 }
