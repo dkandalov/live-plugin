@@ -99,13 +99,17 @@ public class RunPluginAction extends AnAction implements DumbAware {
                             });
                             errorReporter.addNoScriptError(pluginId, scriptNames);
                         } else {
-                            Map<String, Object> oldBinding = bindingByPluginId.get(pluginId);
+                            final Map<String, Object> oldBinding = bindingByPluginId.get(pluginId);
                             if (oldBinding != null) {
-                                try {
-                                    Disposer.dispose((Disposable) oldBinding.get(DISPOSABLE_KEY));
-                                } catch (Exception e) {
-                                    errorReporter.addRunningError(pluginId, e);
-                                }
+	                            ApplicationManager.getApplication().invokeLater(new Runnable() {
+		                            @Override public void run() {
+			                            try {
+				                            Disposer.dispose((Disposable) oldBinding.get(DISPOSABLE_KEY));
+			                            } catch (Exception e) {
+				                            errorReporter.addRunningError(pluginId, e);
+			                            }
+		                            }
+	                            });
                             }
                             Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
                             bindingByPluginId.put(pluginId, binding);
