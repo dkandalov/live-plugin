@@ -45,7 +45,6 @@ import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
@@ -887,37 +886,9 @@ class PluginUtil {
 		}.queue()
 	}
 
-	/**
-	 * @param description map describing popup menu. Keys are text presentation of items.
-	 *                   Entries can be map, closure or {@link AnAction} (note that {@link com.intellij.openapi.actionSystem.Separator)} is also an action)
-	 *                   - Map is interpreted as nested popup menu.
-	 *                   - Close is a callback which takes one parameter with "key" and "event" attributes.
-	 * @param actionGroup (optional) action group to which actions will be added
-	 * @return actionGroup with actions
-	 */
-	@Contract(pure = true)
-	static ActionGroup createNestedActionGroup(Map description, actionGroup = new DefaultActionGroup()) {
-		description.each { entry ->
-			if (entry.value instanceof Closure) {
-				actionGroup.add(new AnAction(entry.key.toString()) {
-					@Override void actionPerformed(AnActionEvent event) {
-						entry.value.call([key: entry.key, event: event])
-					}
-				})
-			} else if (entry.value instanceof Map) {
-				Map subMenuDescription = entry.value as Map
-				def actionGroupName = entry.key.toString()
-				def isPopup = true
-				actionGroup.add(createNestedActionGroup(subMenuDescription, new DefaultActionGroup(actionGroupName, isPopup)))
-			} else if (entry.value instanceof AnAction) {
-				actionGroup.add(entry.value)
-			}
-		}
-		actionGroup
-	}
-
 	static showPopupMenu(Map menuDescription, String popupTitle = "", JComponent contextComponent) {
-		showPopupMenu(menuDescription, popupTitle, new MapDataContext().put(PlatformDataKeys.CONTEXT_COMPONENT.name, contextComponent))
+		def dataContext = new MapDataContext().put(PlatformDataKeys.CONTEXT_COMPONENT.name, contextComponent)
+		showPopupMenu(menuDescription, popupTitle, dataContext)
 	}
 
 	/**
@@ -928,18 +899,20 @@ class PluginUtil {
 	 * @param dataContext (optional) the data context which provides the data for the selected action
 	 */
 	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null) {
-		if (dataContext == null) {
-			// this is to prevent createActionGroupPopup() from crashing without context component
-			def dummyComponent = new JPanel()
-			dataContext = new MapDataContext().put(PlatformDataKeys.CONTEXT_COMPONENT.name, dummyComponent)
-		}
-		JBPopupFactory.instance.createActionGroupPopup(
-				popupTitle,
-				createNestedActionGroup(menuDescription),
-				dataContext,
-				JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-				true
-		).showInFocusCenter()
+		Popups.showPopupMenu(menuDescription, popupTitle, dataContext)
+	}
+
+	/**
+	 * @param description map describing popup menu. Keys are text presentation of items.
+	 *                   Entries can be map, closure or {@link AnAction} (note that {@link com.intellij.openapi.actionSystem.Separator)} is also an action)
+	 *                   - Map is interpreted as nested popup menu.
+	 *                   - Close is a callback which takes one parameter with "key" and "event" attributes.
+	 * @param actionGroup (optional) action group to which actions will be added
+	 * @return actionGroup with actions
+	 */
+	@Contract(pure = true)
+	static ActionGroup createNestedActionGroup(Map description, actionGroup = new DefaultActionGroup()) {
+		Popups.createNestedActionGroup(description, actionGroup)
 	}
 
 	static registerInMetaClassesContextOf(AnActionEvent actionEvent, List metaClasses = [Object.metaClass],
