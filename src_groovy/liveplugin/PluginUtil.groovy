@@ -51,6 +51,7 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiDocumentManager
@@ -472,6 +473,52 @@ class PluginUtil {
 				ToolWindows.unregisterToolWindow(toolWindowId)
 		  }
 	  }
+	}
+
+	/**
+	 * @param widgetId id of widget
+	 * @param disposable disposable to automatically unregister listener
+	 *                   (e.g. "pluginDisposable" to remove listener on plugin reload)
+	 * @param anchor string in the format "<before|after> <widget id>"
+	 *               (e.g. see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-impl/src/com/intellij/openapi/wm/impl/IdeFrameImpl.java#L430-L430).
+	 *               Some of built-in widget ids:
+	 *               IdeMessagePanel.FATAL_ERROR - error notification icon;
+	 *               Position - goto line widget;
+	 *               IdeNotificationArea.WIDGET_ID - notification toolwindow widget;
+	 *               Encoding - encoding widget;
+	 *               LineSeparator - line separator widget;
+	 * @param presentation see of implementations here
+	 *                     https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/wm/StatusBarWidget.java#L49
+	 * @see {@link #updateWidget(java.lang.String)}
+	 */
+	@CanCallFromAnyThread
+	static registerWidget(String widgetId, Disposable disposable,
+	                      String anchor = "before Position", StatusBarWidget.WidgetPresentation presentation) {
+		invokeOnEDT {
+			Widgets.registerWidget(widgetId, disposable, anchor, presentation)
+		}
+	}
+
+	@CanCallFromAnyThread
+	static registerWidget(String widgetId, Project project, Disposable disposable = project,
+	                      String anchor = "before Position", StatusBarWidget.WidgetPresentation presentation) {
+		invokeOnEDT {
+			Widgets.registerWidget(widgetId, project, disposable, anchor, presentation)
+		}
+	}
+
+	@CanCallFromAnyThread
+	static unregisterWidget(String widgetId) {
+		invokeOnEDT {
+			Widgets.unregisterWidget(widgetId)
+		}
+	}
+
+	@CanCallFromAnyThread
+	static updateWidget(String widgetId) {
+		invokeOnEDT {
+			Widgets.updateWidget(widgetId)
+		}
 	}
 
 	@CanCallFromAnyThread
