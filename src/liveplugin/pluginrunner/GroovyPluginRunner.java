@@ -44,12 +44,12 @@ public class GroovyPluginRunner implements PluginRunner {
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
-		return findSingleFileIn(pathToPluginFolder, scriptName) != null;
+		return findScriptFileIn(pathToPluginFolder, scriptName) != null;
 	}
 
 	@Override public void runPlugin(String pathToPluginFolder, String pluginId, Map<String, ?> binding,
 	                                Function<Runnable, Void> runOnEDTCallback) {
-		File mainScript = findSingleFileIn(pathToPluginFolder, scriptName);
+		File mainScript = findScriptFileIn(pathToPluginFolder, scriptName);
 		runGroovyScript(asUrl(mainScript), pathToPluginFolder, pluginId, binding, runOnEDTCallback);
 	}
 

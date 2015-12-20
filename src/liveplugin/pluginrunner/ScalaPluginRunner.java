@@ -98,12 +98,12 @@ class ScalaPluginRunner implements PluginRunner {
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
-		return findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
+		return findScriptFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
 	}
 
 	@Override public void runPlugin(String pathToPluginFolder, final String pluginId,
 	                                Map<String, ?> binding, Function<Runnable, Void> runOnEDTCallback) {
-		final File scriptFile = MyFileUtil.findSingleFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
+		final File scriptFile = MyFileUtil.findScriptFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
 		assert scriptFile != null;
 
 		final IMain interpreter;

@@ -35,7 +35,7 @@ class ClojurePluginRunner implements PluginRunner {
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
-		return findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
+		return findScriptFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
 	}
 
 	@Override public void runPlugin(final String pathToPluginFolder, final String pluginId,
@@ -51,7 +51,7 @@ class ClojurePluginRunner implements PluginRunner {
 			initialized = true;
 		}
 
-		final File scriptFile = findSingleFileIn(pathToPluginFolder, MAIN_SCRIPT);
+		final File scriptFile = findScriptFileIn(pathToPluginFolder, MAIN_SCRIPT);
 		assert scriptFile != null;
 
 		final List<String> dependentPlugins = new ArrayList<String>();

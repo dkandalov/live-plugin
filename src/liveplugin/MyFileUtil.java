@@ -1,6 +1,7 @@
 package liveplugin;
 
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +35,30 @@ public class MyFileUtil {
 		}
 	}
 
-	public static List<File> allFilesInDirectory(File dir) {
+	@Nullable public static File findScriptFileIn(final String path, String fileName) {
+		File rootScriptFile = new File(path + File.separator + fileName);
+		if (rootScriptFile.exists()) return rootScriptFile;
+
+		List<File> files = allFilesInDirectory(new File(path));
+		List<File> result = new ArrayList<File>();
+		for (File file : files) {
+			if (fileName.equals(file.getName())) {
+				result.add(file);
+			}
+		}
+		if (result.size() == 0) return null;
+		else if (result.size() == 1) return result.get(0);
+		else {
+			List<String> filePaths = ContainerUtil.map(result, new Function<File, String>() {
+				@Override public String fun(File file) {
+					return file.getAbsolutePath();
+				}
+			});
+			throw new IllegalStateException("Found several scripts files under " + path + ":\n" + StringUtil.join(filePaths, ";\n"));
+		}
+	}
+
+	private static List<File> allFilesInDirectory(File dir) {
 		LinkedList<File> result = new LinkedList<File>();
 		File[] files = dir.listFiles();
 		if (files == null) return result;
@@ -47,19 +71,6 @@ public class MyFileUtil {
 			}
 		}
 		return result;
-	}
-
-	@Nullable public static File findSingleFileIn(String path, String fileName) {
-		List<File> files = allFilesInDirectory(new File(path));
-		List<File> result = new ArrayList<File>();
-		for (File file : files) {
-			if (fileName.equals(file.getName())) {
-				result.add(file);
-			}
-		}
-		if (result.size() == 0) return null;
-		else if (result.size() == 1) return result.get(0);
-		else throw new IllegalStateException("Found several " + fileName + " files under " + path);
 	}
 
 	public static String[] readLines(String url) throws IOException {
