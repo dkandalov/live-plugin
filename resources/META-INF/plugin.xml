@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>LivePlugin</id>
 	<name>LivePlugin</name>
-	<version>0.5.5 beta</version>
+	<version>0.5.6 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
