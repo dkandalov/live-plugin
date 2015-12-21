@@ -31,7 +31,7 @@ public class AddPluginFromPathAction extends AnAction implements DumbAware {
 
 
     public AddPluginFromPathAction() {
-		super("Copy from Path", "Copy from Path into LivePlugins folder", IDEUtil.COPY_PLUGIN_FROM_PATH_ICON);
+		super("Copy from Path", "Copy plugin from path into LivePlugins folder", IDEUtil.COPY_PLUGIN_FROM_PATH_ICON);
 	}
 
 	private static List<VirtualFile> getFileSystemRoots() {
