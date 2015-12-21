@@ -65,9 +65,12 @@ class Popups {
 		actionGroup
 	}
 
-	static showPopupSearch(String prompt, Project project, String initialText = "", Collection items, Closure onItemChosen) {
+	static showPopupSearch(String prompt, Project project, String initialText = "", boolean lenientMatch = false,
+	                       Collection items, Closure onItemChosen) {
 		Closure<Collection> itemProvider = { String pattern, ProgressIndicator cancelled ->
-			pattern = "*" + pattern.chars.toList().join("*")
+			if (lenientMatch) {
+				pattern = "*" + pattern.chars.toList().join("*")
+			}
 			def matcher = new MinusculeMatcher(pattern, NameUtil.MatchingCaseSensitivity.NONE)
 			items.findAll{ matcher.matches(it.toString()) }
 		}

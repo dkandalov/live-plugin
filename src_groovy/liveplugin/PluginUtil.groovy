@@ -922,8 +922,9 @@ class PluginUtil {
 		Popups.createNestedActionGroup(description, actionGroup)
 	}
 
-	static showPopupSearch(String prompt, Project project, String initialText = "", Collection items, Closure onItemChosen) {
-		Popups.showPopupSearch(prompt, project, initialText, items, onItemChosen)
+	static showPopupSearch(String prompt, Project project, String initialText = "", boolean lenientMatch = false,
+	                       Collection items, Closure onItemChosen) {
+		Popups.showPopupSearch(prompt, project, initialText, lenientMatch, items, onItemChosen)
 	}
 
 	static showPopupSearch(String prompt, Project project, String initialText = "",
