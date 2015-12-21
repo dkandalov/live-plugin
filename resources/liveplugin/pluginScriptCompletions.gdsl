@@ -1,3 +1,4 @@
+package liveplugin
 
 def ctx = context(scope: scriptScope(), pathRegexp: '.*plugin(?:-test)?\\.groovy$')
 contributor(ctx) {
