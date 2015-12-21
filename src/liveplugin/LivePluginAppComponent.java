@@ -107,7 +107,7 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 
 	public static String readSampleScriptFile(String pluginPath, String file) {
 		try {
-			String path = pluginPath + "/" + file;
+			String path = pluginPath + file;
 			return FileUtil.loadTextAndClose(LivePluginAppComponent.class.getClassLoader().getResourceAsStream(path));
 		} catch (IOException e) {
 			LOG.error(e);
