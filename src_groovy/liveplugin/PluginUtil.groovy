@@ -72,8 +72,9 @@ import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BAC
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 import static liveplugin.implementation.Misc.registerDisposable
 import static liveplugin.implementation.Misc.unregisterDisposable
+
 /**
- * Contains a bunch of utility methods on top of IntelliJ API.
+ * This class contains a bunch of utility methods on top of IntelliJ API.
  * Some of them are very simple and were added only for reference.
  *
  * API of this class should be backward-compatible between major releases.
@@ -233,6 +234,11 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
+	@NotNull static MapDataContext newDataContext(Map map = [:]) {
+		new MapDataContext(map)
+	}
+
+	@CanCallFromAnyThread
 	static Collection<AnAction> allActions() {
 		ActionSearch.allActions()
 	}
@@ -261,6 +267,7 @@ class PluginUtil {
 	static runLivePlugin(@NotNull String pluginId, @NotNull Project project = currentProjectInFrame()) {
 		Actions.runLivePlugin(pluginId, project)
 	}
+
 	static testLivePlugin(@NotNull String pluginId, @NotNull Project project = currentProjectInFrame()) {
 		Actions.testLivePlugin(pluginId, project)
 	}
@@ -915,7 +922,7 @@ class PluginUtil {
 		Popups.createNestedActionGroup(description, actionGroup)
 	}
 
-	static showPopupSearch(String prompt, Project project, String initialText = "", List items, Closure onItemChosen) {
+	static showPopupSearch(String prompt, Project project, String initialText = "", Collection items, Closure onItemChosen) {
 		Popups.showPopupSearch(prompt, project, initialText, items, onItemChosen)
 	}
 

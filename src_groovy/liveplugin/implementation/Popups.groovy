@@ -65,7 +65,7 @@ class Popups {
 		actionGroup
 	}
 
-	static showPopupSearch(String prompt, Project project, String initialText = "", List items, Closure onItemChosen) {
+	static showPopupSearch(String prompt, Project project, String initialText = "", Collection items, Closure onItemChosen) {
 		Closure<Collection> itemProvider = { String pattern, ProgressIndicator cancelled ->
 			pattern = "*" + pattern.chars.toList().join("*")
 			def matcher = new MinusculeMatcher(pattern, NameUtil.MatchingCaseSensitivity.NONE)
@@ -76,8 +76,7 @@ class Popups {
 
 	static showPopupSearch(String prompt, Project project, String initialText = "",
 	                       Closure<Collection> itemProvider, Closure onItemChosen) {
-		def noHelpId = null
-		def model = new SimpleChooseByNameModel(project, prompt, noHelpId) {
+		def model = new SimpleChooseByNameModel(project, prompt, null) {
 			@Override ListCellRenderer getListCellRenderer() {
 				new ColoredListCellRenderer() {
 					@Override protected void customizeCellRenderer(JList list, Object value, int index,
