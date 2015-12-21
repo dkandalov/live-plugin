@@ -915,6 +915,16 @@ class PluginUtil {
 		Popups.createNestedActionGroup(description, actionGroup)
 	}
 
+	static showPopupSearch(String prompt, Project project, String initialText = "", List items, Closure onItemChosen) {
+		Popups.showPopupSearch(prompt, project, initialText, items, onItemChosen)
+	}
+
+	static showPopupSearch(String prompt, Project project, String initialText = "",
+	                         Closure<Collection> itemProvider, Closure onItemChosen) {
+		Popups.showPopupSearch(prompt, project, initialText, itemProvider, onItemChosen)
+	}
+
+
 	static registerInMetaClassesContextOf(AnActionEvent actionEvent, List metaClasses = [Object.metaClass],
 	                                      Map contextKeys = ["project": PlatformDataKeys.PROJECT]) {
 		metaClasses.each { aMetaClass ->

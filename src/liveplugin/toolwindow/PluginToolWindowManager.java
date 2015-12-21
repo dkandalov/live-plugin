@@ -360,6 +360,7 @@ public class PluginToolWindowManager {
             actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloWorld", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "registerAction", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "popupMenu", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "popupSearch", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "toolWindow", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "toolbarWidget", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "textEditor", asList("plugin.groovy")));
