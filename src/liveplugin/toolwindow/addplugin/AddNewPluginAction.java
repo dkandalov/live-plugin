@@ -23,7 +23,7 @@ public class AddNewPluginAction extends AnAction implements DumbAware {
 	private static final String addNewPluginTitle = "Add New Plugin";
 
 	public AddNewPluginAction() {
-		super("New Plugin");
+		super("New Plugin", "Create new plugin", IDEUtil.NEW_PLUGIN_ICON);
 	}
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {

@@ -33,6 +33,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.LayeredIcon;
 import com.intellij.unscramble.UnscrambleDialog;
 import com.intellij.util.Function;
 import com.intellij.util.download.DownloadableFileDescription;
@@ -59,6 +60,9 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 public class IDEUtil {
 	public static final Icon ADD_PLUGIN_ICON = AllIcons.General.Add;
+	public static final Icon NEW_PLUGIN_ICON = LayeredIcon.create(AllIcons.Nodes.Plugin, AllIcons.Actions.New);
+	public static final Icon COPY_PLUGIN_FROM_PATH_ICON = AllIcons.Actions.Copy;
+
 	public static final Icon DELETE_PLUGIN_ICON = AllIcons.General.Remove;
 	public static final Icon REFRESH_PLUGINS_PANEL_ICON = AllIcons.Actions.Refresh;
 	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
