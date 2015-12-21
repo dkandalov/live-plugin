@@ -37,13 +37,19 @@ sourceSets {
 
 // Need this task to be executed before plugin run configuration
 // because for some reason IntelliJ doesn't reliably copy resources with current project configuration
-task copyResources(type: Copy) {
-	from './plugin_examples'
-	into "${pluginsSandbox}/plugins/LivePlugin/classes"
-	from './resources'
-	into "${pluginsSandbox}/plugins/LivePlugin/classes"
-	from './src_groovy'
-	into "${pluginsSandbox}/plugins/LivePlugin/classes/src"
+task copyResources << {
+	def classesFolder = "${pluginsSandbox}/plugins/LivePlugin/classes"
+	println("Copying resources to ${classesFolder}")
+
+	ant.copy(toDir: classesFolder, overwrite: true) {
+		ant.fileset(dir: "./plugin_examples", includes: "**/*")
+	}
+	ant.copy(toDir: classesFolder, overwrite: true) {
+		ant.fileset(dir: "./resources", includes: "**/*")
+	}
+	ant.copy(toDir: classesFolder + "/src", overwrite: true) {
+		ant.fileset(dir: "./src_groovy", includes: "**/*")
+	}
 }
 
 task downloadDependenciesToLibFolder(type: Copy) {
