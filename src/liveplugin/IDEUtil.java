@@ -94,7 +94,7 @@ public class IDEUtil {
 
     public static void displayError(String consoleTitle, String text, ConsoleViewContentType contentType, Project project) {
 		if (project == null) {
-			LOG.error(text);
+			LOG.error(consoleTitle + ": " + text);
 		} else {
             PluginUtil.showInConsole(text, consoleTitle, project, contentType);
         }
