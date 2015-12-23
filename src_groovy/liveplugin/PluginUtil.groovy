@@ -45,6 +45,7 @@ import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.roots.ContentIterator
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
@@ -69,6 +70,7 @@ import java.util.regex.Pattern
 
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
+import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.SPEEDSEARCH
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 import static liveplugin.implementation.Misc.registerDisposable
 import static liveplugin.implementation.Misc.unregisterDisposable
@@ -911,9 +913,12 @@ class PluginUtil {
 	 * @param dataContext (optional) data context which is passed to popup menu and action selected in the popup.
 	 *                    It's usually a good idea to pass dataContext from current actionEvent.
 	 *                    Note that popup expects dataContext to have {@link PlatformDataKeys#CONTEXT_COMPONENT}.
+	 * @param selectionAidMethod determines how popup menu displays/searches for items.
+	 * @param isPreselected closure which takes instance of {@link AnAction} and returns true is the action should be preselected.
 	 */
-	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null) {
-		Popups.showPopupMenu(menuDescription, popupTitle, dataContext)
+	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null,
+	                     JBPopupFactory.ActionSelectionAid selectionAidMethod = SPEEDSEARCH, Closure isPreselected = {false}) {
+		Popups.showPopupMenu(menuDescription, popupTitle, dataContext, selectionAidMethod, isPreselected)
 	}
 
 	/**

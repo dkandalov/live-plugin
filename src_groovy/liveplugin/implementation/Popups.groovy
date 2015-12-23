@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.MinusculeMatcher
 import com.intellij.psi.codeStyle.NameUtil
 import com.intellij.ui.ColoredListCellRenderer
@@ -18,9 +19,13 @@ import javax.swing.*
 import java.awt.*
 import java.util.List
 
+import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid
+import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
+
 class Popups {
 
-	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null) {
+	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null,
+	                     ActionSelectionAid selectionAidMethod = SPEEDSEARCH, Closure isPreselected = {false}) {
 		def contextComponent = dataContext?.getData(PlatformDataKeys.CONTEXT_COMPONENT.name) as Component
 		if (contextComponent == null) {
 			// this is to prevent createActionGroupPopup() from crashing without context component
@@ -32,8 +37,16 @@ class Popups {
 				popupTitle,
 				createNestedActionGroup(menuDescription),
 				dataContext,
-				JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-				true
+				selectionAidMethod == NUMBERING || selectionAidMethod == ALPHA_NUMBERING,
+				false,
+				selectionAidMethod == MNEMONICS,
+				null,
+				-1,
+				new Condition<AnAction>() {
+					@Override boolean value(AnAction anAction) {
+						isPreselected(anAction)
+					}
+				}
 		)
 
 		if (contextComponent != null) {
