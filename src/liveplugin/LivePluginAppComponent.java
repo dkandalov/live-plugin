@@ -148,15 +148,6 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 		});
 	}
 
-	private static void installHelloWorldPlugin() {
-		ExamplePluginInstaller pluginInstaller = new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "/helloWorld", asList("plugin.groovy"));
-		pluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
-			@Override public void onException(Exception e, String pluginPath) {
-				LOG.warn("Failed to install plugin: " + pluginPath, e);
-			}
-		});
-	}
-
 	public static void checkThatGroovyIsOnClasspath() {
         if (isGroovyOnClasspath()) return;
 
@@ -186,7 +177,7 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 
 		Settings settings = Settings.getInstance();
 		if (settings.justInstalled) {
-			installHelloWorldPlugin();
+			installHelloWorldPlugins();
 			settings.justInstalled = false;
 		}
 		if (settings.runAllPluginsOnIDEStartup) {
@@ -194,6 +185,17 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 		}
 
 		new PluginToolWindowManager().init();
+	}
+
+	private static void installHelloWorldPlugins() {
+		ExamplePluginInstaller.Listener loggingListener = new ExamplePluginInstaller.Listener() {
+			@Override public void onException(Exception e, String pluginPath) {
+				LOG.warn("Failed to install plugin: " + pluginPath, e);
+			}
+		};
+		new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "helloWorld/", asList("plugin.groovy")).installPlugin(loggingListener);
+		new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "registerAction/", asList("plugin.groovy")).installPlugin(loggingListener);
+		new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "popupMenu/", asList("plugin.groovy")).installPlugin(loggingListener);
 	}
 
 	@Override public void disposeComponent() {
