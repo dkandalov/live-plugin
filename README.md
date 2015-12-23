@@ -18,7 +18,7 @@ It's difficult to explain better than Martin Fowler does in
  This is an attempt to fix this and have easy-to-extend IDE.
 
 
-### Example plugin
+### Plugin Example
 ```groovy
 import com.intellij.openapi.actionSystem.AnActionEvent
 import static liveplugin.PluginUtil.*
@@ -49,9 +49,10 @@ and [Clojure plugin example](https://gist.github.com/dkandalov/5943754).
 
 
 ### How to install
-Through IntelliJ plugin manager. In "Preferences -> Plugins -> Browse Repositories" search for "liveplugin".
-Alternatively, download [LivePlugin.zip](https://raw.github.com/dkandalov/live-plugin/master/LivePlugin.zip)
-and use "Install plugin from disk".
+Through IntelliJ plugin manager. 
+In ``IDE Preferences -> Plugins -> Browse Repositories`` search for "liveplugin" and install it.
+Alternatively, download [LivePlugin.zip from GitHub](https://raw.github.com/dkandalov/live-plugin/master/LivePlugin.zip)
+and use ``Install plugin from disk``.
 
 
 ### How to start writing plugins
