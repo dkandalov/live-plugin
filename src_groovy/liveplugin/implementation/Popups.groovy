@@ -1,16 +1,7 @@
 package liveplugin.implementation
 
-import com.intellij.ide.util.gotoByName.ChooseByNameBase
-import com.intellij.ide.util.gotoByName.ChooseByNameItemProvider
-import com.intellij.ide.util.gotoByName.ChooseByNamePopup
-import com.intellij.ide.util.gotoByName.ChooseByNamePopupComponent
-import com.intellij.ide.util.gotoByName.SimpleChooseByNameModel
-import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.ide.util.gotoByName.*
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
@@ -23,25 +14,33 @@ import org.jetbrains.annotations.Contract
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
-import javax.swing.JList
-import javax.swing.JPanel
-import javax.swing.ListCellRenderer
+import javax.swing.*
+import java.awt.*
+import java.util.List
 
 class Popups {
 
 	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null) {
-		if (dataContext == null) {
+		def contextComponent = dataContext?.getData(PlatformDataKeys.CONTEXT_COMPONENT.name) as Component
+		if (contextComponent == null) {
 			// this is to prevent createActionGroupPopup() from crashing without context component
 			def dummyComponent = new JPanel()
 			dataContext = new MapDataContext().put(PlatformDataKeys.CONTEXT_COMPONENT.name, dummyComponent)
 		}
-		JBPopupFactory.instance.createActionGroupPopup(
-			popupTitle,
-			createNestedActionGroup(menuDescription),
-			dataContext,
-			JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-			true
-		).showInFocusCenter()
+
+		def popup = JBPopupFactory.instance.createActionGroupPopup(
+				popupTitle,
+				createNestedActionGroup(menuDescription),
+				dataContext,
+				JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+				true
+		)
+
+		if (contextComponent != null) {
+			popup.showInCenterOf(contextComponent)
+		} else {
+			popup.showInFocusCenter()
+		}
 	}
 
 	@Contract(pure = true)

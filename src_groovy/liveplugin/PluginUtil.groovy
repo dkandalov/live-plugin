@@ -907,8 +907,10 @@ class PluginUtil {
 	 * Shows popup menu in which each leaf item is associated with action.
 	 *
 	 * @param menuDescription see javadoc for {@link #createNestedActionGroup(java.util.Map)}
-	 * @param popupTitle (optional) the title of the popup
-	 * @param dataContext (optional) the data context which provides the data for the selected action
+	 * @param popupTitle (optional) title of the popup
+	 * @param dataContext (optional) data context which is passed to popup menu and action selected in the popup.
+	 *                    It's usually a good idea to pass dataContext from current actionEvent.
+	 *                    Note that popup expects dataContext to have {@link PlatformDataKeys#CONTEXT_COMPONENT}.
 	 */
 	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null) {
 		Popups.showPopupMenu(menuDescription, popupTitle, dataContext)
