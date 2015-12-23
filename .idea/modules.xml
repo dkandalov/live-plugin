@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/LivePlugin.iml" filepath="$PROJECT_DIR$/LivePlugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../live-plugin.wiki/live-plugin.wiki.iml" filepath="$PROJECT_DIR$/../live-plugin.wiki/live-plugin.wiki.iml" />
     </modules>
   </component>
 </project>
