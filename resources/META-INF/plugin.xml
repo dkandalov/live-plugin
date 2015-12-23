@@ -10,18 +10,32 @@
 	<category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>
-Plugin for writing simple plugins at runtime.
-It uses Groovy as a main language and has experimental support for Scala and Clojure.
+This is a plugin for writing plugins at runtime (i.e. without IDE restarts).<br/>
+It uses Groovy as main language and has experimental support for Scala and Clojure.
 <br/><br/>
-How to use:
+To get started:
 <ul>
 <li>open "Plugins" tool window on the right side</li>
-<li>select one of "plugin.groovy" files (these are entry points for plugins)</li>
-<li>use "alt + C, alt + E" to execute it</li>
+<li>select one of the plugin entries in the panel
+    (there are just folders, and "plugin.groovy" are startup scripts for plugins)</li>
+<li>click "Run" icon to execute the plugin (or use keyboard shortcut "alt+C, alt+E" or "ctrl+shift+L")</li>
+</ul>
+If the above worked fine:
+<ul>
+<li>try modifying "plugin.groovy" and rerun the plugin to see results</li>
+<li>add built-in plugin examples and experiment with them</li>
+<li>for more details see <a href="https://github.com/dkandalov/live-plugin">readme on GitHub</a></li>
+</ul>
+If something doesn't work:
+<ul>
+<li><a href="https://github.com/dkandalov/live-plugin/issues">report an issue</a></li>
 </ul>
 <br/>
-For more details please see <a href="https://github.com/dkandalov/live-plugin">readme on GitHub</a>.
-</body></html>
+
+(On OSX you might need workaround to use alt+... shortcuts, please see
+<a href="https://github.com/dkandalov/live-plugin/wiki/Alt-keyboard-shortcuts-on-osx">this wiki page</a>
+.)
+    </body></html>
 		]]>
 	</description>
 
@@ -38,6 +52,7 @@ For more details please see <a href="https://github.com/dkandalov/live-plugin">r
 	<actions>
 		<action id="LivePlugin.RunPlugin" class="liveplugin.pluginrunner.RunPluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
+			<keyboard-shortcut keymap="$default" first-keystroke="control shift l"/>
 		</action>
 		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.TestPluginAction" text="Test Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
