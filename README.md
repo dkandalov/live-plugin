@@ -55,10 +55,20 @@ and use "Install plugin from disk".
 
 
 ### How to start writing plugins
- - open "Plugins" tool window on the right side
- - select "helloWorld" plugin and press "alt + C, alt + E" to execute it
-   ("plugin.groovy" are plugin entry points)
- - add plugin examples and experiment with them
+ - open ``Plugins`` tool window on the right side
+ - select one of the plugin entries in the panel
+   (there are just folders, and ``plugin.groovy`` are startup scripts for plugins)
+ - click ``Run`` icon to execute the plugin (or use keyboard shortcut ``alt+C, alt+E`` or ``ctrl+shift+L``)
+
+If the above worked fine:
+ - try modifying ``plugin.groovy`` and rerun the plugin to see results
+ - add built-in plugin examples and experiment with them
+
+If something doesn't work, [report an issue](https://github.com/dkandalov/live-plugin/issues).
+
+(On OSX you might need workaround to use ``alt+...`` shortcuts, please see
+[this wiki page](https://github.com/dkandalov/live-plugin/wiki/Alt-keyboard-shortcuts-on-osx)
+.)
 
 
 ### Advanced usage
@@ -68,12 +78,12 @@ and use "Install plugin from disk".
  Even if you don't use it, it might be a good place to look up bits of IntelliJ API.
  - it helps to have [JetGroovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin installed (available only for IntelliJ IDEA).
  - you can get auto-completion in plugins code by adding IDEA and LivePlugin jars to project
-   (in "Settings" drop-down at the top of "Plugins" tool window). This is a bit of a hack, but seems much easier than
-   setting up a new project for every tiny experiment.
+   (in ``Settings`` drop-down at the top of ``Plugins`` tool window). 
+   This is a bit of a hack, but seems much easier than setting up a new project for every tiny experiment.
  - get [IntelliJ source code](https://github.com/JetBrains/intellij-community), find out how your favorite feature is implemented,
  steal the code and adapt it for your needs
- - if your plugins are stable enough, you can enable "Settings -> Run All Live Plugins on IDE Startup" option.
- If some of them are not meant to be executed at startup, add "if (isIdeStartup) return" statement at the top.
+ - if your plugins are stable enough, you can enable ``Settings -> Run All Live Plugins on IDE Startup`` option.
+ If some of them are not meant to be executed at startup, add ``if (isIdeStartup) return`` statement at the top.
  - when plugin seems to be big enough, you can create a separate project for it but still use live plugin for loading.
  Or you can use liveplugin with existing plugins, the only thing is to make it reloadable.
  See [liveplugin as an entry point for standard plugins](https://github.com/dkandalov/live-plugin/wiki/Liveplugin-as-an-entry-point-for-standard-plugins).
@@ -125,9 +135,9 @@ scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));
 ```
  - each plugin is evaluated with its own classloader
  - it uses Groovy bundled with IntelliJ
- - plugins are stored in "$HOME/.$INTELLIJ_VERSION/config/live-plugins"
-(on Mac "$HOME/Library/Application Support/IntelliJIdea12/live-plugins").
-You can also use standard "ctrl + shift + C" shortcut to copy file/folder path.
+ - plugins are stored in ``$HOME/.$INTELLIJ_VERSION/config/live-plugins``
+(on Mac ``$HOME/Library/Application Support/IntelliJIdea12/live-plugins``).
+You can also use standard ``ctrl+shift+C`` shortcut to copy file/folder path.
 
 
 ### Similar plugins
@@ -146,4 +156,4 @@ The idea of running code inside IntelliJ is not original. There are similar plug
  - add more languages, e.g. Ruby, Kotlin or Java.
 
 ### Contributing
-Please see CONTRIBUTING.md.
+Please see [CONTRIBUTING.md](https://github.com/dkandalov/live-plugin/blob/master/CONTRIBUTING.md).
