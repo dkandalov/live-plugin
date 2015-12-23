@@ -493,7 +493,7 @@ class PluginUtil {
 	 *               IdeNotificationArea.WIDGET_ID - notification toolwindow widget;
 	 *               Encoding - encoding widget;
 	 *               LineSeparator - line separator widget;
-	 * @param presentation see of implementations here
+	 * @param presentation see examples of implementations here
 	 *                     https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/wm/StatusBarWidget.java#L49
 	 * @see {@link #updateWidget(java.lang.String)}
 	 */
@@ -859,19 +859,24 @@ class PluginUtil {
 	 * @return new value
 	 */
 	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure callback) {
-		GlobalVars.changeGlobalVar(varName, initialValue, callback)
+		GlobalVar.changeGlobalVar(varName, initialValue, callback)
 	}
 
 	@Nullable static <T> T setGlobalVar(String varName, @Nullable varValue) {
-		GlobalVars.setGlobalVar(varName, varValue)
+		GlobalVar.setGlobalVar(varName, varValue)
 	}
 
 	@Nullable static <T> T getGlobalVar(String varName, @Nullable initialValue = null) {
-		GlobalVars.getGlobalVar(varName, initialValue)
+		GlobalVar.getGlobalVar(varName, initialValue)
 	}
 
 	@Nullable static <T> T removeGlobalVar(String varName) {
-		GlobalVars.removeGlobalVar(varName)
+		GlobalVar.removeGlobalVar(varName)
+	}
+
+	@CanCallFromAnyThread
+	static <T> GlobalVar<T> newGlobalVar(String id, T value = null, Disposable disposable = null) {
+		new GlobalVar<T>(id, value, disposable)
 	}
 
 	@CanCallFromAnyThread

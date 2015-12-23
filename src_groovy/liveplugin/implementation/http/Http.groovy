@@ -1,7 +1,7 @@
 package liveplugin.implementation.http
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.io.FileUtil
-import liveplugin.implementation.GlobalVars
+import liveplugin.implementation.GlobalVar
 
 class Http {
 	private static final Logger log = Logger.getInstance(Http.class)
@@ -21,7 +21,7 @@ class Http {
 
 	static SimpleHttpServer restartHttpServer(String serverId, String webRootPath,
 	                                          Closure handler = {null}, Closure errorListener = {}) {
-		GlobalVars.changeGlobalVar(serverId) { previousServer ->
+		GlobalVar.changeGlobalVar(serverId) { previousServer ->
 			if (previousServer != null) previousServer.stop()
 
 			def server = SimpleHttpServer.start(8100..9000, webRootPath, handler, errorListener)

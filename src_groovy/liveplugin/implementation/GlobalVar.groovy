@@ -1,11 +1,40 @@
 package liveplugin.implementation
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.util.Disposer
 import org.jetbrains.annotations.Nullable
 
-class GlobalVars {
+class GlobalVar<T> implements Disposable {
+	private final String id
+	private T value
+
+	GlobalVar(String id, T value = null, Disposable disposable = null) {
+		this.id = id
+		this.value = value
+		if (disposable != null) {
+			Disposer.register(disposable, this)
+		}
+	}
+
+	@Nullable T get() {
+		getGlobalVar(id)
+	}
+
+	void set(@Nullable T value) {
+		changeGlobalVar(id){ value }
+	}
+
+	void set(Closure closure) {
+		changeGlobalVar(id, closure)
+	}
+
+	@Override void dispose() {
+		removeGlobalVar(id)
+	}
+
 	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure<T> callback) {
 		def actionManager = ActionManager.instance
 		def action = actionManager.getAction(asActionId(varName))
@@ -26,12 +55,12 @@ class GlobalVars {
 		newValue
 	}
 
-	@Nullable static <T> T setGlobalVar(String varName, @Nullable varValue) {
-		changeGlobalVar(varName){ varValue }
-	}
-
 	@Nullable static <T> T getGlobalVar(String varName, @Nullable initialValue = null) {
 		changeGlobalVar(varName, initialValue, {it})
+	}
+
+	@Nullable static <T> T setGlobalVar(String varName, @Nullable varValue) {
+		changeGlobalVar(varName){ varValue }
 	}
 
 	@Nullable static <T> T removeGlobalVar(String varName) {
@@ -42,6 +71,6 @@ class GlobalVars {
 	}
 
 	private static String asActionId(String globalVarKey) {
-		"LivePlugin-" + globalVarKey
+		"LivePlugin-GlobalVar-" + globalVarKey
 	}
 }

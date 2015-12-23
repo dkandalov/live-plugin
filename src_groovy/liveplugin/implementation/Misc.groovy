@@ -87,7 +87,7 @@ class Misc {
 
 	// TODO consider using com.intellij.openapi.util.Disposer.ourKeyDisposables
 	static Disposable registerDisposable(String id) {
-		def disposable = GlobalVars.changeGlobalVar(id) { Disposable oldDisposable ->
+		def disposable = GlobalVar.changeGlobalVar(id) { Disposable oldDisposable ->
 			if (oldDisposable != null) Disposer.dispose(oldDisposable)
 			def newDisposable = new Disposable() {
 				@Override public void dispose() {}
@@ -104,7 +104,7 @@ class Misc {
 	}
 
 	static void unregisterDisposable(String id) {
-		def disposable = GlobalVars.removeGlobalVar(id) as Disposable
+		def disposable = GlobalVar.removeGlobalVar(id) as Disposable
 		if (disposable != null) {
 			Disposer.dispose(disposable)
 		}

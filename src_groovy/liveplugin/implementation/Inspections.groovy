@@ -11,7 +11,7 @@ import com.intellij.openapi.util.Factory
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 
-import static liveplugin.implementation.GlobalVars.changeGlobalVar
+import static liveplugin.implementation.GlobalVar.changeGlobalVar
 import static liveplugin.implementation.Misc.newDisposable
 
 class Inspections {
