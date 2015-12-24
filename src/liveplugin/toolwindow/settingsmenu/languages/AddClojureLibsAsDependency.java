@@ -26,7 +26,7 @@ public class AddClojureLibsAsDependency extends AnAction implements DumbAware {
 		Project project = event.getProject();
 		if (project == null) return;
 
-		if (DependenciesUtil.allModulesHaveLibraryAsDependencyIn(project, LIBRARY_NAME)) {
+		if (DependenciesUtil.anyModuleHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
 			DependenciesUtil.removeLibraryDependencyFrom(project, LIBRARY_NAME);
 		} else {
 			List<Pair<String, OrderRootType>> paths = map(fileNamesMatching(DownloadClojureLibs.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH), new Function<String, Pair<String, OrderRootType>>() {
@@ -42,7 +42,7 @@ public class AddClojureLibsAsDependency extends AnAction implements DumbAware {
 		Project project = event.getProject();
 		if (project == null) return;
 
-		if (DependenciesUtil.allModulesHaveLibraryAsDependencyIn(project, LIBRARY_NAME)) {
+		if (DependenciesUtil.anyModuleHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
 			event.getPresentation().setText("Remove Clojure Libraries from Project");
 			event.getPresentation().setDescription("Remove Clojure Libraries from Project");
 		} else {
