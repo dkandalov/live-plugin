@@ -4,7 +4,9 @@ Getting source code (see also [Build Community Edition page](http://www.jetbrain
 ```
 git clone https://github.com/JetBrains/intellij-community.git
 ```
-"Manager" means "Facade". Managers can also have "ManagerEx" implementation with extended functionality.
+"Manager" postfix in class names in general means the class is "Facade" for some subsystem. 
+"Manager" classes can also have "ManagerEx" implementation with extended functionality 
+(e.g. ``ApplicationManager``, ``ApplicationManagerEx``).
 
 
 #### "Core" classes
@@ -49,20 +51,20 @@ highlights ranges of text in a document, paints markers on the gutter and so on
 open/close/get current editor
 - [Document](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/editor/Document.java) - 
 represents the contents of a text file loaded into memory and possibly opened in a text editor
-(see also [confluence page](http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview#IntelliJIDEAArchitecturalOverview-Documents))
+(see also [IntelliJ Platform SDK page](http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/documents.html))
 - [FileDocumentManager](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/fileEditor/FileDocumentManager.java) - 
 gets document for VirtualFile, etc.
 - [VirtualFile](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/vfs/VirtualFile.java) - 
 represent a file on disk, in archive, HTTP server, etc. 
-(see also [confluence page](http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview#IntelliJIDEAArchitecturalOverview-VirtualFiles))
+(see also [IntelliJ Platform SDK page](http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/virtual_file.html))
 - [VirtualFileSystem](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/vfs/VirtualFileSystem.java) - 
-abstraction on top of file systems; delete/move/rename files (see also [confluence page](http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Virtual+File+System))
+abstraction on top of file systems; delete/move/rename files (see also [IntelliJ Platform SDK page](http://www.jetbrains.org/intellij/sdk/docs/basics/virtual_file_system.html))
 - [VirtualFileListener](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/vfs/VirtualFileListener.java) - 
 receives notifications about changes in the virtual file system
 - [VirtualFileManager](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/vfs/VirtualFileManager.java) - 
 add VirtualFile listener, refresh VirtualFileSystem
 - [PsiElement](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/PsiElement.java) - 
-the common base interface for all elements of the PSI tree (see also [confluence page](http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview#IntelliJIDEAArchitecturalOverview-PsiFiles))
+the common base interface for all elements of the PSI tree (see also [IntelliJ Platform SDK page](http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/psi_files.html))
 
 
 #### Syntax tree
@@ -93,7 +95,7 @@ builder for custom dialogs
 - [ToolWindowManager](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/wm/ToolWindowManager.java) - 
 register/unregister tool windows
 
-See also [User Interface Components confluence page](http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+User+Interface+Components).
+See also [User Interface Components IntelliJ Platform SDK page](http://www.jetbrains.org/intellij/sdk/docs/user_interface_components/user_interface_components.html).
 
 
 #### Threading rules
@@ -104,5 +106,5 @@ See also [User Interface Components confluence page](http://confluence.jetbrains
 - Other threads write: N/A (i.e. invokeOnEDT{...})
 
 See also 
-[General Threading Rules](http://confluence.jetbrains.com/display/IDEADEV/IntelliJ+IDEA+Architectural+Overview#IntelliJIDEAArchitecturalOverview-Threading)
-on confluence.
+[General Threading Rules](http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/general_threading_rules.html)
+in IntelliJ Platform SDK documentation.

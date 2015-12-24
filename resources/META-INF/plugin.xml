@@ -15,14 +15,14 @@ It uses Groovy as main language and has experimental support for Scala and Cloju
 <br/><br/>
 To get started:
 <ul>
-<li>open "Plugins" tool window on the right side</li>
+<li>open "Plugins" tool window</li>
 <li>select one of the plugin entries in the panel
-    (there are just folders, and "plugin.groovy" are startup scripts for plugins)</li>
-<li>click "Run" icon to execute the plugin (or use keyboard shortcut "alt+C, alt+E" or "ctrl+shift+L")</li>
+    (these are just folders, and "plugin.groovy" are startup scripts for plugins)</li>
+<li>click "Run" icon to execute plugin (or use keyboard shortcut "alt+C, alt+E" or "ctrl+shift+L")</li>
 </ul>
 If the above worked fine:
 <ul>
-<li>try modifying "plugin.groovy" and rerun the plugin to see results</li>
+<li>modify "plugin.groovy" and rerun plugin to see results</li>
 <li>add built-in plugin examples and experiment with them</li>
 <li>for more details see <a href="https://github.com/dkandalov/live-plugin">readme on GitHub</a></li>
 </ul>

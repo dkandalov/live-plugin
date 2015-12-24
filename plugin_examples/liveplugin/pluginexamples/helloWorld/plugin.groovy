@@ -5,7 +5,7 @@ if (isIdeStartup) return
 // To run a plugin you can press "Run plugin" button or use "alt+C, alt+E" shortcut.
 // This will run plugin currently open in editor or plugin selected in plugin toolwindow.
 
-// The code below will show balloon message with "Hello IntelliJ" text (and also in IDE "Event Log").
+// The code below will show balloon message with "Hello world" text (it will also appear in IDE "Event Log" toolwindow).
 // (If there is no balloon, it might be disabled in "IDE Settings - Notifications".)
 show("Hello world")
 
