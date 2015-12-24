@@ -15,7 +15,9 @@ See also [plugin repository page](http://plugins.jetbrains.com/plugin/7282).
 
 ### Why?
 There is great [Internal Reprogrammability blog post](http://martinfowler.com/bliki/InternalReprogrammability.html)
-on this topic by Martin Fowler. Motivations for LivePlugin are along the same lines:
+on this topic by Martin Fowler. 
+
+Motivations for LivePlugin are along the same lines:
  - **minimal setup to start writing plugin**.
    Creating new project configured for plugin development feels like too much effort if all I want is to write 20 lines of code.
    LivePlugins exist outside of normal IDE projects and, therefore, can be modified and run from any project.
