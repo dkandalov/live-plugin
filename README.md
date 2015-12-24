@@ -74,8 +74,8 @@ See also [Scala plugin example](https://gist.github.com/dkandalov/5921340),
 
 ### How to start writing plugins
  - open ``Plugins`` tool window
- - select one of the plugin entries in the panel
-   (these entries are just folders, and ``plugin.groovy`` are startup scripts for plugins)
+ - select one of the plugin entries in the panel<br/>
+   (entries are folders, and ``plugin.groovy`` are startup scripts for plugins)
  - click ``Run`` icon to execute plugin (or use keyboard shortcuts ``alt+C, alt+E`` or ``ctrl+shift+L``)
 
 If the above worked fine:
@@ -122,8 +122,9 @@ Note that you can use ``ctrl+shift+C`` shortcut to copy file/folder path.
  - it helps to have [JetGroovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin installed (only available in IDEs with Java support).
  - you can get auto-completion and code navigation in plugins code
 	- install/enable Groovy plugin
-    - ``Plugin toolwindow -> Settings -> Add LivePlugin Jar to Project`` (the jar also includes source code for PluginUtil)
-    - ``Plugin toolwindow -> Settings -> Add IDEA Jars to Project`` 
+    - ``Plugin toolwindow -> Settings -> Add LivePlugin Jar to Project``<br/> 
+    (the jar also includes source code for PluginUtil)
+    - ``Plugin toolwindow -> Settings -> Add IDEA Jars to Project``<br/> 
     (adding jars unrelated to your actual project is a hack but there seems to be no major problems with it.
  - it helps to be familiar with IntelliJ API
 	 - get and explore [IntelliJ source code](https://github.com/JetBrains/intellij-community)
