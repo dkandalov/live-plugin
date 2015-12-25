@@ -111,7 +111,7 @@ to include your code into ``PluginUtil``. This is experimental API and there is 
 Also note that:
  - plugins are evaluated with new classloader on each run
  - plugins are stored in ``$HOME/.$INTELLIJ_VERSION/config/live-plugins``
-(on Mac ``$HOME/Library/Application Support/IntelliJIdea15/live-plugins``).
+(on Mac ``$HOME/Library/Application Support/IntelliJIdea15/live-plugins``)
 Note that you can use ``ctrl+shift+C`` shortcut to copy file/folder path.
  - if available, Groovy library bundled with IDE is used
 
@@ -119,19 +119,19 @@ Note that you can use ``ctrl+shift+C`` shortcut to copy file/folder path.
 ### Misc tips
  - if your plugins are stable enough, you can enable ``Settings -> Run All Live Plugins on IDE Startup`` option.
  If some of the plugins are not meant to be executed at startup, add ``if (isIdeStartup) return`` statement at the top.
- - it helps to have [JetGroovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin installed (only available in IDEs with Java support).
+ - it helps to have [JetGroovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin installed (only available in IDEs with Java support)
  - you can get auto-completion and code navigation in plugins code
 	- install/enable Groovy plugin
     - ``Plugin toolwindow -> Settings -> Add LivePlugin Jar to Project``<br/> 
     (the jar also includes source code for PluginUtil)
     - ``Plugin toolwindow -> Settings -> Add IDEA Jars to Project``<br/> 
-    (adding jars unrelated to your actual project is a hack but there seems to be no major problems with it.
+    (adding jars unrelated to your actual project is a hack but there seems to be no major problems with it)
  - it helps to be familiar with IntelliJ API
 	 - get and explore [IntelliJ source code](https://github.com/JetBrains/intellij-community)
      - look at [jetbrains plugin development page](http://www.jetbrains.org/intellij/sdk/docs/)
      - [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy)
-       might be a good start point to explore IntelliJ API.
- - when plugin seems to be big enough, you can move it to proper plugin project and still use live plugin.
+       might be a good start point to explore IntelliJ API
+ - when plugin seems to be big enough, you can move it to proper plugin project and still use live plugin
  See [liveplugin as an entry point for standard plugins](https://github.com/dkandalov/live-plugin/wiki/Liveplugin-as-an-entry-point-for-standard-plugins).
 
 
@@ -187,8 +187,8 @@ There are similar plugins (some of them might be out-of-date though):
 
 ### Wish list
  - try writing plugin for custom language support
- - create AST pattern-matching API (this can be useful for writing inspections/intentions to match/replace parts of syntax tree).
- - try more languages, e.g. Kotlin, Ruby or Java.
+ - create AST pattern-matching API (this can be useful for writing inspections/intentions to match/replace parts of syntax tree)
+ - try more languages, e.g. Kotlin, Ruby or Java
 
 
 ### Contributing

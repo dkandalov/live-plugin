@@ -17,7 +17,7 @@ To get started:
 <ul>
 <li>open "Plugins" tool window</li>
 <li>select one of the plugin entries in the panel
-    (these are just folders, and "plugin.groovy" are startup scripts for plugins)</li>
+    (entries are folders, and "plugin.groovy" are startup scripts for plugins)</li>
 <li>click "Run" icon to execute plugin (or use keyboard shortcut "alt+C, alt+E" or "ctrl+shift+L")</li>
 </ul>
 If the above worked fine:
