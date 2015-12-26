@@ -23,13 +23,13 @@ class FileSearch {
 	static List<PsiFile> findAllFilesByName(String filePath, @NotNull Project project, boolean searchInLibraries = false) {
 		PluginUtil.runReadAction{
 			def scope = searchInLibraries? ProjectScope.getAllScope(project) : ProjectScope.getProjectScope(project)
-			def pathAndName = filePath.split("[/\\]").toList().findAll{ !it.empty }
+			def pathAndName = filePath.split("[/\\\\]").toList().findAll{ !it.empty }
 			def reversePath = (pathAndName.size() > 1 ? pathAndName.reverse().tail() : [])
 			def name = pathAndName.last()
 			FilenameIndex
-					.getFilesByName(project, name, scope)
-					.toList()
-					.findAll{ file -> matches(reversePath, file) }
+				.getFilesByName(project, name, scope)
+				.toList()
+				.findAll{ file -> matches(reversePath, file) }
 		}
 	}
 
