@@ -743,10 +743,12 @@ class PluginUtil {
 		VcsActions.registerVcsListener(disposable, project, listener)
 	}
 
+	@Deprecated // use method with "disposable" instead
 	static registerVcsListener(String id, Project project, VcsActions.Listener listener) {
 		VcsActions.registerVcsListener(id, project, listener)
 	}
 
+	@Deprecated // use method with "disposable" instead
 	static unregisterVcsListener(String id) {
 		VcsActions.unregisterVcsListener(id)
 	}

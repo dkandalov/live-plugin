@@ -1,22 +1,22 @@
 package liveplugin.implementation
-
 import com.intellij.notification.Notification
 import com.intellij.notification.Notifications
 import com.intellij.notification.NotificationsAdapter
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.CheckinProjectPanel
+import com.intellij.openapi.vcs.VcsException
 import com.intellij.openapi.vcs.changes.CommitContext
 import com.intellij.openapi.vcs.checkin.CheckinHandler
 import com.intellij.openapi.vcs.checkin.CheckinHandlerFactory
 import com.intellij.openapi.vcs.impl.CheckinHandlersManager
+import com.intellij.openapi.vcs.impl.CheckinHandlersManagerImpl
 import com.intellij.openapi.vcs.update.UpdatedFilesListener
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.annotations.NotNull
 
-import static liveplugin.implementation.Misc.newDisposable
-import static liveplugin.implementation.Misc.registerDisposable
-import static liveplugin.implementation.Misc.unregisterDisposable
+import static liveplugin.PluginUtil.accessField
+import static liveplugin.implementation.Misc.*
 
 class VcsActions {
 	private final MessageBusConnection busConnection
@@ -32,7 +32,7 @@ class VcsActions {
 
 	static registerVcsListener(Disposable disposable, Project project, Listener listener) {
 		def vcsActions = new VcsActions(project, listener)
-		newDisposable(disposable) {
+		newDisposable([project, disposable]) {
 			vcsActions.stop()
 		}
 		vcsActions.start()
@@ -47,18 +47,26 @@ class VcsActions {
 	}
 
 	VcsActions(Project project, Listener listener) {
-		this.busConnection = project.getMessageBus().connect()
+		this.busConnection = project.messageBus.connect()
 
 		updatedListener = new UpdatedFilesListener() {
 			@Override void consume(Set<String> files) {
 				listener.onVcsUpdate()
 			}
 		}
+
 		checkinListener = new CheckinHandlerFactory() {
 			@NotNull @Override CheckinHandler createHandler(@NotNull CheckinProjectPanel panel, @NotNull CommitContext commitContext) {
 				new CheckinHandler() {
 					@Override void checkinSuccessful() {
-						listener.onVcsCommit()
+						if (panel.project == project) {
+							listener.onVcsCommit()
+						}
+					}
+					@Override void checkinFailed(List<VcsException> exception) {
+						if (panel.project == project) {
+							listener.onVcsCommitFailed()
+						}
 					}
 				}
 			}
@@ -84,21 +92,35 @@ class VcsActions {
 		// (see also https://gist.github.com/dkandalov/8840509)
 		busConnection.subscribe(UpdatedFilesListener.UPDATED_FILES, updatedListener)
 		busConnection.subscribe(Notifications.TOPIC, pushListener)
-		CheckinHandlersManager.instance.registerCheckinHandlerFactory(checkinListener)
+
+		def checkinHandlersManager = CheckinHandlersManager.instance as CheckinHandlersManagerImpl
+		["myRegisteredBeforeCheckinHandlers", "a"].each {
+			accessField(checkinHandlersManager, it) { List list ->
+				list.add(0, checkinListener)
+			}
+		}
+
 		this
 	}
 
 	VcsActions stop() {
 		busConnection.disconnect()
-		CheckinHandlersManager.instance.unregisterCheckinHandlerFactory(checkinListener)
+
+		def checkinHandlersManager = CheckinHandlersManager.instance as CheckinHandlersManagerImpl
+		["myRegisteredBeforeCheckinHandlers", "a"].each {
+			accessField(checkinHandlersManager, it) { List list ->
+				list.remove(checkinListener)
+			}
+		}
+
 		this
 	}
 
 	private static boolean isVcsNotification(Notification notification) {
 		notification.groupId.equals("Vcs Messages") ||
-			notification.groupId.equals("Vcs Important Messages") ||
-			notification.groupId.equals("Vcs Minor Notifications") ||
-			notification.groupId.equals("Vcs Silent Notifications")
+		notification.groupId.equals("Vcs Important Messages") ||
+		notification.groupId.equals("Vcs Minor Notifications") ||
+		notification.groupId.equals("Vcs Silent Notifications")
 	}
 
 	private static boolean matchTitleOf(Notification notification, String... expectedTitles) {
@@ -110,6 +132,7 @@ class VcsActions {
 
 	static class Listener {
 		void onVcsCommit() {}
+		void onVcsCommitFailed() {}
 		void onVcsUpdate() {}
 		void onVcsPush() {}
 		void onVcsPushFailed() {}
