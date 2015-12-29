@@ -1,5 +1,6 @@
 package liveplugin.implementation
 
+import com.intellij.concurrency.JobScheduler
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
@@ -8,8 +9,10 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.Alarm
 import liveplugin.PluginUtil
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
+import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicBoolean
 
 class Misc {
@@ -110,11 +113,15 @@ class Misc {
 		}
 	}
 
-	static scheduleTask(Alarm alarm, int delayMillis, Closure closure) {
+	static scheduleTask(Alarm alarm, long taskFrequencyMillis, Closure closure) {
 		alarm.addRequest({
 			closure()
-			scheduleTask(alarm, delayMillis, closure)
-		} as Runnable, delayMillis)
+			scheduleTask(alarm, taskFrequencyMillis, closure)
+		} as Runnable, taskFrequencyMillis)
+	}
+
+	@NotNull static ScheduledExecutorService scheduler() {
+		JobScheduler.scheduler
 	}
 
 }
