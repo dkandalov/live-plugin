@@ -11,7 +11,7 @@ import static liveplugin.implementation.Misc.newDisposable
 class Compilation {
 	static void registerCompilationListener(Disposable disposable, CompilationStatusListener listener) {
 		Projects.registerProjectListener(disposable) { Project project ->
-			registerCompilationListener(newDisposable([project, disposable]), project, listener)
+			registerCompilationListener(disposable, project, listener)
 		}
 	}
 
@@ -19,7 +19,7 @@ class Compilation {
 		def compilerManager = CompilerManager.getInstance(project)
 		compilerManager.addCompilationStatusListener(listener)
 
-		newDisposable(disposable) {
+		newDisposable([project, disposable]) {
 			compilerManager.removeCompilationStatusListener(listener)
 		}
 	}

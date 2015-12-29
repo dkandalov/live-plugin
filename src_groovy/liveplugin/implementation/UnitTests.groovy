@@ -20,14 +20,14 @@ class UnitTests {
 
 	static registerUnitTestListener(Disposable disposable, Listener listener) {
 		Projects.registerProjectListener(disposable) { Project project ->
-			registerUnitTestListener(newDisposable([project, disposable]), project, listener)
+			registerUnitTestListener(disposable, project, listener)
 		}
 	}
 
 	static registerUnitTestListener(Disposable disposable, Project project, Listener listener) {
 		def unitTests = new UnitTests(project, listener)
 		unitTests.start()
-		newDisposable(disposable) {
+		newDisposable([project, disposable]) {
 			unitTests.stop()
 		}
 	}
