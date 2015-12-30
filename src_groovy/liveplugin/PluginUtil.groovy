@@ -530,6 +530,13 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
+	static findWidget(String widgetId, Project project) {
+		invokeOnEDT {
+			Widgets.findWidget(widgetId, project)
+		}
+	}
+
+	@CanCallFromAnyThread
 	static void inspect(Object object) {
 		invokeOnEDT {
 			ObjectInspector.inspect(object)

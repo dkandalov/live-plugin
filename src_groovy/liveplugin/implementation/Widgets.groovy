@@ -6,6 +6,7 @@ import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.WindowManager
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 
 import static com.intellij.openapi.wm.StatusBarWidget.*
 
@@ -36,8 +37,13 @@ class Widgets {
 		WindowManager.instance.allProjectFrames*.statusBar*.updateWidget(widgetId)
 	}
 
-
 	static unregisterWidget(String widgetId) {
 		WindowManager.instance.allProjectFrames*.statusBar*.removeWidget(widgetId)
+	}
+
+	@Nullable static StatusBarWidget findWidget(String widgetId, Project project) {
+		def frame = WindowManager.instance.allProjectFrames.find{ it.project == project }
+		if (frame == null) return null
+		frame.statusBar.getWidget(widgetId)
 	}
 }
