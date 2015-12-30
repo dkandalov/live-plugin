@@ -10,10 +10,10 @@ import org.jetbrains.annotations.Nullable
 class GlobalVar<T> implements Disposable {
 	private final String id
 
-	GlobalVar(String id, T value = null, Disposable disposable = null) {
+	GlobalVar(String id, T defaultValue = null, Disposable disposable = null) {
 		this.id = id
-		if (value != null) {
-			setGlobalVar(id, value)
+		if (get() == null) {
+			setGlobalVar(id, defaultValue)
 		}
 		if (disposable != null) {
 			Disposer.register(disposable, this)
