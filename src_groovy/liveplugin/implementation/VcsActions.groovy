@@ -130,6 +130,9 @@ class VcsActions {
 		false
 	}
 
+	/**
+	 * Listener callbacks can be called from any thread.
+	 */
 	static class Listener {
 		void onVcsCommit() {}
 		void onVcsCommitFailed() {}
