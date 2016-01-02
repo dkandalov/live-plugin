@@ -471,6 +471,16 @@ class PluginUtil {
 		}
 	}
 
+	@CanCallFromAnyThread
+	static registerToolWindow(Project project, String toolWindowId, Disposable disposable = null,
+	                          ToolWindowAnchor location = RIGHT, Closure<JComponent> createComponent) {
+		invokeOnEDT {
+			runWriteAction {
+				ToolWindows.registerToolWindow(project, toolWindowId, disposable, location, createComponent)
+			}
+		}
+	}
+
 	/**
 	 * Unregisters a tool window from all open IDE windows.
 	 */

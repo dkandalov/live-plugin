@@ -23,6 +23,13 @@ class ToolWindows {
 			registerToolWindowIn(project, toolWindowId, newDisposable([project, disposable]), createComponent(), location)
 		}
 	}
+	static registerToolWindow(Project project, String toolWindowId, Disposable disposable = null, ToolWindowAnchor location = RIGHT,
+	                          Closure<JComponent> createComponent) {
+		def disposableId = registerDisposable(toolWindowId)
+		disposable = (disposable == null ? disposableId : newDisposable([disposable, disposableId]))
+
+		registerToolWindowIn(project, toolWindowId, newDisposable([project, disposable]), createComponent(), location)
+	}
 
 	static unregisterToolWindow(String toolWindowId) {
 		unregisterDisposable(toolWindowId)
