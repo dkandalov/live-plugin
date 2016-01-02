@@ -727,6 +727,10 @@ class PluginUtil {
 		Compilation.registerCompilationListener(disposable, project, listener)
 	}
 
+	static compile(Project project, Closure onSuccessfulCompilation = {}) {
+		Compilation.compile(project, onSuccessfulCompilation)
+	}
+
 	static void registerCompilationListener(String id, Project project, /*CompilationStatusListener*/ listener) {
 		registerCompilationListener(registerDisposable(id), project, listener)
 	}
