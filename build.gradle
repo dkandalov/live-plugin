@@ -58,7 +58,7 @@ task downloadDependenciesToLibFolder(type: Copy) {
 }
 
 task installLivePlugin() << {
-	def version = new File("src/META-INF/plugin.xml").readLines()
+	def version = new File("resources/META-INF/plugin.xml").readLines()
 			.find { it.contains("<version>") }
 			.replaceFirst(".*<version>", "")
 			.replaceFirst("</version>.*", "")
