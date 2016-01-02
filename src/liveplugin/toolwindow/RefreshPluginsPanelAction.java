@@ -7,7 +7,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
-import liveplugin.IDEUtil;
+import liveplugin.Icons;
 import liveplugin.LivePluginAppComponent;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 public class RefreshPluginsPanelAction extends AnAction implements DumbAware {
 
 	public RefreshPluginsPanelAction() {
-		super("Refresh Plugins Panel", "Refresh Plugins Panel", IDEUtil.REFRESH_PLUGINS_PANEL_ICON);
+		super("Refresh Plugins Panel", "Refresh Plugins Panel", Icons.REFRESH_PLUGINS_PANEL_ICON);
 	}
 
 	public static void refreshPluginTree() {

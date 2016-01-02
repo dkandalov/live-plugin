@@ -13,6 +13,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import liveplugin.IDEUtil;
+import liveplugin.Icons;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.PluginToolWindowManager;
@@ -31,7 +32,7 @@ public class AddPluginFromPathAction extends AnAction implements DumbAware {
 
 
     public AddPluginFromPathAction() {
-		super("Copy from Path", "Copy plugin from path into LivePlugins folder", IDEUtil.COPY_PLUGIN_FROM_PATH_ICON);
+		super("Copy from Path", "Copy plugin from path into LivePlugins folder", Icons.COPY_PLUGIN_FROM_PATH_ICON);
 	}
 
 	private static List<VirtualFile> getFileSystemRoots() {

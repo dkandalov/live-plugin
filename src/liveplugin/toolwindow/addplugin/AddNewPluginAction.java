@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
 import liveplugin.IDEUtil;
+import liveplugin.Icons;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.RefreshPluginsPanelAction;
@@ -23,7 +24,7 @@ public class AddNewPluginAction extends AnAction implements DumbAware {
 	private static final String addNewPluginTitle = "Add New Plugin";
 
 	public AddNewPluginAction() {
-		super("New Plugin", "Create new plugin", IDEUtil.NEW_PLUGIN_ICON);
+		super("New Plugin", "Create new plugin", Icons.NEW_PLUGIN_ICON);
 	}
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {

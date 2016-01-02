@@ -26,7 +26,7 @@ class Projects {
 
 	@Nullable static Project openProject(@NotNull String projectPath) {
 		def projectManager = ProjectManager.instance
-			def project = projectManager.openProjects.find{ it.basePath == projectPath }
+		def project = projectManager.openProjects.find{ it.basePath == projectPath }
 		if (project != null) project
 		else projectManager.loadAndOpenProject(projectPath)
 	}

@@ -30,6 +30,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
 import com.intellij.util.ui.UIUtil;
 import liveplugin.IDEUtil;
+import liveplugin.Icons;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.Settings;
 import liveplugin.toolwindow.PluginToolWindowManager;
@@ -60,7 +61,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 
 
     public RunPluginAction() {
-		super("Run Plugin", "Run selected plugins", IDEUtil.RUN_PLUGIN_ICON);
+		super("Run Plugin", "Run selected plugins", Icons.RUN_PLUGIN_ICON);
 	}
 
     @Override public void actionPerformed(@NotNull AnActionEvent event) {

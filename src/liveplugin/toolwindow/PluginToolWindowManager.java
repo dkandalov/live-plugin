@@ -54,6 +54,7 @@ import com.intellij.util.EditSourceOnEnterKeyHandler;
 import com.intellij.util.Function;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IDEUtil;
+import liveplugin.Icons;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.pluginrunner.TestPluginAction;
@@ -174,7 +175,7 @@ public class PluginToolWindowManager {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
 				@Override public Icon getIcon(VirtualFile file) {
                     for (String path : LivePluginAppComponent.pluginIdToPathMap().values()) {
-                        if (file.getPath().toLowerCase().equals(path.toLowerCase())) return IDEUtil.PLUGIN_ICON;
+                        if (file.getPath().toLowerCase().equals(path.toLowerCase())) return Icons.PLUGIN_ICON;
                     }
 					return super.getIcon(file);
 				}
@@ -229,7 +230,7 @@ public class PluginToolWindowManager {
 		public void registerWindowFor(Project project) {
 			ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
 			toolWindow = toolWindowManager.registerToolWindow(PLUGINS_TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT, project, true);
-			toolWindow.setIcon(IDEUtil.PLUGIN_TOOLWINDOW_ICON);
+			toolWindow.setIcon(Icons.PLUGIN_TOOLWINDOW_ICON);
 
 			toolWindow.getContentManager().addContent(createContent(project));
 		}
@@ -291,17 +292,17 @@ public class PluginToolWindowManager {
 
 		private JComponent createToolBar() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
-			actionGroup.add(withIcon(IDEUtil.ADD_PLUGIN_ICON, createAddPluginsGroup()));
+			actionGroup.add(withIcon(Icons.ADD_PLUGIN_ICON, createAddPluginsGroup()));
 			actionGroup.add(new DeletePluginAction());
 			actionGroup.add(new RunPluginAction());
 			actionGroup.add(new TestPluginAction());
 			actionGroup.addSeparator();
 			actionGroup.add(new RefreshPluginsPanelAction());
-			actionGroup.add(withIcon(IDEUtil.EXPAND_ALL_ICON, new ExpandAllAction()));
-			actionGroup.add(withIcon(IDEUtil.COLLAPSE_ALL_ICON, new CollapseAllAction()));
+			actionGroup.add(withIcon(Icons.EXPAND_ALL_ICON, new ExpandAllAction()));
+			actionGroup.add(withIcon(Icons.COLLAPSE_ALL_ICON, new CollapseAllAction()));
 			actionGroup.addSeparator();
-			actionGroup.add(withIcon(IDEUtil.SETTINGS_ICON, createSettingsGroup()));
-            actionGroup.add(withIcon(IDEUtil.HELP_ICON, new ShowHelpAction()));
+			actionGroup.add(withIcon(Icons.SETTINGS_ICON, createSettingsGroup()));
+            actionGroup.add(withIcon(Icons.HELP_ICON, new ShowHelpAction()));
 
 			// this is a "hack" to force drop-down box appear below button
 			// (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)

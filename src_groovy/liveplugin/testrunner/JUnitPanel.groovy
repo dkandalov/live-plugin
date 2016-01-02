@@ -1,5 +1,4 @@
 package liveplugin.testrunner
-
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Location
 import com.intellij.execution.RunManager
@@ -26,6 +25,7 @@ import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.testframework.ui.TestResultsPanel
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -35,7 +35,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.components.panels.NonOpaquePanel
-import liveplugin.IDEUtil
 import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
@@ -46,6 +45,9 @@ import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import static com.intellij.rt.execution.junit.states.PoolOfTestStates.*
 
 class JUnitPanel implements TestReporter {
+	private static final Icon INTEGRATION_TEST_TAB_ICON = AllIcons.Nodes.TestSourceFolder;
+	private static final Icon RERUN_PLUGIN_TEST_ICON = AllIcons.Actions.Execute;
+
 	@Delegate private TestProxyUpdater testProxyUpdater
 	private ProcessHandler processHandler
 	private JUnitRunningModel model
@@ -77,7 +79,7 @@ class JUnitPanel implements TestReporter {
 
 		def wrapper = new NonOpaquePanel(new BorderLayout(0, 0))
 		def descriptor = new RunContentDescriptor(consoleView.console, processHandler, wrapper, "Plugin integration tests") {
-			@Override Icon getIcon() { IDEUtil.INTEGRATION_TAB_ICON }
+			@Override Icon getIcon() { INTEGRATION_TEST_TAB_ICON }
 			@Override boolean isContentReuseProhibited() { false }
 		}
 		def toolbar = createActionToolbar(rerunCallback, descriptor, project, wrapper)
@@ -98,7 +100,7 @@ class JUnitPanel implements TestReporter {
 
 	private static createActionToolbar(Closure rerunCallback, RunContentDescriptor descriptor, Project project, JComponent targetComponent) {
 		def actionGroup = new DefaultActionGroup()
-		actionGroup.add(new DumbAwareAction("Rerun plugin integration tests", "", IDEUtil.RERUN_PLUGIN_TEST_ICON) {
+		actionGroup.add(new DumbAwareAction("Rerun plugin integration tests", "", RERUN_PLUGIN_TEST_ICON) {
 			@Override void actionPerformed(AnActionEvent e) {
 				rerunCallback(descriptor)
 			}

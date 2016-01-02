@@ -13,6 +13,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
 import liveplugin.IDEUtil;
+import liveplugin.Icons;
 import liveplugin.toolwindow.util.PluginsIO;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +28,7 @@ class DeletePluginAction extends AnAction implements DumbAware {
 
 
 	public DeletePluginAction() {
-		super("Delete Plugin", "Delete Plugin", IDEUtil.DELETE_PLUGIN_ICON);
+		super("Delete Plugin", "Delete Plugin", Icons.DELETE_PLUGIN_ICON);
 	}
 
 	private static boolean userDoesNotWantToRemovePlugins(Collection<VirtualFile> pluginRoots, Project project) {
