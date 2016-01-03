@@ -35,7 +35,6 @@ import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.progress.PerformInBackgroundOption
 import com.intellij.openapi.progress.ProgressIndicator
@@ -74,7 +73,6 @@ import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.SP
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 import static liveplugin.implementation.Misc.registerDisposable
 import static liveplugin.implementation.Misc.unregisterDisposable
-
 /**
  * This class contains a bunch of utility methods on top of IntelliJ API.
  * Some of them are very simple and were added only for reference.
@@ -574,7 +572,7 @@ class PluginUtil {
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
 	@Nullable static Editor currentEditorIn(@NotNull Project project) {
-		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).selectedTextEditor
+		Editors.currentEditorIn(project)
 	}
 
 	/**
@@ -585,16 +583,7 @@ class PluginUtil {
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
 	@NotNull static Editor anotherOpenEditorIn(@NotNull Project project) {
-		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).with {
-			if (selectedTextEditor == null) throw new IllegalStateException("There are no open editors in " + project.name)
-			def editors = selectedEditors
-					.findAll{it instanceof TextEditor}
-					.collect{(Editor) it.editor}
-					.findAll{it != selectedTextEditor}
-			if (editors.size() == 0) throw new IllegalStateException("There is only one open editor in " + project.name)
-			if (editors.size() > 1) throw new IllegalStateException("There are more than 2 open editors in " + project.name)
-			editors.first()
-		}
+		Editors.anotherOpenEditorIn(project)
 	}
 
 	/**
