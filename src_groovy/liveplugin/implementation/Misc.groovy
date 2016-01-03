@@ -1,13 +1,12 @@
 package liveplugin.implementation
-
 import com.intellij.concurrency.JobScheduler
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
-import com.intellij.unscramble.UnscrambleDialog
 import com.intellij.util.Alarm
+import liveplugin.IDEUtil
 import liveplugin.PluginUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
@@ -21,9 +20,7 @@ class Misc {
 		if (message?.getClass()?.isArray()) Arrays.toString(message)
 		else if (message instanceof MapWithDefault) "{" + message.entrySet().join(", ") + "}"
 		else if (message instanceof Throwable) {
-			def writer = new StringWriter()
-			message.printStackTrace(new PrintWriter(writer))
-			UnscrambleDialog.normalizeText(writer.buffer.toString())
+			IDEUtil.unscrambleThrowable(message)
 		} else {
 			String.valueOf(message)
 		}

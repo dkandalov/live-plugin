@@ -31,7 +31,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.unscramble.UnscrambleDialog;
 import com.intellij.util.Function;
 import com.intellij.util.download.DownloadableFileDescription;
 import com.intellij.util.download.DownloadableFileService;
@@ -160,7 +159,7 @@ public class IDEUtil {
 	}
 
 	/**
-	 * Copy-pasted from {@link UnscrambleDialog#normalizeText(String)}
+	 * Copy-pasted from {@code UnscrambleDialog#normalizeText(String)}
 	 * because PhpStorm doesn't have this class.
 	 */
 	private static class Unscramble {
