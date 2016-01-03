@@ -34,7 +34,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.progress.PerformInBackgroundOption
 import com.intellij.openapi.progress.ProgressIndicator
@@ -49,7 +49,6 @@ import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.WindowManager
@@ -586,6 +585,22 @@ class PluginUtil {
 		Editors.anotherOpenEditorIn(project)
 	}
 
+	static registerEditorListener(Project project, Disposable disposable, FileEditorManagerListener listener) {
+		Editors.registerEditorListener(project, disposable, listener)
+	}
+
+	static registerEditorListener(Disposable disposable, FileEditorManagerListener listener) {
+		Editors.registerEditorListener(disposable, listener)
+	}
+
+	static openInEditor(@NotNull String filePath, Project project = currentProjectInFrame()) {
+		openUrlInEditor("file://${filePath}", project)
+	}
+
+	@Nullable static VirtualFile openUrlInEditor(String fileUrl, Project project = currentProjectInFrame()) {
+		Editors.openUrlInEditor(fileUrl, project)
+	}
+
 	/**
 	 * @return {@PsiFile} for opened editor tab; null if there are no open files
 	 */
@@ -996,17 +1011,6 @@ class PluginUtil {
 			frame.requestFocus()
 			frame
 		}
-	}
-
-	static openInEditor(@NotNull String filePath, Project project = currentProjectInFrame()) {
-		openUrlInEditor("file://${filePath}", project)
-	}
-
-	@Nullable static VirtualFile openUrlInEditor(String fileUrl, Project project = currentProjectInFrame()) {
-		def virtualFile = VirtualFileManager.instance.findFileByUrl(fileUrl)
-		if (virtualFile == null) return null
-		FileEditorManager.getInstance(project).openFile(virtualFile, true, true)
-		virtualFile
 	}
 
 	static String openInBrowser(@NotNull String url) {

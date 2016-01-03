@@ -9,14 +9,14 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
 class Projects {
-	static def registerProjectListener(Disposable disposable, Closure closure) {
+	static def registerProjectListener(Disposable disposable, Closure onEachProject) {
 		registerProjectListener(disposable, new ProjectManagerAdapter() {
 			@Override void projectOpened(Project project) {
-				closure(project)
+				onEachProject(project)
 			}
 		})
 		ProjectManager.instance.openProjects.each { project ->
-			closure(project)
+			onEachProject(project)
 		}
 	}
 
