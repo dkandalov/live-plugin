@@ -69,7 +69,6 @@ import liveplugin.toolwindow.settingsmenu.languages.AddClojureLibsAsDependency;
 import liveplugin.toolwindow.settingsmenu.languages.AddScalaLibsAsDependency;
 import liveplugin.toolwindow.settingsmenu.languages.DownloadClojureLibs;
 import liveplugin.toolwindow.settingsmenu.languages.DownloadScalaLibs;
-import liveplugin.toolwindow.util.DisableHighlightingRunnable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -270,7 +269,7 @@ public class PluginToolWindowManager {
 			MyTree myTree = new MyTree(project);
 
 			// must be installed before adding tree to FileSystemTreeImpl
-			EditSourceOnDoubleClickHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
+			EditSourceOnDoubleClickHandler.install(myTree);
 
 			FileSystemTree result = new FileSystemTreeImpl(project, createFileChooserDescriptor(), myTree, null, null, null) {
 				@Override
@@ -285,7 +284,7 @@ public class PluginToolWindowManager {
 			myFsTreeRef.set(result);
 
 			// must be installed after adding tree to FileSystemTreeImpl
-			EditSourceOnEnterKeyHandler.install(myTree, new DisableHighlightingRunnable(project, myFsTreeRef));
+			EditSourceOnEnterKeyHandler.install(myTree);
 
 			return result;
 		}
