@@ -460,20 +460,21 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	static registerToolWindow(String toolWindowId, Disposable disposable = null, ToolWindowAnchor location = RIGHT,
-	                          Closure<JComponent> createComponent) {
+	                          ActionGroup toolbarActionGroup = null, Closure<JComponent> createComponent) {
 		invokeOnEDT {
 			runWriteAction {
-				ToolWindows.registerToolWindow(toolWindowId, disposable, location, createComponent)
+				ToolWindows.registerToolWindow(toolWindowId, disposable, location, toolbarActionGroup, createComponent)
 			}
 		}
 	}
 
 	@CanCallFromAnyThread
-	static registerToolWindow(Project project, String toolWindowId, Disposable disposable = null,
-	                          ToolWindowAnchor location = RIGHT, Closure<JComponent> createComponent) {
+	static registerToolWindow(@NotNull Project project, String toolWindowId, Disposable disposable = null,
+	                          ToolWindowAnchor location = RIGHT, ActionGroup toolbarActionGroup = null,
+	                          Closure<JComponent> createComponent) {
 		invokeOnEDT {
 			runWriteAction {
-				ToolWindows.registerToolWindow(project, toolWindowId, disposable, location, createComponent)
+				ToolWindows.registerToolWindow(project, toolWindowId, disposable, location, toolbarActionGroup, createComponent)
 			}
 		}
 	}
@@ -483,11 +484,11 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	static unregisterToolWindow(String toolWindowId) {
-	  invokeOnEDT {
-		  runWriteAction {
+		invokeOnEDT {
+			runWriteAction {
 				ToolWindows.unregisterToolWindow(toolWindowId)
-		  }
-	  }
+			}
+		}
 	}
 
 	/**
