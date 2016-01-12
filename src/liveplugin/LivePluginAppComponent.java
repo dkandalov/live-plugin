@@ -50,6 +50,7 @@ import static liveplugin.IDEUtil.askIfUserWantsToRestartIde;
 import static liveplugin.IDEUtil.downloadFile;
 
 public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
+	public static final String LIVE_PLUGIN_ID = "LivePlugin";
 	public static final String PLUGIN_EXAMPLES_PATH = "/liveplugin/pluginexamples/";
 	public static final String LIVEPLUGIN_LIBS_PATH = PathManager.getPluginsPath() + "/LivePlugin/lib/";
 	public static final NotificationGroup livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin");

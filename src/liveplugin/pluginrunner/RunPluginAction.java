@@ -39,7 +39,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.*;
 
-import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.util.containers.ContainerUtil.find;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Collections.emptyList;
@@ -123,7 +122,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
                     } finally {
                         errorReporter.reportAllErrors(new ErrorReporter.Callback() {
                             @Override public void display(String title, String message) {
-                                IDEUtil.displayError(title, message, ERROR_OUTPUT, project);
+                                IDEUtil.displayError(title, message, project);
                             }
                         });
                     }

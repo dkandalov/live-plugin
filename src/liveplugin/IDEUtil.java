@@ -13,7 +13,7 @@
  */
 package liveplugin;
 
-import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.diagnostic.PluginException;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
@@ -47,10 +48,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 
+import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.openapi.ui.Messages.showOkCancelDialog;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static liveplugin.LivePluginAppComponent.LIVE_PLUGIN_ID;
 
 public class IDEUtil {
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
@@ -63,11 +66,16 @@ public class IDEUtil {
 	};
 	private static final Logger LOG = Logger.getInstance(IDEUtil.class);
 
-    public static void displayError(String consoleTitle, String text, ConsoleViewContentType contentType, Project project) {
+    public static void displayError(String consoleTitle, String text, Project project) {
 		if (project == null) {
-			LOG.error(consoleTitle + ": " + text);
+			// "project" can be null when there are no open projects or while IDE is loading.
+			// It is important to log error specifying plugin id, otherwise IDE will try to guess
+			// plugin id based on classes in stacktrace and might get it wrong,
+			// e.g. if activity tracker plugin is installed, it will include LivePlugin classes as library
+			// (see com.intellij.diagnostic.IdeErrorsDialog.findPluginId)
+			LOG.error(consoleTitle, new PluginException(text, PluginId.getId(LIVE_PLUGIN_ID)));
 		} else {
-            PluginUtil.showInConsole(text, consoleTitle, project, contentType);
+            PluginUtil.showInConsole(text, consoleTitle, project, ERROR_OUTPUT);
         }
 	}
 
