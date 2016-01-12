@@ -39,6 +39,15 @@ class ToolWindows {
 
 	static unregisterToolWindow(String toolWindowId) {
 		unregisterDisposable(toolWindowId)
+		// manually remove toolwindows from open projects in case they were registered without disposable
+		ProjectManager.instance.openProjects.each { Project project ->
+			ToolWindowManager.getInstance(project).unregisterToolWindow(toolWindowId)
+		}
+	}
+
+	static unregisterToolWindow(String toolWindowId, Project project) {
+		unregisterDisposable(toolWindowId)
+		ToolWindowManager.getInstance(project).unregisterToolWindow(toolWindowId)
 	}
 
 	static Collection<ToolWindow> findToolWindows(String toolWindowId) {

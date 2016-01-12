@@ -491,6 +491,15 @@ class PluginUtil {
 		}
 	}
 
+	@CanCallFromAnyThread
+	static unregisterToolWindow(String toolWindowId, Project project) {
+		invokeOnEDT {
+			runWriteAction {
+				ToolWindows.unregisterToolWindow(toolWindowId, project)
+			}
+		}
+	}
+
 	/**
 	 * @param widgetId id of widget
 	 * @param disposable disposable to automatically unregister listener
