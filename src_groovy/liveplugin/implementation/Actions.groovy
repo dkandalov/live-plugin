@@ -118,7 +118,7 @@ class Actions {
 	 * See http://devnet.jetbrains.com/message/5195728#5195728
 	 * https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/actionSystem/ex/CheckboxAction.java#L60
 	 */
-	static anActionEvent(DataContext dataContext = dataContextFromFocus(),
+	static AnActionEvent anActionEvent(DataContext dataContext = dataContextFromFocus(),
 	                     Presentation templatePresentation = new Presentation()) {
 		def actionManager = ActionManager.instance
 		new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, templatePresentation, actionManager, 0)
