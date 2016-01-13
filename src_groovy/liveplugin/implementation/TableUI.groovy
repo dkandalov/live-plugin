@@ -57,5 +57,13 @@ class TableUI {
 		@Override String valueOf(List<String> list) {
 			list[index]
 		}
+
+		@Override Comparator<List<String>> getComparator() {
+			new Comparator<List<String>>() {
+				@Override int compare(List<String> row1, List<String> row2) {
+					row1[index].compareTo(row2[index])
+				}
+			}
+		}
 	}
 }
