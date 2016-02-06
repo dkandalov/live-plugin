@@ -1,4 +1,5 @@
 package liveplugin.implementation
+
 import com.intellij.notification.Notification
 import com.intellij.notification.Notifications
 import com.intellij.notification.NotificationsAdapter
@@ -15,7 +16,6 @@ import com.intellij.openapi.vcs.update.UpdatedFilesListener
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.annotations.NotNull
 
-import static liveplugin.PluginUtil.accessField
 import static liveplugin.implementation.Misc.*
 
 class VcsActions {
@@ -92,28 +92,19 @@ class VcsActions {
 		// (see also https://gist.github.com/dkandalov/8840509)
 		busConnection.subscribe(UpdatedFilesListener.UPDATED_FILES, updatedListener)
 		busConnection.subscribe(Notifications.TOPIC, pushListener)
-
-		def checkinHandlersManager = CheckinHandlersManager.instance as CheckinHandlersManagerImpl
-		["myRegisteredBeforeCheckinHandlers", "a"].each {
-			accessField(checkinHandlersManager, it) { List list ->
-				list.add(0, checkinListener)
-			}
-		}
-
+		checkinHandlers().add(0, checkinListener)
 		this
 	}
 
 	VcsActions stop() {
 		busConnection.disconnect()
-
-		def checkinHandlersManager = CheckinHandlersManager.instance as CheckinHandlersManagerImpl
-		["myRegisteredBeforeCheckinHandlers", "a"].each {
-			accessField(checkinHandlersManager, it) { List list ->
-				list.remove(checkinListener)
-			}
-		}
-
+		checkinHandlers().remove(checkinListener)
 		this
+	}
+
+	private static List checkinHandlers() {
+		def checkinHandlersManager = CheckinHandlersManager.instance as CheckinHandlersManagerImpl
+		accessField(checkinHandlersManager, ["myRegisteredBeforeCheckinHandlers", "a"], List)
 	}
 
 	private static boolean isVcsNotification(Notification notification) {

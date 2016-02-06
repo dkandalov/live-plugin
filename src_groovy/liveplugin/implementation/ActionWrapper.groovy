@@ -114,26 +114,25 @@ class ActionWrapper {
 			throw new IllegalStateException("'${actionGroupId}' has type '${actionGroupId.class}' which is not supported")
 		}
 
-		accessField(group, "mySortedChildren") { List<AnAction> actions ->
-			def actionIndex = actions.findIndexOf {
-				if (it == null) return
-				def id = ActionManager.instance.getId(it)
-				id == actionId
-			}
-			if (actionIndex >= 0) {
-				actions.set(actionIndex, newAction)
-			}
+		List<AnAction> actions = accessField(group, "mySortedChildren", List)
+		def actionIndex = actions.findIndexOf {
+			if (it != null) return
+			def id = ActionManager.instance.getId(it)
+			id == actionId
 		}
-		accessField(group, "myPairs") { List<Pair<AnAction, Constraints>> pairs ->
-			def pairIndex = pairs.findIndexOf {
-				if (it == null || it.first == null) return
-				def id = ActionManager.instance.getId(it.first)
-				id == actionId
-			}
-			if (pairIndex >= 0) {
-				def oldPair = pairs.get(pairIndex)
-				pairs.set(pairIndex, new Pair(newAction, oldPair.second))
-			}
+		if (actionIndex >= 0) {
+			actions.set(actionIndex, newAction)
+		}
+
+		List<Pair<AnAction, Constraints>> pairs = accessField(group, "myPairs", List)
+		def pairIndex = pairs.findIndexOf {
+			if (it == null || it.first == null) return
+			def id = ActionManager.instance.getId(it.first)
+			id == actionId
+		}
+		if (pairIndex >= 0) {
+			def oldPair = pairs.get(pairIndex)
+			pairs.set(pairIndex, new Pair(newAction, oldPair.second))
 		}
 	}
 

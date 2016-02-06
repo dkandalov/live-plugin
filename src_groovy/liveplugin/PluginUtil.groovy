@@ -1047,7 +1047,15 @@ class PluginUtil {
 		Misc.catchingAll(closure)
 	}
 
-	static accessField(Object o, String fieldName, Closure callback) {
+	@Nullable static <T> T accessField(Object o, List<String> possibleFieldNames, Class<T> fieldClass = null) {
+		Misc.accessField(o, possibleFieldNames, fieldClass)
+	}
+
+	@Nullable static <T> T accessField(Object o, String fieldName, Class<T> fieldClass = null) {
+		Misc.accessField(o, fieldName, fieldClass)
+	}
+
+	@Deprecated @Nullable static accessField(Object o, String fieldName, Closure callback) {
 		Misc.accessField(o, fieldName, callback)
 	}
 

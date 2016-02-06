@@ -26,7 +26,19 @@ class Misc {
 		}
 	}
 
-	static accessField(Object o, String fieldName, Closure callback) {
+	@Nullable static <T> T accessField(Object o, List<String> possibleFieldNames, Class<T> fieldClass = null) {
+		for (String fieldName : possibleFieldNames) {
+			try {
+				def result = accessField(o, fieldName, fieldClass)
+				if (result != null) return result as T
+			} catch (Exception ignored) {
+			}
+		}
+		def className = fieldClass == null ? "" : " (with class ${fieldClass.simpleName})"
+		throw new IllegalStateException("Didn't find field '${possibleFieldNames}${className} in object ${o}")
+	}
+
+	@Nullable static <T> T accessField(Object o, String fieldName, Class<T> fieldClass = null) {
 		Class aClass = o.class
 		List<Class> allClasses = []
 		while (aClass != Object) {
@@ -36,10 +48,31 @@ class Misc {
 		def allFields = allClasses*.declaredFields.toList().flatten()
 
 		for (field in allFields) {
-			if (field.name == fieldName) {
+			if (field.name == fieldName && (fieldClass == null || fieldClass.isAssignableFrom(field.declaringClass))) {
 				field.setAccessible(true)
-				callback(field.get(o))
-				return
+				return field.get(o) as T
+			}
+		}
+		def className = fieldClass == null ? "" : " (with class ${fieldClass.simpleName})"
+		throw new IllegalStateException("Didn't find field '${fieldName}${className} in object ${o}")
+	}
+
+	@Deprecated static accessField(Object o, String fieldName, Closure callback) {
+		catchingAll {
+			Class aClass = o.class
+			List<Class> allClasses = []
+			while (aClass != Object) {
+				allClasses.add(aClass)
+				aClass = aClass.superclass
+			}
+			def allFields = allClasses*.declaredFields.toList().flatten()
+
+			for (field in allFields) {
+				if (field.name == fieldName) {
+					field.setAccessible(true)
+					callback(field.get(o))
+					return
+				}
 			}
 		}
 	}

@@ -1,4 +1,5 @@
 package liveplugin.implementation
+
 import com.intellij.codeInspection.InspectionProfile
 import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.codeInspection.ex.InspectionProfileImpl
@@ -13,7 +14,6 @@ import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 
 import static liveplugin.implementation.GlobalVar.changeGlobalVar
 import static liveplugin.implementation.Misc.accessField
-import static liveplugin.implementation.Misc.catchingAll
 import static liveplugin.implementation.Misc.newDisposable
 
 class Inspections {
@@ -108,13 +108,8 @@ class Inspections {
 		}
 		def registrar = new InspectionToolRegistrar()
 		def obfuscatedName = "b"
-		["myInspectionToolFactories", obfuscatedName].each { fieldName ->
-			catchingAll {
-				accessField(registrar, fieldName) {
-					it.addAll(inspectionFactories)
-				}
-			}
-		}
+		def toolFactories = accessField(registrar, ["myInspectionToolFactories", obfuscatedName], List)
+		toolFactories.addAll(inspectionFactories)
 
 		def projectProfile = InspectionProjectProfileManager.getInstance(project).inspectionProfile
 		def newProfile = updateProfile(projectProfile, registrar, project)
