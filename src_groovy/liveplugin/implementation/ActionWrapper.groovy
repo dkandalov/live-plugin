@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull
 
 import java.lang.reflect.Method
 
+import static liveplugin.implementation.Misc.accessField
+
 class ActionWrapper {
 	private static final Logger log = Logger.getInstance(ActionWrapper.class)
 
@@ -112,7 +114,7 @@ class ActionWrapper {
 			throw new IllegalStateException("'${actionGroupId}' has type '${actionGroupId.class}' which is not supported")
 		}
 
-		Misc.accessField(group, "mySortedChildren") { List<AnAction> actions ->
+		accessField(group, "mySortedChildren") { List<AnAction> actions ->
 			def actionIndex = actions.findIndexOf {
 				if (it == null) return
 				def id = ActionManager.instance.getId(it)
@@ -122,7 +124,7 @@ class ActionWrapper {
 				actions.set(actionIndex, newAction)
 			}
 		}
-		Misc.accessField(group, "myPairs") { List<Pair<AnAction, Constraints>> pairs ->
+		accessField(group, "myPairs") { List<Pair<AnAction, Constraints>> pairs ->
 			def pairIndex = pairs.findIndexOf {
 				if (it == null || it.first == null) return
 				def id = ActionManager.instance.getId(it.first)

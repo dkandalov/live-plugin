@@ -12,6 +12,8 @@ import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 
 import static liveplugin.implementation.GlobalVar.changeGlobalVar
+import static liveplugin.implementation.Misc.accessField
+import static liveplugin.implementation.Misc.catchingAll
 import static liveplugin.implementation.Misc.newDisposable
 
 class Inspections {
@@ -107,8 +109,10 @@ class Inspections {
 		def registrar = new InspectionToolRegistrar()
 		def obfuscatedName = "b"
 		["myInspectionToolFactories", obfuscatedName].each { fieldName ->
-			Misc.accessField(registrar, fieldName) {
-				it.addAll(inspectionFactories)
+			catchingAll {
+				accessField(registrar, fieldName) {
+					it.addAll(inspectionFactories)
+				}
 			}
 		}
 

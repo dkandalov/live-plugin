@@ -27,21 +27,19 @@ class Misc {
 	}
 
 	static accessField(Object o, String fieldName, Closure callback) {
-		catchingAll {
-			Class aClass = o.class
-			List<Class> allClasses = []
-			while (aClass != Object) {
-				allClasses.add(aClass)
-				aClass = aClass.superclass
-			}
-			def allFields = allClasses*.declaredFields.toList().flatten()
+		Class aClass = o.class
+		List<Class> allClasses = []
+		while (aClass != Object) {
+			allClasses.add(aClass)
+			aClass = aClass.superclass
+		}
+		def allFields = allClasses*.declaredFields.toList().flatten()
 
-			for (field in allFields) {
-				if (field.name == fieldName) {
-					field.setAccessible(true)
-					callback(field.get(o))
-					return
-				}
+		for (field in allFields) {
+			if (field.name == fieldName) {
+				field.setAccessible(true)
+				callback(field.get(o))
+				return
 			}
 		}
 	}
