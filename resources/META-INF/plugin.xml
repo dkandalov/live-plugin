@@ -39,6 +39,7 @@ If something doesn't work:
 		]]>
 	</description>
 
+    <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
 	<depends>com.intellij.modules.platform</depends>
 	<depends optional="true" config-file="github-integration.xml">org.jetbrains.plugins.github</depends>
 	<depends optional="true" config-file="junit-panel-integration.xml">JUnit</depends>
