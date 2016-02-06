@@ -104,7 +104,7 @@ class VcsActions {
 
 	private static List checkinHandlers() {
 		def checkinHandlersManager = CheckinHandlersManager.instance as CheckinHandlersManagerImpl
-		accessField(checkinHandlersManager, ["myRegisteredBeforeCheckinHandlers", "a"], List)
+		accessField(checkinHandlersManager, ["myRegisteredBeforeCheckinHandlers", "a", "b"], List)
 	}
 
 	private static boolean isVcsNotification(Notification notification) {
