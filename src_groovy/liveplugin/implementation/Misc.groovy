@@ -35,7 +35,7 @@ class Misc {
 			}
 		}
 		def className = fieldClass == null ? "" : " (with class ${fieldClass.simpleName})"
-		throw new IllegalStateException("Didn't find field '${possibleFieldNames}${className} in object ${o}")
+		throw new IllegalStateException("Didn't find field '${possibleFieldNames}'${className} in object ${o}")
 	}
 
 	@Nullable static <T> T accessField(Object o, String fieldName, Class<T> fieldClass = null) {
@@ -54,7 +54,7 @@ class Misc {
 			}
 		}
 		def className = fieldClass == null ? "" : " (with class ${fieldClass.simpleName})"
-		throw new IllegalStateException("Didn't find field '${fieldName}${className} in object ${o}")
+		throw new IllegalStateException("Didn't find field '${fieldName}'${className} in object ${o}")
 	}
 
 	@Deprecated static accessField(Object o, String fieldName, Closure callback) {
