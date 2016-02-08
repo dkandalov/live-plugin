@@ -10,11 +10,13 @@ class MiscTest {
 		def o = new AClass()
 
 		assert accessField(o, "i") == 123
+		assert accessField(o, "i", Integer) == 123
 		assertException{ accessField(o, "i", String) }
 		assertException{ accessField(o, "j") == null }
 
 		assert accessField(o, ["i"]) == 123
 		assert accessField(o, ["a", "b", "i"]) == 123
+		assert accessField(o, ["a", "b", "i"], Integer) == 123
 		assertException{ accessField(o, ["a", "b", "i"], String) }
 		assertException{ accessField(o, ["a", "b"]) }
 	}
@@ -29,6 +31,6 @@ class MiscTest {
 
 	private static class AClass {
 		@SuppressWarnings("GroovyUnusedDeclaration")
-		private final int i = 123
+		private final Integer i = 123
 	}
 }

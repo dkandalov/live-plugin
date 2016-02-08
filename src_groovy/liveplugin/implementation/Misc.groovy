@@ -34,7 +34,7 @@ class Misc {
 			} catch (Exception ignored) {
 			}
 		}
-		def className = fieldClass == null ? "" : " (with class ${fieldClass.simpleName})"
+		def className = fieldClass == null ? "" : " (with class ${fieldClass.canonicalName})"
 		throw new IllegalStateException("Didn't find field '${possibleFieldNames}'${className} in object ${o}")
 	}
 
@@ -48,12 +48,12 @@ class Misc {
 		def allFields = allClasses*.declaredFields.toList().flatten()
 
 		for (field in allFields) {
-			if (field.name == fieldName && (fieldClass == null || fieldClass.isAssignableFrom(field.declaringClass))) {
+			if (field.name == fieldName && (fieldClass == null || fieldClass.isAssignableFrom(field.type))) {
 				field.setAccessible(true)
 				return field.get(o) as T
 			}
 		}
-		def className = fieldClass == null ? "" : " (with class ${fieldClass.simpleName})"
+		def className = fieldClass == null ? "" : " (with class ${fieldClass.canonicalName})"
 		throw new IllegalStateException("Didn't find field '${fieldName}'${className} in object ${o}")
 	}
 
