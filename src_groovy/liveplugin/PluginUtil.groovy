@@ -50,6 +50,7 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.StatusBarWidget
+import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiDocumentManager
@@ -469,9 +470,9 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
-	static registerToolWindow(@NotNull Project project, String toolWindowId, Disposable disposable = null,
-	                          ToolWindowAnchor location = RIGHT, ActionGroup toolbarActionGroup = null,
-	                          Closure<JComponent> createComponent) {
+	static ToolWindow registerToolWindow(@NotNull Project project, String toolWindowId, Disposable disposable = null,
+	                                     ToolWindowAnchor location = RIGHT, ActionGroup toolbarActionGroup = null,
+	                                     Closure<JComponent> createComponent) {
 		invokeOnEDT {
 			runWriteAction {
 				ToolWindows.registerToolWindow(project, toolWindowId, disposable, location, toolbarActionGroup, createComponent)

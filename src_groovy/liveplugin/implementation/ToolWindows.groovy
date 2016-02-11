@@ -29,7 +29,7 @@ class ToolWindows {
 		}
 	}
 
-	static registerToolWindow(Project project, String toolWindowId, Disposable disposable = null, ToolWindowAnchor location = RIGHT,
+	static ToolWindow registerToolWindow(Project project, String toolWindowId, Disposable disposable = null, ToolWindowAnchor location = RIGHT,
 	                          ActionGroup toolbarActionGroup = null, Closure<JComponent> createComponent) {
 		def disposableId = registerDisposable(toolWindowId)
 		disposable = (disposable == null ? disposableId : newDisposable([disposable, disposableId]))
