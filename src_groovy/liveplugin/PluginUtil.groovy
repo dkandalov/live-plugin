@@ -19,6 +19,7 @@ import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.BrowserUtil
 import com.intellij.internal.psiView.PsiViewerDialog
 import com.intellij.notification.Notification
+import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.Disposable
@@ -147,14 +148,14 @@ class PluginUtil {
 	 * @param groupDisplayId (optional) an id to group notifications by (can be configured in "IDE Settings - Notifications")
 	 */
 	@CanCallFromAnyThread
-	static show(@Nullable message, @Nullable String title = "",
-	            NotificationType notificationType = INFORMATION, String groupDisplayId = "") {
+	static show(@Nullable message, @Nullable String title = "", NotificationType notificationType = INFORMATION,
+	            String groupDisplayId = "", @Nullable NotificationListener notificationListener = null) {
 		invokeLaterOnEDT {
 			message = Misc.asString(message)
 			// this is because Notification doesn't accept empty messages
 			if (message.trim().empty) message = "[empty message]"
 
-			def notification = new Notification(groupDisplayId, title, message, notificationType)
+			def notification = new Notification(groupDisplayId, title, message, notificationType, notificationListener)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		}
 	}
