@@ -79,7 +79,7 @@ public class GroovyPluginRunner implements PluginRunner {
 			try {
 				scriptEngine.loadScriptByName(mainScriptUrl);
 			} catch (Exception e) {
-				errorReporter.addRunningError(pluginId, e); // TODO why this is a running error?
+				errorReporter.addLoadingError(pluginId, e);
 				return;
 			}
 
