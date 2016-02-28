@@ -924,12 +924,14 @@ class PluginUtil {
 	static doInBackground(String taskDescription = "A task", boolean canBeCancelledByUser = true,
 	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
 	                      Closure task, Closure whenCancelled = {}, Closure whenDone = {}) {
-		AtomicReference result = new AtomicReference(null)
-		new Task.Backgroundable(null, taskDescription, canBeCancelledByUser, backgroundOption) {
-			@Override void run(ProgressIndicator indicator) { result.set(task.call(indicator)) }
-			@Override void onSuccess() { whenDone.call(result.get()) }
-			@Override void onCancel() { whenCancelled.call() }
-		}.queue()
+		invokeOnEDT {
+			AtomicReference result = new AtomicReference(null)
+			new Task.Backgroundable(null, taskDescription, canBeCancelledByUser, backgroundOption) {
+				@Override void run(ProgressIndicator indicator) { result.set(task.call(indicator)) }
+				@Override void onSuccess() { whenDone.call(result.get()) }
+				@Override void onCancel() { whenCancelled.call() }
+			}.queue()
+		}
 	}
 
 	@CanCallFromAnyThread
