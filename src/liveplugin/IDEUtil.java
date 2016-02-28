@@ -14,11 +14,19 @@
 package liveplugin;
 
 import com.intellij.diagnostic.PluginException;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.execution.ExecutionManager;
+import com.intellij.execution.Executor;
+import com.intellij.execution.executors.DefaultRunExecutor;
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.execution.ui.ExecutionConsole;
+import com.intellij.execution.ui.RunContentDescriptor;
+import com.intellij.execution.ui.actions.CloseAction;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginId;
@@ -40,6 +48,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
@@ -75,7 +85,7 @@ public class IDEUtil {
 			// (see com.intellij.diagnostic.IdeErrorsDialog.findPluginId)
 			LOG.error(consoleTitle, new PluginException(text, PluginId.getId(LIVE_PLUGIN_ID)));
 		} else {
-            PluginUtil.showInConsole(text, consoleTitle, project, ERROR_OUTPUT);
+            showInConsole(text, consoleTitle, project, ERROR_OUTPUT);
         }
 	}
 
@@ -141,6 +151,43 @@ public class IDEUtil {
 		throwable.printStackTrace(new PrintWriter(writer));
 		return Unscramble.normalizeText(writer.getBuffer().toString());
 	}
+
+	private static void showInConsole(final String message, final String consoleTitle, @NotNull final Project project,
+	                                  final ConsoleViewContentType contentType) {
+		Runnable runnable = new Runnable() {
+			@Override public void run() {
+				ConsoleView console = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+				console.print(message, contentType);
+
+				DefaultActionGroup toolbarActions = new DefaultActionGroup();
+				JPanel consoleComponent = new MyConsolePanel(console, toolbarActions);
+				RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
+					@Override public boolean isContentReuseProhibited() { return true; }
+					@Override public Icon getIcon() { return AllIcons.Nodes.Plugin; }
+				};
+				Executor executor = DefaultRunExecutor.getRunExecutorInstance();
+
+				toolbarActions.add(new CloseAction(executor, descriptor, project));
+				for (AnAction anAction : console.createConsoleActions()) {
+					toolbarActions.add(anAction);
+				}
+
+				ExecutionManager.getInstance(project).getContentManager().showRunContent(executor, descriptor);
+			}
+		};
+		ApplicationManager.getApplication().invokeAndWait(runnable, ModalityState.NON_MODAL);
+	}
+
+	private static class MyConsolePanel extends JPanel {
+		MyConsolePanel(ExecutionConsole consoleView, ActionGroup toolbarActions) {
+			super(new BorderLayout());
+			JPanel toolbarPanel = new JPanel(new BorderLayout());
+			toolbarPanel.add(ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarActions, false).getComponent());
+			add(toolbarPanel, BorderLayout.WEST);
+			add(consoleView.getComponent(), BorderLayout.CENTER);
+		}
+	}
+
 
 	public static class SingleThreadBackgroundRunner {
 		private final ExecutorService singleThreadExecutor;
