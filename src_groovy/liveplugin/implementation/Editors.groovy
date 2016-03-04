@@ -32,7 +32,8 @@ class Editors {
 	}
 
 	@Nullable static VirtualFile openUrlInEditor(String fileUrl, Project project) {
-		def virtualFile = VirtualFileManager.instance.findFileByUrl(fileUrl)
+		// note that it has to be refreshAndFindFileByUrl (not just findFileByUrl) otherwise VirtualFile might be null
+		def virtualFile = VirtualFileManager.instance.refreshAndFindFileByUrl(fileUrl)
 		if (virtualFile == null) return null
 		FileEditorManager.getInstance(project).openFile(virtualFile, true, true)
 		virtualFile
