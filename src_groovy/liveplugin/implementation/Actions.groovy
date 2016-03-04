@@ -10,12 +10,14 @@ import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.wm.IdeFocusManager
 import liveplugin.PluginUtil
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.TestPluginAction
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
 
@@ -42,7 +44,7 @@ class Actions {
 			actionManager.unregisterAction(actionId)
 		}
 
-		assignKeyStrokeTo(actionId, keyStroke)
+		assignKeyStroke(actionId, keyStroke)
 		actionManager.registerAction(actionId, action)
 		actionGroup?.add(action)
 		action.templatePresentation.setText(displayText, true)
@@ -137,16 +139,22 @@ class Actions {
 		}
 	}
 
-	private static void assignKeyStrokeTo(String actionId, String keyStroke) {
+	static void assignKeyStroke(String actionId, String keyStroke, String macKeyStroke = keyStroke) {
 		def keymap = KeymapManager.instance.activeKeymap
-		keymap.removeAllActionShortcuts(actionId)
-		def shortcut = asKeyboardShortcut(keyStroke)
-		if (shortcut != null) {
+		if (!SystemInfo.isMac) {
+			def shortcut = asKeyboardShortcut(keyStroke)
+			if (shortcut == null) return
+			keymap.removeAllActionShortcuts(actionId)
+			keymap.addShortcut(actionId, shortcut)
+		} else {
+			def shortcut = asKeyboardShortcut(macKeyStroke)
+			if (shortcut == null) return
+			keymap.removeAllActionShortcuts(actionId)
 			keymap.addShortcut(actionId, shortcut)
 		}
 	}
 
-	static KeyboardShortcut asKeyboardShortcut(String keyStroke) {
+	@Nullable static KeyboardShortcut asKeyboardShortcut(String keyStroke) {
 		if (keyStroke.trim().empty) return null
 
 		def firstKeystroke

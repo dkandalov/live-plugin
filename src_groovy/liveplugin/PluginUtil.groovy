@@ -220,6 +220,13 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
+	static assignKeyStroke(String actionId, String keyStroke, String macKeyStroke = keyStroke) {
+		invokeOnEDT {
+			Actions.assignKeyStroke(actionId, keyStroke, macKeyStroke)
+		}
+	}
+
+	@CanCallFromAnyThread
 	static unregisterAction(String actionId) {
 		Actions.unregisterAction(actionId)
 	}
