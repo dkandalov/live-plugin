@@ -8,6 +8,7 @@ import com.intellij.openapi.extensions.PluginId;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import groovy.lang.GroovyClassLoader;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.oro.io.GlobFilenameFilter;
 
 import java.io.File;
@@ -51,6 +52,7 @@ public interface PluginRunner {
 			try {
 
 				for (String path : pathsToAdd) {
+					path = URIUtil.encodePath(path);
 					if (path.startsWith("file:/")) {
 						URL url = new URL(path);
 						classLoader.addURL(url);
