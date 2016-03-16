@@ -26,7 +26,7 @@ class Misc {
 		}
 	}
 
-	@Nullable static <T> T accessField(Object o, List<String> possibleFieldNames, Class<T> fieldClass = null) {
+	@Nullable static <T> T accessField(Object o, Collection<String> possibleFieldNames, Class<T> fieldClass = null) {
 		for (String fieldName : possibleFieldNames) {
 			try {
 				def result = accessField(o, fieldName, fieldClass)
@@ -35,7 +35,7 @@ class Misc {
 			}
 		}
 		def className = fieldClass == null ? "" : " (with class ${fieldClass.canonicalName})"
-		throw new IllegalStateException("Didn't find field '${possibleFieldNames}'${className} in object ${o}")
+		throw new IllegalStateException("Didn't find any of the fields ${possibleFieldNames.join(",")} ${className} in object ${o}")
 	}
 
 	@Nullable static <T> T accessField(Object o, String fieldName, Class<T> fieldClass = null) {

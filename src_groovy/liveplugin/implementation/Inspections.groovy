@@ -107,8 +107,8 @@ class Inspections {
 			}
 		}
 		def registrar = new InspectionToolRegistrar()
-		def obfuscatedName = "b"
-		def toolFactories = accessField(registrar, ["myInspectionToolFactories", obfuscatedName], List)
+		def obfuscatedNames = ["a", "b", "c"] // "abc" because there three fields in the class
+		def toolFactories = accessField(registrar, ["myInspectionToolFactories"] + obfuscatedNames, List)
 		toolFactories.addAll(inspectionFactories)
 
 		def projectProfile = InspectionProjectProfileManager.getInstance(project).inspectionProfile
