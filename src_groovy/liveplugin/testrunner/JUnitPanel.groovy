@@ -1,4 +1,5 @@
 package liveplugin.testrunner
+
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Location
 import com.intellij.execution.RunManager
@@ -21,6 +22,7 @@ import com.intellij.execution.runners.BasicProgramRunner
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.Printer
+import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.testframework.ui.TestResultsPanel
 import com.intellij.execution.ui.RunContentDescriptor
@@ -35,6 +37,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.components.panels.NonOpaquePanel
+import liveplugin.PluginUtil
 import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
@@ -70,11 +73,14 @@ class JUnitPanel implements TestReporter {
 			@Override OutputStream getProcessInput() { new ByteArrayOutputStream() }
 		}
 
+
 		def rootTestProxy = new TestProxy(newTestInfo("Integration tests"))
 		model = new JUnitRunningModel(rootTestProxy, consoleProperties)
         model.notifier.onFinished() // disable listening for events (see also JUnitListenersNotifier.onEvent)
 
 		def consoleView = createConsoleView(consoleProperties, environment, rootTestProxy, processHandler, model)
+		consoleView.initUI()
+
 		rootTestProxy.setPrinter(consoleView.printer)
 
 		def wrapper = new NonOpaquePanel(new BorderLayout(0, 0))
@@ -114,13 +120,25 @@ class JUnitPanel implements TestReporter {
 
 	private static createConsoleView(JUnitConsoleProperties consoleProperties, ExecutionEnvironment environment,
 	                                 TestProxy rootTestProxy, ProcessHandler processHandler, JUnitRunningModel model) {
-		def consoleView = new MyTreeConsoleView(
-				consoleProperties, environment, rootTestProxy,
-				"Plugin integration tests", processHandler
+		def consoleView = SMTestRunnerConnectionUtil.createAndAttachConsole(
+				"Plugin integration tests", processHandler, consoleProperties
 		)
+		PluginUtil.show("createAndAttachConsole")
+//		new MyTreeConsoleView(
+//				consoleProperties, environment, rootTestProxy,
+//				"Plugin integration tests", processHandler
+//		)
 		consoleView.initUI()
 		consoleView.attachToProcess(processHandler)
-		consoleView.attachToModel(model)
+
+//		if (consolePanel != null) {
+//			consolePanel.treeView.attachToModel(model)
+//			model.attachToTree(consolePanel.treeView)
+//			consolePanel.setModel(model)
+//			model.onUIBuilt()
+//			new TreeCollapser().setModel(model)
+//		}
+
 		consoleView
 	}
 
