@@ -1,12 +1,12 @@
 <idea-plugin>
 	<id>LivePlugin</id>
 	<name>LivePlugin</name>
-	<version>0.5.7 beta</version>
+	<version>0.5.8 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
-	<!-- since IJ 15 -->
-	<idea-version since-build="143.0"/>
+	<!-- since IJ 2016.1 -->
+	<idea-version since-build="145.0"/>
 	<category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>

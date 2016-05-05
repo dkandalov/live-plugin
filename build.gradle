@@ -3,8 +3,8 @@ apply plugin: 'groovy'
 apply plugin: 'idea'
 
 ext.home = System.env.HOME
-ext.ideaPath = "/Applications/IntelliJ IDEA 15.app/Contents"
-ext.pluginsSandbox = "${home}/Library/Caches/IntelliJIdea15/plugins-sandbox"
+ext.ideaPath = "/Applications/IntelliJ IDEA 2016.app/Contents"
+ext.pluginsSandbox = "${home}/Library/Caches/IntelliJIdea2016.1/plugins-sandbox"
 
 repositories { mavenCentral() }
 enableProvidedScope()
