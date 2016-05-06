@@ -13,7 +13,6 @@ import com.intellij.execution.junit2.states.Statistics
 import com.intellij.execution.junit2.states.TestState
 import com.intellij.execution.junit2.ui.ConsolePanel
 import com.intellij.execution.junit2.ui.model.CompletionEvent
-import com.intellij.execution.junit2.ui.model.JUnitListenersNotifier
 import com.intellij.execution.junit2.ui.model.JUnitRunningModel
 import com.intellij.execution.junit2.ui.model.TreeCollapser
 import com.intellij.execution.junit2.ui.properties.JUnitConsoleProperties
@@ -23,6 +22,10 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.Printer
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
+import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener
+import com.intellij.execution.testframework.sm.runner.SMTestProxy
+import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
+import com.intellij.execution.testframework.sm.runner.ui.TestResultsViewer
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.testframework.ui.TestResultsPanel
 import com.intellij.execution.ui.RunContentDescriptor
@@ -73,12 +76,11 @@ class JUnitPanel implements TestReporter {
 			@Override OutputStream getProcessInput() { new ByteArrayOutputStream() }
 		}
 
-
 		def rootTestProxy = new TestProxy(newTestInfo("Integration tests"))
 		model = new JUnitRunningModel(rootTestProxy, consoleProperties)
         model.notifier.onFinished() // disable listening for events (see also JUnitListenersNotifier.onEvent)
 
-		def consoleView = createConsoleView(consoleProperties, environment, rootTestProxy, processHandler, model)
+		def consoleView = createConsoleView(consoleProperties, processHandler)
 		consoleView.initUI()
 
 		rootTestProxy.setPrinter(consoleView.printer)
@@ -100,7 +102,7 @@ class JUnitPanel implements TestReporter {
 		// the line below was picked up from com.intellij.execution.impl.ExecutionManagerImpl.startRunProfile
 		ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor, descriptorToReuse)
 
-		testProxyUpdater = new TestProxyUpdater(rootTestProxy, model.notifier)
+		testProxyUpdater = new TestProxyUpdater(consoleView.resultsViewer, consoleView.resultsViewer)
 		this
 	}
 
@@ -118,18 +120,21 @@ class JUnitPanel implements TestReporter {
 		toolbar
 	}
 
-	private static createConsoleView(JUnitConsoleProperties consoleProperties, ExecutionEnvironment environment,
-	                                 TestProxy rootTestProxy, ProcessHandler processHandler, JUnitRunningModel model) {
+	private static createConsoleView(JUnitConsoleProperties consoleProperties, ProcessHandler processHandler) {
 		def consoleView = SMTestRunnerConnectionUtil.createAndAttachConsole(
 				"Plugin integration tests", processHandler, consoleProperties
-		)
-		PluginUtil.show("createAndAttachConsole")
-//		new MyTreeConsoleView(
+		) as SMTRunnerConsoleView
+
+//		consoleView.resultsViewer.treeView.attachToModel(model)
+//		model.attachToTree(consoleView.resultsViewer.treeView)
+//		model.onUIBuilt()
+
+//		def consoleView = new MyTreeConsoleView(
 //				consoleProperties, environment, rootTestProxy,
 //				"Plugin integration tests", processHandler
 //		)
-		consoleView.initUI()
-		consoleView.attachToProcess(processHandler)
+//		consoleView.initUI()
+//		consoleView.attachToProcess(processHandler)
 
 //		if (consolePanel != null) {
 //			consolePanel.treeView.attachToModel(model)
@@ -171,86 +176,95 @@ class JUnitPanel implements TestReporter {
 		private static final errorState = newTestState(ERROR_INDEX)
 		private static final ignoredState = newTestState(IGNORED_INDEX)
 
-		private final def testProxyByClassName = new HashMap<String, TestProxy>().withDefault{ String className ->
+		private final def testProxyByClassName = new HashMap<String, SMTestProxy>().withDefault{ String className ->
 			int i = className.lastIndexOf(".")
 			if (i == -1 || i == className.size() - 1) {
-				new TestProxy(newTestInfo(className))
+				new SMTestProxy(className, true, null)
 			} else {
 				def classPackage = className[0..i - 1]
 				def simpleClassName = className[i + 1..-1]
-				new TestProxy(newTestInfo(simpleClassName, classPackage))
+				new SMTestProxy(simpleClassName, true, classPackage)
 			}
 		}
-		private final def testProxyByMethodName = new HashMap<String, TestProxy>().withDefault{ methodName ->
-			new TestProxy(newTestInfo(methodName))
+		private final def testProxyByMethodName = new HashMap<String, SMTestProxy>().withDefault{ methodName ->
+			new SMTestProxy(methodName, false, null)
 		}
 		private final def testStartTimeByMethodName = new HashMap<String, Long>()
 		private final def testStartTimeByClassName = new HashMap<String, Long>()
 
-        private final TestProxy rootTestProxy
-        private final JUnitListenersNotifier listenersNotifier
+        private final TestResultsViewer resultsViewer
+		private final SMTRunnerEventsListener eventsListener
+		private boolean isStarted = false
 
-        TestProxyUpdater(TestProxy rootTestProxy, JUnitListenersNotifier listenersNotifier) {
-	        this.rootTestProxy = rootTestProxy
-	        this.listenersNotifier = listenersNotifier
+		TestProxyUpdater(TestResultsViewer resultsViewer, SMTRunnerEventsListener eventsListener) {
+			this.resultsViewer = resultsViewer
+			this.eventsListener = eventsListener
 		}
 
 		void running(String className, String methodName, long time = System.currentTimeMillis()) {
-			def classTestProxy = testProxyByClassName.get(className)
-			if (!rootTestProxy.children.contains(classTestProxy)) {
+			PluginUtil.show("running ${className} ${methodName}")
+			try {
+				if (!isStarted) {
+					eventsListener.onTestingStarted(resultsViewer.testsRootNode as SMTestProxy.SMRootTestProxy)
+					isStarted = true
+				}
 
-                listenersNotifier.onStarted() // using onStarted/onFinished to fix https://github.com/dkandalov/live-plugin/issues/39
-                rootTestProxy.addChild(classTestProxy)
-                listenersNotifier.onFinished()
+				def classTestProxy = testProxyByClassName.get(className)
+				if (!resultsViewer.testsRootNode.children.contains(classTestProxy)) {
+					eventsListener.onSuiteStarted(classTestProxy)
+				}
 
-                classTestProxy.setState(runningState)
-				testStartTimeByClassName.put(className, time)
-			}
-
-			def methodTestProxy = testProxyByMethodName.get(methodName)
-			if (!classTestProxy.children.contains(methodTestProxy)) {
-				classTestProxy.addChild(methodTestProxy)
-				methodTestProxy.setState(runningState)
-				testStartTimeByMethodName.put(methodName, time)
+				def methodTestProxy = testProxyByMethodName.get(methodName)
+				if (!classTestProxy.children.contains(methodTestProxy)) {
+					eventsListener.onTestStarted(methodTestProxy)
+					classTestProxy.addChild(methodTestProxy)
+				}
+			} catch (Exception e) {
+				PluginUtil.show(e)
 			}
 		}
 
 		void passed(String methodName, long time = System.currentTimeMillis()) {
-			testProxyByMethodName.get(methodName).state = passedState
-			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
+			PluginUtil.show("passed ${methodName}")
+			eventsListener.onTestFinished(testProxyByMethodName.get(methodName))
 		}
 
 		void failed(String methodName, String error, long time = System.currentTimeMillis()) {
-			testProxyByMethodName.get(methodName).state = newTestState(FAILED_INDEX, error)
-			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
+			PluginUtil.show("failed ${methodName}")
+			eventsListener.onTestFailed(testProxyByMethodName.get(methodName))
 		}
 
 		void error(String methodName, String error, long time = System.currentTimeMillis()) {
-			testProxyByMethodName.get(methodName).state = newTestState(ERROR_INDEX, error)
-			testProxyByMethodName.get(methodName).statistics = statisticsWithDuration((int) time - testStartTimeByMethodName.get(methodName))
+			PluginUtil.show("error ${methodName}")
+			eventsListener.onTestFailed(testProxyByMethodName.get(methodName)) // TODO same code as above
 		}
 
 		void ignored(String methodName) {
-			testProxyByMethodName.get(methodName).state = ignoredState
+			PluginUtil.show("ignored ${methodName}")
+			eventsListener.onTestIgnored(testProxyByMethodName.get(methodName))
 		}
 
 		void finishedClass(String className, long time = System.currentTimeMillis()) {
+			PluginUtil.show("finishedClass ${className}")
 			def testProxy = testProxyByClassName.get(className)
-			def hasChildWith = { int state -> testProxy.children.any{ it.state.magnitude == state } }
+			eventsListener.onSuiteFinished(testProxy)
 
-			if (hasChildWith(FAILED_INDEX)) testProxy.state = failedState
-			else if (hasChildWith(ERROR_INDEX)) testProxy.state = errorState
-			else testProxy.state = passedState
-
-			testProxy.statistics = statisticsWithDuration((int) time - testStartTimeByClassName.get(className))
+//			def hasChildWith = { int state -> testProxy.children.any{ it.state.magnitude == state } }
+//
+//			if (hasChildWith(FAILED_INDEX)) testProxy.state = failedState
+//			else if (hasChildWith(ERROR_INDEX)) testProxy.state = errorState
+//			else testProxy.state = passedState
+//
+//			testProxy.statistics = statisticsWithDuration((int) time - testStartTimeByClassName.get(className))
 		}
 
 		void finished() {
-			def hasChildWith = { state -> rootTestProxy.children.any{ it.state.magnitude == state } }
-
-			if (hasChildWith(FAILED_INDEX)) rootTestProxy.state = failedState
-			else if (hasChildWith(ERROR_INDEX)) rootTestProxy.state = errorState
-			else rootTestProxy.state = passedState
+			eventsListener.onTestingFinished(resultsViewer.testsRootNode as SMTestProxy.SMRootTestProxy)
+//			def hasChildWith = { state -> rootTestProxy.children.any{ it.state.magnitude == state } }
+//
+//			if (hasChildWith(FAILED_INDEX)) rootTestProxy.state = failedState
+//			else if (hasChildWith(ERROR_INDEX)) rootTestProxy.state = errorState
+//			else rootTestProxy.state = passedState
 		}
 
 		private static Statistics statisticsWithDuration(int testMethodDuration) {
