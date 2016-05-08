@@ -42,13 +42,13 @@ class IntegrationTestsRunner implements ApplicationComponent {
 	@Override String getComponentName() { this.class.simpleName }
 
 
-	static runTestsInClass(Class testClass, Map context, TestReporter testReport, long now) {
+	static runTestsInClass(Class testClass, Map context, TestReporter testReport, Closure<Long> now) {
 		def isTest = { Method method -> method.annotations.find{ it instanceof Test} }
 		def isIgnored = { Method method -> method.annotations.find{ it instanceof Ignore} }
 
 		testClass.declaredMethods.findAll{ isTest(it) }.each{ method ->
 			if (isIgnored(method)) {
-				ignoreTest(testClass.name, method.name, testReport, now)
+				ignoreTest(testClass.name, method.name, testReport, now())
 			} else {
 				runTest(testClass.name, method.name, testReport, now) {
 					method.invoke(createInstanceOf(testClass, context))
@@ -56,7 +56,7 @@ class IntegrationTestsRunner implements ApplicationComponent {
 			}
 		}
 
-		testReport.finishedClass(testClass.name, now)
+		testReport.finishedClass(testClass.name, now())
 	}
 
 	private static ignoreTest(String className, String methodName, TestReporter testReport, long now) {
@@ -64,15 +64,19 @@ class IntegrationTestsRunner implements ApplicationComponent {
 		testReport.ignored(methodName)
 	}
 
-	private static runTest(String className, String methodName, TestReporter testReport, long now, Closure closure) {
+	private static runTest(String className, String methodName, TestReporter testReport, Closure<Long> now, Closure closure) {
 		try {
-			testReport.running(className, methodName, now)
+			testReport.running(className, methodName, now())
 			closure()
-			testReport.passed(methodName, now)
+			testReport.passed(methodName, now())
 		} catch (AssertionError e) {
-			testReport.failed(methodName, asString(e.cause), now)
+			testReport.failed(methodName, asString(e.cause), now())
 		} catch (Throwable t) {
-			testReport.error(methodName, asString(t.cause), now)
+			if (t.cause instanceof AssertionError) {
+				testReport.failed(methodName, asString(t.cause), now())
+			} else {
+				testReport.error(methodName, asString(t.cause), now())
+			}
 		}
 	}
 

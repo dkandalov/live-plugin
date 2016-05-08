@@ -11,13 +11,13 @@ import static liveplugin.testrunner.IntegrationTestsRunner.runTestsInClass
 class IntegrationTestsTextRunner {
 	static void runIntegrationTests(List<Class> testClasses, @NotNull Project project, @Nullable String pluginPath = null) {
 		def context = [project: project, pluginPath: pluginPath]
-		def now = System.currentTimeMillis()
+		def now = { System.currentTimeMillis() }
 
 		doInBackground("Running integration tests", false) {
 			def textReporter = new TextTestReporter()
-			textReporter.startedAllTests(now)
+			textReporter.startedAllTests(now())
 			testClasses.collect{ runTestsInClass(it, context, textReporter, now) }
-			textReporter.finishedAllTests(now)
+			textReporter.finishedAllTests(now())
 
 			showInConsole(textReporter.result, "Integration tests", project)
 		}
