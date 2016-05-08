@@ -1,16 +1,18 @@
 package liveplugin.testrunner
 
 import com.intellij.execution.ExecutionManager
+import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.junit.JUnitConfigurationType
-import com.intellij.execution.junit2.states.Statistics
-import com.intellij.execution.junit2.states.TestState
-import com.intellij.execution.junit2.ui.properties.JUnitConsoleProperties
 import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.testframework.Printer
+import com.intellij.execution.testframework.JavaAwareTestConsoleProperties
+import com.intellij.execution.testframework.JavaTestLocator
+import com.intellij.execution.testframework.SourceScope
+import com.intellij.execution.testframework.TestConsoleProperties
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener
+import com.intellij.execution.testframework.sm.runner.SMTestLocator
 import com.intellij.execution.testframework.sm.runner.SMTestProxy
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.testframework.sm.runner.ui.TestResultsViewer
@@ -24,14 +26,15 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.components.panels.NonOpaquePanel
+import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
 import java.awt.*
 
-import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
-import static com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
-import static com.intellij.rt.execution.junit.states.PoolOfTestStates.*
+import static com.intellij.rt.execution.junit.states.PoolOfTestStates.ERROR_INDEX
+import static com.intellij.rt.execution.junit.states.PoolOfTestStates.FAILED_INDEX
 
 class JUnitPanel implements TestReporter {
 	private static final Icon INTEGRATION_TEST_TAB_ICON = AllIcons.Nodes.TestSourceFolder;
@@ -105,12 +108,6 @@ class JUnitPanel implements TestReporter {
 
 	@SuppressWarnings("GroovyUnusedDeclaration") // used through @Delegate annotation
 	private static class TestProxyUpdater {
-		private static final runningState = newTestState(RUNNING_INDEX, null, false)
-		private static final passedState = newTestState(PASSED_INDEX)
-		private static final failedState = newTestState(FAILED_INDEX)
-		private static final errorState = newTestState(ERROR_INDEX)
-		private static final ignoredState = newTestState(IGNORED_INDEX)
-
 		private final def testProxyByClassName = new HashMap<String, SMTestProxy>().withDefault{ String className ->
 			int i = className.lastIndexOf(".")
 			if (i == -1 || i == className.size() - 1) {
@@ -204,24 +201,34 @@ class JUnitPanel implements TestReporter {
 
 			eventsListener.onTestingFinished(rootTestProxy)
 		}
+	}
 
-		private static Statistics statisticsWithDuration(int testMethodDuration) {
-			new Statistics() {
-				@Override int getTime() { testMethodDuration }
+	/**
+	 * Copy of IJ source code to avoid dependency on deprecated test API.
+	 */
+	private static class JUnitConsoleProperties extends JavaAwareTestConsoleProperties<JUnitConfiguration> {
+		public JUnitConsoleProperties(@NotNull JUnitConfiguration configuration, Executor executor) {
+			super("JUnit", configuration, executor);
+		}
+
+		@NotNull protected GlobalSearchScope initScope() {
+			JUnitConfiguration.Data persistentData = ((JUnitConfiguration)this.getConfiguration()).getPersistentData();
+			String testObject = persistentData.TEST_OBJECT;
+			if(!"category".equals(testObject) && !"pattern".equals(testObject) && !"package".equals(testObject)) {
+				return super.initScope();
+			} else {
+				SourceScope sourceScope = persistentData.getScope().getSourceScope(this.getConfiguration());
+				return sourceScope != null?sourceScope.getGlobalSearchScope():GlobalSearchScope.allScope(this.getProject());
 			}
 		}
 
-		private static TestState newTestState(int state, String message = null, boolean isFinal = true) {
-			new TestState() {
-				@Override int getMagnitude() { state }
-				@Override boolean isFinal() { isFinal }
-				@Override void printOn(Printer printer) {
-					if (message != null) {
-						def contentType = (state == FAILED_INDEX || state == ERROR_INDEX) ? ERROR_OUTPUT : NORMAL_OUTPUT
-						printer.print(message, contentType)
-					}
-				}
-			}
+		public void appendAdditionalActions(DefaultActionGroup actionGroup, JComponent parent, TestConsoleProperties target) {
+			super.appendAdditionalActions(actionGroup, parent, target);
+			actionGroup.add(this.createIncludeNonStartedInRerun(target));
+		}
+
+		public SMTestLocator getTestLocator() {
+			return JavaTestLocator.INSTANCE;
 		}
 	}
 }
