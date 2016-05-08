@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 package liveplugin
+
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.execution.ui.ConsoleView
@@ -32,7 +33,6 @@ import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
@@ -884,12 +884,14 @@ class PluginUtil {
 	/**
 	 * Transforms selected text in editor or current line if there is no selection.
 	 *
-	 * @param transformer takes selected text as {@link String}; should output new text that will replace selection
+	 * @param modificationName name of text modification as it will be displayed in Main Menu -> Edit -> Undo/Redo
+	 * @param transformer called with selected text as {@link String};
+	 *                    returns {@link String} which will replace selected text or null if no replacement is required
 	 */
 	@CanCallFromAnyThread
-	static transformSelectedText(@NotNull Project project, Closure transformer) {
+	static transformSelectedText(@NotNull Project project, String modificationName = "Transform text", Closure transformer) {
 		def editor = currentEditorIn(project)
-		runDocumentWriteAction(project) {
+		runDocumentWriteAction(project, editor.document, modificationName) {
 			transformSelectionIn(editor, transformer)
 		}
 	}
@@ -1071,47 +1073,24 @@ class PluginUtil {
 	}
 
 	/**
-	 * Original version borrowed from here
+	 * Original version was borrowed from here
 	 * http://code.google.com/p/idea-string-manip/source/browse/trunk/src/main/java/osmedile/intellij/stringmanip/AbstractStringManipAction.java
-	 *
-	 * @author Olivier Smedile
 	 */
-	private static transformSelectionIn(Editor editor, Closure transformer) {
-		SelectionModel selectionModel = editor.selectionModel
-		String selectedText = selectionModel.selectedText
+	private static transformSelectionIn(Editor editor, Closure<String> transformer) {
+		def selectionModel = editor.selectionModel
 
-		boolean allLineSelected = false
-		if (selectedText == null) {
-			selectionModel.selectLineAtCaret()
-			selectedText = selectionModel.selectedText
-			allLineSelected = true
-
-			if (selectedText == null) return
+		int[] blockStarts = selectionModel.blockSelectionStarts
+		int[] blockEnds = selectionModel.blockSelectionEnds
+		if (selectionModel.selectedText == null) {
+			blockStarts[0] = editor.caretModel.visualLineStart
+			blockEnds[0] = editor.caretModel.visualLineEnd
 		}
-		String[] textParts = selectedText.split("\n")
 
-		if (selectionModel.hasBlockSelection()) { 
-			int[] blockStarts = selectionModel.blockSelectionStarts
-			int[] blockEnds = selectionModel.blockSelectionEnds
-
-			int plusOffset = 0
-
-			for (int i = 0; i < textParts.length; i++) {
-				String newTextPart = transformer(textParts[i])
-				if (allLineSelected) {
-					newTextPart += "\n"
-				}
-
-				editor.document.replaceString(blockStarts[i] + plusOffset, blockEnds[i] + plusOffset, newTextPart)
-
-				def realTextLength = blockEnds[i] - blockStarts[i]
-				plusOffset += newTextPart.length() - realTextLength
-			}
-		} else {
-			String transformedText = textParts.collect{ transformer(it) }.join("\n")
-			editor.document.replaceString(selectionModel.selectionStart, selectionModel.selectionEnd, transformedText)
-			if (allLineSelected) {
-				editor.document.insertString(selectionModel.selectionEnd, "\n")
+		for (int i = 0; i < blockStarts.length; i++) {
+			def text = editor.document.charsSequence.subSequence(blockStarts[i], blockEnds[i]).toString()
+			def newTextPart = transformer(text)
+			if (newTextPart != null) {
+				editor.document.replaceString(blockStarts[i], blockEnds[i], newTextPart)
 			}
 		}
 	}
