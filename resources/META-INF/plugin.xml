@@ -10,8 +10,8 @@
 	<category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>
-This is a plugin for writing plugins at runtime (i.e. without IDE restarts).<br/>
-It uses Groovy as main language and has experimental support for Scala and Clojure.
+This is a plugin for writing IDE plugins at runtime using Groovy.<br/>
+There is also experimental support for Scala and Clojure.
 <br/><br/>
 To get started:
 <ul>
@@ -26,13 +26,10 @@ If the above worked fine:
 <li>add built-in plugin examples and experiment with them</li>
 <li>for more details see <a href="https://github.com/dkandalov/live-plugin">readme on GitHub</a></li>
 </ul>
-If something doesn't work:
-<ul>
-<li><a href="https://github.com/dkandalov/live-plugin/issues">report an issue</a></li>
-</ul>
-<br/>
 
-(On OSX you might need workaround to use alt+... shortcuts, please see
+If something doesn't work feel free to <a href="https://github.com/dkandalov/live-plugin/issues">report an issue</a>.
+<br/>
+(To use alt+... shortcuts on OSX with JDK8 you might need to edit keyboard layout, please see
 <a href="https://github.com/dkandalov/live-plugin/wiki/Alt-keyboard-shortcuts-on-osx">this wiki page</a>
 .)
     </body></html>
