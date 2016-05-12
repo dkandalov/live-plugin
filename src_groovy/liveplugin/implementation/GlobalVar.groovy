@@ -1,13 +1,15 @@
 package liveplugin.implementation
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.Key
 import org.jetbrains.annotations.Nullable
 
+import java.util.concurrent.ConcurrentHashMap
+
 class GlobalVar<T> implements Disposable {
+	private static final def Key<ConcurrentHashMap<String, Object>> globalVarsKey = Key.create("LivePlugin-GlobalVarsKey")
 	private final String id
 
 	GlobalVar(String id, T value = null, Disposable disposable = null) {
@@ -36,26 +38,6 @@ class GlobalVar<T> implements Disposable {
 		removeGlobalVar(id)
 	}
 
-	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure<T> callback) {
-		def actionManager = ActionManager.instance
-		def action = actionManager.getAction(asActionId(varName))
-
-		def prevValue = (action == null ? initialValue : action.value)
-		T newValue = (T) callback.call(prevValue)
-
-		// unregister action only after callback has been invoked in case it crashes
-		if (action != null) actionManager.unregisterAction(asActionId(varName))
-
-		// anonymous class below will keep reference to outer object but that should be ok
-		// because its class is not a part of reloadable plugin
-		actionManager.registerAction(asActionId(varName), new AnAction() {
-			final def value = newValue
-			@Override void actionPerformed(AnActionEvent e) {}
-		})
-
-		newValue
-	}
-
 	@Nullable static <T> T getGlobalVar(String varName, @Nullable initialValue = null) {
 		changeGlobalVar(varName, initialValue, {it})
 	}
@@ -64,14 +46,33 @@ class GlobalVar<T> implements Disposable {
 		changeGlobalVar(varName){ varValue }
 	}
 
-	@Nullable static <T> T removeGlobalVar(String varName) {
-		def action = ActionManager.instance.getAction(asActionId(varName))
-		if (action == null) return null
-		ActionManager.instance.unregisterAction(asActionId(varName))
-		action.value
+	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure<T> callback) {
+		def keysByVarName = keysByVarName()
+		def varValue = keysByVarName[varName]
+		def prevValue = varValue ?: initialValue
+		def newValue = callback(prevValue)
+
+		keysByVarName.put(varName, newValue)
+
+		newValue as T
 	}
 
-	private static String asActionId(String globalVarKey) {
-		"LivePlugin-GlobalVar-" + globalVarKey
+	@Nullable static <T> T removeGlobalVar(String varName) {
+		def keysByVarName = keysByVarName()
+		def varValue = keysByVarName[varName]
+
+		keysByVarName.remove(varName)
+
+		varValue as T
+	}
+
+	private static ConcurrentHashMap<String, Object> keysByVarName() {
+		def application = ApplicationManager.application
+		def keysByVarName = application.getUserData(globalVarsKey)
+		if (keysByVarName == null) {
+			keysByVarName = new ConcurrentHashMap<String, Object>()
+			application.putUserData(globalVarsKey, keysByVarName)
+		}
+		keysByVarName
 	}
 }
