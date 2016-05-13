@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 class GlobalVar<T> implements Disposable {
 	private static final def Key<ConcurrentHashMap<String, Object>> globalVarsKey = Key.create("LivePlugin-GlobalVarsKey")
+	private static final def keysByVarName = initKeysByVarName()
 	private final String id
 
 	GlobalVar(String id, T value = null, Disposable disposable = null) {
@@ -47,7 +48,6 @@ class GlobalVar<T> implements Disposable {
 	}
 
 	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure<T> callback) {
-		def keysByVarName = keysByVarName()
 		def varValue = keysByVarName[varName]
 		def prevValue = varValue ?: initialValue
 		def newValue = callback(prevValue)
@@ -58,7 +58,6 @@ class GlobalVar<T> implements Disposable {
 	}
 
 	@Nullable static <T> T removeGlobalVar(String varName) {
-		def keysByVarName = keysByVarName()
 		def varValue = keysByVarName[varName]
 
 		keysByVarName.remove(varName)
@@ -66,7 +65,7 @@ class GlobalVar<T> implements Disposable {
 		varValue as T
 	}
 
-	private static ConcurrentHashMap<String, Object> keysByVarName() {
+	private static ConcurrentHashMap<String, Object> initKeysByVarName() {
 		def application = ApplicationManager.application
 		def keysByVarName = application.getUserData(globalVarsKey)
 		if (keysByVarName == null) {
