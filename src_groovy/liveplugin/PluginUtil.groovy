@@ -27,7 +27,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.diagnostic.Logger
@@ -38,8 +37,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.progress.PerformInBackgroundOption
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.roots.ContentIterator
@@ -65,7 +62,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
-import java.util.concurrent.atomic.AtomicReference
+import java.util.function.Function
 import java.util.regex.Pattern
 
 import static com.intellij.notification.NotificationType.*
@@ -98,23 +95,12 @@ class PluginUtil {
 
 	@CanCallFromAnyThread
 	static <T> T invokeOnEDT(Closure closure) {
-		def result = null
-		ApplicationManager.application.invokeAndWait(new Runnable() {
-			@Override void run() {
-				//noinspection GrReassignedInClosureLocalVar
-				result = closure()
-			}
-		}, ModalityState.any())
-		(T) result
+		Threads.invokeOnEDT(closure as Function)
 	}
 
 	@CanCallFromAnyThread
 	static void invokeLaterOnEDT(Closure closure) {
-		ApplicationManager.application.invokeLater(new Runnable() {
-			@Override void run() {
-				closure()
-			}
-		})
+		Threads.invokeLaterOnEDT(closure as Function)
 	}
 
 	/**
@@ -209,7 +195,7 @@ class PluginUtil {
 	static AnAction registerAction(String actionId, String keyStroke = "", String actionGroupId = null,
 	                               String displayText = actionId, Disposable disposable = null, Closure callback) {
 		assertNoNeedForEdtOrWriteActionWhenUsingActionManager()
-		Actions.registerAction(actionId, keyStroke, actionGroupId, displayText, disposable, callback)
+		Actions.registerAction(actionId, keyStroke, actionGroupId, displayText, disposable, callback as Function<AnActionEvent, Void>)
 	}
 
 	@CanCallFromAnyThread
@@ -933,21 +919,15 @@ class PluginUtil {
 	static doInBackground(String taskDescription = "A task", boolean canBeCancelledByUser = true,
 	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
 	                      Closure task, Closure whenCancelled = {}, Closure whenDone = {}) {
-		invokeOnEDT {
-			AtomicReference result = new AtomicReference(null)
-			new Task.Backgroundable(null, taskDescription, canBeCancelledByUser, backgroundOption) {
-				@Override void run(ProgressIndicator indicator) { result.set(task.call(indicator)) }
-				@Override void onSuccess() { whenDone.call(result.get()) }
-				@Override void onCancel() { whenCancelled.call() }
-			}.queue()
-		}
+		Threads.doInBackground(
+				taskDescription, canBeCancelledByUser, backgroundOption,
+				task as Function, whenCancelled as Function, whenDone as Function
+		)
 	}
 
 	@CanCallFromAnyThread
 	static doInModalMode(String taskDescription = "A task", boolean canBeCancelledByUser = true, Closure task) {
-		new Task.Modal(null, taskDescription, canBeCancelledByUser) {
-			@Override void run(ProgressIndicator indicator) { task.call(indicator) }
-		}.queue()
+		Threads.doInModalMode(taskDescription, canBeCancelledByUser, task as Function)
 	}
 
 	static showPopupMenu(Map menuDescription, String popupTitle = "", JComponent contextComponent) {
