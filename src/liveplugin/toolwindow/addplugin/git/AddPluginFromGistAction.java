@@ -47,7 +47,7 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 	}
 
 	private static void fetchGistFrom(final String gistUrl, AnActionEvent event, final FetchGistCallback callback) {
-		new Task.Backgroundable(event.getProject(), "Fetching gist", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+		new Task.Backgroundable(event.getProject(), "Fetching Gist", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 			private GithubGist gist;
 			private IOException exception;
 

@@ -11,7 +11,7 @@
 	<description>
 		<![CDATA[<html><body>
 This is a plugin for writing IDE plugins at runtime using Groovy.<br/>
-There is also experimental support for Scala and Clojure.
+It also has experimental support for Scala and Clojure.
 <br/><br/>
 To get started:
 <ul>
@@ -27,7 +27,7 @@ If the above worked fine:
 <li>for more details see <a href="https://github.com/dkandalov/live-plugin">readme on GitHub</a></li>
 </ul>
 
-If something doesn't work feel free to <a href="https://github.com/dkandalov/live-plugin/issues">report an issue</a>.
+If something doesn't work, feel free to <a href="https://github.com/dkandalov/live-plugin/issues">report an issue</a>.
 <br/>
 (To use alt+... shortcuts on OSX with JDK8 you might need to edit keyboard layout, please see
 <a href="https://github.com/dkandalov/live-plugin/wiki/Alt-keyboard-shortcuts-on-osx">this wiki page</a>
