@@ -15,18 +15,19 @@ import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.RefreshPluginsPanelAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
-import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.api.GithubApiUtil;
-import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.api.GithubGist;
-import liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.util.GithubAuthData;
 import liveplugin.toolwindow.util.PluginsIO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.github.api.GithubApiUtil;
+import org.jetbrains.plugins.github.api.GithubConnection;
+import org.jetbrains.plugins.github.api.GithubGist;
+import org.jetbrains.plugins.github.util.GithubAuthData;
 
 import javax.swing.*;
 import java.io.IOException;
 
+import static icons.GithubIcons.Github_icon;
 import static liveplugin.LivePluginAppComponent.pluginsRootPath;
-import static liveplugin.toolwindow.addplugin.git.jetbrains.plugins.github.GithubIcons.Github_icon;
 
 public class AddPluginFromGistAction extends AnAction implements DumbAware {
 	private static final Logger log = Logger.getInstance(AddPluginFromGistAction.class);
@@ -52,7 +53,8 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 
 			@Override public void run(@NotNull ProgressIndicator indicator) {
 				try {
-					gist = GithubApiUtil.getGist(GithubAuthData.createAnonymous(), GistUrlValidator.extractGistIdFrom(gistUrl));
+					GithubConnection connection = new GithubConnection(GithubAuthData.createAnonymous(), false);
+					gist = GithubApiUtil.getGist(connection, GistUrlValidator.extractGistIdFrom(gistUrl));
 				} catch (IOException e) {
 					exception = e;
 				}
