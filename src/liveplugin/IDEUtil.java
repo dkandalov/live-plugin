@@ -180,8 +180,7 @@ public class IDEUtil {
 				@Override public void run(@NotNull ProgressIndicator indicator) {
 					try {
 						singleThreadExecutor.submit(runnable).get();
-					} catch (InterruptedException ignored) {
-					} catch (ExecutionException ignored) {
+					} catch (InterruptedException | ExecutionException ignored) {
 					}
 				}
 			}.queue();

@@ -110,10 +110,7 @@ class ScalaPluginRunner implements PluginRunner {
 				ClassLoader parentClassLoader = createParentClassLoader(dependentPlugins, pluginId, errorReporter);
 				interpreter = initInterpreter(classpath, parentClassLoader);
 
-			} catch (Exception e) {
-				errorReporter.addLoadingError("Failed to init scala interpreter", e);
-				return;
-			} catch (LinkageError e) {
+			} catch (Exception | LinkageError e) {
 				errorReporter.addLoadingError("Failed to init scala interpreter", e);
 				return;
 			}
