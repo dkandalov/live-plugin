@@ -28,8 +28,8 @@ import static liveplugin.IDEUtil.unscrambleThrowable;
  * Thread-safe.
  */
 public class ErrorReporter {
-	private final List<String> loadingErrors = new LinkedList<String>();
-	private final LinkedHashMap<String, String> runningPluginErrors = new LinkedHashMap<String, String>();
+	private final List<String> loadingErrors = new LinkedList<>();
+	private final LinkedHashMap<String, String> runningPluginErrors = new LinkedHashMap<>();
 
 	public synchronized void addNoScriptError(String pluginId, List<String> scriptNames) {
 		String scripts = join(map(scriptNames, new Function<String, String>() {

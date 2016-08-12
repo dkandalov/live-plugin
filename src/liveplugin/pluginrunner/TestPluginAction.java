@@ -46,7 +46,7 @@ public class TestPluginAction extends AnAction implements DumbAware {
     }
 
     public static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
-        List<PluginRunner> result = new ArrayList<PluginRunner>();
+        List<PluginRunner> result = new ArrayList<>();
         result.add(new GroovyPluginRunner(TEST_SCRIPT, errorReporter, RunPluginAction.environment()));
         return result;
     }

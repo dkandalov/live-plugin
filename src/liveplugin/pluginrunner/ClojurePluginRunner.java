@@ -54,8 +54,8 @@ class ClojurePluginRunner implements PluginRunner {
 		final File scriptFile = findScriptFileIn(pathToPluginFolder, MAIN_SCRIPT);
 		assert scriptFile != null;
 
-		final List<String> dependentPlugins = new ArrayList<String>();
-		final List<String> additionalPaths = new ArrayList<String>();
+		final List<String> dependentPlugins = new ArrayList<>();
+		final List<String> additionalPaths = new ArrayList<>();
 		try {
 			environment.put("PLUGIN_PATH", pathToPluginFolder);
 

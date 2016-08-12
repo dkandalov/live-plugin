@@ -40,7 +40,7 @@ public class GroovyPluginRunner implements PluginRunner {
 	public GroovyPluginRunner(String scriptName, ErrorReporter errorReporter, Map<String, String> environment) {
 		this.scriptName = scriptName;
 		this.errorReporter = errorReporter;
-		this.environment = new HashMap<String, String>(environment);
+		this.environment = new HashMap<>(environment);
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {

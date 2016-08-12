@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class LivePluginUsagesCollector extends UsagesCollector {
 	@NotNull @Override public Set<UsageDescriptor> getUsages() throws CollectUsagesException {
-		HashSet<UsageDescriptor> result = new HashSet<UsageDescriptor>();
+		HashSet<UsageDescriptor> result = new HashSet<>();
 		Settings settings = Settings.getInstance();
 		for (Map.Entry<String, Integer> entry : settings.pluginsUsage.entrySet()) {
 			result.add(new UsageDescriptor(entry.getKey(), entry.getValue()));

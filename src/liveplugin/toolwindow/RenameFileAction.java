@@ -45,7 +45,7 @@ public class RenameFileAction extends FileChooserAction {
 			 */
 			private void updateTreeModel_HACK() {
 				TreeModel model = fileSystemTree.getTree().getModel();
-				Queue<DefaultMutableTreeNode> queue = new LinkedList<DefaultMutableTreeNode>();
+				Queue<DefaultMutableTreeNode> queue = new LinkedList<>();
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) model.getRoot();
 				queue.add(node);
 

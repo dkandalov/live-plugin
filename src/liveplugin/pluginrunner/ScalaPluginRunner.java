@@ -57,7 +57,7 @@ class ScalaPluginRunner implements PluginRunner {
 		MutableSettings.PathSetting bootClasspath = (MutableSettings.PathSetting) settings.bootclasspath();
 		bootClasspath.append(interpreterClasspath);
 
-		settings.explicitParentLoader_$eq(new Some<ClassLoader>(parentClassLoader));
+		settings.explicitParentLoader_$eq(new Some<>(parentClassLoader));
 
 		((MutableSettings.BooleanSetting) settings.usejavacp()).tryToSetFromPropertyValue("true");
 
@@ -136,7 +136,7 @@ class ScalaPluginRunner implements PluginRunner {
 				String key = entry.getKey();
 				Object value = entry.getValue();
 				String valueClassName = value == null ? Null.class.getCanonicalName() : value.getClass().getCanonicalName();
-				interpreter.bind(key, valueClassName, value, package$.MODULE$.List().<String>empty());
+				interpreter.bind(key, valueClassName, value, package$.MODULE$.List().empty());
 			}
 		}
 

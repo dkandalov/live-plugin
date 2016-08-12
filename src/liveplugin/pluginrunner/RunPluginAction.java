@@ -56,7 +56,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 		}
 	};
     private static final String DISPOSABLE_KEY = "pluginDisposable";
-    private static final WeakHashMap<String, Map<String, Object>> bindingByPluginId = new WeakHashMap<String, Map<String, Object>>();
+    private static final WeakHashMap<String, Map<String, Object>> bindingByPluginId = new WeakHashMap<>();
 
 
     public RunPluginAction() {
@@ -134,7 +134,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
     }
 
 	public static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
-		List<PluginRunner> result = new ArrayList<PluginRunner>();
+		List<PluginRunner> result = new ArrayList<>();
 		result.add(new GroovyPluginRunner(MAIN_SCRIPT, errorReporter, environment()));
 		if (scalaIsOnClassPath()) result.add(new ScalaPluginRunner(errorReporter, environment()));
 		if (clojureIsOnClassPath()) result.add(new ClojurePluginRunner(errorReporter, environment()));
@@ -150,7 +150,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 		};
 		Disposer.register(ApplicationManager.getApplication(), disposable);
 
-		Map<String, Object> binding = new HashMap<String, Object>();
+		Map<String, Object> binding = new HashMap<>();
 		binding.put("project", project);
 		binding.put("isIdeStartup", isIdeStartup);
 		binding.put("pluginPath", pathToPluginFolder);
@@ -159,7 +159,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 	}
 
 	static Map<String, String> environment() {
-		return new HashMap<String, String>(System.getenv());
+		return new HashMap<>(System.getenv());
 	}
 
 	static List<String> findCurrentPluginIds(AnActionEvent event) {

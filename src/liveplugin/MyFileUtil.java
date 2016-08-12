@@ -40,7 +40,7 @@ public class MyFileUtil {
 		if (rootScriptFile.exists()) return rootScriptFile;
 
 		List<File> files = allFilesInDirectory(new File(path));
-		List<File> result = new ArrayList<File>();
+		List<File> result = new ArrayList<>();
 		for (File file : files) {
 			if (fileName.equals(file.getName())) {
 				result.add(file);
@@ -59,7 +59,7 @@ public class MyFileUtil {
 	}
 
 	private static List<File> allFilesInDirectory(File dir) {
-		LinkedList<File> result = new LinkedList<File>();
+		LinkedList<File> result = new LinkedList<>();
 		File[] files = dir.listFiles();
 		if (files == null) return result;
 

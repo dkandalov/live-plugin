@@ -91,7 +91,7 @@ public class AddPluginFromGitComponent implements ApplicationComponent, DumbAwar
 			 * Copied from {@link com.intellij.openapi.vcs.checkout.CompositeCheckoutListener}
 			 */
 			private static VirtualFile refreshVFS(final File directory) {
-				final Ref<VirtualFile> result = new Ref<VirtualFile>();
+				final Ref<VirtualFile> result = new Ref<>();
 				ApplicationManager.getApplication().runWriteAction(new Runnable() {
 					public void run() {
 						final LocalFileSystem lfs = LocalFileSystem.getInstance();

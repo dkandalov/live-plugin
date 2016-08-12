@@ -79,12 +79,12 @@ public interface PluginRunner {
 			parentLoaders.add(PluginRunner.class.getClassLoader());
 
 			String pluginVersion = "1.0.0";
-			return new PluginClassLoader(new ArrayList<URL>(), parentLoaders.toArray(new ClassLoader[parentLoaders.size()]),
+			return new PluginClassLoader(new ArrayList<>(), parentLoaders.toArray(new ClassLoader[parentLoaders.size()]),
 										 PluginId.getId(pluginId), pluginVersion, null);
 		}
 
 		private static List<ClassLoader> classLoadersOf(List<String> pluginIds, Function<String, Void> onError) {
-			List<ClassLoader> result = new ArrayList<ClassLoader>();
+			List<ClassLoader> result = new ArrayList<>();
 			for (String rawPluginId : pluginIds) {
 				PluginId pluginId = PluginId.getId(rawPluginId);
 				IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(pluginId);
@@ -99,7 +99,7 @@ public interface PluginRunner {
 		}
 
 		public static List<String> findPluginDependencies(String[] lines, String prefix) {
-			List<String> pluginsToAdd = new ArrayList<String>();
+			List<String> pluginsToAdd = new ArrayList<>();
 			for (String line : lines) {
 				if (!line.startsWith(prefix)) continue;
 
@@ -110,7 +110,7 @@ public interface PluginRunner {
 		}
 
 		public static List<String> findClasspathAdditions(String[] lines, String prefix, Map<String, String> environment, Function<String, Void> onError) throws IOException {
-			List<String> pathsToAdd = new ArrayList<String>();
+			List<String> pathsToAdd = new ArrayList<>();
 			for (String line : lines) {
 				if (!line.startsWith(prefix)) continue;
 

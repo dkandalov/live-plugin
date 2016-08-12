@@ -28,7 +28,7 @@ import java.util.Map;
 public class Settings implements PersistentStateComponent<Settings> {
 	public boolean justInstalled = true;
 	public boolean runAllPluginsOnIDEStartup = false;
-	public Map<String, Integer> pluginsUsage = new HashMap<String, Integer>();
+	public Map<String, Integer> pluginsUsage = new HashMap<>();
 
 	public static Settings getInstance() {
 		return ServiceManager.getService(Settings.class);

@@ -78,9 +78,9 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 				return file.isDirectory();
 			}
 		});
-		if (files == null) return new HashMap<String, String>();
+		if (files == null) return new HashMap<>();
 
-		HashMap<String, String> result = new HashMap<String, String>();
+		HashMap<String, String> result = new HashMap<>();
 		for (File file : files) {
 			result.put(file.getName(), FileUtilRt.toSystemIndependentName(file.getAbsolutePath()));
 		}

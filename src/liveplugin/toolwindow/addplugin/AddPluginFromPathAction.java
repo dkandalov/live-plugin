@@ -37,7 +37,7 @@ public class AddPluginFromPathAction extends AnAction implements DumbAware {
 
 	private static List<VirtualFile> getFileSystemRoots() {
 		LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
-		Set<VirtualFile> roots = new HashSet<VirtualFile>();
+		Set<VirtualFile> roots = new HashSet<>();
 		File[] ioRoots = File.listRoots();
 		if (ioRoots != null) {
 			for (File root : ioRoots) {
@@ -48,7 +48,7 @@ public class AddPluginFromPathAction extends AnAction implements DumbAware {
 				}
 			}
 		}
-		ArrayList<VirtualFile> result = new ArrayList<VirtualFile>();
+		ArrayList<VirtualFile> result = new ArrayList<>();
 		Collections.addAll(result, VfsUtil.toVirtualFileArray(roots));
 		return result;
 	}

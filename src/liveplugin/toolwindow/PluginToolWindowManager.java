@@ -90,7 +90,7 @@ public class PluginToolWindowManager {
 
 	private static final String PLUGINS_TOOL_WINDOW_ID = "Plugins";
 
-	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<Project, PluginToolWindow>();
+	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<>();
 
 	public static AnAction addFromGitHubAction; // TODO refactor this!!!
 
@@ -120,7 +120,7 @@ public class PluginToolWindowManager {
 		if (virtualFiles.isEmpty()) {
 			descriptor.setRoots();
 		} else {
-			virtualFiles = new ArrayList<VirtualFile>(filter(virtualFiles, NOT_NULL));
+			virtualFiles = new ArrayList<>(filter(virtualFiles, NOT_NULL));
 
 			// adding "null" is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement
 			// (if there is only one plugin, this forces tree show it as a package)
@@ -155,7 +155,7 @@ public class PluginToolWindowManager {
 	}
 
 	public static class PluginToolWindow {
-		private Ref<FileSystemTree> myFsTreeRef = new Ref<FileSystemTree>();
+		private Ref<FileSystemTree> myFsTreeRef = new Ref<>();
 		private SimpleToolWindowPanel panel;
 		private ToolWindow toolWindow;
 
@@ -202,7 +202,7 @@ public class PluginToolWindowManager {
 		}
 
 		static Collection<VirtualFile> findPluginRootsFor(VirtualFile[] files) {
-			Set<VirtualFile> selectedPluginRoots = new HashSet<VirtualFile>();
+			Set<VirtualFile> selectedPluginRoots = new HashSet<>();
 			for (VirtualFile file : files) {
 				VirtualFile root = pluginFolderOf(file);
 				if (root != null) selectedPluginRoots.add(root);
@@ -265,7 +265,7 @@ public class PluginToolWindowManager {
 		}
 
 		private FileSystemTree createFsTree(Project project) {
-			Ref<FileSystemTree> myFsTreeRef = new Ref<FileSystemTree>();
+			Ref<FileSystemTree> myFsTreeRef = new Ref<>();
 			MyTree myTree = new MyTree(project);
 
 			// must be installed before adding tree to FileSystemTreeImpl
@@ -434,7 +434,7 @@ public class PluginToolWindowManager {
         @Nullable @Override public Object getData(@NonNls String dataId) {
             if (PlatformDataKeys.NAVIGATABLE_ARRAY.is(dataId)) { // need this to be able to open files in toolwindow on double-click/enter
                 List<FileNodeDescriptor> nodeDescriptors = TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor.class);
-                List<Navigatable> navigatables = new ArrayList<Navigatable>();
+                List<Navigatable> navigatables = new ArrayList<>();
                 for (FileNodeDescriptor nodeDescriptor : nodeDescriptors) {
                     navigatables.add(new OpenFileDescriptor(project, nodeDescriptor.getElement().getFile()));
                 }

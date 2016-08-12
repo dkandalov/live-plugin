@@ -63,7 +63,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 		return new ActionGroup() {
 			@NotNull @Override
 			public AnAction[] getChildren(AnActionEvent e) {
-				List<AnAction> actions = new ArrayList<AnAction>();
+				List<AnAction> actions = new ArrayList<>();
 				actions.add(new NewGroovyFileAction());
 				actions.add(new NewScalaFileAction());
 				actions.add(new NewClojureFileAction());
