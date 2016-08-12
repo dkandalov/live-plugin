@@ -6,7 +6,6 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.util.Pair;
-import com.intellij.util.Function;
 import liveplugin.toolwindow.util.DependenciesUtil;
 import org.jetbrains.annotations.NotNull;
 

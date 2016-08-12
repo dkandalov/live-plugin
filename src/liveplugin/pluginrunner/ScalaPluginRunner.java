@@ -5,7 +5,6 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.Function;
 import com.intellij.util.PathUtil;
 import liveplugin.MyFileUtil;
-import org.jetbrains.annotations.NotNull;
 import scala.Some;
 import scala.package$;
 import scala.tools.nsc.Settings;
@@ -15,7 +14,6 @@ import scala.tools.nsc.settings.MutableSettings;
 import scala.xml.Null;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
@@ -37,7 +35,7 @@ import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*;
  * This class should not be loaded unless scala libs are on classpath.
  */
 class ScalaPluginRunner implements PluginRunner {
-	public static final String SCALA_DEPENDS_ON_PLUGIN_KEYWORD = "// " + DEPENDS_ON_PLUGIN_KEYWORD;
+	private static final String SCALA_DEPENDS_ON_PLUGIN_KEYWORD = "// " + DEPENDS_ON_PLUGIN_KEYWORD;
 	private static final String MAIN_SCRIPT = "plugin.scala";
 	private static final String SCALA_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
 	private static final StringWriter interpreterOutput = new StringWriter();

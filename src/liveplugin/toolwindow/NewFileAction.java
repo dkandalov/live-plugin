@@ -90,6 +90,7 @@ class NewFileAction extends FileChooserAction {
                 continue;
             }
 
+            @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
             Exception failReason = createNewFile(project, (FileSystemTreeImpl)fileSystemTree, file, newFileName, fileType, initialContent);
             if (failReason != null) {
                 Messages.showMessageDialog(UIBundle.message("create.new.file.could.not.create.file.error.message", newFileName),
@@ -101,9 +102,9 @@ class NewFileAction extends FileChooserAction {
     }
 
     // modified copy of com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl.createNewFile()
-    public Exception createNewFile(Project project, final FileSystemTreeImpl fileSystemTree,
-                                   final VirtualFile parentDirectory, final String newFileName,
-                                   final FileType fileType, final String initialContent) {
+    private Exception createNewFile(Project project, final FileSystemTreeImpl fileSystemTree,
+                                    final VirtualFile parentDirectory, final String newFileName,
+                                    final FileType fileType, final String initialContent) {
         final Exception[] failReason = new Exception[] { null };
         CommandProcessor.getInstance().executeCommand(
                 project, new Runnable() {

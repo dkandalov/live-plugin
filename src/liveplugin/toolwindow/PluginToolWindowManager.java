@@ -51,7 +51,6 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.EditSourceOnEnterKeyHandler;
-import com.intellij.util.Function;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IDEUtil;
 import liveplugin.Icons;

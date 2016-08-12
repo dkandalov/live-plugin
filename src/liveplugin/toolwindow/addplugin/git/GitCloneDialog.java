@@ -37,7 +37,7 @@ public class GitCloneDialog extends CloneDvcsDialog {
 		this(project, null);
 	}
 
-	public GitCloneDialog(@NotNull Project project, @Nullable String defaultUrl) {
+	private GitCloneDialog(@NotNull Project project, @Nullable String defaultUrl) {
 		super(project, GitVcs.NAME, GitUtil.DOT_GIT, defaultUrl);
 		myGit = ServiceManager.getService(Git.class);
 	}

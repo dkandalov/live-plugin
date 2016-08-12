@@ -57,7 +57,10 @@ public class AddPluginFromGitComponent implements ApplicationComponent, DumbAwar
 		}
 
 		@Override public void actionPerformed(@NotNull AnActionEvent event) {
-			GitCloneDialog dialog = new GitCloneDialog(event.getProject());
+			Project project = event.getProject();
+			if (project == null) return;
+
+			GitCloneDialog dialog = new GitCloneDialog(project);
 			dialog.show();
 			if (!dialog.isOK()) return;
 			dialog.rememberSettings();
@@ -66,9 +69,9 @@ public class AddPluginFromGitComponent implements ApplicationComponent, DumbAwar
 			if (destinationFolder == null) return;
 
 			GitCheckoutProvider.clone(
-					event.getProject(),
+					project,
 					ServiceManager.getService(Git.class),
-					new MyCheckoutListener(event.getProject(), destinationFolder, dialog.getDirectoryName()),
+					new MyCheckoutListener(project, destinationFolder, dialog.getDirectoryName()),
 					destinationFolder,
 					dialog.getSourceRepositoryURL(),
 					dialog.getDirectoryName(),
