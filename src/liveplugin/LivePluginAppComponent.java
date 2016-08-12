@@ -13,7 +13,6 @@
  */
 package liveplugin;
 
-import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
@@ -36,10 +35,7 @@ import liveplugin.toolwindow.PluginToolWindowManager;
 import liveplugin.toolwindow.util.ExamplePluginInstaller;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.event.HyperlinkEvent;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,13 +66,10 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	public static Map<String, String> pluginIdToPathMap() {
 		final boolean containsIdeaProjectFolder = new File(pluginsRootPath() + "/" + DIRECTORY_STORE_FOLDER).exists();
 
-		File[] files = new File(pluginsRootPath()).listFiles(new FileFilter() {
-			@SuppressWarnings("SimplifiableIfStatement")
-			@Override public boolean accept(@NotNull File file) {
-				if (containsIdeaProjectFolder && file.getName().equals(DEFAULT_IDEA_OUTPUT_FOLDER)) return false;
-				if (file.getName().equals(DIRECTORY_STORE_FOLDER)) return false;
-				return file.isDirectory();
-			}
+		File[] files = new File(pluginsRootPath()).listFiles(file -> {
+			if (containsIdeaProjectFolder && file.getName().equals(DEFAULT_IDEA_OUTPUT_FOLDER)) return false;
+			if (file.getName().equals(DIRECTORY_STORE_FOLDER)) return false;
+			return file.isDirectory();
 		});
 		if (files == null) return new HashMap<>();
 
@@ -90,11 +83,7 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	public static boolean isInvalidPluginFolder(VirtualFile virtualFile) {
 		File file = new File(virtualFile.getPath());
 		if (!file.isDirectory()) return false;
-		String[] files = file.list(new FilenameFilter() {
-			@Override public boolean accept(@NotNull File dir, @NotNull String name) {
-				return name.equals(GroovyPluginRunner.MAIN_SCRIPT);
-			}
-		});
+		String[] files = file.list((dir, name) -> name.equals(GroovyPluginRunner.MAIN_SCRIPT));
 		return files.length < 1;
 	}
 
@@ -133,19 +122,17 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	}
 
 	private static void runAllPlugins() {
-		ApplicationManager.getApplication().invokeLater(new Runnable() {
-			@Override public void run() {
-				AnActionEvent event = new AnActionEvent(
-						null,
-						IDEUtil.DUMMY_DATA_CONTEXT,
-						PluginRunner.IDE_STARTUP,
-						new Presentation(),
-						ActionManager.getInstance(),
-						0
-				);
-				ErrorReporter errorReporter = new ErrorReporter();
-				RunPluginAction.runPlugins(pluginIdToPathMap().keySet(), event, errorReporter, RunPluginAction.createPluginRunners(errorReporter));
-			}
+		ApplicationManager.getApplication().invokeLater(() -> {
+			AnActionEvent event = new AnActionEvent(
+					null,
+					IDEUtil.DUMMY_DATA_CONTEXT,
+					PluginRunner.IDE_STARTUP,
+					new Presentation(),
+					ActionManager.getInstance(),
+					0
+			);
+			ErrorReporter errorReporter = new ErrorReporter();
+			RunPluginAction.runPlugins(pluginIdToPathMap().keySet(), event, errorReporter, RunPluginAction.createPluginRunners(errorReporter));
 		});
 	}
 
@@ -153,18 +140,16 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
         if (isGroovyOnClasspath()) return;
 
         // this can be useful for non-java IDEs because they don't have bundled groovy libs
-        NotificationListener listener = new NotificationListener() {
-			@Override public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
-				boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.3.9/", "groovy-all-2.3.9.jar", LIVEPLUGIN_LIBS_PATH);
-				if (downloaded) {
-					notification.expire();
-					askIfUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?");
-				} else {
-					livePluginNotificationGroup
-							.createNotification("Failed to download Groovy libraries", NotificationType.WARNING);
-				}
-			}
-		};
+        NotificationListener listener = (notification, event) -> {
+	        boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.3.9/", "groovy-all-2.3.9.jar", LIVEPLUGIN_LIBS_PATH);
+	        if (downloaded) {
+		        notification.expire();
+		        askIfUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?");
+	        } else {
+		        livePluginNotificationGroup
+				        .createNotification("Failed to download Groovy libraries", NotificationType.WARNING);
+	        }
+        };
 		livePluginNotificationGroup.createNotification(
 				"LivePlugin didn't find Groovy libraries on classpath",
 				"Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~7Mb)",
@@ -189,11 +174,7 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	}
 
 	private static void installHelloWorldPlugins() {
-		ExamplePluginInstaller.Listener loggingListener = new ExamplePluginInstaller.Listener() {
-			@Override public void onException(Exception e, String pluginPath) {
-				LOG.warn("Failed to install plugin: " + pluginPath, e);
-			}
-		};
+		ExamplePluginInstaller.Listener loggingListener = (e, pluginPath) -> LOG.warn("Failed to install plugin: " + pluginPath, e);
 		new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "helloWorld/", asList("plugin.groovy")).installPlugin(loggingListener);
 		new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "registerAction/", asList("plugin.groovy")).installPlugin(loggingListener);
 		new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "popupMenu/", asList("plugin.groovy")).installPlugin(loggingListener);

@@ -27,11 +27,7 @@ public class AddExamplePluginAction extends AnAction implements DumbAware {
 	}
 
 	@Override public void actionPerformed(@NotNull final AnActionEvent event) {
-		examplePluginInstaller.installPlugin(new ExamplePluginInstaller.Listener() {
-			@Override public void onException(Exception e, String pluginPath) {
-				logException(e, event, pluginPath);
-			}
-		});
+		examplePluginInstaller.installPlugin((e, pluginPath) -> logException(e, event, pluginPath));
 		RefreshPluginsPanelAction.refreshPluginTree();
 	}
 

@@ -29,11 +29,7 @@ public class AddClojureLibsAsDependency extends AnAction implements DumbAware {
 		if (DependenciesUtil.anyModuleHasLibraryAsDependencyIn(project, LIBRARY_NAME)) {
 			DependenciesUtil.removeLibraryDependencyFrom(project, LIBRARY_NAME);
 		} else {
-			List<Pair<String, OrderRootType>> paths = map(fileNamesMatching(DownloadClojureLibs.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH), new Function<String, Pair<String, OrderRootType>>() {
-				@Override public Pair<String, OrderRootType> fun(String fileName) {
-					return create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES);
-				}
-			});
+			List<Pair<String, OrderRootType>> paths = map(fileNamesMatching(DownloadClojureLibs.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH), fileName -> create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES));
 			DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, paths);
 		}
 	}

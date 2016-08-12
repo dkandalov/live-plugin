@@ -56,20 +56,18 @@ public class RenameFileAction extends FileChooserAction {
 
 					if (nodeContainsRenamedFile) {
 						final DefaultMutableTreeNode finalNode = node;
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override public void run() {
-								FileNodeDescriptor nodeDescriptor = (FileNodeDescriptor) userObject;
-								FileElement fileElement = new FileElement(file, newFileName);
-								fileElement.setParent(nodeDescriptor.getElement().getParent());
-								finalNode.setUserObject(new FileNodeDescriptor(
-										nodeDescriptor.getProject(),
-										fileElement,
-										nodeDescriptor.getParentDescriptor(),
-										nodeDescriptor.getIcon(),
-										newFileName,
-										nodeDescriptor.getComment()
-								));
-							}
+						SwingUtilities.invokeLater(() -> {
+							FileNodeDescriptor nodeDescriptor = (FileNodeDescriptor) userObject;
+							FileElement fileElement = new FileElement(file, newFileName);
+							fileElement.setParent(nodeDescriptor.getElement().getParent());
+							finalNode.setUserObject(new FileNodeDescriptor(
+									nodeDescriptor.getProject(),
+									fileElement,
+									nodeDescriptor.getParentDescriptor(),
+									nodeDescriptor.getIcon(),
+									newFileName,
+									nodeDescriptor.getComment()
+							));
 						});
 
 						return;

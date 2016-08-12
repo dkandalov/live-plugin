@@ -92,18 +92,16 @@ public class AddPluginFromGitComponent implements ApplicationComponent, DumbAwar
 			 */
 			private static VirtualFile refreshVFS(final File directory) {
 				final Ref<VirtualFile> result = new Ref<>();
-				ApplicationManager.getApplication().runWriteAction(new Runnable() {
-					public void run() {
-						final LocalFileSystem lfs = LocalFileSystem.getInstance();
-						final VirtualFile vDir = lfs.refreshAndFindFileByIoFile(directory);
-						result.set(vDir);
-						if (vDir != null) {
-							final LocalFileSystem.WatchRequest watchRequest = lfs.addRootToWatch(vDir.getPath(), true);
-							((NewVirtualFile)vDir).markDirtyRecursively();
-							vDir.refresh(false, true);
-							if (watchRequest != null) {
-								lfs.removeWatchedRoot(watchRequest);
-							}
+				ApplicationManager.getApplication().runWriteAction(() -> {
+					final LocalFileSystem lfs = LocalFileSystem.getInstance();
+					final VirtualFile vDir = lfs.refreshAndFindFileByIoFile(directory);
+					result.set(vDir);
+					if (vDir != null) {
+						final LocalFileSystem.WatchRequest watchRequest = lfs.addRootToWatch(vDir.getPath(), true);
+						((NewVirtualFile)vDir).markDirtyRecursively();
+						vDir.refresh(false, true);
+						if (watchRequest != null) {
+							lfs.removeWatchedRoot(watchRequest);
 						}
 					}
 				});
@@ -118,29 +116,27 @@ public class AddPluginFromGitComponent implements ApplicationComponent, DumbAwar
 				VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginAppComponent.pluginsRootPath());
 				if (pluginsRoot == null) return;
 
-				RefreshQueue.getInstance().refresh(false, true, new Runnable() {
-					@Override public void run() {
-						VirtualFile clonedFolder = destinationFolder.findChild(pluginName);
-						if (clonedFolder == null) {
-							LOG.error("Couldn't find virtual file for checked out plugin: " + pluginName);
-							return;
-						}
-
-						try {
-
-							if (LivePluginAppComponent.isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
-								PluginsIO.delete(clonedFolder.getPath());
-							}
-
-						} catch (Exception e) {
-							if (project != null) {
-								IDEUtil.showErrorDialog(project, "Error deleting plugin \"" + clonedFolder.getPath(), "Delete Plugin");
-							}
-							LOG.error(e);
-						}
-
-						RefreshPluginsPanelAction.refreshPluginTree();
+				RefreshQueue.getInstance().refresh(false, true, () -> {
+					VirtualFile clonedFolder = destinationFolder.findChild(pluginName);
+					if (clonedFolder == null) {
+						LOG.error("Couldn't find virtual file for checked out plugin: " + pluginName);
+						return;
 					}
+
+					try {
+
+						if (LivePluginAppComponent.isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
+							PluginsIO.delete(clonedFolder.getPath());
+						}
+
+					} catch (Exception e) {
+						if (project != null) {
+							IDEUtil.showErrorDialog(project, "Error deleting plugin \"" + clonedFolder.getPath(), "Delete Plugin");
+						}
+						LOG.error(e);
+					}
+
+					RefreshPluginsPanelAction.refreshPluginTree();
 				}, pluginsRoot);
 			}
 

@@ -191,11 +191,7 @@ public class PluginToolWindowManager {
 			descriptor.withTreeRootVisible(false);
 
 			Collection<String> pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values();
-			List<VirtualFile> virtualFiles = map(pluginPaths, new Function<String, VirtualFile>() {
-				@Override public VirtualFile fun(String path) {
-					return VirtualFileManager.getInstance().findFileByUrl("file://" + path);
-				}
-			});
+			List<VirtualFile> virtualFiles = map(pluginPaths, path -> VirtualFileManager.getInstance().findFileByUrl("file://" + path));
 			addRoots(descriptor, virtualFiles);
 
 			return descriptor;
@@ -379,11 +375,7 @@ public class PluginToolWindowManager {
 
 		public List<String> selectedPluginIds() {
 			Collection<VirtualFile> rootFiles = findPluginRootsFor(myFsTreeRef.get().getSelectedFiles());
-			return map(rootFiles, new Function<VirtualFile, String>() {
-				@Override public String fun(VirtualFile virtualFile) {
-					return virtualFile.getName();
-				}
-			});
+			return map(rootFiles, virtualFile -> virtualFile.getName());
 		}
 
 		public boolean isActive() {

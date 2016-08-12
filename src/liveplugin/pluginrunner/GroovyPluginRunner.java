@@ -63,11 +63,9 @@ public class GroovyPluginRunner implements PluginRunner {
 			environment.put("PLUGIN_PATH", pathToPluginFolder);
 
 			List<String> dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), GROOVY_DEPENDS_ON_PLUGIN_KEYWORD);
-			List<String> pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), GROOVY_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
-				@Override public Void fun(String path) {
-					errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
-					return null;
-				}
+			List<String> pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), GROOVY_ADD_TO_CLASSPATH_KEYWORD, environment, path -> {
+				errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
+				return null;
 			});
 			String pluginFolderUrl = "file:///" + pathToPluginFolder + "/"; // prefix with "file:///" so that unix-like path works on windows
 			pathsToAdd.add(pluginFolderUrl);
@@ -83,13 +81,11 @@ public class GroovyPluginRunner implements PluginRunner {
 				return;
 			}
 
-			runPluginCallback.fun(new Runnable() {
-				@Override public void run() {
-					try {
-						scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));
-					} catch (Exception e) {
-						errorReporter.addRunningError(pluginId, e);
-					}
+			runPluginCallback.fun(() -> {
+				try {
+					scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));
+				} catch (Exception e) {
+					errorReporter.addRunningError(pluginId, e);
 				}
 			});
 

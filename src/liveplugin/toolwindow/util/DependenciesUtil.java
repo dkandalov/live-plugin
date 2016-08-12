@@ -16,21 +16,15 @@ import static com.intellij.util.containers.ContainerUtil.findAll;
 
 public class DependenciesUtil {
 	public static boolean anyModuleHasLibraryAsDependencyIn(Project project, final String libraryName) {
-		List<Module> modulesWithoutDependency = findAll(ModuleManager.getInstance(project).getModules(), new Condition<Module>() {
-			@Override public boolean value(Module module) {
-				return dependsOn(libraryName, module);
-			}
-		});
+		List<Module> modulesWithoutDependency = findAll(ModuleManager.getInstance(project).getModules(), module -> dependsOn(libraryName, module));
 		return !modulesWithoutDependency.isEmpty();
 	}
 
 	public static void removeLibraryDependencyFrom(final Project project, final String libraryName) {
-		ApplicationManager.getApplication().runWriteAction(new Runnable() {
-			@Override public void run() {
-				for (Module module : ModuleManager.getInstance(project).getModules()) {
-					if (dependsOn(libraryName, module)) {
-						removeLibraryDependencyFrom(module, libraryName);
-					}
+		ApplicationManager.getApplication().runWriteAction(() -> {
+			for (Module module : ModuleManager.getInstance(project).getModules()) {
+				if (dependsOn(libraryName, module)) {
+					removeLibraryDependencyFrom(module, libraryName);
 				}
 			}
 		});
@@ -48,15 +42,13 @@ public class DependenciesUtil {
 
 	public static void addLibraryDependencyTo(final Project project, final String libraryName,
 	                                          final List<Pair<String, OrderRootType>> paths) {
-		ApplicationManager.getApplication().runWriteAction(new Runnable() {
-			@Override public void run() {
-				Module[] modules = ModuleManager.getInstance(project).getModules();
-				if (modules.length > 0) {
-					// Add dependency to the first module because this is enough for IntelliJ too see classes
-					// and adding dependency to all modules can be very slow for large projects
-					// (~16 seconds with UI freeze for IntelliJ source code).
-					addLibraryDependencyTo(modules[0], libraryName, paths);
-				}
+		ApplicationManager.getApplication().runWriteAction(() -> {
+			Module[] modules = ModuleManager.getInstance(project).getModules();
+			if (modules.length > 0) {
+				// Add dependency to the first module because this is enough for IntelliJ too see classes
+				// and adding dependency to all modules can be very slow for large projects
+				// (~16 seconds with UI freeze for IntelliJ source code).
+				addLibraryDependencyTo(modules[0], libraryName, paths);
 			}
 		});
 	}

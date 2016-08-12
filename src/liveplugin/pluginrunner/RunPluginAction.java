@@ -49,11 +49,9 @@ import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
 
 public class RunPluginAction extends AnAction implements DumbAware {
 	private static final SingleThreadBackgroundRunner backgroundRunner = new SingleThreadBackgroundRunner("LivePlugin thread");
-	private static final Function<Runnable,Void> RUN_ON_EDT = new Function<Runnable, Void>() {
-		@Override public Void fun(Runnable runnable) {
-			UIUtil.invokeAndWaitIfNeeded(runnable);
-			return null;
-		}
+	private static final Function<Runnable,Void> RUN_ON_EDT = runnable -> {
+		UIUtil.invokeAndWaitIfNeeded(runnable);
+		return null;
 	};
     private static final String DISPOSABLE_KEY = "pluginDisposable";
     private static final WeakHashMap<String, Map<String, Object>> bindingByPluginId = new WeakHashMap<>();
@@ -82,50 +80,34 @@ public class RunPluginAction extends AnAction implements DumbAware {
             Settings.countPluginsUsage(pluginIds);
         }
 
-        Runnable runPlugins = new Runnable() {
-            @Override public void run() {
-                for (final String pluginId : pluginIds) {
-                    try {
-                        final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
-                        PluginRunner pluginRunner = find(pluginRunners, new Condition<PluginRunner>() {
-                            @Override public boolean value(PluginRunner it) {
-                                return pathToPluginFolder != null && it.canRunPlugin(pathToPluginFolder);
-                            }
-                        });
-                        if (pluginRunner == null) {
-                            List<String> scriptNames = map(pluginRunners, new Function<PluginRunner, String>() {
-                                @Override public String fun(PluginRunner it) {
-                                    return it.scriptName();
-                                }
-                            });
-                            errorReporter.addNoScriptError(pluginId, scriptNames);
-                        } else {
-                            final Map<String, Object> oldBinding = bindingByPluginId.get(pluginId);
-                            if (oldBinding != null) {
-	                            ApplicationManager.getApplication().invokeAndWait(new Runnable() {
-		                            @Override public void run() {
-			                            try {
-				                            Disposer.dispose((Disposable) oldBinding.get(DISPOSABLE_KEY));
-			                            } catch (Exception e) {
-				                            errorReporter.addRunningError(pluginId, e);
-			                            }
-		                            }
-	                            }, ModalityState.NON_MODAL);
-                            }
-                            Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
-                            bindingByPluginId.put(pluginId, binding);
-
-                            pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, RUN_ON_EDT);
+        Runnable runPlugins = () -> {
+            for (final String pluginId : pluginIds) {
+                try {
+                    final String pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap().get(pluginId); // TODO not thread-safe
+                    PluginRunner pluginRunner = find(pluginRunners, it -> pathToPluginFolder != null && it.canRunPlugin(pathToPluginFolder));
+                    if (pluginRunner == null) {
+                        List<String> scriptNames = map(pluginRunners, it -> it.scriptName());
+                        errorReporter.addNoScriptError(pluginId, scriptNames);
+                    } else {
+                        final Map<String, Object> oldBinding = bindingByPluginId.get(pluginId);
+                        if (oldBinding != null) {
+	                        ApplicationManager.getApplication().invokeAndWait(() -> {
+		                        try {
+			                        Disposer.dispose((Disposable) oldBinding.get(DISPOSABLE_KEY));
+		                        } catch (Exception e) {
+			                        errorReporter.addRunningError(pluginId, e);
+		                        }
+	                        }, ModalityState.NON_MODAL);
                         }
-                    } catch (Exception e) {
-                        errorReporter.addLoadingError(pluginId, e);
-                    } finally {
-                        errorReporter.reportAllErrors(new ErrorReporter.Callback() {
-                            @Override public void display(String title, String message) {
-                                IDEUtil.displayError(title, message, project);
-                            }
-                        });
+                        Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
+                        bindingByPluginId.put(pluginId, binding);
+
+                        pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, RUN_ON_EDT);
                     }
+                } catch (Exception e) {
+                    errorReporter.addLoadingError(pluginId, e);
+                } finally {
+                    errorReporter.reportAllErrors((title, message) -> IDEUtil.displayError(title, message, project));
                 }
             }
         };
@@ -192,12 +174,9 @@ public class RunPluginAction extends AnAction implements DumbAware {
 		if (virtualFile == null) return emptyList();
 
 		final File file = new File(virtualFile.getPath());
-		Map.Entry<String, String> entry = find(LivePluginAppComponent.pluginIdToPathMap().entrySet(), new Condition<Map.Entry<String, String>>() {
-			@Override
-			public boolean value(Map.Entry<String, String> entry) {
-				String pluginPath = entry.getValue();
-				return FileUtil.isAncestor(new File(pluginPath), file, false);
-			}
+		Map.Entry<String, String> entry = find(LivePluginAppComponent.pluginIdToPathMap().entrySet(), entry1 -> {
+			String pluginPath = entry1.getValue();
+			return FileUtil.isAncestor(new File(pluginPath), file, false);
 		});
 		if (entry == null) return emptyList();
 		return Collections.singletonList(entry.getKey());

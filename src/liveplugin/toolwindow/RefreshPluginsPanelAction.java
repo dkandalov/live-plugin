@@ -19,17 +19,11 @@ public class RefreshPluginsPanelAction extends AnAction implements DumbAware {
 	}
 
 	public static void refreshPluginTree() {
-		ApplicationManager.getApplication().runWriteAction(new Runnable() {
-			@Override public void run() {
-				VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginAppComponent.pluginsRootPath());
-				if (pluginsRoot == null) return;
+		ApplicationManager.getApplication().runWriteAction(() -> {
+			VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginAppComponent.pluginsRootPath());
+			if (pluginsRoot == null) return;
 
-				RefreshQueue.getInstance().refresh(false, true, new Runnable() {
-					@Override public void run() {
-						PluginToolWindowManager.reloadPluginTreesInAllProjects();
-					}
-				}, pluginsRoot);
-			}
+			RefreshQueue.getInstance().refresh(false, true, () -> PluginToolWindowManager.reloadPluginTreesInAllProjects(), pluginsRoot);
 		});
 	}
 

@@ -32,11 +32,7 @@ public class ErrorReporter {
 	private final LinkedHashMap<String, String> runningPluginErrors = new LinkedHashMap<>();
 
 	public synchronized void addNoScriptError(String pluginId, List<String> scriptNames) {
-		String scripts = join(map(scriptNames, new Function<String, String>() {
-			@Override public String fun(String it) {
-				return "\"" + it + "\"";
-			}
-		}), ", ");
+		String scripts = join(map(scriptNames, it -> "\"" + it + "\""), ", ");
 		loadingErrors.add("Plugin: \"" + pluginId + "\". Startup script was not found. Tried: " + scripts);
 	}
 

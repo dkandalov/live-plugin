@@ -32,11 +32,7 @@ class DeletePluginAction extends AnAction implements DumbAware {
 	}
 
 	private static boolean userDoesNotWantToRemovePlugins(Collection<VirtualFile> pluginRoots, Project project) {
-		List<String> pluginIds = map(pluginRoots, new Function<VirtualFile, String>() {
-			@Override public String fun(VirtualFile virtualFile) {
-				return virtualFile.getName();
-			}
-		});
+		List<String> pluginIds = map(pluginRoots, virtualFile -> virtualFile.getName());
 
 		String message;
 		if (pluginIds.size() == 1) {

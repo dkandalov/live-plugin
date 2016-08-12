@@ -41,13 +41,11 @@ public class DownloadScalaLibs extends AnAction implements DumbAware {
 			if (answer != Messages.OK) return;
 
 			List<String> scalaLibs = asList("scala-library", "scala-compiler", "scala-reflect", "scalap");
-			List<Pair<String, String>> urlAndFileNamePairs = map(scalaLibs, new Function<String, Pair<String, String>>() {
-				@Override public Pair<String, String> fun(String it) {
-					// Using alternative maven repo instead of "repo1.maven.org" because standard repo for some reason
-					// returns 403 when requested scala libs from IntelliJ downloader (even though the same code works for clojure libs)
-					// (using this particular repo because it seems to be the fastest mirror http://docs.codehaus.org/display/MAVENUSER/Mirrors+Repositories)
-					return Pair.create("http://maven.antelink.com/content/repositories/central/org/scala-lang/" + it + "/2.11.7/", it + "-2.11.7.jar");
-				}
+			List<Pair<String, String>> urlAndFileNamePairs = map(scalaLibs, it -> {
+				// Using alternative maven repo instead of "repo1.maven.org" because standard repo for some reason
+				// returns 403 when requested scala libs from IntelliJ downloader (even though the same code works for clojure libs)
+				// (using this particular repo because it seems to be the fastest mirror http://docs.codehaus.org/display/MAVENUSER/Mirrors+Repositories)
+				return Pair.create("http://maven.antelink.com/content/repositories/central/org/scala-lang/" + it + "/2.11.7/", it + "-2.11.7.jar");
 			});
 
 			boolean downloaded = downloadFiles(urlAndFileNamePairs, LIVEPLUGIN_LIBS_PATH);

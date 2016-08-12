@@ -13,64 +13,52 @@ public class PluginsIO {
 	private static final String REQUESTOR = PluginsIO.class.getCanonicalName();
 
 	public static void createFile(final String parentPath, final String fileName, final String text) throws IOException {
-		runIOAction("createFile", new ThrowableRunnable<IOException>() {
-			@Override public void run() throws IOException {
+		runIOAction("createFile", () -> {
 
-				VirtualFile parentFolder = VfsUtil.createDirectoryIfMissing(parentPath);
-				if (parentFolder == null) throw new IOException("Failed to create folder " + parentPath);
+			VirtualFile parentFolder = VfsUtil.createDirectoryIfMissing(parentPath);
+			if (parentFolder == null) throw new IOException("Failed to create folder " + parentPath);
 
-				VirtualFile file = parentFolder.createChildData(REQUESTOR, fileName);
-				VfsUtil.saveText(file, text);
+			VirtualFile file = parentFolder.createChildData(REQUESTOR, fileName);
+			VfsUtil.saveText(file, text);
 
-			}
 		});
 	}
 
 	public static void copyFolder(final String folder, final String toFolder) throws IOException {
-		runIOAction("copyFolder", new ThrowableRunnable<IOException>() {
-			@Override public void run() throws IOException {
+		runIOAction("copyFolder", () -> {
 
-				VirtualFile targetFolder = VfsUtil.createDirectoryIfMissing(toFolder);
-				if (targetFolder == null) throw new IOException("Failed to create folder " + toFolder);
-				VirtualFile folderToCopy = VirtualFileManager.getInstance().findFileByUrl("file://" + folder);
-				if (folderToCopy == null) throw new IOException("Failed to find folder " + folder);
+			VirtualFile targetFolder = VfsUtil.createDirectoryIfMissing(toFolder);
+			if (targetFolder == null) throw new IOException("Failed to create folder " + toFolder);
+			VirtualFile folderToCopy = VirtualFileManager.getInstance().findFileByUrl("file://" + folder);
+			if (folderToCopy == null) throw new IOException("Failed to find folder " + folder);
 
-				VfsUtil.copy(REQUESTOR, folderToCopy, targetFolder);
+			VfsUtil.copy(REQUESTOR, folderToCopy, targetFolder);
 
-			}
 		});
 	}
 
 	public static void delete(final String filePath) throws IOException {
-		runIOAction("delete", new ThrowableRunnable<IOException>() {
-			@Override public void run() throws IOException {
+		runIOAction("delete", () -> {
 
-				VirtualFile file = VirtualFileManager.getInstance().findFileByUrl("file://" + filePath);
-				if (file == null) throw new IOException("Failed to find file " + filePath);
+			VirtualFile file = VirtualFileManager.getInstance().findFileByUrl("file://" + filePath);
+			if (file == null) throw new IOException("Failed to find file " + filePath);
 
-				file.delete(REQUESTOR);
+			file.delete(REQUESTOR);
 
-			}
 		});
 	}
 
 	private static void runIOAction(String actionName, final ThrowableRunnable<IOException> runnable) throws IOException {
 		final IOException[] exception = new IOException[]{null};
-		CommandProcessor.getInstance().executeCommand(null, new Runnable() {
-			@Override public void run() {
-				ApplicationManager.getApplication().runWriteAction(new Runnable() {
-					public void run() {
-						try {
+		CommandProcessor.getInstance().executeCommand(null, () -> ApplicationManager.getApplication().runWriteAction(() -> {
+			try {
 
-							runnable.run();
+				runnable.run();
 
-						} catch (IOException e) {
-							exception[0] = e;
-						}
-					}
-				});
+			} catch (IOException e) {
+				exception[0] = e;
 			}
-		}, actionName, "LivePlugin");
+		}), actionName, "LivePlugin");
 
 		if (exception[0] != null) throw exception[0];
 	}

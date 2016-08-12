@@ -40,13 +40,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.Function;
 import com.intellij.util.download.DownloadableFileDescription;
 import com.intellij.util.download.DownloadableFileService;
 import com.intellij.util.text.CharArrayUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -56,7 +54,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
 
 import static com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT;
 import static com.intellij.openapi.ui.Messages.showOkCancelDialog;
@@ -69,11 +66,7 @@ public class IDEUtil {
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
 	public static final FileType SCALA_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".scala");
 	public static final FileType CLOJURE_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".clj");
-	public static final DataContext DUMMY_DATA_CONTEXT = new DataContext() {
-		@Nullable @Override public Object getData(@NonNls String dataId) {
-			return null;
-		}
-	};
+	public static final DataContext DUMMY_DATA_CONTEXT = dataId -> null;
 	private static final Logger LOG = Logger.getInstance(IDEUtil.class);
 
     public static void displayError(String consoleTitle, String text, Project project) {
@@ -94,11 +87,7 @@ public class IDEUtil {
 	}
 
 	public static void saveAllFiles() {
-		ApplicationManager.getApplication().runWriteAction(new Runnable() {
-			public void run() {
-				FileDocumentManager.getInstance().saveAllDocuments();
-			}
-		});
+		ApplicationManager.getApplication().runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
 	}
 
 	public static void runAction(final AnAction action, String place) {
@@ -110,11 +99,7 @@ public class IDEUtil {
 				ActionManager.getInstance(),
 				0
 		);
-		ApplicationManager.getApplication().invokeLater(new Runnable() {
-			@Override public void run() {
-				action.actionPerformed(event);
-			}
-		});
+		ApplicationManager.getApplication().invokeLater(() -> action.actionPerformed(event));
 	}
 
 	public static boolean isOnClasspath(String className) {
@@ -136,11 +121,7 @@ public class IDEUtil {
 
 	public static boolean downloadFiles(List<Pair<String, String>> urlAndFileNames, String targetPath) {
 		final DownloadableFileService service = DownloadableFileService.getInstance();
-		List<DownloadableFileDescription> descriptions = map(urlAndFileNames, new Function<Pair<String, String>, DownloadableFileDescription>() {
-			@Override public DownloadableFileDescription fun(Pair<String, String> it) {
-				return service.createFileDescription(it.first + it.second, it.second);
-			}
-		});
+		List<DownloadableFileDescription> descriptions = map(urlAndFileNames, it -> service.createFileDescription(it.first + it.second, it.second));
 		List<VirtualFile> files = service.createDownloader(descriptions, "").downloadFilesWithProgress(targetPath, null, null);
 		return files != null && files.size() == urlAndFileNames.size();
 	}
@@ -154,26 +135,24 @@ public class IDEUtil {
 
 	private static void showInConsole(final String message, final String consoleTitle, @NotNull final Project project,
 	                                  final ConsoleViewContentType contentType) {
-		Runnable runnable = new Runnable() {
-			@Override public void run() {
-				ConsoleView console = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
-				console.print(message, contentType);
+		Runnable runnable = () -> {
+			ConsoleView console = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+			console.print(message, contentType);
 
-				DefaultActionGroup toolbarActions = new DefaultActionGroup();
-				JPanel consoleComponent = new MyConsolePanel(console, toolbarActions);
-				RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
-					@Override public boolean isContentReuseProhibited() { return true; }
-					@Override public Icon getIcon() { return AllIcons.Nodes.Plugin; }
-				};
-				Executor executor = DefaultRunExecutor.getRunExecutorInstance();
+			DefaultActionGroup toolbarActions = new DefaultActionGroup();
+			JPanel consoleComponent = new MyConsolePanel(console, toolbarActions);
+			RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
+				@Override public boolean isContentReuseProhibited() { return true; }
+				@Override public Icon getIcon() { return AllIcons.Nodes.Plugin; }
+			};
+			Executor executor = DefaultRunExecutor.getRunExecutorInstance();
 
-				toolbarActions.add(new CloseAction(executor, descriptor, project));
-				for (AnAction anAction : console.createConsoleActions()) {
-					toolbarActions.add(anAction);
-				}
-
-				ExecutionManager.getInstance(project).getContentManager().showRunContent(executor, descriptor);
+			toolbarActions.add(new CloseAction(executor, descriptor, project));
+			for (AnAction anAction : console.createConsoleActions()) {
+				toolbarActions.add(anAction);
 			}
+
+			ExecutionManager.getInstance(project).getContentManager().showRunContent(executor, descriptor);
 		};
 		ApplicationManager.getApplication().invokeAndWait(runnable, ModalityState.NON_MODAL);
 	}
@@ -193,11 +172,7 @@ public class IDEUtil {
 		private final ExecutorService singleThreadExecutor;
 
 		public SingleThreadBackgroundRunner(final String threadName) {
-			singleThreadExecutor = newSingleThreadExecutor(new ThreadFactory() {
-				@NotNull @Override public Thread newThread(@NotNull Runnable runnable) {
-					return new Thread(runnable, threadName);
-				}
-			});
+			singleThreadExecutor = newSingleThreadExecutor(runnable -> new Thread(runnable, threadName));
 		}
 
 		public void run(Project project, String taskDescription, final Runnable runnable) {

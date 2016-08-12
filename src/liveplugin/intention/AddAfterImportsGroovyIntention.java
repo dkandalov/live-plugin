@@ -64,13 +64,11 @@ public class AddAfterImportsGroovyIntention implements IntentionAction, DumbAwar
 		final Document document = editor.getDocument();
 		final CaretModel caretModel = editor.getCaretModel();
 
-		CommandProcessor.getInstance().executeCommand(project, new Runnable() {
-			@Override public void run() {
-				int lineNumber = document.getLineNumber(caretModel.getOffset());
-				int lineStartOffset = document.getLineStartOffset(lineNumber);
-				document.insertString(lineStartOffset, stringToInsert);
-				caretModel.moveToOffset(lineStartOffset + stringToInsert.length() - 1);
-			}
+		CommandProcessor.getInstance().executeCommand(project, () -> {
+			int lineNumber = document.getLineNumber(caretModel.getOffset());
+			int lineStartOffset = document.getLineStartOffset(lineNumber);
+			document.insertString(lineStartOffset, stringToInsert);
+			caretModel.moveToOffset(lineStartOffset + stringToInsert.length() - 1);
 		}, modificationName, "LivePlugin", UndoConfirmationPolicy.DEFAULT, document);
 	}
 

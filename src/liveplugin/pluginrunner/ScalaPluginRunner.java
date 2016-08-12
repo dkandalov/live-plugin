@@ -65,22 +65,12 @@ class ScalaPluginRunner implements PluginRunner {
 	}
 
 	private static String createInterpreterClasspath(List<String> additionalPaths) throws ClassNotFoundException {
-		Function<File, String> toAbsolutePath = new Function<File, String>() {
-			@Override public String fun(File it) {
-				return it.getAbsolutePath();
-			}
-		};
-		Function<File, Collection<File>> findPluginJars = new Function<File, Collection<File>>(){
-			@Override public Collection<File> fun(File pluginPath) {
-				if (pluginPath.isFile()) {
-					return newArrayList(pluginPath);
-				} else {
-					return newArrayList(withDefault(new File[0], new File(pluginPath, "lib").listFiles(new FilenameFilter() {
-						@Override public boolean accept(@NotNull File file, @NotNull String fileName) {
-							return fileName.endsWith(".jar") || fileName.endsWith(".zip");
-						}
-					})));
-				}
+		Function<File, String> toAbsolutePath = it -> it.getAbsolutePath();
+		Function<File, Collection<File>> findPluginJars = pluginPath -> {
+			if (pluginPath.isFile()) {
+				return newArrayList(pluginPath);
+			} else {
+				return newArrayList(withDefault(new File[0], new File(pluginPath, "lib").listFiles((file, fileName) -> fileName.endsWith(".jar") || fileName.endsWith(".zip"))));
 			}
 		};
 
@@ -112,12 +102,9 @@ class ScalaPluginRunner implements PluginRunner {
 				environment.put("PLUGIN_PATH", pathToPluginFolder);
 
 				List<String> dependentPlugins = findPluginDependencies(readLines(asUrl(scriptFile)), SCALA_DEPENDS_ON_PLUGIN_KEYWORD);
-				List<String> additionalPaths = findClasspathAdditions(readLines(asUrl(scriptFile)), SCALA_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
-					@Override
-					public Void fun(String path) {
-						errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
-						return null;
-					}
+				List<String> additionalPaths = findClasspathAdditions(readLines(asUrl(scriptFile)), SCALA_ADD_TO_CLASSPATH_KEYWORD, environment, path -> {
+					errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
+					return null;
 				});
 				String classpath = createInterpreterClasspath(additionalPaths);
 				ClassLoader parentClassLoader = createParentClassLoader(dependentPlugins, pluginId, errorReporter);
@@ -140,23 +127,21 @@ class ScalaPluginRunner implements PluginRunner {
 			}
 		}
 
-		runOnEDTCallback.fun(new Runnable() {
-			@Override public void run() {
-				synchronized (interpreterLock) {
-					Results.Result result;
-					try {
-						result = interpreter.interpret(FileUtil.loadFile(scriptFile));
-					} catch (LinkageError e) {
-						errorReporter.addLoadingError(pluginId, "Error linking script file: " + scriptFile);
-						return;
-					} catch (Exception e) {
-						errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
-						return;
-					}
+		runOnEDTCallback.fun(() -> {
+			synchronized (interpreterLock) {
+				Results.Result result;
+				try {
+					result = interpreter.interpret(FileUtil.loadFile(scriptFile));
+				} catch (LinkageError e) {
+					errorReporter.addLoadingError(pluginId, "Error linking script file: " + scriptFile);
+					return;
+				} catch (Exception e) {
+					errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
+					return;
+				}
 
-					if (!(result instanceof Results.Success$)) {
-						errorReporter.addRunningError(pluginId, interpreterOutput.toString());
-					}
+				if (!(result instanceof Results.Success$)) {
+					errorReporter.addRunningError(pluginId, interpreterOutput.toString());
 				}
 			}
 		});

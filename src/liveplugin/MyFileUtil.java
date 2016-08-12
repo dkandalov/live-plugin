@@ -20,11 +20,7 @@ import java.util.regex.Pattern;
 public class MyFileUtil {
 	public static List<String> fileNamesMatching(String regexp, String path) {
 		List<File> files = FileUtil.findFilesByMask(Pattern.compile(regexp), new File(path));
-		return ContainerUtil.map(files, new Function<File, String>() {
-			@Override public String fun(File it) {
-				return it.getName();
-			}
-		});
+		return ContainerUtil.map(files, it -> it.getName());
 	}
 
 	public static String asUrl(File file) {
@@ -49,11 +45,7 @@ public class MyFileUtil {
 		if (result.size() == 0) return null;
 		else if (result.size() == 1) return result.get(0);
 		else {
-			List<String> filePaths = ContainerUtil.map(result, new Function<File, String>() {
-				@Override public String fun(File file) {
-					return file.getAbsolutePath();
-				}
-			});
+			List<String> filePaths = ContainerUtil.map(result, file -> file.getAbsolutePath());
 			throw new IllegalStateException("Found several scripts files under " + path + ":\n" + StringUtil.join(filePaths, ";\n"));
 		}
 	}

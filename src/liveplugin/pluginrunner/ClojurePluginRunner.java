@@ -60,11 +60,9 @@ class ClojurePluginRunner implements PluginRunner {
 			environment.put("PLUGIN_PATH", pathToPluginFolder);
 
 			dependentPlugins.addAll(findPluginDependencies(readLines(asUrl(scriptFile)), CLOJURE_DEPENDS_ON_PLUGIN_KEYWORD));
-			additionalPaths.addAll(findClasspathAdditions(readLines(asUrl(scriptFile)), CLOJURE_ADD_TO_CLASSPATH_KEYWORD, environment, new Function<String, Void>() {
-				@Override public Void fun(String path) {
-					errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
-					return null;
-				}
+			additionalPaths.addAll(findClasspathAdditions(readLines(asUrl(scriptFile)), CLOJURE_ADD_TO_CLASSPATH_KEYWORD, environment, path -> {
+				errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
+				return null;
 			}));
 		} catch (IOException e) {
 			errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
@@ -73,31 +71,29 @@ class ClojurePluginRunner implements PluginRunner {
 		final ClassLoader classLoader = createClassLoaderWithDependencies(additionalPaths, dependentPlugins, asUrl(scriptFile), pluginId, errorReporter);
 
 
-		runOnEDTCallback.fun(new Runnable() {
-			@Override public void run() {
-				try {
-					Associative bindings = Var.getThreadBindings();
-					for (Map.Entry<String, ?> entry : binding.entrySet()) {
-						Var key = createKey("*" + entry.getKey() + "*");
-						bindings = bindings.assoc(key, entry.getValue());
-					}
-					bindings = bindings.assoc(Compiler.LOADER, classLoader);
-					Var.pushThreadBindings(bindings);
-
-					// assume that clojure Compile is thread-safe
-					clojure.lang.Compiler.loadFile(scriptFile.getAbsolutePath());
-
-				} catch (IOException e) {
-					errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
-				} catch (LinkageError e) {
-					errorReporter.addLoadingError(pluginId, "Error linking script file: " + scriptFile);
-				} catch (Error e) {
-					errorReporter.addLoadingError(pluginId, e);
-				} catch (Exception e) {
-					errorReporter.addRunningError(pluginId, e);
-				} finally {
-					Var.popThreadBindings();
+		runOnEDTCallback.fun(() -> {
+			try {
+				Associative bindings = Var.getThreadBindings();
+				for (Map.Entry<String, ?> entry : binding.entrySet()) {
+					Var key = createKey("*" + entry.getKey() + "*");
+					bindings = bindings.assoc(key, entry.getValue());
 				}
+				bindings = bindings.assoc(Compiler.LOADER, classLoader);
+				Var.pushThreadBindings(bindings);
+
+				// assume that clojure Compile is thread-safe
+				Compiler.loadFile(scriptFile.getAbsolutePath());
+
+			} catch (IOException e) {
+				errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile);
+			} catch (LinkageError e) {
+				errorReporter.addLoadingError(pluginId, "Error linking script file: " + scriptFile);
+			} catch (Error e) {
+				errorReporter.addLoadingError(pluginId, e);
+			} catch (Exception e) {
+				errorReporter.addRunningError(pluginId, e);
+			} finally {
+				Var.popThreadBindings();
 			}
 		});
 	}

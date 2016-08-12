@@ -159,11 +159,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 
 		myDirectoryName.getDocument().addDocumentListener(updateOkButtonListener);
 
-		myTestButton.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-				test();
-			}
-		});
+		myTestButton.addActionListener(e -> test());
 
 		setOKActionEnabled(false);
 		myTestButton.setEnabled(false);

@@ -70,11 +70,9 @@ public interface PluginRunner {
 		}
 
 		public static ClassLoader createParentClassLoader(List<String> dependentPlugins, final String pluginId, final ErrorReporter errorReporter) {
-			List<ClassLoader> parentLoaders = classLoadersOf(dependentPlugins, new Function<String, Void>() {
-				@Override public Void fun(String dependentPluginId) {
-					errorReporter.addLoadingError(pluginId, "Couldn't find dependent plugin '" + dependentPluginId + "'");
-					return null;
-				}
+			List<ClassLoader> parentLoaders = classLoadersOf(dependentPlugins, dependentPluginId -> {
+				errorReporter.addLoadingError(pluginId, "Couldn't find dependent plugin '" + dependentPluginId + "'");
+				return null;
 			});
 			parentLoaders.add(PluginRunner.class.getClassLoader());
 
@@ -136,12 +134,7 @@ public interface PluginRunner {
 
 			File[] files = new File(path).listFiles((FileFilter) new GlobFilenameFilter(pattern));
 			files = (files == null ? new File[0] : files);
-			return ContainerUtil.map(files, new Function<File, String>() {
-				@Override
-				public String fun(File file) {
-					return file.getAbsolutePath();
-				}
-			});
+			return ContainerUtil.map(files, file -> file.getAbsolutePath());
 		}
 
 		private static String inlineEnvironmentVariables(String path, Map<String, String> environment) {
