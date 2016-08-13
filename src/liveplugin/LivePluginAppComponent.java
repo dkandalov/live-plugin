@@ -27,10 +27,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.vfs.VirtualFile;
-import liveplugin.pluginrunner.ErrorReporter;
-import liveplugin.pluginrunner.GroovyPluginRunner;
-import liveplugin.pluginrunner.PluginRunner;
-import liveplugin.pluginrunner.RunPluginAction;
+import liveplugin.pluginrunner.*;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import liveplugin.toolwindow.util.ExamplePluginInstaller;
 import org.jetbrains.annotations.NotNull;
@@ -66,11 +63,11 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	public static Map<String, String> pluginIdToPathMap() {
 		final boolean containsIdeaProjectFolder = new File(pluginsRootPath() + "/" + DIRECTORY_STORE_FOLDER).exists();
 
-		File[] files = new File(pluginsRootPath()).listFiles(file -> {
-			if (containsIdeaProjectFolder && file.getName().equals(DEFAULT_IDEA_OUTPUT_FOLDER)) return false;
-			if (file.getName().equals(DIRECTORY_STORE_FOLDER)) return false;
-			return file.isDirectory();
-		});
+		File[] files = new File(pluginsRootPath()).listFiles(file ->
+			file.isDirectory() &&
+			!file.getName().equals(DIRECTORY_STORE_FOLDER) &&
+			!(containsIdeaProjectFolder && file.getName().equals(DEFAULT_IDEA_OUTPUT_FOLDER))
+		);
 		if (files == null) return new HashMap<>();
 
 		HashMap<String, String> result = new HashMap<>();
@@ -81,10 +78,13 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	}
 
 	public static boolean isInvalidPluginFolder(VirtualFile virtualFile) {
-		File file = new File(virtualFile.getPath());
-		if (!file.isDirectory()) return false;
-		String[] files = file.list((dir, name) -> name.equals(GroovyPluginRunner.MAIN_SCRIPT));
-		return files.length < 1;
+		int n = 0;
+		n += MyFileUtil.findScriptFilesIn(virtualFile.getPath(), GroovyPluginRunner.MAIN_SCRIPT).size();
+		if (n > 0) return false;
+		n += MyFileUtil.findScriptFilesIn(virtualFile.getPath(), ClojurePluginRunner.MAIN_SCRIPT).size();
+		if (n > 0) return false;
+		n += MyFileUtil.findScriptFilesIn(virtualFile.getPath(), ScalaPluginRunner.MAIN_SCRIPT).size();
+		return n == 0;
 	}
 
 	public static String defaultPluginScript() {

@@ -18,8 +18,8 @@ import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginD
 /**
  * This class should not be loaded unless clojure libs are on classpath.
  */
-class ClojurePluginRunner implements PluginRunner {
-	private static final String MAIN_SCRIPT = "plugin.clj";
+public class ClojurePluginRunner implements PluginRunner {
+	public static final String MAIN_SCRIPT = "plugin.clj";
 	private static final String CLOJURE_ADD_TO_CLASSPATH_KEYWORD = "; " + ADD_TO_CLASSPATH_KEYWORD;
 	private static final String CLOJURE_DEPENDS_ON_PLUGIN_KEYWORD = "; " + DEPENDS_ON_PLUGIN_KEYWORD;
 

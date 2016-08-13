@@ -34,9 +34,9 @@ import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*;
 /**
  * This class should not be loaded unless scala libs are on classpath.
  */
-class ScalaPluginRunner implements PluginRunner {
+public class ScalaPluginRunner implements PluginRunner {
 	private static final String SCALA_DEPENDS_ON_PLUGIN_KEYWORD = "// " + DEPENDS_ON_PLUGIN_KEYWORD;
-	private static final String MAIN_SCRIPT = "plugin.scala";
+	public static final String MAIN_SCRIPT = "plugin.scala";
 	private static final String SCALA_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
 	private static final StringWriter interpreterOutput = new StringWriter();
 	private static final Object interpreterLock = new Object();

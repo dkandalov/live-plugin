@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.codehaus.groovy.runtime.InvokerHelper.asList;
+
 public class MyFileUtil {
 	public static List<String> fileNamesMatching(String regexp, String path) {
 		List<File> files = FileUtil.findFilesByMask(Pattern.compile(regexp), new File(path));
@@ -31,22 +33,28 @@ public class MyFileUtil {
 	}
 
 	@Nullable public static File findScriptFileIn(final String path, String fileName) {
-		File rootScriptFile = new File(path + File.separator + fileName);
-		if (rootScriptFile.exists()) return rootScriptFile;
+		List<File> result = findScriptFilesIn(path, fileName);
+		if (result.size() == 0) {
+			return null;
+		} else if (result.size() == 1) {
+			return result.get(0);
+		} else {
+			List<String> filePaths = ContainerUtil.map(result, file -> file.getAbsolutePath());
+			throw new IllegalStateException("Found several scripts files under " + path + ":\n" + StringUtil.join(filePaths, ";\n"));
+		}
+	}
 
-		List<File> files = allFilesInDirectory(new File(path));
+	public static List<File> findScriptFilesIn(final String path, String fileName) {
+		File rootScriptFile = new File(path + File.separator + fileName);
+		if (rootScriptFile.exists()) return asList(rootScriptFile);
+
 		List<File> result = new ArrayList<>();
-		for (File file : files) {
+		for (File file : allFilesInDirectory(new File(path))) {
 			if (fileName.equals(file.getName())) {
 				result.add(file);
 			}
 		}
-		if (result.size() == 0) return null;
-		else if (result.size() == 1) return result.get(0);
-		else {
-			List<String> filePaths = ContainerUtil.map(result, file -> file.getAbsolutePath());
-			throw new IllegalStateException("Found several scripts files under " + path + ":\n" + StringUtil.join(filePaths, ";\n"));
-		}
+		return result;
 	}
 
 	private static List<File> allFilesInDirectory(File dir) {
