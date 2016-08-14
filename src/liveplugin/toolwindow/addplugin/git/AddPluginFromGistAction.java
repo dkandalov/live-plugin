@@ -38,12 +38,39 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 		super("Clone from Gist", "Clone from Gist", Github_icon);
 	}
 
+	@Override public void actionPerformed(@NotNull AnActionEvent event) {
+		final Project project = event.getProject();
+
+		String gistUrl = askUserForGistUrl(event);
+		if (gistUrl == null) return;
+
+		fetchGistFrom(gistUrl, event, new FetchGistCallback() {
+			@Override public void onSuccess(GithubGist gist) {
+				String newPluginId = askUserForPluginId(project);
+				if (newPluginId == null) return;
+
+				try {
+					createPluginFrom(gist, newPluginId);
+				} catch (IOException e) {
+					showMessageThatCreatingPluginFailed(e, newPluginId, project);
+				}
+
+				new RefreshPluginsPanelAction().actionPerformed(null);
+			}
+
+			@Override public void onFailure(IOException e) {
+				showMessageThatFetchingGistFailed(e, project);
+			}
+		});
+	}
+
 	private static String askUserForGistUrl(AnActionEvent event) {
 		return Messages.showInputDialog(
 				event.getProject(),
 				"Enter gist URL:",
                 dialogTitle,
-				defaultIcon, "", new GistUrlValidator());
+				defaultIcon, "", new GistUrlValidator()
+		);
 	}
 
 	private static void fetchGistFrom(final String gistUrl, AnActionEvent event, final FetchGistCallback callback) {
@@ -89,32 +116,6 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 		log.info(e);
 	}
 
-	@Override public void actionPerformed(@NotNull AnActionEvent event) {
-		final Project project = event.getProject();
-
-		String gistUrl = askUserForGistUrl(event);
-		if (gistUrl == null) return;
-
-		fetchGistFrom(gistUrl, event, new FetchGistCallback() {
-			@Override public void onSuccess(GithubGist gist) {
-				String newPluginId = askUserForPluginId(project);
-				if (newPluginId == null) return;
-
-				try {
-					createPluginFrom(gist, newPluginId);
-				} catch (IOException e) {
-					showMessageThatCreatingPluginFailed(e, newPluginId, project);
-				}
-
-				new RefreshPluginsPanelAction().actionPerformed(null);
-			}
-
-			@Override public void onFailure(IOException e) {
-				showMessageThatFetchingGistFailed(e, project);
-			}
-		});
-	}
-
 	private void showMessageThatCreatingPluginFailed(IOException e, String newPluginId, Project project) {
 		IDEUtil.showErrorDialog(
 				project,
@@ -124,11 +125,13 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 		log.info(e);
 	}
 
+
 	private interface FetchGistCallback {
 		void onSuccess(GithubGist gist);
 
 		void onFailure(IOException e);
 	}
+
 
 	private static class GistUrlValidator implements InputValidatorEx {
 		private String errorText;
