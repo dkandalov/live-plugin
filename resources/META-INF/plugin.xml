@@ -30,10 +30,8 @@ If the above worked fine:
 If something doesn't work, feel free to <a href="https://github.com/dkandalov/live-plugin/issues">report an issue</a>.
 <br/>
 (To use alt+... shortcuts on OSX with JDK8 you might need to edit keyboard layout, please see
-<a href="https://github.com/dkandalov/live-plugin/wiki/Alt-keyboard-shortcuts-on-osx">this wiki page</a>
-.)
-    </body></html>
-		]]>
+<a href="https://github.com/dkandalov/live-plugin/wiki/Alt-keyboard-shortcuts-on-osx">this wiki page</a>.)
+    </body></html>]]>
 	</description>
 
     <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
