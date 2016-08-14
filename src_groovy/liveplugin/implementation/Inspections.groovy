@@ -12,7 +12,6 @@ import com.intellij.openapi.util.Factory
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 
-import static liveplugin.implementation.GlobalVar.changeGlobalVar
 import static liveplugin.implementation.Misc.accessField
 import static liveplugin.implementation.Misc.newDisposable
 
@@ -26,7 +25,7 @@ class Inspections {
 	}
 
 	static registerInspection(Project project, Disposable disposable = project, InspectionProfileEntry inspection) {
-		def inspections = changeGlobalVar(livePluginInspections) { List<InspectionProfileEntry> inspections ->
+		def inspections = new GlobalVar(livePluginInspections).set { List<InspectionProfileEntry> inspections ->
 			if (inspections == null) inspections = []
 			inspections.removeAll{ it.shortName == inspection.shortName }
 			inspections.add(inspection)
@@ -49,7 +48,7 @@ class Inspections {
 	}
 
 	static unregisterInspection(Project project, String inspectionName) {
-		def inspections = changeGlobalVar(livePluginInspections) { List<InspectionProfileEntry> inspections ->
+		def inspections = new GlobalVar(livePluginInspections).set { List<InspectionProfileEntry> inspections ->
 			if (inspections == null) inspections = []
 			inspections.removeAll{ it.shortName == inspectionName }
 			inspections
@@ -63,7 +62,7 @@ class Inspections {
 	//  - causes NPE at com.intellij.profile.codeInspection.ui.header.InspectionToolsConfigurable$3.customize(InspectionToolsConfigurable.java:208)
 
 	static registerInspection2(Project project, InspectionProfileEntry inspection) {
-		def inspections = changeGlobalVar(livePluginInspections) { List<InspectionProfileEntry> inspections ->
+		def inspections = new GlobalVar(livePluginInspections).set { List<InspectionProfileEntry> inspections ->
 			if (inspections == null) inspections = []
 			inspections.removeAll{ it.shortName == inspection.shortName }
 			inspections.add(inspection)
@@ -81,7 +80,7 @@ class Inspections {
 
 	static unregisterInspection2(Project project, String inspectionName) {
 		List<InspectionProfileEntry> inspectionsToDelete = []
-		changeGlobalVar(livePluginInspections) { List<InspectionProfileEntry> inspections ->
+		new GlobalVar(livePluginInspections).set { List<InspectionProfileEntry> inspections ->
 			if (inspections == null) inspections = []
 			inspectionsToDelete = inspections.findAll{ it.shortName == inspectionName }
 			inspections.removeAll(inspectionsToDelete)
@@ -120,7 +119,7 @@ class Inspections {
 	 * It seems that {@link InspectionProfile}s are not designed for reloadability and are normally constructed by reading xml config.
 	 *
 	 * Reasons for updating profile in this particular way:
-	 *  - One of of ways to sneak in new inspection object is by specifying {@link InspectionToolRegistrar} in constructor.
+	 *  - One of the ways to sneak in new inspection object is by specifying {@link InspectionToolRegistrar} in constructor.
 	 *    => New instance of profile has to be created.
 	 *  - After creation profile must be initialized using initInspectionTools(). Implementation of this method
 	 *    checks baseProfile in InspectionProfileImpl#getErrorLevel() for all "tools" (aka inspections).
@@ -142,6 +141,7 @@ class Inspections {
 			appProfileManager.deleteProfile(rootProfile.name)
 			appProfileManager.updateProfile(newRootProfile)
 			newRootProfile
+
 		} else {
 			def projectProfileManager = InspectionProjectProfileManager.getInstance(project)
 

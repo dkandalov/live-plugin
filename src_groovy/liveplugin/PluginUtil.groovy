@@ -912,7 +912,7 @@ class PluginUtil {
 
 	@CanCallFromAnyThread
 	static <T> GlobalVar<T> newGlobalVar(String id, T value = null, Disposable disposable = null) {
-		new GlobalVar<T>(id, value, disposable)
+		new GlobalVar<T>(id, value).parentDisposable(disposable)
 	}
 
 	@CanCallFromAnyThread

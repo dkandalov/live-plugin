@@ -21,7 +21,7 @@ class Http {
 
 	static SimpleHttpServer restartHttpServer(String serverId, String webRootPath,
 	                                          Closure handler = {null}, Closure errorListener = {}) {
-		GlobalVar.changeGlobalVar(serverId) { previousServer ->
+		new GlobalVar(serverId).set { previousServer ->
 			if (previousServer != null) previousServer.stop()
 
 			def server = SimpleHttpServer.start(8100..9000, webRootPath, handler, errorListener)
