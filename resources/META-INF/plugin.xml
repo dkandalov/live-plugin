@@ -10,8 +10,8 @@
 	<category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>
-This is a plugin for writing IDE plugins at runtime using Groovy.<br/>
-It also has experimental support for Scala and Clojure.
+This is a plugin for IntelliJ IDEs to write plugins at runtime without having to restart IDE.
+It uses Groovy as main scripting language and has experimental support for Scala and Clojure.
 <br/><br/>
 To get started:
 <ul>

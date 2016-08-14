@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
@@ -78,13 +79,17 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	}
 
 	public static boolean isInvalidPluginFolder(VirtualFile virtualFile) {
-		int n = 0;
-		n += MyFileUtil.findScriptFilesIn(virtualFile.getPath(), GroovyPluginRunner.MAIN_SCRIPT).size();
-		if (n > 0) return false;
-		n += MyFileUtil.findScriptFilesIn(virtualFile.getPath(), ClojurePluginRunner.MAIN_SCRIPT).size();
-		if (n > 0) return false;
-		n += MyFileUtil.findScriptFilesIn(virtualFile.getPath(), ScalaPluginRunner.MAIN_SCRIPT).size();
-		return n == 0;
+		List<String> scriptFile = asList(
+				GroovyPluginRunner.MAIN_SCRIPT,
+				ClojurePluginRunner.MAIN_SCRIPT,
+				ScalaPluginRunner.MAIN_SCRIPT
+		);
+		for (String file : scriptFile) {
+			if (MyFileUtil.findScriptFilesIn(virtualFile.getPath(), file).size() > 0) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public static String defaultPluginScript() {
