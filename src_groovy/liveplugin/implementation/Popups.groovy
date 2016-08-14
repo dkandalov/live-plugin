@@ -7,7 +7,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Condition
-import com.intellij.psi.codeStyle.MinusculeMatcher
 import com.intellij.psi.codeStyle.NameUtil
 import com.intellij.ui.ColoredListCellRenderer
 import com.intellij.util.Processor
@@ -19,8 +18,8 @@ import javax.swing.*
 import java.awt.*
 import java.util.List
 
-import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid
 import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
+import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid
 
 class Popups {
 
@@ -83,7 +82,9 @@ class Popups {
 			if (lenientMatch) {
 				pattern = "*" + pattern.chars.toList().join("*")
 			}
-			def matcher = new MinusculeMatcher(pattern, NameUtil.MatchingCaseSensitivity.NONE)
+			def matcher = new NameUtil.MatcherBuilder(pattern)
+					.withCaseSensitivity(NameUtil.MatchingCaseSensitivity.NONE)
+					.build()
 			items.findAll{ matcher.matches(it.toString()) }
 		}
 		showPopupSearch(prompt, project, initialText, itemProvider, onItemChosen)
