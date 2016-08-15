@@ -24,7 +24,6 @@ import com.intellij.openapi.util.IconLoader;
 import liveplugin.IDEUtil;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.AddPluginFromPathAction;
-import liveplugin.toolwindow.addplugin.git.AddPluginFromGistAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -81,7 +80,9 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 						new AddNewPluginAction(),
 						new AddPluginFromPathAction()
 				));
-				actions.add(new AddPluginFromGistAction());
+				if (PluginToolWindowManager.addFromGistAction != null) {
+					actions.add(PluginToolWindowManager.addFromGistAction);
+				}
 				if (PluginToolWindowManager.addFromGitHubAction != null) {
 					actions.add(PluginToolWindowManager.addFromGitHubAction);
 				}

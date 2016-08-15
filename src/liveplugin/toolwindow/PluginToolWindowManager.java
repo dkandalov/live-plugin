@@ -60,7 +60,6 @@ import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.AddPluginFromPathAction;
-import liveplugin.toolwindow.addplugin.git.AddPluginFromGistAction;
 import liveplugin.toolwindow.settingsmenu.AddIDEAJarsAsDependencies;
 import liveplugin.toolwindow.settingsmenu.AddPluginJarAsDependency;
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
@@ -91,7 +90,8 @@ public class PluginToolWindowManager {
 
 	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<>();
 
-	public static AnAction addFromGitHubAction; // TODO refactor this!!!
+	public static AnAction addFromGistAction; // TODO refactor this!!!
+	public static AnAction addFromGitHubAction;
 
 	@Nullable public static PluginToolWindow getToolWindowFor(@Nullable Project project) {
 		if (project == null) return null;
@@ -332,9 +332,12 @@ public class PluginToolWindowManager {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
 			actionGroup.add(new AddNewPluginAction());
 			actionGroup.add(new AddPluginFromPathAction());
-			actionGroup.add(new AddPluginFromGistAction());
-			if (addFromGitHubAction != null)
+			if (addFromGistAction != null) {
+				actionGroup.add(addFromGistAction);
+			}
+			if (addFromGitHubAction != null) {
 				actionGroup.add(addFromGitHubAction);
+			}
 			actionGroup.add(createAddPluginsExamplesGroup());
 			return actionGroup;
 		}
