@@ -8,7 +8,7 @@ ext.pluginsSandbox = "${home}/Library/Caches/IntelliJIdea2016.1/plugins-sandbox"
 
 repositories { mavenCentral() }
 enableProvidedScope()
-generateModuleFileConguredForPluginDevelopment()
+generateModuleFileConfiguredForPluginDevelopment()
 
 dependencies {
 	provided group: 'junit', name: 'junit', version: '4.10' // also includes hamcrest-core
@@ -64,13 +64,15 @@ task installLivePlugin() << {
 			.replaceFirst(".*<version>", "")
 			.replaceFirst("</version>.*", "")
 	def localMavenPath = repositories.mavenLocal().url.path + "/liveplugin/live-plugin/"
+	def toFile = "${localMavenPath}/${version}/live-plugin-${version}.jar"
 
 	ant.copy(
 		file: "LivePlugin.jar",
-		toFile: "${localMavenPath}/${version}/live-plugin-${version}.jar"
+		toFile: toFile
 	)
 
 	println("Installed to local maven liveplugin version " + version)
+	println("Path: ${toFile}")
 }
 
 
@@ -85,7 +87,7 @@ def enableProvidedScope() {
 }
 
 // see http://blog.xebia.com/building-intellij-plugins-from-the-command-line/
-def generateModuleFileConguredForPluginDevelopment() {
+def generateModuleFileConfiguredForPluginDevelopment() {
 	idea {
 		module {
 			iml {
