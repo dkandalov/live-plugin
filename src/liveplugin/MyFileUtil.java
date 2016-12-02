@@ -16,7 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.codehaus.groovy.runtime.InvokerHelper.asList;
+import static java.util.Arrays.asList;
+
 
 public class MyFileUtil {
 	public static List<String> fileNamesMatching(String regexp, String path) {

@@ -33,12 +33,11 @@ import org.jetbrains.annotations.NotNull
 import javax.swing.*
 import java.awt.*
 
-import static com.intellij.rt.execution.junit.states.PoolOfTestStates.ERROR_INDEX
-import static com.intellij.rt.execution.junit.states.PoolOfTestStates.FAILED_INDEX
+import static com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude.*
 
 class JUnitPanel implements TestReporter {
-	private static final Icon INTEGRATION_TEST_TAB_ICON = AllIcons.Nodes.TestSourceFolder;
-	private static final Icon RERUN_PLUGIN_TEST_ICON = AllIcons.Actions.Execute;
+	private static final Icon INTEGRATION_TEST_TAB_ICON = AllIcons.Nodes.TestSourceFolder
+	private static final Icon RERUN_PLUGIN_TEST_ICON = AllIcons.Actions.Execute
 
 	@Delegate private TestProxyUpdater testProxyUpdater
 	private ProcessHandler processHandler
@@ -183,10 +182,10 @@ class JUnitPanel implements TestReporter {
 
 		void finishedClass(String className, long time = System.currentTimeMillis()) {
 			def testProxy = testProxyByClassName.get(className)
-			def hasChildWith = { int state -> testProxy.children.any{ it.magnitude == state } }
+			def hasChildWith = { state -> testProxy.children.any{ it.magnitude == state } }
 
-			if (hasChildWith(FAILED_INDEX)) testProxy.setTestFailed("", "", false)
-			else if (hasChildWith(ERROR_INDEX)) testProxy.setTestFailed("", "", true)
+			if (hasChildWith(FAILED_INDEX.value)) testProxy.setTestFailed("", "", false)
+			else if (hasChildWith(ERROR_INDEX.value)) testProxy.setTestFailed("", "", true)
 			else testProxy.setFinished()
 
 			eventsListener.onSuiteFinished(testProxy)
@@ -195,8 +194,8 @@ class JUnitPanel implements TestReporter {
 		void finished() {
 			def hasChildWith = { state -> rootTestProxy.children.any{ it.magnitude == state } }
 
-			if (hasChildWith(FAILED_INDEX)) rootTestProxy.setTestFailed("", "", false)
-			else if (hasChildWith(ERROR_INDEX)) rootTestProxy.setTestFailed("", "", true)
+			if (hasChildWith(FAILED_INDEX.value)) rootTestProxy.setTestFailed("", "", false)
+			else if (hasChildWith(ERROR_INDEX.value)) rootTestProxy.setTestFailed("", "", true)
 			else rootTestProxy.setFinished()
 
 			eventsListener.onTestingFinished(rootTestProxy)
@@ -207,28 +206,28 @@ class JUnitPanel implements TestReporter {
 	 * Copy of IJ source code to avoid dependency on deprecated test API.
 	 */
 	private static class JUnitConsoleProperties extends JavaAwareTestConsoleProperties<JUnitConfiguration> {
-		public JUnitConsoleProperties(@NotNull JUnitConfiguration configuration, Executor executor) {
-			super("JUnit", configuration, executor);
+		JUnitConsoleProperties(@NotNull JUnitConfiguration configuration, Executor executor) {
+			super("JUnit", configuration, executor)
 		}
 
 		@NotNull protected GlobalSearchScope initScope() {
-			JUnitConfiguration.Data persistentData = ((JUnitConfiguration)this.getConfiguration()).getPersistentData();
-			String testObject = persistentData.TEST_OBJECT;
-			if(!"category".equals(testObject) && !"pattern".equals(testObject) && !"package".equals(testObject)) {
-				return super.initScope();
+			JUnitConfiguration.Data persistentData = ((JUnitConfiguration)this.getConfiguration()).getPersistentData()
+			String testObject = persistentData.TEST_OBJECT
+			if("category" != testObject && "pattern" != testObject && "package" != testObject) {
+				return super.initScope()
 			} else {
-				SourceScope sourceScope = persistentData.getScope().getSourceScope(this.getConfiguration());
-				return sourceScope != null?sourceScope.getGlobalSearchScope():GlobalSearchScope.allScope(this.getProject());
+				SourceScope sourceScope = persistentData.getScope().getSourceScope(this.getConfiguration())
+				return sourceScope != null?sourceScope.getGlobalSearchScope():GlobalSearchScope.allScope(this.getProject())
 			}
 		}
 
-		public void appendAdditionalActions(DefaultActionGroup actionGroup, JComponent parent, TestConsoleProperties target) {
-			super.appendAdditionalActions(actionGroup, parent, target);
-			actionGroup.add(this.createIncludeNonStartedInRerun(target));
+		void appendAdditionalActions(DefaultActionGroup actionGroup, JComponent parent, TestConsoleProperties target) {
+			super.appendAdditionalActions(actionGroup, parent, target)
+			actionGroup.add(this.createIncludeNonStartedInRerun(target))
 		}
 
-		public SMTestLocator getTestLocator() {
-			return JavaTestLocator.INSTANCE;
+		SMTestLocator getTestLocator() {
+			return JavaTestLocator.INSTANCE
 		}
 	}
 }

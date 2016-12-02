@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.github.api.GithubApiUtil;
 import org.jetbrains.plugins.github.api.GithubConnection;
-import org.jetbrains.plugins.github.api.GithubGist;
+import org.jetbrains.plugins.github.api.data.GithubGist;
 import org.jetbrains.plugins.github.util.GithubAuthData;
 
 import javax.swing.*;
