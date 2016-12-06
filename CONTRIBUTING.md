@@ -7,28 +7,28 @@ Some notes just in case:
 
 ### Compiling
  - open project in IntelliJ
- - configure project JDK to use "IntelliJ Platform Plugin SDK" for IJ 15 
- - edit ```build.gradle``` so that ```ext.ideaPath``` points to the same IntelliJ SDK as in previous step 
+ - configure project JDK to use "IntelliJ Platform Plugin SDK" 
+ - edit `build.gradle` so that `ext.ideaPath` points to the same IntelliJ SDK as in previous step 
+   and `pluginsSandbox` points to the right location 
  - in "Gradle project" toolwindow refresh LivePlugin module (this will update module dependencies)
  - compile the project
- - (optional) if compilation fails with ```java.lang.NoClassDefFoundError: org/apache/tools/ant/util/ReaderInputStream```, 
-   close/open project
- - (optional) to regenerate module file from gradle build run ```idea``` gradle task 
- - (optional) if you don't have internet access, add dependencies from ```lib``` folder
+ - (optional) close and open project if compilation fails with `java.lang.NoClassDefFoundError: org/apache/tools/ant/util/ReaderInputStream`, 
+ - (optional) to regenerate module file from gradle build run `idea` gradle task 
+ - (optional) if you don't have internet access, add dependencies from `lib` folder
     
  
 ### Running plugin
- - edit ```build.gradle``` so that ```ext.pluginsSandbox``` points to correct plugins sandbox 
-   (on Linux/Windows it's located in ```.IntelliJ``` folder) 
- - use ```LivePlugin``` run configuration to run project
-   (note that it runs ```copyResources``` gradle task to copy resources, for some reason 
+ - edit `build.gradle` so that `ext.pluginsSandbox` points to correct plugins sandbox 
+   (on Linux/Windows it's located in `.IntelliJ` folder) 
+ - use `LivePlugin` run configuration to run project
+   (note that it runs `copyResources` gradle task to copy resources, for some reason 
     IntelliJ doesn't reliably copy resources with current project layout)
 
 
 ### Building as zip/jar
- - use Build -> Build Artifacts
-    - ```LivePlugin.zip``` can be installed/distributed as a plugin
-    - ```LivePlugin.jar``` can be used as a library in other plugins (this is still experimental)  
+ - use `Build -> Build Artifacts`
+    - `LivePlugin.zip` can be installed/distributed as a plugin
+    - `LivePlugin.jar` can be used as a library in other plugins (this is still experimental)  
 
 
 ### Understanding the code
