@@ -13,10 +13,9 @@ public class Icons {
 	public static final Icon DELETE_PLUGIN_ICON = AllIcons.General.Remove;
 	public static final Icon REFRESH_PLUGINS_PANEL_ICON = AllIcons.Actions.Refresh;
 	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
-	// this is resized icon because IntelliJ requires toolwindow icons to be 13x13
 	public static final Icon PLUGIN_TOOLWINDOW_ICON = (
 			UIUtil.isUnderDarcula() ?
-				IconLoader.getIcon("/liveplugin/plugin-toolwindow-icon_dark.png") :
+				AllIcons.Nodes.Plugin :
 				IconLoader.getIcon("/liveplugin/plugin-toolwindow-icon.png")
 	);
 	public static final Icon RUN_PLUGIN_ICON = AllIcons.Actions.Execute;
