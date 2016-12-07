@@ -556,9 +556,9 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
-	static showPsiDialog(@NotNull Project project) {
+	static showPsiDialog(@NotNull Project project, @Nullable Editor editor = null) {
 		invokeOnEDT {
-			new PsiViewerDialog(project, false, null, null).show()
+			new PsiViewerDialog(project, editor).show()
 		}
 	}
 
