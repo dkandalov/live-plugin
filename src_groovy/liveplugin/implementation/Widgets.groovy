@@ -30,7 +30,7 @@ class Widgets {
 			@Override void dispose() {}
 		}
 		frame.statusBar.addWidget(widget, anchor, disposable)
-		frame.statusBar.updateWidget(widgetId);
+		frame.statusBar.updateWidget(widgetId)
 	}
 
 	static updateWidget(String widgetId) {

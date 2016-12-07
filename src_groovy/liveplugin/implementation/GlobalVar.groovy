@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable
 import java.util.concurrent.ConcurrentHashMap
 
 class GlobalVar<T> implements Disposable {
-	private static final def Key<ConcurrentHashMap<String, Object>> globalVarsKey = Key.create("LivePlugin-GlobalVarsKey")
+	private static final Key<ConcurrentHashMap<String, Object>> globalVarsKey = Key.create("LivePlugin-GlobalVarsKey")
 	private static final def keysByVarName = initKeysByVarName()
 	private static final def aNull = new Object() // because ConcurrentHashMap doesn't allow nulls
 

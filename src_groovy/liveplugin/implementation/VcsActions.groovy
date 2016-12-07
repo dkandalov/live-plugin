@@ -108,10 +108,10 @@ class VcsActions {
 	}
 
 	private static boolean isVcsNotification(Notification notification) {
-		notification.groupId.equals("Vcs Messages") ||
-		notification.groupId.equals("Vcs Important Messages") ||
-		notification.groupId.equals("Vcs Minor Notifications") ||
-		notification.groupId.equals("Vcs Silent Notifications")
+		notification.groupId == "Vcs Messages" ||
+		notification.groupId == "Vcs Important Messages" ||
+		notification.groupId == "Vcs Minor Notifications" ||
+		notification.groupId == "Vcs Silent Notifications"
 	}
 
 	private static boolean matchTitleOf(Notification notification, String... expectedTitles) {

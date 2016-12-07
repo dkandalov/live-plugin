@@ -86,7 +86,7 @@ class ActionWrapper {
 	private static AnAction originalActionOf(AnAction wrappedAction) {
 		def lastException = null
 		for (Method method : wrappedAction.class.methods) {
-			if (method.name.equals(DelegatesToAction.methodName)) {
+			if (method.name == DelegatesToAction.methodName) {
 				try {
 					method.accessible = true
 					return (AnAction) method.invoke(wrappedAction)

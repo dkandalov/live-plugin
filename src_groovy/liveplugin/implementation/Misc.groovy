@@ -121,8 +121,8 @@ class Misc {
 		def disposable = new GlobalVar<Disposable>(id).set { Disposable oldDisposable ->
 			if (oldDisposable != null) Disposer.dispose(oldDisposable)
 			def newDisposable = new Disposable() {
-				@Override public void dispose() {}
-				@Override public String toString() {
+				@Override void dispose() {}
+				@Override String toString() {
 					"LivePlugin disposable for id='${id}'"
 				}
 			}

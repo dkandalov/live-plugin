@@ -14,9 +14,10 @@ public class Icons {
 	public static final Icon REFRESH_PLUGINS_PANEL_ICON = AllIcons.Actions.Refresh;
 	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
 	public static final Icon PLUGIN_TOOLWINDOW_ICON = (
-			UIUtil.isUnderDarcula() ?
-				AllIcons.Nodes.Plugin :
-				IconLoader.getIcon("/liveplugin/plugin-toolwindow-icon.png")
+		UIUtil.isUnderDarcula() ?
+			AllIcons.Nodes.Plugin :
+			// Custom darker icon so that it looks ok as toolwindow icon with default (white) look-and-feel.
+			IconLoader.getIcon("/liveplugin/plugin-toolwindow-icon.png")
 	);
 	public static final Icon RUN_PLUGIN_ICON = AllIcons.Actions.Execute;
 	public static final Icon TEST_PLUGIN_ICON = AllIcons.RunConfigurations.Junit;
