@@ -1048,7 +1048,8 @@ class PluginUtil {
 		Misc.accessField(o, fieldName, fieldClass)
 	}
 
-	@Deprecated @Nullable static accessField(Object o, String fieldName, Closure callback) {
+	@Deprecated // Because if fails silently. Use other accessField methods.
+	@Nullable static accessField(Object o, String fieldName, Closure callback) {
 		Misc.accessField(o, fieldName, callback)
 	}
 

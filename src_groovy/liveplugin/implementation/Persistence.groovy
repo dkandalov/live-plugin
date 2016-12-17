@@ -7,7 +7,7 @@ import com.thoughtworks.xstream.XStream
 import com.thoughtworks.xstream.io.xml.Xpp3Driver
 
 class Persistence {
-	static save(String id, def value) {
+	static save(String id, value) {
 		def xStream = new XStream(new Xpp3Driver())
 		def state = value
 		if (value instanceof PersistentStateComponent) {
