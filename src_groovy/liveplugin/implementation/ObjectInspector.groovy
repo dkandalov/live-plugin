@@ -3,6 +3,7 @@ package liveplugin.implementation
 import com.intellij.icons.AllIcons
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.ui.popup.IconButton
+import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 
 import java.lang.reflect.Field
@@ -30,7 +31,7 @@ class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 	private final FieldWithValue context
 	private final Map config
 
-	static void inspect(Object object) {
+	static JBPopup inspect(Object object) {
 		def component = TreeUI.createTree(new ObjectInspector(new FieldWithValue(object, null)))
 
 		JBPopupFactory.instance.createComponentPopupBuilder(component, null)
@@ -40,7 +41,6 @@ class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 				.setCancelOnClickOutside(false)
 				.setCancelButton(new IconButton("Close", AllIcons.Actions.Close))
 				.createPopup()
-				.showInFocusCenter()
 	}
 
 	ObjectInspector(FieldWithValue fieldWithValue, Map config = defaultConfig) {
@@ -121,20 +121,20 @@ class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 	private static String getTypeName(Class type) {
 		if (type.isArray()) {
 			try {
-				Class cl = type;
-				int dimensions = 0;
+				Class cl = type
+				int dimensions = 0
 				while (cl.isArray()) {
-					dimensions++;
-					cl = cl.getComponentType();
+					dimensions++
+					cl = cl.getComponentType()
 				}
-				StringBuffer sb = new StringBuffer();
-				sb.append(cl.getName());
+				StringBuffer sb = new StringBuffer()
+				sb.append(cl.getName())
 				for (int i = 0; i < dimensions; i++) {
-					sb.append("[]");
+					sb.append("[]")
 				}
-				return sb.toString();
+				return sb.toString()
 			} catch (Throwable ignored) { /*FALLTHRU*/ }
 		}
-		return type.getName();
+		return type.getName()
 	}
 }
