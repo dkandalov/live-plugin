@@ -7,6 +7,7 @@ import com.intellij.codeInspection.ex.InspectionToolRegistrar
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.profile.codeInspection.BaseInspectionProfileManager
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 
@@ -93,7 +94,7 @@ class Inspections {
 		}
 	}
 
-	private static def inspectionsProfileOf(Project project) {
+	private static inspectionsProfileOf(Project project) {
 		InspectionProjectProfileManager.getInstance(project).getCurrentProfile() as InspectionProfileImpl
 	}
 
@@ -125,9 +126,10 @@ class Inspections {
 	 *    Also it's not clear what is the difference between base and parent profiles in {@link com.intellij.codeInspection.ModifiableModel}.)
 	 */
 	private static InspectionProfileImpl updateProfile(InspectionProfile profile, InspectionToolRegistrar registrar, Project project) {
-		def appProfileManager = InspectionProfileManager.getInstance()
+		BaseInspectionProfileManager appProfileManager = InspectionProfileManager.getInstance()
 
-		if (profile.getModifiableModel().getBaseProfile() == null || profile.getModifiableModel().getBaseProfile().name == profile.name) {
+		def baseProfile = getBaseProfileOf(profile)
+		if (baseProfile == null || baseProfile.name == profile.name) {
 			def rootProfile = appProfileManager.getCurrentProfile()
 
 			def newRootProfile = new InspectionProfileImpl(rootProfile.name, registrar, appProfileManager)
@@ -135,14 +137,12 @@ class Inspections {
 			newRootProfile.initInspectionTools(project)
 
 			appProfileManager.deleteProfile(rootProfile.name)
-			appProfileManager.updateProfile(newRootProfile)
+			appProfileManager.addProfile(newRootProfile)
 			newRootProfile
 
 		} else {
-			def projectProfileManager = InspectionProjectProfileManager.getInstance(project)
+			BaseInspectionProfileManager projectProfileManager = InspectionProjectProfileManager.getInstance(project)
 
-			def baseProfile = appProfileManager.getProfile(profile.modifiableModel.getBaseProfile().name) as InspectionProfile
-			if (baseProfile == null) baseProfile = projectProfileManager.getProfile(profile.modifiableModel.getBaseProfile().name) as InspectionProfile
 			if (baseProfile != profile) {
 				updateProfile(baseProfile, registrar, project)
 			}
@@ -153,8 +153,12 @@ class Inspections {
 			newProjectProfile.initInspectionTools(project)
 
 			projectProfileManager.deleteProfile(projectProfile.name)
-			projectProfileManager.updateProfile(newProjectProfile)
+			projectProfileManager.addProfile(newProjectProfile)
 			newProjectProfile
 		}
+	}
+
+	private static getBaseProfileOf(InspectionProfileImpl profile) {
+		accessField(profile, "myBaseProfile", InspectionProfileImpl)
 	}
 }
