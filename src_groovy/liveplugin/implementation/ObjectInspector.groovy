@@ -31,7 +31,11 @@ class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 	private final FieldWithValue context
 	private final Map config
 
-	static JBPopup inspect(Object object) {
+	static showPopup(Object object) {
+		popup(object).showInFocusCenter()
+	}
+
+	static JBPopup popup(Object object) {
 		def component = TreeUI.createTree(new ObjectInspector(new FieldWithValue(object, null)))
 
 		JBPopupFactory.instance.createComponentPopupBuilder(component, null)
