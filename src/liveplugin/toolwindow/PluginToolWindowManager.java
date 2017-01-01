@@ -129,7 +129,7 @@ public class PluginToolWindowManager {
 		}
 	}
 
-	public PluginToolWindowManager init() {
+	public void init() {
 		ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
 			@Override public void projectOpened(Project project) {
 				PluginToolWindow pluginToolWindow = new PluginToolWindow();
@@ -150,7 +150,6 @@ public class PluginToolWindowManager {
 			@Override public void projectClosing(Project project) {
 			}
 		});
-		return this;
 	}
 
 	public static class PluginToolWindow {
@@ -240,7 +239,7 @@ public class PluginToolWindowManager {
 			installPopupMenuInto(fsTree);
 
 			JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(fsTree.getTree());
-			panel = new MySimpleToolWindowPanel(true, myFsTreeRef).setProvideQuickActions(false);
+			panel = new MySimpleToolWindowPanel(true, myFsTreeRef);
 			panel.add(scrollPane);
 			panel.setToolbar(createToolBar());
 			return ContentFactory.SERVICE.getInstance().createContent(panel, "", false);
