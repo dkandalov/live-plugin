@@ -107,7 +107,7 @@ class JUnitPanel implements TestReporter {
 
 	@SuppressWarnings("GroovyUnusedDeclaration") // used through @Delegate annotation
 	private static class TestProxyUpdater {
-		private final def testProxyByClassName = new HashMap<String, SMTestProxy>().withDefault{ String className ->
+		private final testProxyByClassName = new HashMap<String, SMTestProxy>().withDefault{ String className ->
 			int i = className.lastIndexOf(".")
 			if (i == -1 || i == className.size() - 1) {
 				new SMTestProxy(className, true, null)
@@ -117,10 +117,10 @@ class JUnitPanel implements TestReporter {
 				new SMTestProxy(simpleClassName, true, classPackage)
 			}
 		}
-		private final def testProxyByMethodName = new HashMap<String, SMTestProxy>().withDefault{ methodName ->
+		private final testProxyByMethodName = new HashMap<String, SMTestProxy>().withDefault{ methodName ->
 			new SMTestProxy(methodName, false, null)
 		}
-		private final def testStartTimeByMethodName = new HashMap<String, Long>()
+		private final testStartTimeByMethodName = new HashMap<String, Long>()
 
         private final TestResultsViewer resultsViewer
 		private final SMTRunnerEventsListener eventsListener

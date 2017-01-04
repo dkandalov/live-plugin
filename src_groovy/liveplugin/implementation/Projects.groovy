@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
 class Projects {
-	static def registerProjectListener(Disposable disposable, Closure onEachProject) {
+	static registerProjectListener(Disposable disposable, Closure onEachProject) {
 		registerProjectListener(disposable, new ProjectManagerAdapter() {
 			@Override void projectOpened(Project project) {
 				onEachProject(project)
@@ -20,7 +20,7 @@ class Projects {
 		}
 	}
 
-	static def registerProjectListener(Disposable disposable, ProjectManagerListener listener) {
+	static registerProjectListener(Disposable disposable, ProjectManagerListener listener) {
 		ProjectManager.instance.addProjectManagerListener(listener, disposable)
 	}
 

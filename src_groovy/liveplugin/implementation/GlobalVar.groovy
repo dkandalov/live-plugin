@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 class GlobalVar<T> implements Disposable {
 	private static final Key<ConcurrentHashMap<String, Object>> globalVarsKey = Key.create("LivePlugin-GlobalVarsKey")
-	private static final def keysByVarName = initKeysByVarName()
-	private static final def aNull = new Object() // because ConcurrentHashMap doesn't allow nulls
+	private static final keysByVarName = initKeysByVarName()
+	private static final aNull = new Object() // because ConcurrentHashMap doesn't allow nulls
 
 	private final String name
 	private final boolean isPersisted
@@ -103,11 +103,11 @@ class GlobalVar<T> implements Disposable {
 		keysByVarName
 	}
 
-	private static def wrapNull(value) {
+	private static wrapNull(value) {
 		value == null ? aNull : value
 	}
 
-	private static def unwrapNull(value) {
+	private static unwrapNull(value) {
 		value == aNull ? null : value
 	}
 }

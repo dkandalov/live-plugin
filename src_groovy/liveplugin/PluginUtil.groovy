@@ -413,7 +413,7 @@ class PluginUtil {
 	 *                 (cleanup on project closed is supposed to be done through {@code disposable}
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
-	static def registerProjectListener(Disposable disposable, Closure listener) {
+	static registerProjectListener(Disposable disposable, Closure listener) {
 		Projects.registerProjectListener(disposable, listener)
 	}
 
@@ -425,17 +425,17 @@ class PluginUtil {
 	 * @param listener see https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/project/ProjectManagerListener.java
 	 */
 	@CanCallWithinRunReadActionOrFromEDT
-	static def registerProjectListener(Disposable parentDisposable, ProjectManagerListener listener) {
+	static registerProjectListener(Disposable parentDisposable, ProjectManagerListener listener) {
 		Projects.registerProjectListener(parentDisposable, listener)
 	}
 
 	@CanCallWithinRunReadActionOrFromEDT
-	static def registerProjectListener(String id, Closure closure) {
+	static registerProjectListener(String id, Closure closure) {
 		registerProjectListener(registerDisposable(id), closure)
 	}
 
 	@CanCallWithinRunReadActionOrFromEDT
-	static def registerProjectListener(String id, ProjectManagerListener listener) {
+	static registerProjectListener(String id, ProjectManagerListener listener) {
 		registerProjectListener(registerDisposable(id), listener)
 	}
 
