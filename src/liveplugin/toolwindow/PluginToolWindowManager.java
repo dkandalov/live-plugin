@@ -116,15 +116,14 @@ public class PluginToolWindowManager {
 	}
 
 	public static void addRoots(FileChooserDescriptor descriptor, List<VirtualFile> virtualFiles) {
-		if (virtualFiles.isEmpty()) {
-			descriptor.setRoots();
+		virtualFiles = new ArrayList<>(filter(virtualFiles, NOT_NULL));
+
+		// Adding file parent is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement.
+		// Otherwise, if there is only one plugin, tree will show files in plugin directory instead of plugin folder.
+		if (virtualFiles.size() == 1) {
+			VirtualFile virtualFile = virtualFiles.get(0);
+			descriptor.setRoots(virtualFile.getParent());
 		} else {
-			virtualFiles = new ArrayList<>(filter(virtualFiles, NOT_NULL));
-
-			// adding "null" is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement
-			// (if there is only one plugin, this forces tree show it as a package)
-			virtualFiles.add(null);
-
 			descriptor.setRoots(virtualFiles);
 		}
 	}
@@ -181,7 +180,7 @@ public class PluginToolWindowManager {
 					return virtualFile.getName();
 				}
 
-				@Nullable @Override public String getComment(VirtualFile virtualFile) {
+				@NotNull @Override public String getComment(VirtualFile virtualFile) {
 					return "";
 				}
 			};
@@ -258,8 +257,7 @@ public class PluginToolWindowManager {
 			panel.add(scrollPane, 0);
 		}
 
-		private FileSystemTree createFsTree(Project project) {
-			Ref<FileSystemTree> myFsTreeRef = new Ref<>();
+		private static FileSystemTree createFsTree(Project project) {
 			MyTree myTree = new MyTree(project);
 
 			// must be installed before adding tree to FileSystemTreeImpl
@@ -275,7 +273,6 @@ public class PluginToolWindowManager {
 					};
 				}
 			};
-			myFsTreeRef.set(result);
 
 			// must be installed after adding tree to FileSystemTreeImpl
 			EditSourceOnEnterKeyHandler.install(myTree);
