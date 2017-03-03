@@ -120,9 +120,14 @@ public class PluginToolWindowManager {
 
 		// Adding file parent is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement.
 		// Otherwise, if there is only one plugin, tree will show files in plugin directory instead of plugin folder.
+		// (Note that this code is also used by "Copy from Path" action.)
 		if (virtualFiles.size() == 1) {
-			VirtualFile virtualFile = virtualFiles.get(0);
-			descriptor.setRoots(virtualFile.getParent());
+			VirtualFile parent = virtualFiles.get(0).getParent();
+			if (parent != null) {
+				descriptor.setRoots(parent);
+			} else {
+				descriptor.setRoots(virtualFiles);
+			}
 		} else {
 			descriptor.setRoots(virtualFiles);
 		}
