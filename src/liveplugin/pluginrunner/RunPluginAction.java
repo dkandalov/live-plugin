@@ -117,6 +117,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 	public static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
 		List<PluginRunner> result = new ArrayList<>();
 		result.add(new GroovyPluginRunner(MAIN_SCRIPT, errorReporter, environment()));
+		if (kotlinCompilerIsOnClassPath()) result.add(new KotlinPluginRunner(errorReporter, environment()));
 		if (scalaIsOnClassPath()) result.add(new ScalaPluginRunner(errorReporter, environment()));
 		if (clojureIsOnClassPath()) result.add(new ClojurePluginRunner(errorReporter, environment()));
 		return result;

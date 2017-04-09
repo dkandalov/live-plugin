@@ -21,7 +21,17 @@ import static liveplugin.MyFileUtil.fileNamesMatching;
 
 public class DownloadScalaLibs extends AnAction implements DumbAware {
 	public static final String LIB_FILES_PATTERN = "(scala-|scalap).*jar";
-	private static final String APPROXIMATE_SIZE = "(~26Mb)";
+	private static final String APPROXIMATE_SIZE = "(~25Mb)";
+
+	@Override public void update(@NotNull AnActionEvent event) {
+		if (scalaIsOnClassPath()) {
+			event.getPresentation().setText("Remove Scala from LivePlugin Classpath");
+			event.getPresentation().setDescription("Remove Scala from LivePlugin Classpath");
+		} else {
+			event.getPresentation().setText("Download Scala to LivePlugin Classpath");
+			event.getPresentation().setDescription("Download Scala libraries to LivePlugin classpath to enable Scala plugins support " + APPROXIMATE_SIZE);
+		}
+	}
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		if (scalaIsOnClassPath()) {
@@ -54,16 +64,6 @@ public class DownloadScalaLibs extends AnAction implements DumbAware {
 				livePluginNotificationGroup
 						.createNotification("Failed to download Scala libraries", NotificationType.WARNING);
 			}
-		}
-	}
-
-	@Override public void update(@NotNull AnActionEvent event) {
-		if (scalaIsOnClassPath()) {
-			event.getPresentation().setText("Remove Scala from LivePlugin Classpath");
-			event.getPresentation().setDescription("Remove Scala from LivePlugin Classpath");
-		} else {
-			event.getPresentation().setText("Download Scala to LivePlugin Classpath");
-			event.getPresentation().setDescription("Download Scala libraries to LivePlugin classpath to enable scala plugins support " + APPROXIMATE_SIZE);
 		}
 	}
 }

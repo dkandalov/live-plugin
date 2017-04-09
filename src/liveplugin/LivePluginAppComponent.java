@@ -82,7 +82,8 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 		List<String> scriptFile = asList(
 				GroovyPluginRunner.MAIN_SCRIPT,
 				ClojurePluginRunner.MAIN_SCRIPT,
-				ScalaPluginRunner.MAIN_SCRIPT
+				ScalaPluginRunner.MAIN_SCRIPT,
+				KotlinPluginRunner.MAIN_SCRIPT
 		);
 		for (String file : scriptFile) {
 			if (MyFileUtil.findScriptFilesIn(virtualFile.getPath(), file).size() > 0) {
@@ -120,6 +121,11 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 
 	public static boolean scalaIsOnClassPath() {
 		return IDEUtil.isOnClasspath("scala.Some");
+	}
+
+	public static boolean kotlinCompilerIsOnClassPath() {
+		// TODO in case of IJ update, remove old and download new version of compiler jar
+		return IDEUtil.isOnClasspath("org.jetbrains.kotlin.cli.jvm.compiler.KotlinToJVMBytecodeCompiler");
 	}
 
 	public static boolean clojureIsOnClassPath() {

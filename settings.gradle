@@ -1,1 +1,7 @@
+pluginRepositories {
+	maven {
+		url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1'
+	}
+}
+
 rootProject.name = 'LivePlugin'
