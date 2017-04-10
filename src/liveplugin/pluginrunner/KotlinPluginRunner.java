@@ -1,10 +1,11 @@
 package liveplugin.pluginrunner;
 
 import com.intellij.ide.ui.laf.IntelliJLaf;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.Function;
 import kotlin.jvm.internal.Reflection;
-import kotlin.script.templates.standard.SimpleScriptTemplate;
 import liveplugin.toolwindow.settingsmenu.languages.DownloadKotlinCompilerLib;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation;
@@ -92,8 +93,6 @@ public class KotlinPluginRunner implements PluginRunner {
 			ClassLoader classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, mainScriptUrl, pluginId, errorReporter);
 			GeneratedClassLoader generatedClassLoader = new GeneratedClassLoader(state.getFactory(), classLoader);
 
-			// TODO use binding
-
 			for (KtFile ktFile : environment.getSourceFiles()) {
 				if (ktFile.getName().equals(MAIN_SCRIPT)) {
 					KtScript ktScript = ktFile.getScript();
@@ -101,7 +100,14 @@ public class KotlinPluginRunner implements PluginRunner {
 					Class<?> aClass = generatedClassLoader.loadClass(ktScript.getFqName().asString());
 					runOnEDTCallback.fun(() -> {
 						try {
-							aClass.newInstance();
+							// Arguments below must match constructor of KotlinScriptTemplate class.
+							// There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
+							aClass.getConstructors()[0].newInstance(
+									(Project) binding.get("project"),
+									(Boolean) binding.get("isIdeStartup"),
+									(String) binding.get("pluginPath"),
+									(Disposable) binding.get("pluginDisposable")
+							);
 						} catch (Exception e) {
 							errorReporter.addRunningError(pluginId, e);
 						}
@@ -138,7 +144,7 @@ public class KotlinPluginRunner implements PluginRunner {
 		configuration.put(MODULE_NAME, "LivePluginScript");
 		JvmContentRootsKt.addJvmClasspathRoots(configuration, PathUtil.getJdkClassesRoots());
 		configuration.add(CONTENT_ROOTS, new KotlinSourceRoot(pathToPluginFolder));
-		configuration.add(SCRIPT_DEFINITIONS, new KotlinScriptDefinition(Reflection.createKotlinClass(SimpleScriptTemplate.class)));
+		configuration.add(SCRIPT_DEFINITIONS, new KotlinScriptDefinition(Reflection.createKotlinClass(KotlinScriptTemplate.class)));
 		configuration.put(RETAIN_OUTPUT_IN_MEMORY, false);
 
 		String ideaJarPath = PathManager.getJarPathForClass(IntelliJLaf.class);
