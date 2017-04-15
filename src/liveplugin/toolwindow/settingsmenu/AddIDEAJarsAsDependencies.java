@@ -8,11 +8,11 @@ import com.intellij.openapi.project.Project;
 import liveplugin.toolwindow.util.DependenciesUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.util.Pair.create;
+import static java.util.Arrays.asList;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
 public class AddIDEAJarsAsDependencies extends AnAction implements DumbAware {
@@ -27,7 +27,7 @@ public class AddIDEAJarsAsDependencies extends AnAction implements DumbAware {
 		} else {
 			String ideaJarsPath = PathManager.getHomePath() + "/lib/";
 			//noinspection unchecked
-			DependenciesUtil.addLibraryDependencyTo(project, IDEA_JARS_LIBRARY, Arrays.asList(
+			DependenciesUtil.addLibraryDependencyTo(project, IDEA_JARS_LIBRARY, asList(
 					create("jar://" + ideaJarsPath + "openapi.jar!/", CLASSES),
 					create("jar://" + ideaJarsPath + "idea.jar!/", CLASSES),
 					create("jar://" + ideaJarsPath + "idea_rt.jar!/", CLASSES),

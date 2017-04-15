@@ -40,6 +40,7 @@ public class DownloadKotlinCompilerLib extends AnAction {
 				for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
 					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
 				}
+				askIfUserWantsToRestartIde("For Kotlin compiler to be unloaded IDE restart is required. Restart now?");
 			}
 		} else {
 			int answer = Messages.showOkCancelDialog(

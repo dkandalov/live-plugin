@@ -38,6 +38,7 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 	<depends>com.intellij.modules.platform</depends>
 	<depends optional="true" config-file="github-integration.xml">org.jetbrains.plugins.github</depends>
 	<depends optional="true" config-file="junit-panel-integration.xml">JUnit</depends>
+	<depends optional="true">org.jetbrains.kotlin</depends>
 
 	<application-components>
 		<component>

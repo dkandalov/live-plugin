@@ -120,6 +120,7 @@ public class IDEUtil {
 		return downloadFiles(asList(Pair.create(downloadUrl, fileName)), targetPath);
 	}
 
+	// TODO make download non-modal
 	public static boolean downloadFiles(List<Pair<String, String>> urlAndFileNames, String targetPath) {
 		final DownloadableFileService service = DownloadableFileService.getInstance();
 		List<DownloadableFileDescription> descriptions = map(urlAndFileNames, it -> service.createFileDescription(it.first + it.second, it.second));

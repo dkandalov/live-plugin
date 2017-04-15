@@ -33,7 +33,7 @@ public class AddPluginJarAsDependency extends AnAction implements DumbAware {
 		}
 	}
 
-	private static String findPathToMyClasses() {
+	public static String findPathToMyClasses() {
 		String pathToMyClasses = PathUtil.getJarPathForClass(LivePluginAppComponent.class);
 		// need trailing "/" because folder dependency doesn't work without it
 		if (pathToMyClasses.endsWith(".jar")) {
