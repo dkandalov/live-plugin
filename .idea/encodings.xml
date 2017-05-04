@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
-    <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/GitCloneDialog.form" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/resources/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/github_icon.png" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/GitCloneDialog.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/com/intellij/dvcs/ui/CloneDvcsDialog.form" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/api/DataConstructor.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/api/GithubErrorMessageRaw.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/api/GithubFullPath.java" charset="UTF-8" />
@@ -16,11 +17,10 @@
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/exceptions/GithubJsonException.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/exceptions/GithubRateLimitExceededException.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/exceptions/GithubStatusCodeException.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/github_icon.png" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/util/GithubAuthData.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/util/GithubSettings.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/util/GithubSslSupport.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/liveplugin/toolwindow/addplugin/git/jetbrains/plugins/github/util/GithubUrlUtil.java" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>
-
