@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Pair;
 
 import java.util.List;
@@ -49,6 +50,20 @@ public class DependenciesUtil {
 				// (~16 seconds with UI freeze for IntelliJ source code).
 				addLibraryDependencyTo(modules[0], libraryName, paths);
 			}
+		});
+	}
+
+	public static Module findModuleWithLibrary(Project project, String libraryName) {
+		return ApplicationManager.getApplication().runReadAction((Computable<Module>) () -> {
+			Module[] modules = ModuleManager.getInstance(project).getModules();
+			for (Module module : modules) {
+				ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(module).getModifiableModel();
+				Library library = modifiableModel.getModuleLibraryTable().getLibraryByName(libraryName);
+				if (library != null) {
+					return module;
+				}
+			}
+			return null;
 		});
 	}
 

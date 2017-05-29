@@ -8,7 +8,6 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.util.Pair;
-import com.intellij.util.containers.ContainerUtil;
 import liveplugin.toolwindow.util.DependenciesUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,13 +16,14 @@ import java.util.List;
 
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.util.Pair.create;
+import static com.intellij.util.containers.ContainerUtil.concat;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.LivePluginAppComponent.kotlinCompilerIsOnClassPath;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
 public class AddKotlinLibsAsDependency extends AnAction implements DumbAware {
-	private static final String LIBRARY_NAME = "LivePlugin - Kotlin";
+	public static final String LIBRARY_NAME = "LivePlugin - Kotlin";
 
 	@Override public void update(@NotNull AnActionEvent event) {
 		Project project = event.getProject();
@@ -57,7 +57,7 @@ public class AddKotlinLibsAsDependency extends AnAction implements DumbAware {
 					fileNamesMatching("kotlin-.*jar", ideLibsFolder),
 					fileName -> create("jar://" + ideLibsFolder + fileName + "!/", CLASSES)
 			);
-			DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, ContainerUtil.concat(paths1, paths2));
+			DependenciesUtil.addLibraryDependencyTo(project, LIBRARY_NAME, concat(paths1, paths2));
 		}
 	}
 }

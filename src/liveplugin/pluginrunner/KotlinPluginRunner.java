@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.MyFileUtil.*;
 import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*;
@@ -151,7 +150,9 @@ public class KotlinPluginRunner implements PluginRunner {
 		assert ideaJarPath != null;
 		File[] ijLibFiles = new File(ideaJarPath).getParentFile().listFiles();
 		assert ijLibFiles != null;
-		asList(ijLibFiles).forEach(file -> configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file)));
+		for (File file : ijLibFiles) {
+			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
+		}
 
 		for (String fileName : fileNamesMatching(DownloadKotlinCompilerLib.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(LIVEPLUGIN_LIBS_PATH + "/" + fileName)));

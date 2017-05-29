@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
-import kotlin.reflect.jvm.internal.impl.config.KotlinCompilerVersion;
+import org.jetbrains.kotlin.config.KotlinCompilerVersion;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
