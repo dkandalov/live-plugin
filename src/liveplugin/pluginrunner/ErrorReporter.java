@@ -59,7 +59,7 @@ public class ErrorReporter {
 
 	private void reportLoadingErrors(Callback callback) {
 		StringBuilder text = new StringBuilder();
-		for (String s : loadingErrors) text.append(s);
+		loadingErrors.forEach(text::append);
 		if (text.length() > 0) {
 			callback.display("Loading errors", text.toString() + "\n");
 		}

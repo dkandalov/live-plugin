@@ -22,8 +22,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -63,14 +61,10 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 	@Nullable private Boolean myTestResult; // the test result of the last test or null if not tested
 	@NotNull private String myDefaultDirectoryName = "";
 	@NotNull protected final Project myProject;
-	@NotNull protected final String myVcsDirectoryName;
+	@NotNull private final String myVcsDirectoryName;
 	@Nullable private final String myDefaultRepoUrl;
 
-	public CloneDvcsDialog(@NotNull Project project, @NotNull String displayName, @NotNull String vcsDirectoryName) {
-		this(project, displayName, vcsDirectoryName, null);
-	}
-
-	public CloneDvcsDialog(@NotNull Project project, @NotNull String displayName, @NotNull String vcsDirectoryName, @Nullable String defaultUrl) {
+	public CloneDvcsDialog(@NotNull Project project, @NotNull String vcsDirectoryName, @Nullable String defaultUrl) {
 		super(project, true);
 		myDefaultRepoUrl = defaultUrl;
 		myProject = project;
@@ -234,7 +228,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 			return false;
 		}
 		if (myTestResult != null && repository.equals(myTestURL)) {
-			if (!myTestResult.booleanValue()) {
+			if (!myTestResult) {
 				setErrorText(DvcsBundle.getString("clone.test.failed.error"));
 				setOKActionEnabled(false);
 				return false;
@@ -286,7 +280,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 			urls.add(0, myDefaultRepoUrl);
 		}
 		myRepositoryURL.setHistory(ArrayUtil.toObjectArray(urls, String.class));
-		myRepositoryURL.addDocumentListener(new com.intellij.openapi.editor.event.DocumentAdapter() {
+		myRepositoryURL.addDocumentListener(new com.intellij.openapi.editor.event.DocumentListener() {
 			@Override
 			public void documentChanged(com.intellij.openapi.editor.event.DocumentEvent e) {
 				// enable test button only if something is entered in repository URL
@@ -300,10 +294,6 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 				updateButtons();
 			}
 		});
-	}
-
-	public void prependToHistory(@NotNull final String item) {
-		myRepositoryURL.prependItem(item);
 	}
 
 	public void rememberSettings() {
