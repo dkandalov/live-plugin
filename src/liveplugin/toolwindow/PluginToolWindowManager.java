@@ -148,12 +148,10 @@ public class PluginToolWindowManager {
 				});
 			}
 
-			@Override public void projectClosed(Project project) {
+			@Override public void projectClosing(Project project) {
 				if (project == null) return;
-				ApplicationManager.getApplication().invokeLater(() -> {
-					PluginToolWindow pluginToolWindow = removeToolWindow(project);
-					if (pluginToolWindow != null) pluginToolWindow.unregisterWindowFrom(project);
-				});
+				PluginToolWindow pluginToolWindow = removeToolWindow(project);
+				if (pluginToolWindow != null) pluginToolWindow.unregisterWindowFrom(project);
 			}
 		});
 	}
