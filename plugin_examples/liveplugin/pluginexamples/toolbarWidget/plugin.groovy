@@ -15,26 +15,31 @@ def fibonacci(long n1 = 0, long n2 = 1) {
 }
 
 invokeOnEDT {
-	def (text, nextFibonacci) = fibonacci()
+	def (n, nextFibonacci) = fibonacci()
 
 	def presentation = new StatusBarWidget.TextPresentation() {
-		@Override String getText() { "Fibonacci: ${text}" }
+		@Override String getText() { "Fibonacci: ${n}" }
 		@Override float getAlignment() { Component.CENTER_ALIGNMENT }
 		@Override String getTooltipText() { "Click to reset Fibonacci counter" }
 		@Override Consumer<MouseEvent> getClickConsumer() {
 			return new Consumer<MouseEvent>() {
 				@Override void consume(MouseEvent mouseEvent) {
-					(text, nextFibonacci) = fibonacci()
+					(n, nextFibonacci) = fibonacci()
 					updateWidget("FibonacciWidget")
 				}
 			}
 		}
 		@Deprecated @Override String getMaxPossibleText() { "" }
 	}
-	registerWidget("FibonacciWidget", pluginDisposable, presentation)
+	def widgetId = "FibonacciWidget"
+	registerWidget(widgetId, pluginDisposable, presentation)
 
 	scheduleTask(new Alarm(Alarm.ThreadToUse.SWING_THREAD, pluginDisposable), 2000) {
-		(text, nextFibonacci) = nextFibonacci()
-		updateWidget("FibonacciWidget")
+		(n, nextFibonacci) = nextFibonacci()
+		if (n > 2_000_000) {
+			unregisterWidget(widgetId)
+		} else {
+			updateWidget(widgetId)
+		}
 	}
 }

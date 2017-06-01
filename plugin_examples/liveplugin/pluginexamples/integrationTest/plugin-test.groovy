@@ -9,7 +9,10 @@ import org.junit.Ignore
 import org.junit.Test
 
 import static liveplugin.PluginUtil.runReadAction
-// This is example of integration test.
+
+// This is an example of integration test.
+// Please note this example will only work in IDEs without Java support.
+
 // The idea is that for code which heavily uses IntelliJ API it can be faster
 // to run tests inside IntelliJ without need for potentially long or complex initialisation.
 

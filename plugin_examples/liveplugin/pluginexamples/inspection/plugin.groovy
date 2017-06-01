@@ -12,7 +12,7 @@ import com.intellij.psi.PsiLiteralExpression
 import static liveplugin.PluginUtil.registerInspection
 import static liveplugin.PluginUtil.show
 
-// (Please note this example won't work in IDEs without Java support.)
+// Please note this example will only work in IDEs without Java support.
 
 registerInspection(pluginDisposable, new HelloWorldInspection())
 

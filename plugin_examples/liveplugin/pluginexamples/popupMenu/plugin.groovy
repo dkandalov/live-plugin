@@ -32,9 +32,9 @@ registerAction("HelloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 				// (to make this event aware of current project popup menu is invoke like this "showPopupMenu(..., event.dataContext)"
 				show("project: ${context.event.project}")
 			},
-			"-": new AnAction("Run actual action") {
+			"-": new AnAction("Run an action") {
 				@Override void actionPerformed(AnActionEvent anActionEvent) {
-					show("Running actual action")
+					show("Running an action")
 				}
 			},
 			"--": Separator.instance,
