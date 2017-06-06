@@ -72,7 +72,13 @@ class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 		def modifiers = config.showModifiers ? Modifier.toString(context.field.modifiers) : ""
 		def typeInfo = typeInfoOf(context)
 		def hashCode = config.showHashCode ? hashCodeOf(context) : ""
-		def value = context.object.toString().take(100)
+
+		def value
+		try {
+			value = context.object.toString().take(100)
+		} catch (Exception e) {
+			value = "Failed to load field: ${e.message}"
+		}
 
 		postfix(modifiers, " ") + typeInfo + prefix("@", hashCode) + " " + context.field.name + " = " + value
 	}
