@@ -3,18 +3,10 @@ apply plugin: 'groovy'
 apply plugin: 'idea'
 
 ext.home = System.env.HOME
-ext.ideaPath = "/Users/dima/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents"
+ext.ideaPath = "/Users/dima/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.3198.6/IntelliJ IDEA 2017.2 EAP.app/Contents"
 ext.pluginsSandbox = "${home}/Library/Caches/IntelliJIdea2016.3/plugins-sandbox"
 
-
-repositories {
-	jcenter()
-	mavenCentral()
-	maven {
-		url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
-	}
-}
-
+repositories { mavenCentral() }
 enableProvidedScope()
 generateModuleFileConfiguredForPluginDevelopment()
 

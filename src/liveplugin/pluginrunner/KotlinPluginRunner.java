@@ -141,7 +141,7 @@ public class KotlinPluginRunner implements PluginRunner {
 		CompilerConfiguration configuration = new CompilerConfiguration();
 		configuration.put(MESSAGE_COLLECTOR_KEY, messageCollector);
 		configuration.put(MODULE_NAME, "LivePluginScript");
-		JvmContentRootsKt.addJvmClasspathRoots(configuration, PathUtil.getJdkClassesRoots());
+		JvmContentRootsKt.addJvmClasspathRoots(configuration, PathUtil.getJdkClassesRootsFromCurrentJre());
 		configuration.add(CONTENT_ROOTS, new KotlinSourceRoot(pathToPluginFolder));
 		configuration.add(SCRIPT_DEFINITIONS, new KotlinScriptDefinition(Reflection.createKotlinClass(KotlinScriptTemplate.class)));
 		configuration.put(RETAIN_OUTPUT_IN_MEMORY, false);
