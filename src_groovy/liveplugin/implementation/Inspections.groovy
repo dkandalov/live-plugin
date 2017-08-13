@@ -123,7 +123,7 @@ class Inspections {
 	 *    It will fail if base profile doesn't have new inspection.
 	 *    => Need to add inspection to base profile too.
 	 *    (Not sure if base profile is always the same or there can be several levels delegation to base profile.
-	 *    Also it's not clear what is the difference between base and parent profiles in {@link com.intellij.codeInspection.ModifiableModel}.)
+	 *    Also it's not clear what is the difference between base and parent profiles in {@link com.intellij.openapi.roots.libraries.Library.ModifiableModel}.)
 	 */
 	private static InspectionProfileImpl updateProfile(InspectionProfile profile, InspectionToolRegistrar registrar, Project project) {
 		BaseInspectionProfileManager appProfileManager = InspectionProfileManager.getInstance()

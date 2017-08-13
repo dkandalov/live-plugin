@@ -1,16 +1,16 @@
 package liveplugin.implementation
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.compiler.CompilationStatusAdapter
 import com.intellij.openapi.compiler.CompilationStatusListener
 import com.intellij.openapi.compiler.CompileContext
-import com.intellij.openapi.compiler.CompilerManager
+import com.intellij.openapi.compiler.CompilerTopics
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 
 import static liveplugin.PluginUtil.registerCompilationListener
-import static liveplugin.implementation.Misc.newDisposable
 
 class Compilation {
 	static void registerCompilationListener(Disposable disposable, CompilationStatusListener listener) {
@@ -20,12 +20,8 @@ class Compilation {
 	}
 
 	static void registerCompilationListener(Disposable disposable, Project project, CompilationStatusListener listener) {
-		def compilerManager = CompilerManager.getInstance(project)
-		compilerManager.addCompilationStatusListener(listener)
-
-		newDisposable([project, disposable]) {
-			compilerManager.removeCompilationStatusListener(listener)
-		}
+		def connection = project.messageBus.connect(newDisposable([disposable, project]))
+		connection.subscribe(CompilerTopics.COMPILATION_STATUS, listener)
 	}
 
 	static compile(Project project, Closure onSuccessfulCompilation = {}) {
