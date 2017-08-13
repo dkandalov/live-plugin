@@ -8,6 +8,7 @@ import com.intellij.util.Function;
 import kotlin.jvm.internal.Reflection;
 import liveplugin.toolwindow.settingsmenu.languages.DownloadKotlinCompilerLib;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jps.model.java.impl.JavaSdkUtil;
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation;
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity;
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector;
@@ -24,7 +25,6 @@ import org.jetbrains.kotlin.config.KotlinSourceRoot;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.psi.KtScript;
 import org.jetbrains.kotlin.script.KotlinScriptDefinition;
-import org.jetbrains.kotlin.utils.PathUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -141,7 +141,7 @@ public class KotlinPluginRunner implements PluginRunner {
 		CompilerConfiguration configuration = new CompilerConfiguration();
 		configuration.put(MESSAGE_COLLECTOR_KEY, messageCollector);
 		configuration.put(MODULE_NAME, "LivePluginScript");
-		JvmContentRootsKt.addJvmClasspathRoots(configuration, PathUtil.getJdkClassesRootsFromCurrentJre());
+		JvmContentRootsKt.addJvmClasspathRoots(configuration, JavaSdkUtil.getJdkClassesRoots(new File(System.getProperty("java.home")), true));
 		configuration.add(CONTENT_ROOTS, new KotlinSourceRoot(pathToPluginFolder));
 		configuration.add(SCRIPT_DEFINITIONS, new KotlinScriptDefinition(Reflection.createKotlinClass(KotlinScriptTemplate.class)));
 		configuration.put(RETAIN_OUTPUT_IN_MEMORY, false);

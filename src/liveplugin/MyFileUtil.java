@@ -22,7 +22,7 @@ import static java.util.Arrays.asList;
 public class MyFileUtil {
 	public static List<String> fileNamesMatching(String regexp, String path) {
 		List<File> files = FileUtil.findFilesByMask(Pattern.compile(regexp), new File(path));
-		return ContainerUtil.map(files, it -> it.getName());
+		return ContainerUtil.map(files, File::getName);
 	}
 
 	public static String asUrl(File file) {
@@ -40,7 +40,7 @@ public class MyFileUtil {
 		} else if (result.size() == 1) {
 			return result.get(0);
 		} else {
-			List<String> filePaths = ContainerUtil.map(result, file -> file.getAbsolutePath());
+			List<String> filePaths = ContainerUtil.map(result, File::getAbsolutePath);
 			throw new IllegalStateException("Found several scripts files under " + path + ":\n" + StringUtil.join(filePaths, ";\n"));
 		}
 	}

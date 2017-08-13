@@ -20,6 +20,8 @@ class Widgets {
 
 	static registerWidget(String widgetId, Project project, Disposable disposable = project,
 	                      String anchor = "before Position", WidgetPresentation presentation) {
+		// TODO the line below is broken because on IDE startup initial frame will not be mapped to project
+		// (at least not at the point when project manager listener callback is invoked)
 		def frame = WindowManager.instance.allProjectFrames.find{ it.project == project }
 		if (frame == null) return
 

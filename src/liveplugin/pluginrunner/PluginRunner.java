@@ -134,7 +134,7 @@ public interface PluginRunner {
 
 			File[] files = new File(path).listFiles((FileFilter) new GlobFilenameFilter(pattern));
 			files = (files == null ? new File[0] : files);
-			return ContainerUtil.map(files, file -> file.getAbsolutePath());
+			return ContainerUtil.map(files, File::getAbsolutePath);
 		}
 
 		private static String inlineEnvironmentVariables(String path, Map<String, String> environment) {

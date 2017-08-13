@@ -377,7 +377,7 @@ public class PluginToolWindowManager {
 
 		public List<String> selectedPluginIds() {
 			Collection<VirtualFile> rootFiles = findPluginRootsFor(myFsTreeRef.get().getSelectedFiles());
-			return map(rootFiles, virtualFile -> virtualFile.getName());
+			return map(rootFiles, VirtualFile::getName);
 		}
 
 		public boolean isActive() {

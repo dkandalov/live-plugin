@@ -63,7 +63,6 @@ public class ScalaPluginRunner implements PluginRunner {
 	}
 
 	private static String createInterpreterClasspath(List<String> additionalPaths) throws ClassNotFoundException {
-		Function<File, String> toAbsolutePath = it -> it.getAbsolutePath();
 		Function<File, Collection<File>> findPluginJars = pluginPath -> {
 			if (pluginPath.isFile()) {
 				return newArrayList(pluginPath);
@@ -74,8 +73,8 @@ public class ScalaPluginRunner implements PluginRunner {
 
 		String compilerPath = PathUtil.getJarPathForClass(Class.forName("scala.tools.nsc.Interpreter"));
 		String scalaLibPath = PathUtil.getJarPathForClass(Class.forName("scala.Some"));
-		String intellijLibPath = join(map(withDefault(new File[0], new File(getLibPath()).listFiles()), toAbsolutePath), pathSeparator);
-		String allNonCorePluginsPath = join(map(flatten(map(withDefault(new File[0], new File(getPluginsPath()).listFiles()), findPluginJars)), toAbsolutePath), pathSeparator);
+		String intellijLibPath = join(map(withDefault(new File[0], new File(getLibPath()).listFiles()), File::getAbsolutePath), pathSeparator);
+		String allNonCorePluginsPath = join(map(flatten(map(withDefault(new File[0], new File(getPluginsPath()).listFiles()), findPluginJars)), File::getAbsolutePath), pathSeparator);
 		String livePluginPath = PathManager.getResourceRoot(ScalaPluginRunner.class, "/liveplugin/"); // this is only useful when running liveplugin from IDE (it's not packed into jar)
 		return join(asList(compilerPath, scalaLibPath, livePluginPath, intellijLibPath, allNonCorePluginsPath), pathSeparator) +
 				pathSeparator + join(additionalPaths, pathSeparator);
