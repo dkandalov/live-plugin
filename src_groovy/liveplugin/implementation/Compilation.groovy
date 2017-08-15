@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 
 import static liveplugin.PluginUtil.registerCompilationListener
+import static liveplugin.implementation.Misc.newDisposable
 
 class Compilation {
 	static void registerCompilationListener(Disposable disposable, CompilationStatusListener listener) {
