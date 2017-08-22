@@ -64,7 +64,7 @@ import static liveplugin.LivePluginAppComponent.LIVE_PLUGIN_ID;
 
 public class IDEUtil {
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
-	public static final FileType KOTLIN_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".kt");
+	public static final FileType KOTLIN_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".kts");
 	public static final FileType SCALA_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".scala");
 	public static final FileType CLOJURE_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".clj");
 	public static final DataContext DUMMY_DATA_CONTEXT = dataId -> null;

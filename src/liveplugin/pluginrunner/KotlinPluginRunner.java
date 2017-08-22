@@ -128,7 +128,7 @@ public class KotlinPluginRunner implements PluginRunner {
 	@NotNull private static CompilerConfiguration createConfiguration(String pathToPluginFolder, String pluginId, final ErrorReporter errorReporter) {
 		MessageCollector messageCollector = new MessageCollector() {
 			boolean hasErrors = false;
-			@Override public void report(@NotNull CompilerMessageSeverity severity, @NotNull String message, @NotNull CompilerMessageLocation location) {
+			@Override public void report(@NotNull CompilerMessageSeverity severity, @NotNull String message, CompilerMessageLocation location) {
 				if (severity == ERROR || severity == EXCEPTION) {
 					errorReporter.addLoadingError(pluginId, PLAIN_FULL_PATHS.render(severity, message, location));
 					hasErrors = true;

@@ -6,7 +6,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
-import org.jetbrains.kotlin.config.KotlinCompilerVersion;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -20,6 +19,13 @@ import static liveplugin.MyFileUtil.fileNamesMatching;
 public class DownloadKotlinCompilerLib extends AnAction {
 	public static final String LIB_FILES_PATTERN = "kotlin-compiler.*jar";
 	private static final String APPROXIMATE_SIZE = "(~25Mb)";
+	/**
+	 * Must match kotlin version in gradle build.
+	 * Can't use KotlinCompilerVersion.VERSION constant because the class exists in both
+	 * kotlin-compiler-embeddable and kotlin-plugin which can potentially have different versions
+	 * and the wrong one can be picked up at runtime.
+	 */
+	private static final String kotlinCompilerVersion = "1.1.3";
 
 	@Override public void update(@NotNull AnActionEvent event) {
 		boolean kotlinCompilerIsDownloaded = kotlinCompilerIsOnClassPath(); // TODO check if file exists
@@ -51,8 +57,8 @@ public class DownloadKotlinCompilerLib extends AnAction {
 			if (answer != Messages.OK) return;
 
 			Pair<String, String> urlAndFileName = Pair.create(
-					"http://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-compiler-embeddable/" + KotlinCompilerVersion.VERSION + "/",
-					"kotlin-compiler-embeddable-" + KotlinCompilerVersion.VERSION + ".jar"
+					"http://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-compiler-embeddable/" + kotlinCompilerVersion + "/",
+					"kotlin-compiler-embeddable-" + kotlinCompilerVersion + ".jar"
 			);
 			boolean downloaded = downloadFiles(asList(urlAndFileName), LIVEPLUGIN_LIBS_PATH);
 
