@@ -38,6 +38,8 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.util.NotNullLazyValue;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.download.DownloadableFileDescription;
@@ -45,6 +47,7 @@ import com.intellij.util.download.DownloadableFileService;
 import com.intellij.util.text.CharArrayUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -64,7 +67,7 @@ import static liveplugin.LivePluginAppComponent.LIVE_PLUGIN_ID;
 
 public class IDEUtil {
 	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
-	public static final FileType KOTLIN_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".kts");
+	public static final FileType KOTLIN_FILE_TYPE = KotlinScriptFileType.INSTANCE;
 	public static final FileType SCALA_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".scala");
 	public static final FileType CLOJURE_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".clj");
 	public static final DataContext DUMMY_DATA_CONTEXT = dataId -> null;
@@ -250,6 +253,52 @@ public class IDEUtil {
 				len--;
 			}
 			return (len < line.length()) ? line.substring(0, len) : line;
+		}
+	}
+
+
+	/**
+	 * Can't use {@code FileTypeManager.getInstance().getFileTypeByExtension(".kts");} here
+	 * because it will return FileType for .kt files and this will cause creating files with wrong extension.
+	 */
+	public static class KotlinScriptFileType implements FileType {
+		public static final KotlinScriptFileType INSTANCE = new KotlinScriptFileType();
+		private final NotNullLazyValue<Icon> myIcon = new NotNullLazyValue<Icon>() {
+			@NotNull
+			protected Icon compute() {
+				return IconLoader.getIcon("/org/jetbrains/kotlin/idea/icons/kotlin_file.png");
+			}
+		};
+
+		@NotNull
+		public String getName() {
+			return "Kotlin";
+		}
+
+		@NotNull
+		public String getDescription() {
+			return this.getName();
+		}
+
+		@NotNull
+		public String getDefaultExtension() {
+			return "kts";
+		}
+
+		public Icon getIcon() {
+			return myIcon.getValue();
+		}
+
+		@Override public boolean isBinary() {
+			return false;
+		}
+
+		@Override public boolean isReadOnly() {
+			return false;
+		}
+
+		@Nullable @Override public String getCharset(@NotNull VirtualFile virtualFile, @NotNull byte[] bytes) {
+			return null;
 		}
 	}
 }
