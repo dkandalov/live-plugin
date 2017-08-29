@@ -1,74 +1,76 @@
 package liveplugin
 
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.Result
 import com.intellij.openapi.application.WriteAction
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.FileEditorManagerEvent
-import com.intellij.openapi.fileEditor.FileEditorManagerListener
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiManager
-import liveplugin.implementation.Editors.registerEditorListener
+import liveplugin.implementation.Projects
 import liveplugin.toolwindow.settingsmenu.languages.AddKotlinLibsAsDependency
 import liveplugin.toolwindow.util.DependenciesUtil
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.idea.KotlinPluginUtil
 import org.jetbrains.kotlin.idea.caches.resolve.ModuleTestSourceInfo
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * This class makes Kotlin plugin treat LivePlugin script files as if they were part of the currently opened project.
- * The least hacky way seems to be by putting MODULE_INFO into user data of script PSI object.
- * In theory, its value could be any implementation of ModuleInfo interface, however, at the moment all supported classes
+ * The least hacky way seems to be by putting ModuleInfo into user data of script PSI object
+ * so that it's picked up by `org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheServiceImpl.getFacadeToAnalyzeFiles`.
+ *
+ * In theory, it could be any implementation of ModuleInfo interface, however, at the moment all supported classes
  * are hardcoded in org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheServiceImpl.createFacadeForSyntheticFiles.
  */
-@Suppress("UNCHECKED_CAST", "DEPRECATION")
 fun listenToOpenEditorsAndRegisterKotlinReferenceResolution() {
-    registerEditorListener(Disposer.newDisposable(), object: FileEditorManagerListener {
-        override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
-            // Note that ".kt" files are deliberately omitted since only ".kts" files work with the workaround below.
-            if (file.extension?.toLowerCase() != "kts" || !FileUtil.startsWith(file.path, LivePluginAppComponent.pluginsRootPath())) return
 
-            val project = source.project
-            val psiFile = PsiManager.getInstance(project).findFile(file) ?: return
-            val module = DependenciesUtil.findModuleWithLibrary(project, AddKotlinLibsAsDependency.LIBRARY_NAME) ?: return
+    Projects.registerProjectListener(ApplicationManager.getApplication(), object: ProjectManagerListener {
+        override fun projectOpened(project: Project) {
+            val documentManager = PsiDocumentManager.getInstance(project)
 
-            object: WriteAction<Any>() {
-                override fun run(result: Result<Any>) {
-                    if (key == null) {
-                        // Attempt to force initialisation of MODULE_INFO key. It's currently loaded in:
-                        //  var PsiFile.moduleInfo: ModuleInfo? by UserDataProperty(Key.create("MODULE_INFO"))
-                        // which is not guaranteed to run before this code.
-                        __hack__triggerResolveScope(psiFile)
-                        key = Key.findKeyByName("MODULE_INFO") as Key<ModuleInfo>?
-                    }
-                    if (key == null) return
-
-                    // TODO the workaround below doesn't work, need to simulate complete on empty line or understand what's wrong
-                    // Workaround to avoid the following exception:
-                    //   java.lang.AssertionError: Resolver for 'completion/highlighting in ScriptModuleInfo()...' does not know how to resolve ModuleProductionSourceInfo(module=...)
-                    // There is no particular reason to do this, except that it fixes the exception for some reason (also using auto-complete in the editor fixes the issue).
-                    // It's worth understanding at some point what is going on there.
-                    __hack__triggerResolveScope(psiFile)
-
-//                    val configuration = CompletionSessionConfiguration(false, false, false, true, false, false)
-//                    val psiElement = TODO()
-//                    val offset = TODO()
-//                    val editor = TODO()
-//                    val parameters = CompletionParameters(psiElement, psiFile, CompletionType.BASIC, offset, editor)
-//                    BasicCompletionSession(configuration, parameters, mapper, resultSet)
-
-                    psiFile.putUserData(key!!, ModuleTestSourceInfo(module))
+            val listener = object: PsiDocumentManager.Listener {
+                override fun fileCreated(psiFile: PsiFile, document: Document) {
+                    initKotlinSyntaxHighlighting(psiFile, project)
                 }
-            }.execute()
+                override fun documentCreated(document: Document, psiFile: PsiFile?) {
+                    initKotlinSyntaxHighlighting(psiFile ?: return, project)
+                }
+            }
+
+            documentManager.addListener(listener)
+            project.whenDisposed {
+                documentManager.removeListener(listener)
+            }
         }
-
-        override fun fileClosed(source: FileEditorManager, file: VirtualFile) {}
-
-        override fun selectionChanged(event: FileEditorManagerEvent) {}
     })
+}
+
+@Suppress("UNCHECKED_CAST", "DEPRECATION")
+private fun initKotlinSyntaxHighlighting(psiFile: PsiFile, project: Project) {
+    val file = psiFile.virtualFile ?: return
+    if (file.extension?.toLowerCase() != "kts" || !FileUtil.startsWith(file.path, LivePluginAppComponent.pluginsRootPath())) return
+    val module = DependenciesUtil.findModuleWithLibrary(project, AddKotlinLibsAsDependency.LIBRARY_NAME) ?: return
+
+    object: WriteAction<Any>() {
+        override fun run(result: Result<Any>) {
+            if (key == null) {
+                // Attempt to force initialisation of MODULE_INFO key. It's currently loaded in:
+                //  var PsiFile.moduleInfo: ModuleInfo? by UserDataProperty(Key.create("MODULE_INFO"))
+                // which is not guaranteed to run before this code.
+                __hack__triggerResolveScope(psiFile)
+                key = Key.findKeyByName("MODULE_INFO") as Key<ModuleInfo>?
+            }
+            if (key == null) return
+
+            psiFile.putUserData(key!!, ModuleTestSourceInfo(module))
+        }
+    }.execute()
 }
 
 private var key: Key<ModuleInfo>? = null
@@ -86,3 +88,24 @@ private fun __hack__triggerResolveScope(psiFile: PsiFile) {
  * Because LivePlugin loads kotlin-compiler-embeddable.jar, it'll by default use the wrong class.
  */
 private fun String.loadClass() = KotlinPluginUtil::class.java.classLoader.loadClass(this)
+
+
+fun Disposable.whenDisposed(callback: () -> Any) = newDisposable(listOf(this), callback)
+
+private fun newDisposable(parents: Collection<Disposable>, callback: () -> Any = {}): Disposable {
+    val isDisposed = AtomicBoolean(false)
+    val disposable = Disposable {
+        if (!isDisposed.get()) {
+            isDisposed.set(true)
+            callback()
+        }
+    }
+    parents.forEach { parent ->
+        // can't use here "Disposer.register(parent, disposable)"
+        // because Disposer only allows one parent to one child registration of Disposable objects
+        Disposer.register(parent, Disposable {
+            Disposer.dispose(disposable)
+        })
+    }
+    return disposable
+}
