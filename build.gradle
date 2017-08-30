@@ -1,14 +1,49 @@
-apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'idea'
+buildscript {
+	ext.kotlin_version = "1.1.1"
+	repositories {
+		mavenCentral()
+		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+		maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
+	}
+}
 
-ext.home = System.env.HOME
-ext.ideaPath = "/Users/dima/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.3757.29/IntelliJ IDEA.app/Contents"
-ext.pluginsSandbox = "${home}/Library/Caches/IntelliJIdea2017.2/plugins-sandbox"
+plugins {
+	id "org.jetbrains.intellij" version "0.2.16"
+	id "org.jetbrains.kotlin.jvm" version "1.1.1"
+}
+apply plugin:"java"
+apply plugin:"groovy"
+apply plugin:"kotlin"
+apply plugin:"idea"
+apply plugin:"org.jetbrains.intellij"
 
-repositories { mavenCentral() }
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+	maven { url "lib" }
+}
+
+compileKotlin {
+	kotlinOptions {
+		jvmTarget = "1.8"
+		apiVersion = "1.0"
+		languageVersion = "1.0"
+	}
+}
+
+intellij {
+	version = "IU-172.3757.29"
+	type = "UI"
+	pluginName = "live-plugin"
+	downloadSources = true
+	sameSinceUntilBuild = false
+	updateSinceUntilBuild = false
+	plugins = ["Groovy", "Kotlin", "git4idea", "github", "junit"]
+}
+
 enableProvidedScope()
-generateModuleFileConfiguredForPluginDevelopment()
 
 dependencies {
 	provided group: 'junit', name: 'junit', version: '4.10' // also includes hamcrest-core
@@ -19,20 +54,13 @@ dependencies {
 	// also includes scala-parser-combinators, scala-xml
 	provided group: 'org.scala-lang', name: 'scala-library', version: '2.11.7'
 	provided group: 'org.scala-lang', name: 'scala-reflect', version: '2.11.7'
-	provided fileTree(dir: "${ideaPath}/lib/", include: "groovy-all-*.jar")
-	provided fileTree(dir: "${ideaPath}/lib/", include: "gson-*.jar") // required by github plugin classes
-	provided fileTree(dir: "${ideaPath}/lib/", include: "xstream-*.jar")
-	provided fileTree(dir: "${ideaPath}/plugins/github/lib/", include: "*.jar")
-	provided fileTree(dir: "${ideaPath}/plugins/git4idea/lib/", include: "*.jar")
-	provided fileTree(dir: "${ideaPath}/plugins/junit/lib/", include: "*.jar")
-	provided fileTree(dir: "${ideaPath}/plugins/Kotlin/lib/", include: "kotlin-plugin.jar")
 }
 sourceSets {
 	main {
 		java { srcDir "src" }
-		resources { srcDir "resources" }
 		groovy { srcDir "src_groovy" }
-		groovy { srcDir "plugin_examples" }
+		resources { srcDir "resources" }
+		resources { srcDir "plugin_examples" }
 	}
 	test {
 		groovy { srcDir "test_groovy" }
@@ -65,11 +93,6 @@ task copyResources { doLast {
 	}
 } }
 
-task downloadDependenciesToLibFolder(type: Copy) {
-	from configurations.runtime
-	into './lib'
-}
-
 task installLivePlugin() { doLast {
 	def version = new File("resources/META-INF/plugin.xml").readLines()
 			.find { it.contains("<version>") }
@@ -95,22 +118,5 @@ def enableProvidedScope() {
 	}
 	idea {
 		module { scopes.PROVIDED.plus += [configurations.provided] }
-	}
-}
-
-// see http://blog.xebia.com/building-intellij-plugins-from-the-command-line/
-def generateModuleFileConfiguredForPluginDevelopment() {
-	idea {
-		module {
-			iml {
-				withXml {
-					it.asNode().@type = 'PLUGIN_MODULE'
-					//  setting url for <component name="DevKit.ModuleBuildProperties" ... />
-					def cmp = it.node.appendNode('component')
-					cmp.@name = 'DevKit.ModuleBuildProperties'
-					cmp.@url = 'file://$MODULE_DIR$/resources/META-INF/plugin.xml'
-				}
-			}
-		}
 	}
 }

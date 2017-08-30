@@ -6,13 +6,13 @@ import com.intellij.openapi.application.Result
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import liveplugin.implementation.Projects
 import liveplugin.toolwindow.settingsmenu.languages.AddKotlinLibsAsDependency
 import liveplugin.toolwindow.util.DependenciesUtil
 import org.jetbrains.kotlin.analyzer.ModuleInfo
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 fun listenToOpenEditorsAndRegisterKotlinReferenceResolution() {
 
-    Projects.registerProjectListener(ApplicationManager.getApplication(), object: ProjectManagerListener {
+    registerProjectListener(ApplicationManager.getApplication(), object: ProjectManagerListener {
         override fun projectOpened(project: Project) {
             val documentManager = PsiDocumentManager.getInstance(project)
 
@@ -93,8 +93,12 @@ private fun __hack__triggerResolveScope(psiFile: PsiFile) {
  */
 private fun String.loadClass() = KotlinPluginUtil::class.java.classLoader.loadClass(this)
 
+private fun registerProjectListener(disposable: Disposable, listener: ProjectManagerListener) {
+    val connection = ApplicationManager.getApplication().messageBus.connect(disposable)
+    connection.subscribe(ProjectManager.TOPIC, listener)
+}
 
-fun Disposable.whenDisposed(callback: () -> Any) = newDisposable(listOf(this), callback)
+private fun Disposable.whenDisposed(callback: () -> Any) = newDisposable(listOf(this), callback)
 
 private fun newDisposable(parents: Collection<Disposable>, callback: () -> Any = {}): Disposable {
     val isDisposed = AtomicBoolean(false)
