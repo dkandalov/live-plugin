@@ -22,11 +22,15 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * This class makes Kotlin plugin treat LivePlugin script files as if they were part of the currently opened project.
- * The least hacky way seems to be by putting ModuleInfo into user data of script PSI object
+ * The least hacky way seems to be by putting ModuleInfo into user data of script PSI file
  * so that it's picked up by `org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheServiceImpl.getFacadeToAnalyzeFiles`.
  *
- * In theory, it could be any implementation of ModuleInfo interface, however, at the moment all supported classes
- * are hardcoded in org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheServiceImpl.createFacadeForSyntheticFiles.
+ * In theory, it could be any implementation of `ModuleInfo` interface, however, at the moment all supported classes
+ * are hardcoded in `org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheServiceImpl.createFacadeForSyntheticFiles`.
+ *
+ * It is also important to put `ModuleInfo` into PSI file before kotlin annotator processes the file.
+ * Otherwise, `ResolverForProject` is cached (including list of modules it uses for resolution)
+ * and AnalyzerFacade fails to use `ModuleInfo` added later (see `org.jetbrains.kotlin.analyzer.ResolverForProjectImpl.descriptorForModule`).
  */
 fun listenToOpenEditorsAndRegisterKotlinReferenceResolution() {
 
