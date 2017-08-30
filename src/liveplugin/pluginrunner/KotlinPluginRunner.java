@@ -78,17 +78,14 @@ public class KotlinPluginRunner implements PluginRunner {
 			String pluginFolderUrl = "file:///" + pathToPluginFolder + "/"; // prefix with "file:///" so that unix-like path works on windows
 			pathsToAdd.add(pluginFolderUrl);
 
-			CompilerConfiguration configuration = createConfiguration(pathToPluginFolder, pluginId, errorReporter);
+			CompilerConfiguration configuration = createCompilerConfiguration(pathToPluginFolder, pluginId, errorReporter);
 
-			//	TODO if (saveClassesDir != null) {
-			//	    configuration.put(JVMConfigurationKeys.OUTPUT_DIRECTORY, saveClassesDir)
-			//	}
 			environment.put("PLUGIN_PATH", pathToPluginFolder);
 
 			KotlinCoreEnvironment environment = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, JVM_CONFIG_FILES);
-			KotlinToJVMBytecodeCompiler compiler = KotlinToJVMBytecodeCompiler.INSTANCE;
-			GenerationState state = compiler.analyzeAndGenerate(environment);
-			if (state == null) return;
+			GenerationState state = KotlinToJVMBytecodeCompiler.INSTANCE.analyzeAndGenerate(environment);
+			if (state == null) throw new CompilationException("Compiler returned empty state.", null, null);
+
 			ClassLoader classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, mainScriptUrl, pluginId, errorReporter);
 			GeneratedClassLoader generatedClassLoader = new GeneratedClassLoader(state.getFactory(), classLoader);
 
@@ -125,7 +122,7 @@ public class KotlinPluginRunner implements PluginRunner {
 		}
 	}
 
-	@NotNull private static CompilerConfiguration createConfiguration(String pathToPluginFolder, String pluginId, final ErrorReporter errorReporter) {
+	@NotNull private static CompilerConfiguration createCompilerConfiguration(String pathToPluginFolder, String pluginId, final ErrorReporter errorReporter) {
 		MessageCollector messageCollector = new MessageCollector() {
 			boolean hasErrors = false;
 			@Override public void report(@NotNull CompilerMessageSeverity severity, @NotNull String message, CompilerMessageLocation location) {
@@ -154,6 +151,8 @@ public class KotlinPluginRunner implements PluginRunner {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
 		}
 
+		// TODO use bundled kotlin libs
+
 		for (String fileName : fileNamesMatching(DownloadKotlinCompilerLib.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(LIVEPLUGIN_LIBS_PATH + "/" + fileName)));
 		}
@@ -164,6 +163,10 @@ public class KotlinPluginRunner implements PluginRunner {
 		
 		configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(LIVEPLUGIN_LIBS_PATH)));
 		configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(PathManager.getPluginsPath() + "/LivePlugin/classes")));
+
+		//	TODO if (saveClassesDir != null) {
+		//	    configuration.put(JVMConfigurationKeys.OUTPUT_DIRECTORY, saveClassesDir)
+		//	}
 
 		// TODO add other plugins jars?
 
