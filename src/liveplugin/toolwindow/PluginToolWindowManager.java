@@ -22,6 +22,7 @@ import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.AbstractTreeStructure;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileSystemTree;
 import com.intellij.openapi.fileChooser.actions.VirtualFileDeleteProvider;
@@ -51,6 +52,7 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.EditSourceOnEnterKeyHandler;
+import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IDEUtil;
 import liveplugin.Icons;
@@ -131,7 +133,8 @@ public class PluginToolWindowManager {
 	}
 
 	public void init() {
-		ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
+		MessageBusConnection connection = ApplicationManager.getApplication().getMessageBus().connect();
+		connection.subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
 			@Override public void projectOpened(Project project) {
 				PluginToolWindow pluginToolWindow = new PluginToolWindow();
 				pluginToolWindow.registerWindowFor(project);
@@ -144,6 +147,7 @@ public class PluginToolWindowManager {
 				if (pluginToolWindow != null) pluginToolWindow.unregisterWindowFrom(project);
 			}
 
+			@SuppressWarnings("deprecation") // Keep override for compatibility with older IDE versions.
 			@Override public boolean canCloseProject(Project project) {
 				return true;
 			}
