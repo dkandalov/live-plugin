@@ -75,7 +75,7 @@ public class KotlinPluginRunner implements PluginRunner {
 				errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
 				return null;
 			});
-			String pluginFolderUrl = "file:///" + pathToPluginFolder + "/"; // prefix with "file:///" so that unix-like path works on windows
+			String pluginFolderUrl = "file:///" + pathToPluginFolder + "/"; // prefix with "file:///" so that unix-like paths work on windows
 			pathsToAdd.add(pluginFolderUrl);
 
 			CompilerConfiguration configuration = createCompilerConfiguration(pathToPluginFolder, pluginId, errorReporter);
@@ -123,30 +123,20 @@ public class KotlinPluginRunner implements PluginRunner {
 	}
 
 	@NotNull private static CompilerConfiguration createCompilerConfiguration(String pathToPluginFolder, String pluginId, final ErrorReporter errorReporter) {
-		MessageCollector messageCollector = new MessageCollector() {
-			boolean hasErrors = false;
-			@Override public void report(@NotNull CompilerMessageSeverity severity, @NotNull String message, CompilerMessageLocation location) {
-				if (severity == ERROR || severity == EXCEPTION) {
-					errorReporter.addLoadingError(pluginId, PLAIN_FULL_PATHS.render(severity, message, location));
-					hasErrors = true;
-				}
-			}
-			@Override public boolean hasErrors() { return hasErrors; }
-			@Override public void clear() {}
-		};
-
 		CompilerConfiguration configuration = new CompilerConfiguration();
-		configuration.put(MESSAGE_COLLECTOR_KEY, messageCollector);
 		configuration.put(MODULE_NAME, "LivePluginScript");
-		JvmContentRootsKt.addJvmClasspathRoots(configuration, JavaSdkUtil.getJdkClassesRoots(new File(System.getProperty("java.home")), true));
-		configuration.add(CONTENT_ROOTS, new KotlinSourceRoot(pathToPluginFolder));
+		configuration.put(MESSAGE_COLLECTOR_KEY, newMessageCollector(pluginId, errorReporter));
 		configuration.add(SCRIPT_DEFINITIONS, new KotlinScriptDefinition(Reflection.createKotlinClass(KotlinScriptTemplate.class)));
-		configuration.put(RETAIN_OUTPUT_IN_MEMORY, false);
+		configuration.put(RETAIN_OUTPUT_IN_MEMORY, true);
 
-		String ideaJarPath = PathManager.getJarPathForClass(IntelliJLaf.class);
-		assert ideaJarPath != null;
-		File[] ijLibFiles = new File(ideaJarPath).getParentFile().listFiles();
-		assert ijLibFiles != null;
+		// TODO use IDE jvm
+		JvmContentRootsKt.addJvmClasspathRoots(configuration, JavaSdkUtil.getJdkClassesRoots(new File(System.getProperty("java.home")), true));
+
+		configuration.add(CONTENT_ROOTS, new KotlinSourceRoot(pathToPluginFolder));
+
+		String ideJarPath = PathManager.getJarPathForClass(IntelliJLaf.class);
+		File ideLibDir = new File(ideJarPath).getParentFile();
+		File[] ijLibFiles = ideLibDir.listFiles();
 		for (File file : ijLibFiles) {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
 		}
@@ -156,7 +146,7 @@ public class KotlinPluginRunner implements PluginRunner {
 		for (String fileName : fileNamesMatching(DownloadKotlinCompilerLib.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(LIVEPLUGIN_LIBS_PATH + "/" + fileName)));
 		}
-		String ideLibFolderPath = new File(ideaJarPath).getParentFile().getAbsolutePath();
+		String ideLibFolderPath = ideLibDir.getAbsolutePath();
 		for (String fileName : fileNamesMatching("kotlin-.*jar", ideLibFolderPath)) {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(ideLibFolderPath + "/" + fileName)));
 		}
@@ -171,5 +161,19 @@ public class KotlinPluginRunner implements PluginRunner {
 		// TODO add other plugins jars?
 
 		return configuration;
+	}
+
+	@NotNull private static MessageCollector newMessageCollector(String pluginId, ErrorReporter errorReporter) {
+		return new MessageCollector() {
+			boolean hasErrors = false;
+			@Override public void report(@NotNull CompilerMessageSeverity severity, @NotNull String message, CompilerMessageLocation location) {
+				if (severity == ERROR || severity == EXCEPTION) {
+					errorReporter.addLoadingError(pluginId, PLAIN_FULL_PATHS.render(severity, message, location));
+					hasErrors = true;
+				}
+			}
+			@Override public boolean hasErrors() { return hasErrors; }
+			@Override public void clear() {}
+		};
 	}
 }

@@ -159,14 +159,14 @@ class Actions {
 		if (keyStroke.trim().empty) return null
 
 		def firstKeystroke
-		def secondsKeystroke = null
+		def secondKeystroke = null
 		if (keyStroke.contains(",")) {
 			firstKeystroke = KeyStroke.getKeyStroke(keyStroke[0..<keyStroke.indexOf(",")].trim())
-			secondsKeystroke = KeyStroke.getKeyStroke(keyStroke[(keyStroke.indexOf(",") + 1)..-1].trim())
+			secondKeystroke = KeyStroke.getKeyStroke(keyStroke[(keyStroke.indexOf(",") + 1)..-1].trim())
 		} else {
 			firstKeystroke = KeyStroke.getKeyStroke(keyStroke)
 		}
 		if (firstKeystroke == null) throw new IllegalStateException("Invalid keystroke '$keyStroke'")
-		new KeyboardShortcut(firstKeystroke, secondsKeystroke)
+		new KeyboardShortcut(firstKeystroke, secondKeystroke)
 	}
 }
