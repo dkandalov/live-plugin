@@ -59,6 +59,7 @@ fun listenToOpenEditorsAndRegisterKotlinReferenceResolution() {
 private fun initKotlinSyntaxHighlighting(psiFile: PsiFile, project: Project) {
     val file = psiFile.virtualFile ?: return
     if (file.extension?.toLowerCase() != "kts" || !FileUtil.startsWith(file.path, LivePluginAppComponent.pluginsRootPath())) return
+    // TODO module is null if "LivePlugin - Kotlin" module is not in the project; if module added after file is open initKotlinSyntaxHighlighting() is not called again
     val module = DependenciesUtil.findModuleWithLibrary(project, AddKotlinLibsAsDependency.LIBRARY_NAME) ?: return
 
     object: WriteAction<Any>() {
