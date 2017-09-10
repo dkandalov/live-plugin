@@ -1,8 +1,6 @@
-import static liveplugin.PluginUtil.show
+import liveplugin.PluginUtil.show
 
-if (isIdeStartup) return
-
-// To run a plugin you can press "Run plugin" button or use "alt+C, alt+E" shortcut.
+// To run a plugin press "Run plugin" button or use "alt+C, alt+E" shortcut.
 // This will run plugin currently open in editor or plugin selected in the plugin toolwindow.
 
 // The code below will show balloon message with "Hello world" text (it will also appear in IDE "Event Log" toolwindow).
@@ -22,6 +20,3 @@ show(pluginDisposable)
 // "isIdeStartup" - true on IDE startup, otherwise false. Plugins are executed on IDE startup
 //                  if "Plugins toolwindow -> Settings -> Run all plugins on IDE start" option is enabled.
 show(isIdeStartup)
-
-
-// See next "registerAction" example.
