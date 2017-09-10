@@ -6,7 +6,6 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Function;
 import kotlin.jvm.internal.Reflection;
-import liveplugin.toolwindow.settingsmenu.languages.DownloadKotlinCompilerLib;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil;
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation;
@@ -96,7 +95,7 @@ public class KotlinPluginRunner implements PluginRunner {
 					Class<?> aClass = generatedClassLoader.loadClass(ktScript.getFqName().asString());
 					runOnEDTCallback.fun(() -> {
 						try {
-							// Arguments below must match constructor of KotlinScriptTemplate class.
+							// Arguments below must match constructor of liveplugin.pluginrunner.KotlinScriptTemplate class.
 							// There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
 							aClass.getConstructors()[0].newInstance(
 									(Project) binding.get("project"),
@@ -126,33 +125,21 @@ public class KotlinPluginRunner implements PluginRunner {
 		CompilerConfiguration configuration = new CompilerConfiguration();
 		configuration.put(MODULE_NAME, "LivePluginScript");
 		configuration.put(MESSAGE_COLLECTOR_KEY, newMessageCollector(pluginId, errorReporter));
-		configuration.add(SCRIPT_DEFINITIONS, new KotlinScriptDefinition(Reflection.createKotlinClass(KotlinScriptTemplate.class)));
 		configuration.put(RETAIN_OUTPUT_IN_MEMORY, true);
+		configuration.add(SCRIPT_DEFINITIONS, new KotlinScriptDefinition(Reflection.createKotlinClass(KotlinScriptTemplate.class)));
 
 		// TODO use IDE jvm
 		JvmContentRootsKt.addJvmClasspathRoots(configuration, JavaSdkUtil.getJdkClassesRoots(new File(System.getProperty("java.home")), true));
 
 		configuration.add(CONTENT_ROOTS, new KotlinSourceRoot(pathToPluginFolder));
 
-		String ideJarPath = PathManager.getJarPathForClass(IntelliJLaf.class);
-		File ideLibDir = new File(ideJarPath).getParentFile();
-		File[] ijLibFiles = ideLibDir.listFiles();
-		for (File file : ijLibFiles) {
+		for (File file : listFilesIn(ideLibFolder())) {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
 		}
 
-		// TODO use bundled kotlin libs
-
-		for (String fileName : fileNamesMatching(DownloadKotlinCompilerLib.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
-			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(LIVEPLUGIN_LIBS_PATH + "/" + fileName)));
+		for (File file : listFilesIn(new File(LIVEPLUGIN_LIBS_PATH))) {
+			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
 		}
-		String ideLibFolderPath = ideLibDir.getAbsolutePath();
-		for (String fileName : fileNamesMatching("kotlin-.*jar", ideLibFolderPath)) {
-			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(ideLibFolderPath + "/" + fileName)));
-		}
-		
-		configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(LIVEPLUGIN_LIBS_PATH)));
-		configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(PathManager.getPluginsPath() + "/LivePlugin/classes")));
 
 		//	TODO if (saveClassesDir != null) {
 		//	    configuration.put(JVMConfigurationKeys.OUTPUT_DIRECTORY, saveClassesDir)
@@ -161,6 +148,12 @@ public class KotlinPluginRunner implements PluginRunner {
 		// TODO add other plugins jars?
 
 		return configuration;
+	}
+
+	private static File ideLibFolder() {
+		String ideJarPath = PathManager.getJarPathForClass(IntelliJLaf.class);
+		if (ideJarPath == null) throw new IllegalStateException("Failed to find IDE lib folder");
+		return new File(ideJarPath).getParentFile();
 	}
 
 	@NotNull private static MessageCollector newMessageCollector(String pluginId, ErrorReporter errorReporter) {

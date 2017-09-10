@@ -11,17 +11,26 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 
 public class MyFileUtil {
+	public static List<File> listFilesIn(File folder) {
+		File[] files = folder.listFiles();
+		if (files == null) return emptyList();
+		else return Arrays.asList(files);
+	}
+
 	public static List<String> fileNamesMatching(String regexp, String path) {
-		List<File> files = FileUtil.findFilesByMask(Pattern.compile(regexp), new File(path));
+		return fileNamesMatching(regexp, new File(path));
+	}
+
+	public static List<String> fileNamesMatching(String regexp, File path) {
+		List<File> files = FileUtil.findFilesByMask(Pattern.compile(regexp), path);
 		return ContainerUtil.map(files, File::getName);
 	}
 
