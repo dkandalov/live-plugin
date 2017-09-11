@@ -327,7 +327,6 @@ public class PluginToolWindowManager {
             actionGroup.add(new AddClojureLibsAsDependency());
             actionGroup.add(new DownloadScalaLibs());
             actionGroup.add(new DownloadClojureLibs());
-	        actionGroup.add(new DownloadKotlinCompilerLib());
 
 			return actionGroup;
 		}

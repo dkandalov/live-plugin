@@ -23,6 +23,7 @@ import static liveplugin.LivePluginAppComponent.kotlinCompilerIsOnClassPath;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
 public class AddKotlinLibsAsDependency extends AnAction implements DumbAware {
+	private static final String LIB_FILES_PATTERN = "kotlin-compiler.*jar";
 	public static final String LIBRARY_NAME = "LivePlugin - Kotlin";
 
 	@Override public void update(@NotNull AnActionEvent event) {
@@ -47,7 +48,7 @@ public class AddKotlinLibsAsDependency extends AnAction implements DumbAware {
 			DependenciesUtil.removeLibraryDependencyFrom(project, LIBRARY_NAME);
 		} else {
 			List<Pair<String, OrderRootType>> paths1 = map(
-					fileNamesMatching(DownloadKotlinCompilerLib.LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH),
+					fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH),
 					fileName -> create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES)
 			);
 			String ideaJarPath = PathManager.getJarPathForClass(IntelliJLaf.class);

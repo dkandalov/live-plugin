@@ -9,11 +9,10 @@ import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.util.DependenciesUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.roots.OrderRootType.SOURCES;
 import static com.intellij.openapi.util.Pair.create;
+import static java.util.Arrays.asList;
 
 public class AddPluginJarAsDependency extends AnAction implements DumbAware {
 	private static final String LIVE_PLUGIN_LIBRARY = "LivePlugin";
@@ -25,8 +24,7 @@ public class AddPluginJarAsDependency extends AnAction implements DumbAware {
 		if (DependenciesUtil.anyModuleHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
 			DependenciesUtil.removeLibraryDependencyFrom(project, LIVE_PLUGIN_LIBRARY);
 		} else {
-			//noinspection unchecked
-			DependenciesUtil.addLibraryDependencyTo(project, LIVE_PLUGIN_LIBRARY, Arrays.asList(
+			DependenciesUtil.addLibraryDependencyTo(project, LIVE_PLUGIN_LIBRARY, asList(
 					create(findPathToMyClasses(), CLASSES),
 					create(findPathToMyClasses() + "src/", SOURCES)
 			));
