@@ -1,0 +1,62 @@
+{
+    "runtime": {
+        "org.clojure:clojure": {
+            "locked": "1.7.0",
+            "requested": "1.7.0"
+        },
+        "org.jetbrains.kotlin:kotlin-compiler-embeddable": {
+            "locked": "1.1.3",
+            "requested": "1.1.3"
+        },
+        "org.jetbrains.kotlin:kotlin-reflect": {
+            "locked": "1.1.3",
+            "requested": "1.1.3"
+        },
+        "org.jetbrains.kotlin:kotlin-stdlib": {
+            "locked": "1.1.3",
+            "requested": "1.1.3",
+            "transitive": [
+                "org.jetbrains.kotlin:kotlin-reflect"
+            ]
+        },
+        "org.jetbrains:annotations": {
+            "locked": "13.0",
+            "transitive": [
+                "org.jetbrains.kotlin:kotlin-stdlib"
+            ]
+        },
+        "org.scala-lang.modules:scala-parser-combinators_2.11": {
+            "locked": "1.0.4",
+            "transitive": [
+                "org.scala-lang:scala-compiler"
+            ]
+        },
+        "org.scala-lang.modules:scala-xml_2.11": {
+            "locked": "1.0.4",
+            "transitive": [
+                "org.scala-lang:scala-compiler"
+            ]
+        },
+        "org.scala-lang:scala-compiler": {
+            "locked": "2.11.7",
+            "requested": "2.11.7"
+        },
+        "org.scala-lang:scala-library": {
+            "locked": "2.11.7",
+            "requested": "2.11.7",
+            "transitive": [
+                "org.scala-lang.modules:scala-parser-combinators_2.11",
+                "org.scala-lang.modules:scala-xml_2.11",
+                "org.scala-lang:scala-compiler",
+                "org.scala-lang:scala-reflect"
+            ]
+        },
+        "org.scala-lang:scala-reflect": {
+            "locked": "2.11.7",
+            "requested": "2.11.7",
+            "transitive": [
+                "org.scala-lang:scala-compiler"
+            ]
+        }
+    }
+}
