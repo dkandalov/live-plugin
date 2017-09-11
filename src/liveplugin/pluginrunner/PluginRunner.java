@@ -6,7 +6,6 @@ import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
 import groovy.lang.GroovyClassLoader;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.oro.io.GlobFilenameFilter;
@@ -19,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static com.intellij.util.containers.ContainerUtil.map;
 
 public interface PluginRunner {
 	String IDE_STARTUP = "IDE_STARTUP";
@@ -70,27 +71,31 @@ public interface PluginRunner {
 		}
 
 		public static ClassLoader createParentClassLoader(List<String> dependentPlugins, final String pluginId, final ErrorReporter errorReporter) {
-			List<ClassLoader> parentLoaders = classLoadersOf(dependentPlugins, dependentPluginId -> {
+			List<IdeaPluginDescriptor> pluginDescriptors = pluginDescriptorsOf(dependentPlugins, dependentPluginId -> {
 				errorReporter.addLoadingError(pluginId, "Couldn't find dependent plugin '" + dependentPluginId + "'");
 				return null;
 			});
+			List<ClassLoader> parentLoaders = new ArrayList<>(map(pluginDescriptors, it -> it.getPluginClassLoader()));
 			parentLoaders.add(PluginRunner.class.getClassLoader());
 
 			String pluginVersion = "1.0.0";
-			return new PluginClassLoader(new ArrayList<>(), parentLoaders.toArray(new ClassLoader[parentLoaders.size()]),
-										 PluginId.getId(pluginId), pluginVersion, null);
+			return new PluginClassLoader(
+					new ArrayList<>(),
+					parentLoaders.toArray(new ClassLoader[parentLoaders.size()]),
+					PluginId.getId(pluginId),
+					pluginVersion,
+					null
+			);
 		}
 
-		private static List<ClassLoader> classLoadersOf(List<String> pluginIds, Function<String, Void> onError) {
-			List<ClassLoader> result = new ArrayList<>();
-			for (String rawPluginId : pluginIds) {
-				PluginId pluginId = PluginId.getId(rawPluginId);
-				IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(pluginId);
-
+		public static List<IdeaPluginDescriptor> pluginDescriptorsOf(List<String> pluginIds, Function<String, Void> onError) {
+			List<IdeaPluginDescriptor> result = new ArrayList<>();
+			for (String pluginIdString : pluginIds) {
+				IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(PluginId.getId(pluginIdString));
 				if (pluginDescriptor == null) {
-					onError.fun(rawPluginId);
+					onError.fun(pluginIdString);
 				} else {
-					result.add(pluginDescriptor.getPluginClassLoader());
+					result.add(pluginDescriptor);
 				}
 			}
 			return result;
@@ -134,7 +139,7 @@ public interface PluginRunner {
 
 			File[] files = new File(path).listFiles((FileFilter) new GlobFilenameFilter(pattern));
 			files = (files == null ? new File[0] : files);
-			return ContainerUtil.map(files, File::getAbsolutePath);
+			return map(files, File::getAbsolutePath);
 		}
 
 		private static String inlineEnvironmentVariables(String path, Map<String, String> environment) {

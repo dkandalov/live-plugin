@@ -1,10 +1,12 @@
 package liveplugin.pluginrunner;
 
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.ui.laf.IntelliJLaf;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Function;
+import com.intellij.util.containers.ContainerUtil;
 import kotlin.jvm.internal.Reflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil;
@@ -14,7 +16,6 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinToJVMBytecodeCompiler;
 import org.jetbrains.kotlin.cli.jvm.config.JvmClasspathRoot;
-import org.jetbrains.kotlin.cli.jvm.config.JvmContentRootsKt;
 import org.jetbrains.kotlin.codegen.CompilationException;
 import org.jetbrains.kotlin.codegen.GeneratedClassLoader;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
@@ -77,7 +78,7 @@ public class KotlinPluginRunner implements PluginRunner {
 			String pluginFolderUrl = "file:///" + pathToPluginFolder + "/"; // prefix with "file:///" so that unix-like paths work on windows
 			pathsToAdd.add(pluginFolderUrl);
 
-			CompilerConfiguration configuration = createCompilerConfiguration(pathToPluginFolder, pluginId, errorReporter);
+			CompilerConfiguration configuration = createCompilerConfiguration(pathToPluginFolder, pluginId, dependentPlugins, errorReporter);
 
 			environment.put("PLUGIN_PATH", pathToPluginFolder);
 
@@ -121,38 +122,52 @@ public class KotlinPluginRunner implements PluginRunner {
 		}
 	}
 
-	@NotNull private static CompilerConfiguration createCompilerConfiguration(String pathToPluginFolder, String pluginId, final ErrorReporter errorReporter) {
+	@NotNull private static CompilerConfiguration createCompilerConfiguration(String pathToPluginFolder, String pluginId,
+	                                                                          List<String> dependentPlugins, ErrorReporter errorReporter) {
 		CompilerConfiguration configuration = new CompilerConfiguration();
 		configuration.put(MODULE_NAME, "LivePluginScript");
 		configuration.put(MESSAGE_COLLECTOR_KEY, newMessageCollector(pluginId, errorReporter));
 		configuration.put(RETAIN_OUTPUT_IN_MEMORY, true);
 		configuration.add(SCRIPT_DEFINITIONS, new KotlinScriptDefinition(Reflection.createKotlinClass(KotlinScriptTemplate.class)));
 
-		// TODO use IDE jvm
-		JvmContentRootsKt.addJvmClasspathRoots(configuration, JavaSdkUtil.getJdkClassesRoots(new File(System.getProperty("java.home")), true));
-
 		configuration.add(CONTENT_ROOTS, new KotlinSourceRoot(pathToPluginFolder));
 
+		for (File file : ideJdkClassesRoots()) {
+			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
+		}
 		for (File file : listFilesIn(ideLibFolder())) {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
 		}
-
 		for (File file : listFilesIn(new File(LIVEPLUGIN_LIBS_PATH))) {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
 		}
+		for (File file : jarFilesOf(dependentPlugins)) {
+			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
+		}
 
-		//	TODO if (saveClassesDir != null) {
+		// TODO add jars from "add-to-classpath"
+
+		// It might be worth using:
 		//	    configuration.put(JVMConfigurationKeys.OUTPUT_DIRECTORY, saveClassesDir)
-		//	}
-
-		// TODO add other plugins jars?
+		// But compilation performance doesn't seem to be the biggest problem right now.
 
 		return configuration;
 	}
 
+	private static List<File> jarFilesOf(List<String> dependentPlugins) {
+		List<IdeaPluginDescriptor> pluginDescriptors = pluginDescriptorsOf(dependentPlugins, it -> {
+			throw new IllegalStateException("Failed to find jar for dependent plugin '" + it + "'.");
+		});
+		return ContainerUtil.map(pluginDescriptors, it -> it.getPath());
+	}
+
+	private static List<File> ideJdkClassesRoots() {
+		return JavaSdkUtil.getJdkClassesRoots(new File(System.getProperty("java.home")), true);
+	}
+
 	private static File ideLibFolder() {
 		String ideJarPath = PathManager.getJarPathForClass(IntelliJLaf.class);
-		if (ideJarPath == null) throw new IllegalStateException("Failed to find IDE lib folder");
+		if (ideJarPath == null) throw new IllegalStateException("Failed to find IDE lib folder.");
 		return new File(ideJarPath).getParentFile();
 	}
 
