@@ -78,7 +78,7 @@ public class KotlinPluginRunner implements PluginRunner {
 			String pluginFolderUrl = "file:///" + pathToPluginFolder + "/"; // prefix with "file:///" so that unix-like paths work on windows
 			pathsToAdd.add(pluginFolderUrl);
 
-			CompilerConfiguration configuration = createCompilerConfiguration(pathToPluginFolder, pluginId, dependentPlugins, errorReporter);
+			CompilerConfiguration configuration = createCompilerConfiguration(pathToPluginFolder, pluginId, pathsToAdd, dependentPlugins, errorReporter);
 
 			environment.put("PLUGIN_PATH", pathToPluginFolder);
 
@@ -123,7 +123,8 @@ public class KotlinPluginRunner implements PluginRunner {
 	}
 
 	@NotNull private static CompilerConfiguration createCompilerConfiguration(String pathToPluginFolder, String pluginId,
-	                                                                          List<String> dependentPlugins, ErrorReporter errorReporter) {
+	                                                                          List<String> pathsToAdd, List<String> dependentPlugins,
+	                                                                          ErrorReporter errorReporter) {
 		CompilerConfiguration configuration = new CompilerConfiguration();
 		configuration.put(MODULE_NAME, "LivePluginScript");
 		configuration.put(MESSAGE_COLLECTOR_KEY, newMessageCollector(pluginId, errorReporter));
@@ -141,11 +142,12 @@ public class KotlinPluginRunner implements PluginRunner {
 		for (File file : listFilesIn(new File(LIVEPLUGIN_LIBS_PATH))) {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
 		}
+		for (String path : pathsToAdd) {
+			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(new File(path)));
+		}
 		for (File file : jarFilesOf(dependentPlugins)) {
 			configuration.add(CONTENT_ROOTS, new JvmClasspathRoot(file));
 		}
-
-		// TODO add jars from "add-to-classpath"
 
 		// It might be worth using:
 		//	    configuration.put(JVMConfigurationKeys.OUTPUT_DIRECTORY, saveClassesDir)
