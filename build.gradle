@@ -59,17 +59,16 @@ dependencies {
 	compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.1.4'
 	compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.1.4'
 
-	// Scala and clojure libs are optional and can be downloaded from LivePlugin at runtime.
 	compile group: 'org.clojure', name: 'clojure', version: '1.8.0'
 	compile group: 'org.scala-lang', name: 'scala-compiler', version: '2.12.3'
 	compile group: 'org.scala-lang', name: 'scala-library', version: '2.12.3'
 	compile group: 'org.scala-lang', name: 'scala-reflect', version: '2.12.3'
-	
+
 	testCompile group: 'junit', name: 'junit', version: '4.12' // includes hamcrest-core
 }
-excludeFilesFromIdePluginZipMatching(".*scala-.*", ".*clojure-.*")
-// Add .groovy files so that LivePlugin source code is available for navigation at runtime.
-addGroovySourceCodeToCompilerOutput()
+"Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"()
+"Remove kotlin version from jars zipped with plugin so that they are updated, 'LivePlugin' module dependencies are still correct"()
+"Add groovy files to compiler output so that LivePlugin source code is available for navigation at runtime"()
 
 sourceSets {
 	main {
@@ -100,7 +99,8 @@ task installLivePlugin() { doLast {
 	println("Path: ${toFile}")
 } }
 
-def excludeFilesFromIdePluginZipMatching(String... regexes) {
+def "Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"() {
+	def regexes = [".*scala-.*", ".*clojure-.*"]
 	def files = configurations.compile.resolvedConfiguration.files.findAll { file ->
 		regexes.any {
 			file.name.matches(it)
@@ -109,14 +109,31 @@ def excludeFilesFromIdePluginZipMatching(String... regexes) {
 	prepareSandbox.setLibrariesToIgnore(files.toArray())
 }
 
-def addGroovySourceCodeToCompilerOutput() {
-	task instrument() {
+def "Add groovy files to compiler output so that LivePlugin source code is available for navigation at runtime"() {
+	compileJava.doLast {
 		def classesFolder = project.tasks.findByName(JavaPlugin.COMPILE_JAVA_TASK_NAME).destinationDir
 		ant.copy(toDir: classesFolder.absolutePath + "/src", overwrite: true) {
 			ant.fileset(dir: "./src_groovy", includes: "**/*")
 		}
 	}
-	compileJava.doLast {
-		tasks.instrument.execute()
+}
+
+def "Remove kotlin version from jars zipped with plugin so that they are updated, 'LivePlugin' module dependencies are still correct"() {
+	buildPlugin.doLast {
+		ant.mkdir(dir: "tmp")
+		ant.unzip(src: "build/distributions/LivePlugin.zip", dest: "tmp")
+		ant.move(
+				file: "tmp/LivePlugin/lib/kotlin-compiler-embeddable-1.1.4.jar",
+				tofile: "tmp/LivePlugin/lib/kotlin-compiler-embeddable.jar"
+		)
+		ant.move(
+				file: "tmp/LivePlugin/lib/kotlin-reflect-1.1.4.jar",
+				tofile: "tmp/LivePlugin/lib/kotlin-reflect.jar"
+		)
+		ant.move(
+				file: "tmp/LivePlugin/lib/kotlin-stdlib-1.1.4.jar",
+				tofile: "tmp/LivePlugin/lib/kotlin-stdlib.jar"
+		)
+		ant.zip(basedir: "tmp", destfile: "build/distributions/LivePlugin.zip")
 	}
 }
