@@ -2,5 +2,5 @@ import static liveplugin.PluginUtil.*
 
 // depends-on-plugin Scratch
 
-// Will work. 'Scratch' above is plugin id.
-show(scratch.ide.Actions)
+// Print class defined in the Scratch plugin.
+show(scratch.ide.Ide)
