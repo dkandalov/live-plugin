@@ -13,8 +13,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import liveplugin.toolwindow.settingsmenu.languages.AddKotlinLibsAsDependency
-import liveplugin.toolwindow.util.DependenciesUtil
+import liveplugin.toolwindow.settingsmenu.AddLivePluginLibJarsAsDependencies.LIVE_PLUGIN_LIBRARY
+import liveplugin.toolwindow.util.DependenciesUtil.findModuleWithLibrary
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.idea.KotlinPluginUtil
 import org.jetbrains.kotlin.idea.caches.resolve.ModuleTestSourceInfo
@@ -59,8 +59,8 @@ fun listenToOpenEditorsAndRegisterKotlinReferenceResolution() {
 private fun initKotlinSyntaxHighlighting(psiFile: PsiFile, project: Project) {
     val file = psiFile.virtualFile ?: return
     if (file.extension?.toLowerCase() != "kts" || !FileUtil.startsWith(file.path, LivePluginAppComponent.pluginsRootPath())) return
-    // TODO module is null if "LivePlugin - Kotlin" module is not in the project; if module added after file is open initKotlinSyntaxHighlighting() is not called again
-    val module = DependenciesUtil.findModuleWithLibrary(project, AddKotlinLibsAsDependency.LIBRARY_NAME) ?: return
+    // TODO module will be null if "LivePlugin" module is not in the project; if module added after file is open initKotlinSyntaxHighlighting() is not called again
+    val module = findModuleWithLibrary(project, LIVE_PLUGIN_LIBRARY) ?: return
 
     object: WriteAction<Any>() {
         override fun run(result: Result<Any>) {
