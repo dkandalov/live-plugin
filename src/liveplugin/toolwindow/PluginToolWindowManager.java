@@ -62,10 +62,12 @@ import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.AddPluginFromPathAction;
-import liveplugin.toolwindow.settingsmenu.AddIDEAJarsAsDependencies;
-import liveplugin.toolwindow.settingsmenu.AddLivePluginLibJarsAsDependencies;
+import liveplugin.toolwindow.settingsmenu.EnableLivePluginAutoComplete;
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
-import liveplugin.toolwindow.settingsmenu.languages.*;
+import liveplugin.toolwindow.settingsmenu.languages.AddClojureLibsAsDependency;
+import liveplugin.toolwindow.settingsmenu.languages.AddScalaLibsAsDependency;
+import liveplugin.toolwindow.settingsmenu.languages.DownloadClojureLibs;
+import liveplugin.toolwindow.settingsmenu.languages.DownloadScalaLibs;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -317,10 +319,8 @@ public class PluginToolWindowManager {
 					return false;
 				}
 			};
-			actionGroup.add(new AddLivePluginLibJarsAsDependencies());
-			actionGroup.add(new AddIDEAJarsAsDependencies());
-			actionGroup.add(new Separator());
-			actionGroup.add(new RunAllPluginsOnIDEStartAction());
+	        actionGroup.add(new RunAllPluginsOnIDEStartAction());
+	        actionGroup.add(new EnableLivePluginAutoComplete.Action());
 			actionGroup.add(new Separator());
             actionGroup.add(new AddScalaLibsAsDependency());
             actionGroup.add(new AddClojureLibsAsDependency());

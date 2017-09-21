@@ -22,22 +22,16 @@ import static liveplugin.toolwindow.util.DependenciesUtil.*;
 import static org.jetbrains.kotlin.com.intellij.util.containers.ContainerUtil.map;
 
 public class AddLivePluginLibJarsAsDependencies extends AnAction implements DumbAware {
-	public static final String LIVE_PLUGIN_LIBRARY = "LivePlugin";
+	public static final String LIVE_PLUGIN_LIBRARY_OLD = "LivePlugin"; // TODO remove to migrate from older version of the plugins (do the same with IJ jars)
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		Project project = event.getProject();
 		if (project == null) return;
 
-		if (anyModuleHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
-			removeLibraryDependencyFrom(project, LIVE_PLUGIN_LIBRARY);
+		if (anyModuleHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY_OLD)) {
+			removeLibraryDependencyFrom(project, LIVE_PLUGIN_LIBRARY_OLD);
 		} else {
-			List<Pair<String, OrderRootType>> paths = new ArrayList<>(map(
-					fileNamesMatching(".*.jar", LIVEPLUGIN_LIBS_PATH),
-					fileName -> create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES)
-			));
-			paths.add(create("jar://" + getJarPathForClass(LivePluginAppComponent.class) + "!/src/", SOURCES));
-
-			addLibraryDependencyTo(project, LIVE_PLUGIN_LIBRARY, paths);
+			addLivePluginDependenciesTo(project, LIVE_PLUGIN_LIBRARY_OLD);
 		}
 	}
 
@@ -45,7 +39,7 @@ public class AddLivePluginLibJarsAsDependencies extends AnAction implements Dumb
 		Project project = event.getProject();
 		if (project == null) return;
 
-		if (anyModuleHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY)) {
+		if (anyModuleHasLibraryAsDependencyIn(project, LIVE_PLUGIN_LIBRARY_OLD)) {
 			event.getPresentation().setText("Remove LivePlugin Jars from Project");
 			event.getPresentation().setDescription(
 					"Remove LivePlugin jars from project dependencies. " +
@@ -56,5 +50,15 @@ public class AddLivePluginLibJarsAsDependencies extends AnAction implements Dumb
 					"Add LivePlugin jars to project dependencies. " +
 					"This will enable auto-complete and other IDE features.");
 		}
+	}
+
+	public static void addLivePluginDependenciesTo(Project project, String libraryName) {
+		List<Pair<String, OrderRootType>> paths = new ArrayList<>(map(
+				fileNamesMatching(".*.jar", LIVEPLUGIN_LIBS_PATH),
+				fileName -> create("jar://" + LIVEPLUGIN_LIBS_PATH + fileName + "!/", CLASSES)
+		));
+		paths.add(create("jar://" + getJarPathForClass(LivePluginAppComponent.class) + "!/src/", SOURCES));
+
+		addLibraryDependencyTo(project, libraryName, paths);
 	}
 }

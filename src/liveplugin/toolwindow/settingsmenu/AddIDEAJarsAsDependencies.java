@@ -8,12 +8,10 @@ import com.intellij.openapi.project.Project;
 import liveplugin.toolwindow.util.DependenciesUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 import static com.intellij.openapi.roots.OrderRootType.CLASSES;
 import static com.intellij.openapi.util.Pair.create;
 import static java.util.Arrays.asList;
-import static liveplugin.MyFileUtil.fileNamesMatching;
+import static liveplugin.toolwindow.settingsmenu.EnableLivePluginAutoComplete.findGroovyJarOn;
 
 public class AddIDEAJarsAsDependencies extends AnAction implements DumbAware {
 	private static final String IDEA_JARS_LIBRARY = "IDEA jars";
@@ -37,12 +35,6 @@ public class AddIDEAJarsAsDependencies extends AnAction implements DumbAware {
 					create("jar://" + ideaJarsPath + findGroovyJarOn(ideaJarsPath) + "!/", CLASSES)
 			));
 		}
-	}
-
-	private static String findGroovyJarOn(String ideaJarsPath) {
-		List<String> files = fileNamesMatching("groovy-all-.*jar", ideaJarsPath);
-		if (files.isEmpty()) return "could-not-find-groovy.jar";
-		else return files.get(0);
 	}
 
 	@Override public void update(@NotNull AnActionEvent event) {
