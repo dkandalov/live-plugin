@@ -64,10 +64,6 @@ import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.AddPluginFromPathAction;
 import liveplugin.toolwindow.settingsmenu.EnableLivePluginAutoComplete;
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
-import liveplugin.toolwindow.settingsmenu.languages.AddClojureLibsAsDependency;
-import liveplugin.toolwindow.settingsmenu.languages.AddScalaLibsAsDependency;
-import liveplugin.toolwindow.settingsmenu.languages.DownloadClojureLibs;
-import liveplugin.toolwindow.settingsmenu.languages.DownloadScalaLibs;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -321,11 +317,11 @@ public class PluginToolWindowManager {
 			};
 	        actionGroup.add(new RunAllPluginsOnIDEStartAction());
 	        actionGroup.add(new EnableLivePluginAutoComplete.Action());
-			actionGroup.add(new Separator());
-            actionGroup.add(new AddScalaLibsAsDependency());
-            actionGroup.add(new AddClojureLibsAsDependency());
-            actionGroup.add(new DownloadScalaLibs());
-            actionGroup.add(new DownloadClojureLibs());
+//			actionGroup.add(new Separator());
+//            actionGroup.add(new AddScalaLibsAsDependency());
+//            actionGroup.add(new AddClojureLibsAsDependency());
+//            actionGroup.add(new DownloadScalaLibs());
+//            actionGroup.add(new DownloadClojureLibs());
 
 			return actionGroup;
 		}
@@ -372,8 +368,8 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "miscUtil/", asList("plugin.groovy", "util/AClass.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "additionalClasspath/", asList("plugin.groovy")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "integrationTest/", asList("plugin.groovy", "plugin-test.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloScala/", asList("plugin.scala")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloClojure/", asList("plugin.clj")));
+//			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloScala/", asList("plugin.scala")));
+//			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloClojure/", asList("plugin.clj")));
 			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloKotlin/", asList("plugin.kts")));
             return actionGroup;
 		}

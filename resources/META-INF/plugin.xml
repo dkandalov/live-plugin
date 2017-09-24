@@ -11,7 +11,7 @@
 	<description>
 		<![CDATA[<html><body>
 This is a plugin for IntelliJ IDEs to write plugins at runtime without having to restart IDE.
-It uses Groovy as main scripting language and has experimental support for Scala and Clojure.
+It uses Groovy as main scripting language and has experimental support for Kotlin.
 <br/><br/>
 To get started:
 <ul>
@@ -58,8 +58,10 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 		<group id="LivePlugin.Popup.MainActions">
 			<action id="LivePlugin.NewGroovyFileAction" class="liveplugin.toolwindow.NewGroovyFileAction" text="New Groovy File"/>
 			<action id="LivePlugin.NewKotlinFileAction" class="liveplugin.toolwindow.NewKotlinFileAction" text="New Kotlin File"/>
+<!--
 			<action id="LivePlugin.NewScalaFileAction" class="liveplugin.toolwindow.NewScalaFileAction" text="New Scala File"/>
 			<action id="LivePlugin.NewClojureFileAction" class="liveplugin.toolwindow.NewClojureFileAction" text="New Clojure File"/>
+-->
 			<action id="LivePlugin.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
 			        text="New Directory" icon="/nodes/folder.png"/>
 			<action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.RenameFileAction" text="Rename"

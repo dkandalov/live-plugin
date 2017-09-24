@@ -1,8 +1,7 @@
 ### LivePlugin
 
 This is a plugin for [IntelliJ](https://github.com/JetBrains/intellij-community) IDEs to write plugins at runtime. 
-It uses [Groovy](http://groovy.codehaus.org/) as main language and has experimental support for 
-[Scala](https://github.com/scala/scala) and [Clojure](https://github.com/clojure/clojure).
+It uses [Groovy](http://groovy.codehaus.org/) as main language and has experimental support for [Kotlin](http://kotlinlang.org).
 
 To install search for "liveplugin" in ``IDE Preferences -> Plugins -> Browse Repositories``.
 Alternatively, download [LivePlugin.zip from GitHub](https://raw.github.com/dkandalov/live-plugin/master/LivePlugin.zip)
@@ -67,9 +66,6 @@ registerAction("InsertNewLineAbove", "alt shift ENTER") { AnActionEvent event ->
 }
 show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
 ```
-
-See also [Scala plugin example](https://gist.github.com/dkandalov/5921340), 
-[Clojure plugin example](https://gist.github.com/dkandalov/5943754) and more examples listed below.
 
 
 ### How to start writing plugins
@@ -146,7 +142,6 @@ Note that you can use ``ctrl+shift+C`` shortcut to copy file/folder path.
  - [Module transitive dependencies](https://gist.github.com/dkandalov/80d8d4f71bef54290a71) - finds all transitive dependencies for modules in IDEA project
  - [Show text diff](https://gist.github.com/dkandalov/6728950) - really lame example of opening IntelliJ text diff window (please don't use it!)
  - [Find all recursive methods in project (for Java)](https://gist.github.com/dkandalov/7248184) - quick plugin as a follow up for this [talk](http://skillsmatter.com/podcast/nosql/using-graphs-for-source-code-analysis)
- - [Find all recursive methods in project (for Scala)](https://gist.github.com/jpsacha/9864e30dc884683bee18) - find all recursive methods in project
  - [Watching projects open/close events](https://gist.github.com/dkandalov/6427087) - an example of reloadable project listener
  - [Minimalistic view for java code](https://gist.github.com/dkandalov/708664109a37c3c0ff15) - collapses most of Java keywords and types leaving only variable names
  - [Symbolize keywords](https://gist.github.com/dkandalov/5553999) - collapses Java keywords into shorter symbols
