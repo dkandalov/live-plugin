@@ -22,8 +22,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="LivePlugin_main" target="1.6" />
-      <module name="LivePlugin_test" target="1.6" />
+      <module name="LivePlugin_main" target="1.8" />
+      <module name="LivePlugin_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

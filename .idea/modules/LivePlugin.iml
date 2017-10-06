@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="LivePlugin" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="" external.system.module.version="unspecified" type="PLUGIN_MODULE" version="4">
-  <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/../../resources/META-INF/plugin.xml" />
-  <component name="NewModuleRootManager">
+<module external.linked.project.id="LivePlugin" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/../../build/classes/main" />
     <output-test url="file://$MODULE_DIR$/../../build/classes/test" />
     <exclude-output />
@@ -24,208 +23,9 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: junit:junit:4.10" level="project" />
     <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: kotlin-plugin">
+      <library name="Gradle: opentest4j-1.0.0-M2">
         <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/Kotlin/lib/kotlin-plugin.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: resources_en">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/resources_en.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.1.2-eap-44" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.scala-lang.modules:scala-xml_2.11:1.0.4" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.hamcrest:hamcrest-core:1.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.scala-lang:scala-reflect:2.11.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.scala-lang:scala-library:2.11.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.scala-lang:scala-compiler:2.11.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.clojure:clojure:1.7.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains.kotlin:kotlin-compiler-embeddable:1.1.2-eap-44" level="project" />
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: groovy-all-2.4.6">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/lib/groovy-all-2.4.6.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: gson-2.5">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/lib/gson-2.5.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: xstream-1.4.8">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/lib/xstream-1.4.8.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: github">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/github/lib/github.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: git4idea-rt">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/git4idea/lib/git4idea-rt.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: git4idea">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/git4idea/lib/git4idea.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: ini4j-0.5.2-patched">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/git4idea/lib/ini4j-0.5.2-patched.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: remote-servers-git">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/git4idea/lib/remote-servers-git.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: resources_en">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/git4idea/lib/resources_en.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: trilead-ssh2">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/git4idea/lib/trilead-ssh2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: idea-junit">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/idea-junit.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: junit-jupiter-api-5.0.0-M4">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/junit-jupiter-api-5.0.0-M4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: junit-jupiter-engine-5.0.0-M4">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/junit-jupiter-engine-5.0.0-M4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: junit-platform-commons-1.0.0-M4">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/junit-platform-commons-1.0.0-M4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: junit-platform-engine-1.0.0-M4">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/junit-platform-engine-1.0.0-M4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: junit-platform-launcher-1.0.0-M4">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/junit-platform-launcher-1.0.0-M4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: junit-platform-runner-1.0.0-M4">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/junit-platform-runner-1.0.0-M4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: junit-platform-suite-api-1.0.0-M4">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/junit-platform-suite-api-1.0.0-M4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: junit-rt">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/junit-rt.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: junit-vintage-engine-4.12.0-M4">
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/junit-vintage-engine-4.12.0-M4.jar!/" />
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/opentest4j-1.0.0-M2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -234,16 +34,194 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: junit5-rt">
         <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/junit5-rt.jar!/" />
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/junit5-rt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="PROVIDED">
-      <library name="Gradle: opentest4j-1.0.0-M2">
+      <library name="Gradle: junit-vintage-engine-4.12.0-M4">
         <CLASSES>
-          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/171.4424.14/IntelliJ IDEA 2017.1 EAP.app/Contents/plugins/junit/lib/opentest4j-1.0.0-M2.jar!/" />
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/junit-vintage-engine-4.12.0-M4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: junit-rt">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/junit-rt.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: junit-platform-suite-api-1.0.0-M4">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/junit-platform-suite-api-1.0.0-M4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: junit-platform-runner-1.0.0-M4">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/junit-platform-runner-1.0.0-M4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: junit-platform-launcher-1.0.0-M4">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/junit-platform-launcher-1.0.0-M4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: junit-platform-engine-1.0.0-M4">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/junit-platform-engine-1.0.0-M4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: junit-platform-commons-1.0.0-M4">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/junit-platform-commons-1.0.0-M4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: junit-jupiter-engine-5.0.0-M4">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/junit-jupiter-engine-5.0.0-M4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: junit-jupiter-api-5.0.0-M4">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/junit-jupiter-api-5.0.0-M4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: idea-junit">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/idea-junit.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: trilead-ssh2">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/git4idea/lib/trilead-ssh2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: resources_en">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/git4idea/lib/resources_en.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: remote-servers-git">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/git4idea/lib/remote-servers-git.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: git4idea">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/git4idea/lib/git4idea.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: git4idea-rt">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/git4idea/lib/git4idea-rt.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: github">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/github/lib/github.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: xstream-1.4.8">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/lib/xstream-1.4.8.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: gson-2.5">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/lib/gson-2.5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="Gradle: groovy-all-2.4.6">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/lib/groovy-all-2.4.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.scala-lang.modules:scala-xml_2.11:1.0.4" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.hamcrest:hamcrest-core:1.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.scala-lang:scala-reflect:2.11.7" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.scala-lang:scala-library:2.11.7" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.scala-lang:scala-compiler:2.11.7" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.clojure:clojure:1.7.0" level="project" />
+    <orderEntry type="module-library">
+      <library name="Gradle: resources_en">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/172.2273.8/IntelliJ IDEA 2017.2 EAP.app/Contents/plugins/junit/lib/resources_en.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
