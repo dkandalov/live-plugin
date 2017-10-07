@@ -91,4 +91,16 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 		</intentionAction>
 	</extensions>
 
+<!--
+    TODO this is probably the right way to provide dependencies for LivePlugin scripts
+    but at the moment it doesn't work because org.jetbrains.kotlin.script.ScriptTemplatesProvider
+    class has the same name in both kotlin plugin and kotlin-compiler-embeddable.jar.
+    So the plugin picks the wrong one because .jars have priority within plugin classloader.
+-->
+
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <scriptTemplatesProvider id="LivePluginKotlinScriptTemplateProvider"
+                                 order="before StandardKotlinScriptTemplateProvider"
+                                 implementation="liveplugin.LivePluginKotlinScriptTemplateProvider"/>
+    </extensions>
 </idea-plugin>

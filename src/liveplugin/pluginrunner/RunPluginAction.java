@@ -103,7 +103,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 
                         pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, RUN_ON_EDT);
                     }
-                } catch (Exception e) {
+                } catch (Error e) {
                     errorReporter.addLoadingError(pluginId, e);
                 } finally {
                     errorReporter.reportAllErrors((title, message) -> IDEUtil.displayError(title, message, project));
@@ -117,7 +117,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 	public static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
 		List<PluginRunner> result = new ArrayList<>();
 		result.add(new GroovyPluginRunner(MAIN_SCRIPT, errorReporter, environment()));
-		if (kotlinCompilerIsOnClassPath()) result.add(new KotlinPluginRunner(errorReporter, environment()));
+		result.add(new KotlinPluginRunner(errorReporter, environment()));
 		if (scalaIsOnClassPath()) result.add(new ScalaPluginRunner(errorReporter, environment()));
 		if (clojureIsOnClassPath()) result.add(new ClojurePluginRunner(errorReporter, environment()));
 		return result;

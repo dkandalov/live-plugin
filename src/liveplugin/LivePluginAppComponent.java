@@ -42,7 +42,6 @@ import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
 import static java.util.Arrays.asList;
 import static liveplugin.IDEUtil.askIfUserWantsToRestartIde;
 import static liveplugin.IDEUtil.downloadFile;
-import static liveplugin.RegisterKotlinModuleInfoKt.listenToOpenEditorsAndRegisterKotlinReferenceResolution;
 
 public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	public static final String LIVE_PLUGIN_ID = "LivePlugin";
@@ -124,11 +123,6 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 		return IDEUtil.isOnClasspath("scala.Some");
 	}
 
-	public static boolean kotlinCompilerIsOnClassPath() {
-		// TODO in case of IJ update, remove old and download new version of compiler jar
-		return IDEUtil.isOnClasspath("org.jetbrains.kotlin.cli.jvm.compiler.KotlinToJVMBytecodeCompiler");
-	}
-
 	public static boolean clojureIsOnClassPath() {
 		return IDEUtil.isOnClasspath("clojure.core.Vec");
 	}
@@ -183,10 +177,6 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 		}
 
 		new PluginToolWindowManager().init();
-
-		if (kotlinCompilerIsOnClassPath()) {
-			listenToOpenEditorsAndRegisterKotlinReferenceResolution();
-		}
 	}
 
 	private static void installHelloWorldPlugins() {

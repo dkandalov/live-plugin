@@ -79,7 +79,7 @@ public class EnableLivePluginAutoComplete {
 		addLibraryDependencyTo(project, LIVE_PLUGIN_LIBRARY, paths);
 	}
 
-	private static String findGroovyJarOn(String ideaJarsPath) {
+	public static String findGroovyJarOn(String ideaJarsPath) {
 		List<String> files = fileNamesMatching("groovy-all-.*jar", ideaJarsPath);
 		if (files.isEmpty()) return "could-not-find-groovy.jar";
 		else return files.get(0);
