@@ -29,10 +29,11 @@ repositories {
 compileKotlin {
 	kotlinOptions {
 		jvmTarget = "1.8"
-		apiVersion = "1.0"
-		languageVersion = "1.0"
+		apiVersion = "1.1"
+		languageVersion = "1.1"
 	}
 }
+ext.kotlinVersion = "1.1.4"
 
 intellij {
 	version = "IU-172.3757.29"
@@ -53,11 +54,11 @@ dependencyLock {
 
 dependencies {
 	// Bundle kotlin compiler and stdlib with LivePlugin because IDEs are not bundled with kotlin-compiler
-	// and kotlin jars are more likely to be updated in IDE than groovy
+	// and IDE kotlin jars are more likely to be updated than IDE groovy.jar,
 	// so it seems more reliable to bundle the right version of kotlin jars.
-	compile group: 'org.jetbrains.kotlin', name: 'kotlin-compiler-embeddable', version: '1.1.4'
-	compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.1.4'
-	compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.1.4'
+	compile group: 'org.jetbrains.kotlin', name: 'kotlin-compiler-embeddable', version: kotlinVersion
+	compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlinVersion
+	compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion
 
 	compile group: 'org.clojure', name: 'clojure', version: '1.8.0'
 	compile group: 'org.scala-lang', name: 'scala-compiler', version: '2.12.3'
@@ -68,7 +69,7 @@ dependencies {
 }
 "Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"()
 "Remove kotlin version from jars zipped with plugin so that they are updated, 'LivePlugin' module dependencies are still correct"()
-"Add groovy files to compiler output so that LivePlugin source code is available for navigation at runtime"()
+'Add source files to compiler output so that LivePlugin source code is available for navigation at runtime'()
 
 sourceSets {
 	main {
@@ -102,14 +103,12 @@ task installLivePlugin() { doLast {
 def "Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"() {
 	def regexes = [".*scala-.*", ".*clojure-.*"]
 	def files = configurations.compile.resolvedConfiguration.files.findAll { file ->
-		regexes.any {
-			file.name.matches(it)
-		}
+		regexes.any { file.name.matches(it) }
 	}
 	prepareSandbox.setLibrariesToIgnore(files.toArray())
 }
 
-def "Add groovy files to compiler output so that LivePlugin source code is available for navigation at runtime"() {
+def 'Add source files to compiler output so that LivePlugin source code is available for navigation at runtime'() {
 	compileJava.doLast {
 		def classesFolder = project.tasks.findByName(JavaPlugin.COMPILE_JAVA_TASK_NAME).destinationDir
 		ant.copy(toDir: classesFolder.absolutePath + "/src", overwrite: true) {
@@ -119,21 +118,32 @@ def "Add groovy files to compiler output so that LivePlugin source code is avail
 }
 
 def "Remove kotlin version from jars zipped with plugin so that they are updated, 'LivePlugin' module dependencies are still correct"() {
+	def filesToMove = [
+	    ["kotlin-compiler-embeddable-${kotlinVersion}.jar", "kotlin-compiler-embeddable.jar"],
+	    ["kotlin-reflect-${kotlinVersion}.jar", "kotlin-reflect.jar"],
+	    ["kotlin-stdlib-${kotlinVersion}.jar", "kotlin-stdlib.jar"]
+	]
+
+	prepareSandbox.doLast {
+		filesToMove.each {
+			ant.move(
+				file: "build/idea-sandbox/plugins/LivePlugin/lib/${it[0]}",
+				tofile: "build/idea-sandbox/plugins/LivePlugin/lib/__/${it[1]}"
+			)
+		}
+	}
+
 	buildPlugin.doLast {
-		ant.mkdir(dir: "tmp")
-		ant.unzip(src: "build/distributions/LivePlugin.zip", dest: "tmp")
-		ant.move(
-				file: "tmp/LivePlugin/lib/kotlin-compiler-embeddable-1.1.4.jar",
-				tofile: "tmp/LivePlugin/lib/kotlin-compiler-embeddable.jar"
-		)
-		ant.move(
-				file: "tmp/LivePlugin/lib/kotlin-reflect-1.1.4.jar",
-				tofile: "tmp/LivePlugin/lib/kotlin-reflect.jar"
-		)
-		ant.move(
-				file: "tmp/LivePlugin/lib/kotlin-stdlib-1.1.4.jar",
-				tofile: "tmp/LivePlugin/lib/kotlin-stdlib.jar"
-		)
-		ant.zip(basedir: "tmp", destfile: "build/distributions/LivePlugin.zip")
+		def tmp = "build/tmp-zip/"
+		ant.mkdir(dir: tmp)
+		ant.unzip(src: "build/distributions/LivePlugin.zip", dest: tmp)
+		filesToMove.each {
+			ant.move(
+				file:"$tmp/LivePlugin/lib/${it[0]}",
+				tofile:"$tmp/LivePlugin/lib/__/${it[1]}"
+			)
+		}
+		ant.zip(basedir: "$tmp", destfile: "build/distributions/LivePlugin.zip")
+		new File(tmp).deleteDir()
 	}
 }
