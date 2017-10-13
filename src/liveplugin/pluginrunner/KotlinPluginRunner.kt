@@ -8,11 +8,13 @@ import com.intellij.util.Function
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH
 import liveplugin.MyFileUtil.*
-import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
+import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*
 import liveplugin.pluginrunner.kotlin.ideJdkClassesRoots
 import liveplugin.pluginrunner.kotlin.ideLibFolder
 import liveplugin.pluginrunner.kotlin.jarFilesOf
+import org.jetbrains.kotlin.codegen.CompilationException
 import java.io.File
+import java.io.IOException
 import java.net.URL
 
 class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val environment: Map<String, String>): PluginRunner {
@@ -45,14 +47,14 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         val kotlinDependsOnPluginKeyword = "// " + PluginRunner.DEPENDS_ON_PLUGIN_KEYWORD
 
         val mainScriptUrl = asUrl(findScriptFileIn(pathToPluginFolder, MAIN_SCRIPT))
-        val dependentPlugins = PluginRunner.ClasspathAddition.findPluginDependencies(readLines(mainScriptUrl), kotlinDependsOnPluginKeyword)
+        val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), kotlinDependsOnPluginKeyword)
         val compilerOutputPath = FileUtilRt.toSystemIndependentName("${PathManager.getPluginsPath()}/$pluginId/live-plugins-classes")
 
         val runtimeClassPath = ArrayList<String>().apply {
-            addAll(PluginRunner.ClasspathAddition.findClasspathAdditions(readLines(mainScriptUrl), kotlinAddToClasspathKeyword, environment) { path ->
+            addAll(findClasspathAdditions(readLines(mainScriptUrl), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pathToPluginFolder), { path ->
                 errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
                 null
-            })
+            }))
             addAll(jarFilesOf(dependentPlugins).map { it.absolutePath })
             addAll(listFilesIn(File(LIVEPLUGIN_LIBS_PATH)).map { it.absolutePath })
             add(compilerOutputPath)
@@ -76,17 +78,25 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
             for (method in aClass.declaredMethods) {
                 if (method.name == "compilePlugin") {
-                    @Suppress("UNCHECKED_CAST")
-                    val compilationErrors = method.invoke(
-                        null,
-                        pathToPluginFolder,
-                        compilerClasspath,
-                        compilerOutputPath
-                    ) as List<String>
+                    try {
+                        @Suppress("UNCHECKED_CAST")
+                        val compilationErrors = method.invoke(
+                            null,
+                            pathToPluginFolder,
+                            compilerClasspath,
+                            compilerOutputPath
+                        ) as List<String>
 
-                    if (compilationErrors.isNotEmpty()) {
-                        errorReporter.addLoadingError(pluginId, compilationErrors.joinToString("\n"))
-                        return
+                        if (compilationErrors.isNotEmpty()) {
+                            errorReporter.addLoadingError(pluginId, compilationErrors.joinToString("\n"))
+                            return
+                        }
+                    } catch (e: IOException) {
+                        errorReporter.addLoadingError(pluginId, "Error creating scripting engine. " + e.message)
+                    } catch (e: CompilationException) {
+                        errorReporter.addLoadingError(pluginId, "Error compiling script. " + e.message)
+                    } catch (e: Throwable) {
+                        errorReporter.addLoadingError(pluginId, "Internal error compiling script. " + e.message)
                     }
                 }
             }

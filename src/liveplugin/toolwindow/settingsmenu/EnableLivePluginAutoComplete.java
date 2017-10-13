@@ -28,7 +28,7 @@ import static java.util.Arrays.asList;
 import static liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 import static liveplugin.toolwindow.util.DependenciesUtil.*;
-import static org.jetbrains.kotlin.com.intellij.util.containers.ContainerUtil.map;
+import static com.intellij.util.containers.ContainerUtil.map;
 
 public class EnableLivePluginAutoComplete {
 	private static final String LIVE_PLUGIN_LIBRARY = "LivePlugin jars for auto-complete in scripts";
