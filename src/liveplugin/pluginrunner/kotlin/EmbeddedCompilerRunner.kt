@@ -10,7 +10,8 @@ import com.intellij.util.containers.ContainerUtil
 import liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH
 import liveplugin.MyFileUtil.*
 import liveplugin.pluginrunner.ErrorReporter
-import liveplugin.pluginrunner.KotlinPluginRunner.MAIN_SCRIPT
+import liveplugin.pluginrunner.KotlinPluginRunner.Companion.MAIN_SCRIPT
+import liveplugin.pluginrunner.KotlinScriptTemplate
 import liveplugin.pluginrunner.PluginRunner
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
@@ -30,7 +31,6 @@ import org.jetbrains.kotlin.codegen.GeneratedClassLoader
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.MODULE_NAME
 import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.config.ContentRoot
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.*
 import org.jetbrains.kotlin.config.KotlinSourceRoot
 import org.jetbrains.kotlin.script.KotlinScriptDefinition
@@ -38,8 +38,39 @@ import java.io.File
 import java.io.IOException
 import kotlin.jvm.internal.Reflection
 
-private val KOTLIN_ADD_TO_CLASSPATH_KEYWORD = "// " + PluginRunner.ADD_TO_CLASSPATH_KEYWORD
-private val KOTLIN_DEPENDS_ON_PLUGIN_KEYWORD = "// " + PluginRunner.DEPENDS_ON_PLUGIN_KEYWORD
+
+@Suppress("unused") // Used via reflection.
+fun compilePlugin(sourceRoot: String, classpath: List<String>, compilerOutputPath: String): List<String> {
+    val rootDisposable = Disposer.newDisposable()
+
+    val messageCollector = ErrorMessageCollector()
+    val configuration = createCompilerConfiguration(sourceRoot, classpath, compilerOutputPath, messageCollector)
+    val kotlinEnvironment = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, JVM_CONFIG_FILES)
+    val state = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(kotlinEnvironment)
+
+    return when {
+        messageCollector.hasErrors() -> messageCollector.errors
+        state == null -> listOf("Compiler returned empty state.")
+        else -> emptyList()
+    }
+}
+
+private class ErrorMessageCollector : MessageCollector {
+    val errors = ArrayList<String>()
+
+    override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation?) {
+        if (severity == ERROR || severity == EXCEPTION) {
+            errors.add(PLAIN_FULL_PATHS.render(severity, message, location))
+        }
+    }
+
+    override fun clear() {
+        errors.clear()
+    }
+
+    override fun hasErrors() = errors.isNotEmpty()
+}
+
 
 fun runPlugin(
     pathToPluginFolder: String,
@@ -49,26 +80,31 @@ fun runPlugin(
     errorReporter: ErrorReporter,
     environment: MutableMap<String, String>
 ) {
+    val kotlinAddToClasspathKeyword = "// " + PluginRunner.ADD_TO_CLASSPATH_KEYWORD
+    val kotlinDependsOnPluginKeyword = "// " + PluginRunner.DEPENDS_ON_PLUGIN_KEYWORD
     val rootDisposable = Disposer.newDisposable()
 
     try {
         val mainScriptUrl = asUrl(findScriptFileIn(pathToPluginFolder, MAIN_SCRIPT))
-        val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), KOTLIN_DEPENDS_ON_PLUGIN_KEYWORD)
-        val pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), KOTLIN_ADD_TO_CLASSPATH_KEYWORD, environment) { path ->
+        val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), kotlinDependsOnPluginKeyword)
+        val libPaths = findClasspathAdditions(readLines(mainScriptUrl), kotlinAddToClasspathKeyword, environment) { path ->
             errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
             null
         }
-        val pluginFolderUrl = "file:///$pathToPluginFolder/" // prefix with "file:///" so that unix-like paths work on windows
-        pathsToAdd.add(pluginFolderUrl)
+        libPaths.addAll(jarFilesOf(dependentPlugins).map{ it.absolutePath })
+        libPaths.addAll(listFilesIn(File(LIVEPLUGIN_LIBS_PATH)).map{ it.absolutePath })
+        libPaths.addAll(ideJdkClassesRoots().map{ it.absolutePath })
+        libPaths.addAll(listFilesIn(ideLibFolder()).map{ it.absolutePath })
+        libPaths.add("file:///$pathToPluginFolder/") // prefix with "file:///" so that unix-like paths work on windows
 
-        val configuration = createCompilerConfiguration(pathToPluginFolder, pluginId, pathsToAdd, dependentPlugins, errorReporter)
+        val configuration = createCompilerConfiguration(pathToPluginFolder, libPaths, "", newMessageCollector(pluginId, errorReporter))
 
-        environment.put("PLUGIN_PATH", pathToPluginFolder)
+        environment.put("PLUGIN_PATH", pathToPluginFolder) // TODO looks like it's never used
 
         val kotlinEnvironment = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, JVM_CONFIG_FILES)
         val state = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(kotlinEnvironment) ?: throw CompilationException("Compiler returned empty state.", null, null)
 
-        val classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, mainScriptUrl, pluginId, errorReporter)
+        val classLoader = createClassLoaderWithDependencies(libPaths, dependentPlugins, mainScriptUrl, pluginId, errorReporter)
         val generatedClassLoader = GeneratedClassLoader(state.factory, classLoader)
 
         for (ktFile in kotlinEnvironment.getSourceFiles()) {
@@ -77,7 +113,7 @@ fun runPlugin(
                 val aClass = generatedClassLoader.loadClass(ktScript.fqName.asString())
                 runOnEDTCallback.`fun`(Runnable {
                    try {
-                       // Arguments below must match constructor of liveplugin.pluginrunner.kotlin.KotlinScriptTemplate class.
+                       // Arguments below must match constructor of liveplugin.pluginrunner.KotlinScriptTemplate class.
                        // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
                        aClass.constructors[0].newInstance(
                            binding["project"] as Project,
@@ -96,60 +132,47 @@ fun runPlugin(
         errorReporter.addLoadingError(pluginId, "Error creating scripting engine. " + e.message)
     } catch (e: CompilationException) {
         errorReporter.addLoadingError(pluginId, "Error compiling script. " + e.message)
-    } catch (e: ClassNotFoundException) {
-        errorReporter.addLoadingError(pluginId, "Error compiling script. " + e.message)
     } catch (e: Throwable) {
         errorReporter.addLoadingError(pluginId, "Internal error compiling script. " + e.message)
     } finally {
         rootDisposable.dispose()
     }
 }
-private fun createCompilerConfiguration(pathToPluginFolder: String, pluginId: String,
-                                        pathsToAdd: List<String>, dependentPlugins: List<String>,
-                                        errorReporter: ErrorReporter): CompilerConfiguration {
+
+private fun createCompilerConfiguration(
+    sourceRoot: String,
+    classpath: List<String>,
+    compilerOutputPath: String,
+    messageCollector: MessageCollector
+): CompilerConfiguration {
     val configuration = CompilerConfiguration()
     configuration.put(MODULE_NAME, "LivePluginScript")
-    configuration.put<MessageCollector>(MESSAGE_COLLECTOR_KEY, newMessageCollector(pluginId, errorReporter))
-    configuration.put(RETAIN_OUTPUT_IN_MEMORY, true)
+    configuration.put(MESSAGE_COLLECTOR_KEY, messageCollector)
     configuration.add(SCRIPT_DEFINITIONS, KotlinScriptDefinition(Reflection.createKotlinClass(KotlinScriptTemplate::class.java)))
 
-    configuration.add<ContentRoot>(CONTENT_ROOTS, KotlinSourceRoot(pathToPluginFolder))
+    configuration.add(CONTENT_ROOTS, KotlinSourceRoot(sourceRoot))
 
-    for (file in ideJdkClassesRoots()) {
-        configuration.add<ContentRoot>(CONTENT_ROOTS, JvmClasspathRoot(file))
-    }
-    for (file in listFilesIn(ideLibFolder())) {
-        configuration.add<ContentRoot>(CONTENT_ROOTS, JvmClasspathRoot(file))
-    }
-    for (file in listFilesIn(File(LIVEPLUGIN_LIBS_PATH))) {
-        configuration.add<ContentRoot>(CONTENT_ROOTS, JvmClasspathRoot(file))
-    }
-    for (path in pathsToAdd) {
-        configuration.add<ContentRoot>(CONTENT_ROOTS, JvmClasspathRoot(File(path)))
-    }
-    for (file in jarFilesOf(dependentPlugins)) {
-        configuration.add<ContentRoot>(CONTENT_ROOTS, JvmClasspathRoot(file))
+    for (path in classpath) {
+        configuration.add(CONTENT_ROOTS, JvmClasspathRoot(File(path)))
     }
 
-    // It might be worth using:
-    //	    configuration.put(JVMConfigurationKeys.OUTPUT_DIRECTORY, saveClassesDir)
-    // But compilation performance doesn't seem to be the biggest problem right now.
+    configuration.put(RETAIN_OUTPUT_IN_MEMORY, false)
+    configuration.put(OUTPUT_DIRECTORY, File(compilerOutputPath))
 
     return configuration
 }
 
-private fun ideJdkClassesRoots(): List<File> {
-    return JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")), true)
-}
+fun ideJdkClassesRoots(): List<File> =
+    JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")), true)
 
-private fun ideLibFolder(): File {
+fun ideLibFolder(): File {
     val ideJarPath = PathManager.getJarPathForClass(IntelliJLaf::class.java) ?: throw IllegalStateException("Failed to find IDE lib folder.")
     return File(ideJarPath).parentFile
 }
 
-private fun jarFilesOf(dependentPlugins: List<String>): List<File> {
+fun jarFilesOf(dependentPlugins: List<String>): List<File> {
     val pluginDescriptors = pluginDescriptorsOf(dependentPlugins) { it -> throw IllegalStateException("Failed to find jar for dependent plugin '$it'.") }
-    return ContainerUtil.map<IdeaPluginDescriptor, File>(pluginDescriptors) { it -> it.getPath() }
+    return ContainerUtil.map<IdeaPluginDescriptor, File>(pluginDescriptors) { it -> it.path }
 }
 
 private fun newMessageCollector(pluginId: String, errorReporter: ErrorReporter): MessageCollector {

@@ -56,7 +56,9 @@ dependencies {
 	// Bundle kotlin compiler and stdlib with LivePlugin because IDEs are not bundled with kotlin-compiler
 	// and IDE kotlin jars are more likely to be updated than IDE groovy.jar,
 	// so it seems more reliable to bundle the right version of kotlin jars.
-	compile group: 'org.jetbrains.kotlin', name: 'kotlin-compiler', version: kotlinVersion
+	compile group: 'org.jetbrains.kotlin', name: 'kotlin-compiler-embeddable', version: kotlinVersion
+	compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlinVersion
+	compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion
 
 	compile group: 'org.clojure', name: 'clojure', version: '1.8.0'
 	compile group: 'org.scala-lang', name: 'scala-compiler', version: '2.12.3'
@@ -98,26 +100,6 @@ task installLivePlugin() { doLast {
 	println("Path: ${toFile}")
 } }
 
-def listFileNamesInJar(String jarFileName) {
-	def tmp = "build/tmp-listFileInJar/"
-	try {
-		ant.mkdir(dir: tmp)
-		ant.unzip(src: jarFileName, dest: tmp)
-		return listFileNamesInDir(tmp)
-	} finally {
-		new File(tmp).deleteDir()
-	}
-}
-
-def listFileNamesInDir(String dirName) {
-	def result = []
-	def tmpDir = new File(dirName)
-	tmpDir.eachFileRecurse {
-		result.add(it.absolutePath.replace(tmpDir.absolutePath, ""))
-	}
-	result
-}
-
 def "Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"() {
 	def regexes = [".*scala-.*", ".*clojure-.*"]
 	def files = configurations.compile.resolvedConfiguration.files.findAll { file ->
@@ -136,39 +118,20 @@ def 'Add source files to compiler output so that LivePlugin source code is avail
 }
 
 def "Remove kotlin version from jars zipped with plugin so that they are updated, 'LivePlugin' module dependencies are still correct"() {
+	def filesToMove = [
+		["kotlin-compiler-embeddable-${kotlinVersion}.jar", "kotlin-compiler-embeddable.jar"],
+		["kotlin-reflect-${kotlinVersion}.jar", "kotlin-reflect.jar"],
+		["kotlin-stdlib-${kotlinVersion}.jar", "kotlin-stdlib.jar"]
+	]
 	prepareSandbox.doLast {
-		def sandboxLib = "build/idea-sandbox/plugins/LivePlugin/lib"
-		def tmp = "build/tmp-jar/"
-		ant.mkdir(dir: tmp)
-		ant.unzip(
-			src: "${sandboxLib}/kotlin-compiler-${kotlinVersion}.jar",
-			dest: tmp
-		)
-		new File("${sandboxLib}/kotlin-compiler-${kotlinVersion}.jar").delete()
-
-		def libClassFiles =
-			listFileNamesInJar("/Users/dima/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIU/172.3757.29/13133d85702bb2cae1cf13059b622a829525e716/ideaIU-172.3757.29/lib/kotlin-runtime.jar").toSet() +
-			listFileNamesInJar("/Users/dima/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIU/172.3757.29/13133d85702bb2cae1cf13059b622a829525e716/ideaIU-172.3757.29/plugins/Kotlin/lib/kotlin-plugin.jar").toSet()
-		def compilerClassFiles = listFileNamesInDir(tmp)
-
-//		new File(tmp + "/kotlin-files.txt").write(libClassFiles.join("\n"))
-//		new File(tmp + "/compiler-files.txt").write(compilerClassFiles.join("\n"))
-
-		compilerClassFiles.each {
-			if (libClassFiles.contains(it) && new File(tmp + "/" + it).isFile()) {
-				new File(tmp + "/" + it).delete()
-				println("deleted ${it}")
-			}
+		filesToMove.each {
+			ant.move(
+				file: "build/idea-sandbox/plugins/LivePlugin/lib/${it[0]}",
+				tofile: "build/idea-sandbox/plugins/LivePlugin/lib/__/${it[1]}"
+			)
 		}
-		ant.zip(basedir: "$tmp", destfile: "${sandboxLib}/kotlin-compiler-stripped.jar")
-
-		// new File(tmp).deleteDir() TODO
 	}
 	buildPlugin.doLast {
-		// TODO use code from above
-		def filesToMove = [
-			["kotlin-compiler-${kotlinVersion}.jar", "kotlin-compiler.jar"]
-		]
 		def tmp = "build/tmp-zip/"
 		ant.mkdir(dir: tmp)
 		ant.unzip(src: "build/distributions/LivePlugin.zip", dest: tmp)
