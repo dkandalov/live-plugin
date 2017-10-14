@@ -68,7 +68,7 @@ dependencies {
 	testCompile group: 'junit', name: 'junit', version: '4.12' // includes hamcrest-core
 }
 "Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"()
-"Remove kotlin version from jars zipped with plugin so that they are updated, 'LivePlugin' module dependencies are still correct"()
+"Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 'Add source files to compiler output so that LivePlugin source code is available for navigation at runtime'()
 
 sourceSets {
@@ -117,7 +117,8 @@ def 'Add source files to compiler output so that LivePlugin source code is avail
 	}
 }
 
-def "Remove kotlin version from jars zipped with plugin so that they are updated, 'LivePlugin' module dependencies are still correct"() {
+def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
+	// Remove kotlin version from jars zipped with plugin so that when they are updated, 'LivePlugin' module dependencies are still correct.
 	def filesToMove = [
 		["kotlin-compiler-embeddable-${kotlinVersion}.jar", "kotlin-compiler-embeddable.jar"],
 		["kotlin-reflect-${kotlinVersion}.jar", "kotlin-reflect.jar"],
@@ -127,7 +128,7 @@ def "Remove kotlin version from jars zipped with plugin so that they are updated
 		filesToMove.each {
 			ant.move(
 				file: "build/idea-sandbox/plugins/LivePlugin/lib/${it[0]}",
-				tofile: "build/idea-sandbox/plugins/LivePlugin/lib/__/${it[1]}"
+				tofile: "build/idea-sandbox/plugins/LivePlugin/lib/kotlib-compiler/${it[1]}"
 			)
 		}
 	}
@@ -138,7 +139,7 @@ def "Remove kotlin version from jars zipped with plugin so that they are updated
 		filesToMove.each {
 			ant.move(
 				file:"$tmp/LivePlugin/lib/${it[0]}",
-				tofile:"$tmp/LivePlugin/lib/__/${it[1]}"
+				tofile:"$tmp/LivePlugin/lib/kotlib-compiler/${it[1]}"
 			)
 		}
 		ant.zip(basedir: "$tmp", destfile: "build/distributions/LivePlugin.zip")

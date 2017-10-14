@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.util.Function
 import com.intellij.util.lang.UrlClassLoader
+import liveplugin.LivePluginAppComponent.LIVEPLUGIN_COMPILER_LIBS_PATH
 import liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH
 import liveplugin.MyFileUtil.*
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*
@@ -21,7 +22,7 @@ private val ideLibsClassLoader by lazy {
         .urls((ideJdkClassesRoots() +
                 listFilesIn(ideLibFolder()) +
                 listFilesIn(File(LIVEPLUGIN_LIBS_PATH)) +
-                listFilesIn(File(LIVEPLUGIN_LIBS_PATH + "/__/"))
+                listFilesIn(File(LIVEPLUGIN_COMPILER_LIBS_PATH))
         ).map { it.toFileUrl() })
         .useCache()
         .get()
@@ -41,60 +42,48 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         val pluginFolder = File(pathToPluginFolder)
         val mainScriptUrl = asUrl(findScriptFileIn(pathToPluginFolder, MAIN_SCRIPT))
         val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), kotlinDependsOnPluginKeyword)
-        val compilerOutput = File(FileUtilRt.toSystemIndependentName("${PathManager.getPluginsPath()}/$pluginId/live-plugins-classes"))
+        val compilerOutput = File(FileUtilRt.toSystemIndependentName("${PathManager.getPluginsPath()}/live-plugins-classes/$pluginId"))
+        compilerOutput.deleteRecursively()
 
         val scriptPathAdditions = findClasspathAdditions(readLines(mainScriptUrl), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pathToPluginFolder), { path ->
             errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
             null
         }).map{ File(it) }
 
-        try {
-            val compilerClasspath = ArrayList<File>().apply {
-                addAll(ideJdkClassesRoots())
-                addAll(listFilesIn(ideLibFolder()))
-                addAll(listFilesIn(File(LIVEPLUGIN_LIBS_PATH)))
-                addAll(listFilesIn(File(LIVEPLUGIN_LIBS_PATH + "/__/")))
-                addAll(jarFilesOf(dependentPlugins))
-                addAll(scriptPathAdditions)
-                add(pluginFolder)
-            }
-            val classLoader = UrlClassLoader.build()
-                .urls((jarFilesOf(dependentPlugins) + scriptPathAdditions + pluginFolder).map { it.toFileUrl() })
-                .parent(ideLibsClassLoader)
-                .useCache()
-                .get()
-            val aClass = classLoader.loadClass("liveplugin.pluginrunner.kotlin.EmbeddedCompilerRunnerKt")
+        val compilerClasspath = ArrayList<File>().apply {
+            addAll(ideJdkClassesRoots())
+            addAll(listFilesIn(ideLibFolder()))
+            addAll(listFilesIn(File(LIVEPLUGIN_LIBS_PATH)))
+            addAll(listFilesIn(File(LIVEPLUGIN_COMPILER_LIBS_PATH)))
+            addAll(jarFilesOf(dependentPlugins))
+            addAll(scriptPathAdditions)
+            add(pluginFolder)
+        }
+        val compilerClassLoader = UrlClassLoader.build()
+            .urls((jarFilesOf(dependentPlugins) + scriptPathAdditions + pluginFolder).map { it.toFileUrl() })
+            .parent(ideLibsClassLoader)
+            .useCache()
+            .get()
+        val compilerRunner = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.EmbeddedCompilerRunnerKt")
 
-            for (method in aClass.declaredMethods) {
-                if (method.name == "compilePlugin") {
-                    try {
-                        @Suppress("UNCHECKED_CAST")
-                        val compilationErrors = method.invoke(
-                            null,
-                            pathToPluginFolder,
-                            compilerClasspath,
-                            compilerOutput
-                        ) as List<String>
-
-                        if (compilationErrors.isNotEmpty()) {
-                            errorReporter.addLoadingError(pluginId, compilationErrors.joinToString("\n"))
-                            return
-                        }
-                    } catch (e: IOException) {
-                        errorReporter.addLoadingError(pluginId, "Error creating scripting engine. " + e.message)
-                    } catch (e: CompilationException) {
-                        errorReporter.addLoadingError(pluginId, "Error compiling script. " + e.message)
-                    } catch (e: Throwable) {
-                        errorReporter.addLoadingError(pluginId, "Internal error compiling script. " + e.message)
-                    }
+        compilerRunner.declaredMethods.find { it.name == "compilePlugin" }!!.let { method ->
+            try {
+                @Suppress("UNCHECKED_CAST")
+                val compilationErrors = method.invoke(null, pathToPluginFolder, compilerClasspath, compilerOutput) as List<String>
+                if (compilationErrors.isNotEmpty()) {
+                    errorReporter.addLoadingError(pluginId, compilationErrors.joinToString("\n"))
+                    return
                 }
+            } catch (e: IOException) {
+                errorReporter.addLoadingError(pluginId, "Error creating scripting engine. ${e.message}")
+            } catch (e: CompilationException) {
+                errorReporter.addLoadingError(pluginId, "Error compiling script. ${e.message}")
+            } catch (e: Throwable) {
+                errorReporter.addLoadingError(pluginId, "Internal error compiling script. ${e.message}")
             }
-        } catch (e: Exception) {
-            e.printStackTrace() // TODO
-            throw e
         }
 
-        try {
+        val pluginClass = try {
             val runtimeClassPath = ArrayList<File>().apply {
                 add(compilerOutput)
                 addAll(listFilesIn(File(LIVEPLUGIN_LIBS_PATH)))
@@ -102,27 +91,26 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
                 addAll(scriptPathAdditions)
             }
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath.map{ it.absolutePath }, dependentPlugins, mainScriptUrl, pluginId, errorReporter)
-            val aClass = classLoader.loadClass("Plugin")
-
-            runOnEDTCallback.`fun`(Runnable {
-                try {
-                    // Arguments below must match constructor of liveplugin.pluginrunner.KotlinScriptTemplate class.
-                    // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
-                    aClass.constructors[0].newInstance(
-                        binding["project"] as Project,
-                        binding["isIdeStartup"] as Boolean,
-                        binding["pluginPath"] as String,
-                        binding["pluginDisposable"] as Disposable
-                    )
-                } catch (e: Throwable) {
-                    errorReporter.addRunningError(pluginId, e)
-                }
-            })
-
+            classLoader.loadClass("Plugin")
         } catch (e: Exception) {
-            e.printStackTrace() // TODO
-            throw e
+            errorReporter.addLoadingError(pluginId, "Error while loading plugin class. ${e.message}")
+            return
         }
+
+        runOnEDTCallback.`fun`(Runnable {
+            try {
+                // Arguments below must match constructor of liveplugin.pluginrunner.KotlinScriptTemplate class.
+                // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
+                pluginClass.constructors[0].newInstance(
+                    binding["project"] as Project,
+                    binding["isIdeStartup"] as Boolean,
+                    binding["pluginPath"] as String,
+                    binding["pluginDisposable"] as Disposable
+                )
+            } catch (e: Throwable) {
+                errorReporter.addRunningError(pluginId, e)
+            }
+        })
     }
 
     companion object {
