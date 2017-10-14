@@ -1,12 +1,6 @@
 package liveplugin.pluginrunner.kotlin
 
-import com.intellij.ide.plugins.IdeaPluginDescriptor
-import com.intellij.ide.ui.laf.IntelliJLaf
-import com.intellij.openapi.application.PathManager
-import com.intellij.util.containers.ContainerUtil
 import liveplugin.pluginrunner.KotlinScriptTemplate
-import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
-import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -29,12 +23,12 @@ import kotlin.jvm.internal.Reflection
 
 
 @Suppress("unused") // Used via reflection.
-fun compilePlugin(sourceRoot: String, classpath: List<String>, compilerOutputPath: String): List<String> {
+fun compilePlugin(sourceRoot: String, classpath: List<File>, compilerOutput: File): List<String> {
     val rootDisposable = Disposer.newDisposable()
 
     try {
         val messageCollector = ErrorMessageCollector()
-        val configuration = createCompilerConfiguration(sourceRoot, classpath, compilerOutputPath, messageCollector)
+        val configuration = createCompilerConfiguration(sourceRoot, classpath, compilerOutput, messageCollector)
         val kotlinEnvironment = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, JVM_CONFIG_FILES)
         val state = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(kotlinEnvironment)
 
@@ -67,8 +61,8 @@ private class ErrorMessageCollector : MessageCollector {
 
 private fun createCompilerConfiguration(
     sourceRoot: String,
-    classpath: List<String>,
-    compilerOutputPath: String,
+    classpath: List<File>,
+    compilerOutput: File,
     messageCollector: MessageCollector
 ): CompilerConfiguration {
     val configuration = CompilerConfiguration()
@@ -79,24 +73,12 @@ private fun createCompilerConfiguration(
     configuration.add(CONTENT_ROOTS, KotlinSourceRoot(sourceRoot))
 
     for (path in classpath) {
-        configuration.add(CONTENT_ROOTS, JvmClasspathRoot(File(path)))
+        configuration.add(CONTENT_ROOTS, JvmClasspathRoot(path))
     }
 
     configuration.put(RETAIN_OUTPUT_IN_MEMORY, false)
-    configuration.put(OUTPUT_DIRECTORY, File(compilerOutputPath))
+    configuration.put(OUTPUT_DIRECTORY, compilerOutput)
 
     return configuration
 }
 
-fun ideJdkClassesRoots(): List<File> =
-    JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")), true)
-
-fun ideLibFolder(): File {
-    val ideJarPath = PathManager.getJarPathForClass(IntelliJLaf::class.java) ?: throw IllegalStateException("Failed to find IDE lib folder.")
-    return File(ideJarPath).parentFile
-}
-
-fun jarFilesOf(dependentPlugins: List<String>): List<File> {
-    val pluginDescriptors = pluginDescriptorsOf(dependentPlugins) { it -> throw IllegalStateException("Failed to find jar for dependent plugin '$it'.") }
-    return ContainerUtil.map<IdeaPluginDescriptor, File>(pluginDescriptors) { it -> it.path }
-}
