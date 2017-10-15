@@ -36,8 +36,9 @@ compileKotlin {
 ext.kotlinVersion = "1.1.4"
 
 intellij {
-	version = "IU-172.3757.29"
-	type = "IU"
+	def ideVersion = System.getenv().getOrDefault("LIVEPLUGIN_IDEA_VERSION", "IC-172.3757.29")
+	println("Using ide version: ${ideVersion}")
+	version ideVersion
 	// The artifact name is deliberately not "live-plugin" because plugins are stored in the "live-plugins" directory.
 	// The "LivePlugin" directory is deleted on each plugin update so it's good make it distinct from "live-plugins".
 	pluginName = "LivePlugin"
@@ -131,18 +132,5 @@ def "Move kotlin compiler jars from plugin classpath into a separate folder so t
 				tofile: "build/idea-sandbox/plugins/LivePlugin/lib/kotlin-compiler/${it[1]}"
 			)
 		}
-	}
-	buildPlugin.doLast {
-		def tmp = "build/tmp-zip/"
-		ant.mkdir(dir: tmp)
-		ant.unzip(src: "build/distributions/LivePlugin.zip", dest: tmp)
-		filesToMove.each {
-			ant.move(
-				file:"$tmp/LivePlugin/lib/${it[0]}",
-				tofile:"$tmp/LivePlugin/lib/kotlin-compiler/${it[1]}"
-			)
-		}
-		ant.zip(basedir: "$tmp", destfile: "build/distributions/LivePlugin.zip")
-		new File(tmp).deleteDir()
 	}
 }
