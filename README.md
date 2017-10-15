@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dkandalov/live-plugin.svg?branch=master)](https://travis-ci.org/dkandalov/live-plugin)
+
 ### LivePlugin
 
 This is a plugin for [IntelliJ](https://github.com/JetBrains/intellij-community) IDEs to write plugins at runtime. 

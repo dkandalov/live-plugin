@@ -1,9 +1,3 @@
-### Reporting an issue/question
- - in case of any problems with code or documentation don't hesitate to report them :)
- - if something doesn't work, code example might be useful 
- - if you get an exception, full stacktrace and IDE name/version can make it easier to reproduce the bug  
-
-
 ### Compiling
  - open project in IntelliJ
  - configure project JDK to use "IntelliJ Platform Plugin SDK" 
