@@ -27,12 +27,12 @@ import java.util.*;
 
 @SuppressWarnings("ComponentNotRegistered")
 public class AddPluginFromPathAction extends AnAction implements DumbAware {
-	private static final Logger LOG = Logger.getInstance(AddPluginFromPathAction.class);
+	private static final Logger logger = Logger.getInstance(AddPluginFromPathAction.class);
     private static final String dialogTitle = "Copy Plugin From Path";
 
 
     public AddPluginFromPathAction() {
-		super("Copy from Path", "Copy plugin from path into LivePlugins folder", Icons.COPY_PLUGIN_FROM_PATH_ICON);
+		super("Copy from Path", "Copy plugin from path into LivePlugins folder", Icons.copyPluginFromPathIcon);
 	}
 
 	private static List<VirtualFile> getFileSystemRoots() {
@@ -79,7 +79,7 @@ public class AddPluginFromPathAction extends AnAction implements DumbAware {
                         dialogTitle
 				);
 			}
-			LOG.error(e);
+			logger.error(e);
 		}
 
 		RefreshPluginsPanelAction.refreshPluginTree();
@@ -88,7 +88,7 @@ public class AddPluginFromPathAction extends AnAction implements DumbAware {
 	private boolean userDoesNotWantToAddFolder(VirtualFile virtualFile, Project project) {
 		int answer = Messages.showYesNoDialog(
 				project,
-				"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + GroovyPluginRunner.MAIN_SCRIPT + "\"." +
+				"Folder \"" + virtualFile.getPath() + "\" is not valid plugin folder because it does not contain \"" + GroovyPluginRunner.mainScript + "\"." +
 						"\nDo you want to add it anyway?",
                 dialogTitle,
 				Messages.getQuestionIcon()

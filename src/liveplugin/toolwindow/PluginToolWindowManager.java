@@ -78,11 +78,11 @@ import static com.intellij.openapi.util.Condition.NOT_NULL;
 import static com.intellij.util.containers.ContainerUtil.filter;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
-import static liveplugin.LivePluginAppComponent.PLUGIN_EXAMPLES_PATH;
+import static liveplugin.LivePluginAppComponent.pluginExamplesPath;
 
 public class PluginToolWindowManager {
 
-	private static final String PLUGINS_TOOL_WINDOW_ID = "Plugins";
+	private static final String pluginsToolWindowId = "Plugins";
 
 	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<>();
 
@@ -174,7 +174,7 @@ public class PluginToolWindowManager {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
 				@Override public Icon getIcon(VirtualFile file) {
                     for (String path : LivePluginAppComponent.pluginIdToPathMap().values()) {
-                        if (file.getPath().toLowerCase().equals(path.toLowerCase())) return Icons.PLUGIN_ICON;
+                        if (file.getPath().toLowerCase().equals(path.toLowerCase())) return Icons.pluginIcon;
                     }
 					return super.getIcon(file);
 				}
@@ -224,14 +224,14 @@ public class PluginToolWindowManager {
 
 		public void registerWindowFor(Project project) {
 			ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-			toolWindow = toolWindowManager.registerToolWindow(PLUGINS_TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT, project, true);
-			toolWindow.setIcon(Icons.PLUGIN_TOOLWINDOW_ICON);
+			toolWindow = toolWindowManager.registerToolWindow(pluginsToolWindowId, false, ToolWindowAnchor.RIGHT, project, true);
+			toolWindow.setIcon(Icons.pluginToolwindowIcon);
 
 			toolWindow.getContentManager().addContent(createContent(project));
 		}
 
 		public void unregisterWindowFrom(Project project) {
-			ToolWindowManager.getInstance(project).unregisterToolWindow(PLUGINS_TOOL_WINDOW_ID);
+			ToolWindowManager.getInstance(project).unregisterToolWindow(pluginsToolWindowId);
 		}
 
 		private Content createContent(Project project) {
@@ -285,17 +285,17 @@ public class PluginToolWindowManager {
 
 		private JComponent createToolBar() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup();
-			actionGroup.add(withIcon(Icons.ADD_PLUGIN_ICON, createAddPluginsGroup()));
+			actionGroup.add(withIcon(Icons.addPluginIcon, createAddPluginsGroup()));
 			actionGroup.add(new DeletePluginAction());
 			actionGroup.add(new RunPluginAction());
 			actionGroup.add(new TestPluginAction());
 			actionGroup.addSeparator();
 			actionGroup.add(new RefreshPluginsPanelAction());
-			actionGroup.add(withIcon(Icons.EXPAND_ALL_ICON, new ExpandAllAction()));
-			actionGroup.add(withIcon(Icons.COLLAPSE_ALL_ICON, new CollapseAllAction()));
+			actionGroup.add(withIcon(Icons.expandAllIcon, new ExpandAllAction()));
+			actionGroup.add(withIcon(Icons.collapseAllIcon, new CollapseAllAction()));
 			actionGroup.addSeparator();
-			actionGroup.add(withIcon(Icons.SETTINGS_ICON, createSettingsGroup()));
-            actionGroup.add(withIcon(Icons.HELP_ICON, new ShowHelpAction()));
+			actionGroup.add(withIcon(Icons.settingsIcon, createSettingsGroup()));
+            actionGroup.add(withIcon(Icons.helpIcon, new ShowHelpAction()));
 
 			// this is a "hack" to force drop-down box appear below button
 			// (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
@@ -351,24 +351,24 @@ public class PluginToolWindowManager {
                 }
             });
             actionGroup.addSeparator();
-            actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloWorld/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "registerAction/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "popupMenu/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "popupSearch/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "toolWindow/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "toolbarWidget/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "textEditor/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "transformSelectedText/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "insertNewLineAbove/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "inspection/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "intention/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "projectFilesStats/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "miscUtil/", asList("plugin.groovy", "util/AClass.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "additionalClasspath/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "integrationTest/", asList("plugin.groovy", "plugin-test.groovy")));
+            actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "helloWorld/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "registerAction/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "popupMenu/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "popupSearch/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "toolWindow/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "toolbarWidget/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "textEditor/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "transformSelectedText/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "insertNewLineAbove/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "inspection/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "intention/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "projectFilesStats/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "miscUtil/", asList("plugin.groovy", "util/AClass.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "additionalClasspath/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "integrationTest/", asList("plugin.groovy", "plugin-test.groovy")));
 //			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloScala/", asList("plugin.scala")));
 //			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloClojure/", asList("plugin.clj")));
-			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloKotlin/", asList("plugin.kts")));
+			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "helloKotlin/", asList("plugin.kts")));
             return actionGroup;
 		}
 
@@ -404,7 +404,7 @@ public class PluginToolWindowManager {
 			// this is used by create directory/file to get context in which they're executed
 			// (without this they would be disabled or won't work)
 			if (dataId.equals(FileSystemTree.DATA_KEY.getName())) return fileSystemTree.get();
-			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return IDEUtil.GROOVY_FILE_TYPE;
+			if (dataId.equals(FileChooserKeys.NEW_FILE_TYPE.getName())) return IDEUtil.groovyFileType;
 			if (dataId.equals(FileChooserKeys.DELETE_ACTION_AVAILABLE.getName())) return true;
 			if (dataId.equals(PlatformDataKeys.VIRTUAL_FILE_ARRAY.getName())) return fileSystemTree.get().getSelectedFiles();
 			if (dataId.equals(PlatformDataKeys.TREE_EXPANDER.getName())) return new DefaultTreeExpander(fileSystemTree.get().getTree());

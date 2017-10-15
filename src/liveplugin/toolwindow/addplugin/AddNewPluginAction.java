@@ -24,7 +24,7 @@ public class AddNewPluginAction extends AnAction implements DumbAware {
 	private static final String addNewPluginTitle = "Add New Plugin";
 
 	public AddNewPluginAction() {
-		super("New Plugin", "Create new plugin", Icons.NEW_PLUGIN_ICON);
+		super("New Plugin", "Create new plugin", Icons.newPluginIcon);
 	}
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {
@@ -39,7 +39,7 @@ public class AddNewPluginAction extends AnAction implements DumbAware {
 		try {
 
 			String text = LivePluginAppComponent.defaultPluginScript();
-			PluginsIO.createFile(LivePluginAppComponent.pluginsRootPath() + "/" + newPluginId, GroovyPluginRunner.MAIN_SCRIPT, text);
+			PluginsIO.createFile(LivePluginAppComponent.pluginsRootPath() + "/" + newPluginId, GroovyPluginRunner.mainScript, text);
 
 		} catch (IOException e) {
 			Project project = event.getProject();

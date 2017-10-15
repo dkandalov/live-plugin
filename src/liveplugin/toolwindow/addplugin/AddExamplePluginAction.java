@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class AddExamplePluginAction extends AnAction implements DumbAware {
-	private static final Logger LOG = Logger.getInstance(AddExamplePluginAction.class);
+	private static final Logger logger = Logger.getInstance(AddExamplePluginAction.class);
 
 	private final String pluginId;
 	private final ExamplePluginInstaller examplePluginInstaller;
@@ -44,6 +44,6 @@ public class AddExamplePluginAction extends AnAction implements DumbAware {
 					"Add Plugin"
 			);
 		}
-		LOG.error(e);
+		logger.error(e);
 	}
 }

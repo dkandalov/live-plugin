@@ -8,7 +8,7 @@ import static liveplugin.LivePluginAppComponent.scalaIsOnClassPath;
 
 public class NewScalaFileAction extends NewFileAction {
 	public NewScalaFileAction() {
-		super("Scala File", IDEUtil.SCALA_FILE_TYPE);
+		super("Scala File", IDEUtil.scalaFileType);
 	}
 
 	@Override protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {

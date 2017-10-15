@@ -5,7 +5,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-import static liveplugin.pluginrunner.GroovyPluginRunner.MAIN_SCRIPT
+import static liveplugin.pluginrunner.GroovyPluginRunner.mainScript
 
 class GroovyPluginRunnerTest {
 	static final LinkedHashMap NO_BINDING = [:]
@@ -18,7 +18,7 @@ class GroovyPluginRunnerTest {
 	}
 
 	private final ErrorReporter errorReporter = new ErrorReporter()
-	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(MAIN_SCRIPT, errorReporter, NO_ENVIRONMENT)
+	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(mainScript, errorReporter, NO_ENVIRONMENT)
 	private File rootFolder
 	private File myPackageFolder
 

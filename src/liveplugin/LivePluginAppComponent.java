@@ -45,19 +45,18 @@ import static liveplugin.IDEUtil.askIfUserWantsToRestartIde;
 import static liveplugin.IDEUtil.downloadFile;
 
 public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
-	public static final String LIVE_PLUGIN_ID = "LivePlugin";
-	public static final String PLUGIN_EXAMPLES_PATH = "/liveplugin/pluginexamples/";
-	public static final String LIVEPLUGIN_LIBS_PATH = PathManager.getPluginsPath() + "/LivePlugin/lib/";
-	public static final String LIVEPLUGIN_COMPILER_LIBS_PATH = PathManager.getPluginsPath() + "/LivePlugin/lib/kotlin-compiler";
+	public static final String livePluginId = "LivePlugin";
+	public static final String pluginExamplesPath = "/liveplugin/pluginexamples/";
+	public static final String livepluginLibsPath = PathManager.getPluginsPath() + "/LivePlugin/lib/";
+	public static final String livepluginCompilerLibsPath = PathManager.getPluginsPath() + "/LivePlugin/lib/kotlin-compiler";
 	public static final NotificationGroup livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin");
 
-	private static final Logger LOG = Logger.getInstance(LivePluginAppComponent.class);
-	private static final String DEFAULT_PLUGIN_PATH = PLUGIN_EXAMPLES_PATH;
-	private static final String DEFAULT_PLUGIN_SCRIPT = "default-plugin.groovy";
-	private static final String DEFAULT_PLUGIN_TEST_SCRIPT = "default-plugin-test.groovy";
+	private static final Logger logger = Logger.getInstance(LivePluginAppComponent.class);
+	private static final String defaultPluginPath = pluginExamplesPath;
+	private static final String defaultPluginScript = "default-plugin.groovy";
+	private static final String defaultPluginTestScript = "default-plugin-test.groovy";
 
-	private static final String DEFAULT_IDEA_OUTPUT_FOLDER = "out";
-	private static final String COMPONENT_NAME = "LivePluginComponent";
+	private static final String defaultIdeaOutputFolder = "out";
 
 	public static String pluginsRootPath() {
 		return FileUtilRt.toSystemIndependentName(PathManager.getPluginsPath() + "/live-plugins");
@@ -69,7 +68,7 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 		File[] files = new File(pluginsRootPath()).listFiles(file ->
 			file.isDirectory() &&
 			!file.getName().equals(DIRECTORY_STORE_FOLDER) &&
-			!(containsIdeaProjectFolder && file.getName().equals(DEFAULT_IDEA_OUTPUT_FOLDER))
+			!(containsIdeaProjectFolder && file.getName().equals(defaultIdeaOutputFolder))
 		);
 		if (files == null) return new HashMap<>();
 
@@ -82,10 +81,10 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 
 	public static boolean isInvalidPluginFolder(VirtualFile virtualFile) {
 		List<String> scriptFile = asList(
-				GroovyPluginRunner.MAIN_SCRIPT,
-				ClojurePluginRunner.MAIN_SCRIPT,
-				ScalaPluginRunner.MAIN_SCRIPT,
-				KotlinPluginRunner.MAIN_SCRIPT
+				GroovyPluginRunner.mainScript,
+				ClojurePluginRunner.mainScript,
+				ScalaPluginRunner.mainScript,
+				KotlinPluginRunner.mainScript
 		);
 		for (String file : scriptFile) {
 			if (MyFileUtil.findScriptFilesIn(virtualFile.getPath(), file).size() > 0) {
@@ -96,11 +95,11 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	}
 
 	public static String defaultPluginScript() {
-		return readSampleScriptFile(DEFAULT_PLUGIN_PATH, DEFAULT_PLUGIN_SCRIPT);
+		return readSampleScriptFile(defaultPluginPath, defaultPluginScript);
 	}
 
 	public static String defaultPluginTestScript() {
-		return readSampleScriptFile(DEFAULT_PLUGIN_PATH, DEFAULT_PLUGIN_TEST_SCRIPT);
+		return readSampleScriptFile(defaultPluginPath, defaultPluginTestScript);
 	}
 
 	public static String readSampleScriptFile(String pluginPath, String file) {
@@ -108,7 +107,7 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 			String path = pluginPath + file;
 			return FileUtil.loadTextAndClose(LivePluginAppComponent.class.getClassLoader().getResourceAsStream(path));
 		} catch (IOException e) {
-			LOG.error(e);
+			logger.error(e);
 			return "";
 		}
 	}
@@ -133,8 +132,8 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 		ApplicationManager.getApplication().invokeLater(() -> {
 			AnActionEvent event = new AnActionEvent(
 					null,
-					IDEUtil.DUMMY_DATA_CONTEXT,
-					PluginRunner.IDE_STARTUP,
+					IDEUtil.dummyDataContext,
+					PluginRunner.ideStartup,
 					new Presentation(),
 					ActionManager.getInstance(),
 					0
@@ -149,7 +148,7 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 
         // this can be useful for non-java IDEs because they don't have bundled groovy libs
         NotificationListener listener = (notification, event) -> {
-	        boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.3.9/", "groovy-all-2.3.9.jar", LIVEPLUGIN_LIBS_PATH);
+	        boolean downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.3.9/", "groovy-all-2.3.9.jar", livepluginLibsPath);
 	        if (downloaded) {
 		        notification.expire();
 		        askIfUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?");
@@ -182,16 +181,16 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	}
 
 	private static void installHelloWorldPlugins() {
-		ExamplePluginInstaller.Listener loggingListener = (e, pluginPath) -> LOG.warn("Failed to install plugin: " + pluginPath, e);
-		new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "helloWorld/", asList("plugin.groovy")).installPlugin(loggingListener);
-		new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "registerAction/", asList("plugin.groovy")).installPlugin(loggingListener);
-		new ExamplePluginInstaller(PLUGIN_EXAMPLES_PATH + "popupMenu/", asList("plugin.groovy")).installPlugin(loggingListener);
+		ExamplePluginInstaller.Listener loggingListener = (e, pluginPath) -> logger.warn("Failed to install plugin: " + pluginPath, e);
+		new ExamplePluginInstaller(pluginExamplesPath + "helloWorld/", asList("plugin.groovy")).installPlugin(loggingListener);
+		new ExamplePluginInstaller(pluginExamplesPath + "registerAction/", asList("plugin.groovy")).installPlugin(loggingListener);
+		new ExamplePluginInstaller(pluginExamplesPath + "popupMenu/", asList("plugin.groovy")).installPlugin(loggingListener);
 	}
 
 	@Override public void disposeComponent() {
 	}
 
 	@Override @NotNull public String getComponentName() {
-		return COMPONENT_NAME;
+		return getClass().getSimpleName();
 	}
 }

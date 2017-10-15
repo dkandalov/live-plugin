@@ -45,8 +45,8 @@ public class AddAfterImportsGroovyIntention implements IntentionAction, DumbAwar
 	private static boolean isGroovyPluginScript(PsiFile file) {
 		VirtualFile virtualFile = file.getVirtualFile();
 		return virtualFile != null && (
-				virtualFile.getName().equals(GroovyPluginRunner.MAIN_SCRIPT) ||
-				virtualFile.getName().equals(GroovyPluginRunner.TEST_SCRIPT)
+				virtualFile.getName().equals(GroovyPluginRunner.mainScript) ||
+				virtualFile.getName().equals(GroovyPluginRunner.testScript)
 		);
 	}
 

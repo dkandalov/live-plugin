@@ -10,7 +10,7 @@ import com.intellij.util.ThrowableRunnable;
 import java.io.IOException;
 
 public class PluginsIO {
-	private static final String REQUESTOR = PluginsIO.class.getCanonicalName();
+	private static final String requestor = PluginsIO.class.getCanonicalName();
 
 	public static void createFile(final String parentPath, final String fileName, final String text) throws IOException {
 		runIOAction("createFile", () -> {
@@ -18,7 +18,7 @@ public class PluginsIO {
 			VirtualFile parentFolder = VfsUtil.createDirectoryIfMissing(parentPath);
 			if (parentFolder == null) throw new IOException("Failed to create folder " + parentPath);
 
-			VirtualFile file = parentFolder.createChildData(REQUESTOR, fileName);
+			VirtualFile file = parentFolder.createChildData(requestor, fileName);
 			VfsUtil.saveText(file, text);
 
 		});
@@ -32,7 +32,7 @@ public class PluginsIO {
 			VirtualFile folderToCopy = VirtualFileManager.getInstance().findFileByUrl("file://" + folder);
 			if (folderToCopy == null) throw new IOException("Failed to find folder " + folder);
 
-			VfsUtil.copy(REQUESTOR, folderToCopy, targetFolder);
+			VfsUtil.copy(requestor, folderToCopy, targetFolder);
 
 		});
 	}
@@ -43,7 +43,7 @@ public class PluginsIO {
 			VirtualFile file = VirtualFileManager.getInstance().findFileByUrl("file://" + filePath);
 			if (file == null) throw new IOException("Failed to find file " + filePath);
 
-			file.delete(REQUESTOR);
+			file.delete(requestor);
 
 		});
 	}

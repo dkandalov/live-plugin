@@ -20,8 +20,8 @@ import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
 public class DownloadScalaLibs extends AnAction implements DumbAware {
-	public static final String LIB_FILES_PATTERN = "(scala-|scalap).*jar";
-	private static final String APPROXIMATE_SIZE = "(~25Mb)";
+	public static final String libFilesPattern = "(scala-|scalap).*jar";
+	private static final String approximateSize = "(~25Mb)";
 
 	@Override public void update(@NotNull AnActionEvent event) {
 		if (scalaIsOnClassPath()) {
@@ -29,7 +29,7 @@ public class DownloadScalaLibs extends AnAction implements DumbAware {
 			event.getPresentation().setDescription("Remove Scala from LivePlugin Classpath");
 		} else {
 			event.getPresentation().setText("Download Scala to LivePlugin Classpath");
-			event.getPresentation().setDescription("Download Scala libraries to LivePlugin classpath to enable Scala plugins support " + APPROXIMATE_SIZE);
+			event.getPresentation().setDescription("Download Scala libraries to LivePlugin classpath to enable Scala plugins support " + approximateSize);
 		}
 	}
 
@@ -38,14 +38,14 @@ public class DownloadScalaLibs extends AnAction implements DumbAware {
 			int answer = Messages.showYesNoDialog(event.getProject(),
 					"Do you want to remove Scala libraries from LivePlugin classpath? This action cannot be undone.", "Live Plugin", null);
 			if (answer == Messages.YES) {
-				for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
-					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
+				for (String fileName : fileNamesMatching(libFilesPattern, livepluginLibsPath)) {
+					FileUtil.delete(new File(livepluginLibsPath + fileName));
 				}
 				askIfUserWantsToRestartIde("For Scala libraries to be unloaded IDE restart is required. Restart now?");
 			}
 		} else {
 			int answer = Messages.showOkCancelDialog(event.getProject(),
-					"Scala libraries " + APPROXIMATE_SIZE + " will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
+					"Scala libraries " + approximateSize + " will be downloaded to '" + livepluginLibsPath + "'." +
 					"\n(If you already have scala >= 2.11, you can copy it manually and restart IDE.)", "Live Plugin", null);
 			if (answer != Messages.OK) return;
 
@@ -57,7 +57,7 @@ public class DownloadScalaLibs extends AnAction implements DumbAware {
 				return Pair.create("http://maven.antelink.com/content/repositories/central/org/scala-lang/" + it + "/2.11.7/", it + "-2.11.7.jar");
 			});
 
-			boolean downloaded = downloadFiles(urlAndFileNamePairs, LIVEPLUGIN_LIBS_PATH);
+			boolean downloaded = downloadFiles(urlAndFileNamePairs, livepluginLibsPath);
 			if (downloaded) {
 				askIfUserWantsToRestartIde("For Scala libraries to be loaded IDE restart is required. Restart now?");
 			} else {

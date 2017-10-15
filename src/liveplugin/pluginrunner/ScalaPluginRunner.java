@@ -35,9 +35,9 @@ import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*;
  * This class should not be loaded unless scala libs are on classpath.
  */
 public class ScalaPluginRunner implements PluginRunner {
-	private static final String SCALA_DEPENDS_ON_PLUGIN_KEYWORD = "// " + DEPENDS_ON_PLUGIN_KEYWORD;
-	public static final String MAIN_SCRIPT = "plugin.scala";
-	private static final String SCALA_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
+	private static final String scalaDependsOnPluginKeyword = "// " + dependsOnPluginKeyword;
+	public static final String mainScript = "plugin.scala";
+	private static final String scalaAddToClasspathKeyword = "// " + addToClasspathKeyword;
 	private static final StringWriter interpreterOutput = new StringWriter();
 	private static final Object interpreterLock = new Object();
 
@@ -85,12 +85,12 @@ public class ScalaPluginRunner implements PluginRunner {
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
-		return findScriptFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
+		return findScriptFileIn(pathToPluginFolder, mainScript) != null;
 	}
 
 	@Override public void runPlugin(String pathToPluginFolder, final String pluginId,
 	                                Map<String, ?> binding, Function<Runnable, Void> runOnEDTCallback) {
-		final File scriptFile = MyFileUtil.findScriptFileIn(pathToPluginFolder, ScalaPluginRunner.MAIN_SCRIPT);
+		final File scriptFile = MyFileUtil.findScriptFileIn(pathToPluginFolder, ScalaPluginRunner.mainScript);
 		assert scriptFile != null;
 
 		final IMain interpreter;
@@ -98,8 +98,8 @@ public class ScalaPluginRunner implements PluginRunner {
 			try {
 				environment.put("PLUGIN_PATH", pathToPluginFolder);
 
-				List<String> dependentPlugins = findPluginDependencies(readLines(asUrl(scriptFile)), SCALA_DEPENDS_ON_PLUGIN_KEYWORD);
-				List<String> additionalPaths = findClasspathAdditions(readLines(asUrl(scriptFile)), SCALA_ADD_TO_CLASSPATH_KEYWORD, environment, path -> {
+				List<String> dependentPlugins = findPluginDependencies(readLines(asUrl(scriptFile)), scalaDependsOnPluginKeyword);
+				List<String> additionalPaths = findClasspathAdditions(readLines(asUrl(scriptFile)), scalaAddToClasspathKeyword, environment, path -> {
 					errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
 					return null;
 				});
@@ -142,6 +142,6 @@ public class ScalaPluginRunner implements PluginRunner {
 	}
 
 	@Override public String scriptName() {
-		return MAIN_SCRIPT;
+		return mainScript;
 	}
 }

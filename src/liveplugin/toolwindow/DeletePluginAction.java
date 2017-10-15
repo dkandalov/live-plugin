@@ -23,11 +23,11 @@ import java.util.List;
 import static com.intellij.util.containers.ContainerUtil.map;
 
 class DeletePluginAction extends AnAction implements DumbAware {
-	private static final Logger LOG = Logger.getInstance(DeletePluginAction.class);
+	private static final Logger logger = Logger.getInstance(DeletePluginAction.class);
 
 
 	public DeletePluginAction() {
-		super("Delete Plugin", "Delete Plugin", Icons.DELETE_PLUGIN_ICON);
+		super("Delete Plugin", "Delete Plugin", Icons.deletePluginIcon);
 	}
 
 	private static boolean userDoesNotWantToRemovePlugins(Collection<VirtualFile> pluginRoots, Project project) {
@@ -69,7 +69,7 @@ class DeletePluginAction extends AnAction implements DumbAware {
 				if (project != null) {
 					IDEUtil.showErrorDialog(project, "Error deleting plugin \"" + pluginRoot.getPath(), "Delete Plugin");
 				}
-				LOG.error(e);
+				logger.error(e);
 			}
 		}
 

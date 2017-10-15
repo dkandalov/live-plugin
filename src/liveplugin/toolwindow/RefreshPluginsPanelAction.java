@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 public class RefreshPluginsPanelAction extends AnAction implements DumbAware {
 
 	public RefreshPluginsPanelAction() {
-		super("Refresh Plugins Panel", "Refresh Plugins Panel", Icons.REFRESH_PLUGINS_PANEL_ICON);
+		super("Refresh Plugins Panel", "Refresh Plugins Panel", Icons.refreshPluginsPanelIcon);
 	}
 
 	public static void refreshPluginTree() {

@@ -8,7 +8,7 @@ import static liveplugin.LivePluginAppComponent.clojureIsOnClassPath;
 
 public class NewClojureFileAction extends NewFileAction {
 	public NewClojureFileAction() {
-		super("Clojure File", IDEUtil.CLOJURE_FILE_TYPE);
+		super("Clojure File", IDEUtil.clojureFileType);
 	}
 
 	@Override protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {

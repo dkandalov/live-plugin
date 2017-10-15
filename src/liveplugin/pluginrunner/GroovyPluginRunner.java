@@ -28,10 +28,10 @@ import static liveplugin.MyFileUtil.*;
 import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*;
 
 public class GroovyPluginRunner implements PluginRunner {
-	public static final String MAIN_SCRIPT = "plugin.groovy";
-	public static final String TEST_SCRIPT = "plugin-test.groovy";
-	public static final String GROOVY_ADD_TO_CLASSPATH_KEYWORD = "// " + ADD_TO_CLASSPATH_KEYWORD;
-	public static final String GROOVY_DEPENDS_ON_PLUGIN_KEYWORD = "// " + DEPENDS_ON_PLUGIN_KEYWORD;
+	public static final String mainScript = "plugin.groovy";
+	public static final String testScript = "plugin-test.groovy";
+	public static final String groovyAddToClasspathKeyword = "// " + addToClasspathKeyword;
+	public static final String groovyDependsOnPluginKeyword = "// " + dependsOnPluginKeyword;
 
 	private final String scriptName;
 	private final ErrorReporter errorReporter;
@@ -62,8 +62,8 @@ public class GroovyPluginRunner implements PluginRunner {
 		try {
 			environment.put("PLUGIN_PATH", pathToPluginFolder);
 
-			List<String> dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), GROOVY_DEPENDS_ON_PLUGIN_KEYWORD);
-			List<String> pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), GROOVY_ADD_TO_CLASSPATH_KEYWORD, environment, path -> {
+			List<String> dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), groovyDependsOnPluginKeyword);
+			List<String> pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), groovyAddToClasspathKeyword, environment, path -> {
 				errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
 				return null;
 			});

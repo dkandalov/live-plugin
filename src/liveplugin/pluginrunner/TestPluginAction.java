@@ -23,11 +23,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static liveplugin.pluginrunner.GroovyPluginRunner.TEST_SCRIPT;
+import static liveplugin.pluginrunner.GroovyPluginRunner.testScript;
 
 public class TestPluginAction extends AnAction implements DumbAware {
 	public TestPluginAction() {
-		super("Run Plugin Tests", "Run Plugin Integration Tests", Icons.TEST_PLUGIN_ICON);
+		super("Run Plugin Tests", "Run Plugin Integration Tests", Icons.testPluginIcon);
 	}
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {
@@ -47,7 +47,7 @@ public class TestPluginAction extends AnAction implements DumbAware {
 
     public static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
         List<PluginRunner> result = new ArrayList<>();
-        result.add(new GroovyPluginRunner(TEST_SCRIPT, errorReporter, RunPluginAction.environment()));
+        result.add(new GroovyPluginRunner(testScript, errorReporter, RunPluginAction.environment()));
         return result;
     }
 }

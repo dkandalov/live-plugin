@@ -63,15 +63,15 @@ import static com.intellij.openapi.ui.Messages.showOkCancelDialog;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
-import static liveplugin.LivePluginAppComponent.LIVE_PLUGIN_ID;
+import static liveplugin.LivePluginAppComponent.livePluginId;
 
 public class IDEUtil {
-	public static final FileType GROOVY_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
-	public static final FileType KOTLIN_FILE_TYPE = KotlinScriptFileType.INSTANCE;
-	public static final FileType SCALA_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".scala");
-	public static final FileType CLOJURE_FILE_TYPE = FileTypeManager.getInstance().getFileTypeByExtension(".clj");
-	public static final DataContext DUMMY_DATA_CONTEXT = dataId -> null;
-	private static final Logger LOG = Logger.getInstance(IDEUtil.class);
+	public static final FileType groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension(".groovy");
+	public static final FileType kotlinFileType = KotlinScriptFileType.INSTANCE;
+	public static final FileType scalaFileType = FileTypeManager.getInstance().getFileTypeByExtension(".scala");
+	public static final FileType clojureFileType = FileTypeManager.getInstance().getFileTypeByExtension(".clj");
+	public static final DataContext dummyDataContext = dataId -> null;
+	private static final Logger logger = Logger.getInstance(IDEUtil.class);
 
     public static void displayError(String consoleTitle, String text, Project project) {
 		if (project == null) {
@@ -80,7 +80,7 @@ public class IDEUtil {
 			// plugin id based on classes in stacktrace and might get it wrong,
 			// e.g. if activity tracker plugin is installed, it will include LivePlugin classes as library
 			// (see com.intellij.diagnostic.IdeErrorsDialog.findPluginId)
-			LOG.error(consoleTitle, new PluginException(text, PluginId.getId(LIVE_PLUGIN_ID)));
+			logger.error(consoleTitle, new PluginException(text, PluginId.getId(livePluginId)));
 		} else {
             showInConsole(text, consoleTitle, project, ERROR_OUTPUT);
         }
@@ -97,7 +97,7 @@ public class IDEUtil {
 	public static void runAction(final AnAction action, String place) {
 		final AnActionEvent event = new AnActionEvent(
 				null,
-				DUMMY_DATA_CONTEXT,
+			dummyDataContext,
 				place,
 				action.getTemplatePresentation(),
 				ActionManager.getInstance(),

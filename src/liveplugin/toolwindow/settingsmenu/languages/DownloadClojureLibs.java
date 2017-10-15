@@ -18,22 +18,22 @@ import static liveplugin.LivePluginAppComponent.*;
 import static liveplugin.MyFileUtil.fileNamesMatching;
 
 public class DownloadClojureLibs extends AnAction implements DumbAware {
-	public static final String LIB_FILES_PATTERN = "clojure-.*jar";
-	private static final String APPROXIMATE_SIZE = "(~5Mb)";
+	public static final String libFilesPattern = "clojure-.*jar";
+	private static final String approximateSize = "(~5Mb)";
 
 	@Override public void actionPerformed(@NotNull AnActionEvent event) {
 		if (clojureIsOnClassPath()) {
 			int answer = Messages.showYesNoDialog(event.getProject(),
 					"Do you want to remove Clojure libraries from LivePlugin classpath? This action cannot be undone.", "Live Plugin", null);
 			if (answer == Messages.YES) {
-				for (String fileName : fileNamesMatching(LIB_FILES_PATTERN, LIVEPLUGIN_LIBS_PATH)) {
-					FileUtil.delete(new File(LIVEPLUGIN_LIBS_PATH + fileName));
+				for (String fileName : fileNamesMatching(libFilesPattern, livepluginLibsPath)) {
+					FileUtil.delete(new File(livepluginLibsPath + fileName));
 				}
 				askIfUserWantsToRestartIde("For Clojure libraries to be unloaded IDE restart is required. Restart now?");
 			}
 		} else {
 			int answer = Messages.showOkCancelDialog(event.getProject(),
-					"Clojure libraries " + APPROXIMATE_SIZE + " will be downloaded to '" + LIVEPLUGIN_LIBS_PATH + "'." +
+					"Clojure libraries " + approximateSize + " will be downloaded to '" + livepluginLibsPath + "'." +
 					"\n(If you already have clojure >= 1.7.0, you can copy it manually and restart IDE.)", "Live Plugin", null);
 			if (answer != Messages.OK) return;
 
@@ -41,7 +41,7 @@ public class DownloadClojureLibs extends AnAction implements DumbAware {
 			boolean downloaded = downloadFiles(asList(
 					Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure/1.7.0/", "clojure-1.7.0.jar"),
 					Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure-contrib/1.2.0/", "clojure-contrib-1.2.0.jar")
-			), LIVEPLUGIN_LIBS_PATH);
+			), livepluginLibsPath);
 			if (downloaded) {
 				askIfUserWantsToRestartIde("For Clojure libraries to be loaded IDE restart is required. Restart now?");
 			} else {
@@ -57,7 +57,7 @@ public class DownloadClojureLibs extends AnAction implements DumbAware {
 			event.getPresentation().setDescription("Remove Clojure from LivePlugin Classpath");
 		} else {
 			event.getPresentation().setText("Download Clojure to LivePlugin Classpath");
-			event.getPresentation().setDescription("Download Clojure libraries to LivePlugin classpath to enable clojure plugins support " + APPROXIMATE_SIZE);
+			event.getPresentation().setDescription("Download Clojure libraries to LivePlugin classpath to enable clojure plugins support " + approximateSize);
 		}
 	}
 }

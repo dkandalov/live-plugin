@@ -19,9 +19,9 @@ import static liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginD
  * This class should not be loaded unless clojure libs are on classpath.
  */
 public class ClojurePluginRunner implements PluginRunner {
-	public static final String MAIN_SCRIPT = "plugin.clj";
-	private static final String CLOJURE_ADD_TO_CLASSPATH_KEYWORD = "; " + ADD_TO_CLASSPATH_KEYWORD;
-	private static final String CLOJURE_DEPENDS_ON_PLUGIN_KEYWORD = "; " + DEPENDS_ON_PLUGIN_KEYWORD;
+	public static final String mainScript = "plugin.clj";
+	private static final String clojureAddToClasspathKeyword = "; " + addToClasspathKeyword;
+	private static final String clojureDependsOnPluginKeyword = "; " + dependsOnPluginKeyword;
 
 	private static boolean initialized;
 
@@ -35,7 +35,7 @@ public class ClojurePluginRunner implements PluginRunner {
 	}
 
 	@Override public boolean canRunPlugin(String pathToPluginFolder) {
-		return findScriptFileIn(pathToPluginFolder, MAIN_SCRIPT) != null;
+		return findScriptFileIn(pathToPluginFolder, mainScript) != null;
 	}
 
 	@Override public void runPlugin(final String pathToPluginFolder, final String pluginId,
@@ -51,7 +51,7 @@ public class ClojurePluginRunner implements PluginRunner {
 			initialized = true;
 		}
 
-		final File scriptFile = findScriptFileIn(pathToPluginFolder, MAIN_SCRIPT);
+		final File scriptFile = findScriptFileIn(pathToPluginFolder, mainScript);
 		assert scriptFile != null;
 
 		final List<String> dependentPlugins = new ArrayList<>();
@@ -59,8 +59,8 @@ public class ClojurePluginRunner implements PluginRunner {
 		try {
 			environment.put("PLUGIN_PATH", pathToPluginFolder);
 
-			dependentPlugins.addAll(findPluginDependencies(readLines(asUrl(scriptFile)), CLOJURE_DEPENDS_ON_PLUGIN_KEYWORD));
-			additionalPaths.addAll(findClasspathAdditions(readLines(asUrl(scriptFile)), CLOJURE_ADD_TO_CLASSPATH_KEYWORD, environment, path -> {
+			dependentPlugins.addAll(findPluginDependencies(readLines(asUrl(scriptFile)), clojureDependsOnPluginKeyword));
+			additionalPaths.addAll(findClasspathAdditions(readLines(asUrl(scriptFile)), clojureAddToClasspathKeyword, environment, path -> {
 				errorReporter.addLoadingError(pluginId, "Couldn't find dependency '" + path + "'");
 				return null;
 			}));
@@ -99,7 +99,7 @@ public class ClojurePluginRunner implements PluginRunner {
 	}
 
 	@Override public String scriptName() {
-		return MAIN_SCRIPT;
+		return mainScript;
 	}
 
 	private static Var createKey(String name) {

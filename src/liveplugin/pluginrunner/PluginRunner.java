@@ -22,9 +22,9 @@ import java.util.Map;
 import static com.intellij.util.containers.ContainerUtil.map;
 
 public interface PluginRunner {
-	String IDE_STARTUP = "IDE_STARTUP";
-	String ADD_TO_CLASSPATH_KEYWORD = "add-to-classpath ";
-	String DEPENDS_ON_PLUGIN_KEYWORD = "depends-on-plugin ";
+	String ideStartup = "IDE_STARTUP";
+	String addToClasspathKeyword = "add-to-classpath ";
+	String dependsOnPluginKeyword = "depends-on-plugin ";
 
 	/**
 	 * @param pathToPluginFolder absolute path to plugin folder
@@ -44,7 +44,7 @@ public interface PluginRunner {
 
 
 	class ClasspathAddition {
-		private static final Logger LOG = Logger.getInstance(ClasspathAddition.class);
+		private static final Logger logger = Logger.getInstance(ClasspathAddition.class);
 
 		public static ClassLoader createClassLoaderWithDependencies(List<String> pathsToAdd, List<String> pluginsToAdd,
 		                                                            String mainScriptUrl, String pluginId, ErrorReporter errorReporter) {
@@ -148,7 +148,7 @@ public interface PluginRunner {
 				path = path.replace("$" + entry.getKey(), entry.getValue());
 				wasModified = true;
 			}
-			if (wasModified) LOG.info("Additional classpath with inlined env variables: " + path);
+			if (wasModified) logger.info("Additional classpath with inlined env variables: " + path);
 			return path;
 		}
 	}

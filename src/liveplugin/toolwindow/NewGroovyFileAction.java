@@ -4,6 +4,6 @@ import liveplugin.IDEUtil;
 
 public class NewGroovyFileAction extends NewFileAction {
 	public NewGroovyFileAction() {
-		super("Groovy File", IDEUtil.GROOVY_FILE_TYPE);
+		super("Groovy File", IDEUtil.groovyFileType);
 	}
 }

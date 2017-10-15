@@ -7,22 +7,22 @@ import com.intellij.util.ui.UIUtil;
 import javax.swing.*;
 
 public class Icons {
-	public static final Icon ADD_PLUGIN_ICON = AllIcons.General.Add;
-	public static final Icon NEW_PLUGIN_ICON = AllIcons.FileTypes.Text;
-	public static final Icon COPY_PLUGIN_FROM_PATH_ICON = AllIcons.Actions.Copy;
-	public static final Icon DELETE_PLUGIN_ICON = AllIcons.General.Remove;
-	public static final Icon REFRESH_PLUGINS_PANEL_ICON = AllIcons.Actions.Refresh;
-	public static final Icon PLUGIN_ICON = AllIcons.Nodes.Plugin;
-	public static final Icon PLUGIN_TOOLWINDOW_ICON = (
+	public static final Icon addPluginIcon = AllIcons.General.Add;
+	public static final Icon newPluginIcon = AllIcons.FileTypes.Text;
+	public static final Icon copyPluginFromPathIcon = AllIcons.Actions.Copy;
+	public static final Icon deletePluginIcon = AllIcons.General.Remove;
+	public static final Icon refreshPluginsPanelIcon = AllIcons.Actions.Refresh;
+	public static final Icon pluginIcon = AllIcons.Nodes.Plugin;
+	public static final Icon pluginToolwindowIcon = (
 		UIUtil.isUnderDarcula() ?
 			AllIcons.Nodes.Plugin :
 			// Custom darker icon so that it looks ok as toolwindow icon with default (white) look-and-feel.
 			IconLoader.getIcon("/liveplugin/plugin-toolwindow-icon.png")
 	);
-	public static final Icon RUN_PLUGIN_ICON = AllIcons.Actions.Execute;
-	public static final Icon TEST_PLUGIN_ICON = AllIcons.RunConfigurations.Junit;
-	public static final Icon EXPAND_ALL_ICON = AllIcons.Actions.Expandall;
-	public static final Icon COLLAPSE_ALL_ICON = AllIcons.Actions.Collapseall;
-	public static final Icon SETTINGS_ICON = AllIcons.General.ProjectSettings;
-	public static final Icon HELP_ICON = AllIcons.Actions.Help;
+	public static final Icon runPluginIcon = AllIcons.Actions.Execute;
+	public static final Icon testPluginIcon = AllIcons.RunConfigurations.Junit;
+	public static final Icon expandAllIcon = AllIcons.Actions.Expandall;
+	public static final Icon collapseAllIcon = AllIcons.Actions.Collapseall;
+	public static final Icon settingsIcon = AllIcons.General.ProjectSettings;
+	public static final Icon helpIcon = AllIcons.Actions.Help;
 }

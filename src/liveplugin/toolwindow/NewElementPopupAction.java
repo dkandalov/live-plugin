@@ -33,8 +33,8 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static liveplugin.LivePluginAppComponent.defaultPluginScript;
 import static liveplugin.LivePluginAppComponent.defaultPluginTestScript;
-import static liveplugin.pluginrunner.GroovyPluginRunner.MAIN_SCRIPT;
-import static liveplugin.pluginrunner.GroovyPluginRunner.TEST_SCRIPT;
+import static liveplugin.pluginrunner.GroovyPluginRunner.mainScript;
+import static liveplugin.pluginrunner.GroovyPluginRunner.testScript;
 
 class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 	private static final Icon Folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
@@ -73,8 +73,8 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 						new NewFolderAction("Directory", "Directory", Folder)
 				));
 				actions.addAll(asList(
-						new CreateRootFileAction(MAIN_SCRIPT, MAIN_SCRIPT, defaultPluginScript(), inferIconFromFileType, IDEUtil.GROOVY_FILE_TYPE),
-						new CreateRootFileAction(TEST_SCRIPT, TEST_SCRIPT, defaultPluginTestScript(), inferIconFromFileType, IDEUtil.GROOVY_FILE_TYPE)
+						new CreateRootFileAction(mainScript, mainScript, defaultPluginScript(), inferIconFromFileType, IDEUtil.groovyFileType),
+						new CreateRootFileAction(testScript, testScript, defaultPluginTestScript(), inferIconFromFileType, IDEUtil.groovyFileType)
 				));
 				actions.addAll(asList(
 						new Separator(),

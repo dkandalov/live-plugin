@@ -1,11 +1,11 @@
 package liveplugin.intention;
 
-import static liveplugin.pluginrunner.GroovyPluginRunner.GROOVY_ADD_TO_CLASSPATH_KEYWORD;
+import static liveplugin.pluginrunner.GroovyPluginRunner.groovyAddToClasspathKeyword;
 
 public class AddToClassPathGroovyIntention extends AddAfterImportsGroovyIntention {
 	public AddToClassPathGroovyIntention() {
 		super(
-				GROOVY_ADD_TO_CLASSPATH_KEYWORD + "\n",
+				groovyAddToClasspathKeyword + "\n",
 				"Inserted 'add-to-classpath'",
 				"Insert 'add-to-classpath' directive"
 		);

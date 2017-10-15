@@ -6,7 +6,7 @@ import liveplugin.IDEUtil;
 
 public class NewKotlinFileAction extends NewFileAction {
 	public NewKotlinFileAction() {
-		super("Kotlin File", IDEUtil.KOTLIN_FILE_TYPE);
+		super("Kotlin File", IDEUtil.kotlinFileType);
 	}
 
 	@Override protected void update(FileSystemTree fileSystemTree, AnActionEvent e) {

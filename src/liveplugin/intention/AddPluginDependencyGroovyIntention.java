@@ -1,11 +1,11 @@
 package liveplugin.intention;
 
-import static liveplugin.pluginrunner.GroovyPluginRunner.GROOVY_DEPENDS_ON_PLUGIN_KEYWORD;
+import static liveplugin.pluginrunner.GroovyPluginRunner.groovyDependsOnPluginKeyword;
 
 public class AddPluginDependencyGroovyIntention extends AddAfterImportsGroovyIntention {
 	public AddPluginDependencyGroovyIntention() {
 		super(
-				GROOVY_DEPENDS_ON_PLUGIN_KEYWORD + "\n",
+				groovyDependsOnPluginKeyword + "\n",
 				"Inserted 'depends-on-plugin'",
 				"Insert 'depends-on-plugin' directive"
 		);

@@ -44,8 +44,8 @@ import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Collections.emptyList;
 import static liveplugin.IDEUtil.SingleThreadBackgroundRunner;
 import static liveplugin.LivePluginAppComponent.*;
-import static liveplugin.pluginrunner.GroovyPluginRunner.MAIN_SCRIPT;
-import static liveplugin.pluginrunner.PluginRunner.IDE_STARTUP;
+import static liveplugin.pluginrunner.GroovyPluginRunner.mainScript;
+import static liveplugin.pluginrunner.PluginRunner.ideStartup;
 
 public class RunPluginAction extends AnAction implements DumbAware {
 	private static final SingleThreadBackgroundRunner backgroundRunner = new SingleThreadBackgroundRunner("LivePlugin thread");
@@ -58,7 +58,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 
 
     public RunPluginAction() {
-		super("Run Plugin", "Run selected plugins", Icons.RUN_PLUGIN_ICON);
+		super("Run Plugin", "Run selected plugins", Icons.runPluginIcon);
 	}
 
     @Override public void actionPerformed(@NotNull AnActionEvent event) {
@@ -74,7 +74,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
         checkThatGroovyIsOnClasspath();
 
         final Project project = event.getProject();
-        final boolean isIdeStartup = event.getPlace().equals(IDE_STARTUP);
+        final boolean isIdeStartup = event.getPlace().equals(ideStartup);
 
         if (!isIdeStartup) {
             Settings.countPluginsUsage(pluginIds);
@@ -117,7 +117,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 
 	public static List<PluginRunner> createPluginRunners(ErrorReporter errorReporter) {
 		List<PluginRunner> result = new ArrayList<>();
-		result.add(new GroovyPluginRunner(MAIN_SCRIPT, errorReporter, environment()));
+		result.add(new GroovyPluginRunner(mainScript, errorReporter, environment()));
 		result.add(new KotlinPluginRunner(errorReporter, environment()));
 		if (scalaIsOnClassPath()) result.add(new ScalaPluginRunner(errorReporter, environment()));
 		if (clojureIsOnClassPath()) result.add(new ClojurePluginRunner(errorReporter, environment()));

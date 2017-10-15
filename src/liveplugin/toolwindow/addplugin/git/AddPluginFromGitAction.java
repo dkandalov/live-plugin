@@ -33,7 +33,7 @@ import java.io.File;
  * Partially copied from org.jetbrains.plugins.github.GithubCheckoutProvider (became com.intellij.dvcs.ui.CloneDvcsDialog in IJ13)
  */
 class AddPluginFromGitAction extends AnAction implements DumbAware {
-	private static final Logger LOG = Logger.getInstance(AddPluginFromGitAction.class);
+	private static final Logger logger = Logger.getInstance(AddPluginFromGitAction.class);
 	private static final String dialogTitle = "Clone Plugin From Git";
 
 
@@ -107,7 +107,7 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 			RefreshQueue.getInstance().refresh(false, true, () -> {
 				VirtualFile clonedFolder = destinationFolder.findChild(pluginName);
 				if (clonedFolder == null) {
-					LOG.error("Couldn't find virtual file for checked out plugin: " + pluginName);
+					logger.error("Couldn't find virtual file for checked out plugin: " + pluginName);
 					return;
 				}
 
@@ -121,7 +121,7 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 					if (project != null) {
 						IDEUtil.showErrorDialog(project, "Error deleting plugin \"" + clonedFolder.getPath(), "Delete Plugin");
 					}
-					LOG.error(e);
+					logger.error(e);
 				}
 
 				RefreshPluginsPanelAction.refreshPluginTree();
@@ -132,7 +132,7 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 			int answer = Messages.showYesNoDialog(
 					project,
 					"It looks like \"" + pluginName + "\" is not a valid plugin because it does not contain \"" +
-							GroovyPluginRunner.MAIN_SCRIPT + "\".\n\nDo you want to add it anyway?",
+							GroovyPluginRunner.mainScript + "\".\n\nDo you want to add it anyway?",
 dialogTitle,
 					Messages.getQuestionIcon()
 			);
