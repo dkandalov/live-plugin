@@ -128,7 +128,7 @@ def "Move kotlin compiler jars from plugin classpath into a separate folder so t
 		filesToMove.each {
 			ant.move(
 				file: "build/idea-sandbox/plugins/LivePlugin/lib/${it[0]}",
-				tofile: "build/idea-sandbox/plugins/LivePlugin/lib/kotlib-compiler/${it[1]}"
+				tofile: "build/idea-sandbox/plugins/LivePlugin/lib/kotlin-compiler/${it[1]}"
 			)
 		}
 	}
@@ -139,7 +139,7 @@ def "Move kotlin compiler jars from plugin classpath into a separate folder so t
 		filesToMove.each {
 			ant.move(
 				file:"$tmp/LivePlugin/lib/${it[0]}",
-				tofile:"$tmp/LivePlugin/lib/kotlib-compiler/${it[1]}"
+				tofile:"$tmp/LivePlugin/lib/kotlin-compiler/${it[1]}"
 			)
 		}
 		ant.zip(basedir: "$tmp", destfile: "build/distributions/LivePlugin.zip")

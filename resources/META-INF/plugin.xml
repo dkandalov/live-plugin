@@ -76,9 +76,6 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 
 	<extensions defaultExtensionNs="com.intellij">
 		<applicationService serviceInterface="liveplugin.Settings" serviceImplementation="liveplugin.Settings"/>
-        <projectService
-                serviceInterface="liveplugin.toolwindow.settingsmenu.EnableLivePluginAutoComplete$StateByProject"
-                serviceImplementation="liveplugin.toolwindow.settingsmenu.EnableLivePluginAutoComplete$StateByProject"/>
 		<nonProjectFileWritingAccessExtension implementation="liveplugin.MakePluginFilesAlwaysEditable"/>
         <defaultHighlightingSettingProvider implementation="liveplugin.EnableHighlightingForLivePlugins"/>
 		<intentionAction>
@@ -94,6 +91,6 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
         <scriptTemplatesProvider id="LivePluginKotlinScriptTemplateProvider"
                                  order="before StandardKotlinScriptTemplateProvider"
-                                 implementation="liveplugin.LivePluginKotlinScriptTemplateProvider"/>
+                                 implementation="liveplugin.pluginrunner.kotlin.LivePluginKotlinScriptTemplateProvider"/>
     </extensions>
 </idea-plugin>

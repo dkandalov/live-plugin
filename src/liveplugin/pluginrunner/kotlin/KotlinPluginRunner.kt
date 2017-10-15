@@ -1,4 +1,4 @@
-package liveplugin.pluginrunner
+package liveplugin.pluginrunner.kotlin
 
 import com.intellij.ide.ui.laf.IntelliJLaf
 import com.intellij.openapi.Disposable
@@ -10,6 +10,8 @@ import com.intellij.util.lang.UrlClassLoader
 import liveplugin.LivePluginAppComponent.LIVEPLUGIN_COMPILER_LIBS_PATH
 import liveplugin.LivePluginAppComponent.LIVEPLUGIN_LIBS_PATH
 import liveplugin.MyFileUtil.*
+import liveplugin.pluginrunner.ErrorReporter
+import liveplugin.pluginrunner.PluginRunner
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import org.jetbrains.kotlin.codegen.CompilationException
@@ -64,7 +66,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
             .parent(ideLibsClassLoader)
             .useCache()
             .get()
-        val compilerRunner = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.EmbeddedCompilerRunnerKt")
+        val compilerRunner = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
 
         compilerRunner.declaredMethods.find { it.name == "compilePlugin" }!!.let { method ->
             try {
@@ -99,7 +101,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
         runOnEDTCallback.`fun`(Runnable {
             try {
-                // Arguments below must match constructor of liveplugin.pluginrunner.KotlinScriptTemplate class.
+                // Arguments below must match constructor of liveplugin.pluginrunner.kotlin.KotlinScriptTemplate class.
                 // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
                 pluginClass.constructors[0].newInstance(
                     binding["project"] as Project,
@@ -120,10 +122,10 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
 private fun File.toFileUrl() = URL("file:///$this") // prefix with "file:///" so that unix-like paths work on windows
 
-private fun ideJdkClassesRoots(): List<File> =
+fun ideJdkClassesRoots(): List<File> =
     JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")), true)
 
-private fun ideLibFolder(): File {
+fun ideLibFolder(): File {
     val ideJarPath = PathManager.getJarPathForClass(IntelliJLaf::class.java) ?: throw IllegalStateException("Failed to find IDE lib folder.")
     return File(ideJarPath).parentFile
 }

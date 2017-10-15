@@ -32,6 +32,7 @@ import liveplugin.IDEUtil;
 import liveplugin.Icons;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.Settings;
+import liveplugin.pluginrunner.kotlin.KotlinPluginRunner;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import org.jetbrains.annotations.NotNull;
 

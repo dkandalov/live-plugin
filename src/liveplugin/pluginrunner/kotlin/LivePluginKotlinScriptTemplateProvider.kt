@@ -1,12 +1,12 @@
-package liveplugin
+package liveplugin.pluginrunner.kotlin
 
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.ex.PathUtilEx
-import liveplugin.toolwindow.settingsmenu.EnableLivePluginAutoComplete.findGroovyJarOn
-import org.jetbrains.kotlin.idea.core.script.dependencies.KotlinScriptResolveScopeProvider
+import liveplugin.MyFileUtil
+import org.jetbrains.kotlin.idea.core.script.dependencies.KotlinScriptResolveScopeProvider.Companion.USE_NULL_RESOLVE_SCOPE
 import org.jetbrains.kotlin.script.ScriptTemplatesProvider
 import java.io.File
 import kotlin.script.dependencies.Environment
@@ -15,19 +15,18 @@ import kotlin.script.experimental.dependencies.DependenciesResolver
 import kotlin.script.experimental.dependencies.ScriptDependencies
 import kotlin.script.templates.standard.ScriptTemplateWithArgs
 
-class LivePluginKotlinScriptTemplateProvider(val project: Project) : ScriptTemplatesProvider {
-    override val id: String = "LivePluginKotlinScriptTemplateProvider"
+class LivePluginKotlinScriptTemplateProvider(val project: Project): ScriptTemplatesProvider {
+    override val id: String = javaClass.simpleName
     override val isValid: Boolean = true
 
     override val templateClassNames: Iterable<String> get() = listOf(ScriptTemplateWithArgs::class.qualifiedName!!)
     override val templateClasspath get() = emptyList<File>()
 
-    override val environment: Map<String, Any?>? get() {
-        return mapOf(
-            KotlinScriptResolveScopeProvider.USE_NULL_RESOLVE_SCOPE to true,
+    override val environment: Map<String, Any?>?
+        get() = mapOf(
+            USE_NULL_RESOLVE_SCOPE to true,
             "sdk" to getScriptSDK(project)
         )
-    }
 
     override val resolver: DependenciesResolver = object: DependenciesResolver {
         override fun resolve(scriptContents: ScriptContents, environment: Environment): DependenciesResolver.ResolveResult {
@@ -62,7 +61,12 @@ class LivePluginKotlinScriptTemplateProvider(val project: Project) : ScriptTempl
     private fun getScriptSDK(project: Project): String? {
         val jdk = PathUtilEx.getAnyJdk(project) ?:
             ProjectJdkTable.getInstance().allJdks.firstOrNull { sdk -> sdk.sdkType is JavaSdk }
-
         return jdk?.homePath
     }
+
+    fun findGroovyJarOn(ideaJarsPath: String): String {
+        val files = MyFileUtil.fileNamesMatching("groovy-all-.*jar", ideaJarsPath)
+        return if (files.isEmpty()) "could-not-find-groovy.jar" else files.get(0)
+    }
+
 }

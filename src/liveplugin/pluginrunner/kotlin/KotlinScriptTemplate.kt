@@ -1,4 +1,4 @@
-package liveplugin.pluginrunner
+package liveplugin.pluginrunner.kotlin
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project

@@ -62,7 +62,6 @@ import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.AddPluginFromPathAction;
-import liveplugin.toolwindow.settingsmenu.EnableLivePluginAutoComplete;
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -316,7 +315,6 @@ public class PluginToolWindowManager {
 				}
 			};
 	        actionGroup.add(new RunAllPluginsOnIDEStartAction());
-	        actionGroup.add(new EnableLivePluginAutoComplete.Action());
 //			actionGroup.add(new Separator());
 //            actionGroup.add(new AddScalaLibsAsDependency());
 //            actionGroup.add(new AddClojureLibsAsDependency());

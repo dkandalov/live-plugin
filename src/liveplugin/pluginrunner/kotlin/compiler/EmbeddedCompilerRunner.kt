@@ -1,6 +1,6 @@
-package liveplugin.pluginrunner.kotlin
+package liveplugin.pluginrunner.kotlin.compiler
 
-import liveplugin.pluginrunner.KotlinScriptTemplate
+import liveplugin.pluginrunner.kotlin.KotlinScriptTemplate
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity

@@ -28,6 +28,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.vfs.VirtualFile;
 import liveplugin.pluginrunner.*;
+import liveplugin.pluginrunner.kotlin.KotlinPluginRunner;
 import liveplugin.toolwindow.PluginToolWindowManager;
 import liveplugin.toolwindow.util.ExamplePluginInstaller;
 import org.jetbrains.annotations.NotNull;
