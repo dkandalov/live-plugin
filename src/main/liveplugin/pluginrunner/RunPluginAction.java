@@ -49,11 +49,11 @@ import static liveplugin.pluginrunner.PluginRunner.ideStartup;
 
 public class RunPluginAction extends AnAction implements DumbAware {
 	private static final SingleThreadBackgroundRunner backgroundRunner = new SingleThreadBackgroundRunner("LivePlugin thread");
-	private static final Function<Runnable,Void> RUN_ON_EDT = runnable -> {
+	private static final Function<Runnable,Void> runOnEdt = runnable -> {
 		UIUtil.invokeAndWaitIfNeeded(runnable);
 		return null;
 	};
-    private static final String DISPOSABLE_KEY = "pluginDisposable";
+    private static final String disposableKey = "pluginDisposable";
     private static final WeakHashMap<String, Map<String, Object>> bindingByPluginId = new WeakHashMap<>();
 
 
@@ -93,7 +93,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
                         if (oldBinding != null) {
 	                        ApplicationManager.getApplication().invokeAndWait(() -> {
 		                        try {
-			                        Disposer.dispose((Disposable) oldBinding.get(DISPOSABLE_KEY));
+			                        Disposer.dispose((Disposable) oldBinding.get(disposableKey));
 		                        } catch (Exception e) {
 			                        errorReporter.addRunningError(pluginId, e);
 		                        }
@@ -102,7 +102,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
                         Map<String, Object> binding = createBinding(pathToPluginFolder, project, isIdeStartup);
                         bindingByPluginId.put(pluginId, binding);
 
-                        pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, RUN_ON_EDT);
+                        pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, runOnEdt);
                     }
                 } catch (Error e) {
                     errorReporter.addLoadingError(pluginId, e);
@@ -137,7 +137,7 @@ public class RunPluginAction extends AnAction implements DumbAware {
 		binding.put("project", project);
 		binding.put("isIdeStartup", isIdeStartup);
 		binding.put("pluginPath", pathToPluginFolder);
-		binding.put(DISPOSABLE_KEY, disposable);
+		binding.put(disposableKey, disposable);
 		return binding;
 	}
 
