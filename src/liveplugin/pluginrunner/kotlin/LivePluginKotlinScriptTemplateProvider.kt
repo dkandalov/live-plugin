@@ -1,55 +1,36 @@
 package liveplugin.pluginrunner.kotlin
 
 import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.JavaSdk
-import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.projectRoots.ex.PathUtilEx
-import liveplugin.MyFileUtil
+import liveplugin.LivePluginAppComponent.livepluginLibsPath
 import org.jetbrains.kotlin.idea.core.script.dependencies.KotlinScriptResolveScopeProvider.Companion.USE_NULL_RESOLVE_SCOPE
 import org.jetbrains.kotlin.script.ScriptTemplatesProvider
 import java.io.File
 import kotlin.script.dependencies.Environment
 import kotlin.script.dependencies.ScriptContents
 import kotlin.script.experimental.dependencies.DependenciesResolver
+import kotlin.script.experimental.dependencies.DependenciesResolver.ResolveResult
 import kotlin.script.experimental.dependencies.ScriptDependencies
 import kotlin.script.templates.standard.ScriptTemplateWithArgs
 
-class LivePluginKotlinScriptTemplateProvider(val project: Project): ScriptTemplatesProvider {
+/**
+ * Based on `org.jetbrains.kotlin.idea.script.StandardKotlinScriptTemplateProvider`.
+ */
+class LivePluginKotlinScriptTemplateProvider: ScriptTemplatesProvider {
     override val id: String = javaClass.simpleName
     override val isValid: Boolean = true
-
     override val templateClassNames: Iterable<String> get() = listOf(ScriptTemplateWithArgs::class.qualifiedName!!)
     override val templateClasspath get() = emptyList<File>()
-
-    override val environment: Map<String, Any?>?
-        get() = mapOf(
-            USE_NULL_RESOLVE_SCOPE to true,
-            "sdk" to getScriptSDK(project)
-        )
+    override val environment: Map<String, Any?>? = mapOf(USE_NULL_RESOLVE_SCOPE to true)
 
     override val resolver: DependenciesResolver = object: DependenciesResolver {
-        override fun resolve(scriptContents: ScriptContents, environment: Environment): DependenciesResolver.ResolveResult {
-            val ideJarsPath = PathManager.getHomePath() + "/lib/"
-            val ideJars = listOf(
-                "openapi.jar",
-                "idea.jar",
-                "idea_rt.jar",
-                "annotations.jar",
-                "util.jar",
-                "extensions.jar"
-            ).map {
-                File(ideJarsPath + it)
-            }.plus(File(ideJarsPath + findGroovyJarOn(ideJarsPath)))
-
-            return DependenciesResolver.ResolveResult.Success(
+        override fun resolve(scriptContents: ScriptContents, environment: Environment): ResolveResult {
+            return ResolveResult.Success(
                 ScriptDependencies(
-                    javaHome = File("/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/"),
-                    classpath = listOf(File("/Users/dima/IdeaProjects/live-plugin/LivePlugin.jar")) + ideJars,
-                    sources = listOf(
-                        File("/Users/dima/IdeaProjects/live-plugin/src"),
-                        File("/Users/dima/IdeaProjects/live-plugin/src_groovy")
-                    )
+                    javaHome = File(System.getProperty("java.home")),
+                    classpath =
+                        File(livepluginLibsPath).listFiles().toList() +
+                        File(PathManager.getHomePath() + "/lib/").listFiles(),
+                    sources = File(livepluginLibsPath).listFiles().toList()
                 ),
                 emptyList()
             )
@@ -57,16 +38,4 @@ class LivePluginKotlinScriptTemplateProvider(val project: Project): ScriptTempla
     }
 
     override val additionalResolverClasspath: List<File> get() = emptyList()
-
-    private fun getScriptSDK(project: Project): String? {
-        val jdk = PathUtilEx.getAnyJdk(project) ?:
-            ProjectJdkTable.getInstance().allJdks.firstOrNull { sdk -> sdk.sdkType is JavaSdk }
-        return jdk?.homePath
-    }
-
-    fun findGroovyJarOn(ideaJarsPath: String): String {
-        val files = MyFileUtil.fileNamesMatching("groovy-all-.*jar", ideaJarsPath)
-        return if (files.isEmpty()) "could-not-find-groovy.jar" else files.get(0)
-    }
-
 }

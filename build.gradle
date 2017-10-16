@@ -36,7 +36,7 @@ compileKotlin {
 ext.kotlinVersion = "1.1.4"
 
 intellij {
-	def ideVersion = System.getenv().getOrDefault("LIVEPLUGIN_IDEA_VERSION", "IC-172.3757.29")
+	def ideVersion = System.getenv().getOrDefault("LIVEPLUGIN_IDEA_VERSION", "IU-172.3757.29")
 	println("Using ide version: ${ideVersion}")
 	version ideVersion
 	// The artifact name is deliberately not "live-plugin" because plugins are stored in the "live-plugins" directory.
@@ -70,7 +70,7 @@ dependencies {
 }
 "Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"()
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
-'Add source files to compiler output so that LivePlugin source code is available for navigation at runtime'()
+"Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
 
 sourceSets {
 	main {
@@ -109,11 +109,12 @@ def "Exclude scala and clojure jars because they are optional and can be downloa
 	prepareSandbox.setLibrariesToIgnore(files.toArray())
 }
 
-def 'Add source files to compiler output so that LivePlugin source code is available for navigation at runtime'() {
+def "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"() {
 	compileJava.doLast {
 		def classesFolder = project.tasks.findByName(JavaPlugin.COMPILE_JAVA_TASK_NAME).destinationDir
-		ant.copy(toDir: classesFolder.absolutePath + "/src", overwrite: true) {
+		ant.copy(toDir: classesFolder.absolutePath, overwrite: true) {
 			ant.fileset(dir: "./src_groovy", includes: "**/*")
+			ant.fileset(file: "./src/script-implicits.kt")
 		}
 	}
 }
