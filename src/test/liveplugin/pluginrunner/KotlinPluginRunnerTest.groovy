@@ -9,7 +9,7 @@ import org.junit.Test
 
 import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
 
-@Ignore // Because it's not obvious how to instantiate KotlinScriptTemplate from this test
+@Ignore // Because it's not clear how to load EmbeddedCompilerRunnerKt in test with different libraries on classpath.
 class KotlinPluginRunnerTest {
 	private final ErrorReporter errorReporter = new ErrorReporter()
 	private final pluginRunner = new KotlinPluginRunner(errorReporter, emptyEnvironment)
