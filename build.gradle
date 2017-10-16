@@ -74,13 +74,13 @@ dependencies {
 
 sourceSets {
 	main {
-		java { srcDir "src" }
-		groovy { srcDir "src_groovy" }
+		java { srcDir "src/main" }
+		java { srcDir "src/runtime" }
 		resources { srcDir "resources" }
-		resources { srcDir "plugin_examples" }
+		resources { srcDir "plugin-examples" }
 	}
 	test {
-		groovy { srcDir "test_groovy" }
+		groovy { srcDir "src/test" }
 	}
 }
 
@@ -113,8 +113,7 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 	compileJava.doLast {
 		def classesFolder = project.tasks.findByName(JavaPlugin.COMPILE_JAVA_TASK_NAME).destinationDir
 		ant.copy(toDir: classesFolder.absolutePath, overwrite: true) {
-			ant.fileset(dir: "./src_groovy", includes: "**/*")
-			ant.fileset(file: "./src/script-implicits.kt")
+			ant.fileset(dir: "./src/runtime", includes: "**/*")
 		}
 	}
 }

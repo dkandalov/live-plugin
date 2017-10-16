@@ -21,7 +21,7 @@ if (!isIdeStartup) show("Loaded 'HelloWorldAction'<br/>Use alt+shift+H to run it
 
 
 // If you were wondering what registerAction() method does,
-// you can look at the source code here https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy.
+// you can look at the source code here https://github.com/dkandalov/live-plugin/blob/master/src/runtime/liveplugin/PluginUtil.groovy.
 //
 // Or even better in IDEs with java support you can make code navigable:
 //  - install/enable Groovy plugin

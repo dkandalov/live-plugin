@@ -100,7 +100,7 @@ You can use any internal API and observe/change state of any object inside IDE.
 There are some limitations of course, like ``final`` fields and complex APIs not designed to be re-initialized. 
 
 To simplify usage of IntelliJ API for practical purposes some parts of IntelliJ API are wrapped in 
-[PluginUtil class](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy).
+[PluginUtil class](https://github.com/dkandalov/live-plugin/blob/master/src/runtime/liveplugin/PluginUtil.groovy).
 This is essentially a layer on top standard IntelliJ API. 
 If you find yourself writing interesting IDE scripts, feel free to create pull request or send a gist
 to include your code into ``PluginUtil``. This is experimental API and there is no intention to keep it minimal.
@@ -127,7 +127,7 @@ Note that you can use ``ctrl+shift+C`` shortcut to copy file/folder path.
  - it helps to be familiar with IntelliJ API
 	 - get and explore [IntelliJ source code](https://github.com/JetBrains/intellij-community)
      - look at [jetbrains plugin development page](http://www.jetbrains.org/intellij/sdk/docs/)
-     - [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src_groovy/liveplugin/PluginUtil.groovy)
+     - [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src/runtime/liveplugin/PluginUtil.groovy)
        might be a good start point to explore IntelliJ API
  - when plugin seems to be big enough, you can move it to proper plugin project and still use live plugin
  See [liveplugin as an entry point for standard plugins](https://github.com/dkandalov/live-plugin/wiki/Liveplugin-as-an-entry-point-for-standard-plugins).
