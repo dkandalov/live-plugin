@@ -76,6 +76,8 @@ sourceSets {
 	main {
 		java { srcDir "src/main" }
 		java { srcDir "src/runtime" }
+		groovy { srcDir "src/runtime" }
+		kotlin { srcDir "src/runtime" }
 		resources { srcDir "resources" }
 		resources { srcDir "plugin-examples" }
 	}
