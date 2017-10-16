@@ -8,9 +8,9 @@ import org.junit.Test
 import static liveplugin.pluginrunner.GroovyPluginRunner.mainScript
 
 class GroovyPluginRunnerTest {
-	static final LinkedHashMap NO_BINDING = [:]
-	static final LinkedHashMap NO_ENVIRONMENT = [:]
-	static final Function RUN_ON_THE_SAME_THREAD = new Function<Runnable, Void>() {
+	static final LinkedHashMap noBindings = [:]
+	static final LinkedHashMap emptyEnvironment = [:]
+	static final Function runOnTheSameThread = new Function<Runnable, Void>() {
 		@Override Void fun(Runnable runnable) {
 			runnable.run()
 			null
@@ -18,7 +18,7 @@ class GroovyPluginRunnerTest {
 	}
 
 	private final ErrorReporter errorReporter = new ErrorReporter()
-	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(mainScript, errorReporter, NO_ENVIRONMENT)
+	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(mainScript, errorReporter, emptyEnvironment)
 	private File rootFolder
 	private File myPackageFolder
 
@@ -34,7 +34,7 @@ class GroovyPluginRunnerTest {
 			a + b
 		"""
 		createFile("plugin.groovy", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -44,7 +44,7 @@ class GroovyPluginRunnerTest {
 			invalid code + 1
 		"""
 		createFile("plugin.groovy", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		def errors = collectErrorsFrom(errorReporter)
 		assert errors.size() == 1
@@ -68,7 +68,7 @@ class GroovyPluginRunnerTest {
 		createFile("plugin.groovy", scriptCode, rootFolder)
 		createFile("Util.groovy", scriptCode2, myPackageFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}

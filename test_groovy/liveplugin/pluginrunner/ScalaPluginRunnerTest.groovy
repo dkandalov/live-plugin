@@ -8,7 +8,7 @@ import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
 
 class ScalaPluginRunnerTest {
 	private final ErrorReporter errorReporter = new ErrorReporter()
-	private final ScalaPluginRunner pluginRunner = new ScalaPluginRunner(errorReporter, NO_ENVIRONMENT)
+	private final ScalaPluginRunner pluginRunner = new ScalaPluginRunner(errorReporter, emptyEnvironment)
 	private File rootFolder
 
 	@Test void "run correct scala script without errors"() {
@@ -22,7 +22,7 @@ class ScalaPluginRunnerTest {
 			a + b
 		"""
 		createFile("plugin.scala", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -32,7 +32,7 @@ class ScalaPluginRunnerTest {
 			this is not proper scala code
 		"""
 		createFile("plugin.scala", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		def errors = collectErrorsFrom(errorReporter)
 		assert errors.size() == 1

@@ -9,7 +9,7 @@ import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
 
 class ClojurePluginRunnerTest {
 	private final ErrorReporter errorReporter = new ErrorReporter()
-	private final ClojurePluginRunner pluginRunner = new ClojurePluginRunner(errorReporter, NO_ENVIRONMENT)
+	private final ClojurePluginRunner pluginRunner = new ClojurePluginRunner(errorReporter, emptyEnvironment)
 	private File rootFolder
 	private File myPackageFolder
 
@@ -23,7 +23,7 @@ class ClojurePluginRunnerTest {
 			(+ 1 2)
 		"""
 		createFile("plugin.clj", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -33,7 +33,7 @@ class ClojurePluginRunnerTest {
 			(this is not a proper clojure code)
 		"""
 		createFile("plugin.clj", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		collectErrorsFrom(errorReporter).with{
 			assert size() == 1
@@ -52,7 +52,7 @@ class ClojurePluginRunnerTest {
 		"""
 		createFile("plugin.clj", scriptCode, rootFolder)
 		createFile("util.clj", scriptCode2, myPackageFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}

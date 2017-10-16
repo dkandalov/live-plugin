@@ -12,7 +12,7 @@ import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
 @Ignore // Because it's not obvious how to instantiate KotlinScriptTemplate from this test
 class KotlinPluginRunnerTest {
 	private final ErrorReporter errorReporter = new ErrorReporter()
-	private final pluginRunner = new KotlinPluginRunner(errorReporter, NO_ENVIRONMENT)
+	private final pluginRunner = new KotlinPluginRunner(errorReporter, emptyEnvironment)
 	private File rootFolder
 	private File libPackageFolder
 
@@ -20,7 +20,7 @@ class KotlinPluginRunnerTest {
 		def scriptCode = "println(123)"
 		createFile("plugin.kts", scriptCode, rootFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -29,7 +29,7 @@ class KotlinPluginRunnerTest {
 		def scriptCode = "println(com.intellij.openapi.project.Project::class.java)"
 		createFile("plugin.kts", scriptCode, rootFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -46,7 +46,7 @@ class KotlinPluginRunnerTest {
 		createFile("plugin.kts", scriptCode, rootFolder)
 		createFile("lib.kt", libScriptCode, libPackageFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		assert collectErrorsFrom(errorReporter).empty
 	}
@@ -55,7 +55,7 @@ class KotlinPluginRunnerTest {
 		def scriptCode = "abc"
 		createFile("plugin.kts", scriptCode, rootFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", NO_BINDING, RUN_ON_THE_SAME_THREAD)
+		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
 		def errors = collectErrorsFrom(errorReporter)
 		assert errors.size == 1
