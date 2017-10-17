@@ -1,6 +1,6 @@
 package liveplugin.pluginrunner.kotlin
 
-import com.intellij.openapi.application.PathManager
+import liveplugin.LivePluginAppComponent.ideJarsPath
 import liveplugin.LivePluginAppComponent.livepluginLibsPath
 import org.jetbrains.kotlin.idea.core.script.dependencies.KotlinScriptResolveScopeProvider.Companion.USE_NULL_RESOLVE_SCOPE
 import org.jetbrains.kotlin.script.ScriptTemplatesProvider
@@ -29,7 +29,7 @@ class LivePluginKotlinScriptTemplateProvider: ScriptTemplatesProvider {
                     javaHome = File(System.getProperty("java.home")),
                     classpath =
                         File(livepluginLibsPath).listFiles().toList() +
-                        File(PathManager.getHomePath() + "/lib/").listFiles(),
+                        File(ideJarsPath).listFiles(),
                     sources = File(livepluginLibsPath).listFiles().toList()
                 ),
                 emptyList()

@@ -62,8 +62,7 @@ import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
 import liveplugin.toolwindow.addplugin.AddPluginFromPathAction;
-import liveplugin.toolwindow.settingsmenu.AddIDEAJarsAsDependencies;
-import liveplugin.toolwindow.settingsmenu.AddLivePluginLibJarsAsDependencies;
+import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies;
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -317,8 +316,7 @@ public class PluginToolWindowManager {
 				}
 			};
 	        actionGroup.add(new RunAllPluginsOnIDEStartAction());
-	        actionGroup.add(new AddLivePluginLibJarsAsDependencies());
-	        actionGroup.add(new AddIDEAJarsAsDependencies());
+	        actionGroup.add(new AddLivePluginAndIdeJarsAsDependencies());
 
 //			actionGroup.add(new Separator());
 //            actionGroup.add(new AddScalaLibsAsDependency());
