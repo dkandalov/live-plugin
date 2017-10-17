@@ -61,7 +61,6 @@ import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
 import liveplugin.toolwindow.addplugin.AddNewPluginAction;
-import liveplugin.toolwindow.addplugin.AddPluginFromPathAction;
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies;
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
 import org.jetbrains.annotations.NonNls;
@@ -330,7 +329,6 @@ public class PluginToolWindowManager {
 		private static AnAction createAddPluginsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
 			actionGroup.add(new AddNewPluginAction());
-			actionGroup.add(new AddPluginFromPathAction());
 			if (addFromGistAction != null) {
 				actionGroup.add(addFromGistAction);
 			}
