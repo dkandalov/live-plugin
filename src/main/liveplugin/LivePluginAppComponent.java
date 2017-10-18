@@ -47,8 +47,8 @@ import static liveplugin.IDEUtil.downloadFile;
 
 public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	public static final String livePluginId = "LivePlugin";
-	public static final String groovyPluginExamplesPath = "/groovyexamples/";
-	public static final String kotlinPluginExamplesPath = "/kotlinexamples/";
+	public static final String groovyPluginExamplesPath = "/groovy/";
+	public static final String kotlinPluginExamplesPath = "/kotlin/";
 	public static final String livepluginLibsPath = PathManager.getPluginsPath() + "/LivePlugin/lib/";
 	public static final String livepluginCompilerLibsPath = PathManager.getPluginsPath() + "/LivePlugin/lib/kotlin-compiler";
 	public static final String ideJarsPath = PathManager.getHomePath() + "/lib";
