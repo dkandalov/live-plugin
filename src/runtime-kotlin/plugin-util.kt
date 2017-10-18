@@ -1,5 +1,3 @@
-package liveplugin
-
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -9,6 +7,8 @@ import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
+import liveplugin.CanCallFromAnyThread
+import liveplugin.PluginUtil
 import liveplugin.implementation.Actions
 import liveplugin.implementation.Threads
 import java.util.function.Function

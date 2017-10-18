@@ -75,10 +75,12 @@ dependencies {
 sourceSets {
 	main {
 		java { srcDir "src/main" }
-		groovy { srcDir "src/runtime-groovy" }
-		kotlin { srcDir "src/runtime-kotlin" }
 		resources { srcDir "resources" }
 		resources { srcDir "plugin-examples" }
+	}
+	runtime {
+		groovy { srcDir "src/runtime-groovy" }
+		kotlin { srcDir "src/runtime-kotlin" }
 	}
 	test {
 		groovy { srcDir "src/test" }
