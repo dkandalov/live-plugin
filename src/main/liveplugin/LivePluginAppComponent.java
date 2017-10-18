@@ -56,9 +56,6 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	public static final NotificationGroup livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin");
 
 	private static final Logger logger = Logger.getInstance(LivePluginAppComponent.class);
-	private static final String defaultPluginPath = groovyPluginExamplesPath;
-	private static final String defaultPluginScript = "default-plugin.groovy";
-	private static final String defaultPluginTestScript = "default-plugin-test.groovy";
 
 	private static final String defaultIdeaOutputFolder = "out";
 
@@ -99,11 +96,11 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	}
 
 	public static String defaultPluginScript() {
-		return readSampleScriptFile(defaultPluginPath, defaultPluginScript);
+		return readSampleScriptFile(groovyPluginExamplesPath, "default-plugin.groovy");
 	}
 
 	public static String defaultPluginTestScript() {
-		return readSampleScriptFile(defaultPluginPath, defaultPluginTestScript);
+		return readSampleScriptFile(groovyPluginExamplesPath, "default-plugin-test.groovy");
 	}
 
 	public static String readSampleScriptFile(String pluginPath, String file) {

@@ -14,7 +14,7 @@ import com.intellij.openapi.ui.Messages;
 import liveplugin.IDEUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.RefreshPluginsPanelAction;
-import liveplugin.toolwindow.addplugin.AddNewPluginAction;
+import liveplugin.toolwindow.addplugin.PluginIdValidator;
 import liveplugin.toolwindow.util.PluginsIO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -102,7 +102,7 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 				project,
 				"Enter new plugin name:",
                 dialogTitle,
-				defaultIcon, "", new AddNewPluginAction.PluginIdValidator());
+				defaultIcon, "", new PluginIdValidator());
 	}
 
 	private static void createPluginFrom(GithubGist gist, String pluginId) throws IOException {

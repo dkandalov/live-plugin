@@ -7,12 +7,11 @@ import com.intellij.util.ui.UIUtil;
 import javax.swing.*;
 
 public class Icons {
+	public static final Icon pluginIcon = AllIcons.Nodes.Plugin;
 	public static final Icon addPluginIcon = AllIcons.General.Add;
-	public static final Icon newPluginIcon = AllIcons.FileTypes.Text;
-	public static final Icon copyPluginFromPathIcon = AllIcons.Actions.Copy;
+	public static final Icon newPluginIcon = pluginIcon;
 	public static final Icon deletePluginIcon = AllIcons.General.Remove;
 	public static final Icon refreshPluginsPanelIcon = AllIcons.Actions.Refresh;
-	public static final Icon pluginIcon = AllIcons.Nodes.Plugin;
 	public static final Icon pluginToolwindowIcon = (
 		UIUtil.isUnderDarcula() ?
 			AllIcons.Nodes.Plugin :

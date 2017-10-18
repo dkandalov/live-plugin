@@ -60,7 +60,8 @@ import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
-import liveplugin.toolwindow.addplugin.AddNewPluginAction;
+import liveplugin.toolwindow.addplugin.AddNewGroovyPluginAction;
+import liveplugin.toolwindow.addplugin.AddNewKotlinPluginAction;
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies;
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
 import org.jetbrains.annotations.NonNls;
@@ -329,7 +330,8 @@ public class PluginToolWindowManager {
 
 		private static AnAction createAddPluginsGroup() {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
-			actionGroup.add(new AddNewPluginAction());
+			actionGroup.add(new AddNewGroovyPluginAction());
+			actionGroup.add(new AddNewKotlinPluginAction());
 			if (addFromGistAction != null) {
 				actionGroup.add(addFromGistAction);
 			}

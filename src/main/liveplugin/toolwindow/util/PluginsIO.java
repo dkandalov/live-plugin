@@ -24,19 +24,6 @@ public class PluginsIO {
 		});
 	}
 
-	public static void copyFolder(final String folder, final String toFolder) throws IOException {
-		runIOAction("copyFolder", () -> {
-
-			VirtualFile targetFolder = VfsUtil.createDirectoryIfMissing(toFolder);
-			if (targetFolder == null) throw new IOException("Failed to create folder " + toFolder);
-			VirtualFile folderToCopy = VirtualFileManager.getInstance().findFileByUrl("file://" + folder);
-			if (folderToCopy == null) throw new IOException("Failed to find folder " + folder);
-
-			VfsUtil.copy(requestor, folderToCopy, targetFolder);
-
-		});
-	}
-
 	public static void delete(final String filePath) throws IOException {
 		runIOAction("delete", () -> {
 

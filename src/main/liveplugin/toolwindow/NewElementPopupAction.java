@@ -22,7 +22,8 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.IconLoader;
 import liveplugin.IDEUtil;
-import liveplugin.toolwindow.addplugin.AddNewPluginAction;
+import liveplugin.toolwindow.addplugin.AddNewGroovyPluginAction;
+import liveplugin.toolwindow.addplugin.AddNewKotlinPluginAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -36,7 +37,7 @@ import static liveplugin.pluginrunner.GroovyPluginRunner.mainScript;
 import static liveplugin.pluginrunner.GroovyPluginRunner.testScript;
 
 class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
-	private static final Icon Folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
+	private static final Icon folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
 	private static final Icon inferIconFromFileType = null;
 
 
@@ -57,7 +58,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 		);
 	}
 
-	private ActionGroup createActionGroup() {
+	private static ActionGroup createActionGroup() {
 		return new ActionGroup() {
 			@NotNull @Override
 			public AnAction[] getChildren(AnActionEvent e) {
@@ -69,7 +70,7 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 
 				actions.addAll(asList(
 						new NewFileAction("File", AllIcons.FileTypes.Text),
-						new NewFolderAction("Directory", "Directory", Folder)
+						new NewFolderAction("Directory", "Directory", folder)
 				));
 				actions.addAll(asList(
 						new CreateRootFileAction(mainScript, mainScript, defaultPluginScript(), inferIconFromFileType, IDEUtil.groovyFileType),
@@ -77,7 +78,8 @@ class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 				));
 				actions.addAll(asList(
 						new Separator(),
-						new AddNewPluginAction()
+						new AddNewGroovyPluginAction(),
+						new AddNewKotlinPluginAction()
 				));
 				if (PluginToolWindowManager.addFromGistAction != null) {
 					actions.add(PluginToolWindowManager.addFromGistAction);
