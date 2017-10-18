@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +47,8 @@ import static liveplugin.IDEUtil.downloadFile;
 
 public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	public static final String livePluginId = "LivePlugin";
-	public static final String groovyPluginExamplesPath = "/liveplugin/groovyexamples/";
-	public static final String kotlinPluginExamplesPath = "/liveplugin/kotlinexamples/";
+	public static final String groovyPluginExamplesPath = "/groovyexamples/";
+	public static final String kotlinPluginExamplesPath = "/kotlinexamples/";
 	public static final String livepluginLibsPath = PathManager.getPluginsPath() + "/LivePlugin/lib/";
 	public static final String livepluginCompilerLibsPath = PathManager.getPluginsPath() + "/LivePlugin/lib/kotlin-compiler";
 	public static final String ideJarsPath = PathManager.getHomePath() + "/lib";
@@ -108,7 +109,9 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	public static String readSampleScriptFile(String pluginPath, String file) {
 		try {
 			String path = pluginPath + file;
-			return FileUtil.loadTextAndClose(LivePluginAppComponent.class.getClassLoader().getResourceAsStream(path));
+			InputStream inputStream = LivePluginAppComponent.class.getClassLoader().getResourceAsStream(path);
+			if (inputStream == null) throw new IllegalStateException("Could find resource for '" + path + "'.");
+			return FileUtil.loadTextAndClose(inputStream);
 		} catch (IOException e) {
 			logger.error(e);
 			return "";
