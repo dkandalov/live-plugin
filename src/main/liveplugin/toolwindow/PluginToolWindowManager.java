@@ -78,7 +78,8 @@ import static com.intellij.openapi.util.Condition.NOT_NULL;
 import static com.intellij.util.containers.ContainerUtil.filter;
 import static com.intellij.util.containers.ContainerUtil.map;
 import static java.util.Arrays.asList;
-import static liveplugin.LivePluginAppComponent.pluginExamplesPath;
+import static liveplugin.LivePluginAppComponent.groovyPluginExamplesPath;
+import static liveplugin.LivePluginAppComponent.kotlinPluginExamplesPath;
 
 public class PluginToolWindowManager {
 
@@ -352,24 +353,22 @@ public class PluginToolWindowManager {
                 }
             });
             actionGroup.addSeparator();
-            actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "helloWorld/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "registerAction/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "popupMenu/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "popupSearch/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "toolWindow/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "toolbarWidget/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "textEditor/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "transformSelectedText/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "insertNewLineAbove/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "inspection/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "intention/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "projectFilesStats/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "miscUtil/", asList("plugin.groovy", "util/AClass.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "additionalClasspath/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "integrationTest/", asList("plugin.groovy", "plugin-test.groovy")));
-//			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloScala/", asList("plugin.scala")));
-//			actionGroup.add(new AddExamplePluginAction(PLUGIN_EXAMPLES_PATH + "helloClojure/", asList("plugin.clj")));
-			actionGroup.add(new AddExamplePluginAction(pluginExamplesPath + "helloKotlin/", asList("plugin.kts")));
+            actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "helloWorld/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "registerAction/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "popupMenu/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "popupSearch/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "toolWindow/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "toolbarWidget/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "textEditor/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "transformSelectedText/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "insertNewLineAbove/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "inspection/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "intention/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "projectFilesStats/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "miscUtil/", asList("plugin.groovy", "util/AClass.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "additionalClasspath/", asList("plugin.groovy")));
+			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "integrationTest/", asList("plugin.groovy", "plugin-test.groovy")));
+			actionGroup.add(new AddExamplePluginAction(kotlinPluginExamplesPath + "helloWorld/", asList("plugin.kts")));
             return actionGroup;
 		}
 
