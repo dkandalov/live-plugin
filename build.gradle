@@ -75,9 +75,8 @@ dependencies {
 sourceSets {
 	main {
 		java { srcDir "src/main" }
-		java { srcDir "src/runtime" }
-		groovy { srcDir "src/runtime" }
-		kotlin { srcDir "src/runtime" }
+		groovy { srcDir "src/runtime-groovy" }
+		kotlin { srcDir "src/runtime-kotlin" }
 		resources { srcDir "resources" }
 		resources { srcDir "plugin-examples" }
 	}
@@ -115,7 +114,8 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 	compileJava.doLast {
 		def classesFolder = project.tasks.findByName(JavaPlugin.COMPILE_JAVA_TASK_NAME).destinationDir
 		ant.copy(toDir: classesFolder.absolutePath, overwrite: true) {
-			ant.fileset(dir: "./src/runtime", includes: "**/*")
+			ant.fileset(dir: "./src/runtime-groovy", includes: "**/*")
+			ant.fileset(dir: "./src/runtime-kotlin", includes: "**/*")
 		}
 	}
 }
