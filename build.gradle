@@ -73,18 +73,31 @@ dependencies {
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
 
 sourceSets {
+	// Keep groovy and kotlin util source code in separate source sets because otherwise
+	// compilation fails because of inter-dependencies between kotlin and groovy files which confuses compiler,
+	// even though overall dependencies are unidirectional:
+	// pluginUtilKotlin -> pluginUtilGroovy -> main
+	
 	main {
 		java { srcDir "src/main" }
 		resources { srcDir "resources" }
 		resources { srcDir "plugin-examples" }
 	}
-	runtime {
-		groovy { srcDir "src/runtime-groovy" }
-		kotlin { srcDir "src/runtime-kotlin" }
+	pluginUtilGroovy {
+		groovy { srcDir "src/plugin-util-groovy" }
+		compileClasspath = main.output + configurations.compileClasspath + configurations.pluginUtilGroovyCompileClasspath
+	}
+	pluginUtilKotlin {
+		kotlin { srcDir "src/plugin-util-kotlin" }
+		compileClasspath = main.output + configurations.compileClasspath + pluginUtilGroovy.output + configurations.pluginUtilKotlinCompileClasspath
 	}
 	test {
 		groovy { srcDir "src/test" }
 	}
+}
+
+jar {
+	from sourceSets.pluginUtilGroovy.output, sourceSets.pluginUtilKotlin.output
 }
 
 task installLivePlugin() { doLast {
@@ -116,8 +129,8 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 	compileJava.doLast {
 		def classesFolder = project.tasks.findByName(JavaPlugin.COMPILE_JAVA_TASK_NAME).destinationDir
 		ant.copy(toDir: classesFolder.absolutePath, overwrite: true) {
-			ant.fileset(dir: "./src/runtime-groovy", includes: "**/*")
-			ant.fileset(dir: "./src/runtime-kotlin", includes: "**/*")
+			ant.fileset(dir: "./src/plugin-util-groovy", includes: "**/*")
+			ant.fileset(dir: "./src/plugin-util-kotlin", includes: "**/*")
 		}
 	}
 }
