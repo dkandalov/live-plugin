@@ -56,16 +56,16 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 		</action>
 
 		<group id="LivePlugin.Popup.MainActions">
-			<action id="LivePlugin.NewGroovyFileAction" class="liveplugin.toolwindow.NewGroovyFileAction" text="New Groovy File"/>
-			<action id="LivePlugin.NewKotlinFileAction" class="liveplugin.toolwindow.NewKotlinFileAction" text="New Kotlin File"/>
+			<action id="LivePlugin.NewGroovyFileAction" class="liveplugin.toolwindow.popup.NewGroovyFileAction" text="New Groovy File"/>
+			<action id="LivePlugin.NewKotlinFileAction" class="liveplugin.toolwindow.popup.NewKotlinFileAction" text="New Kotlin File"/>
 <!--
-			<action id="LivePlugin.NewScalaFileAction" class="liveplugin.toolwindow.NewScalaFileAction" text="New Scala File"/>
-			<action id="LivePlugin.NewClojureFileAction" class="liveplugin.toolwindow.NewClojureFileAction" text="New Clojure File"/>
+			<action id="LivePlugin.NewScalaFileAction" class="liveplugin.toolwindow.popup.NewScalaFileAction" text="New Scala File"/>
+			<action id="LivePlugin.NewClojureFileAction" class="liveplugin.toolwindow.popup.NewClojureFileAction" text="New Clojure File"/>
 -->
 			<action id="LivePlugin.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
 			        text="New Directory" icon="/nodes/folder.png"/>
-			<action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.RenameFileAction" text="Rename"
-			        use-shortcut-of="RenameElement"/>
+			<action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.popup.RenameFileAction" text="Rename"
+                    use-shortcut-of="RenameElement"/>
 		</group>
 		<group id="LivePlugin.Popup">
 			<reference id="LivePlugin.Popup.MainActions"/>

@@ -62,6 +62,7 @@ import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
 import liveplugin.toolwindow.addplugin.AddNewGroovyPluginAction;
 import liveplugin.toolwindow.addplugin.AddNewKotlinPluginAction;
+import liveplugin.toolwindow.popup.NewElementPopupAction;
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies;
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
 import org.jetbrains.annotations.NonNls;

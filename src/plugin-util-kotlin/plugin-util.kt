@@ -13,6 +13,10 @@ import liveplugin.implementation.Actions
 import liveplugin.implementation.Threads
 import java.util.function.Function
 
+fun show(s: String) {
+    PluginUtil.show(s)
+}
+
 @CanCallFromAnyThread
 fun <T> invokeOnEDT(f: () -> T): T = Threads.invokeOnEDT { f() }
 

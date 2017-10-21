@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.popup;
 
 import liveplugin.IDEUtil;
 

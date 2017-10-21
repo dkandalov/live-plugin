@@ -1,4 +1,4 @@
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.popup;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package liveplugin.toolwindow;
+package liveplugin.toolwindow.popup;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
@@ -22,6 +22,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.IconLoader;
 import liveplugin.IDEUtil;
+import liveplugin.toolwindow.PluginToolWindowManager;
 import liveplugin.toolwindow.addplugin.AddNewGroovyPluginAction;
 import liveplugin.toolwindow.addplugin.AddNewKotlinPluginAction;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +37,7 @@ import static liveplugin.LivePluginAppComponent.defaultPluginTestScript;
 import static liveplugin.pluginrunner.GroovyPluginRunner.mainScript;
 import static liveplugin.pluginrunner.GroovyPluginRunner.testScript;
 
-class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
+public class NewElementPopupAction extends AnAction implements DumbAware, PopupAction {
 	private static final Icon folder = IconLoader.getIcon("/nodes/folder.png"); // 16x16
 	private static final Icon inferIconFromFileType = null;
 
