@@ -47,8 +47,8 @@ import static liveplugin.IDEUtil.downloadFile;
 
 public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	public static final String livePluginId = "LivePlugin";
-	public static final String groovyPluginExamplesPath = "/groovy/";
-	public static final String kotlinPluginExamplesPath = "/kotlin/";
+	public static final String groovyExamplesPath = "/groovy/";
+	public static final String kotlinExamplesPath = "/kotlin/";
 	public static final String livepluginLibsPath = PathManager.getPluginsPath() + "/LivePlugin/lib/";
 	public static final String livepluginCompilerLibsPath = PathManager.getPluginsPath() + "/LivePlugin/lib/kotlin-compiler";
 	public static final String ideJarsPath = PathManager.getHomePath() + "/lib";
@@ -96,11 +96,11 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	}
 
 	public static String defaultPluginScript() {
-		return readSampleScriptFile(groovyPluginExamplesPath, "default-plugin.groovy");
+		return readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy");
 	}
 
 	public static String defaultPluginTestScript() {
-		return readSampleScriptFile(groovyPluginExamplesPath, "default-plugin-test.groovy");
+		return readSampleScriptFile(groovyExamplesPath, "default-plugin-test.groovy");
 	}
 
 	public static String readSampleScriptFile(String pluginPath, String file) {
@@ -185,9 +185,9 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 
 	private static void installHelloWorldPlugins() {
 		ExamplePluginInstaller.Listener loggingListener = (e, pluginPath) -> logger.warn("Failed to install plugin: " + pluginPath, e);
-		new ExamplePluginInstaller(groovyPluginExamplesPath + "helloWorld/", asList("plugin.groovy")).installPlugin(loggingListener);
-		new ExamplePluginInstaller(groovyPluginExamplesPath + "registerAction/", asList("plugin.groovy")).installPlugin(loggingListener);
-		new ExamplePluginInstaller(groovyPluginExamplesPath + "popupMenu/", asList("plugin.groovy")).installPlugin(loggingListener);
+		new ExamplePluginInstaller(groovyExamplesPath + "helloWorld/", asList("plugin.groovy")).installPlugin(loggingListener);
+		new ExamplePluginInstaller(groovyExamplesPath + "registerAction/", asList("plugin.groovy")).installPlugin(loggingListener);
+		new ExamplePluginInstaller(groovyExamplesPath + "popupMenu/", asList("plugin.groovy")).installPlugin(loggingListener);
 	}
 
 	@Override public void disposeComponent() {

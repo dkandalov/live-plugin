@@ -73,7 +73,7 @@ public class IDEUtil {
 	public static final DataContext dummyDataContext = dataId -> null;
 	private static final Logger logger = Logger.getInstance(IDEUtil.class);
 
-    public static void displayError(String consoleTitle, String text, Project project) {
+	public static void displayError(String consoleTitle, String text, Project project) {
 		if (project == null) {
 			// "project" can be null when there are no open projects or while IDE is loading.
 			// It is important to log error specifying plugin id, otherwise IDE will try to guess
@@ -82,8 +82,8 @@ public class IDEUtil {
 			// (see com.intellij.diagnostic.IdeErrorsDialog.findPluginId)
 			logger.error(consoleTitle, new PluginException(text, PluginId.getId(livePluginId)));
 		} else {
-            showInConsole(text, consoleTitle, project, ERROR_OUTPUT);
-        }
+			showInConsole(text, consoleTitle, project, ERROR_OUTPUT);
+		}
 	}
 
 	public static void showErrorDialog(Project project, String message, String title) {
@@ -94,14 +94,14 @@ public class IDEUtil {
 		ApplicationManager.getApplication().runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
 	}
 
-	public static void runAction(final AnAction action, String place) {
+	public static void performAction(final AnAction action, String place) {
 		final AnActionEvent event = new AnActionEvent(
-				null,
+			null,
 			dummyDataContext,
-				place,
-				action.getTemplatePresentation(),
-				ActionManager.getInstance(),
-				0
+			place,
+			action.getTemplatePresentation(),
+			ActionManager.getInstance(),
+			0
 		);
 		ApplicationManager.getApplication().invokeLater(() -> action.actionPerformed(event));
 	}
@@ -147,8 +147,13 @@ public class IDEUtil {
 			DefaultActionGroup toolbarActions = new DefaultActionGroup();
 			JPanel consoleComponent = new MyConsolePanel(console, toolbarActions);
 			RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
-				@Override public boolean isContentReuseProhibited() { return true; }
-				@Override public Icon getIcon() { return AllIcons.Nodes.Plugin; }
+				@Override public boolean isContentReuseProhibited() {
+					return true;
+				}
+
+				@Override public Icon getIcon() {
+					return AllIcons.Nodes.Plugin;
+				}
 			};
 			Executor executor = DefaultRunExecutor.getRunExecutorInstance();
 
@@ -222,7 +227,9 @@ public class IDEUtil {
 				first = false;
 				int i = builder.lastIndexOf("\n");
 				CharSequence lastLine = i == -1 ? builder : builder.subSequence(i + 1, builder.length());
-				if (lastLine.toString().matches("\\s*at") && !line.matches("\\s+.*")) builder.append(" "); // separate 'at' from file name
+				if (lastLine.toString().matches("\\s*at") && !line.matches("\\s+.*")) {
+					builder.append(" "); // separate 'at' from file name
+				}
 				builder.append(trimSuffix(line));
 			}
 			return builder.toString();
@@ -249,7 +256,7 @@ public class IDEUtil {
 		private static String trimSuffix(final String line) {
 			int len = line.length();
 
-			while ((0 < len) && (line.charAt(len-1) <= ' ')) {
+			while ((0 < len) && (line.charAt(len - 1) <= ' ')) {
 				len--;
 			}
 			return (len < line.length()) ? line.substring(0, len) : line;

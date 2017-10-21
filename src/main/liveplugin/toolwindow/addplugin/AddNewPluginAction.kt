@@ -20,14 +20,14 @@ class AddNewGroovyPluginAction: AddNewPluginAction(
     "Groovy Plugin",
     "Create new Groovy plugin",
     GroovyPluginRunner.mainScript,
-    readSampleScriptFile(groovyPluginExamplesPath, "default-plugin.groovy")
+    readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
 )
 
 class AddNewKotlinPluginAction: AddNewPluginAction(
     "Kotlin Plugin",
     "Create new Kotlin plugin",
     KotlinPluginRunner.mainScript,
-    readSampleScriptFile(kotlinPluginExamplesPath, "default-plugin.kts")
+    readSampleScriptFile(kotlinExamplesPath, "default-plugin.kts")
 )
 
 open class AddNewPluginAction(

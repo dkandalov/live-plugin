@@ -33,7 +33,6 @@ import com.intellij.openapi.fileChooser.ex.RootFileElement;
 import com.intellij.openapi.fileChooser.impl.FileTreeBuilder;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.keymap.KeymapManager;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
@@ -77,9 +76,6 @@ import java.util.List;
 import static com.intellij.openapi.util.Condition.NOT_NULL;
 import static com.intellij.util.containers.ContainerUtil.filter;
 import static com.intellij.util.containers.ContainerUtil.map;
-import static java.util.Arrays.asList;
-import static liveplugin.LivePluginAppComponent.groovyPluginExamplesPath;
-import static liveplugin.LivePluginAppComponent.kotlinPluginExamplesPath;
 
 public class PluginToolWindowManager {
 
@@ -330,40 +326,9 @@ public class PluginToolWindowManager {
 			actionGroup.add(new AddNewKotlinPluginAction());
 			actionGroup.add(new AddPluginFromGistDelegateAction());
 			actionGroup.add(new AddPluginFromGitHubDelegateAction());
-			actionGroup.add(createAddPluginsExamplesGroup());
+			actionGroup.add(AddExamplePluginAction.Companion.getAddGroovyExamplesActionGroup());
+			actionGroup.add(AddExamplePluginAction.Companion.getAddKotlinExamplesActionGroup());
 			return actionGroup;
-		}
-
-		private static AnAction createAddPluginsExamplesGroup() {
-			final DefaultActionGroup actionGroup = new DefaultActionGroup("Examples", true);
-            actionGroup.add(new DumbAwareAction("Add All") {
-                @Override public void actionPerformed(@NotNull AnActionEvent e) {
-                    AnAction[] actions = actionGroup.getChildActionsOrStubs();
-                    for (AnAction action : actions) {
-                        if (action instanceof AddExamplePluginAction) {
-                            IDEUtil.runAction(action, "ADD_ALL_EXAMPLES");
-                        }
-                    }
-                }
-            });
-            actionGroup.addSeparator();
-            actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "helloWorld/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "registerAction/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "popupMenu/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "popupSearch/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "toolWindow/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "toolbarWidget/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "textEditor/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "transformSelectedText/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "insertNewLineAbove/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "inspection/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "intention/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "projectFilesStats/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "miscUtil/", asList("plugin.groovy", "util/AClass.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "additionalClasspath/", asList("plugin.groovy")));
-			actionGroup.add(new AddExamplePluginAction(groovyPluginExamplesPath + "integrationTest/", asList("plugin.groovy", "plugin-test.groovy")));
-			actionGroup.add(new AddExamplePluginAction(kotlinPluginExamplesPath + "helloWorld/", asList("plugin.kts")));
-            return actionGroup;
 		}
 
 		public List<String> selectedPluginIds() {
