@@ -37,7 +37,7 @@ import java.io.IOException;
 /**
  * Originally forked from {@link com.intellij.openapi.fileChooser.actions.NewFileAction}
  */
-class NewFileAction extends FileChooserAction {
+public class NewFileAction extends FileChooserAction {
     @Nullable private final Icon icon;
     @Nullable private final FileType fileType;
 

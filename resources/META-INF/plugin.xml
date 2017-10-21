@@ -55,21 +55,17 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
 
-		<group id="LivePlugin.Popup.MainActions">
-			<action id="LivePlugin.NewGroovyFileAction" class="liveplugin.toolwindow.popup.NewGroovyFileAction" text="New Groovy File"/>
-			<action id="LivePlugin.NewKotlinFileAction" class="liveplugin.toolwindow.popup.NewKotlinFileAction" text="New Kotlin File"/>
-<!--
-			<action id="LivePlugin.NewScalaFileAction" class="liveplugin.toolwindow.popup.NewScalaFileAction" text="New Scala File"/>
-			<action id="LivePlugin.NewClojureFileAction" class="liveplugin.toolwindow.popup.NewClojureFileAction" text="New Clojure File"/>
--->
-			<action id="LivePlugin.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction"
-			        text="New Directory" icon="/nodes/folder.png"/>
-			<action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.popup.RenameFileAction" text="Rename"
-                    use-shortcut-of="RenameElement"/>
-		</group>
 		<group id="LivePlugin.Popup">
-			<reference id="LivePlugin.Popup.MainActions"/>
+            <group id="LivePlugin.NewElementPopup" text="New" popup="true">
+                <action id="LivePlugin.NewGroovyFileAction" class="liveplugin.toolwindow.popup.NewGroovyFileAction"/>
+                <action id="LivePlugin.NewKotlinFileAction" class="liveplugin.toolwindow.popup.NewKotlinFileAction"/>
+                <action id="LivePlugin.NewTextFileAction" class="liveplugin.toolwindow.popup.NewTextFileAction"/>
+                <action id="LivePlugin.NewDirectoryAction" class="com.intellij.openapi.fileChooser.actions.NewFolderAction" icon="/nodes/folder.png"/>
+                <action id="LivePlugin.NewGroovyMainScript" class="liveplugin.toolwindow.popup.NewGroovyMainScript"/>
+                <action id="LivePlugin.NewGroovyTestScript" class="liveplugin.toolwindow.popup.NewGroovyTestScript"/>
+            </group>
 			<separator/>
+            <action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.popup.RenameFileAction" text="Rename" use-shortcut-of="RenameElement"/>
 			<action id="LivePlugin.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction" text="Delete"/>
 		</group>
 	</actions>

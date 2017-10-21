@@ -28,12 +28,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-class CreateRootFileAction extends FileChooserAction {
+public class NewFileFromTemplateAction extends FileChooserAction {
 	private final String newFileName;
 	private final String fileContent;
 	private final FileType fileType;
 
-	public CreateRootFileAction(String text, String newFileName, String fileContent, @Nullable Icon icon, @NotNull FileType fileType) {
+	public NewFileFromTemplateAction(String text, String newFileName, String fileContent, @Nullable Icon icon, @NotNull FileType fileType) {
 		super(text, text, icon);
 		this.newFileName = newFileName;
 		this.fileContent = fileContent;
