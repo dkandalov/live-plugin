@@ -17,14 +17,14 @@ import liveplugin.toolwindow.util.PluginsIO
 import java.io.IOException
 
 class AddNewGroovyPluginAction: AddNewPluginAction(
-    "New Groovy Plugin",
+    "Groovy Plugin",
     "Create new Groovy plugin",
     GroovyPluginRunner.mainScript,
     readSampleScriptFile(groovyPluginExamplesPath, "default-plugin.groovy")
 )
 
 class AddNewKotlinPluginAction: AddNewPluginAction(
-    "New Kotlin Plugin",
+    "Kotlin Plugin",
     "Create new Kotlin plugin",
     KotlinPluginRunner.mainScript,
     readSampleScriptFile(kotlinPluginExamplesPath, "default-plugin.kts")

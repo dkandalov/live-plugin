@@ -24,4 +24,5 @@ public class Icons {
 	public static final Icon collapseAllIcon = AllIcons.Actions.Collapseall;
 	public static final Icon settingsIcon = AllIcons.General.ProjectSettings;
 	public static final Icon helpIcon = AllIcons.Actions.Help;
+	public static final Icon newFolderIcon = AllIcons.Nodes.NewFolder;
 }

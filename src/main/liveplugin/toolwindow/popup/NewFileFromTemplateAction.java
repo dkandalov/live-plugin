@@ -53,7 +53,6 @@ public class NewFileFromTemplateAction extends FileChooserAction {
 		}
 
 		Presentation presentation = e.getPresentation();
-		presentation.setVisible(isAtPluginRoot && fileDoesNotExist);
 		presentation.setEnabled(isAtPluginRoot && fileDoesNotExist);
 		presentation.setIcon(fileType.getIcon());
 	}

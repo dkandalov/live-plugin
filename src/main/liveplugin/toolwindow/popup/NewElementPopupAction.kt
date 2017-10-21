@@ -15,21 +15,9 @@ package liveplugin.toolwindow.popup
 
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.fileChooser.actions.NewFolderAction
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
-import com.intellij.openapi.util.IconLoader
-import liveplugin.IDEUtil
-import liveplugin.LivePluginAppComponent.defaultPluginScript
-import liveplugin.LivePluginAppComponent.defaultPluginTestScript
-import liveplugin.pluginrunner.GroovyPluginRunner.mainScript
-import liveplugin.pluginrunner.GroovyPluginRunner.testScript
-import liveplugin.toolwindow.PluginToolWindowManager
-import liveplugin.toolwindow.addplugin.AddNewGroovyPluginAction
-import liveplugin.toolwindow.addplugin.AddNewKotlinPluginAction
-import java.util.*
-import javax.swing.Icon
 
 class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
 
@@ -50,41 +38,14 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
         )
     }
 
-    override fun update(e: AnActionEvent) {
-        val presentation = e.presentation
+    override fun update(event: AnActionEvent) {
+        val presentation = event.presentation
         presentation.isEnabled = true
     }
 
     companion object {
-        private val folder = IconLoader.getIcon("/nodes/folder.png") // 16x16
-        val inferIconFromFileType: Icon? = null
-
         private val livePluginNewElementPopup by lazy {
             ActionManager.getInstance().getAction("LivePlugin.NewElementPopup") as ActionGroup
-        }
-
-        private fun createActionGroup() = object: ActionGroup() {
-            override fun getChildren(e: AnActionEvent?): Array<AnAction> {
-                val actions = ArrayList<AnAction>()
-                actions.addAll(listOf(
-                    NewGroovyFileAction(),
-                    NewKotlinFileAction(),
-                    NewTextFileAction(),
-                    NewFolderAction("Directory", "Directory", folder),
-                    NewFileFromTemplateAction(mainScript, mainScript, defaultPluginScript(), inferIconFromFileType, IDEUtil.groovyFileType),
-                    NewFileFromTemplateAction(testScript, testScript, defaultPluginTestScript(), inferIconFromFileType, IDEUtil.groovyFileType),
-                    Separator(),
-                    AddNewGroovyPluginAction(),
-                    AddNewKotlinPluginAction()
-                ))
-                if (PluginToolWindowManager.addFromGistAction != null) {
-                    actions.add(PluginToolWindowManager.addFromGistAction)
-                }
-                if (PluginToolWindowManager.addFromGitHubAction != null) {
-                    actions.add(PluginToolWindowManager.addFromGitHubAction)
-                }
-                return actions.toTypedArray()
-            }
         }
     }
 }

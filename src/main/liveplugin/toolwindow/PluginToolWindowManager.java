@@ -59,9 +59,7 @@ import liveplugin.Icons;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.pluginrunner.TestPluginAction;
-import liveplugin.toolwindow.addplugin.AddExamplePluginAction;
-import liveplugin.toolwindow.addplugin.AddNewGroovyPluginAction;
-import liveplugin.toolwindow.addplugin.AddNewKotlinPluginAction;
+import liveplugin.toolwindow.addplugin.*;
 import liveplugin.toolwindow.popup.NewElementPopupAction;
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies;
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction;
@@ -88,9 +86,6 @@ public class PluginToolWindowManager {
 	private static final String pluginsToolWindowId = "Plugins";
 
 	private static final Map<Project, PluginToolWindow> toolWindowsByProject = new HashMap<>();
-
-	public static AnAction addFromGistAction; // TODO refactor this!!!
-	public static AnAction addFromGitHubAction;
 
 	@Nullable public static PluginToolWindow getToolWindowFor(@Nullable Project project) {
 		if (project == null) return null;
@@ -333,12 +328,8 @@ public class PluginToolWindowManager {
 			DefaultActionGroup actionGroup = new DefaultActionGroup("Add Plugin", true);
 			actionGroup.add(new AddNewGroovyPluginAction());
 			actionGroup.add(new AddNewKotlinPluginAction());
-			if (addFromGistAction != null) {
-				actionGroup.add(addFromGistAction);
-			}
-			if (addFromGitHubAction != null) {
-				actionGroup.add(addFromGitHubAction);
-			}
+			actionGroup.add(new AddPluginFromGistDelegateAction());
+			actionGroup.add(new AddPluginFromGitHubDelegateAction());
 			actionGroup.add(createAddPluginsExamplesGroup());
 			return actionGroup;
 		}
@@ -453,5 +444,4 @@ public class PluginToolWindowManager {
 			return fileDeleteProvider.canDeleteElement(dataContext);
 		}
 	}
-
 }
