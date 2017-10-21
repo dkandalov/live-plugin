@@ -124,7 +124,7 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 					logger.error(e);
 				}
 
-				RefreshPluginsPanelAction.refreshPluginTree();
+				RefreshPluginsPanelAction.Companion.refreshPluginTree();
 			}, pluginsRoot);
 		}
 

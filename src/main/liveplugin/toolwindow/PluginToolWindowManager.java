@@ -437,7 +437,7 @@ public class PluginToolWindowManager {
 
 		@Override public void deleteElement(@NotNull DataContext dataContext) {
 			fileDeleteProvider.deleteElement(dataContext);
-			RefreshPluginsPanelAction.refreshPluginTree();
+			RefreshPluginsPanelAction.Companion.refreshPluginTree();
 		}
 
 		@Override public boolean canDeleteElement(@NotNull DataContext dataContext) {
