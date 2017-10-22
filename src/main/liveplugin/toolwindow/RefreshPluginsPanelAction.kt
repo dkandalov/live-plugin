@@ -7,7 +7,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import liveplugin.Icons
-import liveplugin.LivePluginAppComponent.livepluginsPath
+import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
 
 class RefreshPluginsPanelAction: AnAction(
     "Refresh Plugins Panel",

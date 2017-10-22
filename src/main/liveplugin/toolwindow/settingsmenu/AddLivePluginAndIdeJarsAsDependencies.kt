@@ -11,8 +11,8 @@ import com.intellij.openapi.roots.OrderRootType.SOURCES
 import com.intellij.openapi.util.Pair.pair
 import com.intellij.util.PathUtil.getJarPathForClass
 import liveplugin.LivePluginAppComponent
-import liveplugin.LivePluginAppComponent.ideJarsPath
-import liveplugin.LivePluginAppComponent.livepluginLibsPath
+import liveplugin.LivePluginAppComponent.Companion.ideJarsPath
+import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
 import liveplugin.toolwindow.util.DependenciesUtil.addLibraryDependencyTo
 import liveplugin.toolwindow.util.DependenciesUtil.removeLibraryDependencyFrom
 import java.io.File

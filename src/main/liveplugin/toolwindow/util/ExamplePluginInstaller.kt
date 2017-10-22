@@ -2,8 +2,7 @@ package liveplugin.toolwindow.util
 
 import com.intellij.openapi.util.Pair
 import liveplugin.LivePluginAppComponent
-import liveplugin.LivePluginAppComponent.livepluginsPath
-
+import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
 import java.io.IOException
 
 class ExamplePluginInstaller(private val pluginPath: String, private val filePaths: List<String>) {

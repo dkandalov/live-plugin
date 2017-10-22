@@ -3,11 +3,14 @@ package liveplugin.pluginrunner.kotlin
 import com.intellij.ide.ui.laf.IntelliJLaf
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.IDEUtil.unscrambleThrowable
-import liveplugin.LivePluginAppComponent.*
+import liveplugin.LivePluginAppComponent.Companion.livepluginCompilerLibsPath
+import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
+import liveplugin.LivePluginAppComponent.Companion.livepluginsClassesPath
 import liveplugin.MyFileUtil.findScriptFileIn
 import liveplugin.MyFileUtil.listFilesIn
 import liveplugin.pluginrunner.ErrorReporter
@@ -90,8 +93,10 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
             val runtimeClassPath =
                 listOf(compilerOutput) +
                 listFilesIn(File(livepluginLibsPath)) +
-                jarFilesOf(dependentPlugins) +
                 scriptPathAdditions
+
+            val logger = Logger.getInstance("AAaaa")
+            logger.info(runtimeClassPath.joinToString("\n") { it.absolutePath })
 
             val classLoader = createClassLoaderWithDependencies(
                 runtimeClassPath.map{ it.absolutePath },

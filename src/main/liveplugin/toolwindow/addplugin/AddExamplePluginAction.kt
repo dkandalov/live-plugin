@@ -7,7 +7,10 @@ import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import liveplugin.IDEUtil
-import liveplugin.LivePluginAppComponent.*
+import liveplugin.LivePluginAppComponent.Companion.groovyExamplesPath
+import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
+import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
+import liveplugin.LivePluginAppComponent.Companion.pluginExists
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.ExamplePluginInstaller
 

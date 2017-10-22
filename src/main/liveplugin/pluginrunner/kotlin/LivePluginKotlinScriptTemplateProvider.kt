@@ -1,7 +1,7 @@
 package liveplugin.pluginrunner.kotlin
 
-import liveplugin.LivePluginAppComponent.ideJarsPath
-import liveplugin.LivePluginAppComponent.livepluginLibsPath
+import liveplugin.LivePluginAppComponent.Companion.ideJarsPath
+import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
 import org.jetbrains.kotlin.idea.core.script.dependencies.KotlinScriptResolveScopeProvider.Companion.USE_NULL_RESOLVE_SCOPE
 import org.jetbrains.kotlin.script.ScriptTemplatesProvider
 import java.io.File

@@ -6,7 +6,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil.startsWith
 import com.intellij.openapi.vfs.VirtualFile
-import liveplugin.LivePluginAppComponent.livepluginsPath
+import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
 
 class EnableHighlightingForLivePlugins: DefaultHighlightingSettingProvider(), DumbAware {
     override fun getDefaultSetting(project: Project, file: VirtualFile): FileHighlightingSetting? {

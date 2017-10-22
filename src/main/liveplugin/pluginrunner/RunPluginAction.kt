@@ -31,7 +31,9 @@ import liveplugin.IDEUtil
 import liveplugin.IDEUtil.SingleThreadBackgroundRunner
 import liveplugin.Icons
 import liveplugin.LivePluginAppComponent
-import liveplugin.LivePluginAppComponent.*
+import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
+import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
+import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
 import liveplugin.Settings
 import liveplugin.pluginrunner.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup

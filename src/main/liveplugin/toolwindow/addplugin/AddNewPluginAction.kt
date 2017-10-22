@@ -8,7 +8,11 @@ import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import liveplugin.IDEUtil
 import liveplugin.Icons
-import liveplugin.LivePluginAppComponent.*
+import liveplugin.LivePluginAppComponent.Companion.groovyExamplesPath
+import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
+import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
+import liveplugin.LivePluginAppComponent.Companion.pluginExists
+import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
 import liveplugin.pluginrunner.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.RefreshPluginsPanelAction
@@ -56,7 +60,7 @@ open class AddNewPluginAction(
             if (project != null) {
                 IDEUtil.showErrorDialog(
                     project,
-                    "Error adding plugin \"" + newPluginId + "\" to " + livepluginsPath,
+                    "Error adding plugin \"$newPluginId\" to $livepluginsPath",
                     addNewPluginTitle
                 )
             }

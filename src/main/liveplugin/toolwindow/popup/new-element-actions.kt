@@ -7,8 +7,8 @@ import com.intellij.openapi.fileChooser.actions.NewFolderAction
 import liveplugin.IDEUtil
 import liveplugin.Icons
 import liveplugin.LivePluginAppComponent
-import liveplugin.LivePluginAppComponent.defaultPluginScript
-import liveplugin.LivePluginAppComponent.defaultPluginTestScript
+import liveplugin.LivePluginAppComponent.Companion.defaultPluginScript
+import liveplugin.LivePluginAppComponent.Companion.defaultPluginTestScript
 import liveplugin.pluginrunner.GroovyPluginRunner
 import javax.swing.Icon
 
