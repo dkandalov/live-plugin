@@ -1,3 +1,7 @@
+
+import com.intellij.notification.NotificationListener
+import com.intellij.notification.NotificationType
+import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -5,16 +9,26 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import liveplugin.CanCallFromAnyThread
+import liveplugin.CanCallWithinRunReadActionOrFromEDT
 import liveplugin.PluginUtil
 import liveplugin.implementation.Actions
+import liveplugin.implementation.Editors
 import liveplugin.implementation.Threads
 import java.util.function.Function
 
-fun show(s: String) {
-    PluginUtil.show(s)
+@CanCallFromAnyThread
+fun show(
+    message: Any?,
+    title: String = "",
+    notificationType: NotificationType = INFORMATION,
+    groupDisplayId: String  = "",
+    notificationListener: NotificationListener? = null
+) {
+    PluginUtil.show(message, title, notificationType, groupDisplayId, notificationListener)
 }
 
 @CanCallFromAnyThread
@@ -37,6 +51,9 @@ fun registerAction(
         Function<AnActionEvent, Unit> { callback(it) }
     )
 }
+
+@CanCallWithinRunReadActionOrFromEDT
+val Project.currentEditor: Editor? get() = Editors.currentEditorIn(this)
 
 @CanCallFromAnyThread
 fun runDocumentWriteAction(

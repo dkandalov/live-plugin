@@ -84,6 +84,7 @@ class AddExamplePluginAction(pluginPath: String, sampleFiles: List<String>): AnA
         val addKotlinExamplesActionGroup by lazy {
             val group = DefaultActionGroup("Kotlin Examples", true)
             group.add(AddExamplePluginAction(kotlinExamplesPath + "helloWorld/", listOf("plugin.kts")))
+            group.add(AddExamplePluginAction(kotlinExamplesPath + "insertNewLineAbove/", listOf("plugin.kts")))
             group.addSeparator()
             group.add(PerformAllGroupActions("Add All", "", group))
             group
