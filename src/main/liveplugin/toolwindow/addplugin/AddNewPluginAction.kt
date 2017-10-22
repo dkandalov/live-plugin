@@ -8,7 +8,6 @@ import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import liveplugin.IDEUtil
 import liveplugin.Icons
-import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.*
 import liveplugin.pluginrunner.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
@@ -51,13 +50,13 @@ open class AddNewPluginAction(
 
         try {
 
-            PluginsIO.createFile(LivePluginAppComponent.pluginsRootPath() + "/" + newPluginId, scriptFileName, scriptFileText)
+            PluginsIO.createFile(livepluginsPath + "/" + newPluginId, scriptFileName, scriptFileText)
 
         } catch (e: IOException) {
             if (project != null) {
                 IDEUtil.showErrorDialog(
                     project,
-                    "Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.pluginsRootPath(),
+                    "Error adding plugin \"" + newPluginId + "\" to " + livepluginsPath,
                     addNewPluginTitle
                 )
             }
@@ -73,7 +72,7 @@ class PluginIdValidator: InputValidatorEx {
     private var errorText: String? = null
 
     override fun checkInput(pluginId: String): Boolean {
-        val isValid = !LivePluginAppComponent.pluginExists(pluginId)
+        val isValid = !pluginExists(pluginId)
         errorText = if (isValid) null else "There is already a plugin with this name"
         return isValid
     }

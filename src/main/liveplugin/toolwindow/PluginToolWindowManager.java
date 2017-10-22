@@ -55,7 +55,6 @@ import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.tree.TreeUtil;
 import liveplugin.IDEUtil;
 import liveplugin.Icons;
-import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.RunPluginAction;
 import liveplugin.pluginrunner.TestPluginAction;
 import liveplugin.toolwindow.addplugin.*;
@@ -76,6 +75,8 @@ import java.util.List;
 import static com.intellij.openapi.util.Condition.NOT_NULL;
 import static com.intellij.util.containers.ContainerUtil.filter;
 import static com.intellij.util.containers.ContainerUtil.map;
+import static liveplugin.LivePluginAppComponent.livepluginsPath;
+import static liveplugin.LivePluginAppComponent.pluginIdToPathMap;
 
 public class PluginToolWindowManager {
 
@@ -167,7 +168,7 @@ public class PluginToolWindowManager {
 		private static FileChooserDescriptor createFileChooserDescriptor() {
 			FileChooserDescriptor descriptor = new FileChooserDescriptor(true, true, true, false, true, true) {
 				@Override public Icon getIcon(VirtualFile file) {
-                    for (String path : LivePluginAppComponent.pluginIdToPathMap().values()) {
+                    for (String path : pluginIdToPathMap().values()) {
                         if (file.getPath().toLowerCase().equals(path.toLowerCase())) return Icons.pluginIcon;
                     }
 					return super.getIcon(file);
@@ -184,7 +185,7 @@ public class PluginToolWindowManager {
 			descriptor.withShowFileSystemRoots(false);
 			descriptor.withTreeRootVisible(false);
 
-			Collection<String> pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values();
+			Collection<String> pluginPaths = pluginIdToPathMap().values();
 			List<VirtualFile> virtualFiles = map(pluginPaths, path -> VirtualFileManager.getInstance().findFileByUrl("file://" + path));
 			addRoots(descriptor, virtualFiles);
 
@@ -203,7 +204,7 @@ public class PluginToolWindowManager {
 		private static VirtualFile pluginFolderOf(VirtualFile file) {
 			if (file.getParent() == null) return null;
 
-			File pluginsRoot = new File(LivePluginAppComponent.pluginsRootPath());
+			File pluginsRoot = new File(livepluginsPath);
 			// comparing files because string comparison was observed not work on windows (e.g. "c:/..." and "C:/...")
 			if (!FileUtil.filesEqual(new File(file.getParent().getPath()), pluginsRoot))
 				return pluginFolderOf(file.getParent());

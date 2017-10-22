@@ -20,7 +20,6 @@ import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.Git;
 import icons.GithubIcons;
 import liveplugin.IDEUtil;
-import liveplugin.LivePluginAppComponent;
 import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.RefreshPluginsPanelAction;
 import liveplugin.toolwindow.util.PluginsIO;
@@ -28,6 +27,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+
+import static liveplugin.LivePluginAppComponent.isInvalidPluginFolder;
+import static liveplugin.LivePluginAppComponent.livepluginsPath;
 
 /**
  * Partially copied from org.jetbrains.plugins.github.GithubCheckoutProvider (became com.intellij.dvcs.ui.CloneDvcsDialog in IJ13)
@@ -101,7 +103,7 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 		}
 
 		@Override public void checkoutCompleted() {
-			VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + LivePluginAppComponent.pluginsRootPath());
+			VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + livepluginsPath);
 			if (pluginsRoot == null) return;
 
 			RefreshQueue.getInstance().refresh(false, true, () -> {
@@ -113,7 +115,7 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 
 				try {
 
-					if (LivePluginAppComponent.isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
+					if (isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
 						PluginsIO.delete(clonedFolder.getPath());
 					}
 

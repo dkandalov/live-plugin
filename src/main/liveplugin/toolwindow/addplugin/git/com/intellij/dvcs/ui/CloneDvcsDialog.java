@@ -22,8 +22,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -154,7 +152,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 //			parentDir = ProjectUtil.getBaseDir();
 //		}
 	  //noinspection ConstantIfStatement
-	  myParentDirectory.setText(LivePluginAppComponent.pluginsRootPath());
+	  myParentDirectory.setText(LivePluginAppComponent.livepluginsPath);
 		// FORK DIFF ↑↑↑
 
 		myDirectoryName.getDocument().addDocumentListener(updateOkButtonListener);

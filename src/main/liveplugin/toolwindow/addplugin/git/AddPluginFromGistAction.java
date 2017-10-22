@@ -27,7 +27,6 @@ import javax.swing.*;
 import java.io.IOException;
 
 import static icons.GithubIcons.Github_icon;
-import static liveplugin.LivePluginAppComponent.pluginsRootPath;
 
 public class AddPluginFromGistAction extends AnAction implements DumbAware {
 	private static final Logger log = Logger.getInstance(AddPluginFromGistAction.class);
@@ -107,7 +106,7 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 
 	private static void createPluginFrom(GithubGist gist, String pluginId) throws IOException {
 		for (GithubGist.GistFile gistFile : gist.getFiles()) {
-			PluginsIO.createFile(pluginsRootPath() + "/" + pluginId, gistFile.getFilename(), gistFile.getContent());
+			PluginsIO.createFile(LivePluginAppComponent.livepluginsPath + "/" + pluginId, gistFile.getFilename(), gistFile.getContent());
 		}
 	}
 
@@ -119,7 +118,7 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 	private void showMessageThatCreatingPluginFailed(IOException e, String newPluginId, Project project) {
 		IDEUtil.showErrorDialog(
 				project,
-				"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.pluginsRootPath(),
+				"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.livepluginsPath,
                 dialogTitle
 		);
 		log.info(e);

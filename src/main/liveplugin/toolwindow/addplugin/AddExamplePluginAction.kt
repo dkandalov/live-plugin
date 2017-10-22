@@ -38,7 +38,7 @@ class AddExamplePluginAction(pluginPath: String, sampleFiles: List<String>): AnA
         if (project != null) {
             IDEUtil.showErrorDialog(
                 project,
-                "Error adding plugin \"" + pluginPath + "\" to " + pluginsRootPath(),
+                "Error adding plugin \"$pluginPath\" to $livepluginsPath",
                 "Add Plugin"
             )
         }

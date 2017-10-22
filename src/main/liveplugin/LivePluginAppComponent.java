@@ -20,12 +20,10 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.vfs.VirtualFile;
 import liveplugin.pluginrunner.*;
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner;
@@ -40,7 +38,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.intellij.openapi.application.PathManager.getHomePath;
+import static com.intellij.openapi.application.PathManager.getPluginsPath;
 import static com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER;
+import static com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName;
 import static java.util.Arrays.asList;
 import static liveplugin.IDEUtil.askIfUserWantsToRestartIde;
 import static liveplugin.IDEUtil.downloadFile;
@@ -49,9 +50,11 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 	public static final String livePluginId = "LivePlugin";
 	public static final String groovyExamplesPath = "/groovy/";
 	public static final String kotlinExamplesPath = "/kotlin/";
-	public static final String livepluginLibsPath = PathManager.getPluginsPath() + "/LivePlugin/lib/";
-	public static final String livepluginCompilerLibsPath = PathManager.getPluginsPath() + "/LivePlugin/lib/kotlin-compiler";
-	public static final String ideJarsPath = PathManager.getHomePath() + "/lib";
+	public static final String livepluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/");
+	public static final String livepluginCompilerLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/kotlin-compiler");
+	public static final String livepluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins");
+	public static final String livepluginsClassesPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-classes");
+	public static final String ideJarsPath = toSystemIndependentName(getHomePath() + "/lib");
 
 	public static final NotificationGroup livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin");
 
@@ -59,14 +62,10 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 
 	private static final String defaultIdeaOutputFolder = "out";
 
-	public static String pluginsRootPath() {
-		return FileUtilRt.toSystemIndependentName(PathManager.getPluginsPath() + "/live-plugins");
-	}
-
 	public static Map<String, String> pluginIdToPathMap() {
-		final boolean containsIdeaProjectFolder = new File(pluginsRootPath() + "/" + DIRECTORY_STORE_FOLDER).exists();
+		final boolean containsIdeaProjectFolder = new File(livepluginsPath + "/" + DIRECTORY_STORE_FOLDER).exists();
 
-		File[] files = new File(pluginsRootPath()).listFiles(file ->
+		File[] files = new File(livepluginsPath).listFiles(file ->
 			file.isDirectory() &&
 			!file.getName().equals(DIRECTORY_STORE_FOLDER) &&
 			!(containsIdeaProjectFolder && file.getName().equals(defaultIdeaOutputFolder))
@@ -75,7 +74,7 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 
 		HashMap<String, String> result = new HashMap<>();
 		for (File file : files) {
-			result.put(file.getName(), FileUtilRt.toSystemIndependentName(file.getAbsolutePath()));
+			result.put(file.getName(), toSystemIndependentName(file.getAbsolutePath()));
 		}
 		return result;
 	}
