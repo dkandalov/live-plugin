@@ -5,7 +5,6 @@ import com.intellij.ide.plugins.PluginManager
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
-import com.intellij.util.containers.ContainerUtil.map
 import groovy.lang.GroovyClassLoader
 import org.apache.commons.httpclient.util.URIUtil
 import org.apache.oro.io.GlobFilenameFilter
@@ -60,7 +59,7 @@ interface PluginRunner {
                         }
                     }
             } catch (e: IOException) {
-                errorReporter.addLoadingError(pluginId, "Error while looking for dependencies in '" + mainScriptUrl + "'. " + e.message)
+                errorReporter.addLoadingError(pluginId, "Error while looking for dependencies in '$mainScriptUrl'. ${e.message}")
             }
             return classLoader
         }
@@ -69,10 +68,9 @@ interface PluginRunner {
             val pluginDescriptors = pluginDescriptorsOf(dependentPlugins, onError = { dependentPluginId ->
                 errorReporter.addLoadingError(pluginId, "Couldn't find dependent plugin '$dependentPluginId'")
             })
-            val parentLoaders = ArrayList(map(pluginDescriptors) { it -> it.pluginClassLoader })
-            parentLoaders.add(PluginRunner::class.java.classLoader)
-
+            val parentLoaders = pluginDescriptors.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
             val pluginVersion = "1.0.0"
+
             return PluginClassLoader(
                 ArrayList(),
                 parentLoaders.toTypedArray(),
@@ -82,16 +80,11 @@ interface PluginRunner {
         }
 
         fun pluginDescriptorsOf(pluginIds: List<String>, onError: (String) -> Unit): List<IdeaPluginDescriptor> {
-            val result = ArrayList<IdeaPluginDescriptor>()
-            for (pluginIdString in pluginIds) {
+            return pluginIds.mapNotNull { pluginIdString ->
                 val pluginDescriptor = PluginManager.getPlugin(PluginId.getId(pluginIdString))
-                if (pluginDescriptor == null) {
-                    onError(pluginIdString)
-                } else {
-                    result.add(pluginDescriptor)
-                }
+                if (pluginDescriptor == null) onError(pluginIdString)
+                pluginDescriptor
             }
-            return result
         }
 
         fun findPluginDependencies(lines: Array<String>, prefix: String): List<String> {
@@ -100,21 +93,17 @@ interface PluginRunner {
         }
 
         fun findClasspathAdditions(lines: Array<String>, prefix: String, environment: Map<String, String>, onError: (String) -> Unit): List<String> {
-            val pathsToAdd = ArrayList<String>()
-            for (line in lines) {
-                if (!line.startsWith(prefix)) continue
-
-                var path = line.replace(prefix, "").trim { it <= ' ' }
-                path = inlineEnvironmentVariables(path, environment)
-
-                val matchingFiles = findMatchingFiles(path)
-                if (matchingFiles.isEmpty()) {
-                    onError(path)
-                } else {
-                    pathsToAdd.addAll(matchingFiles)
+            return lines
+                .filter { it.startsWith(prefix) }
+                .map { line ->
+                    val path = line.replace(prefix, "").trim { it <= ' ' }
+                    inlineEnvironmentVariables(path, environment)
                 }
-            }
-            return pathsToAdd
+                .flatMap { path ->
+                    val matchingFiles = findMatchingFiles(path)
+                    if (matchingFiles.isEmpty()) onError(path)
+                    matchingFiles
+                }
         }
 
         private fun findMatchingFiles(pathAndPattern: String): List<String> {
@@ -124,20 +113,19 @@ interface PluginRunner {
             val path = pathAndPattern.substring(0, separatorIndex + 1)
             val pattern = pathAndPattern.substring(separatorIndex + 1)
 
-            var files = File(path).listFiles(GlobFilenameFilter(pattern) as FileFilter)
-            files = if (files == null) arrayOfNulls(0) else files
-            return map(files) { it.absolutePath }
+            val files = File(path).listFiles(GlobFilenameFilter(pattern) as FileFilter) ?: emptyArray()
+            return files.map { it.absolutePath }
         }
 
         private fun inlineEnvironmentVariables(path: String, environment: Map<String, String>): String {
-            var path = path
+            var result = path
             var wasModified = false
             for ((key, value) in environment) {
-                path = path.replace("$" + key, value)
+                result = result.replace("$" + key, value)
                 wasModified = true
             }
-            if (wasModified) logger.info("Additional classpath with inlined env variables: " + path)
-            return path
+            if (wasModified) logger.info("Additional classpath with inlined env variables: $result")
+            return result
         }
     }
 
