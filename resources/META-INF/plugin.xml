@@ -80,11 +80,11 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 		<nonProjectFileWritingAccessExtension implementation="liveplugin.MakePluginFilesAlwaysEditable"/>
         <defaultHighlightingSettingProvider implementation="liveplugin.EnableHighlightingForLivePlugins"/>
 		<intentionAction>
-			<className>liveplugin.intention.AddToClassPathGroovyIntention</className>
+			<className>liveplugin.AddToClassPathGroovyIntention</className>
 			<category>LivePlugin</category>
 		</intentionAction>
 		<intentionAction>
-			<className>liveplugin.intention.AddPluginDependencyGroovyIntention</className>
+			<className>liveplugin.AddPluginDependencyGroovyIntention</className>
 			<category>LivePlugin</category>
 		</intentionAction>
 	</extensions>
