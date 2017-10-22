@@ -1,6 +1,9 @@
 package liveplugin.pluginrunner
+
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.Function
+import kotlin.Unit
+import kotlin.jvm.functions.Function0
+import kotlin.jvm.functions.Function1
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -10,10 +13,10 @@ import static liveplugin.pluginrunner.GroovyPluginRunner.mainScript
 class GroovyPluginRunnerTest {
 	static final LinkedHashMap noBindings = [:]
 	static final LinkedHashMap emptyEnvironment = [:]
-	static final Function runOnTheSameThread = new Function<Runnable, Void>() {
-		@Override Void fun(Runnable runnable) {
-			runnable.run()
-			null
+	static final Function1 runOnTheSameThread = new Function1<Function0<Unit>, Unit>() {
+		@Override Unit invoke(Function0<Unit> f) {
+			f.invoke()
+			Unit.INSTANCE
 		}
 	}
 
