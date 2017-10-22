@@ -9,7 +9,8 @@ import com.intellij.util.Function
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.LivePluginAppComponent.livepluginCompilerLibsPath
 import liveplugin.LivePluginAppComponent.livepluginLibsPath
-import liveplugin.MyFileUtil.*
+import liveplugin.MyFileUtil.findScriptFileIn
+import liveplugin.MyFileUtil.listFilesIn
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.PluginRunner
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*
@@ -17,7 +18,6 @@ import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import org.jetbrains.kotlin.codegen.CompilationException
 import java.io.File
 import java.io.IOException
-import java.net.URL
 
 private val ideLibsClassLoader by lazy {
     UrlClassLoader.build()
@@ -25,7 +25,7 @@ private val ideLibsClassLoader by lazy {
                 listFilesIn(ideLibFolder()) +
                 listFilesIn(File(livepluginLibsPath)) +
                 listFilesIn(File(livepluginCompilerLibsPath))
-        ).map { it.toFileUrl() })
+        ).map { it.toUrl() })
         .useCache()
         .get()
 }
@@ -42,12 +42,12 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
 
         val pluginFolder = File(pathToPluginFolder)
-        val mainScriptUrl = asUrl(findScriptFileIn(pathToPluginFolder, mainScript))
-        val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), kotlinDependsOnPluginKeyword)
+        val mainScriptFile = findScriptFileIn(pathToPluginFolder, mainScript)!!
+        val dependentPlugins = findPluginDependencies(mainScriptFile.readLines().toTypedArray(), kotlinDependsOnPluginKeyword)
         val compilerOutput = File(FileUtilRt.toSystemIndependentName("${PathManager.getPluginsPath()}/live-plugins-classes/$pluginId"))
         compilerOutput.deleteRecursively()
 
-        val scriptPathAdditions = findClasspathAdditions(readLines(mainScriptUrl), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pathToPluginFolder), { path ->
+        val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines().toTypedArray(), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pathToPluginFolder), { path ->
             errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
             null
         }).map{ File(it) }
@@ -62,7 +62,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
             add(pluginFolder)
         }
         val compilerClassLoader = UrlClassLoader.build()
-            .urls((jarFilesOf(dependentPlugins) + scriptPathAdditions + pluginFolder).map { it.toFileUrl() })
+            .urls((jarFilesOf(dependentPlugins) + scriptPathAdditions + pluginFolder).map { it.toUrl() })
             .parent(ideLibsClassLoader)
             .useCache()
             .get()
@@ -92,7 +92,13 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
                 addAll(jarFilesOf(dependentPlugins))
                 addAll(scriptPathAdditions)
             }
-            val classLoader = createClassLoaderWithDependencies(runtimeClassPath.map{ it.absolutePath }, dependentPlugins, mainScriptUrl, pluginId, errorReporter)
+            val classLoader = createClassLoaderWithDependencies(
+                runtimeClassPath.map{ it.absolutePath },
+                dependentPlugins,
+                mainScriptFile.toUrl().toString(),
+                pluginId,
+                errorReporter
+            )
             classLoader.loadClass("Plugin")
         } catch (e: Exception) {
             errorReporter.addLoadingError(pluginId, "Error while loading plugin class. ${e.message}")
@@ -120,12 +126,12 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
     }
 }
 
-private fun File.toFileUrl() = URL("file:///$this") // prefix with "file:///" so that unix-like paths work on windows
+private fun File.toUrl() = this.toURI().toURL()
 
-fun ideJdkClassesRoots(): List<File> =
+private fun ideJdkClassesRoots(): List<File> =
     JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")), true)
 
-fun ideLibFolder(): File {
+private fun ideLibFolder(): File {
     val ideJarPath = PathManager.getJarPathForClass(IntelliJLaf::class.java) ?: throw IllegalStateException("Failed to find IDE lib folder.")
     return File(ideJarPath).parentFile
 }
