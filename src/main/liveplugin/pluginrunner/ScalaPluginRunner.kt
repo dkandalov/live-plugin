@@ -6,7 +6,9 @@ import com.intellij.openapi.application.PathManager.getPluginsPath
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import liveplugin.MyFileUtil
-import liveplugin.MyFileUtil.*
+import liveplugin.MyFileUtil.asUrl
+import liveplugin.MyFileUtil.findScriptFileIn
+import liveplugin.MyFileUtil.readLines
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createParentClassLoader
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies

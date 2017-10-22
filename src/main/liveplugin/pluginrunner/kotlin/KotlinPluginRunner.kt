@@ -23,6 +23,7 @@ import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import org.jetbrains.kotlin.codegen.CompilationException
 import java.io.File
 import java.io.IOException
+import liveplugin.MyFileUtil.toUrl
 
 private val ideLibsClassLoader by lazy {
     UrlClassLoader.build()
@@ -131,8 +132,6 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         @JvmField val mainScript = "plugin.kts"
     }
 }
-
-private fun File.toUrl() = this.toURI().toURL()
 
 private fun ideJdkClassesRoots(): List<File> =
     JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")), true)

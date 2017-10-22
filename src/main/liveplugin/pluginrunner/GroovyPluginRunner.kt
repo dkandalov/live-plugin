@@ -15,7 +15,9 @@ package liveplugin.pluginrunner
 
 import groovy.lang.Binding
 import groovy.util.GroovyScriptEngine
-import liveplugin.MyFileUtil.*
+import liveplugin.MyFileUtil.asUrl
+import liveplugin.MyFileUtil.findScriptFileIn
+import liveplugin.MyFileUtil.readLines
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
@@ -40,7 +42,7 @@ class GroovyPluginRunner(
         binding: Map<String, *>,
         runOnEDT: (() -> Unit) -> Unit
     ) {
-        val mainScript = findScriptFileIn(pathToPluginFolder, scriptName)
+        val mainScript = findScriptFileIn(pathToPluginFolder, scriptName)!!
         runGroovyScript(asUrl(mainScript), pathToPluginFolder, pluginId, binding, runOnEDT)
     }
 

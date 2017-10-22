@@ -1,7 +1,9 @@
 package liveplugin.pluginrunner
 
 import clojure.lang.*
-import liveplugin.MyFileUtil.*
+import liveplugin.MyFileUtil.asUrl
+import liveplugin.MyFileUtil.findScriptFileIn
+import liveplugin.MyFileUtil.readLines
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
