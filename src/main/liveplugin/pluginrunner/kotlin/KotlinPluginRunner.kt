@@ -13,7 +13,10 @@ import liveplugin.MyFileUtil.findScriptFileIn
 import liveplugin.MyFileUtil.listFilesIn
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.PluginRunner
-import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.*
+import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
+import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
+import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
+import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import org.jetbrains.kotlin.codegen.CompilationException
 import java.io.File
@@ -47,9 +50,8 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         val compilerOutput = File(FileUtilRt.toSystemIndependentName("${PathManager.getPluginsPath()}/live-plugins-classes/$pluginId"))
         compilerOutput.deleteRecursively()
 
-        val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines().toTypedArray(), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pathToPluginFolder), { path ->
+        val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines().toTypedArray(), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pathToPluginFolder), onError = { path ->
             errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
-            null
         }).map{ File(it) }
 
         val compilerClasspath = ArrayList<File>().apply {
@@ -137,6 +139,6 @@ private fun ideLibFolder(): File {
 }
 
 private fun jarFilesOf(dependentPlugins: List<String>): List<File> {
-    val pluginDescriptors = pluginDescriptorsOf(dependentPlugins) { it -> throw IllegalStateException("Failed to find jar for dependent plugin '$it'.") }
+    val pluginDescriptors = pluginDescriptorsOf(dependentPlugins, onError = { it -> throw IllegalStateException("Failed to find jar for dependent plugin '$it'.") })
     return pluginDescriptors.map { it -> it.path }
 }

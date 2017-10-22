@@ -136,13 +136,13 @@ public class LivePluginAppComponent implements ApplicationComponent, DumbAware {
 			AnActionEvent event = new AnActionEvent(
 					null,
 					IDEUtil.dummyDataContext,
-					PluginRunner.ideStartup,
+					PluginRunner.Companion.getIdeStartup(),
 					new Presentation(),
 					ActionManager.getInstance(),
 					0
 			);
 			ErrorReporter errorReporter = new ErrorReporter();
-			RunPluginAction.runPlugins(pluginIdToPathMap().keySet(), event, errorReporter, RunPluginAction.createPluginRunners(errorReporter));
+			RunPluginAction.Companion.runPlugins(pluginIdToPathMap().keySet(), event, errorReporter, RunPluginAction.Companion.createPluginRunners(errorReporter));
 		});
 	}
 
