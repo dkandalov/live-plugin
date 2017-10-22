@@ -24,7 +24,6 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.Function
 import com.intellij.util.containers.ContainerUtil.find
 import com.intellij.util.containers.ContainerUtil.map
 import com.intellij.util.ui.UIUtil
@@ -62,9 +61,8 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
 
     companion object {
         private val backgroundRunner = SingleThreadBackgroundRunner("LivePlugin thread")
-        private val runOnEdt = Function<Runnable, Void> { runnable ->
-            UIUtil.invokeAndWaitIfNeeded(runnable)
-            null
+        private val runOnEdt = { f: () -> Unit ->
+            UIUtil.invokeAndWaitIfNeeded(Runnable{ f() })
         }
         private val disposableKey = "pluginDisposable"
         private val bindingByPluginId = WeakHashMap<String, Map<String, Any?>>()

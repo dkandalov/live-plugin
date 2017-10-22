@@ -5,7 +5,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt
-import com.intellij.util.Function
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.LivePluginAppComponent.livepluginCompilerLibsPath
 import liveplugin.LivePluginAppComponent.livepluginLibsPath
@@ -40,7 +39,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
     override fun canRunPlugin(pathToPluginFolder: String): Boolean =
         findScriptFileIn(pathToPluginFolder, mainScript) != null
 
-    override fun runPlugin(pathToPluginFolder: String, pluginId: String, binding: Map<String, *>, runOnEDTCallback: Function<Runnable, Void>) {
+    override fun runPlugin(pathToPluginFolder: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
         val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
 
@@ -107,7 +106,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
             return
         }
 
-        runOnEDTCallback.`fun`(Runnable {
+        runOnEDT {
             try {
                 // Arguments below must match constructor of liveplugin.pluginrunner.kotlin.KotlinScriptTemplate class.
                 // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
@@ -120,7 +119,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
             } catch (e: Throwable) {
                 errorReporter.addRunningError(pluginId, e)
             }
-        })
+        }
     }
 
     companion object {

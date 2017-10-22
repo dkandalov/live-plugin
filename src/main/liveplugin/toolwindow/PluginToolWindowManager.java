@@ -352,7 +352,7 @@ public class PluginToolWindowManager {
 
 		/**
 		 * Provides context for actions in plugin tree popup popup menu.
-		 * Without it they would be disabled or won't work.
+		 * Without it the actions will be disabled or won't work.
 		 * <p/>
 		 * Used by
 		 * {@link com.intellij.openapi.fileChooser.actions.NewFileAction},

@@ -13,7 +13,6 @@
  */
 package liveplugin.pluginrunner
 
-import com.intellij.util.Function
 import groovy.lang.Binding
 import groovy.util.GroovyScriptEngine
 import liveplugin.MyFileUtil.*
@@ -31,28 +30,26 @@ class GroovyPluginRunner(
 ): PluginRunner {
     private val environment = HashMap(environment)
 
-    override fun canRunPlugin(pathToPluginFolder: String): Boolean {
-        return findScriptFileIn(pathToPluginFolder, scriptName) != null
-    }
+    override fun scriptName() = scriptName
+
+    override fun canRunPlugin(pathToPluginFolder: String) = findScriptFileIn(pathToPluginFolder, scriptName) != null
 
     override fun runPlugin(
         pathToPluginFolder: String,
         pluginId: String,
         binding: Map<String, *>,
-        runOnEDTCallback: Function<Runnable, Void>
+        runOnEDT: (() -> Unit) -> Unit
     ) {
         val mainScript = findScriptFileIn(pathToPluginFolder, scriptName)
-        runGroovyScript(asUrl(mainScript), pathToPluginFolder, pluginId, binding, runOnEDTCallback)
+        runGroovyScript(asUrl(mainScript), pathToPluginFolder, pluginId, binding, runOnEDT)
     }
-
-    override fun scriptName() = scriptName
 
     private fun runGroovyScript(
         mainScriptUrl: String,
         pathToPluginFolder: String,
         pluginId: String,
         binding: Map<String, *>,
-        runPluginCallback: Function<Runnable, Void>
+        runOnEDT: (() -> Unit) -> Unit
     ) {
         try {
             environment.put("PLUGIN_PATH", pathToPluginFolder)
@@ -75,13 +72,13 @@ class GroovyPluginRunner(
                 return
             }
 
-            runPluginCallback.`fun`(Runnable {
+            runOnEDT {
                 try {
                     scriptEngine.run(mainScriptUrl, createGroovyBinding(binding))
                 } catch (e: Exception) {
                     errorReporter.addRunningError(pluginId, e)
                 }
-            })
+            }
 
         } catch (e: IOException) {
             errorReporter.addLoadingError(pluginId, "Error creating scripting engine. " + e.message)
@@ -94,7 +91,6 @@ class GroovyPluginRunner(
         } catch (e: Exception) {
             errorReporter.addLoadingError(pluginId, e)
         }
-
     }
 
     companion object {

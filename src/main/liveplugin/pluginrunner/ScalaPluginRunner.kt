@@ -4,7 +4,6 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.application.PathManager.getLibPath
 import com.intellij.openapi.application.PathManager.getPluginsPath
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.Function
 import com.intellij.util.PathUtil
 import liveplugin.MyFileUtil
 import liveplugin.MyFileUtil.*
@@ -33,7 +32,7 @@ class ScalaPluginRunner(private val errorReporter: ErrorReporter, private val en
     }
 
     override fun runPlugin(pathToPluginFolder: String, pluginId: String,
-                           binding: Map<String, *>, runOnEDTCallback: Function<Runnable, Void>) {
+                           binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         val scriptFile = MyFileUtil.findScriptFileIn(pathToPluginFolder, ScalaPluginRunner.mainScript)!!
 
         var interpreter: IMain? = null
@@ -64,7 +63,7 @@ class ScalaPluginRunner(private val errorReporter: ErrorReporter, private val en
             }
         }
 
-        runOnEDTCallback.`fun`(Runnable {
+        runOnEDT {
             synchronized(interpreterLock) {
                 val result: Results.Result
                 try {
@@ -78,7 +77,7 @@ class ScalaPluginRunner(private val errorReporter: ErrorReporter, private val en
                     errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile)
                 }
             }
-        })
+        }
     }
 
     override fun scriptName(): String {

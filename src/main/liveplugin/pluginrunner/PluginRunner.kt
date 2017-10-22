@@ -5,7 +5,6 @@ import com.intellij.ide.plugins.PluginManager
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
-import com.intellij.util.Function
 import com.intellij.util.containers.ContainerUtil.map
 import groovy.lang.GroovyClassLoader
 import org.apache.commons.httpclient.util.URIUtil
@@ -18,6 +17,8 @@ import java.util.*
 
 interface PluginRunner {
 
+    fun scriptName(): String
+
     /**
      * @param pathToPluginFolder absolute path to plugin folder
      * @return true if [PluginRunner] can run plugin in this folder
@@ -28,38 +29,39 @@ interface PluginRunner {
      * @param pathToPluginFolder absolute path to plugin folder
      * @param pluginId plugin id, e.g. to distinguish it from other plugins in error messages
      * @param binding map with implicit variables available in plugin script
-     * @param runOnEDTCallback callback which should be used to run plugin code on EDT
+     * @param runOnEDT callback which should be used to run plugin code on EDT
      */
-    fun runPlugin(pathToPluginFolder: String, pluginId: String, binding: Map<String, *>, runOnEDTCallback: Function<Runnable, Void>)
-
-    fun scriptName(): String
+    fun runPlugin(pathToPluginFolder: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit)
 
 
     object ClasspathAddition {
         private val logger = Logger.getInstance(ClasspathAddition::class.java)
 
-        fun createClassLoaderWithDependencies(pathsToAdd: List<String>, pluginsToAdd: List<String>,
-                                              mainScriptUrl: String, pluginId: String, errorReporter: ErrorReporter): ClassLoader {
+        fun createClassLoaderWithDependencies(
+            pathsToAdd: List<String>,
+            pluginsToAdd: List<String>,
+            mainScriptUrl: String,
+            pluginId: String,
+            errorReporter: ErrorReporter
+        ): ClassLoader {
             val parentLoader = createParentClassLoader(pluginsToAdd, pluginId, errorReporter)
             val classLoader = GroovyClassLoader(parentLoader)
             try {
-
-                for (path in pathsToAdd) {
-                    val encodedPath = URIUtil.encodePath(path)
-                    if (encodedPath.startsWith("file:/")) {
-                        val url = URL(encodedPath)
-                        classLoader.addURL(url)
-                        classLoader.addClasspath(url.file)
-                    } else {
-                        classLoader.addURL(URL("file:///" + encodedPath))
-                        classLoader.addClasspath(encodedPath)
+                pathsToAdd
+                    .map { URIUtil.encodePath(it) }
+                    .forEach {
+                        if (it.startsWith("file:/")) {
+                            val url = URL(it)
+                            classLoader.addURL(url)
+                            classLoader.addClasspath(url.file)
+                        } else {
+                            classLoader.addURL(URL("file:///" + it))
+                            classLoader.addClasspath(it)
+                        }
                     }
-                }
-
             } catch (e: IOException) {
                 errorReporter.addLoadingError(pluginId, "Error while looking for dependencies in '" + mainScriptUrl + "'. " + e.message)
             }
-
             return classLoader
         }
 
@@ -93,14 +95,8 @@ interface PluginRunner {
         }
 
         fun findPluginDependencies(lines: Array<String>, prefix: String): List<String> {
-            val pluginsToAdd = ArrayList<String>()
-            for (line in lines) {
-                if (!line.startsWith(prefix)) continue
-
-                val pluginId = line.replace(prefix, "").trim { it <= ' ' }
-                pluginsToAdd.add(pluginId)
-            }
-            return pluginsToAdd
+            return lines.filter { it.startsWith(prefix) }
+                .map { line -> line.replace(prefix, "").trim { it <= ' ' } }
         }
 
         fun findClasspathAdditions(lines: Array<String>, prefix: String, environment: Map<String, String>, onError: (String) -> Unit): List<String> {

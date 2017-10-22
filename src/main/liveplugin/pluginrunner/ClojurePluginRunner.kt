@@ -1,7 +1,6 @@
 package liveplugin.pluginrunner
 
 import clojure.lang.*
-import com.intellij.util.Function
 import liveplugin.MyFileUtil.*
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
@@ -22,7 +21,7 @@ class ClojurePluginRunner(
     }
 
     override fun runPlugin(pathToPluginFolder: String, pluginId: String,
-                           binding: Map<String, *>, runOnEDTCallback: Function<Runnable, Void>) {
+                           binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         if (!initialized) {
             // need this to avoid "java.lang.IllegalStateException: Attempting to call unbound fn: #'clojure.core/refer"
             // use classloader of RunPluginAction assuming that clojure was first initialized from it
@@ -53,7 +52,7 @@ class ClojurePluginRunner(
         val classLoader = createClassLoaderWithDependencies(additionalPaths, dependentPlugins, asUrl(scriptFile), pluginId, errorReporter)
 
 
-        runOnEDTCallback.`fun`(Runnable {
+        runOnEDT {
             try {
                 var bindings = Var.getThreadBindings()
                 for ((key1, value) in binding) {
@@ -77,7 +76,7 @@ class ClojurePluginRunner(
             } finally {
                 Var.popThreadBindings()
             }
-        })
+        }
     }
 
     override fun scriptName() = mainScript
