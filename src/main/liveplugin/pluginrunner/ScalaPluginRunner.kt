@@ -4,11 +4,8 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.application.PathManager.getLibPath
 import com.intellij.openapi.application.PathManager.getPluginsPath
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.text.StringUtil.join
 import com.intellij.util.Function
 import com.intellij.util.PathUtil
-import com.intellij.util.containers.ContainerUtil.flatten
-import com.intellij.util.containers.ContainerUtil.map
 import liveplugin.MyFileUtil
 import liveplugin.MyFileUtil.*
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createParentClassLoader
@@ -25,7 +22,6 @@ import java.io.File
 import java.io.File.pathSeparator
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.Arrays.asList
 
 /**
  * This class should not be loaded unless scala libs are on classpath.
@@ -121,15 +117,11 @@ class ScalaPluginRunner(private val errorReporter: ErrorReporter, private val en
 
             val compilerPath = PathUtil.getJarPathForClass(Class.forName("scala.tools.nsc.Interpreter"))
             val scalaLibPath = PathUtil.getJarPathForClass(Class.forName("scala.Some"))
-            val intellijLibPath = join(map(withDefault(arrayOfNulls<File>(0), File(getLibPath()).listFiles())) { it.absolutePath }, pathSeparator)
-            val allNonCorePluginsPath = join(map(flatten(map(withDefault(arrayOfNulls<File>(0), File(getPluginsPath()).listFiles()), findPluginJars)), { it.absolutePath }), pathSeparator)
+            val intellijLibPath = (File(getLibPath()).listFiles() ?: emptyArray()).joinToString(pathSeparator){ it.absolutePath }
+            val allNonCorePluginsPath = (File(getPluginsPath()).listFiles() ?: emptyArray()).flatMap { findPluginJars(it) }.joinToString(pathSeparator){ it.absolutePath }
             val livePluginPath = PathManager.getResourceRoot(ScalaPluginRunner::class.java, "/liveplugin/") // this is only useful when running liveplugin from IDE (it's not packed into jar)
-            return join(asList<String>(compilerPath, scalaLibPath, livePluginPath, intellijLibPath, allNonCorePluginsPath), pathSeparator) +
-                pathSeparator + join(additionalPaths, pathSeparator)
-        }
-
-        private fun <T> withDefault(defaultValue: T, value: T?): T {
-            return value ?: defaultValue
+            return listOf(compilerPath, scalaLibPath, livePluginPath, intellijLibPath, allNonCorePluginsPath).joinToString(pathSeparator) +
+                pathSeparator + additionalPaths.joinToString(pathSeparator)
         }
     }
 }

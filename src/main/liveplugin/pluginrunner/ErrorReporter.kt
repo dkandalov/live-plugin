@@ -51,6 +51,14 @@ class ErrorReporter {
         runningPluginErrors.clear()
     }
 
+    @Synchronized fun reportAllErrors(callback: (title: String, message: String) -> Unit) {
+        reportAllErrors(object : Callback {
+            override fun display(title: String, message: String) {
+                callback(title, message)
+            }
+        })
+    }
+
     private fun reportLoadingErrors(callback: Callback) {
         val text = StringBuilder()
         for (s in loadingErrors) text.append(s)
