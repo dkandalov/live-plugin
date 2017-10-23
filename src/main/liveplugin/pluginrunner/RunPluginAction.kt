@@ -24,7 +24,6 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.containers.ContainerUtil.map
 import com.intellij.util.ui.UIUtil
 import liveplugin.IDEUtil
 import liveplugin.IDEUtil.SingleThreadBackgroundRunner
@@ -63,13 +62,15 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     companion object {
         private val backgroundRunner = SingleThreadBackgroundRunner("LivePlugin thread")
         private val runOnEdt = { f: () -> Unit ->
-            UIUtil.invokeAndWaitIfNeeded(Runnable{ f() })
+            UIUtil.invokeAndWaitIfNeeded(Runnable { f() })
         }
         private val disposableKey = "pluginDisposable"
         private val bindingByPluginId = WeakHashMap<String, Map<String, Any?>>()
 
-        fun runPlugins(pluginIds: Collection<String>, event: AnActionEvent,
-                       errorReporter: ErrorReporter, pluginRunners: List<PluginRunner>) {
+        fun runPlugins(
+            pluginIds: Collection<String>, event: AnActionEvent,
+            errorReporter: ErrorReporter, pluginRunners: List<PluginRunner>
+        ) {
             checkThatGroovyIsOnClasspath()
 
             val project = event.project
@@ -85,18 +86,18 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                         val pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap()[pluginId] // TODO not thread-safe
                         val pluginRunner = pluginRunners.find { pathToPluginFolder != null && it.canRunPlugin(pathToPluginFolder) }
                         if (pluginRunner == null) {
-                            val scriptNames = map(pluginRunners) { it -> it.scriptName() }
-                            errorReporter.addNoScriptError(pluginId, scriptNames)
+                            errorReporter.addNoScriptError(pluginId, pluginRunners.map { it.scriptName() })
                         } else {
                             val oldBinding = bindingByPluginId[pluginId]
                             if (oldBinding != null) {
-                                ApplicationManager.getApplication().invokeAndWait({
+                                val function = {
                                     try {
                                         Disposer.dispose(oldBinding[disposableKey] as Disposable)
                                     } catch (e: Exception) {
                                         errorReporter.addRunningError(pluginId, e)
                                     }
-                                }, ModalityState.NON_MODAL)
+                                }
+                                ApplicationManager.getApplication().invokeAndWait(function, ModalityState.NON_MODAL)
                             }
                             val binding = createBinding(pathToPluginFolder!!, project, isIdeStartup)
                             bindingByPluginId.put(pluginId, binding)
