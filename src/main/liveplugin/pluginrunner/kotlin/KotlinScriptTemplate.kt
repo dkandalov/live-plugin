@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
  * Its fields must be in sync with vals in script-implicits.kt file.
  */
 abstract class KotlinScriptTemplate(
-    val project: Project,
+    val project: Project?,
     val isIdeStartup: Boolean,
     val pluginPath: String,
     val pluginDisposable: Disposable

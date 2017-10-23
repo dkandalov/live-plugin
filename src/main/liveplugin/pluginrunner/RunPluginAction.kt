@@ -24,7 +24,6 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.containers.ContainerUtil.find
 import com.intellij.util.containers.ContainerUtil.map
 import com.intellij.util.ui.UIUtil
 import liveplugin.IDEUtil
@@ -84,7 +83,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                 for (pluginId in pluginIds) {
                     try {
                         val pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap()[pluginId] // TODO not thread-safe
-                        val pluginRunner = find(pluginRunners) { it -> pathToPluginFolder != null && it.canRunPlugin(pathToPluginFolder) }
+                        val pluginRunner = pluginRunners.find { pathToPluginFolder != null && it.canRunPlugin(pathToPluginFolder) }
                         if (pluginRunner == null) {
                             val scriptNames = map(pluginRunners) { it -> it.scriptName() }
                             errorReporter.addNoScriptError(pluginId, scriptNames)
@@ -99,10 +98,10 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                                     }
                                 }, ModalityState.NON_MODAL)
                             }
-                            val binding = createBinding(pathToPluginFolder, project, isIdeStartup)
+                            val binding = createBinding(pathToPluginFolder!!, project, isIdeStartup)
                             bindingByPluginId.put(pluginId, binding)
 
-                            pluginRunner.runPlugin(pathToPluginFolder!!, pluginId, binding, runOnEdt)
+                            pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, runOnEdt)
                         }
                     } catch (e: Error) {
                         errorReporter.addLoadingError(pluginId, e)
@@ -124,26 +123,22 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
             return result
         }
 
-        private fun createBinding(pathToPluginFolder: String?, project: Project?, isIdeStartup: Boolean): Map<String, Any?> {
+        private fun createBinding(pathToPluginFolder: String, project: Project?, isIdeStartup: Boolean): Map<String, Any?> {
             val disposable = object: Disposable {
                 override fun dispose() {}
-                override fun toString(): String {
-                    return "LivePlugin: " + pathToPluginFolder!!
-                }
+                override fun toString() = "LivePlugin: $pathToPluginFolder"
             }
             Disposer.register(ApplicationManager.getApplication(), disposable)
 
-            val binding = HashMap<String, Any?>()
-            binding.put("project", project)
-            binding.put("isIdeStartup", isIdeStartup)
-            binding.put("pluginPath", pathToPluginFolder)
-            binding.put(disposableKey, disposable)
-            return binding
+            return mapOf(
+                "project" to project,
+                "isIdeStartup" to isIdeStartup,
+                "pluginPath" to pathToPluginFolder,
+                disposableKey to disposable
+            )
         }
 
-        internal fun environment(): MutableMap<String, String> {
-            return HashMap(System.getenv())
-        }
+        internal fun environment(): MutableMap<String, String> = HashMap(System.getenv())
 
         internal fun findCurrentPluginIds(event: AnActionEvent): List<String> {
             val pluginIds = pluginsSelectedInToolWindow(event)

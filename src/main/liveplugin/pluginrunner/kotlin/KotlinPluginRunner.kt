@@ -3,7 +3,6 @@ package liveplugin.pluginrunner.kotlin
 import com.intellij.ide.ui.laf.IntelliJLaf
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.util.lang.UrlClassLoader
@@ -113,7 +112,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
                 // Arguments below must match constructor of liveplugin.pluginrunner.kotlin.KotlinScriptTemplate class.
                 // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
                 pluginClass.constructors[0].newInstance(
-                    binding["project"] as Project,
+                    binding["project"] as Project?,
                     binding["isIdeStartup"] as Boolean,
                     binding["pluginPath"] as String,
                     binding["pluginDisposable"] as Disposable

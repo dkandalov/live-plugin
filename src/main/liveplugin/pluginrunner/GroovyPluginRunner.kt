@@ -24,25 +24,18 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependen
 import org.codehaus.groovy.control.CompilationFailedException
 import java.io.File
 import java.io.IOException
-import java.util.*
 
 class GroovyPluginRunner(
     private val scriptName: String,
     private val errorReporter: ErrorReporter,
-    environment: Map<String, String>
+    private val environment: Map<String, String>
 ): PluginRunner {
-    private val environment = HashMap(environment)
 
     override fun scriptName() = scriptName
 
     override fun canRunPlugin(pathToPluginFolder: String) = findScriptFileIn(pathToPluginFolder, scriptName) != null
 
-    override fun runPlugin(
-        pathToPluginFolder: String,
-        pluginId: String,
-        binding: Map<String, *>,
-        runOnEDT: (() -> Unit) -> Unit
-    ) {
+    override fun runPlugin(pathToPluginFolder: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         val mainScript = findScriptFileIn(pathToPluginFolder, scriptName)!!
         runGroovyScript(asUrl(mainScript), pathToPluginFolder, pluginId, binding, runOnEDT)
     }
@@ -55,7 +48,7 @@ class GroovyPluginRunner(
         runOnEDT: (() -> Unit) -> Unit
     ) {
         try {
-            environment.put("PLUGIN_PATH", pathToPluginFolder)
+            val environment = environment + Pair("PLUGIN_PATH", pathToPluginFolder)
 
             val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), groovyDependsOnPluginKeyword)
             val pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), groovyAddToClasspathKeyword, environment, onError = { path ->
@@ -84,11 +77,11 @@ class GroovyPluginRunner(
             }
 
         } catch (e: IOException) {
-            errorReporter.addLoadingError(pluginId, "Error creating scripting engine. " + e.message)
+            errorReporter.addLoadingError(pluginId, "Error creating scripting engine. ${e.message}")
         } catch (e: CompilationFailedException) {
-            errorReporter.addLoadingError(pluginId, "Error compiling script. " + e.message)
+            errorReporter.addLoadingError(pluginId, "Error compiling script. ${e.message}")
         } catch (e: LinkageError) {
-            errorReporter.addLoadingError(pluginId, "Error linking script. " + e.message)
+            errorReporter.addLoadingError(pluginId, "Error linking script. ${e.message}")
         } catch (e: Error) {
             errorReporter.addLoadingError(pluginId, e)
         } catch (e: Exception) {

@@ -10,7 +10,7 @@ val isIdeStartup: Boolean = error("Stub implementation")
 /**
  * Project in which plugin is executed, can be null on IDE startup or if no projects are open.
  */
-val project: Project = error("Stub implementation")
+val project: Project? = error("Stub implementation")
 
 /**
  * Absolute path to this plugin folder.
