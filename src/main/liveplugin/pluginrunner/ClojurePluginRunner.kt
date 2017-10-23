@@ -7,6 +7,7 @@ import liveplugin.MyFileUtil.readLines
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
+import java.io.File
 import java.io.IOException
 import java.util.*
 
@@ -38,20 +39,20 @@ class ClojurePluginRunner(
         val scriptFile = findScriptFileIn(pathToPluginFolder, mainScript)!!
 
         val dependentPlugins = ArrayList<String>()
-        val additionalPaths = ArrayList<String>()
+        val additionalPaths = ArrayList<File>()
         try {
             environment.put("PLUGIN_PATH", pathToPluginFolder)
 
             dependentPlugins.addAll(findPluginDependencies(readLines(asUrl(scriptFile)), clojureDependsOnPluginKeyword))
             additionalPaths.addAll(findClasspathAdditions(readLines(asUrl(scriptFile)), clojureAddToClasspathKeyword, environment, onError = { path ->
                 errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
-            }))
+            }).map{ File(it) })
         } catch (e: IOException) {
             errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile)
             return
         }
 
-        val classLoader = createClassLoaderWithDependencies(additionalPaths, dependentPlugins, asUrl(scriptFile), pluginId, errorReporter)
+        val classLoader = createClassLoaderWithDependencies(additionalPaths, dependentPlugins, pluginId, errorReporter)
 
 
         runOnEDT {

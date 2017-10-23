@@ -22,6 +22,7 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderW
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
 import org.codehaus.groovy.control.CompilationFailedException
+import java.io.File
 import java.io.IOException
 import java.util.*
 
@@ -59,10 +60,10 @@ class GroovyPluginRunner(
             val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), groovyDependsOnPluginKeyword)
             val pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), groovyAddToClasspathKeyword, environment, onError = { path ->
                 errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
-            }).toMutableList()
+            }).map{ File(it) }.toMutableList()
             val pluginFolderUrl = "file:///$pathToPluginFolder/" // prefix with "file:///" so that unix-like path works on windows
-            pathsToAdd.add(pluginFolderUrl)
-            val classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, mainScriptUrl, pluginId, errorReporter)
+            pathsToAdd.add(File(pathToPluginFolder))
+            val classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, pluginId, errorReporter)
 
             // assume that GroovyScriptEngine is thread-safe
             // (according to this http://groovy.329449.n5.nabble.com/Is-the-GroovyScriptEngine-thread-safe-td331407.html)

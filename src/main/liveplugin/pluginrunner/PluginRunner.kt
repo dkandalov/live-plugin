@@ -6,12 +6,10 @@ import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import groovy.lang.GroovyClassLoader
-import org.apache.commons.httpclient.util.URIUtil
+import liveplugin.MyFileUtil.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
-import java.io.IOException
-import java.net.URL
 import java.util.*
 
 interface PluginRunner {
@@ -37,29 +35,19 @@ interface PluginRunner {
         private val logger = Logger.getInstance(ClasspathAddition::class.java)
 
         fun createClassLoaderWithDependencies(
-            pathsToAdd: List<String>,
+            classPath: List<File>,
             pluginsToAdd: List<String>,
-            mainScriptUrl: String,
             pluginId: String,
             errorReporter: ErrorReporter
         ): ClassLoader {
             val parentLoader = createParentClassLoader(pluginsToAdd, pluginId, errorReporter)
             val classLoader = GroovyClassLoader(parentLoader)
-            try {
-                pathsToAdd
-                    .map { URIUtil.encodePath(it) }
-                    .forEach {
-                        if (it.startsWith("file:/")) {
-                            val url = URL(it)
-                            classLoader.addURL(url)
-                            classLoader.addClasspath(url.file)
-                        } else {
-                            classLoader.addURL(URL("file:///" + it))
-                            classLoader.addClasspath(it)
-                        }
-                    }
-            } catch (e: IOException) {
-                errorReporter.addLoadingError(pluginId, "Error while looking for dependencies in '$mainScriptUrl'. ${e.message}")
+            classPath.forEach { file ->
+                if (!file.exists()) {
+                    errorReporter.addLoadingError(pluginId, "Didn't find plugin dependency '${file.absolutePath}'.")
+                } else {
+                    classLoader.addURL(file.toUrl())
+                }
             }
             return classLoader
         }

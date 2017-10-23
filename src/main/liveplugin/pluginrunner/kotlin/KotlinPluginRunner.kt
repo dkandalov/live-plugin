@@ -13,6 +13,7 @@ import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginsClassesPath
 import liveplugin.MyFileUtil.findScriptFileIn
 import liveplugin.MyFileUtil.listFilesIn
+import liveplugin.MyFileUtil.toUrl
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.PluginRunner
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
@@ -23,7 +24,6 @@ import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import org.jetbrains.kotlin.codegen.CompilationException
 import java.io.File
 import java.io.IOException
-import liveplugin.MyFileUtil.toUrl
 
 private val ideLibsClassLoader by lazy {
     UrlClassLoader.build()
@@ -96,13 +96,9 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
                 listFilesIn(File(livepluginLibsPath)) +
                 scriptPathAdditions
 
-            val logger = Logger.getInstance("AAaaa")
-            logger.info(runtimeClassPath.joinToString("\n") { it.absolutePath })
-
             val classLoader = createClassLoaderWithDependencies(
-                runtimeClassPath.map{ it.absolutePath },
+                runtimeClassPath,
                 dependentPlugins,
-                mainScriptFile.toUrl().toString(),
                 pluginId,
                 errorReporter
             )
