@@ -14,8 +14,7 @@ import java.util.regex.Pattern
 
 object MyFileUtil {
     fun listFilesIn(folder: File): List<File> {
-        val files = folder.listFiles()
-        return if (files == null) emptyList() else Arrays.asList(*files)
+        return folder.listFiles()?.toList() ?: emptyList()
     }
 
     fun fileNamesMatching(regexp: String, path: String): List<String> {
@@ -69,6 +68,10 @@ object MyFileUtil {
     }
 
     fun readLines(url: String): Array<String> {
-        return FileUtil.loadTextAndClose(BufferedReader(InputStreamReader(URL(url).openStream()))).split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val reader = BufferedReader(InputStreamReader(URL(url).openStream()))
+        return FileUtil.loadTextAndClose(reader)
+            .split("\n".toRegex())
+            .dropLastWhile { it.isEmpty() }
+            .toTypedArray()
     }
 }

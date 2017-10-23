@@ -13,7 +13,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.IDEUtil
 import liveplugin.Icons
-import liveplugin.toolwindow.PluginToolWindowManager.PluginToolWindow.findPluginRootsFor
+import liveplugin.toolwindow.PluginToolWindowManager.PluginToolWindow.Companion.findPluginRootsFor
 import liveplugin.toolwindow.util.PluginsIO
 import java.io.IOException
 

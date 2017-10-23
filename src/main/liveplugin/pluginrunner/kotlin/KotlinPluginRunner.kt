@@ -128,7 +128,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
     }
 
     companion object {
-        @JvmField val mainScript = "plugin.kts"
+        val mainScript = "plugin.kts"
     }
 }
 
