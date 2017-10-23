@@ -17,7 +17,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.application.ModalityState.NON_MODAL
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
@@ -60,11 +60,15 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 
     companion object {
+        const val pluginDisposableKey = "pluginDisposable"
+        const val pluginPathKey = "pluginPath"
+        const val isIdeStartupKey = "isIdeStartup"
+        const val projectKey = "project"
+
         private val backgroundRunner = SingleThreadBackgroundRunner("LivePlugin thread")
         private val runOnEdt = { f: () -> Unit ->
             UIUtil.invokeAndWaitIfNeeded(Runnable { f() })
         }
-        private val disposableKey = "pluginDisposable"
         private val bindingByPluginId = WeakHashMap<String, Map<String, Any?>>()
 
         fun runPlugins(
@@ -92,12 +96,12 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                             if (oldBinding != null) {
                                 val function = {
                                     try {
-                                        Disposer.dispose(oldBinding[disposableKey] as Disposable)
+                                        Disposer.dispose(oldBinding[pluginDisposableKey] as Disposable)
                                     } catch (e: Exception) {
                                         errorReporter.addRunningError(pluginId, e)
                                     }
                                 }
-                                ApplicationManager.getApplication().invokeAndWait(function, ModalityState.NON_MODAL)
+                                ApplicationManager.getApplication().invokeAndWait(function, NON_MODAL)
                             }
                             val binding = createBinding(pathToPluginFolder!!, project, isIdeStartup)
                             bindingByPluginId.put(pluginId, binding)
@@ -132,10 +136,10 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
             Disposer.register(ApplicationManager.getApplication(), disposable)
 
             return mapOf(
-                "project" to project,
-                "isIdeStartup" to isIdeStartup,
-                "pluginPath" to pathToPluginFolder,
-                disposableKey to disposable
+                projectKey to project,
+                isIdeStartupKey to isIdeStartup,
+                pluginPathKey to pathToPluginFolder,
+                pluginDisposableKey to disposable
             )
         }
 

@@ -19,6 +19,10 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderW
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
+import liveplugin.pluginrunner.RunPluginAction.Companion.isIdeStartupKey
+import liveplugin.pluginrunner.RunPluginAction.Companion.pluginDisposableKey
+import liveplugin.pluginrunner.RunPluginAction.Companion.pluginPathKey
+import liveplugin.pluginrunner.RunPluginAction.Companion.projectKey
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import org.jetbrains.kotlin.codegen.CompilationException
 import java.io.File
@@ -112,10 +116,10 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
                 // Arguments below must match constructor of liveplugin.pluginrunner.kotlin.KotlinScriptTemplate class.
                 // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
                 pluginClass.constructors[0].newInstance(
-                    binding["project"] as Project?,
-                    binding["isIdeStartup"] as Boolean,
-                    binding["pluginPath"] as String,
-                    binding["pluginDisposable"] as Disposable
+                    binding[projectKey] as Project?,
+                    binding[isIdeStartupKey] as Boolean,
+                    binding[pluginPathKey] as String,
+                    binding[pluginDisposableKey] as Disposable
                 )
             } catch (e: Throwable) {
                 errorReporter.addRunningError(pluginId, e)
