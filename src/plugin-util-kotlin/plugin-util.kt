@@ -10,9 +10,11 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
-import liveplugin.CanCallFromAnyThread
+import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.CanCallWithinRunReadActionOrFromEDT
 import liveplugin.PluginUtil
 import liveplugin.implementation.Actions
@@ -20,7 +22,6 @@ import liveplugin.implementation.Editors
 import liveplugin.implementation.Threads
 import java.util.function.Function
 
-@CanCallFromAnyThread
 fun show(
     message: Any?,
     title: String = "",
@@ -31,16 +32,13 @@ fun show(
     PluginUtil.show(message, title, notificationType, groupDisplayId, notificationListener)
 }
 
-@CanCallFromAnyThread
 fun <T> invokeOnEDT(f: () -> T): T = Threads.invokeOnEDT { f() }
 
-@CanCallFromAnyThread
 fun <T> runWriteAction(f: () -> T): T =
     invokeOnEDT {
         ApplicationManager.getApplication().runWriteAction(Computable { f() })
     }
 
-@CanCallFromAnyThread
 fun registerAction(
     actionId: String, keyStroke: String = "", actionGroupId: String? = null,
     displayText: String = actionId, disposable: Disposable? = null,
@@ -52,18 +50,21 @@ fun registerAction(
     )
 }
 
+fun Document.runWriteAction(project: Project, description: String? = null, callback: (Document) -> Unit) {
+    runWriteAction {
+        val f = { callback(this) }
+        CommandProcessor.getInstance().executeCommand(project, f, description, null, UndoConfirmationPolicy.DEFAULT, this)
+    }
+}
+
 @CanCallWithinRunReadActionOrFromEDT
 val Project.currentEditor: Editor? get() = Editors.currentEditorIn(this)
 
-@CanCallFromAnyThread
-fun runDocumentWriteAction(
-    project: Project, document: Document? = PluginUtil.currentDocumentIn(project),
-    modificationName: String = "Modified from LivePlugin", modificationGroup: String = "LivePlugin",
-    callback: (Document?) -> Unit
-) {
-    runWriteAction {
-        CommandProcessor.getInstance().executeCommand(project, {
-            callback(document)
-        }, modificationName, modificationGroup, UndoConfirmationPolicy.DEFAULT, document)
-    }
-}
+@CanCallWithinRunReadActionOrFromEDT
+val Project.currentFile: VirtualFile? get() = (FileEditorManagerEx.getInstance(this) as FileEditorManagerEx).currentFile
+
+@CanCallWithinRunReadActionOrFromEDT
+val Project.currentDocument: Document? get() = this.currentFile?.document
+
+@CanCallWithinRunReadActionOrFromEDT
+val VirtualFile.document: Document? get() = FileDocumentManager.getInstance().getDocument(this)
