@@ -37,7 +37,6 @@ import liveplugin.toolwindow.PluginToolWindowManager
 import liveplugin.toolwindow.util.ExamplePluginInstaller
 import java.io.File
 import java.io.IOException
-import java.util.*
 import java.util.Arrays.asList
 
 class LivePluginAppComponent: ApplicationComponent, DumbAware {
@@ -81,32 +80,26 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
         @JvmStatic fun pluginIdToPathMap(): Map<String, String> {
             val containsIdeaProjectFolder = File(livepluginsPath + "/" + DIRECTORY_STORE_FOLDER).exists()
 
-            val files = File(livepluginsPath).listFiles { file ->
-                file.isDirectory &&
+            val files = File(livepluginsPath)
+                .listFiles { file -> file.isDirectory &&
                     file.name != DIRECTORY_STORE_FOLDER &&
                     !(containsIdeaProjectFolder && file.name == defaultIdeaOutputFolder)
-            } ?: return HashMap()
+            } ?: return emptyMap()
 
-            val result = HashMap<String, String>()
-            for (file in files) {
-                result.put(file.name, toSystemIndependentName(file.absolutePath))
-            }
-            return result
+            return files.associate { Pair(it.name, toSystemIndependentName(it.absolutePath)) }
         }
 
         @JvmStatic fun isInvalidPluginFolder(virtualFile: VirtualFile): Boolean {
-            val scriptFile = asList(
+            val scriptFiles = listOf(
                 GroovyPluginRunner.mainScript,
                 ClojurePluginRunner.mainScript,
                 ScalaPluginRunner.mainScript,
                 KotlinPluginRunner.mainScript
             )
-            return scriptFile.none { MyFileUtil.findScriptFilesIn(virtualFile.path, it).isNotEmpty() }
+            return scriptFiles.none { MyFileUtil.findScriptFilesIn(virtualFile.path, it).isNotEmpty() }
         }
 
-        fun defaultPluginScript(): String {
-            return readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
-        }
+        fun defaultPluginScript(): String = readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
 
         fun defaultPluginTestScript(): String = readSampleScriptFile(groovyExamplesPath, "default-plugin-test.groovy")
 

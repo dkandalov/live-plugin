@@ -10,11 +10,12 @@ import liveplugin.IDEUtil
 import liveplugin.LivePluginAppComponent.Companion.groovyExamplesPath
 import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
-import liveplugin.LivePluginAppComponent.Companion.pluginExists
+import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.ExamplePluginInstaller
+import java.io.File
 
-class AddExamplePluginAction(pluginPath: String, sampleFiles: List<String>): AnAction(), DumbAware {
+class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<String>): AnAction(), DumbAware {
     private val logger = Logger.getInstance(AddExamplePluginAction::class.java)
     private val pluginId = ExamplePluginInstaller.extractPluginIdFrom(pluginPath)
     private val examplePluginInstaller = ExamplePluginInstaller(pluginPath, sampleFiles)
@@ -33,7 +34,14 @@ class AddExamplePluginAction(pluginPath: String, sampleFiles: List<String>): AnA
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = !pluginExists(pluginId)
+        val pluginPath = pluginIdToPathMap()[pluginId]
+        val isEnabled =
+            if (pluginPath == null) true
+            else {
+                val files = File(pluginPath).listFiles().map { it.name }
+                sampleFiles.none { files.contains(it) }
+            }
+        event.presentation.isEnabled = isEnabled
     }
 
     private fun logException(e: Exception, event: AnActionEvent, pluginPath: String) {

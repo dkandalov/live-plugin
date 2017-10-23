@@ -1,6 +1,5 @@
 package liveplugin.toolwindow.util
 
-import com.intellij.openapi.util.Pair
 import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
 import java.io.IOException
@@ -14,8 +13,8 @@ class ExamplePluginInstaller(private val pluginPath: String, private val filePat
             try {
 
                 val text = LivePluginAppComponent.readSampleScriptFile(pluginPath, relativeFilePath)
-                val pair = splitIntoPathAndFileName("$livepluginsPath/$pluginId/$relativeFilePath")
-                PluginsIO.createFile(pair.first, pair.second, text)
+                val (parentPath, fileName) = splitIntoPathAndFileName("$livepluginsPath/$pluginId/$relativeFilePath")
+                PluginsIO.createFile(parentPath, fileName, text)
 
             } catch (e: IOException) {
                 listener.onException(e, pluginPath)
@@ -31,7 +30,7 @@ class ExamplePluginInstaller(private val pluginPath: String, private val filePat
 
         private fun splitIntoPathAndFileName(filePath: String): Pair<String, String> {
             val index = filePath.lastIndexOf("/")
-            return Pair.create(filePath.substring(0, index), filePath.substring(index + 1))
+            return Pair(filePath.substring(0, index), filePath.substring(index + 1))
         }
 
         fun extractPluginIdFrom(pluginPath: String): String {
