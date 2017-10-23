@@ -44,7 +44,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
     override fun initComponent() {
         checkThatGroovyIsOnClasspath()
 
-        val settings = Settings.getInstance()
+        val settings = Settings.instance
         if (settings.justInstalled) {
             installHelloWorldPlugins()
             settings.justInstalled = false

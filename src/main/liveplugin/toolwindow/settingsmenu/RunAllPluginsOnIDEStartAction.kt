@@ -7,10 +7,10 @@ import liveplugin.Settings
 
 class RunAllPluginsOnIDEStartAction: ToggleAction("Run All Live Plugins on IDE Start"), DumbAware {
     override fun isSelected(event: AnActionEvent): Boolean {
-        return Settings.getInstance().runAllPluginsOnIDEStartup
+        return Settings.instance.runAllPluginsOnIDEStartup
     }
 
     override fun setSelected(event: AnActionEvent, state: Boolean) {
-        Settings.getInstance().runAllPluginsOnIDEStartup = state
+        Settings.instance.runAllPluginsOnIDEStartup = state
     }
 }
