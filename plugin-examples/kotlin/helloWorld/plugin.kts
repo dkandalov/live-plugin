@@ -1,4 +1,4 @@
-import liveplugin.PluginUtil.show
+import liveplugin.*
 
 // To run a plugin press "Run plugin" button or use "alt+C, alt+E" shortcut.
 // This will run plugin currently open in editor or plugin selected in the plugin toolwindow.

@@ -1,3 +1,6 @@
+@file:Suppress("unused")
+
+package liveplugin
 
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
@@ -15,8 +18,6 @@ import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
-import liveplugin.CanCallWithinRunReadActionOrFromEDT
-import liveplugin.PluginUtil
 import liveplugin.implementation.Actions
 import liveplugin.implementation.Editors
 import liveplugin.implementation.Threads

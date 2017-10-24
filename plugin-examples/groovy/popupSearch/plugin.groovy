@@ -14,7 +14,7 @@ registerAction("GoogleSearchAction", "ctrl shift G") { AnActionEvent event ->
 	}
 }
 
-List<String> googleSuggestionsFor(String text) {
+static List<String> googleSuggestionsFor(String text) {
 	text = URLEncoder.encode(text, "UTF-8")
 	def json = "http://suggestqueries.google.com/complete/search?client=firefox&q=$text".toURL().text
 	new JsonSlurper().parseText(json)[1].toList()

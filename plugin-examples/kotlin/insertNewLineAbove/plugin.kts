@@ -1,3 +1,4 @@
+import liveplugin.*
 import com.intellij.openapi.actionSystem.AnActionEvent
 
 registerAction(actionId = "InsertNewLineAbove", keyStroke = "alt shift ENTER", callback = { event: AnActionEvent ->
