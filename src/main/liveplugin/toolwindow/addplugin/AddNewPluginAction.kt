@@ -58,18 +58,12 @@ open class AddNewPluginAction(
 
         } catch (e: IOException) {
             if (project != null) {
-                IDEUtil.showErrorDialog(
-                    project,
-                    "Error adding plugin \"$newPluginId\" to $livepluginsPath",
-                    addNewPluginTitle
-                )
+                IDEUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to $livepluginsPath", addNewPluginTitle)
             }
             log.error(e)
         }
-
         RefreshPluginsPanelAction.refreshPluginTree()
     }
-
 }
 
 class PluginIdValidator: InputValidatorEx {
