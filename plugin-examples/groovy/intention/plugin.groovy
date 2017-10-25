@@ -12,9 +12,9 @@ import static liveplugin.PluginUtil.show
 
 
 registerIntention("MakeFieldFinal", new AddRemoveFinalIntentionAction("Make 'final'", true))
-registerIntention("MakeFieldNonFinal", new AddRemoveFinalIntentionAction("Make non-final", false))
+registerIntention("MakeFieldNonFinal", new AddRemoveFinalIntentionAction("Make 'non-final'", false))
 
-if (!isIdeStartup) show("Reloaded finalIntention plugin")
+if (!isIdeStartup) show("Reloaded 'Finalize Java Fields' plugin")
 
 
 class AddRemoveFinalIntentionAction extends PsiElementBaseIntentionAction {
