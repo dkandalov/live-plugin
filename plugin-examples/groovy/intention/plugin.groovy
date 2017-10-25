@@ -11,52 +11,46 @@ import static liveplugin.PluginUtil.registerIntention
 import static liveplugin.PluginUtil.show
 
 def javaIsSupportedByIde = Language.findLanguageByID("JAVA") != null
-if (!javaIsSupportedByIde) return
-
-registerIntention("MakeFieldFinal", new AddRemoveFinalIntentionAction(true))
-registerIntention("MakeFieldNonFinal", new AddRemoveFinalIntentionAction(false))
-
-if (!isIdeStartup) show("Reloaded 'Finalize Java Fields' plugin")
+if (javaIsSupportedByIde) {
+	registerIntention(pluginDisposable, new JavaFinalFieldIntention())
+	if (!isIdeStartup) show("Reloaded 'Finalize Java Fields' plugin")
+}
 
 /**
  * See also in IJ sources com.siyeh.ig.fixes.MakeFieldFinalFix.
  */
-class AddRemoveFinalIntentionAction extends PsiElementBaseIntentionAction {
-	private final boolean addFinal
+class JavaFinalFieldIntention extends PsiElementBaseIntentionAction {
+	private boolean isFinal
 
-	AddRemoveFinalIntentionAction(boolean addFinal) {
-		this.addFinal = addFinal
+	@Override boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
+		if (!isInJavaFile(element)) return false
+		def field = findParent(PsiField, element)
+		if (field == null) false
+
+		isFinal = field.hasModifierProperty("final")
+		text = isFinal ? "Make 'non-final'" : "Make 'final'"
+		true
 	}
 
 	@Override void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
-		def field = findParent(PsiField, psiElement)
-		if (field.modifierList.hasModifierProperty("final") != addFinal) {
-			field.modifierList.setModifierProperty("final", addFinal)
-		}
-	}
-
-	@Override boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
-		def fileType = psiElement.containingFile.fileType
-		if (!(fileType instanceof LanguageFileType && fileType.language.ID == "JAVA")) return false
-
-		def field = findParent(PsiField, psiElement)
-		if (field == null) false
-		else field.hasModifierProperty("final") != addFinal
-	}
-
-	@Override String getText() {
-		def prefix = addFinal ? "non-" : ""
-		return "Make '${prefix}final'"
+		def modifiers = findParent(PsiField, psiElement)?.modifierList
+		if (modifiers == null) return
+		modifiers.setModifierProperty("final", !isFinal)
 	}
 
 	@Override String getFamilyName() {
-		"Make Java Field Final"
+		"Make Java Field (Non-)Final"
 	}
 
 	private static <T> T findParent(Class<T> aClass, PsiElement element) {
 		if (element == null) null
 		else if (aClass.isAssignableFrom(element.class)) element as T
 		else findParent(aClass, element.parent)
+	}
+
+	private static isInJavaFile(PsiElement element) {
+		def fileType = element.containingFile.fileType
+		fileType instanceof LanguageFileType && fileType.language.ID == "JAVA"
 	}
 }
 
