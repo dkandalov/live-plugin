@@ -8,6 +8,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
 import liveplugin.PluginUtil
 import liveplugin.show
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSuperclassOf
 
 val javaIsSupportedByIde = Language.findLanguageByID("JAVA") != null
 if (javaIsSupportedByIde) {
@@ -23,7 +25,7 @@ class JavaFinalFieldIntention: PsiElementBaseIntentionAction() {
 
     override fun isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean {
         if (!element.isInJavaFile()) return false
-        val field = element.findParent(PsiField::class.java) ?: return false
+        val field = element.findParent(PsiField::class) ?: return false
 
         isFinal = field.hasModifierProperty("final")
         text = if (isFinal) "Make 'non-final'" else "Make 'final'"
@@ -31,16 +33,16 @@ class JavaFinalFieldIntention: PsiElementBaseIntentionAction() {
     }
 
     override fun invoke(project: Project, editor: Editor, element: PsiElement) {
-        val modifiers = element.findParent(PsiField::class.java)?.modifierList ?: return
+        val modifiers = element.findParent(PsiField::class)?.modifierList ?: return
         modifiers.setModifierProperty("final", !isFinal)
     }
 
     override fun getFamilyName() = "Make Java Field (Non-)Final"
 
-    private fun <T> PsiElement?.findParent(aClass: Class<T>): T? = when {
+    private fun <T: PsiElement> PsiElement?.findParent(aClass: KClass<T>): T? = when {
         this == null -> null
-        aClass.isAssignableFrom(this.javaClass) -> this as T
-        else -> this.parent.findParent(aClass)
+        aClass.isSuperclassOf(this::class) -> this as T
+        else -> parent.findParent(aClass)
     }
 
     private fun PsiElement.isInJavaFile(): Boolean {
