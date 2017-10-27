@@ -2,9 +2,7 @@ package liveplugin
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
-import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
 import java.net.URL
 import java.util.*
 import java.util.Collections.emptyList
@@ -55,11 +53,9 @@ object MyFileUtil {
         return result
     }
 
-    fun readLines(url: String): Array<String> {
-        val reader = BufferedReader(InputStreamReader(URL(url).openStream()))
-        return FileUtil.loadTextAndClose(reader)
-            .split("\n".toRegex())
+    fun readLines(url: String) =
+        URL(url).openStream()
+            .bufferedReader()
+            .readLines()
             .dropLastWhile { it.isEmpty() }
-            .toTypedArray()
-    }
 }

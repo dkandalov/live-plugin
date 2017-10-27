@@ -75,12 +75,12 @@ interface PluginRunner {
             }
         }
 
-        fun findPluginDependencies(lines: Array<String>, prefix: String): List<String> {
+        fun findPluginDependencies(lines: List<String>, prefix: String): List<String> {
             return lines.filter { it.startsWith(prefix) }
                 .map { line -> line.replace(prefix, "").trim { it <= ' ' } }
         }
 
-        fun findClasspathAdditions(lines: Array<String>, prefix: String, environment: Map<String, String>, onError: (String) -> Unit): List<String> {
+        fun findClasspathAdditions(lines: List<String>, prefix: String, environment: Map<String, String>, onError: (String) -> Unit): List<String> {
             return lines
                 .filter { it.startsWith(prefix) }
                 .map { line ->

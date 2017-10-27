@@ -52,11 +52,11 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
         val pluginFolder = File(pathToPluginFolder)
         val mainScriptFile = findScriptFileIn(pathToPluginFolder, mainScript)!!
-        val dependentPlugins = findPluginDependencies(mainScriptFile.readLines().toTypedArray(), kotlinDependsOnPluginKeyword)
+        val dependentPlugins = findPluginDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
         val compilerOutput = File(toSystemIndependentName("$livepluginsClassesPath/$pluginId"))
         compilerOutput.deleteRecursively()
 
-        val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines().toTypedArray(), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pathToPluginFolder), onError = { path ->
+        val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pathToPluginFolder), onError = { path ->
             errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
         }).map{ File(it) }
 
