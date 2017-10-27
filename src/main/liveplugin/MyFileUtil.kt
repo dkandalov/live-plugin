@@ -5,7 +5,6 @@ import com.intellij.openapi.util.text.StringUtil
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
-import java.net.MalformedURLException
 import java.net.URL
 import java.util.*
 import java.util.Collections.emptyList
@@ -13,27 +12,16 @@ import java.util.regex.Pattern
 
 
 object MyFileUtil {
-    fun listFilesIn(folder: File): List<File> {
-        return folder.listFiles()?.toList() ?: emptyList()
-    }
+    fun File.filesList(): List<File> = listFiles()?.toList() ?: emptyList()
 
-    fun fileNamesMatching(regexp: String, path: String): List<String> {
-        return fileNamesMatching(regexp, File(path))
-    }
+    fun fileNamesMatching(regexp: String, path: String): List<String> = fileNamesMatching(regexp, File(path))
 
-    fun fileNamesMatching(regexp: String, path: File): List<String> {
-        return FileUtil.findFilesByMask(Pattern.compile(regexp), path).map { it.name }
-    }
+    private fun fileNamesMatching(regexp: String, path: File): List<String> =
+        FileUtil.findFilesByMask(Pattern.compile(regexp), path).map { it.name }
 
-    fun asUrl(file: File): String {
-        return try {
-            file.toURI().toURL().toString()
-        } catch (e: MalformedURLException) {
-            throw RuntimeException(e)
-        }
-    }
+    fun asUrl(file: File): String = file.toURI().toURL().toString()
 
-    fun File.toUrl() = this.toURI().toURL()!!
+    fun File.toUrl(): URL = this.toURI().toURL()!!
 
     fun findScriptFileIn(path: String, fileName: String): File? {
         val result = findScriptFilesIn(path, fileName)

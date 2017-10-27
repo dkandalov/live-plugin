@@ -11,7 +11,7 @@ import liveplugin.LivePluginAppComponent.Companion.livepluginCompilerLibsPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginsClassesPath
 import liveplugin.MyFileUtil.findScriptFileIn
-import liveplugin.MyFileUtil.listFilesIn
+import liveplugin.MyFileUtil.filesList
 import liveplugin.MyFileUtil.toUrl
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.PluginRunner
@@ -31,9 +31,9 @@ import java.io.IOException
 private val ideLibsClassLoader by lazy {
     UrlClassLoader.build()
         .urls((ideJdkClassesRoots() +
-                listFilesIn(ideLibFolder()) +
-                listFilesIn(File(livepluginLibsPath)) +
-                listFilesIn(File(livepluginCompilerLibsPath))
+            ideLibFolder().filesList() +
+            File(livepluginLibsPath).filesList() +
+            File(livepluginCompilerLibsPath).filesList()
         ).map { it.toUrl() })
         .useCache()
         .get()
@@ -62,9 +62,9 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
         val compilerClasspath =
             ideJdkClassesRoots() +
-            listFilesIn(ideLibFolder()) +
-            listFilesIn(File(livepluginLibsPath)) +
-            listFilesIn(File(livepluginCompilerLibsPath)) +
+                ideLibFolder().filesList() +
+                File(livepluginLibsPath).filesList() +
+                File(livepluginCompilerLibsPath).filesList() +
             jarFilesOf(dependentPlugins) +
             scriptPathAdditions +
             pluginFolder
@@ -96,7 +96,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         val pluginClass = try {
             val runtimeClassPath =
                 listOf(compilerOutput) +
-                listFilesIn(File(livepluginLibsPath)) +
+                    File(livepluginLibsPath).filesList() +
                 scriptPathAdditions
 
             val classLoader = createClassLoaderWithDependencies(
