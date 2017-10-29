@@ -1,3 +1,3 @@
-import liveplugin.*
+import liveplugin.show
 
-show("Current project: ${project.name}")
+show("Current project: ${project?.name}")
