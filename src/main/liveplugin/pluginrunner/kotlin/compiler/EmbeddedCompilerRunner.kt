@@ -65,20 +65,19 @@ private fun createCompilerConfiguration(
     compilerOutput: File,
     messageCollector: MessageCollector
 ): CompilerConfiguration {
-    val configuration = CompilerConfiguration()
-    configuration.put(MODULE_NAME, "LivePluginScript")
-    configuration.put(MESSAGE_COLLECTOR_KEY, messageCollector)
-    configuration.add(SCRIPT_DEFINITIONS, KotlinScriptDefinition(Reflection.createKotlinClass(KotlinScriptTemplate::class.java)))
+    return CompilerConfiguration().apply {
+        put(MODULE_NAME, "LivePluginScript")
+        put(MESSAGE_COLLECTOR_KEY, messageCollector)
+        add(SCRIPT_DEFINITIONS, KotlinScriptDefinition(Reflection.createKotlinClass(KotlinScriptTemplate::class.java)))
 
-    configuration.add(CONTENT_ROOTS, KotlinSourceRoot(sourceRoot))
+        add(CONTENT_ROOTS, KotlinSourceRoot(sourceRoot))
 
-    for (path in classpath) {
-        configuration.add(CONTENT_ROOTS, JvmClasspathRoot(path))
+        for (path in classpath) {
+            add(CONTENT_ROOTS, JvmClasspathRoot(path))
+        }
+
+        put(RETAIN_OUTPUT_IN_MEMORY, false)
+        put(OUTPUT_DIRECTORY, compilerOutput)
     }
-
-    configuration.put(RETAIN_OUTPUT_IN_MEMORY, false)
-    configuration.put(OUTPUT_DIRECTORY, compilerOutput)
-
-    return configuration
 }
 
