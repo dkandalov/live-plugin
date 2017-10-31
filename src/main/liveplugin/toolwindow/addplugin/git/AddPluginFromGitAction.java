@@ -88,7 +88,7 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 				result.set(vDir);
 				if (vDir != null) {
 					final LocalFileSystem.WatchRequest watchRequest = lfs.addRootToWatch(vDir.getPath(), true);
-					((NewVirtualFile)vDir).markDirtyRecursively();
+					((NewVirtualFile) vDir).markDirtyRecursively();
 					vDir.refresh(false, true);
 					if (watchRequest != null) {
 						lfs.removeWatchedRoot(watchRequest);
@@ -135,7 +135,7 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 					project,
 					"It looks like \"" + pluginName + "\" is not a valid plugin because it does not contain \"" +
 							GroovyPluginRunner.mainScript + "\".\n\nDo you want to add it anyway?",
-dialogTitle,
+					dialogTitle,
 					Messages.getQuestionIcon()
 			);
 			return answer != Messages.YES;

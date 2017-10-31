@@ -10,8 +10,8 @@ import liveplugin.IDEUtil.unscrambleThrowable
 import liveplugin.LivePluginAppComponent.Companion.livepluginCompilerLibsPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginsClassesPath
-import liveplugin.MyFileUtil.findScriptFileIn
 import liveplugin.MyFileUtil.filesList
+import liveplugin.MyFileUtil.findScriptFileIn
 import liveplugin.MyFileUtil.toUrl
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.PluginRunner
@@ -129,6 +129,9 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
     companion object {
         val mainScript = "plugin.kts"
+        val testScript = "plugin-test.kts"
+        val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
+        val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
     }
 }
 

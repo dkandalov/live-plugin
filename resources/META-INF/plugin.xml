@@ -87,6 +87,14 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 			<className>liveplugin.AddPluginDependencyGroovyIntention</className>
 			<category>LivePlugin</category>
 		</intentionAction>
+		<intentionAction>
+			<className>liveplugin.AddToClassPathKotlinIntention</className>
+			<category>LivePlugin</category>
+		</intentionAction>
+		<intentionAction>
+			<className>liveplugin.AddPluginDependencyKotlinIntention</className>
+			<category>LivePlugin</category>
+		</intentionAction>
 	</extensions>
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
