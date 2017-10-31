@@ -60,10 +60,9 @@ class ErrorReporter {
     }
 
     private fun reportLoadingErrors(callback: Callback) {
-        val text = StringBuilder()
-        for (s in loadingErrors) text.append(s)
-        if (text.isNotEmpty()) {
-            callback.display("Loading errors", text.toString() + "\n")
+        if (loadingErrors.isNotEmpty()) {
+            val text = loadingErrors.joinToString("\n") + "\n"
+            callback.display("Loading errors", text)
         }
     }
 

@@ -29,6 +29,7 @@ class LivePluginKotlinScriptTemplateProvider: ScriptTemplatesProvider {
                     javaHome = File(System.getProperty("java.home")),
                     classpath =
                         File(livepluginLibsPath).listFiles().toList() +
+                        File(ideJarsPath + "/../plugins/Kotlin/lib/").listFiles() +
                         File(ideJarsPath).listFiles(),
                     sources = File(livepluginLibsPath).listFiles().toList()
                 ),

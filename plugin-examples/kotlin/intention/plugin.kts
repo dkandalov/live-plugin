@@ -42,7 +42,7 @@ class JavaFinalFieldIntention: PsiElementBaseIntentionAction() {
     private fun <T: PsiElement> PsiElement?.findParent(aClass: KClass<T>): T? = when {
         this == null -> null
         aClass.isSuperclassOf(this::class) -> this as T
-        else -> parent.findParent(aClass)
+        else -> parent?.findParent(aClass)
     }
 
     private fun PsiElement.isInJavaFile(): Boolean {
