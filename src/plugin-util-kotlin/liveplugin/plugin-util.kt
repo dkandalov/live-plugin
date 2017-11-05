@@ -35,6 +35,10 @@ fun show(
 
 fun <T> invokeOnEDT(f: () -> T): T = Threads.invokeOnEDT { f() }
 
+fun invokeLaterOnEDT(f: () -> Any) {
+    ApplicationManager.getApplication().invokeLater { f.invoke() }
+}
+
 fun <T> runWriteAction(f: () -> T): T =
     invokeOnEDT {
         ApplicationManager.getApplication().runWriteAction(Computable { f() })
