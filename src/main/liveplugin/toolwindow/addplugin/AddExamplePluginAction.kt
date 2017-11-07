@@ -96,7 +96,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
             val group = DefaultActionGroup("Kotlin Examples", true)
             group.add(AddExamplePluginAction(kotlinExamplesPath + "helloWorld/", listOf("plugin.kts")))
             group.add(AddExamplePluginAction(kotlinExamplesPath + "insertNewLineAbove/", listOf("plugin.kts")))
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "intention/", listOf("plugin.kts")))
+            group.add(AddExamplePluginAction(kotlinExamplesPath + "java-intention/", listOf("plugin.kts")))
             group.addSeparator()
             group.add(PerformAllGroupActions("Add All", "", group))
             group
