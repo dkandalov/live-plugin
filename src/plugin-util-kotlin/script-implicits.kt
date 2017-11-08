@@ -19,6 +19,6 @@ val pluginPath: String = error("Stub implementation")
 
 /**
  * Instance of `com.intellij.openapi.Disposable` which is disposed just before re-running plugin.
- * Can be useful for cleanup like un-registering IDE listeners.
+ * Can be useful for cleanup, e.g. un-registering IDE listeners.
  */
 val pluginDisposable: Disposable = error("Stub implementation")

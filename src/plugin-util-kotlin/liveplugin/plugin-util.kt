@@ -45,12 +45,12 @@ fun <T> runWriteAction(f: () -> T): T =
     }
 
 fun registerAction(
-    actionId: String, keyStroke: String = "", actionGroupId: String? = null,
-    displayText: String = actionId, disposable: Disposable? = null,
+    id: String, keyStroke: String = "", actionGroupId: String? = null,
+    displayText: String = id, disposable: Disposable? = null,
     callback: (AnActionEvent) -> Unit
 ): AnAction {
     return Actions.registerAction(
-        actionId, keyStroke, actionGroupId, displayText, disposable,
+        id, keyStroke, actionGroupId, displayText, disposable,
         Function<AnActionEvent, Unit> { callback(it) }
     )
 }

@@ -19,4 +19,9 @@ show("project: $project")
 show("pluginPath: $pluginPath")
 
 // "pluginDisposable" - instance of com.intellij.openapi.Disposable which is disposed before plugin is run again.
+// Can be useful for cleanup, e.g. un-registering IDE listeners.
 show("pluginDisposable: $pluginDisposable")
+
+//
+// See next ide-actions example.
+//          ^^^^^^^^^^^

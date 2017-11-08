@@ -1,7 +1,7 @@
 import liveplugin.*
 import com.intellij.openapi.actionSystem.AnActionEvent
 
-registerAction(actionId = "InsertNewLineAbove", keyStroke = "alt shift ENTER", callback = { event: AnActionEvent ->
+registerAction(id = "InsertNewLineAbove", keyStroke = "alt shift ENTER", callback = { event: AnActionEvent ->
     val project = event.project!!
     val editor = project.currentEditor!!
     editor.document.runWriteAction(project, description = "Insert New Line Above", callback = {
