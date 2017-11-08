@@ -94,8 +94,8 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
 
         val addKotlinExamplesActionGroup by lazy {
             val group = DefaultActionGroup("Kotlin Examples", true)
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "helloWorld/", listOf("plugin.kts")))
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "insertNewLineAbove/", listOf("plugin.kts")))
+            group.add(AddExamplePluginAction(kotlinExamplesPath + "hello-world/", listOf("plugin.kts")))
+            group.add(AddExamplePluginAction(kotlinExamplesPath + "insert-new-line-above/", listOf("plugin.kts")))
             group.add(AddExamplePluginAction(kotlinExamplesPath + "java-intention/", listOf("plugin.kts")))
             group.addSeparator()
             group.add(PerformAllGroupActions("Add All", "", group))
