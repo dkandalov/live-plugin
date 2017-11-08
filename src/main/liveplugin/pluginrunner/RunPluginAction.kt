@@ -116,7 +116,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                 }
             }
 
-            backgroundRunner.run(project, "Loading plugin", runPlugins)
+            backgroundRunner.run(project, "Loading live-plugin", runPlugins)
         }
 
         fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> {
