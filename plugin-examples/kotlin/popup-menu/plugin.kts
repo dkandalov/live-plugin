@@ -25,7 +25,7 @@ registerAction("HelloPopupAction", "ctrl alt shift P") { event ->
         ),
         Action("Execute command") {
             val command = showInputDialog("Enter a command:")
-            if (command != null) show(execute(command))
+            if (command != null) show(execute(command).toString().replace("\n", "<br/>"))
         },
         Action("Show current project") { (_, popupEvent) ->
             // Note "event" cannot be used here (e.g. "event.project") because AnActionEvent objects are not shareable between swing events.
@@ -37,10 +37,10 @@ registerAction("HelloPopupAction", "ctrl alt shift P") { event ->
         Delegate(HelloAction()),
         Separator,
         Action("Edit Popup Menu...") {
-            openInEditor(pluginPath + "/plugin.groovy")
+            openInEditor(pluginPath + "/plugin.kts")
         }
     )
-    createPopupMenu(menuDescription, popupTitle = "Hello PopupMenu", dataContext = event.dataContext)
+    createPopupMenu(menuDescription, popupTitle = "Hello PopupMenu", dataContext = event.dataContext).show()
 }
 
 class HelloAction: AnAction("Run actual action") {

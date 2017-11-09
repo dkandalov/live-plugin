@@ -3,7 +3,8 @@ import com.intellij.openapi.project.Project
 
 /**
  * True on IDE startup, otherwise false.
- * Plugins are executed on IDE startup if "Plugins toolwindow -> Settings -> Run all plugins on IDE start" option is enabled.
+ * Where IDE startup means executing code on LivePlugin application component initialisation.
+ * Use "Plugins toolwindow -> Settings -> Run all plugins on IDE start" to enable/disable it.
  */
 val isIdeStartup: Boolean = error("Stub implementation")
 
