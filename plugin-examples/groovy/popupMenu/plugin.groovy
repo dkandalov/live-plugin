@@ -7,10 +7,6 @@ import static liveplugin.PluginUtil.*
 registerAction("HelloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 	def project = event.project
 	def popupMenuDescription = [
-			"Hello World"    : [
-					"hello, hello"   : { show("hello, hello") },
-					"hello, how low?": { show("hello, how low?") },
-			],
 			"Open in browser": [
 					"IntelliJ API mini cheat sheet": {
 						openInBrowser("https://github.com/dkandalov/live-plugin/blob/master/IntellijApiCheatSheet.md")

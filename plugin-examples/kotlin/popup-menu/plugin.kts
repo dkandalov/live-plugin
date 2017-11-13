@@ -10,11 +10,6 @@ registerAction("HelloPopupAction", "ctrl alt shift P") { event ->
     val project = event.project
     val menuDescription = listOf(
         SubMenu(
-            "Hello",
-            Action("sub-menu 1") { show("sub-menu 1") },
-            Action("sub-menu 2") { show("sub-menu 2") }
-        ),
-        SubMenu(
             "Open in browser",
             Action("IntelliJ Architectural Overview") {
                 openInBrowser("http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview.html")
@@ -23,7 +18,7 @@ registerAction("HelloPopupAction", "ctrl alt shift P") { event ->
                 openInBrowser("https://github.com/dkandalov/live-plugin/blob/master/IntellijApiCheatSheet.md")
             }
         ),
-        Action("Execute command") {
+        Action("Execute shell command") {
             val command = showInputDialog("Enter a command:")
             if (command != null) show(execute(command).toString().replace("\n", "<br/>"))
         },
@@ -43,8 +38,10 @@ registerAction("HelloPopupAction", "ctrl alt shift P") { event ->
     createPopupMenu(menuDescription, popupTitle = "Hello PopupMenu", dataContext = event.dataContext).show()
 }
 
-class HelloAction: AnAction("Run actual action") {
+class HelloAction: AnAction("Run AnAction") {
     override fun actionPerformed(anActionEvent: AnActionEvent) {
-        show("Running actual action")
+        show("Running AnAction")
     }
 }
+
+if (!isIdeStartup) show("Loaded 'helloPopupAction'<br/>Use ctrl+alt+shift+P to run it")
