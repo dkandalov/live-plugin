@@ -166,9 +166,10 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
                     logger.warn("Failed to install plugin: " + pluginPath, e)
                 }
             }
-            ExamplePluginInstaller(groovyExamplesPath + "helloWorld/", asList("plugin.groovy")).installPlugin(loggingListener)
-            ExamplePluginInstaller(groovyExamplesPath + "registerAction/", asList("plugin.groovy")).installPlugin(loggingListener)
-            ExamplePluginInstaller(groovyExamplesPath + "popupMenu/", asList("plugin.groovy")).installPlugin(loggingListener)
+            ExamplePluginInstaller(groovyExamplesPath + "hello-world/", asList("plugin.groovy")).installPlugin(loggingListener)
+            ExamplePluginInstaller(groovyExamplesPath + "register-action/", asList("plugin.groovy")).installPlugin(loggingListener)
+            ExamplePluginInstaller(groovyExamplesPath + "insert-new-line-above/", asList("plugin.groovy")).installPlugin(loggingListener)
+            ExamplePluginInstaller(groovyExamplesPath + "popup-menu/", asList("plugin.groovy")).installPlugin(loggingListener)
         }
     }
 }
