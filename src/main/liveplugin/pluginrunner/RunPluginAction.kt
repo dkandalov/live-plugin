@@ -84,8 +84,8 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                 Settings.countPluginsUsage(pluginIds)
             }
 
-            val runPlugins = {
-                for (pluginId in pluginIds) {
+            for (pluginId in pluginIds) {
+                val task = {
                     try {
                         val pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap()[pluginId] // TODO not thread-safe
                         val pluginRunner = pluginRunners.find { pathToPluginFolder != null && it.canRunPlugin(pathToPluginFolder) }
@@ -114,18 +114,18 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                         errorReporter.reportAllErrors { title, message -> IDEUtil.displayError(title, message, project) }
                     }
                 }
-            }
 
-            backgroundRunner.run(project, "Loading live-plugin", runPlugins)
+                backgroundRunner.run(project, "Loading live-plugin '$pluginId'", task)
+            }
         }
 
         fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> {
-            val result = ArrayList<PluginRunner>()
-            result.add(GroovyPluginRunner(mainScript, errorReporter, environment()))
-            result.add(KotlinPluginRunner(errorReporter, environment()))
-            if (scalaIsOnClassPath()) result.add(ScalaPluginRunner(errorReporter, environment()))
-            if (clojureIsOnClassPath()) result.add(ClojurePluginRunner(errorReporter, environment()))
-            return result
+            return ArrayList<PluginRunner>().apply {
+                add(GroovyPluginRunner(mainScript, errorReporter, environment()))
+                add(KotlinPluginRunner(errorReporter, environment()))
+                if (scalaIsOnClassPath()) add(ScalaPluginRunner(errorReporter, environment()))
+                if (clojureIsOnClassPath()) add(ClojurePluginRunner(errorReporter, environment()))
+            }
         }
 
         private fun createBinding(pathToPluginFolder: String, project: Project?, isIdeStartup: Boolean): Map<String, Any?> {

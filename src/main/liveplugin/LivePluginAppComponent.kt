@@ -77,14 +77,15 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
 
         private val defaultIdeaOutputFolder = "out"
 
-        @JvmStatic fun pluginIdToPathMap(): Map<String, String> {
+        fun pluginIdToPathMap(): Map<String, String> {
             val containsIdeaProjectFolder = File(livepluginsPath + "/" + DIRECTORY_STORE_FOLDER).exists()
 
             val files = File(livepluginsPath)
-                .listFiles { file -> file.isDirectory &&
+                .listFiles { file ->
+                    file.isDirectory &&
                     file.name != DIRECTORY_STORE_FOLDER &&
                     !(containsIdeaProjectFolder && file.name == defaultIdeaOutputFolder)
-            } ?: return emptyMap()
+                } ?: return emptyMap()
 
             return files.associate { Pair(it.name, toSystemIndependentName(it.absolutePath)) }
         }
