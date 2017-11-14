@@ -18,3 +18,7 @@ registerAction(id = "InsertNewLineAbove", keyStroke = "alt shift ENTER", callbac
 })
 
 if (!isIdeStartup) show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
+
+//
+// See next popup-menu example.
+//          ^^^^^^^^^^

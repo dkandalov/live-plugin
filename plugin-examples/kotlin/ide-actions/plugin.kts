@@ -19,3 +19,7 @@ class HelloWorldAction: AnAction() {
 registerAction(id = "HelloWorldAction2", keyStroke = "ctrl shift H", action = HelloWorldAction())
 
 if (!isIdeStartup) show("Loaded 'HelloWorldAction2'<br/>Use ctrl+shift+J to run it")
+
+//
+// See next insert-new-line-above example.
+//          ^^^^^^^^^^^^^^^^^^^^^
