@@ -6,6 +6,7 @@ import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import groovy.lang.GroovyClassLoader
+import liveplugin.MyFileUtil.findScriptFileIn
 import liveplugin.MyFileUtil.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
@@ -14,12 +15,6 @@ import java.io.FileFilter
 interface PluginRunner {
 
     fun scriptName(): String
-
-    /**
-     * @param pluginFolderPath absolute path to plugin folder
-     * @return true if [PluginRunner] can run plugin in this folder
-     */
-    fun canRunPlugin(pluginFolderPath: String): Boolean
 
     /**
      * @param pluginFolderPath absolute path to plugin folder

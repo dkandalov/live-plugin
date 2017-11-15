@@ -30,6 +30,7 @@ import liveplugin.IdeUtil.SingleThreadBackgroundRunner
 import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
+import liveplugin.MyFileUtil.findScriptFileIn
 import liveplugin.pluginrunner.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
@@ -74,7 +75,9 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                 val task = {
                     try {
                         val pluginFolderPath = LivePluginAppComponent.pluginIdToPathMap()[pluginId] // TODO not thread-safe
-                        val pluginRunner = pluginRunners.find { pluginFolderPath != null && it.canRunPlugin(pluginFolderPath) }
+                        val pluginRunner = pluginRunners.find {
+                            pluginFolderPath != null && findScriptFileIn(pluginFolderPath, it.scriptName()) != null
+                        }
                         if (pluginRunner == null) {
                             errorReporter.addNoScriptError(pluginId, pluginRunners.map { it.scriptName() })
                         } else {

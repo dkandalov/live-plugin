@@ -33,8 +33,6 @@ class GroovyPluginRunner(
 
     override fun scriptName() = scriptName
 
-    override fun canRunPlugin(pluginFolderPath: String) = findScriptFileIn(pluginFolderPath, scriptName) != null
-
     override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         val mainScript = findScriptFileIn(pluginFolderPath, scriptName)!!
         runGroovyScript(asUrl(mainScript), pluginFolderPath, pluginId, binding, runOnEDT)

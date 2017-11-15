@@ -64,9 +64,6 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
     override fun scriptName(): String = mainScript
 
-    override fun canRunPlugin(pluginFolderPath: String): Boolean =
-        findScriptFileIn(pluginFolderPath, mainScript) != null
-
     override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
         val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword

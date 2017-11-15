@@ -19,7 +19,7 @@ class ClojurePluginRunner(
     private val environment: MutableMap<String, String>
 ): PluginRunner {
 
-    override fun canRunPlugin(pluginFolderPath: String) = findScriptFileIn(pluginFolderPath, mainScript) != null
+    override fun scriptName() = mainScript
 
     override fun runPlugin(pluginFolderPath: String, pluginId: String,
                            binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
@@ -79,8 +79,6 @@ class ClojurePluginRunner(
             }
         }
     }
-
-    override fun scriptName() = mainScript
 
     companion object {
         val mainScript = "plugin.clj"

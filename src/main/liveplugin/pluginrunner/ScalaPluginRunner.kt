@@ -29,7 +29,7 @@ import java.io.StringWriter
  */
 class ScalaPluginRunner(private val errorReporter: ErrorReporter, private val environment: MutableMap<String, String>): PluginRunner {
 
-    override fun canRunPlugin(pluginFolderPath: String) = findScriptFileIn(pluginFolderPath, mainScript) != null
+    override fun scriptName(): String = mainScript
 
     override fun runPlugin(pluginFolderPath: String, pluginId: String,
                            binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
@@ -79,8 +79,6 @@ class ScalaPluginRunner(private val errorReporter: ErrorReporter, private val en
             }
         }
     }
-
-    override fun scriptName(): String = mainScript
 
     companion object {
         private val scalaDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
