@@ -25,9 +25,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.ui.UIUtil
-import liveplugin.IDEUtil
-import liveplugin.IDEUtil.SingleThreadBackgroundRunner
 import liveplugin.Icons
+import liveplugin.IdeUtil
+import liveplugin.IdeUtil.SingleThreadBackgroundRunner
 import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
@@ -52,7 +52,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 
     private fun runCurrentPlugin(event: AnActionEvent) {
-        IDEUtil.saveAllFiles()
+        IdeUtil.saveAllFiles()
         val pluginIds = findCurrentPluginIds(event)
         val errorReporter = ErrorReporter()
         runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter))
@@ -110,7 +110,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                     } catch (e: Error) {
                         errorReporter.addLoadingError(pluginId, e)
                     } finally {
-                        errorReporter.reportAllErrors { title, message -> IDEUtil.displayError(title, message, project) }
+                        errorReporter.reportAllErrors { title, message -> IdeUtil.displayError(title, message, project) }
                     }
                 }
 

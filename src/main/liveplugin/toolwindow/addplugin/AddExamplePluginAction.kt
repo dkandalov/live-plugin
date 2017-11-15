@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
-import liveplugin.IDEUtil
+import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.groovyExamplesPath
 import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
@@ -47,7 +47,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
     private fun logException(e: Exception, event: AnActionEvent, pluginPath: String) {
         val project = event.project
         if (project != null) {
-            IDEUtil.showErrorDialog(
+            IdeUtil.showErrorDialog(
                 project,
                 "Error adding plugin \"$pluginPath\" to $livepluginsPath",
                 "Add Plugin"
@@ -65,7 +65,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
         override fun actionPerformed(e: AnActionEvent?) {
             actionGroup.childActionsOrStubs
                 .filter { it != this && it !is Separator }
-                .forEach { IDEUtil.performAction(it, place) }
+                .forEach { IdeUtil.performAction(it, place) }
         }
     }
 

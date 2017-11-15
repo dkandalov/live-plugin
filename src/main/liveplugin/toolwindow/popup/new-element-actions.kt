@@ -4,7 +4,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.fileChooser.FileSystemTree
 import com.intellij.openapi.fileChooser.actions.NewFolderAction
-import liveplugin.IDEUtil
+import liveplugin.IdeUtil
 import liveplugin.Icons
 import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.defaultPluginScript
@@ -16,16 +16,16 @@ class NewTextFileAction: NewFileAction("Text File", AllIcons.FileTypes.Text)
 
 class NewDirectoryAction: NewFolderAction("Directory", "", Icons.newFolderIcon)
 
-class NewGroovyFileAction: NewFileAction("Groovy File", IDEUtil.groovyFileType)
+class NewGroovyFileAction: NewFileAction("Groovy File", IdeUtil.groovyFileType)
 
-class NewKotlinFileAction: NewFileAction("Kotlin File", IDEUtil.kotlinFileType)
+class NewKotlinFileAction: NewFileAction("Kotlin File", IdeUtil.kotlinFileType)
 
 class NewGroovyMainScript: NewFileFromTemplateAction(
     GroovyPluginRunner.mainScript,
     GroovyPluginRunner.mainScript,
     defaultPluginScript(),
     inferIconFromFileType,
-    IDEUtil.groovyFileType
+    IdeUtil.groovyFileType
 )
 
 class NewGroovyTestScript: NewFileFromTemplateAction(
@@ -33,17 +33,17 @@ class NewGroovyTestScript: NewFileFromTemplateAction(
     GroovyPluginRunner.testScript,
     defaultPluginTestScript(),
     inferIconFromFileType,
-    IDEUtil.groovyFileType
+    IdeUtil.groovyFileType
 )
 
-class NewClojureFileAction: NewFileAction("Clojure File", IDEUtil.clojureFileType) {
+class NewClojureFileAction: NewFileAction("Clojure File", IdeUtil.clojureFileType) {
     override fun update(fileSystemTree: FileSystemTree, e: AnActionEvent) {
         super.update(fileSystemTree, e)
         e.presentation.isVisible = LivePluginAppComponent.clojureIsOnClassPath()
     }
 }
 
-class NewScalaFileAction: NewFileAction("Scala File", IDEUtil.scalaFileType) {
+class NewScalaFileAction: NewFileAction("Scala File", IdeUtil.scalaFileType) {
     override fun update(fileSystemTree: FileSystemTree, e: AnActionEvent) {
         super.update(fileSystemTree, e)
         e.presentation.isVisible = LivePluginAppComponent.scalaIsOnClassPath()

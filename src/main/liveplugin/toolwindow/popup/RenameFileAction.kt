@@ -7,7 +7,7 @@ import com.intellij.openapi.fileChooser.FileSystemTree
 import com.intellij.openapi.fileChooser.actions.FileChooserAction
 import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor
 import com.intellij.openapi.ui.Messages
-import liveplugin.IDEUtil
+import liveplugin.IdeUtil
 import java.io.IOException
 import java.util.*
 import javax.swing.SwingUtilities
@@ -28,9 +28,8 @@ class RenameFileAction: FileChooserAction() {
                     file.rename(null, newFileName)
                     updateTreeModel_HACK()
                 } catch (e: IOException) {
-                    IDEUtil.showErrorDialog(event.project, "Couldn't rename " + file.name + " to " + newFileName, "Error")
+                    IdeUtil.showErrorDialog(event.project, "Couldn't rename " + file.name + " to " + newFileName, "Error")
                 }
-
             }
 
             /**

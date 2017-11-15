@@ -16,7 +16,7 @@ package liveplugin.pluginrunner
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
-import liveplugin.IDEUtil
+import liveplugin.IdeUtil
 import liveplugin.Icons
 import liveplugin.pluginrunner.GroovyPluginRunner.Companion.testScript
 import java.util.*
@@ -32,7 +32,7 @@ class TestPluginAction: AnAction("Run Plugin Tests", "Run Plugin Integration Tes
     }
 
     private fun testCurrentPlugin(event: AnActionEvent) {
-        IDEUtil.saveAllFiles()
+        IdeUtil.saveAllFiles()
         val pluginIds = RunPluginAction.findCurrentPluginIds(event)
         val errorReporter = ErrorReporter()
         RunPluginAction.runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter))

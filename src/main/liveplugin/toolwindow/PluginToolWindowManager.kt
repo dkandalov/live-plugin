@@ -52,7 +52,7 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.EditSourceOnDoubleClickHandler
 import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
-import liveplugin.IDEUtil
+import liveplugin.IdeUtil
 import liveplugin.Icons
 import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
@@ -297,7 +297,7 @@ class PluginToolWindowManager {
             // this is used by create directory/file to get context in which they're executed
             // (without this they would be disabled or won't work)
             if (dataId == FileSystemTree.DATA_KEY.name) return fileSystemTree.get()
-            if (dataId == FileChooserKeys.NEW_FILE_TYPE.name) return IDEUtil.groovyFileType
+            if (dataId == FileChooserKeys.NEW_FILE_TYPE.name) return IdeUtil.groovyFileType
             if (dataId == FileChooserKeys.DELETE_ACTION_AVAILABLE.name) return true
             if (dataId == PlatformDataKeys.VIRTUAL_FILE_ARRAY.name) return fileSystemTree.get().selectedFiles
             return if (dataId == PlatformDataKeys.TREE_EXPANDER.name) DefaultTreeExpander(fileSystemTree.get().tree) else super.getData(dataId)

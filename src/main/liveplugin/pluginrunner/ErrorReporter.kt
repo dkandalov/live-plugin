@@ -13,7 +13,7 @@
  */
 package liveplugin.pluginrunner
 
-import liveplugin.IDEUtil.unscrambleThrowable
+import liveplugin.IdeUtil.unscrambleThrowable
 import java.util.*
 
 /**

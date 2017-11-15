@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
-import liveplugin.IDEUtil
+import liveplugin.IdeUtil
 import liveplugin.Icons
 import liveplugin.toolwindow.PluginToolWindowManager.PluginToolWindow.Companion.findPluginRootsFor
 import liveplugin.toolwindow.util.PluginsIO
@@ -35,7 +35,7 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete Plugin", Ic
             } catch (e: IOException) {
                 val project = event.project
                 if (project != null) {
-                    IDEUtil.showErrorDialog(project, "Error deleting plugin \"" + pluginRoot.path, "Delete Plugin")
+                    IdeUtil.showErrorDialog(project, "Error deleting plugin \"" + pluginRoot.path, "Delete Plugin")
                 }
                 logger.error(e)
             }

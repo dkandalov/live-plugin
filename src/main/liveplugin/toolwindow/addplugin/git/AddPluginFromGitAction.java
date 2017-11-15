@@ -19,7 +19,7 @@ import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.Git;
 import icons.GithubIcons;
-import liveplugin.IDEUtil;
+import liveplugin.IdeUtil;
 import liveplugin.toolwindow.RefreshPluginsPanelAction;
 import liveplugin.toolwindow.util.PluginsIO;
 import org.jetbrains.annotations.NotNull;
@@ -120,7 +120,7 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 
 				} catch (Exception e) {
 					if (project != null) {
-						IDEUtil.showErrorDialog(project, "Error deleting plugin \"" + clonedFolder.getPath(), "Delete Plugin");
+						IdeUtil.showErrorDialog(project, "Error deleting plugin \"" + clonedFolder.getPath(), "Delete Plugin");
 					}
 					logger.error(e);
 				}

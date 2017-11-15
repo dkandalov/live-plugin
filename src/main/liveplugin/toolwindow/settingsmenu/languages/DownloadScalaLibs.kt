@@ -8,8 +8,8 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.Pair
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.containers.ContainerUtil.map
-import liveplugin.IDEUtil.askIfUserWantsToRestartIde
-import liveplugin.IDEUtil.downloadFiles
+import liveplugin.IdeUtil.askIfUserWantsToRestartIde
+import liveplugin.IdeUtil.downloadFiles
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath

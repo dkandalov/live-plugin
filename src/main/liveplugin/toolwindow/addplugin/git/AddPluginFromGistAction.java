@@ -11,7 +11,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
-import liveplugin.IDEUtil;
+import liveplugin.IdeUtil;
 import liveplugin.LivePluginAppComponent;
 import liveplugin.toolwindow.RefreshPluginsPanelAction;
 import liveplugin.toolwindow.addplugin.PluginIdValidator;
@@ -111,12 +111,12 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 	}
 
 	private static void showMessageThatFetchingGistFailed(IOException e, Project project) {
-		IDEUtil.showErrorDialog(project, "Failed to fetch gist", dialogTitle);
+		IdeUtil.showErrorDialog(project, "Failed to fetch gist", dialogTitle);
 		log.info(e);
 	}
 
 	private void showMessageThatCreatingPluginFailed(IOException e, String newPluginId, Project project) {
-		IDEUtil.showErrorDialog(
+		IdeUtil.showErrorDialog(
 				project,
 				"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.livepluginsPath,
                 dialogTitle

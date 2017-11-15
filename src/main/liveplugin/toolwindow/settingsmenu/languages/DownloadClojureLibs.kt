@@ -7,8 +7,8 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.Pair
 import com.intellij.openapi.util.io.FileUtil
-import liveplugin.IDEUtil.askIfUserWantsToRestartIde
-import liveplugin.IDEUtil.downloadFiles
+import liveplugin.IdeUtil.askIfUserWantsToRestartIde
+import liveplugin.IdeUtil.downloadFiles
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath

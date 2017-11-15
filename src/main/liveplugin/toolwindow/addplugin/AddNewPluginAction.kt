@@ -6,7 +6,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
-import liveplugin.IDEUtil
+import liveplugin.IdeUtil
 import liveplugin.Icons
 import liveplugin.LivePluginAppComponent.Companion.groovyExamplesPath
 import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
@@ -58,7 +58,7 @@ open class AddNewPluginAction(
 
         } catch (e: IOException) {
             if (project != null) {
-                IDEUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to $livepluginsPath", addNewPluginTitle)
+                IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to $livepluginsPath", addNewPluginTitle)
             }
             log.error(e)
         }

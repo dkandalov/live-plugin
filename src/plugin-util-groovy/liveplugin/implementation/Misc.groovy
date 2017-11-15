@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.Alarm
-import liveplugin.IDEUtil
+import liveplugin.IdeUtil
 import liveplugin.PluginUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
@@ -20,7 +20,7 @@ class Misc {
 		if (message?.getClass()?.isArray()) Arrays.toString(message)
 		else if (message instanceof MapWithDefault) "{" + message.entrySet().join(", ") + "}"
 		else if (message instanceof Throwable) {
-			IDEUtil.unscrambleThrowable(message)
+			IdeUtil.unscrambleThrowable(message)
 		} else {
 			String.valueOf(message)
 		}

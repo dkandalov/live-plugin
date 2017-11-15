@@ -29,8 +29,8 @@ import com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.openapi.vfs.VirtualFile
-import liveplugin.IDEUtil.askIfUserWantsToRestartIde
-import liveplugin.IDEUtil.downloadFile
+import liveplugin.IdeUtil.askIfUserWantsToRestartIde
+import liveplugin.IdeUtil.downloadFile
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.PluginToolWindowManager
@@ -117,17 +117,17 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
         fun pluginExists(pluginId: String): Boolean = pluginIdToPathMap().keys.contains(pluginId)
 
         private val isGroovyOnClasspath: Boolean
-            get() = IDEUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
+            get() = IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
 
-        fun scalaIsOnClassPath(): Boolean = IDEUtil.isOnClasspath("scala.Some")
+        fun scalaIsOnClassPath(): Boolean = IdeUtil.isOnClasspath("scala.Some")
 
-        fun clojureIsOnClassPath(): Boolean = IDEUtil.isOnClasspath("clojure.core.Vec")
+        fun clojureIsOnClassPath(): Boolean = IdeUtil.isOnClasspath("clojure.core.Vec")
 
         private fun runAllPlugins() {
             ApplicationManager.getApplication().invokeLater {
                 val event = AnActionEvent(
                     null,
-                    IDEUtil.dummyDataContext,
+                    IdeUtil.dummyDataContext,
                     PluginRunner.ideStartup,
                     Presentation(),
                     ActionManager.getInstance(),
