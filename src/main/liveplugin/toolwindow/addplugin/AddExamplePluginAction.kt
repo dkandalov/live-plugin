@@ -100,6 +100,8 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
             group.add(AddExamplePluginAction(kotlinExamplesPath + "popup-menu/", listOf("plugin.kts")))
             group.add(AddExamplePluginAction(kotlinExamplesPath + "java-intention/", listOf("plugin.kts")))
             group.add(AddExamplePluginAction(kotlinExamplesPath + "kotlin-intention/", listOf("plugin.kts")))
+            group.add(AddExamplePluginAction(kotlinExamplesPath + "additional-classpath/", listOf("plugin.kts")))
+            group.add(AddExamplePluginAction(kotlinExamplesPath + "multiple-src-files/", listOf("plugin.kts", "foo.kt", "bar/bar.kt")))
             group.addSeparator()
             group.add(PerformAllGroupActions("Add All", "", group))
             group
