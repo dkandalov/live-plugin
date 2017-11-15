@@ -20,7 +20,6 @@ import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.Git;
 import icons.GithubIcons;
 import liveplugin.IDEUtil;
-import liveplugin.pluginrunner.GroovyPluginRunner;
 import liveplugin.toolwindow.RefreshPluginsPanelAction;
 import liveplugin.toolwindow.util.PluginsIO;
 import org.jetbrains.annotations.NotNull;
@@ -133,8 +132,8 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 		private boolean userDoesNotWantToKeepIt() {
 			int answer = Messages.showYesNoDialog(
 					project,
-					"It looks like \"" + pluginName + "\" is not a valid plugin because it does not contain \"" +
-							GroovyPluginRunner.mainScript + "\".\n\nDo you want to add it anyway?",
+					"It looks like \"" + pluginName + "\" is not a valid plugin because it does not contain plugin scripts.\n\n" +
+							"Do you want to add it anyway?",
 					dialogTitle,
 					Messages.getQuestionIcon()
 			);

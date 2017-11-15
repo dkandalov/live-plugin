@@ -10,7 +10,6 @@ import liveplugin.MyFileUtil.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
-import java.util.*
 
 interface PluginRunner {
 
@@ -60,7 +59,7 @@ interface PluginRunner {
             val pluginVersion = "1.0.0"
 
             return PluginClassLoader(
-                ArrayList(),
+                emptyList(),
                 parentLoaders.toTypedArray(),
                 PluginId.getId(pluginId),
                 pluginVersion, null

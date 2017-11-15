@@ -14,7 +14,6 @@ import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
 import liveplugin.MyFileUtil.fileNamesMatching
 import java.io.File
-import java.util.Arrays.asList
 
 class DownloadClojureLibs: AnAction(), DumbAware {
 
@@ -36,7 +35,7 @@ class DownloadClojureLibs: AnAction(), DumbAware {
                     "\n(If you already have clojure >= 1.7.0, you can copy it manually and restart IDE.)", "Live Plugin", null)
             if (answer != Messages.OK) return
 
-            val downloaded = downloadFiles(asList(
+            val downloaded = downloadFiles(listOf(
                 Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure/1.7.0/", "clojure-1.7.0.jar"),
                 Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure-contrib/1.2.0/", "clojure-contrib-1.2.0.jar")
             ), livepluginLibsPath)

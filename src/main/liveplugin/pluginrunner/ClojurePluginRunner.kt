@@ -19,9 +19,7 @@ class ClojurePluginRunner(
     private val environment: MutableMap<String, String>
 ): PluginRunner {
 
-    override fun canRunPlugin(pathToPluginFolder: String): Boolean {
-        return findScriptFileIn(pathToPluginFolder, mainScript) != null
-    }
+    override fun canRunPlugin(pathToPluginFolder: String) = findScriptFileIn(pathToPluginFolder, mainScript) != null
 
     override fun runPlugin(pathToPluginFolder: String, pluginId: String,
                            binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
@@ -85,14 +83,13 @@ class ClojurePluginRunner(
     override fun scriptName() = mainScript
 
     companion object {
-        @JvmField val mainScript = "plugin.clj"
+        val mainScript = "plugin.clj"
         private val clojureAddToClasspathKeyword = "; " + PluginRunner.addToClasspathKeyword
         private val clojureDependsOnPluginKeyword = "; " + PluginRunner.dependsOnPluginKeyword
 
         private var initialized: Boolean = false
 
-        private fun createKey(name: String): Var {
-            return Var.intern(Namespace.findOrCreate(Symbol.intern("clojure.core")), Symbol.intern(name), "no_" + name).setDynamic()
-        }
+        private fun createKey(name: String): Var =
+            Var.intern(Namespace.findOrCreate(Symbol.intern("clojure.core")), Symbol.intern(name), "no_" + name).setDynamic()
     }
 }

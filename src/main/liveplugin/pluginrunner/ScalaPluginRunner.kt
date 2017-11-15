@@ -29,9 +29,7 @@ import java.io.StringWriter
  */
 class ScalaPluginRunner(private val errorReporter: ErrorReporter, private val environment: MutableMap<String, String>): PluginRunner {
 
-    override fun canRunPlugin(pathToPluginFolder: String): Boolean {
-        return findScriptFileIn(pathToPluginFolder, mainScript) != null
-    }
+    override fun canRunPlugin(pathToPluginFolder: String) = findScriptFileIn(pathToPluginFolder, mainScript) != null
 
     override fun runPlugin(pathToPluginFolder: String, pluginId: String,
                            binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
@@ -82,13 +80,11 @@ class ScalaPluginRunner(private val errorReporter: ErrorReporter, private val en
         }
     }
 
-    override fun scriptName(): String {
-        return mainScript
-    }
+    override fun scriptName(): String = mainScript
 
     companion object {
         private val scalaDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
-        @JvmField val mainScript = "plugin.scala"
+        val mainScript = "plugin.scala"
         private val scalaAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
         private val interpreterOutput = StringWriter()
         private val interpreterLock = Any()

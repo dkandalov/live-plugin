@@ -90,7 +90,7 @@ class GroovyPluginRunner(
     }
 
     companion object {
-        @JvmField val mainScript = "plugin.groovy"
+        val mainScript = "plugin.groovy"
         val testScript = "plugin-test.groovy"
         val groovyAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
         val groovyDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword

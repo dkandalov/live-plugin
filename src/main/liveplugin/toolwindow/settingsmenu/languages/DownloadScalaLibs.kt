@@ -15,7 +15,6 @@ import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
 import liveplugin.MyFileUtil.fileNamesMatching
 import java.io.File
-import java.util.Arrays.asList
 
 class DownloadScalaLibs: AnAction(), DumbAware {
 
@@ -45,7 +44,7 @@ class DownloadScalaLibs: AnAction(), DumbAware {
                                                          "\n(If you already have scala >= 2.11, you can copy it manually and restart IDE.)", "Live Plugin", null)
             if (answer != Messages.OK) return
 
-            val scalaLibs = asList("scala-library", "scala-compiler", "scala-reflect", "scalap")
+            val scalaLibs = listOf("scala-library", "scala-compiler", "scala-reflect", "scalap")
             val urlAndFileNamePairs = map(scalaLibs) { it ->
                 // Using alternative maven repo instead of "repo1.maven.org" because standard repo for some reason
                 // returns 403 when requested scala libs from IntelliJ downloader (even though the same code works for clojure libs)

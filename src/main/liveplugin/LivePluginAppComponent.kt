@@ -37,7 +37,6 @@ import liveplugin.toolwindow.PluginToolWindowManager
 import liveplugin.toolwindow.util.ExamplePluginInstaller
 import java.io.File
 import java.io.IOException
-import java.util.Arrays.asList
 
 class LivePluginAppComponent: ApplicationComponent, DumbAware {
 
@@ -63,13 +62,13 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
     companion object {
 
         @JvmField val livePluginId = "LivePlugin"
-        @JvmField val groovyExamplesPath = "/groovy/"
-        @JvmField val kotlinExamplesPath = "/kotlin/"
-        @JvmField val livepluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
-        @JvmField val livepluginCompilerLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/kotlin-compiler")
+        val groovyExamplesPath = "/groovy/"
+        val kotlinExamplesPath = "/kotlin/"
+        val livepluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
+        val livepluginCompilerLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/kotlin-compiler")
         @JvmField val livepluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
-        @JvmField val livepluginsClassesPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-classes")
-        @JvmField val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
+        val livepluginsClassesPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-classes")
+        val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
 
         val livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin")
 
@@ -139,7 +138,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
             }
         }
 
-        fun checkThatGroovyIsOnClasspath() {
+        private fun checkThatGroovyIsOnClasspath() {
             if (isGroovyOnClasspath) return
 
             // this can be useful for non-java IDEs because they don't have bundled groovy libs
@@ -167,10 +166,10 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
                     logger.warn("Failed to install plugin: " + pluginPath, e)
                 }
             }
-            ExamplePluginInstaller(groovyExamplesPath + "hello-world/", asList("plugin.groovy")).installPlugin(loggingListener)
-            ExamplePluginInstaller(groovyExamplesPath + "register-action/", asList("plugin.groovy")).installPlugin(loggingListener)
-            ExamplePluginInstaller(groovyExamplesPath + "insert-new-line-above/", asList("plugin.groovy")).installPlugin(loggingListener)
-            ExamplePluginInstaller(groovyExamplesPath + "popup-menu/", asList("plugin.groovy")).installPlugin(loggingListener)
+            ExamplePluginInstaller(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")).installPlugin(loggingListener)
+            ExamplePluginInstaller(groovyExamplesPath + "register-action/", listOf("plugin.groovy")).installPlugin(loggingListener)
+            ExamplePluginInstaller(groovyExamplesPath + "insert-new-line-above/", listOf("plugin.groovy")).installPlugin(loggingListener)
+            ExamplePluginInstaller(groovyExamplesPath + "popup-menu/", listOf("plugin.groovy")).installPlugin(loggingListener)
         }
     }
 }

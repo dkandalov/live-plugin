@@ -29,7 +29,6 @@ import liveplugin.IDEUtil
 import liveplugin.IDEUtil.SingleThreadBackgroundRunner
 import liveplugin.Icons
 import liveplugin.LivePluginAppComponent
-import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
 import liveplugin.Settings
@@ -72,11 +71,11 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
         private val bindingByPluginId = WeakHashMap<String, Map<String, Any?>>()
 
         fun runPlugins(
-            pluginIds: Collection<String>, event: AnActionEvent,
-            errorReporter: ErrorReporter, pluginRunners: List<PluginRunner>
+            pluginIds: Collection<String>,
+            event: AnActionEvent,
+            errorReporter: ErrorReporter,
+            pluginRunners: List<PluginRunner>
         ) {
-            checkThatGroovyIsOnClasspath()
-
             val project = event.project
             val isIdeStartup = event.place == ideStartup
 
@@ -147,11 +146,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
 
         internal fun findCurrentPluginIds(event: AnActionEvent): List<String> {
             val pluginIds = pluginsSelectedInToolWindow(event)
-            return if (!pluginIds.isEmpty() && pluginToolWindowHasFocus(event)) {
-                pluginIds
-            } else {
-                pluginForCurrentlyOpenFile(event)
-            }
+            return if (pluginIds.isNotEmpty() && pluginToolWindowHasFocus(event)) pluginIds else pluginForCurrentlyOpenFile(event)
         }
 
         private fun pluginToolWindowHasFocus(event: AnActionEvent): Boolean {
