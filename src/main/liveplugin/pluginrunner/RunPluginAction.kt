@@ -24,7 +24,6 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.ui.UIUtil
 import liveplugin.Icons
 import liveplugin.IdeUtil
 import liveplugin.IdeUtil.SingleThreadBackgroundRunner
@@ -48,7 +47,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = !findCurrentPluginIds(event).isEmpty()
+        event.presentation.isEnabled = findCurrentPluginIds(event).isNotEmpty()
     }
 
     private fun runCurrentPlugin(event: AnActionEvent) {
@@ -64,10 +63,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
         const val isIdeStartupKey = "isIdeStartup"
         const val projectKey = "project"
 
-        private val backgroundRunner = SingleThreadBackgroundRunner("LivePlugin thread")
-        private val runOnEdt = { f: () -> Unit ->
-            UIUtil.invokeAndWaitIfNeeded(Runnable { f() })
-        }
+        private val backgroundRunner = SingleThreadBackgroundRunner("LivePlugin runner thread")
         private val bindingByPluginId = WeakHashMap<String, Map<String, Any?>>()
 
         fun runPlugins(
@@ -93,19 +89,18 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                         } else {
                             val oldBinding = bindingByPluginId[pluginId]
                             if (oldBinding != null) {
-                                val function = {
+                                runOnEdt {
                                     try {
                                         Disposer.dispose(oldBinding[pluginDisposableKey] as Disposable)
                                     } catch (e: Exception) {
                                         errorReporter.addRunningError(pluginId, e)
                                     }
                                 }
-                                ApplicationManager.getApplication().invokeAndWait(function, NON_MODAL)
                             }
                             val binding = createBinding(pathToPluginFolder!!, project, isIdeStartup)
                             bindingByPluginId.put(pluginId, binding)
 
-                            pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, runOnEdt)
+                            pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, this::runOnEdt)
                         }
                     } catch (e: Error) {
                         errorReporter.addLoadingError(pluginId, e)
@@ -117,6 +112,8 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                 backgroundRunner.run(project, "Loading live-plugin '$pluginId'", task)
             }
         }
+
+        private fun runOnEdt(f: () -> Unit) = ApplicationManager.getApplication().invokeAndWait(f, NON_MODAL)
 
         fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> {
             return ArrayList<PluginRunner>().apply {
