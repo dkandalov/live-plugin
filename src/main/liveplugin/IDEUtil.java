@@ -202,7 +202,7 @@ public class IDEUtil {
 	 * because PhpStorm doesn't have this class.
 	 */
 	private static class Unscramble {
-		public static String normalizeText(@NonNls String text) {
+		static String normalizeText(@NonNls String text) {
 			StringBuilder builder = new StringBuilder(text.length());
 
 			text = text.replaceAll("(\\S[ \\t\\x0B\\f\\r]+)(at\\s+)", "$1\n$2");
@@ -269,7 +269,7 @@ public class IDEUtil {
 	 * because it will return FileType for .kt files and this will cause creating files with wrong extension.
 	 */
 	public static class KotlinScriptFileType implements FileType {
-		public static final KotlinScriptFileType INSTANCE = new KotlinScriptFileType();
+		static final KotlinScriptFileType INSTANCE = new KotlinScriptFileType();
 		private final NotNullLazyValue<Icon> myIcon = new NotNullLazyValue<Icon>() {
 			@NotNull
 			protected Icon compute() {

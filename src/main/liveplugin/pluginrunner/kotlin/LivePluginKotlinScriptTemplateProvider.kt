@@ -23,8 +23,8 @@ class LivePluginKotlinScriptTemplateProvider: ScriptTemplatesProvider {
     override val environment: Map<String, Any?>? = mapOf(USE_NULL_RESOLVE_SCOPE to true)
 
     override val resolver: DependenciesResolver = object: DependenciesResolver {
-        override fun resolve(scriptContents: ScriptContents, environment: Environment): ResolveResult {
-            return ResolveResult.Success(
+        override fun resolve(scriptContents: ScriptContents, environment: Environment): ResolveResult =
+            ResolveResult.Success(
                 ScriptDependencies(
                     javaHome = File(System.getProperty("java.home")),
                     classpath =
@@ -35,7 +35,6 @@ class LivePluginKotlinScriptTemplateProvider: ScriptTemplatesProvider {
                 ),
                 emptyList()
             )
-        }
     }
 
     override val additionalResolverClasspath: List<File> get() = emptyList()

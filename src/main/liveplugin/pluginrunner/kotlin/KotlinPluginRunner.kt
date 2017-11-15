@@ -54,7 +54,9 @@ private val ideLibsClassLoader by lazy {
  *  - in theory kotlin-compiler and IDE classes could be "namespaces" by classloader,
  *    however in practice it still causes confusing problems which are really hard to debug
  *
- * Use ".kts" extension because `LivePluginKotlinScriptTemplateProvider` doesn't seem to work with ".kt" files.
+ * Use ".kts" extension because
+ *  - ".kt" must have "main" function to be executed
+ *  - `LivePluginKotlinScriptTemplateProvider` doesn't seem to work with ".kt" files.
  */
 class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val environment: Map<String, String>): PluginRunner {
 
