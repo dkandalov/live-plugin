@@ -39,6 +39,23 @@ private val ideLibsClassLoader by lazy {
         .get()
 }
 
+/**
+ * There are several reasons to run kotlin plugins the way it's currently done.
+ *
+ * Use standalone compiler (i.e. `kotlin-compiler-embeddable.jar`, etc.) because
+ *  - kotlin script seems to have few problems and using normal compiler should be easier
+ *  - each version of liveplugin will have the same version of kotlin compiler
+ *  - size of LivePlugin.zip shouldn't be an issue
+ *
+ * Use separate classloader to compile liveplugin and then load compiler classes into IDE because
+ *  - kotlin compiler uses classes with the same names as IntelliJ
+ *  - `kotlin-compiler-embeddable` has some of them renamed but not all of them
+ *  - kotlin compiler attempts to initialise some of the global variables which are already initialised by IDE
+ *  - in theory kotlin-compiler and IDE classes could be "namespaces" by classloader,
+ *    however in practice it still causes confusing problems which are really hard to debug
+ *
+ * Use ".kts" extension because `LivePluginKotlinScriptTemplateProvider` doesn't seem to work with ".kt" files.
+ */
 class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val environment: Map<String, String>): PluginRunner {
 
     override fun scriptName(): String = mainScript
