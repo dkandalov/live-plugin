@@ -70,6 +70,7 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
                 <action id="LivePlugin.AddPluginFromGitHubAction" class="liveplugin.toolwindow.addplugin.AddPluginFromGitHubDelegateAction"/>
             </group>
 			<separator/>
+            <action id="LivePlugin.RunPluginAction" class="liveplugin.pluginrunner.RunPluginAction" text="Run Plugin"/>
             <action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.popup.RenameFileAction" text="Rename" use-shortcut-of="RenameElement"/>
 			<action id="LivePlugin.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction" text="Delete"/>
 		</group>
