@@ -16,18 +16,18 @@ interface PluginRunner {
     fun scriptName(): String
 
     /**
-     * @param pathToPluginFolder absolute path to plugin folder
+     * @param pluginFolderPath absolute path to plugin folder
      * @return true if [PluginRunner] can run plugin in this folder
      */
-    fun canRunPlugin(pathToPluginFolder: String): Boolean
+    fun canRunPlugin(pluginFolderPath: String): Boolean
 
     /**
-     * @param pathToPluginFolder absolute path to plugin folder
+     * @param pluginFolderPath absolute path to plugin folder
      * @param pluginId plugin id, e.g. to distinguish it from other plugins in error messages
      * @param binding map with implicit variables available in plugin script
      * @param runOnEDT callback which should be used to run plugin code on EDT
      */
-    fun runPlugin(pathToPluginFolder: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit)
+    fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit)
 
 
     object ClasspathAddition {

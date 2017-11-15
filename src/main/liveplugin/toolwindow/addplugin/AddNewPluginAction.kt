@@ -6,8 +6,8 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
-import liveplugin.IdeUtil
 import liveplugin.Icons
+import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.groovyExamplesPath
 import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
@@ -20,17 +20,17 @@ import liveplugin.toolwindow.util.PluginsIO
 import java.io.IOException
 
 class AddNewGroovyPluginAction: AddNewPluginAction(
-    "Groovy Plugin",
-    "Create new Groovy plugin",
-    GroovyPluginRunner.mainScript,
-    readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
+    text = "Groovy Plugin",
+    description = "Create new Groovy plugin",
+    scriptFileName = GroovyPluginRunner.mainScript,
+    scriptFileText = readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
 )
 
 class AddNewKotlinPluginAction: AddNewPluginAction(
-    "Kotlin Plugin",
-    "Create new Kotlin plugin",
-    KotlinPluginRunner.mainScript,
-    readSampleScriptFile(kotlinExamplesPath, "default-plugin.kts")
+    text = "Kotlin Plugin",
+    description = "Create new Kotlin plugin",
+    scriptFileName = KotlinPluginRunner.mainScript,
+    scriptFileText = readSampleScriptFile(kotlinExamplesPath, "default-plugin.kts")
 )
 
 open class AddNewPluginAction(

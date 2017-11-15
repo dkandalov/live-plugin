@@ -29,16 +29,16 @@ import java.io.StringWriter
  */
 class ScalaPluginRunner(private val errorReporter: ErrorReporter, private val environment: MutableMap<String, String>): PluginRunner {
 
-    override fun canRunPlugin(pathToPluginFolder: String) = findScriptFileIn(pathToPluginFolder, mainScript) != null
+    override fun canRunPlugin(pluginFolderPath: String) = findScriptFileIn(pluginFolderPath, mainScript) != null
 
-    override fun runPlugin(pathToPluginFolder: String, pluginId: String,
+    override fun runPlugin(pluginFolderPath: String, pluginId: String,
                            binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
-        val scriptFile = MyFileUtil.findScriptFileIn(pathToPluginFolder, ScalaPluginRunner.mainScript)!!
+        val scriptFile = MyFileUtil.findScriptFileIn(pluginFolderPath, ScalaPluginRunner.mainScript)!!
 
         var interpreter: IMain? = null
         synchronized(interpreterLock) {
             try {
-                environment.put("PLUGIN_PATH", pathToPluginFolder)
+                environment.put("PLUGIN_PATH", pluginFolderPath)
 
                 val dependentPlugins = findPluginDependencies(readLines(asUrl(scriptFile)), scalaDependsOnPluginKeyword)
                 val additionalPaths = findClasspathAdditions(readLines(asUrl(scriptFile)), scalaAddToClasspathKeyword, environment, onError = { path ->

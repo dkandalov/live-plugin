@@ -19,9 +19,9 @@ class ClojurePluginRunner(
     private val environment: MutableMap<String, String>
 ): PluginRunner {
 
-    override fun canRunPlugin(pathToPluginFolder: String) = findScriptFileIn(pathToPluginFolder, mainScript) != null
+    override fun canRunPlugin(pluginFolderPath: String) = findScriptFileIn(pluginFolderPath, mainScript) != null
 
-    override fun runPlugin(pathToPluginFolder: String, pluginId: String,
+    override fun runPlugin(pluginFolderPath: String, pluginId: String,
                            binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         if (!initialized) {
             // need this to avoid "java.lang.IllegalStateException: Attempting to call unbound fn: #'clojure.core/refer"
@@ -34,12 +34,12 @@ class ClojurePluginRunner(
             initialized = true
         }
 
-        val scriptFile = findScriptFileIn(pathToPluginFolder, mainScript)!!
+        val scriptFile = findScriptFileIn(pluginFolderPath, mainScript)!!
 
         val dependentPlugins = ArrayList<String>()
         val additionalPaths = ArrayList<File>()
         try {
-            environment.put("PLUGIN_PATH", pathToPluginFolder)
+            environment.put("PLUGIN_PATH", pluginFolderPath)
 
             dependentPlugins.addAll(findPluginDependencies(readLines(asUrl(scriptFile)), clojureDependsOnPluginKeyword))
             additionalPaths.addAll(findClasspathAdditions(readLines(asUrl(scriptFile)), clojureAddToClasspathKeyword, environment, onError = { path ->

@@ -52,7 +52,7 @@ class ErrorReporter {
     }
 
     @Synchronized fun reportAllErrors(callback: (title: String, message: String) -> Unit) {
-        reportAllErrors(object : Callback {
+        reportAllErrors(object: Callback {
             override fun display(title: String, message: String) {
                 callback(title, message)
             }

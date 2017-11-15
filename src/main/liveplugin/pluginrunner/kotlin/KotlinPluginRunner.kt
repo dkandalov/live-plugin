@@ -64,20 +64,20 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
     override fun scriptName(): String = mainScript
 
-    override fun canRunPlugin(pathToPluginFolder: String): Boolean =
-        findScriptFileIn(pathToPluginFolder, mainScript) != null
+    override fun canRunPlugin(pluginFolderPath: String): Boolean =
+        findScriptFileIn(pluginFolderPath, mainScript) != null
 
-    override fun runPlugin(pathToPluginFolder: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
+    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
         val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
 
-        val pluginFolder = File(pathToPluginFolder)
-        val mainScriptFile = findScriptFileIn(pathToPluginFolder, mainScript)!!
+        val pluginFolder = File(pluginFolderPath)
+        val mainScriptFile = findScriptFileIn(pluginFolderPath, mainScript)!!
         val dependentPlugins = findPluginDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
         val compilerOutput = File(toSystemIndependentName("$livepluginsClassesPath/$pluginId"))
         compilerOutput.deleteRecursively()
 
-        val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pathToPluginFolder), onError = { path ->
+        val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pluginFolderPath), onError = { path ->
             errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
         }).map{ File(it) }
 
@@ -100,7 +100,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         compilerRunner.declaredMethods.find { it.name == "compilePlugin" }!!.let { method ->
             try {
                 @Suppress("UNCHECKED_CAST")
-                val compilationErrors = method.invoke(null, pathToPluginFolder, compilerClasspath, compilerOutput) as List<String>
+                val compilationErrors = method.invoke(null, pluginFolderPath, compilerClasspath, compilerOutput) as List<String>
                 if (compilationErrors.isNotEmpty()) {
                     errorReporter.addLoadingError(pluginId, "Error compiling script. " + compilationErrors.joinToString("\n"))
                     return

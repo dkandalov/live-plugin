@@ -30,7 +30,6 @@ import liveplugin.IdeUtil.SingleThreadBackgroundRunner
 import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
-import liveplugin.Settings
 import liveplugin.pluginrunner.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
@@ -43,18 +42,14 @@ import java.util.Collections.emptyList
 class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runPluginIcon), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
-        runCurrentPlugin(event)
-    }
-
-    override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = findCurrentPluginIds(event).isNotEmpty()
-    }
-
-    private fun runCurrentPlugin(event: AnActionEvent) {
         IdeUtil.saveAllFiles()
         val pluginIds = findCurrentPluginIds(event)
         val errorReporter = ErrorReporter()
         runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter))
+    }
+
+    override fun update(event: AnActionEvent) {
+        event.presentation.isEnabled = findCurrentPluginIds(event).isNotEmpty()
     }
 
     companion object {
@@ -78,8 +73,8 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
             for (pluginId in pluginIds) {
                 val task = {
                     try {
-                        val pathToPluginFolder = LivePluginAppComponent.pluginIdToPathMap()[pluginId] // TODO not thread-safe
-                        val pluginRunner = pluginRunners.find { pathToPluginFolder != null && it.canRunPlugin(pathToPluginFolder) }
+                        val pluginFolderPath = LivePluginAppComponent.pluginIdToPathMap()[pluginId] // TODO not thread-safe
+                        val pluginRunner = pluginRunners.find { pluginFolderPath != null && it.canRunPlugin(pluginFolderPath) }
                         if (pluginRunner == null) {
                             errorReporter.addNoScriptError(pluginId, pluginRunners.map { it.scriptName() })
                         } else {
@@ -93,10 +88,10 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
                                     }
                                 }
                             }
-                            val binding = createBinding(pathToPluginFolder!!, project, isIdeStartup)
+                            val binding = createBinding(pluginFolderPath!!, project, isIdeStartup)
                             bindingByPluginId.put(pluginId, binding)
 
-                            pluginRunner.runPlugin(pathToPluginFolder, pluginId, binding, this::runOnEdt)
+                            pluginRunner.runPlugin(pluginFolderPath, pluginId, binding, this::runOnEdt)
                         }
                     } catch (e: Error) {
                         errorReporter.addLoadingError(pluginId, e)
@@ -120,24 +115,24 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
             }
         }
 
-        private fun createBinding(pathToPluginFolder: String, project: Project?, isIdeStartup: Boolean): Map<String, Any?> {
+        private fun createBinding(pluginFolderPath: String, project: Project?, isIdeStartup: Boolean): Map<String, Any?> {
             val disposable = object: Disposable {
                 override fun dispose() {}
-                override fun toString() = "LivePlugin: $pathToPluginFolder"
+                override fun toString() = "LivePlugin: $pluginFolderPath"
             }
             Disposer.register(ApplicationManager.getApplication(), disposable)
 
             return mapOf(
                 projectKey to project,
                 isIdeStartupKey to isIdeStartup,
-                pluginPathKey to pathToPluginFolder,
+                pluginPathKey to pluginFolderPath,
                 pluginDisposableKey to disposable
             )
         }
 
-        internal fun environment(): MutableMap<String, String> = HashMap(System.getenv())
+        fun environment(): MutableMap<String, String> = HashMap(System.getenv())
 
-        internal fun findCurrentPluginIds(event: AnActionEvent): List<String> {
+        fun findCurrentPluginIds(event: AnActionEvent): List<String> {
             val pluginIds = pluginsSelectedInToolWindow(event)
             return if (pluginIds.isNotEmpty() && pluginToolWindowHasFocus(event)) pluginIds else pluginForCurrentlyOpenFile(event)
         }

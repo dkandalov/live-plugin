@@ -33,29 +33,29 @@ class GroovyPluginRunner(
 
     override fun scriptName() = scriptName
 
-    override fun canRunPlugin(pathToPluginFolder: String) = findScriptFileIn(pathToPluginFolder, scriptName) != null
+    override fun canRunPlugin(pluginFolderPath: String) = findScriptFileIn(pluginFolderPath, scriptName) != null
 
-    override fun runPlugin(pathToPluginFolder: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
-        val mainScript = findScriptFileIn(pathToPluginFolder, scriptName)!!
-        runGroovyScript(asUrl(mainScript), pathToPluginFolder, pluginId, binding, runOnEDT)
+    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
+        val mainScript = findScriptFileIn(pluginFolderPath, scriptName)!!
+        runGroovyScript(asUrl(mainScript), pluginFolderPath, pluginId, binding, runOnEDT)
     }
 
     private fun runGroovyScript(
         mainScriptUrl: String,
-        pathToPluginFolder: String,
+        pluginFolderPath: String,
         pluginId: String,
         binding: Map<String, *>,
         runOnEDT: (() -> Unit) -> Unit
     ) {
         try {
-            val environment = environment + Pair("PLUGIN_PATH", pathToPluginFolder)
+            val environment = environment + Pair("PLUGIN_PATH", pluginFolderPath)
 
             val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), groovyDependsOnPluginKeyword)
             val pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), groovyAddToClasspathKeyword, environment, onError = { path ->
                 errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
             }).map{ File(it) }.toMutableList()
-            val pluginFolderUrl = "file:///$pathToPluginFolder/" // prefix with "file:///" so that unix-like path works on windows
-            pathsToAdd.add(File(pathToPluginFolder))
+            val pluginFolderUrl = "file:///$pluginFolderPath/" // prefix with "file:///" so that unix-like path works on windows
+            pathsToAdd.add(File(pluginFolderPath))
             val classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, pluginId, errorReporter)
 
             // assume that GroovyScriptEngine is thread-safe
