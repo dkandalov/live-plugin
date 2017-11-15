@@ -75,10 +75,6 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
             val project = event.project
             val isIdeStartup = event.place == ideStartup
 
-            if (!isIdeStartup) {
-                Settings.countPluginsUsage(pluginIds)
-            }
-
             for (pluginId in pluginIds) {
                 val task = {
                     try {

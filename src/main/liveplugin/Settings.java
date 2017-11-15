@@ -20,15 +20,10 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 @State(name = "LivePluginSettings", storages = {@Storage(id = "other", file = "$APP_CONFIG$/live-plugin.xml")})
 public class Settings implements PersistentStateComponent<Settings> {
 	public boolean justInstalled = true;
 	public boolean runAllPluginsOnIDEStartup = false;
-	public Map<String, Integer> pluginsUsage = new HashMap<>();
 
 	public static Settings getInstance() {
 		return ServiceManager.getService(Settings.class);
@@ -41,14 +36,4 @@ public class Settings implements PersistentStateComponent<Settings> {
 	@Override public void loadState(Settings settings) {
 		XmlSerializerUtil.copyBean(settings, this);
 	}
-
-	public static void countPluginsUsage(Collection<String> pluginIds) {
-		Map<String, Integer> pluginsUsage = Settings.getInstance().pluginsUsage;
-		for (String pluginId : pluginIds) {
-            Integer count = pluginsUsage.get(pluginId);
-            if (count == null) count = 0;
-            pluginsUsage.put(pluginId, count + 1);
-        }
-	}
-
 }
