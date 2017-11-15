@@ -31,10 +31,12 @@ import java.io.IOException
 private val ideLibsClassLoader by lazy {
     UrlClassLoader.build()
         .urls((ideJdkClassesRoots() +
-            ideLibFolder().filesList() +
+            ideLibFiles() +
             File(livepluginLibsPath).filesList() +
             File(livepluginCompilerLibsPath).filesList()
         ).map { it.toUrl() })
+        .noPreload()
+        .allowBootstrapResources()
         .useCache()
         .get()
 }
@@ -81,9 +83,9 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
         val compilerClasspath =
             ideJdkClassesRoots() +
-                ideLibFolder().filesList() +
-                File(livepluginLibsPath).filesList() +
-                File(livepluginCompilerLibsPath).filesList() +
+            ideLibFiles() +
+            File(livepluginLibsPath).filesList() +
+            File(livepluginCompilerLibsPath).filesList() +
             jarFilesOf(dependentPlugins) +
             scriptPathAdditions +
             pluginFolder
@@ -157,9 +159,9 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 private fun ideJdkClassesRoots(): List<File> =
     JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")), true)
 
-private fun ideLibFolder(): File {
+private fun ideLibFiles(): List<File> {
     val ideJarPath = PathManager.getJarPathForClass(IntelliJLaf::class.java) ?: throw IllegalStateException("Failed to find IDE lib folder.")
-    return File(ideJarPath).parentFile
+    return File(ideJarPath).parentFile.filesList()
 }
 
 private fun jarFilesOf(dependentPlugins: List<String>): List<File> {
