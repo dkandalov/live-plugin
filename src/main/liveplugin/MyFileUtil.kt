@@ -21,7 +21,9 @@ object MyFileUtil {
 
     fun File.toUrl(): URL = this.toURI().toURL()!!
 
-    fun findScriptFileIn(path: String, fileName: String): File? {
+    fun findScriptFileIn(path: String?, fileName: String): File? {
+        if (path == null) return null
+
         val result = findScriptFilesIn(path, fileName)
         return when {
             result.isEmpty() -> null

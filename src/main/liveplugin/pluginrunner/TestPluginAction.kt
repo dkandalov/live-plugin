@@ -16,33 +16,22 @@ package liveplugin.pluginrunner
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
-import liveplugin.IdeUtil
 import liveplugin.Icons
+import liveplugin.IdeUtil
 import liveplugin.pluginrunner.GroovyPluginRunner.Companion.testScript
-import java.util.*
 
 class TestPluginAction: AnAction("Run Plugin Tests", "Run Plugin Integration Tests", Icons.testPluginIcon), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
-        testCurrentPlugin(event)
+        IdeUtil.saveAllFiles()
+        val errorReporter = ErrorReporter()
+        RunPluginAction.runPlugins(event.selectedFiles(), event, errorReporter, createPluginRunners(errorReporter))
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = !RunPluginAction.findCurrentPluginIds(event).isEmpty()
+        event.presentation.isEnabled = event.selectedFiles().any { pluginFolder(it) != null }
     }
 
-    private fun testCurrentPlugin(event: AnActionEvent) {
-        IdeUtil.saveAllFiles()
-        val pluginIds = RunPluginAction.findCurrentPluginIds(event)
-        val errorReporter = ErrorReporter()
-        RunPluginAction.runPlugins(pluginIds, event, errorReporter, createPluginRunners(errorReporter))
-    }
-
-    companion object {
-        fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> {
-            val result = ArrayList<PluginRunner>()
-            result.add(GroovyPluginRunner(testScript, errorReporter, RunPluginAction.environment()))
-            return result
-        }
-    }
+    private fun createPluginRunners(errorReporter: ErrorReporter) =
+        listOf(GroovyPluginRunner(testScript, errorReporter, RunPluginAction.environment()))
 }
