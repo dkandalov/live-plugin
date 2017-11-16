@@ -135,7 +135,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
                 )
                 val errorReporter = ErrorReporter()
                 val pluginPaths = pluginIdToPathMap().keys.map { LivePluginAppComponent.pluginIdToPathMap()[it]!! }
-                RunPluginAction.runPlugins(pluginPaths, event, errorReporter, RunPluginAction.createPluginRunners(errorReporter))
+                runPlugins(pluginPaths, event, errorReporter, createPluginRunners(errorReporter))
             }
         }
 
