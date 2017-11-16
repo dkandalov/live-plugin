@@ -4,6 +4,14 @@ import liveplugin.registerAction
 import liveplugin.runWriteAction
 import liveplugin.show
 
+//
+// The action below a follow-up for these posts:
+//  - http://martinfowler.com/bliki/InternalReprogrammability.html
+//  - http://nealford.com/memeagora/2013/01/22/why_everyone_eventually_hates_maven.html
+//
+// Note that there is build-in "Start New Line Before Current" action (ctrl+alt+enter) which does almost the same thing.
+//
+
 registerAction(id = "InsertNewLineAbove", keyStroke = "alt shift ENTER", callback = { event: AnActionEvent ->
     val project = event.project!!
     val editor = project.currentEditor!!
@@ -16,7 +24,6 @@ registerAction(id = "InsertNewLineAbove", keyStroke = "alt shift ENTER", callbac
         editor.caretModel.moveToOffset(offset + 1)
     })
 })
-
 if (!isIdeStartup) show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
 
 //

@@ -73,7 +73,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
         val addGroovyExamplesActionGroup by lazy {
             val group = DefaultActionGroup("Groovy Examples", true)
             group.add(AddExamplePluginAction(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "register-action/", listOf("plugin.groovy")))
+            group.add(AddExamplePluginAction(groovyExamplesPath + "ide-actions/", listOf("plugin.groovy")))
             group.add(AddExamplePluginAction(groovyExamplesPath + "insert-new-line-above/", listOf("plugin.groovy")))
             group.add(AddExamplePluginAction(groovyExamplesPath + "popup-menu/", listOf("plugin.groovy")))
             group.add(AddExamplePluginAction(groovyExamplesPath + "popup-search/", listOf("plugin.groovy")))

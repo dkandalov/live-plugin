@@ -2,8 +2,10 @@ import static liveplugin.PluginUtil.show
 
 if (isIdeStartup) return
 
-// To run a plugin you can press "Run plugin" button or use "alt+C, alt+E" shortcut.
-// This will run plugin currently open in editor or plugin selected in the plugin toolwindow.
+//
+// To run a plugin press "Run plugin" button in LivePlugin toolwindow or use "alt+C, alt+E" shortcut.
+// This will run plugin currently open in editor or plugin selected in the toolwindow.
+//
 
 // The code below will show balloon message with "Hello world" text (it will also appear in IDE "Event Log" toolwindow).
 // (If there is no balloon, it might be disabled in "IDE Settings - Notifications".)
@@ -23,4 +25,6 @@ show("pluginPath: $pluginPath")
 // "pluginDisposable" - instance of com.intellij.openapi.Disposable which is disposed before plugin is run again.
 show("pluginDisposable: $pluginDisposable")
 
-// See next "registerAction" example.
+//
+// See next ide-actions example.
+//          ^^^^^^^^^^^
