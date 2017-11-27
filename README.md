@@ -5,9 +5,7 @@
 This is a plugin for [IntelliJ](https://github.com/JetBrains/intellij-community) IDEs to write plugins at runtime. 
 It uses [Groovy](http://groovy.codehaus.org/) as main language and has experimental support for [Kotlin](http://kotlinlang.org).
 
-To install search for "liveplugin" in ``IDE Preferences -> Plugins -> Browse Repositories``.
-Alternatively, download [LivePlugin.zip from GitHub](https://raw.github.com/dkandalov/live-plugin/master/LivePlugin.zip)
-and use ``IDE Preferences -> Plugins -> Install plugin from disk``.
+To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Browse Repositories`.
 See also [plugin repository page](http://plugins.jetbrains.com/plugin/7282).
 
 
@@ -18,32 +16,33 @@ See also [plugin repository page](http://plugins.jetbrains.com/plugin/7282).
 There is great [Internal Reprogrammability blog post](http://martinfowler.com/bliki/InternalReprogrammability.html)
 on this topic by Martin Fowler. 
 
-Motivations for LivePlugin are along the same lines:
+The reasons LivePlugin exists are along the same lines:
  - **minimal setup to start writing plugin**.
-   Creating new project configured for plugin development feels like too much effort if all I want is to write 20 lines of code.
-   LivePlugins exist outside of normal IDE projects and, therefore, can be modified and run from any project.
+   LivePlugins can always be edited/executed in LivePlugin toolwindow regardless of the current project in IDE.
+   This takes much less effort than creating new project configured for plugin development.
  - **fast feedback loop**.
-   Typical plugin development involves starting new instance of IDE and restarting it on every code change which cannot be hot swapped.
    LivePlugins are run in the same JVM instance, so there is no need to restart IDE.
+   Typical plugin development involves starting new instance of IDE and restarting it on most code changes.
+   (There is a caveat that some parts of IDE API are not designed to be reconfigured without JVM restart.
+   This is unfortunate and will hopefully change sometime in the future.)
  - **customizable IDE**.
-   It is disappointing that most development tools are difficult to customize.
-   After all, developers is the best possible group of people to do it.
+   Majority of the development tools are difficult to customize.
    This plugin is an attempt to improve the situation.
 
 Practical use cases:
- - project-specific workflow automation
- - running existing shell scripts from IDE
- - quick prototyping of IntelliJ plugins
+ - prototyping of IntelliJ plugins
  - experimenting with IntelliJ API
+ - project-specific workflow automation
+ - integrating shell scripts with IDE
  
 
 ### Plugin Examples
-##### Hello world
+Hello world:
 ```groovy
 import static liveplugin.PluginUtil.show
 show("Hello world") // shows balloon message with "Hello world" text
 ```
-##### Insert New Line Above Action
+Insert New Line Above Action:
 ```groovy
 import com.intellij.openapi.actionSystem.AnActionEvent
 import static liveplugin.PluginUtil.*
@@ -71,19 +70,19 @@ show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
 
 
 ### How to start writing plugins
- - open ``Plugins`` tool window
+ - open `Plugins` tool window
  - select one of the plugin entries in the panel<br/>
-   (entries are folders, and ``plugin.groovy`` are startup scripts for plugins)
- - click ``Run`` icon to execute plugin (or use keyboard shortcuts ``alt+C, alt+E`` or ``ctrl+shift+L``)
+   (entries are folders, and `plugin.groovy` are startup scripts for plugins)
+ - click `Run` icon to execute plugin (or use keyboard shortcuts `alt+C, alt+E` or `ctrl+shift+L`)
 
 If the above worked fine:
- - modify ``plugin.groovy`` and rerun plugin to see results
+ - modify `plugin.groovy` and rerun plugin to see results
  - add built-in plugin examples and experiment with them 
-   (in ``Plugins`` toolwindow header ``+ button -> Examples``) 
+   (in `Plugins` toolwindow header `+ button -> Examples`) 
 
 If something doesn't work, [report an issue](https://github.com/dkandalov/live-plugin/issues).
 
-(To use ``alt+...`` shortcuts on OSX you might need a workaround, please see
+(To use `alt+...` shortcuts on OSX you might need a workaround, please see
 [this wiki page](https://github.com/dkandalov/live-plugin/wiki/Alt-keyboard-shortcuts-on-osx)
 .)
 
@@ -97,37 +96,36 @@ scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));
 ```
 This means that your code is executed in the same environment as IDE internal code.
 You can use any internal API and observe/change state of any object inside IDE.
-There are some limitations of course, like ``final`` fields and complex APIs not designed to be re-initialized. 
+There are some limitations of course, like `final` fields and complex APIs not designed to be re-initialized. 
 
 To simplify usage of IntelliJ API for practical purposes some parts of IntelliJ API are wrapped in 
-[PluginUtil class](https://github.com/dkandalov/live-plugin/blob/master/src/runtime/liveplugin/PluginUtil.groovy).
+[PluginUtil class](https://github.com/dkandalov/live-plugin/blob/master/src/plugin-util-groovy/liveplugin/PluginUtil.groovy).
 This is essentially a layer on top standard IntelliJ API. 
 If you find yourself writing interesting IDE scripts, feel free to create pull request or send a gist
-to include your code into ``PluginUtil``. This is experimental API and there is no intention to keep it minimal.
-``PluginUtil`` is not required though and you can always use IntelliJ classes directly.
+to include your code into `PluginUtil`. This is experimental API and there is no intention to keep it minimal.
+`PluginUtil` is not required though and you can always use IntelliJ classes directly.
   
 Also note that:
  - plugins are evaluated with new classloader on each run
- - plugins are stored in ``$HOME/.$INTELLIJ_VERSION/config/live-plugins``
-(on Mac ``$HOME/Library/Application Support/IntelliJIdea15/live-plugins``)
-Note that you can use ``ctrl+shift+C`` shortcut to copy file/folder path.
+ - plugins are stored in `$HOME/.$INTELLIJ_VERSION/config/live-plugins`
+(on Mac `$HOME/Library/Application Support/IntelliJIdea15/live-plugins`)
+Note that you can use `ctrl+shift+C` shortcut to copy file/folder path.
  - if available, Groovy library bundled with IDE is used
 
 
 ### Misc tips
- - if your plugins are stable enough, you can enable ``Settings -> Run All Live Plugins on IDE Startup`` option.
- If some of the plugins are not meant to be executed at startup, add ``if (isIdeStartup) return`` statement at the top.
+ - if your plugins are stable enough, you can enable `Settings -> Run All Live Plugins on IDE Startup` option.
+ If some of the plugins are not meant to be executed at startup, add `if (isIdeStartup) return` statement at the top.
  - it helps to have [JetGroovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin installed (only available in IDEs with Java support)
  - you can get auto-completion and code navigation in plugins code
 	- install/enable Groovy plugin
-    - ``Plugin toolwindow -> Settings -> Add LivePlugin Jar to Project``<br/> 
-    (the jar also includes source code for PluginUtil)
-    - ``Plugin toolwindow -> Settings -> Add IDEA Jars to Project``<br/> 
-    (adding jars unrelated to your actual project is a hack but there seems to be no major problems with it)
+    - `Plugin toolwindow -> Settings -> Add LivePlugin and IDE Jars to Project`<br/> 
+    (adding jars unrelated to your project is a hack but there seems to be no major problems with it)
  - it helps to be familiar with IntelliJ API
 	 - get and explore [IntelliJ source code](https://github.com/JetBrains/intellij-community)
-     - look at [jetbrains plugin development page](http://www.jetbrains.org/intellij/sdk/docs/)
-     - [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src/runtime/liveplugin/PluginUtil.groovy)
+	 (e.g. one strategy is to search for some text you can see in IDE UI and try to figure out how it's connected the code which does actual work)
+     - read [jetbrains plugin development page](http://www.jetbrains.org/intellij/sdk/docs/)
+     - [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src/plugin-util-groovy/liveplugin/PluginUtil.groovy)
        might be a good start point to explore IntelliJ API
  - when plugin seems to be big enough, you can move it to proper plugin project and still use live plugin
  See [liveplugin as an entry point for standard plugins](https://github.com/dkandalov/live-plugin/wiki/Liveplugin-as-an-entry-point-for-standard-plugins).
@@ -173,19 +171,13 @@ Note that you can use ``ctrl+shift+C`` shortcut to copy file/folder path.
 
 ### Similar plugins
 The idea of running code inside IntelliJ is not original. 
-There are similar plugins (some of them might be out-of-date though):
+There are/were similar plugins:
  - [IDE Scripting Console](https://youtrack.jetbrains.com/issue/IDEA-138252) (experimental feature, bundled with IntelliJ since 14.1)
- - [PMIP - Poor Mans IDE Plugin](http://plugins.intellij.net/plugin/?idea&pluginId=4571) (uses Ruby)
- - [Remote Groovy Console](http://plugins.intellij.net/plugin/?id=5373)
  - [Script Monkey](http://plugins.intellij.net/plugin?pr=idea&pluginId=3674)
- - [Groovy Console Plugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=4660)
- - [HotPlugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=1020)
-
-
-### Wish list
- - try writing plugin for custom language support
- - create AST pattern-matching API (this can be useful for writing inspections/intentions to match/replace parts of syntax tree)
- - try more languages, e.g. Kotlin, Ruby or Java
+ - [PMIP - Poor Mans IDE Plugin](http://plugins.intellij.net/plugin/?idea&pluginId=4571) (no longer available)
+ - [Remote Groovy Console](http://plugins.intellij.net/plugin/?id=5373) (most likely out-of-date)
+ - [Groovy Console Plugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=4660) (most likely out-of-date)
+ - [HotPlugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=1020) (most likely out-of-date)
 
 
 ### Contributing
