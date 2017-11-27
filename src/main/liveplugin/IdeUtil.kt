@@ -59,7 +59,7 @@ import javax.swing.JPanel
 
 object IdeUtil {
     val groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension(".groovy")
-    val kotlinFileType: FileType = KotlinScriptFileType.INSTANCE
+    val kotlinFileType: FileType = KotlinScriptFileType.instance
     val scalaFileType = FileTypeManager.getInstance().getFileTypeByExtension(".scala")
     val clojureFileType = FileTypeManager.getInstance().getFileTypeByExtension(".clj")
     val dummyDataContext = DataContext { null }
@@ -256,7 +256,7 @@ object IdeUtil {
         override fun getCharset(virtualFile: VirtualFile, bytes: ByteArray): String? = null
 
         companion object {
-            internal val INSTANCE = KotlinScriptFileType()
+            internal val instance = KotlinScriptFileType()
 
             private val myIcon = object: NotNullLazyValue<Icon>() {
                 override fun compute(): Icon = IconLoader.getIcon("/org/jetbrains/kotlin/idea/icons/kotlin_file.png")
