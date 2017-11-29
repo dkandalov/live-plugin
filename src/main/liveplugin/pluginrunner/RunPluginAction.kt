@@ -25,6 +25,7 @@ import com.intellij.openapi.util.Disposer
 import liveplugin.Icons
 import liveplugin.IdeUtil
 import liveplugin.IdeUtil.SingleThreadBackgroundRunner
+import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
@@ -37,7 +38,6 @@ import java.util.*
 
 
 class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runPluginIcon), DumbAware {
-
     override fun actionPerformed(event: AnActionEvent) {
         IdeUtil.saveAllFiles()
         val errorReporter = ErrorReporter()
@@ -64,6 +64,8 @@ fun runPlugins(
     errorReporter: ErrorReporter,
     pluginRunners: List<PluginRunner>
 ) {
+    if (!checkThatGroovyIsOnClasspath()) return
+
     val project = event.project
     val isIdeStartup = event.place == ideStartup
 

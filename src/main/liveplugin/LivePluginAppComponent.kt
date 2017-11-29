@@ -61,7 +61,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
 
     companion object {
 
-        @JvmField val livePluginId = "LivePlugin"
+        val livePluginId = "LivePlugin"
         val groovyExamplesPath = "/groovy/"
         val kotlinExamplesPath = "/kotlin/"
         val livepluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
@@ -139,12 +139,13 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
             }
         }
 
-        private fun checkThatGroovyIsOnClasspath() {
-            if (isGroovyOnClasspath) return
+        fun checkThatGroovyIsOnClasspath(): Boolean {
+            if (isGroovyOnClasspath) return true
 
             // this can be useful for non-java IDEs because they don't have bundled groovy libs
             val listener = NotificationListener { notification, _ ->
-                val downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/2.3.9/", "groovy-all-2.3.9.jar", livepluginLibsPath)
+                val groovyVersion = "2.4.12" // version of groovy used by latest IJ
+                val downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/", "groovy-all-$groovyVersion.jar", livepluginLibsPath)
                 if (downloaded) {
                     notification.expire()
                     askIfUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?")
@@ -159,6 +160,8 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
                 NotificationType.ERROR,
                 listener
             ).notify(null)
+
+            return false
         }
 
         private fun installHelloWorldPlugins() {
