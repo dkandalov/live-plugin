@@ -39,7 +39,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.Messages.showOkCancelDialog
 import com.intellij.openapi.util.IconLoader
-import com.intellij.openapi.util.NotNullLazyValue
 import com.intellij.openapi.util.Pair
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.containers.ContainerUtil.map
@@ -59,7 +58,7 @@ import javax.swing.JPanel
 
 object IdeUtil {
     val groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension(".groovy")
-    val kotlinFileType: FileType = KotlinScriptFileType.instance
+    val kotlinFileType = KotlinScriptFileType.instance
     val scalaFileType = FileTypeManager.getInstance().getFileTypeByExtension(".scala")
     val clojureFileType = FileTypeManager.getInstance().getFileTypeByExtension(".clj")
     val dummyDataContext = DataContext { null }
@@ -250,16 +249,16 @@ object IdeUtil {
         override fun getName(): String = "Kotlin"
         override fun getDescription(): String = this.name
         override fun getDefaultExtension(): String = "kts"
-        override fun getIcon(): Icon? = myIcon.value
+        override fun getIcon(): Icon? = kotlinScriptIcon
         override fun isBinary(): Boolean = false
         override fun isReadOnly(): Boolean = false
         override fun getCharset(virtualFile: VirtualFile, bytes: ByteArray): String? = null
 
         companion object {
-            internal val instance = KotlinScriptFileType()
+            internal val instance: FileType = KotlinScriptFileType()
 
-            private val myIcon = object: NotNullLazyValue<Icon>() {
-                override fun compute(): Icon = IconLoader.getIcon("/org/jetbrains/kotlin/idea/icons/kotlin_file.png")
+            private val kotlinScriptIcon by lazy {
+                IconLoader.findIcon("/org/jetbrains/kotlin/idea/icons/kotlin_file.png") ?: AllIcons.FileTypes.Text
             }
         }
     }
