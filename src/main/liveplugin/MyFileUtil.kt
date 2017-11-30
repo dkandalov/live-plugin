@@ -7,6 +7,7 @@ import java.net.URL
 import java.util.*
 import java.util.Collections.emptyList
 import java.util.regex.Pattern
+import kotlin.coroutines.experimental.buildSequence
 
 
 object MyFileUtil {
@@ -38,21 +39,19 @@ object MyFileUtil {
     fun findScriptFilesIn(path: String, fileName: String): List<File> {
         val rootScriptFile = File(path + File.separator + fileName)
         return if (rootScriptFile.exists()) listOf(rootScriptFile)
-        else allFilesInDirectory(File(path)).filter { fileName == it.name }
+        else allFilesInDirectory(File(path)).filter { fileName == it.name }.toList()
     }
 
-    private fun allFilesInDirectory(dir: File): List<File> {
-        val result = LinkedList<File>()
-        val files = dir.listFiles() ?: return result
-
-        for (file in files) {
-            if (file.isFile) {
-                result.add(file)
-            } else if (file.isDirectory) {
-                result.addAll(allFilesInDirectory(file))
+    fun allFilesInDirectory(dir: File): Sequence<File> = buildSequence {
+        val queue = LinkedList(listOf(dir))
+        while (queue.isNotEmpty()) {
+            val currentDir = queue.removeLast()
+            val files = currentDir.listFiles() ?: emptyArray()
+            for (file in files) {
+                if (file.isFile) yield(file)
+                else if (file.isDirectory) queue.addFirst(file)
             }
         }
-        return result
     }
 
     fun readLines(url: String) =

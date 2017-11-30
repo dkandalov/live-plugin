@@ -16,8 +16,8 @@ import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
+import liveplugin.MyFileUtil.allFilesInDirectory
 import liveplugin.MyFileUtil.findScriptFileIn
-import liveplugin.MyFileUtil.findScriptFilesIn
 import liveplugin.pluginrunner.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
@@ -35,14 +35,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
 
     override fun update(event: AnActionEvent) {
         val pluginRunners = createPluginRunners(ErrorReporter())
-        event.presentation.isEnabled = event
-            .selectedFiles()
-            .mapNotNull { pluginFolder(it) }
-            .any { folder ->
-                pluginRunners.any {
-                    findScriptFilesIn(folder, it.scriptName()).isNotEmpty()
-                }
-            }
+        event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginRunners)
     }
 }
 
@@ -146,6 +139,16 @@ fun pluginFolder(path: String?): String? {
     val parent = File(path).parent
     return if (parent == livepluginsPath) path else pluginFolder(parent)
 }
+
+fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
+    this.mapNotNull { pluginFolder(it) }
+        .any { folder ->
+            pluginRunners.any { runner ->
+                allFilesInDirectory(File(folder)).any {
+                    runner.scriptName() == it.name
+                }
+            }
+        }
 
 fun AnActionEvent.selectedFiles(): List<String> =
     (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray()).map { it.path }

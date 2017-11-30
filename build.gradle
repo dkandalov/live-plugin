@@ -33,6 +33,7 @@ compileKotlin {
 		languageVersion = "1.1"
 	}
 }
+kotlin.experimental.coroutines = "enable"
 ext.kotlinVersion = "1.1.4"
 
 intellij {
