@@ -158,7 +158,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
                 }
             }
             ExamplePluginInstaller(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")).installPlugin(loggingListener)
-            ExamplePluginInstaller(groovyExamplesPath + "register-action/", listOf("plugin.groovy")).installPlugin(loggingListener)
+            ExamplePluginInstaller(groovyExamplesPath + "ide-actions/", listOf("plugin.groovy")).installPlugin(loggingListener)
             ExamplePluginInstaller(groovyExamplesPath + "insert-new-line-above/", listOf("plugin.groovy")).installPlugin(loggingListener)
             ExamplePluginInstaller(groovyExamplesPath + "popup-menu/", listOf("plugin.groovy")).installPlugin(loggingListener)
         }
