@@ -15,7 +15,7 @@ import com.intellij.openapi.wm.IdeFocusManager
 import liveplugin.PluginUtil
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.RunPluginAction
-import liveplugin.pluginrunner.TestPluginAction
+import liveplugin.pluginrunner.RunPluginTestsAction
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -105,7 +105,7 @@ class Actions {
 
 	static testLivePlugin(@NotNull String pluginId, @NotNull Project project) {
 		executeLivePlugin(pluginId, project) { ErrorReporter errorReporter ->
-			TestPluginAction.createPluginRunners(errorReporter)
+			RunPluginTestsAction.createPluginRunners(errorReporter)
 		}
 	}
 

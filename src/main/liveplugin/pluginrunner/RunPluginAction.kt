@@ -30,6 +30,7 @@ import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
 import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
 import liveplugin.MyFileUtil.findScriptFileIn
+import liveplugin.MyFileUtil.findScriptFilesIn
 import liveplugin.pluginrunner.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
@@ -41,11 +42,20 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     override fun actionPerformed(event: AnActionEvent) {
         IdeUtil.saveAllFiles()
         val errorReporter = ErrorReporter()
-        runPlugins(event.selectedFiles(), event, errorReporter, createPluginRunners(errorReporter))
+        val pluginRunners = createPluginRunners(errorReporter)
+        runPlugins(event.selectedFiles(), event, errorReporter, pluginRunners)
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFiles().any { pluginFolder(it) != null }
+        val pluginRunners = createPluginRunners(ErrorReporter())
+        event.presentation.isEnabled = event
+            .selectedFiles()
+            .mapNotNull { pluginFolder(it) }
+            .any { folder ->
+                pluginRunners.any {
+                    findScriptFilesIn(folder, it.scriptName()).isNotEmpty()
+                }
+            }
     }
 }
 

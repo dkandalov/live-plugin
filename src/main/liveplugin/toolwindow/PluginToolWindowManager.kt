@@ -57,7 +57,7 @@ import liveplugin.Icons
 import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.pluginrunner.RunPluginAction
-import liveplugin.pluginrunner.TestPluginAction
+import liveplugin.pluginrunner.RunPluginTestsAction
 import liveplugin.toolwindow.addplugin.*
 import liveplugin.toolwindow.popup.NewElementPopupAction
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
@@ -145,7 +145,7 @@ class PluginToolWindowManager {
             actionGroup.add(withIcon(Icons.addPluginIcon, createAddPluginsGroup()))
             actionGroup.add(DeletePluginAction())
             actionGroup.add(RunPluginAction())
-            actionGroup.add(TestPluginAction())
+            actionGroup.add(RunPluginTestsAction())
             actionGroup.addSeparator()
             actionGroup.add(RefreshPluginsPanelAction())
             actionGroup.add(withIcon(Icons.expandAllIcon, ExpandAllAction()))
