@@ -33,6 +33,17 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 <a href="https://github.com/dkandalov/live-plugin/wiki/Alt-keyboard-shortcuts-on-osx">this wiki page</a>.)
     </body></html>]]>
 	</description>
+    <change-notes>
+        <![CDATA[<html><body>
+        <ul>
+            Version 0.6.0:
+            <li>experimental support for Kotlin</li>
+            <li>dropped Scala and Clojure from UI (existing plugins should still run)</li>
+            <li>simplified settings menu</li>
+        </ul>
+        </body></html>
+        ]]>
+    </change-notes>
 
     <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
 	<depends>com.intellij.modules.platform</depends>
@@ -51,7 +62,7 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 			<keyboard-shortcut keymap="$default" first-keystroke="control shift l"/>
 		</action>
-		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.TestPluginAction" text="Test Current Plugin">
+		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.RunPluginTestsAction" text="Test Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
 
