@@ -11,7 +11,7 @@ import liveplugin.IdeUtil.askIfUserWantsToRestartIde
 import liveplugin.IdeUtil.downloadFiles
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
-import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginLibsPath
 import liveplugin.MyFileUtil.fileNamesMatching
 import java.io.File
 
@@ -23,22 +23,22 @@ class DownloadClojureLibs: AnAction(), DumbAware {
                 event.project,
                 "Do you want to remove Clojure libraries from LivePlugin classpath? This action cannot be undone.", "Live Plugin", null)
             if (answer == Messages.YES) {
-                for (fileName in fileNamesMatching(libFilesPattern, livepluginLibsPath)) {
-                    FileUtil.delete(File(livepluginLibsPath + fileName))
+                for (fileName in fileNamesMatching(libFilesPattern, livePluginLibsPath)) {
+                    FileUtil.delete(File(livePluginLibsPath + fileName))
                 }
                 askIfUserWantsToRestartIde("For Clojure libraries to be unloaded IDE restart is required. Restart now?")
             }
         } else {
             val answer = Messages.showOkCancelDialog(
                 event.project,
-                "Clojure libraries " + approximateSize + " will be downloaded to '" + livepluginLibsPath + "'." +
+                "Clojure libraries " + approximateSize + " will be downloaded to '" + livePluginLibsPath + "'." +
                     "\n(If you already have clojure >= 1.7.0, you can copy it manually and restart IDE.)", "Live Plugin", null)
             if (answer != Messages.OK) return
 
             val downloaded = downloadFiles(listOf(
                 Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure/1.7.0/", "clojure-1.7.0.jar"),
                 Pair.create("http://repo1.maven.org/maven2/org/clojure/clojure-contrib/1.2.0/", "clojure-contrib-1.2.0.jar")
-            ), livepluginLibsPath)
+            ), livePluginLibsPath)
             if (downloaded) {
                 askIfUserWantsToRestartIde("For Clojure libraries to be loaded IDE restart is required. Restart now?")
             } else {

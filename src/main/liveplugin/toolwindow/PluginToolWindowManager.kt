@@ -41,7 +41,7 @@ import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
 import liveplugin.IdeUtil
 import liveplugin.Icons
-import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
@@ -201,7 +201,7 @@ class PluginToolWindowManager {
             private fun pluginFolderOf(file: VirtualFile): VirtualFile? {
                 if (file.parent == null) return null
 
-                val pluginsRoot = File(livepluginsPath)
+                val pluginsRoot = File(livePluginsPath)
                 // comparing files because string comparison was observed not work on windows (e.g. "c:/..." and "C:/...")
                 return if (!FileUtil.filesEqual(File(file.parent.path), pluginsRoot))
                     pluginFolderOf(file.parent)

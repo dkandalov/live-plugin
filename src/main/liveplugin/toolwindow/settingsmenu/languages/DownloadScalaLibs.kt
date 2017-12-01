@@ -11,7 +11,7 @@ import com.intellij.util.containers.ContainerUtil.map
 import liveplugin.IdeUtil.askIfUserWantsToRestartIde
 import liveplugin.IdeUtil.downloadFiles
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
-import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginLibsPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
 import liveplugin.MyFileUtil.fileNamesMatching
 import java.io.File
@@ -33,14 +33,14 @@ class DownloadScalaLibs: AnAction(), DumbAware {
             val answer = Messages.showYesNoDialog(event.project,
                                                   "Do you want to remove Scala libraries from LivePlugin classpath? This action cannot be undone.", "Live Plugin", null)
             if (answer == Messages.YES) {
-                for (fileName in fileNamesMatching(libFilesPattern, livepluginLibsPath)) {
-                    FileUtil.delete(File(livepluginLibsPath + fileName))
+                for (fileName in fileNamesMatching(libFilesPattern, livePluginLibsPath)) {
+                    FileUtil.delete(File(livePluginLibsPath + fileName))
                 }
                 askIfUserWantsToRestartIde("For Scala libraries to be unloaded IDE restart is required. Restart now?")
             }
         } else {
             val answer = Messages.showOkCancelDialog(event.project,
-                                                     "Scala libraries " + approximateSize + " will be downloaded to '" + livepluginLibsPath + "'." +
+                                                     "Scala libraries " + approximateSize + " will be downloaded to '" + livePluginLibsPath + "'." +
                                                          "\n(If you already have scala >= 2.11, you can copy it manually and restart IDE.)", "Live Plugin", null)
             if (answer != Messages.OK) return
 
@@ -52,7 +52,7 @@ class DownloadScalaLibs: AnAction(), DumbAware {
                 Pair.create("http://maven.antelink.com/content/repositories/central/org/scala-lang/$it/2.11.7/", it + "-2.11.7.jar")
             }
 
-            val downloaded = downloadFiles(urlAndFileNamePairs, livepluginLibsPath)
+            val downloaded = downloadFiles(urlAndFileNamePairs, livePluginLibsPath)
             if (downloaded) {
                 askIfUserWantsToRestartIde("For Scala libraries to be loaded IDE restart is required. Restart now?")
             } else {

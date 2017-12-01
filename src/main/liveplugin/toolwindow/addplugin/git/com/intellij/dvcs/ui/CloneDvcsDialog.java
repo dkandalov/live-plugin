@@ -152,7 +152,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 //			parentDir = ProjectUtil.getBaseDir();
 //		}
 	  //noinspection ConstantIfStatement
-	  myParentDirectory.setText(LivePluginAppComponent.livepluginsPath);
+	  myParentDirectory.setText(LivePluginAppComponent.livePluginsPath);
 		// FORK DIFF ↑↑↑
 
 		myDirectoryName.getDocument().addDocumentListener(updateOkButtonListener);

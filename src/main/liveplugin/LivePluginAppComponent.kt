@@ -51,10 +51,10 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
         val livePluginId = "LivePlugin"
         val groovyExamplesPath = "/groovy/"
         val kotlinExamplesPath = "/kotlin/"
-        val livepluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
-        val livepluginCompilerLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/kotlin-compiler")
-        @JvmField val livepluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
-        val livepluginsClassesPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-classes")
+        val livePluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
+        val livePluginCompilerLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/kotlin-compiler")
+        @JvmField val livePluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
+        val livePluginsClassesPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-classes")
         val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
 
         val livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin")
@@ -64,9 +64,9 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
         private val defaultIdeaOutputFolder = "out"
 
         fun pluginIdToPathMap(): Map<String, String> {
-            val containsIdeaProjectFolder = File(livepluginsPath + "/" + DIRECTORY_STORE_FOLDER).exists()
+            val containsIdeaProjectFolder = File(livePluginsPath + "/" + DIRECTORY_STORE_FOLDER).exists()
 
-            val files = File(livepluginsPath)
+            val files = File(livePluginsPath)
                 .listFiles { file ->
                     file.isDirectory &&
                     file.name != DIRECTORY_STORE_FOLDER &&
@@ -132,7 +132,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
             // this can be useful for non-java IDEs because they don't have bundled groovy libs
             val listener = NotificationListener { notification, _ ->
                 val groovyVersion = "2.4.12" // version of groovy used by latest IJ
-                val downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/", "groovy-all-$groovyVersion.jar", livepluginLibsPath)
+                val downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/", "groovy-all-$groovyVersion.jar", livePluginLibsPath)
                 if (downloaded) {
                     notification.expire()
                     askIfUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?")

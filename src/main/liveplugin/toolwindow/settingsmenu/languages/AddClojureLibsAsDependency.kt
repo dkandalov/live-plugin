@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.OrderRootType.CLASSES
 import com.intellij.openapi.util.Pair.create
 import com.intellij.util.containers.ContainerUtil.map
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
-import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginLibsPath
 import liveplugin.MyFileUtil.fileNamesMatching
 import liveplugin.toolwindow.util.DependenciesUtil
 
@@ -19,7 +19,7 @@ class AddClojureLibsAsDependency: AnAction(), DumbAware {
         if (DependenciesUtil.anyModuleHasLibraryAsDependencyIn(project, libraryName)) {
             DependenciesUtil.removeLibraryDependencyFrom(project, libraryName)
         } else {
-            val paths = map(fileNamesMatching(DownloadClojureLibs.libFilesPattern, livepluginLibsPath)) { fileName -> create("jar://$livepluginLibsPath$fileName!/", CLASSES) }
+            val paths = map(fileNamesMatching(DownloadClojureLibs.libFilesPattern, livePluginLibsPath)) { fileName -> create("jar://$livePluginLibsPath$fileName!/", CLASSES) }
             DependenciesUtil.addLibraryDependencyTo(project, libraryName, paths)
         }
     }

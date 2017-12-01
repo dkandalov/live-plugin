@@ -6,7 +6,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.roots.OrderRootType.CLASSES
 import com.intellij.openapi.util.Pair.create
 import com.intellij.util.containers.ContainerUtil.map
-import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginLibsPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
 import liveplugin.MyFileUtil.fileNamesMatching
 import liveplugin.toolwindow.util.DependenciesUtil
@@ -19,7 +19,7 @@ class AddScalaLibsAsDependency: AnAction(), DumbAware {
         if (DependenciesUtil.anyModuleHasLibraryAsDependencyIn(project, libraryName)) {
             DependenciesUtil.removeLibraryDependencyFrom(project, libraryName)
         } else {
-            val paths = map(fileNamesMatching(DownloadScalaLibs.libFilesPattern, livepluginLibsPath)) { fileName -> create("jar://$livepluginLibsPath$fileName!/", CLASSES) }
+            val paths = map(fileNamesMatching(DownloadScalaLibs.libFilesPattern, livePluginLibsPath)) { fileName -> create("jar://$livePluginLibsPath$fileName!/", CLASSES) }
             DependenciesUtil.addLibraryDependencyTo(project, libraryName, paths)
         }
     }

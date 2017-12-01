@@ -1,7 +1,7 @@
 package liveplugin.pluginrunner.kotlin
 
 import liveplugin.LivePluginAppComponent.Companion.ideJarsPath
-import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginLibsPath
 import org.jetbrains.kotlin.idea.core.script.dependencies.KotlinScriptResolveScopeProvider.Companion.USE_NULL_RESOLVE_SCOPE
 import org.jetbrains.kotlin.script.ScriptTemplatesProvider
 import java.io.File
@@ -28,10 +28,10 @@ class LivePluginKotlinScriptTemplateProvider: ScriptTemplatesProvider {
                 ScriptDependencies(
                     javaHome = File(System.getProperty("java.home")),
                     classpath =
-                        File(livepluginLibsPath).listFiles().toList() +
+                        File(livePluginLibsPath).listFiles().toList() +
                         File(ideJarsPath + "/../plugins/Kotlin/lib/").listFiles() +
                         File(ideJarsPath).listFiles(),
-                    sources = File(livepluginLibsPath).listFiles().toList()
+                    sources = File(livePluginLibsPath).listFiles().toList()
                 ),
                 emptyList()
             )

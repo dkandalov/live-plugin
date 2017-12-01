@@ -10,7 +10,7 @@ import liveplugin.Icons
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.groovyExamplesPath
 import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
-import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginExists
 import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
 import liveplugin.pluginrunner.GroovyPluginRunner
@@ -54,11 +54,11 @@ open class AddNewPluginAction(
 
         try {
 
-            PluginsIO.createFile(livepluginsPath + "/" + newPluginId, scriptFileName, scriptFileText)
+            PluginsIO.createFile(livePluginsPath + "/" + newPluginId, scriptFileName, scriptFileText)
 
         } catch (e: IOException) {
             if (project != null) {
-                IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to $livepluginsPath", addNewPluginTitle)
+                IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to $livePluginsPath", addNewPluginTitle)
             }
             log.error(e)
         }

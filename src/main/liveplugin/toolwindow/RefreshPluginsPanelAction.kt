@@ -7,7 +7,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import liveplugin.Icons
-import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 
 class RefreshPluginsPanelAction: AnAction(
     "Refresh Plugins Panel",
@@ -21,7 +21,7 @@ class RefreshPluginsPanelAction: AnAction(
     companion object {
         fun refreshPluginTree() {
             val fileManager = VirtualFileManager.getInstance()
-            val pluginsRoot = fileManager.findFileByUrl("file://" + livepluginsPath) ?: return
+            val pluginsRoot = fileManager.findFileByUrl("file://" + livePluginsPath) ?: return
             ApplicationManager.getApplication().runWriteAction {
                 RefreshQueue.getInstance().refresh(false, true, Runnable {
                     PluginToolWindowManager.reloadPluginTreesInAllProjects()

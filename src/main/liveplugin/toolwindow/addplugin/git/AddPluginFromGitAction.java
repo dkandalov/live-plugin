@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 
 import static liveplugin.LivePluginAppComponent.isInvalidPluginFolder;
-import static liveplugin.LivePluginAppComponent.livepluginsPath;
+import static liveplugin.LivePluginAppComponent.livePluginsPath;
 
 /**
  * Partially copied from org.jetbrains.plugins.github.GithubCheckoutProvider (became com.intellij.dvcs.ui.CloneDvcsDialog in IJ13)
@@ -102,7 +102,7 @@ class AddPluginFromGitAction extends AnAction implements DumbAware {
 		}
 
 		@Override public void checkoutCompleted() {
-			VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + livepluginsPath);
+			VirtualFile pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + livePluginsPath);
 			if (pluginsRoot == null) return;
 
 			RefreshQueue.getInstance().refresh(false, true, () -> {

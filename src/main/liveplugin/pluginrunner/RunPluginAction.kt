@@ -14,7 +14,7 @@ import liveplugin.IdeUtil
 import liveplugin.IdeUtil.SingleThreadBackgroundRunner
 import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
-import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
 import liveplugin.MyFileUtil.allFilesInDirectory
 import liveplugin.MyFileUtil.findScriptFileIn
@@ -137,7 +137,7 @@ fun environment(): MutableMap<String, String> = HashMap(System.getenv())
 fun pluginFolder(path: String?): String? {
     if (path == null) return null
     val parent = File(path).parent
-    return if (parent == livepluginsPath) path else pluginFolder(parent)
+    return if (parent == livePluginsPath) path else pluginFolder(parent)
 }
 
 fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =

@@ -9,7 +9,7 @@ import com.intellij.openapi.project.DumbAware
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.groovyExamplesPath
 import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
-import liveplugin.LivePluginAppComponent.Companion.livepluginsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.ExamplePluginInstaller
@@ -49,7 +49,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
         if (project != null) {
             IdeUtil.showErrorDialog(
                 project,
-                "Error adding plugin \"$pluginPath\" to $livepluginsPath",
+                "Error adding plugin \"$pluginPath\" to $livePluginsPath",
                 "Add Plugin"
             )
         }

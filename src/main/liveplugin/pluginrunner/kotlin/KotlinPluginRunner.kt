@@ -7,9 +7,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.IdeUtil.unscrambleThrowable
-import liveplugin.LivePluginAppComponent.Companion.livepluginCompilerLibsPath
-import liveplugin.LivePluginAppComponent.Companion.livepluginLibsPath
-import liveplugin.LivePluginAppComponent.Companion.livepluginsClassesPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginCompilerLibsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginLibsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginsClassesPath
 import liveplugin.MyFileUtil.filesList
 import liveplugin.MyFileUtil.findScriptFileIn
 import liveplugin.MyFileUtil.toUrl
@@ -27,8 +27,8 @@ private val ideLibsClassLoader by lazy {
     UrlClassLoader.build()
         .urls((ideJdkClassesRoots() +
             ideLibFiles() +
-            File(livepluginLibsPath).filesList() +
-            File(livepluginCompilerLibsPath).filesList()
+            File(livePluginLibsPath).filesList() +
+            File(livePluginCompilerLibsPath).filesList()
         ).map { it.toUrl() })
         .noPreload()
         .allowBootstrapResources()
@@ -66,7 +66,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         val pluginFolder = File(pluginFolderPath)
         val mainScriptFile = findScriptFileIn(pluginFolderPath, mainScript)!!
         val dependentPlugins = findPluginDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
-        val compilerOutput = File(toSystemIndependentName("$livepluginsClassesPath/$pluginId"))
+        val compilerOutput = File(toSystemIndependentName("$livePluginsClassesPath/$pluginId"))
         compilerOutput.deleteRecursively()
 
         val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment + Pair("PLUGIN_PATH", pluginFolderPath), onError = { path ->
@@ -76,8 +76,8 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         val compilerClasspath =
             ideJdkClassesRoots() +
             ideLibFiles() +
-            File(livepluginLibsPath).filesList() +
-            File(livepluginCompilerLibsPath).filesList() +
+            File(livePluginLibsPath).filesList() +
+            File(livePluginCompilerLibsPath).filesList() +
             jarFilesOf(dependentPlugins) +
             scriptPathAdditions +
             pluginFolder
@@ -109,7 +109,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         val pluginClass = try {
             val runtimeClassPath =
                 listOf(compilerOutput) +
-                    File(livepluginLibsPath).filesList() +
+                    File(livePluginLibsPath).filesList() +
                 scriptPathAdditions
 
             val classLoader = createClassLoaderWithDependencies(

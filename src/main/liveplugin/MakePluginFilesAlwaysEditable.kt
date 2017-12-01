@@ -6,5 +6,5 @@ import com.intellij.openapi.vfs.VirtualFile
 
 class MakePluginFilesAlwaysEditable: NonProjectFileWritingAccessExtension {
     override fun isWritable(file: VirtualFile) =
-        FileUtil.startsWith(file.path, LivePluginAppComponent.livepluginsPath)
+        FileUtil.startsWith(file.path, LivePluginAppComponent.livePluginsPath)
 }

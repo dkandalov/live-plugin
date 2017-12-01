@@ -106,7 +106,7 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 
 	private static void createPluginFrom(GithubGist gist, String pluginId) throws IOException {
 		for (GithubGist.GistFile gistFile : gist.getFiles()) {
-			PluginsIO.createFile(LivePluginAppComponent.livepluginsPath + "/" + pluginId, gistFile.getFilename(), gistFile.getContent());
+			PluginsIO.createFile(LivePluginAppComponent.livePluginsPath + "/" + pluginId, gistFile.getFilename(), gistFile.getContent());
 		}
 	}
 
@@ -118,7 +118,7 @@ public class AddPluginFromGistAction extends AnAction implements DumbAware {
 	private void showMessageThatCreatingPluginFailed(IOException e, String newPluginId, Project project) {
 		IdeUtil.showErrorDialog(
 				project,
-				"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.livepluginsPath,
+				"Error adding plugin \"" + newPluginId + "\" to " + LivePluginAppComponent.livePluginsPath,
                 dialogTitle
 		);
 		log.info(e);
