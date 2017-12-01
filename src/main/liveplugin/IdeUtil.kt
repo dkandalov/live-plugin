@@ -168,12 +168,11 @@ object IdeUtil {
      */
     private object Unscramble {
         internal fun normalizeText(@NonNls text: String): String {
-            var text = text
+            val lines = text
+                .replace("(\\S[ \\t\\x0B\\f\\r]+)(at\\s+)".toRegex(), "$1\n$2")
+                .split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+
             val builder = StringBuilder(text.length)
-
-            text = text.replace("(\\S[ \\t\\x0B\\f\\r]+)(at\\s+)".toRegex(), "$1\n$2")
-            val lines = text.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-
             var first = true
             var inAuxInfo = false
             for (line in lines) {
