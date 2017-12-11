@@ -9,6 +9,7 @@ import com.intellij.openapi.application.ModalityState.NON_MODAL
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.io.FileUtil.toSystemIndependentName
 import liveplugin.Icons
 import liveplugin.IdeUtil
 import liveplugin.IdeUtil.SingleThreadBackgroundRunner
@@ -137,16 +138,14 @@ fun environment(): MutableMap<String, String> = HashMap(System.getenv())
 fun pluginFolder(path: String?): String? {
     if (path == null) return null
     val parent = File(path).parent
-    return if (parent == livePluginsPath) path else pluginFolder(parent)
+    return if (toSystemIndependentName(parent) == livePluginsPath) path else pluginFolder(parent)
 }
 
 fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
-    this.mapNotNull { pluginFolder(it) }
+    mapNotNull { path -> pluginFolder(path) }
         .any { folder ->
             pluginRunners.any { runner ->
-                allFilesInDirectory(File(folder)).any {
-                    runner.scriptName() == it.name
-                }
+                allFilesInDirectory(File(folder)).any { runner.scriptName() == it.name }
             }
         }
 
