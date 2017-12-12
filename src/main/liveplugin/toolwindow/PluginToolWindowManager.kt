@@ -39,8 +39,8 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.EditSourceOnDoubleClickHandler
 import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
-import liveplugin.IdeUtil
 import liveplugin.Icons
+import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.pluginrunner.RunPluginAction
@@ -203,10 +203,7 @@ class PluginToolWindowManager {
 
                 val pluginsRoot = File(livePluginsPath)
                 // comparing files because string comparison was observed not work on windows (e.g. "c:/..." and "C:/...")
-                return if (!FileUtil.filesEqual(File(file.parent.path), pluginsRoot))
-                    pluginFolderOf(file.parent)
-                else
-                    file
+                return if (!FileUtil.filesEqual(File(file.parent.path), pluginsRoot)) pluginFolderOf(file.parent) else file
             }
 
             private fun withIcon(icon: Icon, action: AnAction): AnAction {

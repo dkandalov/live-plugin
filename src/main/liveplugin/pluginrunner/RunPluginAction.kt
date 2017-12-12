@@ -135,9 +135,8 @@ private fun createBinding(pluginFolderPath: String, project: Project?, isIdeStar
 
 fun environment(): MutableMap<String, String> = HashMap(System.getenv())
 
-fun pluginFolder(path: String?): String? {
-    if (path == null) return null
-    val parent = File(path).parent
+fun pluginFolder(path: String): String? {
+    val parent = File(path).parent ?: return null
     return if (toSystemIndependentName(parent) == livePluginsPath) path else pluginFolder(parent)
 }
 
