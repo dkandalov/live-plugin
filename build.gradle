@@ -119,6 +119,10 @@ task validateLivePluginZip() { doLast {
 	def livePluginJarFiles = livePluginJar.files.collect{ it.path.replaceFirst(".*/LivePlugin.jar.*?/", "") }.toSet()
 	expectToContain(livePluginJarFiles, [
 		"liveplugin/LivePluginAppComponent.class",
+		"liveplugin/PluginUtil.class",
+		"liveplugin/PluginUtil.groovy",
+		"liveplugin/Plugin_utilKt.class",
+		"liveplugin/plugin-util.kt",
 		"groovy/default-plugin.groovy",
 		"kotlin/default-plugin.kts",
 		"META-INF/plugin.xml",
