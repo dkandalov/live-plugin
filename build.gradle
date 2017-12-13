@@ -6,7 +6,6 @@ buildscript {
 		maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
 	}
 }
-
 plugins {
 	id "nebula.dependency-lock" version "4.9.4"
 	id "org.jetbrains.intellij" version "0.2.16"
@@ -78,7 +77,7 @@ sourceSets {
 	// compilation fails because of inter-dependencies between kotlin and groovy files which confuses compiler,
 	// even though overall dependencies are unidirectional:
 	// pluginUtilKotlin -> pluginUtilGroovy -> main
-	
+
 	main {
 		java { srcDir "src/main" }
 		resources { srcDir "resources" }
@@ -102,6 +101,51 @@ sourceSets {
 
 jar {
 	from sourceSets.pluginUtilGroovy.output, sourceSets.pluginUtilKotlin.output
+}
+
+task validateLivePluginZip() { doLast {
+	def basePath = "/Users/dima/IdeaProjects/live-plugin/build/distributions"
+	def pluginZip = zipTree(basePath + "/LivePlugin.zip")
+	def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*/LivePlugin.zip.*?/", "") }.toSet()
+	expectToBeEqual(pluginZipFiles, [
+		"LivePlugin/lib/LivePlugin.jar",
+		"LivePlugin/lib/annotations-13.0.jar",
+		"LivePlugin/lib/kotlin-compiler/kotlin-compiler-embeddable.jar",
+		"LivePlugin/lib/kotlin-compiler/kotlin-reflect.jar",
+		"LivePlugin/lib/kotlin-compiler/kotlin-stdlib.jar"
+	].toSet())
+
+	def livePluginJar = zipTree(pluginZip.files.find { it.name == "LivePlugin.jar" })
+	def livePluginJarFiles = livePluginJar.files.collect{ it.path.replaceFirst(".*/LivePlugin.jar.*?/", "") }.toSet()
+	expectToContain(livePluginJarFiles, [
+		"liveplugin/LivePluginAppComponent.class",
+		"groovy/default-plugin.groovy",
+		"kotlin/default-plugin.kts",
+		"META-INF/plugin.xml",
+		"script-implicits.kt",
+		"Script_implicitsKt.class"
+	].toSet())
+} }
+build.finalizedBy(saveLock)
+build.finalizedBy(validateLivePluginZip)
+
+def expectToContain(Set actual, Set expected) {
+	if (!actual.containsAll(expected)) {
+		throw new GradleException(
+			"Didn't contain expected:\n" +
+			(expected - actual).join("\n") + "\n"
+		)
+	}
+}
+def expectToBeEqual(Set actual, Set expected) {
+	if (actual != expected) {
+		throw new GradleException(
+			"Expected:\n" +
+			expected.join("\n") + "\n" +
+			"but was:\n" +
+			actual.join("\n")
+		)
+	}
 }
 
 task installLivePlugin() { doLast {
