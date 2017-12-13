@@ -31,7 +31,6 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
-import com.intellij.pom.Navigatable
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
@@ -86,8 +85,6 @@ class PluginToolWindowManager {
         private var myFsTreeRef = Ref<FileSystemTree>()
         private var panel: SimpleToolWindowPanel? = null
         private var toolWindow: ToolWindow? = null
-
-        val isActive: Boolean get() = toolWindow!!.isActive
 
         fun registerWindowFor(project: Project) {
             val toolWindowManager = ToolWindowManager.getInstance(project)
@@ -150,11 +147,6 @@ class PluginToolWindowManager {
             return toolBarPanel
         }
 
-        fun selectedPluginIds(): List<String> {
-            val rootFiles = findPluginRootsFor(myFsTreeRef.get().selectedFiles)
-            return rootFiles.map { it.name }
-        }
-
         companion object {
 
             private fun installPopupMenuInto(fsTree: FileSystemTree) {
@@ -171,10 +163,8 @@ class PluginToolWindowManager {
             private fun createFileChooserDescriptor(): FileChooserDescriptor {
                 val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
                     override fun getIcon(file: VirtualFile): Icon {
-                        for (path in pluginIdToPathMap().values) {
-                            if (file.path.toLowerCase() == path.toLowerCase()) return Icons.pluginIcon
-                        }
-                        return super.getIcon(file)
+                        val isPlugin = pluginIdToPathMap().values.any { file.path.toLowerCase() == it.toLowerCase() }
+                        return if (isPlugin) Icons.pluginIcon else super.getIcon(file)
                     }
                     override fun getName(virtualFile: VirtualFile) = virtualFile.name
                     override fun getComment(virtualFile: VirtualFile?) = ""
@@ -190,12 +180,7 @@ class PluginToolWindowManager {
             }
 
             internal fun findPluginRootsFor(files: Array<VirtualFile>): Collection<VirtualFile> {
-                val selectedPluginRoots = HashSet<VirtualFile>()
-                for (file in files) {
-                    val root = pluginFolderOf(file)
-                    if (root != null) selectedPluginRoots.add(root)
-                }
-                return selectedPluginRoots
+                return files.mapNotNull { pluginFolderOf(it) }.toSet()
             }
 
             private fun pluginFolderOf(file: VirtualFile): VirtualFile? {
@@ -297,17 +282,13 @@ class PluginToolWindowManager {
         }
 
         override fun getData(@NonNls dataId: String): Any? {
-            if (PlatformDataKeys.NAVIGATABLE_ARRAY.`is`(dataId)) { // need this to be able to open files in toolwindow on double-click/enter
-                val nodeDescriptors = TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java)
-                val navigatables = ArrayList<Navigatable>()
-                for (nodeDescriptor in nodeDescriptors) {
-                    navigatables.add(OpenFileDescriptor(project, nodeDescriptor.element.file))
-                }
-                return navigatables.toTypedArray()
-            } else return if (PlatformDataKeys.DELETE_ELEMENT_PROVIDER.`is`(dataId)) {
-                deleteProvider
-            } else {
-                null
+            return when {
+                PlatformDataKeys.NAVIGATABLE_ARRAY.`is`(dataId) -> // need this to be able to open files in toolwindow on double-click/enter
+                    TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java)
+                        .map { OpenFileDescriptor(project, it.element.file) }
+                        .toTypedArray()
+                PlatformDataKeys.DELETE_ELEMENT_PROVIDER.`is`(dataId) -> deleteProvider
+                else -> null
             }
         }
     }
@@ -328,10 +309,6 @@ class PluginToolWindowManager {
     companion object {
         private val pluginsToolWindowId = "Plugins"
         private val toolWindowsByProject = HashMap<Project, PluginToolWindow>()
-
-        fun getToolWindowFor(project: Project?): PluginToolWindow? {
-            return if (project == null) null else toolWindowsByProject[project]
-        }
 
         internal fun reloadPluginTreesInAllProjects() {
             for ((project, toolWindow) in toolWindowsByProject) {
