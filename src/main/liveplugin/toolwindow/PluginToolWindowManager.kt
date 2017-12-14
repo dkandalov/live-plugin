@@ -61,24 +61,40 @@ import javax.swing.tree.DefaultTreeModel
 class PluginToolWindowManager {
 
     fun init() {
-        val connection = ApplicationManager.getApplication().messageBus.connect()
-        connection.subscribe(ProjectManager.TOPIC, object: ProjectManagerListener {
-            override fun projectOpened(project: Project) {
-                val pluginToolWindow = PluginToolWindow()
-                pluginToolWindow.registerWindowFor(project)
-                putToolWindow(pluginToolWindow, project)
-            }
-
-            override fun projectClosed(project: Project?) {
-                val pluginToolWindow = removeToolWindow(project)
-                pluginToolWindow?.unregisterWindowFrom(project)
-            }
-
-            // Keep override for compatibility with older IDE versions.
-            override fun canCloseProject(project: Project?) = true
-
-            override fun projectClosing(project: Project?) {}
-        })
+        // TODO disable workaround after bumping plugin compatibility > 171
+        val usePMListenerWorkaround = true
+        if (usePMListenerWorkaround) {
+            // Use deprecated API so that plugin is compatible with older IDE versions (in particular versions <= 171, see https://github.com/dkandalov/live-plugin/issues/77)
+            @Suppress("DEPRECATION")
+            ProjectManager.getInstance().addProjectManagerListener(object : ProjectManagerListener {
+                override fun projectOpened(project: Project) {
+                    val pluginToolWindow = PluginToolWindow()
+                    pluginToolWindow.registerWindowFor(project)
+                    putToolWindow(pluginToolWindow, project)
+                }
+                override fun projectClosed(project: Project) {
+                    val pluginToolWindow = removeToolWindow(project)
+                    pluginToolWindow?.unregisterWindowFrom(project)
+                }
+            })
+        } else {
+            val connection = ApplicationManager.getApplication().messageBus.connect()
+            connection.subscribe(ProjectManager.TOPIC, object: ProjectManagerListener {
+                override fun projectOpened(project: Project) {
+                    val pluginToolWindow = PluginToolWindow()
+                    pluginToolWindow.registerWindowFor(project)
+                    putToolWindow(pluginToolWindow, project)
+                }
+                override fun projectClosed(project: Project?) {
+                    val pluginToolWindow = removeToolWindow(project)
+                    pluginToolWindow?.unregisterWindowFrom(project)
+                }
+                // Keep explicit overrides for compatibility with older IDE versions.
+                @Suppress("OverridingDeprecatedMember")
+                override fun canCloseProject(project: Project?) = true
+                override fun projectClosing(project: Project?) {}
+            })
+        }
     }
 
     class PluginToolWindow {
