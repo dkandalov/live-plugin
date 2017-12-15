@@ -2,7 +2,6 @@ package liveplugin.pluginrunner.kotlin
 
 import liveplugin.LivePluginAppComponent.Companion.ideJarsPath
 import liveplugin.LivePluginAppComponent.Companion.livePluginLibsPath
-import org.jetbrains.kotlin.idea.core.script.dependencies.KotlinScriptResolveScopeProvider.Companion.USE_NULL_RESOLVE_SCOPE
 import org.jetbrains.kotlin.script.ScriptTemplatesProvider
 import java.io.File
 import kotlin.script.dependencies.Environment
@@ -20,7 +19,7 @@ class LivePluginKotlinScriptTemplateProvider: ScriptTemplatesProvider {
     override val isValid: Boolean = true
     override val templateClassNames: Iterable<String> get() = listOf(ScriptTemplateWithArgs::class.qualifiedName!!)
     override val templateClasspath get() = emptyList<File>()
-    override val environment: Map<String, Any?>? = mapOf(USE_NULL_RESOLVE_SCOPE to true)
+    override val environment: Map<String, Any?>? = mapOf("USE_NULL_RESOLVE_SCOPE" to true)
 
     override val resolver: DependenciesResolver = object: DependenciesResolver {
         override fun resolve(scriptContents: ScriptContents, environment: Environment): ResolveResult =

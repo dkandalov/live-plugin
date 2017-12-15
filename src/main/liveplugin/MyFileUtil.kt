@@ -42,7 +42,28 @@ object MyFileUtil {
         else allFilesInDirectory(File(path)).filter { fileName == it.name }.toList()
     }
 
-    fun allFilesInDirectory(dir: File): Sequence<File> = buildSequence {
+    fun allFilesInDirectory(dir: File): Sequence<File> = object : Sequence<File> {
+        override fun iterator() = object : Iterator<File> {
+            val queue = LinkedList(listOf(dir))
+            val files = LinkedList<File>()
+
+            override fun hasNext() = queue.isNotEmpty() || files.isNotEmpty()
+
+            override fun next(): File {
+                return if (files.isNotEmpty()) {
+                    files.removeFirst()
+                } else {
+                    val dirFiles = queue.removeFirst().listFiles()
+                    files.addAll(dirFiles.filter { it.isFile })
+                    queue.addAll(dirFiles.filter { it.isDirectory })
+                    next()
+                }
+            }
+        }
+    }
+
+    // TODO buildSequence() fails to work in IC-163.3094.26; use it after bumping up minimum required ide version
+    fun allFilesInDirectory2(dir: File): Sequence<File> = buildSequence {
         val queue = LinkedList(listOf(dir))
         while (queue.isNotEmpty()) {
             val currentDir = queue.removeLast()
