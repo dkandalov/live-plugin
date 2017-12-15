@@ -2,6 +2,7 @@ package liveplugin.toolwindow.addplugin
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.DumbAware
 import kotlin.reflect.KMutableProperty0
 
 var addFromGistAction: AnAction? = null
@@ -10,7 +11,7 @@ class AddPluginFromGistDelegateAction: DelegateAction(::addFromGistAction)
 var addFromGitHubAction: AnAction? = null
 class AddPluginFromGitHubDelegateAction: DelegateAction(::addFromGitHubAction)
 
-open class DelegateAction(private val property: KMutableProperty0<AnAction?>): AnAction() {
+open class DelegateAction(private val property: KMutableProperty0<AnAction?>): AnAction(), DumbAware {
 
     override fun actionPerformed(e: AnActionEvent) {
         property.get()?.actionPerformed(e)
