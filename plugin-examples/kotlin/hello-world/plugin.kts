@@ -7,7 +7,7 @@ import liveplugin.show
 
 // The code below will show balloon message with "Hello world" text (it will also appear in IDE "Event Log" toolwindow).
 // (If there is no balloon, it might be disabled in "IDE Settings - Notifications".)
-show("Hello world")
+show("Hello kotlin world")
 
 // "isIdeStartup" - true on IDE startup, otherwise false. Plugins are executed on IDE startup
 //                  if "Plugins toolwindow -> Settings -> Run all plugins on IDE start" option is enabled.

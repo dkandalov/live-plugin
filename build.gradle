@@ -22,7 +22,6 @@ targetCompatibility = 1.8
 
 repositories {
 	mavenCentral()
-	maven { url "lib" }
 }
 
 compileKotlin {
@@ -36,6 +35,7 @@ kotlin.experimental.coroutines = "enable"
 ext.kotlinVersion = "1.1.4"
 
 intellij {
+	// (to find available IDE versions see https://www.jetbrains.com/intellij-repository/releases)
 	def ideVersion = System.getenv().getOrDefault("LIVEPLUGIN_IDEA_VERSION", "IU-172.3757.29")
 	println("Using ide version: ${ideVersion}")
 	version ideVersion
