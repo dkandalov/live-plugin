@@ -122,15 +122,12 @@ object IdeUtil {
             val consoleComponent = MyConsolePanel(console, toolbarActions)
             val descriptor = object: RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
                 override fun isContentReuseProhibited(): Boolean = true
-
                 override fun getIcon(): Icon? = AllIcons.Nodes.Plugin
             }
             val executor = DefaultRunExecutor.getRunExecutorInstance()
 
             toolbarActions.add(CloseAction(executor, descriptor, project))
-            for (anAction in console.createConsoleActions()) {
-                toolbarActions.add(anAction)
-            }
+            toolbarActions.addAll(*console.createConsoleActions())
 
             ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
         }
@@ -200,6 +197,7 @@ object IdeUtil {
             return builder.toString()
         }
 
+        @Suppress("NAME_SHADOWING")
         private fun mustHaveNewLineBefore(line: String): Boolean {
             var line = line
             val nonWs = CharArrayUtil.shiftForward(line, 0, " \t")
