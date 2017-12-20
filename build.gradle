@@ -48,7 +48,7 @@ intellij {
 	plugins = ["Groovy", "Kotlin", "git4idea", "github", "junit"]
 }
 dependencyLock {
-	lockFile = "dependencyLock.json"
+	lockFile = "../dependencyLock.json"
 	configurationNames = ["runtime"]
 	includeTransitives = true
 }
