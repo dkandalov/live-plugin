@@ -48,7 +48,7 @@ private val ideLibsClassLoader by lazy {
  *  - kotlin compiler uses classes with the same names as IntelliJ
  *  - `kotlin-compiler-embeddable` has some of them renamed but not all of them
  *  - kotlin compiler attempts to initialise some of the global variables which are already initialised by IDE
- *  - in theory kotlin-compiler and IDE classes could be "namespaces" by classloader,
+ *  - in theory kotlin-compiler and IDE classes could be "namespaced" by classloader,
  *    however in practice it still causes confusing problems which are really hard to debug
  *
  * Use ".kts" extension because
