@@ -1,12 +1,12 @@
 <idea-plugin>
 	<id>LivePlugin</id>
 	<name>LivePlugin</name>
-	<version>0.6.2 beta</version>
+	<version>0.6.3 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
-	<!-- since IJ 2016.3 -->
-	<idea-version since-build="163.0" until-build="172.3317.6"/>
+    <!-- https://www.jetbrains.com/intellij-repository/releases -->
+	<idea-version since-build="171.4073.28"/>
 	<category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>
@@ -36,8 +36,8 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
     <change-notes>
         <![CDATA[<html><body>
         <ul>
-            Version 0.6.2:
-            <li>fix for startup NPE in IDEs before version 172</li>
+            Version 0.6.3:
+            <li><!--TODO--></li>
         </ul>
         </body></html>
         ]]>
