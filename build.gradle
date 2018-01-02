@@ -3,7 +3,7 @@ buildscript {
 	repositories {
 		mavenCentral()
 		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-		maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
+		maven { url "http://dl.bintray.com/jetbrains/intellij-plugin-service" }
 	}
 }
 plugins {
@@ -13,9 +13,7 @@ plugins {
 }
 apply plugin:"java"
 apply plugin:"groovy"
-apply plugin:"kotlin"
 apply plugin:"idea"
-apply plugin:"org.jetbrains.intellij"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -57,16 +55,16 @@ dependencies {
 	// Bundle kotlin compiler and stdlib with LivePlugin because IDEs are not bundled with kotlin-compiler
 	// and IDE kotlin jars are more likely to be updated than IDE groovy.jar,
 	// so it seems more reliable to bundle the right version of kotlin jars.
-	compile group: 'org.jetbrains.kotlin', name: 'kotlin-compiler-embeddable', version: kotlinVersion
-	compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlinVersion
-	compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion
+	compile group: "org.jetbrains.kotlin", name: "kotlin-compiler-embeddable", version: kotlinVersion
+	compile group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: kotlinVersion
+	compile group: "org.jetbrains.kotlin", name: "kotlin-reflect", version: kotlinVersion
 
-	compile group: 'org.clojure', name: 'clojure', version: '1.8.0'
-	compile group: 'org.scala-lang', name: 'scala-compiler', version: '2.12.3'
-	compile group: 'org.scala-lang', name: 'scala-library', version: '2.12.3'
-	compile group: 'org.scala-lang', name: 'scala-reflect', version: '2.12.3'
+	compile group: "org.clojure", name: "clojure", version: "1.8.0"
+	compile group: "org.scala-lang", name: "scala-compiler", version: "2.12.3"
+	compile group: "org.scala-lang", name: "scala-library", version: "2.12.3"
+	compile group: "org.scala-lang", name: "scala-reflect", version: "2.12.3"
 
-	testCompile group: 'junit', name: 'junit', version: '4.12' // includes hamcrest-core
+	testCompile group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
 }
 "Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"()
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
