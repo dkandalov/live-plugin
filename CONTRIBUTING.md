@@ -1,29 +1,14 @@
-### Compiling
- - open project in IntelliJ
- - configure project JDK to use "IntelliJ Platform Plugin SDK" 
- - edit `build.gradle`
-    - `ext.ideaPath` should point to the same IntelliJ SDK as in the previous step 
-    - `pluginsSandbox` should point to the right location 
- - in "Gradle project" toolwindow refresh LivePlugin module (this will update module dependencies)
- - compile the project
- - (optional) close and open project if compilation fails with `java.lang.NoClassDefFoundError: org/apache/tools/ant/util/ReaderInputStream`, 
- - (optional) to regenerate module file from gradle build run `idea` gradle task 
- - (optional) if you don't have internet access, add dependencies from `lib` folder
-    
- 
-### Running plugin
- - edit `build.gradle` so that `ext.pluginsSandbox` points to correct plugins sandbox 
-   (on Linux/Windows it's located in `.IntelliJ` folder) 
- - use `LivePlugin` configuration to run project
-   (note that before running this configuration executes `copyResources` gradle task to copy resources; 
-   this is because for some reason IntelliJ doesn't reliably copy resources with current project layout)
+### Building the plugin
+Use gradle tasks. 
+E.g. `./gradlew clean check buildPlugin`, where `clean` and `check` are built-in gradle tasks, 
+and `buildPlugin` is provided by [gradle plugin for building IJ plugins](https://github.com/JetBrains/gradle-intellij-plugin).
 
+### Running the plugin
+Use gradle `runIde` task provided by [gradle IJ plugin](https://github.com/JetBrains/gradle-intellij-plugin).
+It will download IDE jars for the specified version and will start new instance of IDE with the plugin.
+To specify IDE version use `LIVEPLUGIN_IDEA_VERSION` env variable or modify `build.gradle` file.
 
-### Building as zip/jar
- - use `Build -> Build Artifacts`
-    - `LivePlugin.zip` can be installed/distributed as a plugin
-    - `LivePlugin.jar` can be used as a library in other plugins (this is still experimental)  
-
+Note that gradle tasks can be configured as "Run configuration" so you can run use them directly from IDE.
 
 ### Understanding the code
 Just like with other IntelliJ plugins the best place to start is probably plugin.xml.
