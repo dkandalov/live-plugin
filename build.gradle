@@ -102,8 +102,7 @@ jar {
 }
 
 task validateLivePluginZip() { doLast {
-	def basePath = "/Users/dima/IdeaProjects/live-plugin/build/distributions"
-	def pluginZip = zipTree(basePath + "/LivePlugin.zip")
+	def pluginZip = zipTree("build/distributions/LivePlugin.zip")
 	def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*/LivePlugin.zip.*?/", "") }.toSet()
 	expectToBeEqual(pluginZipFiles, [
 		"LivePlugin/lib/LivePlugin.jar",
