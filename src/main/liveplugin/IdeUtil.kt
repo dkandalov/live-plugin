@@ -89,14 +89,14 @@ object IdeUtil {
         return resource != null
     }
 
-    fun askIfUserWantsToRestartIde(message: String) {
+    @JvmStatic fun askIfUserWantsToRestartIde(message: String) {
         val answer = showOkCancelDialog(message, "Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon())
         if (answer == Messages.OK) {
             ApplicationManagerEx.getApplicationEx().restart(true)
         }
     }
 
-    fun downloadFile(downloadUrl: String, fileName: String, targetPath: String): Boolean =
+    @JvmStatic fun downloadFile(downloadUrl: String, fileName: String, targetPath: String): Boolean =
         downloadFiles(asList(Pair.create(downloadUrl, fileName)), targetPath)
 
     // TODO make download non-modal
