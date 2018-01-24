@@ -5,9 +5,9 @@ buildscript {
 		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 		maven { url "http://dl.bintray.com/jetbrains/intellij-plugin-service" }
 	}
-//	dependencies {
-//		classpath("org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.3.0-SNAPSHOT")
-//	}
+	dependencies {
+		classpath("org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.3.0-SNAPSHOT")
+	}
 }
 plugins {
 	id "nebula.dependency-lock" version "5.0.2"
@@ -171,9 +171,9 @@ task installLivePlugin() { doLast {
 	println("Path: ${toFile}")
 } }
 
-//task runIdeWithDifferentJvm(type: org.jetbrains.intellij.tasks.RunIdeTask) {
-//	jbreVersion "jbrex8u152b1024.10"
-//}
+task runIdeWithDifferentJvm(type: org.jetbrains.intellij.tasks.RunIdeTask) {
+	jbreVersion "jbrex8u152b1024.10"
+}
 
 def "Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"() {
 	def regexes = [".*scala-.*", ".*clojure-.*"]

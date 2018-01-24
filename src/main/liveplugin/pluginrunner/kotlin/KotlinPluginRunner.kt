@@ -53,7 +53,7 @@ private val ideLibsClassLoader by lazy {
  *
  * Use ".kts" extension because
  *  - ".kt" must have "main" function to be executed
- *  - `LivePluginKotlinScriptTemplateProvider` doesn't seem to work with ".kt" files.
+ *  - `LivePluginKotlinScriptDefinitionContributor` doesn't seem to work with ".kt" files.
  */
 class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val environment: Map<String, String>): PluginRunner {
 

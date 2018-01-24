@@ -1,0 +1,8 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <scriptDefinitionContributor
+                id="LivePluginKotlinScriptDefinitionContributor"
+                order="before StandardScriptDefinitionContributor"
+                implementation="liveplugin.pluginrunner.kotlin.LivePluginKotlinScriptDefinitionContributor"/>
+    </extensions>
+</idea-plugin>

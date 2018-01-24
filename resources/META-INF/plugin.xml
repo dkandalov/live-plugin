@@ -47,7 +47,7 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 	<depends>com.intellij.modules.platform</depends>
 	<depends optional="true" config-file="github-integration.xml">org.jetbrains.plugins.github</depends>
 	<depends optional="true" config-file="junit-panel-integration.xml">JUnit</depends>
-	<depends optional="true">org.jetbrains.kotlin</depends>
+	<depends optional="true" config-file="kotlin-plugin-integration.xml">org.jetbrains.kotlin</depends>
 
 	<application-components>
 		<component>
@@ -106,10 +106,4 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 			<category>LivePlugin</category>
 		</intentionAction>
 	</extensions>
-
-    <extensions defaultExtensionNs="org.jetbrains.kotlin">
-        <scriptTemplatesProvider id="LivePluginKotlinScriptTemplateProvider"
-                                 order="before StandardKotlinScriptTemplateProvider"
-                                 implementation="liveplugin.pluginrunner.kotlin.LivePluginKotlinScriptTemplateProvider"/>
-    </extensions>
 </idea-plugin>
