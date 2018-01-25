@@ -17,23 +17,22 @@ import kotlin.script.templates.standard.ScriptTemplateWithArgs
  */
 class LivePluginKotlinScriptDefinitionContributor: ScriptDefinitionContributor {
     private val resolver = object: DependenciesResolver {
-        override fun resolve(scriptContents: ScriptContents, environment: Environment): ResolveResult =
-            ResolveResult.Success(
-                ScriptDependencies(
-                    javaHome = File(System.getProperty("java.home")),
-                    classpath = File(livePluginLibsPath).listFiles().toList() +
-                        File(ideJarsPath + "/../plugins/Kotlin/lib/").listFiles() +
-                        File(ideJarsPath).listFiles(),
-                    sources = File(livePluginLibsPath).listFiles().toList()
-                ),
-                emptyList()
-            )
+        override fun resolve(scriptContents: ScriptContents, environment: Environment): ResolveResult {
+            val javaHome = File(System.getProperty("java.home"))
+            val sources = File(livePluginLibsPath).listFiles().toList()
+            val classpath = sources +
+                File(ideJarsPath + "/../plugins/Kotlin/lib/").listFiles() +
+                File(ideJarsPath).listFiles()
+
+            return ResolveResult.Success(ScriptDependencies(javaHome, classpath, sources = sources), emptyList())
+        }
     }
 
     override val id: String = javaClass.simpleName
 
-    override fun getDefinitions(): List<KotlinScriptDefinition> =
-        listOf(object: KotlinScriptDefinition(ScriptTemplateWithArgs::class) {
+    override fun getDefinitions(): List<KotlinScriptDefinition> {
+        return listOf(object: KotlinScriptDefinition(ScriptTemplateWithArgs::class) {
             override val dependencyResolver = resolver
         })
+    }
 }
