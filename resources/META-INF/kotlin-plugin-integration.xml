@@ -5,4 +5,25 @@
                 order="before StandardScriptDefinitionContributor"
                 implementation="liveplugin.pluginrunner.kotlin.LivePluginKotlinScriptDefinitionContributor"/>
     </extensions>
+    
+    <actions>
+        <action id="LivePlugin.NewKotlinFileAction" class="liveplugin.toolwindow.popup.NewKotlinFileAction">
+            <add-to-group group-id="LivePlugin.NewElementPopup" relative-to-action="LivePlugin.NewGroovyFileAction" anchor="after"/>
+        </action>
+            <action id="LivePlugin.AddNewKotlinPluginAction" class="liveplugin.toolwindow.addplugin.AddNewKotlinPluginAction">
+            <add-to-group group-id="LivePlugin.NewElementPopup" relative-to-action="LivePlugin.AddNewGroovyPluginAction" anchor="after"/>
+        </action>
+    </actions>         
+    
+    <extensions defaultExtensionNs="com.intellij">
+   		<intentionAction>
+   			<className>liveplugin.AddToClassPathKotlinIntention</className>
+   			<category>LivePlugin</category>
+   		</intentionAction>
+   		<intentionAction>
+   			<className>liveplugin.AddPluginDependencyKotlinIntention</className>
+   			<category>LivePlugin</category>
+   		</intentionAction>
+   	</extensions>
+    
 </idea-plugin>

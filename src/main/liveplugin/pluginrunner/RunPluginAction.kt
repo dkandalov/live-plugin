@@ -15,6 +15,7 @@ import liveplugin.IdeUtil
 import liveplugin.IdeUtil.SingleThreadBackgroundRunner
 import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
+import liveplugin.LivePluginAppComponent.Companion.kotlinPluginIsEnabled
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.scalaIsOnClassPath
 import liveplugin.MyFileUtil.allFilesInDirectory
@@ -112,7 +113,7 @@ private fun runOnEdt(f: () -> Unit) = ApplicationManager.getApplication().invoke
 fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> {
     return ArrayList<PluginRunner>().apply {
         add(GroovyPluginRunner(mainScript, errorReporter, environment()))
-        add(KotlinPluginRunner(errorReporter, environment()))
+        if (kotlinPluginIsEnabled()) add(KotlinPluginRunner(errorReporter, environment()))
         if (scalaIsOnClassPath()) add(ScalaPluginRunner(errorReporter, environment()))
         if (clojureIsOnClassPath()) add(ClojurePluginRunner(errorReporter, environment()))
     }

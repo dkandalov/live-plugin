@@ -257,7 +257,10 @@ class PluginToolWindowManager {
             private fun createAddPluginsGroup(): AnAction {
                 val actionGroup = DefaultActionGroup("Add Plugin", true)
                 actionGroup.add(AddNewGroovyPluginAction())
-                actionGroup.add(AddNewKotlinPluginAction())
+                val action = ActionManager.getInstance().getAction("LivePlugin.AddNewKotlinPluginAction")
+                if (action != null) {
+                    actionGroup.add(action)
+                }
                 actionGroup.add(AddPluginFromGistDelegateAction())
                 actionGroup.add(AddPluginFromGitHubDelegateAction())
                 actionGroup.add(AddExamplePluginAction.addGroovyExamplesActionGroup)

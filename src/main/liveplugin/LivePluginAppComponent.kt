@@ -1,5 +1,6 @@
 package liveplugin
 
+import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
@@ -11,6 +12,7 @@ import com.intellij.openapi.application.PathManager.getHomePath
 import com.intellij.openapi.application.PathManager.getPluginsPath
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER
 import com.intellij.openapi.util.io.FileUtil
@@ -107,6 +109,8 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
             get() = IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
 
         fun scalaIsOnClassPath(): Boolean = IdeUtil.isOnClasspath("scala.Some")
+                                                                     
+        fun kotlinPluginIsEnabled(): Boolean = PluginManager.getPlugin(PluginId.getId("org.jetbrains.kotlin"))?.isEnabled ?: false
 
         fun clojureIsOnClassPath(): Boolean = IdeUtil.isOnClasspath("clojure.core.Vec")
 
