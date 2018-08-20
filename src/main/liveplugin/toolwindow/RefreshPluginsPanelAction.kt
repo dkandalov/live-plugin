@@ -21,7 +21,7 @@ class RefreshPluginsPanelAction: AnAction(
     companion object {
         fun refreshPluginTree() {
             val fileManager = VirtualFileManager.getInstance()
-            val pluginsRoot = fileManager.findFileByUrl("file://" + livePluginsPath) ?: return
+            val pluginsRoot = fileManager.findFileByUrl("file://$livePluginsPath") ?: return
             ApplicationManager.getApplication().runWriteAction {
                 RefreshQueue.getInstance().refresh(false, true, Runnable {
                     PluginToolWindowManager.reloadPluginTreesInAllProjects()

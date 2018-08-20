@@ -48,9 +48,9 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
 
     companion object {
 
-        val livePluginId = "LivePlugin"
-        val groovyExamplesPath = "/groovy/"
-        val kotlinExamplesPath = "/kotlin/"
+        const val livePluginId = "LivePlugin"
+        const val groovyExamplesPath = "/groovy/"
+        const val kotlinExamplesPath = "/kotlin/"
         val livePluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
         val livePluginCompilerLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/kotlin-compiler")
         @JvmField val livePluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
@@ -61,10 +61,10 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
 
         private val logger = Logger.getInstance(LivePluginAppComponent::class.java)
 
-        private val defaultIdeaOutputFolder = "out"
+        private const val defaultIdeaOutputFolder = "out"
 
         fun pluginIdToPathMap(): Map<String, String> {
-            val containsIdeaProjectFolder = File(livePluginsPath + "/" + DIRECTORY_STORE_FOLDER).exists()
+            val containsIdeaProjectFolder = File("$livePluginsPath/$DIRECTORY_STORE_FOLDER").exists()
 
             val files = File(livePluginsPath)
                 .listFiles { file ->
@@ -154,7 +154,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
         private fun installHelloWorldPlugins() {
             val loggingListener = object: ExamplePluginInstaller.Listener {
                 override fun onException(e: Exception, pluginPath: String) {
-                    logger.warn("Failed to install plugin: " + pluginPath, e)
+                    logger.warn("Failed to install plugin: $pluginPath", e)
                 }
             }
             ExamplePluginInstaller(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")).installPlugin(loggingListener)

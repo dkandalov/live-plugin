@@ -11,21 +11,21 @@ object PluginsIO {
 
     @Throws(IOException::class)
     @JvmStatic fun createFile(parentPath: String, fileName: String, text: String) {
-        runIOAction("createFile", {
+        runIOAction("createFile") {
             val parentFolder = VfsUtil.createDirectoryIfMissing(parentPath) ?: throw IOException("Failed to create folder $parentPath")
             if (parentFolder.findChild(fileName) == null) {
                 val file = parentFolder.createChildData(requestor, fileName)
                 VfsUtil.saveText(file, text)
             }
-        })
+        }
     }
 
     @Throws(IOException::class)
     @JvmStatic fun delete(filePath: String) {
-        runIOAction("delete", {
-            val file = VirtualFileManager.getInstance().findFileByUrl("file://" + filePath) ?: throw IOException("Failed to find file $filePath")
+        runIOAction("delete") {
+            val file = VirtualFileManager.getInstance().findFileByUrl("file://$filePath") ?: throw IOException("Failed to find file $filePath")
             file.delete(requestor)
-        })
+        }
     }
 
     private fun runIOAction(actionName: String, f: () -> Unit) {

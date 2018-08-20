@@ -54,12 +54,12 @@ class DownloadClojureLibs: AnAction(), DumbAware {
             event.presentation.description = "Remove Clojure from LivePlugin Classpath"
         } else {
             event.presentation.text = "Download Clojure to LivePlugin Classpath"
-            event.presentation.description = "Download Clojure libraries to LivePlugin classpath to enable clojure plugins support " + approximateSize
+            event.presentation.description = "Download Clojure libraries to LivePlugin classpath to enable clojure plugins support $approximateSize"
         }
     }
 
     companion object {
-        val libFilesPattern = "clojure-.*jar"
-        private val approximateSize = "(~5Mb)"
+        const val libFilesPattern = "clojure-.*jar"
+        private const val approximateSize = "(~5Mb)"
     }
 }

@@ -6,7 +6,6 @@ import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import groovy.lang.GroovyClassLoader
-import liveplugin.MyFileUtil.findScriptFileIn
 import liveplugin.MyFileUtil.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
@@ -103,7 +102,7 @@ interface PluginRunner {
             var result = path
             var wasModified = false
             for ((key, value) in environment) {
-                result = result.replace("$" + key, value)
+                result = result.replace("$$key", value)
                 wasModified = true
             }
             if (wasModified) logger.info("Additional classpath with inlined env variables: $result")
@@ -112,8 +111,8 @@ interface PluginRunner {
     }
 
     companion object {
-        val ideStartup = "IDE_STARTUP"
-        val addToClasspathKeyword = "add-to-classpath "
-        val dependsOnPluginKeyword = "depends-on-plugin "
+        const val ideStartup = "IDE_STARTUP"
+        const val addToClasspathKeyword = "add-to-classpath "
+        const val dependsOnPluginKeyword = "depends-on-plugin "
     }
 }

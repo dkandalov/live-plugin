@@ -75,10 +75,10 @@ class GroovyPluginRunner(
     }
 
     companion object {
-        val mainScript = "plugin.groovy"
-        val testScript = "plugin-test.groovy"
-        val groovyAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
-        val groovyDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
+        const val mainScript = "plugin.groovy"
+        const val testScript = "plugin-test.groovy"
+        const val groovyAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
+        const val groovyDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
 
         private fun createGroovyBinding(binding: Map<String, *>): Binding {
             val result = Binding()

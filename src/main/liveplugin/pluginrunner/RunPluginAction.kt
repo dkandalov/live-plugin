@@ -90,7 +90,7 @@ fun runPlugins(
                     }
                 }
                 val binding = createBinding(pluginFolder, project, isIdeStartup)
-                bindingByPluginId.put(pluginId, binding)
+                bindingByPluginId[pluginId] = binding
 
                 pluginRunner.runPlugin(pluginFolder, pluginId, binding, ::runOnEdt)
             } catch (e: Error) {

@@ -141,10 +141,10 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
     }
 
     companion object {
-        val mainScript = "plugin.kts"
-        val testScript = "plugin-test.kts"
-        val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
-        val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
+        const val mainScript = "plugin.kts"
+        const val testScript = "plugin-test.kts"
+        const val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
+        const val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
     }
 }
 

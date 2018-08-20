@@ -38,7 +38,7 @@ class ScalaPluginRunner(private val errorReporter: ErrorReporter, private val en
         var interpreter: IMain? = null
         synchronized(interpreterLock) {
             try {
-                environment.put("PLUGIN_PATH", pluginFolderPath)
+                environment["PLUGIN_PATH"] = pluginFolderPath
 
                 val dependentPlugins = findPluginDependencies(readLines(asUrl(scriptFile)), scalaDependsOnPluginKeyword)
                 val additionalPaths = findClasspathAdditions(readLines(asUrl(scriptFile)), scalaAddToClasspathKeyword, environment, onError = { path ->

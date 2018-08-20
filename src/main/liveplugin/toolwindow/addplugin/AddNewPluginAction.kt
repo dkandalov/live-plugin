@@ -54,7 +54,7 @@ open class AddNewPluginAction(
 
         try {
 
-            PluginsIO.createFile(livePluginsPath + "/" + newPluginId, scriptFileName, scriptFileText)
+            PluginsIO.createFile("$livePluginsPath/$newPluginId", scriptFileName, scriptFileText)
 
         } catch (e: IOException) {
             if (project != null) {

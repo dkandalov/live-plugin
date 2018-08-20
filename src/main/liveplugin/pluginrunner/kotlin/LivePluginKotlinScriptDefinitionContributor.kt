@@ -21,7 +21,7 @@ class LivePluginKotlinScriptDefinitionContributor: ScriptDefinitionContributor {
             val javaHome = File(System.getProperty("java.home"))
             val sources = File(livePluginLibsPath).listFiles().toList()
             val classpath = sources +
-                File(ideJarsPath + "/../plugins/Kotlin/lib/").listFiles() +
+                File("$ideJarsPath/../plugins/Kotlin/lib/").listFiles() +
                 File(ideJarsPath).listFiles()
 
             return ResolveResult.Success(ScriptDependencies(javaHome, classpath, sources = sources), emptyList())

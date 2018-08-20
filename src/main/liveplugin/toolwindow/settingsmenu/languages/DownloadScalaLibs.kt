@@ -24,7 +24,7 @@ class DownloadScalaLibs: AnAction(), DumbAware {
             event.presentation.description = "Remove Scala from LivePlugin Classpath"
         } else {
             event.presentation.text = "Download Scala to LivePlugin Classpath"
-            event.presentation.description = "Download Scala libraries to LivePlugin classpath to enable Scala plugins support " + approximateSize
+            event.presentation.description = "Download Scala libraries to LivePlugin classpath to enable Scala plugins support $approximateSize"
         }
     }
 
@@ -49,7 +49,7 @@ class DownloadScalaLibs: AnAction(), DumbAware {
                 // Using alternative maven repo instead of "repo1.maven.org" because standard repo for some reason
                 // returns 403 when requested scala libs from IntelliJ downloader (even though the same code works for clojure libs)
                 // (using this particular repo because it seems to be the fastest mirror http://docs.codehaus.org/display/MAVENUSER/Mirrors+Repositories)
-                Pair.create("http://maven.antelink.com/content/repositories/central/org/scala-lang/$it/2.11.7/", it + "-2.11.7.jar")
+                Pair.create("http://maven.antelink.com/content/repositories/central/org/scala-lang/$it/2.11.7/", "$it-2.11.7.jar")
             }
 
             val downloaded = downloadFiles(urlAndFileNamePairs, livePluginLibsPath)
@@ -63,7 +63,7 @@ class DownloadScalaLibs: AnAction(), DumbAware {
     }
 
     companion object {
-        val libFilesPattern = "(scala-|scalap).*jar"
-        private val approximateSize = "(~25Mb)"
+        const val libFilesPattern = "(scala-|scalap).*jar"
+        private const val approximateSize = "(~25Mb)"
     }
 }

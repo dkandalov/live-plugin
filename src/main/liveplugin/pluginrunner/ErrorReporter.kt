@@ -24,7 +24,7 @@ class ErrorReporter {
     }
 
     @Synchronized fun addRunningError(pluginId: String, message: String) {
-        runningPluginErrors.put(pluginId, message)
+        runningPluginErrors[pluginId] = message
     }
 
     @Synchronized fun addRunningError(pluginId: String, e: Throwable) {

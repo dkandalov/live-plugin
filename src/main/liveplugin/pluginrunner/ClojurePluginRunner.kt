@@ -39,14 +39,14 @@ class ClojurePluginRunner(
         val dependentPlugins = ArrayList<String>()
         val additionalPaths = ArrayList<File>()
         try {
-            environment.put("PLUGIN_PATH", pluginFolderPath)
+            environment["PLUGIN_PATH"] = pluginFolderPath
 
             dependentPlugins.addAll(findPluginDependencies(readLines(asUrl(scriptFile)), clojureDependsOnPluginKeyword))
             additionalPaths.addAll(findClasspathAdditions(readLines(asUrl(scriptFile)), clojureAddToClasspathKeyword, environment, onError = { path ->
                 errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
             }).map{ File(it) })
         } catch (e: IOException) {
-            errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile)
+            errorReporter.addLoadingError(pluginId, "Error reading script file: $scriptFile")
             return
         }
 
@@ -67,9 +67,9 @@ class ClojurePluginRunner(
                 Compiler.loadFile(scriptFile.absolutePath)
 
             } catch (e: IOException) {
-                errorReporter.addLoadingError(pluginId, "Error reading script file: " + scriptFile)
+                errorReporter.addLoadingError(pluginId, "Error reading script file: $scriptFile")
             } catch (e: LinkageError) {
-                errorReporter.addLoadingError(pluginId, "Error linking script file: " + scriptFile)
+                errorReporter.addLoadingError(pluginId, "Error linking script file: $scriptFile")
             } catch (e: Error) {
                 errorReporter.addLoadingError(pluginId, e)
             } catch (e: Exception) {
@@ -81,13 +81,13 @@ class ClojurePluginRunner(
     }
 
     companion object {
-        val mainScript = "plugin.clj"
+        const val mainScript = "plugin.clj"
         private val clojureAddToClasspathKeyword = "; " + PluginRunner.addToClasspathKeyword
         private val clojureDependsOnPluginKeyword = "; " + PluginRunner.dependsOnPluginKeyword
 
         private var initialized: Boolean = false
 
         private fun createKey(name: String): Var =
-            Var.intern(Namespace.findOrCreate(Symbol.intern("clojure.core")), Symbol.intern(name), "no_" + name).setDynamic()
+            Var.intern(Namespace.findOrCreate(Symbol.intern("clojure.core")), Symbol.intern(name), "no_$name").setDynamic()
     }
 }

@@ -53,20 +53,6 @@ public class DependenciesUtil {
 		});
 	}
 
-	public static Module findModuleWithLibrary(Project project, String libraryName) {
-		return ApplicationManager.getApplication().runReadAction((Computable<Module>) () -> {
-			Module[] modules = ModuleManager.getInstance(project).getModules();
-			for (Module module : modules) {
-				ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(module).getModifiableModel();
-				Library library = modifiableModel.getModuleLibraryTable().getLibraryByName(libraryName);
-				if (library != null) {
-					return module;
-				}
-			}
-			return null;
-		});
-	}
-
 	private static void addLibraryDependencyTo(Module module, String libraryName, List<Pair<String, OrderRootType>> paths) {
 		ModifiableRootModel modifiableModel = ModuleRootManager.getInstance(module).getModifiableModel();
 		LibraryTable libraryTable = modifiableModel.getModuleLibraryTable();
