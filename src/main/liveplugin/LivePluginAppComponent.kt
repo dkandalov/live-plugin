@@ -80,7 +80,6 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
             val scriptFiles = listOf(
                 GroovyPluginRunner.mainScript,
                 ClojurePluginRunner.mainScript,
-                ScalaPluginRunner.mainScript,
                 KotlinPluginRunner.mainScript
             )
             return scriptFiles.none { MyFileUtil.findScriptFilesIn(virtualFile.path, it).isNotEmpty() }
@@ -105,8 +104,6 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
 
         private val isGroovyOnClasspath: Boolean
             get() = IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
-
-        fun scalaIsOnClassPath(): Boolean = IdeUtil.isOnClasspath("scala.Some")
 
         fun clojureIsOnClassPath(): Boolean = IdeUtil.isOnClasspath("clojure.core.Vec")
 

@@ -245,12 +245,6 @@ class PluginToolWindowManager {
                 actionGroup.add(RunAllPluginsOnIDEStartAction())
                 actionGroup.add(AddLivePluginAndIdeJarsAsDependencies())
 
-                // actionGroup.add(new Separator());
-                // actionGroup.add(new AddScalaLibsAsDependency());
-                // actionGroup.add(new AddClojureLibsAsDependency());
-                // actionGroup.add(new DownloadScalaLibs());
-                // actionGroup.add(new DownloadClojureLibs());
-
                 return actionGroup
             }
 

@@ -65,13 +65,9 @@ dependencies {
 	compile group: "org.jetbrains.kotlin", name: "kotlin-reflect", version: kotlinVersion
 
 	compile group: "org.clojure", name: "clojure", version: "1.8.0"
-	compile group: "org.scala-lang", name: "scala-compiler", version: "2.12.3"
-	compile group: "org.scala-lang", name: "scala-library", version: "2.12.3"
-	compile group: "org.scala-lang", name: "scala-reflect", version: "2.12.3"
 
 	testCompile group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
 }
-"Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"()
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
 
@@ -173,14 +169,6 @@ task installLivePlugin() { doLast {
 
 task runIdeWithDifferentJvm(type: org.jetbrains.intellij.tasks.RunIdeTask) {
 	jbreVersion "jbrex8u152b1024.10"
-}
-
-def "Exclude scala and clojure jars because they are optional and can be downloaded by LivePlugin at runtime"() {
-	def regexes = [".*scala-.*", ".*clojure-.*"]
-	def files = configurations.compile.resolvedConfiguration.files.findAll { file ->
-		regexes.any { file.name.matches(it) }
-	}
-	prepareSandbox.setLibrariesToIgnore(files.toArray())
 }
 
 def "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"() {
