@@ -1,5 +1,5 @@
 import com.intellij.codeInsight.daemon.GroupNames
-import com.intellij.codeInspection.BaseJavaLocalInspectionTool
+import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemsHolder
@@ -11,6 +11,7 @@ import com.intellij.psi.PsiLiteralExpression
 
 import static liveplugin.PluginUtil.registerInspection
 import static liveplugin.PluginUtil.show
+
 // (Please note this example won't work in IDEs without Java support.)
 
 registerInspection(pluginDisposable, new HelloWorldInspection())
@@ -20,7 +21,7 @@ if (!isIdeStartup) {
 }
 
 
-class HelloWorldInspection extends BaseJavaLocalInspectionTool {
+class HelloWorldInspection extends AbstractBaseJavaLocalInspectionTool {
 	@Override PsiElementVisitor buildVisitor(ProblemsHolder holder, boolean isOnTheFly) {
 		new JavaElementVisitor() {
 			@Override void visitLiteralExpression(PsiLiteralExpression expression) {
