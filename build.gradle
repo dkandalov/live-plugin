@@ -6,7 +6,7 @@ buildscript {
 		maven { url "http://dl.bintray.com/jetbrains/intellij-plugin-service" }
 	}
 	dependencies {
-		classpath("org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.3.0-SNAPSHOT")
+		classpath("org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.5.0-SNAPSHOT")
 	}
 }
 plugins {
