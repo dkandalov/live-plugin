@@ -17,16 +17,16 @@ open class DelegateAction(private val property: KMutableProperty0<AnAction?>): A
         property.get()?.actionPerformed(e)
     }
 
-    override fun update(event: AnActionEvent?) {
+    override fun update(event: AnActionEvent) {
         val delegate = property.get()
         if (delegate == null) {
-            event!!.presentation.apply {
+            event.presentation.apply {
                 isVisible = false
                 isEnabled = false
             }
         } else {
             delegate.update(event)
-            event?.presentation?.apply {
+            event.presentation.apply {
                 val delegatePresentation = delegate.templatePresentation
                 text = delegatePresentation.text
                 description = delegatePresentation.description

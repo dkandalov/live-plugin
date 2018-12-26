@@ -62,7 +62,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
         private val actionGroup: DefaultActionGroup,
         private val place: String = ""
     ): AnAction(name, description, null), DumbAware {
-        override fun actionPerformed(e: AnActionEvent?) {
+        override fun actionPerformed(e: AnActionEvent) {
             actionGroup.childActionsOrStubs
                 .filter { it != this && it !is Separator }
                 .forEach { IdeUtil.performAction(it, place) }

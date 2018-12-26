@@ -85,14 +85,14 @@ class PluginToolWindowManager {
                     pluginToolWindow.registerWindowFor(project)
                     putToolWindow(pluginToolWindow, project)
                 }
-                override fun projectClosed(project: Project?) {
+                override fun projectClosed(project: Project) {
                     val pluginToolWindow = removeToolWindow(project)
                     pluginToolWindow?.unregisterWindowFrom(project)
                 }
                 // Keep explicit overrides for compatibility with older IDE versions.
                 @Suppress("OverridingDeprecatedMember")
-                override fun canCloseProject(project: Project?) = true
-                override fun projectClosing(project: Project?) {}
+                override fun canCloseProject(project: Project) = true
+                override fun projectClosing(project: Project) {}
             })
         }
     }
@@ -278,7 +278,7 @@ class PluginToolWindowManager {
          * [com.intellij.openapi.fileChooser.actions.NewFolderAction],
          * [com.intellij.openapi.fileChooser.actions.FileDeleteAction]
          */
-        override fun getData(@NonNls dataId: String?): Any? {
+        override fun getData(@NonNls dataId: String): Any? {
             // this is used by create directory/file to get context in which they're executed
             // (without this they would be disabled or won't work)
             if (dataId == FileSystemTree.DATA_KEY.name) return fileSystemTree.get()

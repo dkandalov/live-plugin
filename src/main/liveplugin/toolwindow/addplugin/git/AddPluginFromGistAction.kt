@@ -38,7 +38,7 @@ class AddPluginFromGistAction: AnAction("Clone from Gist", "Clone from Gist", Gi
                 } catch (e: IOException) {
                     showMessageThatCreatingPluginFailed(e, newPluginId, project)
                 }
-                RefreshPluginsPanelAction().actionPerformed(null)
+                RefreshPluginsPanelAction.refreshPluginTree()
             }
 
             override fun onFailure(e: IOException?) {

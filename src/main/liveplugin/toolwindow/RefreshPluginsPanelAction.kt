@@ -14,7 +14,7 @@ class RefreshPluginsPanelAction: AnAction(
     "Refresh Plugins Panel",
     Icons.refreshPluginsPanelIcon
 ), DumbAware {
-    override fun actionPerformed(e: AnActionEvent?) {
+    override fun actionPerformed(e: AnActionEvent) {
         refreshPluginTree()
     }
 
