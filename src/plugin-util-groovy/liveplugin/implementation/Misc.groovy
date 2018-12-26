@@ -98,10 +98,8 @@ class Misc {
 		def isDisposed = new AtomicBoolean(false)
 		def disposable = new Disposable() {
 			@Override void dispose() {
-				if (!isDisposed.get()) {
-					isDisposed.set(true)
-					closure()
-				}
+                def wasUpdated = isDisposed.compareAndSet(false, true)
+                if (wasUpdated) closure()
 			}
 		}
 		parents.each { parent ->

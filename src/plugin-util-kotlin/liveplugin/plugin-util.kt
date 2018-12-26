@@ -103,7 +103,7 @@ fun createNestedActionGroup(description: List<MenuEntry>, actionGroup: DefaultAc
             }
             is MenuEntry.Delegate -> actionGroup.add(it.action)
             MenuEntry.Separator -> actionGroup.add(Separator.getInstance())
-        }.let{}
+        }
     }
     return actionGroup
 }
