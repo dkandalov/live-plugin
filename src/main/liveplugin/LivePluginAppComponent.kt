@@ -79,7 +79,6 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
         @JvmStatic fun isInvalidPluginFolder(virtualFile: VirtualFile): Boolean {
             val scriptFiles = listOf(
                 GroovyPluginRunner.mainScript,
-                ClojurePluginRunner.mainScript,
                 KotlinPluginRunner.mainScript
             )
             return scriptFiles.none { MyFileUtil.findScriptFilesIn(virtualFile.path, it).isNotEmpty() }
@@ -104,8 +103,6 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
 
         private val isGroovyOnClasspath: Boolean
             get() = IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
-
-        fun clojureIsOnClassPath(): Boolean = IdeUtil.isOnClasspath("clojure.core.Vec")
 
         private fun runAllPlugins() {
             ApplicationManager.getApplication().invokeLater {

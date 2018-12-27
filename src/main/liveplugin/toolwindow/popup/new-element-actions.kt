@@ -36,11 +36,4 @@ class NewGroovyTestScript: NewFileFromTemplateAction(
     IdeUtil.groovyFileType
 )
 
-class NewClojureFileAction: NewFileAction("Clojure File", IdeUtil.clojureFileType) {
-    override fun update(fileSystemTree: FileSystemTree, e: AnActionEvent) {
-        super.update(fileSystemTree, e)
-        e.presentation.isVisible = LivePluginAppComponent.clojureIsOnClassPath()
-    }
-}
-
 private val inferIconFromFileType: Icon? = null

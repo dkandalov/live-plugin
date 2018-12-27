@@ -14,7 +14,6 @@ import liveplugin.Icons
 import liveplugin.IdeUtil
 import liveplugin.IdeUtil.SingleThreadBackgroundRunner
 import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
-import liveplugin.LivePluginAppComponent.Companion.clojureIsOnClassPath
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.MyFileUtil.allFilesInDirectory
 import liveplugin.MyFileUtil.findScriptFileIn
@@ -112,7 +111,6 @@ fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> {
     return ArrayList<PluginRunner>().apply {
         add(GroovyPluginRunner(mainScript, errorReporter, environment()))
         add(KotlinPluginRunner(errorReporter, environment()))
-        if (clojureIsOnClassPath()) add(ClojurePluginRunner(errorReporter, environment()))
     }
 }
 

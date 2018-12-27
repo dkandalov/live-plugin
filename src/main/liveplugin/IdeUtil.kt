@@ -46,7 +46,6 @@ import javax.swing.JPanel
 object IdeUtil {
     val groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension(".groovy")
     val kotlinFileType = KotlinScriptFileType.instance
-    val clojureFileType = FileTypeManager.getInstance().getFileTypeByExtension(".clj")
     val dummyDataContext = DataContext { null }
     private val logger = Logger.getInstance(IdeUtil::class.java)
 
