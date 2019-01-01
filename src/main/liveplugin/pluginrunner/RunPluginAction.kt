@@ -91,7 +91,7 @@ fun runPlugins(
                 bindingByPluginId[pluginId] = binding
 
                 pluginRunner.runPlugin(pluginFolder, pluginId, binding, ::runOnEdt)
-            } catch (e: Error) {
+            } catch (e: Throwable) {
                 errorReporter.addLoadingError(pluginId, e)
             } finally {
                 errorReporter.reportAllErrors { title, message -> IdeUtil.displayError(title, message, project) }
