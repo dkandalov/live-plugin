@@ -71,40 +71,40 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
 
     companion object {
         val addGroovyExamplesActionGroup by lazy {
-            val group = DefaultActionGroup("Groovy Examples", true)
-            group.add(AddExamplePluginAction(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "ide-actions/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "insert-new-line-above/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "popup-menu/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "popup-search/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "tool-window/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "toolbar-widget/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "text-editor/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "transform-selected-text/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "inspection/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "intention/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "project-files-stats/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "misc-util/", listOf("plugin.groovy", "util/AClass.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "additional-classpath/", listOf("plugin.groovy")))
-            group.add(AddExamplePluginAction(groovyExamplesPath + "integration-test/", listOf("plugin.groovy", "plugin-test.groovy")))
-            group.addSeparator()
-            group.add(PerformAllGroupActions("Add All", "", group))
-            group
+            DefaultActionGroup("Groovy Examples", true).apply {
+                add(AddExamplePluginAction(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "ide-actions/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "insert-new-line-above/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "popup-menu/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "popup-search/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "tool-window/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "toolbar-widget/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "text-editor/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "transform-selected-text/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "inspection/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "intention/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "project-files-stats/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "misc-util/", listOf("plugin.groovy", "util/AClass.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "additional-classpath/", listOf("plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "integration-test/", listOf("plugin.groovy", "plugin-test.groovy")))
+                addSeparator()
+                add(PerformAllGroupActions("Add All", "", this))
+            }
         }
 
         val addKotlinExamplesActionGroup by lazy {
-            val group = DefaultActionGroup("Kotlin Examples", true)
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "hello-world/", listOf("plugin.kts")))
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "ide-actions/", listOf("plugin.kts")))
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "insert-new-line-above/", listOf("plugin.kts")))
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "popup-menu/", listOf("plugin.kts")))
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "java-intention/", listOf("plugin.kts")))
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "kotlin-intention/", listOf("plugin.kts")))
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "additional-classpath/", listOf("plugin.kts")))
-            group.add(AddExamplePluginAction(kotlinExamplesPath + "multiple-src-files/", listOf("plugin.kts", "foo.kt", "bar/bar.kt")))
-            group.addSeparator()
-            group.add(PerformAllGroupActions("Add All", "", group))
-            group
+            DefaultActionGroup("Kotlin Examples", true).apply {
+                add(AddExamplePluginAction(kotlinExamplesPath + "hello-world/", listOf("plugin.kts")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "ide-actions/", listOf("plugin.kts")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "insert-new-line-above/", listOf("plugin.kts")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "popup-menu/", listOf("plugin.kts")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "java-intention/", listOf("plugin.kts")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "kotlin-intention/", listOf("plugin.kts")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "additional-classpath/", listOf("plugin.kts")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "multiple-src-files/", listOf("plugin.kts", "foo.kt", "bar/bar.kt")))
+                addSeparator()
+                add(PerformAllGroupActions("Add All", "", this))
+            }
         }
     }
 }
