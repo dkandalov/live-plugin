@@ -93,7 +93,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         compilerRunner.declaredMethods.find { it.name == "compilePlugin" }!!.let { method ->
             try {
                 @Suppress("UNCHECKED_CAST")
-                val compilationErrors = method.invoke(null, pluginFolderPath, compilerClasspath, compilerOutput) as List<String>
+                val compilationErrors = method.invoke(null, pluginFolderPath, compilerClasspath, compilerOutput, KotlinScriptTemplate::class.java) as List<String>
                 if (compilationErrors.isNotEmpty()) {
                     errorReporter.addLoadingError(pluginId, "Error compiling script. " + compilationErrors.joinToString("\n"))
                     return
@@ -158,6 +158,6 @@ private fun ideLibFiles(): List<File> {
 }
 
 private fun jarFilesOf(dependentPlugins: List<String>): List<File> {
-    val pluginDescriptors = pluginDescriptorsOf(dependentPlugins, onError = { it -> throw IllegalStateException("Failed to find jar for dependent plugin '$it'.") })
-    return pluginDescriptors.map { it -> it.path }
+    val pluginDescriptors = pluginDescriptorsOf(dependentPlugins, onError = { throw IllegalStateException("Failed to find jar for dependent plugin '$it'.") })
+    return pluginDescriptors.map { it.path }
 }
