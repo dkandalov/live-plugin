@@ -17,10 +17,10 @@ registerAction("HelloWorldAction", "ctrl shift H", new HelloWorldAction())
 if (!isIdeStartup) show("Loaded 'HelloWorldAction'<br/>Use ctrl+shift+H to run it")
 
 
-registerAction("HelloWorldAction", "alt shift H") { AnActionEvent event ->
+registerAction("HelloProjectAction", "alt shift H") { AnActionEvent event ->
 	show("Hello '${event.project.name}'")
 }
-if (!isIdeStartup) show("Loaded 'HelloWorldAction'<br/>Use alt+shift+H to run it")
+if (!isIdeStartup) show("Loaded 'HelloProjectAction'<br/>Use alt+shift+H to run it")
 
 //
 // In the code above registerAction() and show() methods are part of LivePlugin.
