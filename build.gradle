@@ -12,7 +12,7 @@ buildscript {
 plugins {
 	id "nebula.dependency-lock" version "5.0.2"
 	id "org.jetbrains.intellij" version "0.2.17"
-	id "org.jetbrains.kotlin.jvm" version "1.1.1"
+	id "org.jetbrains.kotlin.jvm" version "1.1.4"
 }
 apply plugin:"java"
 apply plugin:"groovy"
@@ -58,8 +58,8 @@ dependencyLock {
 
 dependencies {
 	// Bundle kotlin compiler and stdlib with LivePlugin because IDEs are not bundled with kotlin-compiler
-	// and IDE kotlin jars are more likely to be updated than IDE groovy.jar,
-	// so it seems more reliable to bundle the right version of kotlin jars.
+	// and kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
+	// so it seems to be more reliable to bundle particular version of kotlin jars inside LivePlugin.
 	compile group: "org.jetbrains.kotlin", name: "kotlin-compiler-embeddable", version: kotlinVersion
 	compile group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: kotlinVersion
 	compile group: "org.jetbrains.kotlin", name: "kotlin-reflect", version: kotlinVersion

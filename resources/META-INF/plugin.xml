@@ -1,12 +1,13 @@
 <idea-plugin>
 	<id>LivePlugin</id>
-	<name>LivePlugin</name>
+	<!--suppress PluginXmlValidity -->
+    <name>LivePlugin</name>
 	<version>0.6.3 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
     <!-- https://www.jetbrains.com/intellij-repository/releases -->
-	<idea-version since-build="171.4073.28"/>
+	<idea-version since-build="181.2784.17"/>
 	<category>Plugin Development</category>
 	<description>
 		<![CDATA[<html><body>
@@ -33,15 +34,6 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 <a href="https://github.com/dkandalov/live-plugin/wiki/Alt-keyboard-shortcuts-on-osx">this wiki page</a>.)
     </body></html>]]>
 	</description>
-    <change-notes>
-        <![CDATA[<html><body>
-        <ul>
-            Version 0.6.3:
-            <li><!--TODO--></li>
-        </ul>
-        </body></html>
-        ]]>
-    </change-notes>
 
     <!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
 	<depends>com.intellij.modules.platform</depends>

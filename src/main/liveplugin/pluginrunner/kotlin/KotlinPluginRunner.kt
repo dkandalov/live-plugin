@@ -50,6 +50,7 @@ private val ideLibsClassLoader by lazy {
  *  - kotlin compiler attempts to initialise some of the global variables which are already initialised by IDE
  *  - in theory kotlin-compiler and IDE classes could be "namespaced" by classloader,
  *    however in practice it still causes confusing problems which are really hard to debug
+ *    ^^^ don't understand what it means anymore :(
  *
  * Use ".kts" extension because
  *  - ".kt" must have "main" function to be executed
