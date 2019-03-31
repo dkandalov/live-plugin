@@ -26,8 +26,7 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
     }
 
     override fun update(event: AnActionEvent) {
-        val presentation = event.presentation
-        presentation.isEnabled = true
+        event.presentation.isEnabled = true
     }
 
     companion object {

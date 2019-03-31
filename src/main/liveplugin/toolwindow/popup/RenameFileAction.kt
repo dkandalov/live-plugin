@@ -75,8 +75,8 @@ class RenameFileAction: FileChooserAction() {
         })
     }
 
-    override fun update(fileChooser: FileSystemTree, e: AnActionEvent) {
-        e.presentation.isVisible = true
-        e.presentation.isEnabled = fileChooser.selectionExists()
+    override fun update(fileChooser: FileSystemTree, event: AnActionEvent) {
+        event.presentation.isVisible = true
+        event.presentation.isEnabled = fileChooser.selectionExists()
     }
 }

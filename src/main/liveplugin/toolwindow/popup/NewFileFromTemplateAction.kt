@@ -10,7 +10,13 @@ import com.intellij.ui.UIBundle
 import liveplugin.LivePluginAppComponent
 import javax.swing.Icon
 
-open class NewFileFromTemplateAction(text: String, private val newFileName: String, private val fileContent: String, icon: Icon?, private val fileType: FileType): FileChooserAction(text, text, icon) {
+open class NewFileFromTemplateAction(
+    text: String,
+    private val newFileName: String,
+    private val fileContent: String,
+    icon: Icon?,
+    private val fileType: FileType
+): FileChooserAction(text, text, icon) {
 
     override fun update(fileSystemTree: FileSystemTree, event: AnActionEvent) {
         val parentFile = fileSystemTree.newFileParent

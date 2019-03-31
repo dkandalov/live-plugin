@@ -120,18 +120,19 @@ class PluginToolWindowManager {
         }
 
         private fun createToolBar(): JComponent {
-            val actionGroup = DefaultActionGroup()
-            actionGroup.add(withIcon(Icons.addPluginIcon, createAddPluginsGroup()))
-            actionGroup.add(DeletePluginAction())
-            actionGroup.add(RunPluginAction())
-            actionGroup.add(RunPluginTestsAction())
-            actionGroup.addSeparator()
-            actionGroup.add(RefreshPluginsPanelAction())
-            actionGroup.add(withIcon(Icons.expandAllIcon, ExpandAllAction()))
-            actionGroup.add(withIcon(Icons.collapseAllIcon, CollapseAllAction()))
-            actionGroup.addSeparator()
-            actionGroup.add(withIcon(Icons.settingsIcon, createSettingsGroup()))
-            actionGroup.add(withIcon(Icons.helpIcon, ShowHelpAction()))
+            val actionGroup = DefaultActionGroup().also {
+                it.add(withIcon(Icons.addPluginIcon, createAddPluginsGroup()))
+                it.add(DeletePluginAction())
+                it.add(RunPluginAction())
+                it.add(RunPluginTestsAction())
+                it.addSeparator()
+                it.add(RefreshPluginsPanelAction())
+                it.add(withIcon(Icons.expandAllIcon, ExpandAllAction()))
+                it.add(withIcon(Icons.collapseAllIcon, CollapseAllAction()))
+                it.addSeparator()
+                it.add(withIcon(Icons.settingsIcon, createSettingsGroup()))
+                it.add(withIcon(Icons.helpIcon, ShowHelpAction()))
+            }
 
             // this is a "hack" to force drop-down box appear below button
             // (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
@@ -228,16 +229,15 @@ class PluginToolWindowManager {
                 return actionGroup
             }
 
-            private fun createAddPluginsGroup(): AnAction {
-                val actionGroup = DefaultActionGroup("Add Plugin", true)
-                actionGroup.add(AddNewGroovyPluginAction())
-                actionGroup.add(AddNewKotlinPluginAction())
-                actionGroup.add(AddPluginFromGistDelegateAction())
-                actionGroup.add(AddPluginFromGitHubDelegateAction())
-                actionGroup.add(AddExamplePluginAction.addGroovyExamplesActionGroup)
-                actionGroup.add(AddExamplePluginAction.addKotlinExamplesActionGroup)
-                return actionGroup
-            }
+            private fun createAddPluginsGroup() =
+                DefaultActionGroup("Add Plugin", true).also {
+                    it.add(AddNewGroovyPluginAction())
+                    it.add(AddNewKotlinPluginAction())
+                    it.add(AddPluginFromGistDelegateAction())
+                    it.add(AddPluginFromGitHubDelegateAction())
+                    it.add(AddExamplePluginAction.addGroovyExamplesActionGroup)
+                    it.add(AddExamplePluginAction.addKotlinExamplesActionGroup)
+                }
         }
     }
 
@@ -318,11 +318,7 @@ class PluginToolWindowManager {
             // (Note that this code is also used by "Copy from Path" action.)
             if (virtualFiles.size == 1) {
                 val parent = virtualFiles[0].parent
-                if (parent != null) {
-                    descriptor.setRoots(parent)
-                } else {
-                    descriptor.roots = virtualFiles
-                }
+                descriptor.roots = if (parent != null) listOf(parent) else virtualFiles
             } else {
                 descriptor.roots = virtualFiles
             }
