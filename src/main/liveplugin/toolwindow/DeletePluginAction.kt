@@ -27,11 +27,9 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete Plugin", Ic
         val pluginRoots = findPluginRootsFor(files)
         if (userDoesNotWantToRemovePlugins(pluginRoots, event.project)) return
 
-        for (pluginRoot in pluginRoots) {
+        pluginRoots.forEach { pluginRoot ->
             try {
-
                 delete(pluginRoot.path)
-
             } catch (e: IOException) {
                 val project = event.project
                 if (project != null) {
@@ -63,7 +61,7 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete Plugin", Ic
             val message = when {
                 pluginIds.size == 1 -> "Do you want to delete plugin \"" + pluginIds[0] + "\"?"
                 pluginIds.size == 2 -> "Do you want to delete plugin \"" + pluginIds[0] + "\" and \"" + pluginIds[1] + "\"?"
-                else -> "Do you want to delete plugins \"" + StringUtil.join(pluginIds, ", ") + "\"?"
+                else                -> "Do you want to delete plugins \"" + StringUtil.join(pluginIds, ", ") + "\"?"
             }
             val answer = Messages.showOkCancelDialog(
                 project,

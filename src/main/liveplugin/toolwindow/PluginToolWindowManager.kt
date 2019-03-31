@@ -61,40 +61,19 @@ import javax.swing.tree.DefaultTreeModel
 class PluginToolWindowManager {
 
     fun init() {
-        // TODO disable workaround after bumping plugin compatibility > 171
-        val usePMListenerWorkaround = true
-        if (usePMListenerWorkaround) {
-            // Use deprecated API so that plugin is compatible with older IDE versions (in particular versions <= 171, see https://github.com/dkandalov/live-plugin/issues/77)
-            @Suppress("DEPRECATION")
-            ProjectManager.getInstance().addProjectManagerListener(object : ProjectManagerListener {
-                override fun projectOpened(project: Project) {
-                    val pluginToolWindow = PluginToolWindow()
-                    pluginToolWindow.registerWindowFor(project)
-                    putToolWindow(pluginToolWindow, project)
-                }
-                override fun projectClosed(project: Project) {
-                    val pluginToolWindow = removeToolWindow(project)
-                    pluginToolWindow?.unregisterWindowFrom(project)
-                }
-            })
-        } else {
-            val connection = ApplicationManager.getApplication().messageBus.connect()
-            connection.subscribe(ProjectManager.TOPIC, object: ProjectManagerListener {
-                override fun projectOpened(project: Project) {
-                    val pluginToolWindow = PluginToolWindow()
-                    pluginToolWindow.registerWindowFor(project)
-                    putToolWindow(pluginToolWindow, project)
-                }
-                override fun projectClosed(project: Project) {
-                    val pluginToolWindow = removeToolWindow(project)
-                    pluginToolWindow?.unregisterWindowFrom(project)
-                }
-                // Keep explicit overrides for compatibility with older IDE versions.
-                @Suppress("OverridingDeprecatedMember")
-                override fun canCloseProject(project: Project) = true
-                override fun projectClosing(project: Project) {}
-            })
-        }
+        val connection = ApplicationManager.getApplication().messageBus.connect()
+        connection.subscribe(ProjectManager.TOPIC, object: ProjectManagerListener {
+            override fun projectOpened(project: Project) {
+                val pluginToolWindow = PluginToolWindow()
+                pluginToolWindow.registerWindowFor(project)
+                putToolWindow(pluginToolWindow, project)
+            }
+
+            override fun projectClosed(project: Project) {
+                val pluginToolWindow = removeToolWindow(project)
+                pluginToolWindow?.unregisterWindowFrom(project)
+            }
+        })
     }
 
     class PluginToolWindow {
@@ -182,6 +161,7 @@ class PluginToolWindowManager {
                         val isPlugin = pluginIdToPathMap().values.any { file.path.toLowerCase() == it.toLowerCase() }
                         return if (isPlugin) Icons.pluginIcon else super.getIcon(file)
                     }
+
                     override fun getName(virtualFile: VirtualFile) = virtualFile.name
                     override fun getComment(virtualFile: VirtualFile?) = ""
                 }
@@ -189,7 +169,7 @@ class PluginToolWindowManager {
                 descriptor.withTreeRootVisible(false)
 
                 val pluginPaths = pluginIdToPathMap().values
-                val virtualFiles = pluginPaths.mapNotNull { path -> VirtualFileManager.getInstance().findFileByUrl("file://" + path) }
+                val virtualFiles = pluginPaths.mapNotNull { path -> VirtualFileManager.getInstance().findFileByUrl("file://$path") }
                 addRoots(descriptor, virtualFiles)
 
                 return descriptor
@@ -293,12 +273,12 @@ class PluginToolWindowManager {
 
         override fun getData(@NonNls dataId: String): Any? {
             return when {
-                PlatformDataKeys.NAVIGATABLE_ARRAY.`is`(dataId) -> // need this to be able to open files in toolwindow on double-click/enter
+                PlatformDataKeys.NAVIGATABLE_ARRAY.`is`(dataId)       -> // need this to be able to open files in toolwindow on double-click/enter
                     TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java)
                         .map { OpenFileDescriptor(project, it.element.file) }
                         .toTypedArray()
                 PlatformDataKeys.DELETE_ELEMENT_PROVIDER.`is`(dataId) -> deleteProvider
-                else -> null
+                else                                                  -> null
             }
         }
     }
@@ -317,7 +297,7 @@ class PluginToolWindowManager {
     }
 
     companion object {
-        private val pluginsToolWindowId = "Plugins"
+        private const val pluginsToolWindowId = "Plugins"
         private val toolWindowsByProject = HashMap<Project, PluginToolWindow>()
 
         internal fun reloadPluginTreesInAllProjects() {
@@ -327,12 +307,10 @@ class PluginToolWindowManager {
         }
 
         private fun putToolWindow(pluginToolWindow: PluginToolWindow, project: Project) {
-            toolWindowsByProject.put(project, pluginToolWindow)
+            toolWindowsByProject[project] = pluginToolWindow
         }
 
-        private fun removeToolWindow(project: Project?): PluginToolWindow? {
-            return toolWindowsByProject.remove(project)
-        }
+        private fun removeToolWindow(project: Project?) = toolWindowsByProject.remove(project)
 
         private fun addRoots(descriptor: FileChooserDescriptor, virtualFiles: List<VirtualFile>) {
             // Adding file parent is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement.

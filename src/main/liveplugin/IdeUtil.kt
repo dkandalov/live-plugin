@@ -98,7 +98,7 @@ object IdeUtil {
         downloadFiles(asList(Pair.create(downloadUrl, fileName)), targetPath)
 
     // TODO make download non-modal
-    fun downloadFiles(urlAndFileNames: List<Pair<String, String>>, targetPath: String): Boolean {
+    private fun downloadFiles(urlAndFileNames: List<Pair<String, String>>, targetPath: String): Boolean {
         val service = DownloadableFileService.getInstance()
         val descriptions = map(urlAndFileNames) { it -> service.createFileDescription(it.first + it.second, it.second) }
         val files = service.createDownloader(descriptions, "").downloadFilesWithProgress(targetPath, null, null)

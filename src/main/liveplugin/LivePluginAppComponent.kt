@@ -57,7 +57,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
         val livePluginsClassesPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-classes")
         val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
 
-        val livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin")
+        private val livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin")
 
         private val logger = Logger.getInstance(LivePluginAppComponent::class.java)
 
@@ -76,7 +76,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
             return files.associate { Pair(it.name, toSystemIndependentName(it.absolutePath)) }
         }
 
-        @JvmStatic fun isInvalidPluginFolder(virtualFile: VirtualFile): Boolean {
+        fun isInvalidPluginFolder(virtualFile: VirtualFile): Boolean {
             val scriptFiles = listOf(
                 GroovyPluginRunner.mainScript,
                 KotlinPluginRunner.mainScript
@@ -115,7 +115,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
                     0
                 )
                 val errorReporter = ErrorReporter()
-                val pluginPaths = pluginIdToPathMap().keys.map { LivePluginAppComponent.pluginIdToPathMap()[it]!! }
+                val pluginPaths = pluginIdToPathMap().keys.map { LivePluginAppComponent.pluginIdToPathMap().getValue(it) }
                 runPlugins(pluginPaths, event, errorReporter, createPluginRunners(errorReporter))
             }
         }
