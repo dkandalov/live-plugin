@@ -7,18 +7,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Pair;
 
 import java.util.List;
 
-import static com.intellij.util.containers.ContainerUtil.findAll;
-
 public class DependenciesUtil {
-	public static boolean anyModuleHasLibraryAsDependencyIn(Project project, final String libraryName) {
-		List<Module> modulesWithoutDependency = findAll(ModuleManager.getInstance(project).getModules(), module -> dependsOn(libraryName, module));
-		return !modulesWithoutDependency.isEmpty();
-	}
 
 	public static void removeLibraryDependencyFrom(final Project project, final String libraryName) {
 		ApplicationManager.getApplication().runWriteAction(() -> {

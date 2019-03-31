@@ -19,20 +19,11 @@ import java.io.File
 
 class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
     private val livePluginAndIdeJarsLibrary = "LivePlugin and IDE jars (to enable navigation and auto-complete)"
-    private val ideaJarsLibrary_Old = "IDEA jars" // TODO remove
-    private val livePluginLibrary_Old = "LivePlugin" // TODO remove
 
     private val projectLibrariesNames = ProjectLibrariesNames()
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-
-        if (projectLibrariesNames.contains(project, livePluginLibrary_Old)) {
-            removeLibraryDependencyFrom(project, livePluginLibrary_Old)
-        }
-        if (projectLibrariesNames.contains(project, ideaJarsLibrary_Old)) {
-            removeLibraryDependencyFrom(project, ideaJarsLibrary_Old)
-        }
 
         if (projectLibrariesNames.contains(project, livePluginAndIdeJarsLibrary)) {
             removeLibraryDependencyFrom(project, livePluginAndIdeJarsLibrary)
