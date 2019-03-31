@@ -23,7 +23,7 @@ import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.isInvalidPluginFolder
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction
-import liveplugin.toolwindow.util.PluginsIO
+import liveplugin.toolwindow.util.delete
 import java.io.File
 
 
@@ -96,7 +96,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", Githu
 
                 try {
                     if (isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
-                        PluginsIO.delete(clonedFolder.path)
+                        delete(clonedFolder.path)
                     }
                 } catch (e: Exception) {
                     if (project != null) {

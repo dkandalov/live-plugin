@@ -9,13 +9,11 @@ class ExamplePluginInstaller(private val pluginPath: String, private val filePat
     fun installPlugin(listener: Listener) {
         val pluginId = extractPluginIdFrom(pluginPath)
 
-        for (relativeFilePath in filePaths) {
+        filePaths.forEach { relativeFilePath ->
             try {
-
                 val text = LivePluginAppComponent.readSampleScriptFile(pluginPath, relativeFilePath)
                 val (parentPath, fileName) = splitIntoPathAndFileName("$livePluginsPath/$pluginId/$relativeFilePath")
-                PluginsIO.createFile(parentPath, fileName, text)
-
+                createFile(parentPath, fileName, text)
             } catch (e: IOException) {
                 listener.onException(e, pluginPath)
             }
@@ -27,7 +25,6 @@ class ExamplePluginInstaller(private val pluginPath: String, private val filePat
     }
 
     companion object {
-
         private fun splitIntoPathAndFileName(filePath: String): Pair<String, String> {
             val index = filePath.lastIndexOf("/")
             return Pair(filePath.substring(0, index), filePath.substring(index + 1))

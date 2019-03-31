@@ -16,7 +16,7 @@ import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
 import liveplugin.pluginrunner.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.RefreshPluginsPanelAction
-import liveplugin.toolwindow.util.PluginsIO
+import liveplugin.toolwindow.util.createFile
 import java.io.IOException
 
 class AddNewGroovyPluginAction: AddNewPluginAction(
@@ -54,7 +54,7 @@ open class AddNewPluginAction(
 
         try {
 
-            PluginsIO.createFile("$livePluginsPath/$newPluginId", scriptFileName, scriptFileText)
+            createFile("$livePluginsPath/$newPluginId", scriptFileName, scriptFileText)
 
         } catch (e: IOException) {
             if (project != null) {

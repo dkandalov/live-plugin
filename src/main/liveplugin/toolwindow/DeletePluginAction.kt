@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.IdeUtil
 import liveplugin.Icons
 import liveplugin.toolwindow.PluginToolWindowManager.PluginToolWindow.Companion.findPluginRootsFor
-import liveplugin.toolwindow.util.PluginsIO
+import liveplugin.toolwindow.util.delete
 import java.io.IOException
 
 
@@ -30,7 +30,7 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete Plugin", Ic
         for (pluginRoot in pluginRoots) {
             try {
 
-                PluginsIO.delete(pluginRoot.path)
+                delete(pluginRoot.path)
 
             } catch (e: IOException) {
                 val project = event.project

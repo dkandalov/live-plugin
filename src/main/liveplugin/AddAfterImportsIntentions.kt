@@ -9,6 +9,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+import liveplugin.LivePluginAppComponent.Companion.livePluginId
 import liveplugin.pluginrunner.GroovyPluginRunner
 import liveplugin.pluginrunner.GroovyPluginRunner.Companion.groovyAddToClasspathKeyword
 import liveplugin.pluginrunner.GroovyPluginRunner.Companion.groovyDependsOnPluginKeyword
@@ -70,7 +71,7 @@ open class AddAfterImportsGroovyIntention(
             val lineStartOffset = document.getLineStartOffset(lineNumber)
             document.insertString(lineStartOffset, stringToInsert)
             caretModel.moveToOffset(lineStartOffset + stringToInsert.length - 1)
-        }, modificationName, "LivePlugin", UndoConfirmationPolicy.DEFAULT, document)
+        }, modificationName, livePluginId, UndoConfirmationPolicy.DEFAULT, document)
     }
 
     override fun startInWriteAction() = true

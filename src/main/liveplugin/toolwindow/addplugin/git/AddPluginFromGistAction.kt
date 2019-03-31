@@ -16,7 +16,7 @@ import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.addplugin.PluginIdValidator
-import liveplugin.toolwindow.util.PluginsIO
+import liveplugin.toolwindow.util.createFile
 import org.jetbrains.plugins.github.api.GithubApiUtil
 import org.jetbrains.plugins.github.api.GithubConnection
 import org.jetbrains.plugins.github.api.data.GithubGist
@@ -125,8 +125,8 @@ class AddPluginFromGistAction: AnAction("Clone from Gist", "Clone from Gist", Gi
         }
 
         private fun createPluginFrom(gist: GithubGist, pluginId: String?) {
-            for (gistFile in gist.files) {
-                PluginsIO.createFile(LivePluginAppComponent.livePluginsPath + "/" + pluginId, gistFile.filename, gistFile.content)
+            gist.files.forEach { gistFile ->
+                createFile(LivePluginAppComponent.livePluginsPath + "/" + pluginId, gistFile.filename, gistFile.content)
             }
         }
 

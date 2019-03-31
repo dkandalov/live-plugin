@@ -11,7 +11,7 @@ import com.intellij.openapi.roots.libraries.LibraryTable
 
 fun removeLibraryDependencyFrom(project: Project, libraryName: String) {
     ApplicationManager.getApplication().runWriteAction {
-        for (module in ModuleManager.getInstance(project).modules) {
+        ModuleManager.getInstance(project).modules.forEach { module ->
             if (module.dependsOn(libraryName)) {
                 module.removeDependencyOn(libraryName)
             }
