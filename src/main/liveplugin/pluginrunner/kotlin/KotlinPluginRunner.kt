@@ -10,14 +10,14 @@ import liveplugin.IdeUtil.unscrambleThrowable
 import liveplugin.LivePluginAppComponent.Companion.livePluginCompilerLibsPath
 import liveplugin.LivePluginAppComponent.Companion.livePluginLibsPath
 import liveplugin.LivePluginAppComponent.Companion.livePluginsClassesPath
-import liveplugin.MyFileUtil.filesList
-import liveplugin.MyFileUtil.findScriptFileIn
-import liveplugin.MyFileUtil.toUrl
+import liveplugin.filesList
+import liveplugin.findScriptFileIn
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
+import liveplugin.toUrl
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import org.jetbrains.kotlin.codegen.CompilationException
 import java.io.File

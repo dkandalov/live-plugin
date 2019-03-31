@@ -15,8 +15,8 @@ import liveplugin.IdeUtil
 import liveplugin.IdeUtil.SingleThreadBackgroundRunner
 import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
-import liveplugin.MyFileUtil.allFilesInDirectory
-import liveplugin.MyFileUtil.findScriptFileIn
+import liveplugin.allFilesInDirectory
+import liveplugin.findScriptFileIn
 import liveplugin.pluginrunner.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner

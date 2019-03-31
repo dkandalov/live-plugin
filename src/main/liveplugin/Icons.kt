@@ -21,7 +21,7 @@ object Icons {
     val testPluginIcon = AllIcons.RunConfigurations.Junit!!
     val expandAllIcon = AllIcons.Actions.Expandall!!
     val collapseAllIcon = AllIcons.Actions.Collapseall!!
-    val settingsIcon = AllIcons.General.ProjectSettings!!
+    val settingsIcon = AllIcons.General.GearPlain!!
     val helpIcon = AllIcons.Actions.Help!!
-    val newFolderIcon = AllIcons.Nodes.NewFolder!!
+    val newFolderIcon = AllIcons.Nodes.Folder!!
 }

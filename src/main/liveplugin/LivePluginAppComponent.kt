@@ -81,7 +81,7 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
                 GroovyPluginRunner.mainScript,
                 KotlinPluginRunner.mainScript
             )
-            return scriptFiles.none { MyFileUtil.findScriptFilesIn(virtualFile.path, it).isNotEmpty() }
+            return scriptFiles.none { findScriptFilesIn(virtualFile.path, it).isNotEmpty() }
         }
 
         fun defaultPluginScript(): String = readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")

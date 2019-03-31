@@ -2,12 +2,12 @@ package liveplugin.pluginrunner
 
 import groovy.lang.Binding
 import groovy.util.GroovyScriptEngine
-import liveplugin.MyFileUtil.asUrl
-import liveplugin.MyFileUtil.findScriptFileIn
-import liveplugin.MyFileUtil.readLines
+import liveplugin.findScriptFileIn
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
+import liveplugin.readLines
+import liveplugin.toUrlString
 import org.codehaus.groovy.control.CompilationFailedException
 import java.io.File
 import java.io.IOException
@@ -22,7 +22,7 @@ class GroovyPluginRunner(
 
     override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         val mainScript = findScriptFileIn(pluginFolderPath, scriptName)!!
-        runGroovyScript(asUrl(mainScript), pluginFolderPath, pluginId, binding, runOnEDT)
+        runGroovyScript(mainScript.toUrlString(), pluginFolderPath, pluginId, binding, runOnEDT)
     }
 
     private fun runGroovyScript(

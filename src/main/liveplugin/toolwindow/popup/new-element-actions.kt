@@ -1,12 +1,9 @@
 package liveplugin.toolwindow.popup
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.fileChooser.FileSystemTree
 import com.intellij.openapi.fileChooser.actions.NewFolderAction
 import liveplugin.Icons
 import liveplugin.IdeUtil
-import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.defaultPluginScript
 import liveplugin.LivePluginAppComponent.Companion.defaultPluginTestScript
 import liveplugin.pluginrunner.GroovyPluginRunner

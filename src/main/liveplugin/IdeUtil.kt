@@ -26,7 +26,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.Messages.showOkCancelDialog
 import com.intellij.openapi.util.IconLoader
-import com.intellij.openapi.util.Pair
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.containers.ContainerUtil.map
 import com.intellij.util.download.DownloadableFileService
@@ -62,7 +61,7 @@ object IdeUtil {
         }
     }
 
-    @JvmStatic fun showErrorDialog(project: Project?, message: String, title: String) {
+    fun showErrorDialog(project: Project?, message: String, title: String) {
         Messages.showMessageDialog(project, message, title, Messages.getErrorIcon())
     }
 
@@ -87,20 +86,20 @@ object IdeUtil {
         return resource != null
     }
 
-    @JvmStatic fun askIfUserWantsToRestartIde(message: String) {
+    fun askIfUserWantsToRestartIde(message: String) {
         val answer = showOkCancelDialog(message, "Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon())
         if (answer == Messages.OK) {
             ApplicationManagerEx.getApplicationEx().restart(true)
         }
     }
 
-    @JvmStatic fun downloadFile(downloadUrl: String, fileName: String, targetPath: String): Boolean =
-        downloadFiles(asList(Pair.create(downloadUrl, fileName)), targetPath)
+    fun downloadFile(downloadUrl: String, fileName: String, targetPath: String): Boolean =
+        downloadFiles(asList(Pair(downloadUrl, fileName)), targetPath)
 
     // TODO make download non-modal
     private fun downloadFiles(urlAndFileNames: List<Pair<String, String>>, targetPath: String): Boolean {
         val service = DownloadableFileService.getInstance()
-        val descriptions = map(urlAndFileNames) { it -> service.createFileDescription(it.first + it.second, it.second) }
+        val descriptions = map(urlAndFileNames) { service.createFileDescription(it.first + it.second, it.second) }
         val files = service.createDownloader(descriptions, "").downloadFilesWithProgress(targetPath, null, null)
         return files != null && files.size == urlAndFileNames.size
     }

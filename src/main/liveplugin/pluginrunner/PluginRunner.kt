@@ -6,7 +6,7 @@ import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import groovy.lang.GroovyClassLoader
-import liveplugin.MyFileUtil.toUrl
+import liveplugin.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
@@ -45,7 +45,7 @@ interface PluginRunner {
             return classLoader
         }
 
-        fun createParentClassLoader(dependentPlugins: List<String>, pluginId: String, errorReporter: ErrorReporter): ClassLoader {
+        private fun createParentClassLoader(dependentPlugins: List<String>, pluginId: String, errorReporter: ErrorReporter): ClassLoader {
             val pluginDescriptors = pluginDescriptorsOf(dependentPlugins, onError = { dependentPluginId ->
                 errorReporter.addLoadingError(pluginId, "Couldn't find dependent plugin '$dependentPluginId'")
             })
