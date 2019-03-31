@@ -8,13 +8,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.OrderRootType.CLASSES
 import com.intellij.openapi.roots.OrderRootType.SOURCES
-import com.intellij.openapi.util.Pair.pair
 import com.intellij.util.PathUtil.getJarPathForClass
 import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.ideJarsPath
 import liveplugin.LivePluginAppComponent.Companion.livePluginLibsPath
-import liveplugin.toolwindow.util.DependenciesUtil.addLibraryDependencyTo
-import liveplugin.toolwindow.util.DependenciesUtil.removeLibraryDependencyFrom
+import liveplugin.toolwindow.util.addLibraryDependencyTo
+import liveplugin.toolwindow.util.removeLibraryDependencyFrom
 import java.io.File
 
 class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
@@ -29,11 +28,11 @@ class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
             removeLibraryDependencyFrom(project, livePluginAndIdeJarsLibrary)
         } else {
             val livePluginEntries =
-                File(livePluginLibsPath).listFiles().filter { it.name.endsWith(".jar") }.map { pair("jar://${it.absolutePath}!/", CLASSES) } +
-                    pair("jar://" + getJarPathForClass(LivePluginAppComponent::class.java) + "!/", SOURCES)
+                File(livePluginLibsPath).listFiles().filter { it.name.endsWith(".jar") }.map { Pair("jar://${it.absolutePath}!/", CLASSES) } +
+                    Pair("jar://" + getJarPathForClass(LivePluginAppComponent::class.java) + "!/", SOURCES)
 
             val ideJars = File(ideJarsPath).listFiles().toList().filter { it.name.endsWith(".jar") }
-                .map { pair("jar://${it.absolutePath}!/", CLASSES) }
+                .map { Pair("jar://${it.absolutePath}!/", CLASSES) }
 
             addLibraryDependencyTo(project, livePluginAndIdeJarsLibrary, livePluginEntries + ideJars)
         }
