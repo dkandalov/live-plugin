@@ -9,7 +9,6 @@ import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.PathManager.getHomePath
 import com.intellij.openapi.application.PathManager.getPluginsPath
-import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER
@@ -25,9 +24,9 @@ import liveplugin.toolwindow.util.ExamplePluginInstaller
 import java.io.File
 import java.io.IOException
 
-class LivePluginAppComponent: ApplicationComponent, DumbAware {
+class LivePluginAppComponent: DumbAware {
 
-    override fun initComponent() {
+    init {
         checkThatGroovyIsOnClasspath()
 
         val settings = Settings.getInstance()
@@ -41,10 +40,6 @@ class LivePluginAppComponent: ApplicationComponent, DumbAware {
 
         PluginToolWindowManager().init()
     }
-
-    override fun disposeComponent() {}
-
-    override fun getComponentName() = javaClass.simpleName!!
 
     companion object {
 
