@@ -1,8 +1,10 @@
-package liveplugin.pluginrunner
+package liveplugin.pluginrunner.groovy
 
 import groovy.lang.Binding
 import groovy.util.GroovyScriptEngine
 import liveplugin.findScriptFileIn
+import liveplugin.pluginrunner.ErrorReporter
+import liveplugin.pluginrunner.PluginRunner
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies

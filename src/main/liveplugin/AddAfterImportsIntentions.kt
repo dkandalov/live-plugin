@@ -10,9 +10,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import liveplugin.LivePluginAppComponent.Companion.livePluginId
-import liveplugin.pluginrunner.GroovyPluginRunner
-import liveplugin.pluginrunner.GroovyPluginRunner.Companion.groovyAddToClasspathKeyword
-import liveplugin.pluginrunner.GroovyPluginRunner.Companion.groovyDependsOnPluginKeyword
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyAddToClasspathKeyword
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyDependsOnPluginKeyword
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinAddToClasspathKeyword
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinDependsOnPluginKeyword

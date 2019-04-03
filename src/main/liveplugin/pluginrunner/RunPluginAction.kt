@@ -17,8 +17,9 @@ import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.allFilesInDirectory
 import liveplugin.findScriptFileIn
-import liveplugin.pluginrunner.GroovyPluginRunner.Companion.mainScript
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import java.io.File
 import java.util.*

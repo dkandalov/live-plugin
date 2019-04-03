@@ -6,7 +6,7 @@ import liveplugin.Icons
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.defaultPluginScript
 import liveplugin.LivePluginAppComponent.Companion.defaultPluginTestScript
-import liveplugin.pluginrunner.GroovyPluginRunner
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import javax.swing.Icon
 
 class NewTextFileAction: NewFileAction("Text File", AllIcons.FileTypes.Text)

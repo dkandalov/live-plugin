@@ -13,7 +13,7 @@ import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginExists
 import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
-import liveplugin.pluginrunner.GroovyPluginRunner
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.createFile

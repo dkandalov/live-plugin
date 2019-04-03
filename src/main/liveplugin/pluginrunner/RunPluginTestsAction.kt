@@ -5,7 +5,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
 import liveplugin.Icons
 import liveplugin.IdeUtil
-import liveplugin.pluginrunner.GroovyPluginRunner.Companion.testScript
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.testScript
 
 class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run Plugin Integration Tests", Icons.testPluginIcon), DumbAware {
 

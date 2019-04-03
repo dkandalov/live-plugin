@@ -73,10 +73,11 @@ dependencies {
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
+'Move GDSL file into standardDsls folder'()
 
 sourceSets {
-	// Keep groovy and kotlin util source code in separate source sets because otherwise
-	// compilation fails because of inter-dependencies between kotlin and groovy files which confuses compiler,
+	// Keep groovy and kotlin util source code in separate source sets, otherwise
+	// compilation fails because of inter-dependencies between kotlin and groovy files which confuse compiler,
 	// even though overall dependencies are unidirectional:
 	// pluginUtilKotlin -> pluginUtilGroovy -> main
 
@@ -111,9 +112,11 @@ task validateLivePluginZip() { doLast {
 	expectToBeEqual(pluginZipFiles, [
 		"LivePlugin/lib/LivePlugin.jar",
 		"LivePlugin/lib/annotations-13.0.jar",
+		"LivePlugin/lib/kotlin-compiler-wrapper-0.1.0.jar",
 		"LivePlugin/lib/kotlin-compiler/kotlin-compiler-embeddable.jar",
 		"LivePlugin/lib/kotlin-compiler/kotlin-reflect.jar",
-		"LivePlugin/lib/kotlin-compiler/kotlin-stdlib.jar"
+		"LivePlugin/lib/kotlin-compiler/kotlin-stdlib.jar",
+		"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl"
 	].toSet())
 
 	def livePluginJar = zipTree(pluginZip.files.find { it.name == "LivePlugin.jar" })
@@ -171,7 +174,7 @@ task installLivePlugin() { doLast {
 } }
 
 task runIdeWithDifferentJvm(type: org.jetbrains.intellij.tasks.RunIdeTask) {
-	jbreVersion "jbrex8u152b1024.10"
+	jbrVersion "jbrex8u152b1024.10"
 }
 
 def "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"() {
@@ -198,5 +201,15 @@ def "Move kotlin compiler jars from plugin classpath into a separate folder so t
 				tofile: "build/idea-sandbox/plugins/LivePlugin/lib/kotlin-compiler/${it[1]}"
 			)
 		}
+	}
+}
+
+def 'Move GDSL file into standardDsls folder'() {
+	prepareSandbox.doLast {
+		def resourcesFolder = project.tasks.findByName(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).destinationDir
+		ant.move(
+			file: resourcesFolder.absolutePath + "/liveplugin/livePluginCompletions.gdsl",
+			tofile: "build/idea-sandbox/plugins/LivePlugin/lib/standardDsls/livePluginCompletions.gdsl"
+		)
 	}
 }

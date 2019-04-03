@@ -4,11 +4,12 @@ import com.intellij.openapi.util.io.FileUtil
 import kotlin.Unit
 import kotlin.jvm.functions.Function0
 import kotlin.jvm.functions.Function1
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-import static liveplugin.pluginrunner.GroovyPluginRunner.mainScript
+import static liveplugin.pluginrunner.groovy.GroovyPluginRunner.mainScript
 
 class GroovyPluginRunnerTest {
 	static final LinkedHashMap noBindings = [:]
