@@ -48,7 +48,6 @@ class LivePluginAppComponent: DumbAware {
         const val groovyExamplesPath = "/groovy/"
         const val kotlinExamplesPath = "/kotlin/"
         val livePluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
-        val livePluginCompilerLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/kotlin-compiler")
         @JvmField val livePluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
         val livePluginsClassesPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-classes")
         val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
