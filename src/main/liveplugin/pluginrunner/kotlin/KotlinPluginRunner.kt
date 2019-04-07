@@ -16,26 +16,11 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderW
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
-import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.livePluginCompilerLibsPath
 import liveplugin.toUrl
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import org.jetbrains.kotlin.codegen.CompilationException
 import java.io.File
 import java.io.IOException
-
-private val ideLibsClassLoader by lazy {
-    UrlClassLoader.build()
-        .urls((
-            ideJdkClassesRoots() +
-            ideLibFiles() +
-            File(livePluginLibsPath).filesList() +
-            File(livePluginCompilerLibsPath).filesList()
-        ).map { it.toUrl() })
-        .noPreload()
-        .allowBootstrapResources()
-        .useCache()
-        .get()
-}
 
 /**
  * There are several reasons to run kotlin plugins the way it's currently done.
@@ -62,10 +47,6 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
     override fun scriptName(): String = mainScript
 
     override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
-        val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
-        val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
-
-        val pluginFolder = File(pluginFolderPath)
         val mainScriptFile = findScriptFileIn(pluginFolderPath, mainScript)!!
         val dependentPlugins = findPluginDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
         val compilerOutput = File(toSystemIndependentName("$livePluginsClassesPath/$pluginId"))
@@ -78,24 +59,20 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
             onError = { path -> errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'") }
         ).map { File(it) }
 
-        val compilerClasspath =
-            ideJdkClassesRoots() +
-                ideLibFiles() +
-                File(livePluginLibsPath).filesList() +
-                File(livePluginCompilerLibsPath).filesList() +
-                jarFilesOf(dependentPlugins) +
-                scriptPathAdditions +
-                pluginFolder
+        val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
 
-        val compilerClassLoader = UrlClassLoader.build()
-            .urls((jarFilesOf(dependentPlugins) + scriptPathAdditions + pluginFolder).map { it.toUrl() })
-            .parent(ideLibsClassLoader)
-            .useCache()
-            .get()
-        val compilerRunner = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
-
-        compilerRunner.declaredMethods.find { it.name == "compilePlugin" }!!.let { compilePluginMethod ->
+        compilerRunnerClass.declaredMethods.find { it.name == "compilePlugin" }!!.let { compilePluginMethod ->
             try {
+                val pluginFolder = File(pluginFolderPath)
+                val compilerClasspath =
+                    ideJdkClassesRoots() +
+                    File(livePluginLibsPath).filesList() +
+                    File(livePluginCompilerLibsPath).filesList() +
+                    ideLibFiles() +
+                    jarFilesOf(dependentPlugins) +
+                    scriptPathAdditions +
+                    pluginFolder
+
                 @Suppress("UNCHECKED_CAST")
                 val compilationErrors = compilePluginMethod.invoke(null, pluginFolderPath, compilerClasspath, compilerOutput, KotlinScriptTemplate::class.java) as List<String>
                 if (compilationErrors.isNotEmpty()) {
@@ -104,18 +81,21 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
                 }
             } catch (e: IOException) {
                 errorReporter.addLoadingError(pluginId, "Error creating scripting engine. ${unscrambleThrowable(e)}")
+                return
             } catch (e: CompilationException) {
                 errorReporter.addLoadingError(pluginId, "Error compiling script. ${unscrambleThrowable(e)}")
+                return
             } catch (e: Throwable) {
                 errorReporter.addLoadingError(pluginId, "Internal error compiling script. ${unscrambleThrowable(e)}")
+                return
             }
         }
 
         val pluginClass = try {
             val runtimeClassPath =
                 listOf(compilerOutput) +
-                    File(livePluginLibsPath).filesList() +
-                    scriptPathAdditions
+                File(livePluginLibsPath).filesList() +
+                scriptPathAdditions
 
             val classLoader = createClassLoaderWithDependencies(
                 runtimeClassPath,
@@ -151,6 +131,19 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         const val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
         const val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
         val livePluginCompilerLibsPath = toSystemIndependentName("$livePluginLibsPath/kotlin-compiler")
+
+        private val compilerClassLoader by lazy {
+            UrlClassLoader.build()
+                .urls((
+                    ideJdkClassesRoots() +
+                        File(livePluginCompilerLibsPath).filesList() +
+                        File("$livePluginLibsPath/kotlin-compiler-wrapper-0.1.0.jar")
+                    ).map { it.toUrl() })
+                .noPreload()
+                .allowBootstrapResources()
+                .useCache()
+                .get()
+        }
     }
 }
 
