@@ -8,6 +8,7 @@ import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.IdeUtil.unscrambleThrowable
 import liveplugin.LivePluginAppComponent.Companion.livePluginLibsPath
+import liveplugin.LivePluginAppComponent.Companion.livePluginPath
 import liveplugin.LivePluginAppComponent.Companion.livePluginsClassesPath
 import liveplugin.filesList
 import liveplugin.findScriptFileIn
@@ -130,15 +131,11 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         const val testScript = "plugin-test.kts"
         const val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
         const val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
-        val livePluginCompilerLibsPath = toSystemIndependentName("$livePluginLibsPath/kotlin-compiler")
+        val livePluginCompilerLibsPath = toSystemIndependentName("$livePluginPath/kotlin-compiler")
 
         private val compilerClassLoader by lazy {
             UrlClassLoader.build()
-                .urls((
-                    ideJdkClassesRoots() +
-                        File(livePluginCompilerLibsPath).filesList() +
-                        File("$livePluginLibsPath/kotlin-compiler-wrapper-0.1.0.jar")
-                    ).map { it.toUrl() })
+                .urls((ideJdkClassesRoots() + File(livePluginCompilerLibsPath).filesList()).map(File::toUrl))
                 .noPreload()
                 .allowBootstrapResources()
                 .useCache()
@@ -147,8 +144,9 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
     }
 }
 
-private fun ideJdkClassesRoots(): List<File> =
-    JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")), true)
+private fun ideJdkClassesRoots(): List<File> = JavaSdkUtil.getJdkClassesRoots(javaHome, true)
+
+val javaHome = File(System.getProperty("java.home"))
 
 private fun ideLibFiles(): List<File> {
     val ideJarPath = PathManager.getJarPathForClass(IntelliJLaf::class.java)

@@ -47,6 +47,7 @@ class LivePluginAppComponent: DumbAware {
         const val livePluginId = "LivePlugin"
         const val groovyExamplesPath = "/groovy/"
         const val kotlinExamplesPath = "/kotlin/"
+        val livePluginPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/")
         val livePluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
         @JvmField val livePluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
         val livePluginsClassesPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-classes")
@@ -121,7 +122,11 @@ class LivePluginAppComponent: DumbAware {
             // this can be useful for non-java IDEs because they don't have bundled groovy libs
             val listener = NotificationListener { notification, _ ->
                 val groovyVersion = "2.4.12" // version of groovy used by latest IJ
-                val downloaded = downloadFile("http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/", "groovy-all-$groovyVersion.jar", livePluginLibsPath)
+                val downloaded = downloadFile(
+                    "http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/",
+                    "groovy-all-$groovyVersion.jar",
+                    livePluginLibsPath
+                )
                 if (downloaded) {
                     notification.expire()
                     askIfUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?")
