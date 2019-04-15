@@ -42,8 +42,10 @@ ext.kotlinVersion = "1.1.4"
 
 intellij {
 	// (to find available IDE versions see https://www.jetbrains.com/intellij-repository/releases)
-//	def ideVersion = System.getenv().getOrDefault("LIVEPLUGIN_IDEA_VERSION", "IU-172.3757.29")
-	def ideVersion = System.getenv().getOrDefault("LIVEPLUGIN_IDEA_VERSION", "181.2784.17")
+    def ideVersion = System.getenv().getOrDefault("LIVEPLUGIN_IDEA_VERSION", 
+			"191.6183.87" // Because of "import kotlin.script.experimental.*" classes
+//			"LATEST-EAP-SNAPSHOT"
+	)
 	println("Using ide version: ${ideVersion}")
 	version ideVersion
 	// The artifact name is deliberately not "live-plugin" because plugins are stored in the "live-plugins" directory.
