@@ -130,9 +130,7 @@ task validateLivePluginZip() { doLast {
 		"liveplugin/plugin-util.kt",
 		"groovy/default-plugin.groovy",
 		"kotlin/default-plugin.kts",
-		"META-INF/plugin.xml",
-		"script-implicits.kt",
-		"Script_implicitsKt.class"
+		"META-INF/plugin.xml"
 	].toSet())
 } }
 build.finalizedBy(saveLock)
