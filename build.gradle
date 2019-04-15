@@ -112,11 +112,12 @@ task validateLivePluginZip() { doLast {
 	expectToBeEqual(pluginZipFiles, [
 		"LivePlugin/lib/LivePlugin.jar",
 		"LivePlugin/lib/annotations-13.0.jar",
-		"LivePlugin/lib/kotlin-compiler-wrapper-0.1.0.jar",
-		"LivePlugin/lib/kotlin-compiler/kotlin-compiler-embeddable.jar",
-		"LivePlugin/lib/kotlin-compiler/kotlin-reflect.jar",
-		"LivePlugin/lib/kotlin-compiler/kotlin-stdlib.jar",
-		"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl"
+		"LivePlugin/lib/searchableOptions.jar",
+		"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
+		"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper.jar",
+		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable.jar",
+		"LivePlugin/kotlin-compiler/kotlin-reflect.jar",
+		"LivePlugin/kotlin-compiler/kotlin-stdlib.jar",
 	].toSet())
 
 	def livePluginJar = zipTree(pluginZip.files.find { it.name == "LivePlugin.jar" })
@@ -190,6 +191,7 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
 	// Remove kotlin version from jars zipped with plugin so that when they are updated, 'LivePlugin' module dependencies are still correct.
 	def filesToMove = [
+		["kotlin-compiler-wrapper-0.1.0.jar", "kotlin-compiler-wrapper.jar"],
 		["kotlin-compiler-embeddable-${kotlinVersion}.jar", "kotlin-compiler-embeddable.jar"],
 		["kotlin-reflect-${kotlinVersion}.jar", "kotlin-reflect.jar"],
 		["kotlin-stdlib-${kotlinVersion}.jar", "kotlin-stdlib.jar"]
@@ -198,7 +200,7 @@ def "Move kotlin compiler jars from plugin classpath into a separate folder so t
 		filesToMove.each {
 			ant.move(
 				file: "build/idea-sandbox/plugins/LivePlugin/lib/${it[0]}",
-				tofile: "build/idea-sandbox/plugins/LivePlugin/lib/kotlin-compiler/${it[1]}"
+				tofile: "build/idea-sandbox/plugins/LivePlugin/kotlin-compiler/${it[1]}"
 			)
 		}
 	}
