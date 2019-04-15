@@ -112,11 +112,11 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
         runOnEDT {
             try {
-                // Arguments below must match constructor of liveplugin.pluginrunner.kotlin.KotlinScriptTemplate class.
+                // Arguments below must match constructor of KotlinScriptTemplate class.
                 // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
                 pluginClass.constructors[0].newInstance(
-                    binding[projectKey] as Project?,
                     binding[isIdeStartupKey] as Boolean,
+                    binding[projectKey] as Project?,
                     binding[pluginPathKey] as String,
                     binding[pluginDisposableKey] as Disposable
                 )
