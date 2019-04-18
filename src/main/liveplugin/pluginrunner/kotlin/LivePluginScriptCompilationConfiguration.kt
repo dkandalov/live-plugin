@@ -13,13 +13,13 @@ object LivePluginScriptCompilationConfiguration: ScriptCompilationConfiguration(
         File(LivePluginAppComponent.ideJarsPath).listFiles()
 
     refineConfiguration {
-        beforeParsing { context: ScriptConfigurationRefinementContext ->
+        beforeParsing { context ->
             ResultWithDiagnostics.Success(
                 value = context.compilationConfiguration.withUpdatedClasspath(classpath),
                 reports = emptyList()
             )
         }
-        beforeCompiling { context: ScriptConfigurationRefinementContext ->
+        beforeCompiling { context ->
             ResultWithDiagnostics.Success(
                 value = context.compilationConfiguration.withUpdatedClasspath(classpath),
                 reports = emptyList()

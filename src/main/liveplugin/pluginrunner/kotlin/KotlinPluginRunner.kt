@@ -64,7 +64,6 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
 
         compilerRunnerClass.declaredMethods.find { it.name == "compilePlugin" }!!.let { compilePluginMethod ->
             try {
-                val pluginFolder = File(pluginFolderPath)
                 val compilerClasspath =
                     ideJdkClassesRoots() +
                     File(livePluginLibsPath).filesList() +
@@ -72,7 +71,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
                     ideLibFiles() +
                     jarFilesOf(dependentPlugins) +
                     scriptPathAdditions +
-                    pluginFolder
+                    File(pluginFolderPath)
 
                 @Suppress("UNCHECKED_CAST")
                 val compilationErrors = compilePluginMethod.invoke(null, pluginFolderPath, compilerClasspath, compilerOutput, KotlinScriptTemplate::class.java) as List<String>
