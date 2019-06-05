@@ -31,7 +31,7 @@ class GitCloneDialog(project: Project, defaultUrl: String?): CloneDvcsDialog(pro
 
     constructor(project: Project): this(project, null)
 
-    override fun test(url: String): CloneDvcsDialog.TestResult {
+    override fun test(url: String): TestResult {
         val result = myGit.lsRemote(myProject, File("."), url)
         return if (result.success()) SUCCESS else TestResult(result.errorOutputAsJoinedString)
     }

@@ -1,5 +1,6 @@
 package liveplugin.toolwindow.addplugin.git
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
@@ -18,7 +19,6 @@ import com.intellij.openapi.vfs.newvfs.NewVirtualFile
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import git4idea.checkout.GitCheckoutProvider
 import git4idea.commands.Git
-import icons.GithubIcons
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.isInvalidPluginFolder
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
@@ -30,7 +30,7 @@ import java.io.File
 /**
  * Partially copied from org.jetbrains.plugins.github.GithubCheckoutProvider (became com.intellij.dvcs.ui.CloneDvcsDialog in IJ13)
  */
-class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", GithubIcons.Github_icon), DumbAware {
+class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIcons.Vcs.Vendors.Github), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
@@ -85,12 +85,12 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", Githu
         }
 
         override fun checkoutCompleted() {
-            val pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://" + livePluginsPath) ?: return
+            val pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://$livePluginsPath") ?: return
 
             val finishRunnable = Runnable {
                 val clonedFolder = destinationFolder.findChild(pluginName)
                 if (clonedFolder == null) {
-                    logger.error("Couldn't find virtual file for checked out plugin: " + pluginName)
+                    logger.error("Couldn't find virtual file for checked out plugin: $pluginName")
                     return@Runnable
                 }
 
@@ -123,6 +123,6 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", Githu
 
     companion object {
         private val logger = Logger.getInstance(AddPluginFromGitAction::class.java)
-        private val dialogTitle = "Clone Plugin From Git"
+        private const val dialogTitle = "Clone Plugin From Git"
     }
 }

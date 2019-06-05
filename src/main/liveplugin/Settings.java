@@ -8,7 +8,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@State(name = "LivePluginSettings", storages = {@Storage(file = "$APP_CONFIG$/live-plugin.xml")})
+@State(name = "LivePluginSettings", storages = {@Storage(value = "$APP_CONFIG$/live-plugin.xml")})
 public class Settings implements PersistentStateComponent<Settings> {
 	public boolean justInstalled = true;
 	public boolean runAllPluginsOnIDEStartup = false;

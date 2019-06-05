@@ -101,7 +101,7 @@ private fun linesAboveCurrentAreImportOrPackage(editor: Editor): Boolean {
     return (0 until lineNumberBeforeCurrent)
         .asSequence()
         .map { lineNumber -> document.lineTextAt(lineNumber).trim { it <= ' ' } }
-        .none { !it.isEmpty() && !it.startsWith("//") && !it.startsWith("/*") && !it.startsWith("import") && !it.startsWith("package") }
+        .none { it.isNotEmpty() && !it.startsWith("//") && !it.startsWith("/*") && !it.startsWith("import") && !it.startsWith("package") }
 }
 
 private fun Document.lineTextAt(lineNumber: Int): String {

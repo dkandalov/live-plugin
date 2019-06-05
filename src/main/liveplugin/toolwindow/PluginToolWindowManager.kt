@@ -102,7 +102,7 @@ class PluginToolWindowManager {
             val scrollPane = ScrollPaneFactory.createScrollPane(fsTree.tree)
             panel = MySimpleToolWindowPanel(true, myFsTreeRef)
             panel!!.add(scrollPane)
-            panel!!.setToolbar(createToolBar())
+            panel!!.toolbar = createToolBar()
             return ContentFactory.SERVICE.getInstance().createContent(panel, "", false)
         }
 

@@ -12,7 +12,6 @@ import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import icons.GithubIcons.Github_icon
 import liveplugin.IdeUtil.showErrorDialog
-import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.addplugin.PluginIdValidator
@@ -126,7 +125,7 @@ class AddPluginFromGistAction: AnAction("Clone from Gist", "Clone from Gist", Gi
 
         private fun createPluginFrom(gist: GithubGist, pluginId: String?) {
             gist.files.forEach { gistFile ->
-                createFile(LivePluginAppComponent.livePluginsPath + "/" + pluginId, gistFile.filename, gistFile.content)
+                createFile(livePluginsPath + "/" + pluginId, gistFile.filename, gistFile.content)
             }
         }
 
