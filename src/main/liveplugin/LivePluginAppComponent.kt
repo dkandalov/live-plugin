@@ -50,7 +50,7 @@ class LivePluginAppComponent: DumbAware {
         val livePluginPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/")
         val livePluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
         @JvmField val livePluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
-        val livePluginsClassesPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-classes")
+        val livePluginsCompiledPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-compiled")
         val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
 
         private val livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin")
@@ -111,7 +111,7 @@ class LivePluginAppComponent: DumbAware {
                     0
                 )
                 val errorReporter = ErrorReporter()
-                val pluginPaths = pluginIdToPathMap().keys.map { LivePluginAppComponent.pluginIdToPathMap().getValue(it) }
+                val pluginPaths = pluginIdToPathMap().keys.map { pluginIdToPathMap().getValue(it) }
                 runPlugins(pluginPaths, event, errorReporter, createPluginRunners(errorReporter))
             }
         }

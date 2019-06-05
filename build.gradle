@@ -1,5 +1,4 @@
 buildscript {
-	ext.kotlin_version = "1.1.4"
 	repositories {
 		mavenCentral()
 		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -12,7 +11,7 @@ buildscript {
 plugins {
 	id "nebula.dependency-lock" version "5.0.2"
 	id "org.jetbrains.intellij" version "0.2.17"
-	id "org.jetbrains.kotlin.jvm" version "1.1.4"
+	id "org.jetbrains.kotlin.jvm" version "1.3.20"
 }
 apply plugin:"java"
 apply plugin:"groovy"
@@ -33,12 +32,11 @@ repositories {
 compileKotlin {
 	kotlinOptions {
 		jvmTarget = "1.8"
-		apiVersion = "1.1"
-		languageVersion = "1.1"
+		apiVersion = "1.3"
+		languageVersion = "1.3"
 	}
 }
-kotlin.experimental.coroutines = "enable"
-ext.kotlinVersion = "1.1.4"
+ext.kotlinVersion = "1.3.20"
 
 intellij {
 	// (to find available IDE versions see https://www.jetbrains.com/intellij-repository/releases)
@@ -63,13 +61,13 @@ dependencyLock {
 }
 
 dependencies {
-	// Bundle kotlin compiler and stdlib with LivePlugin because IDEs are not bundled with kotlin-compiler
-	// and kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
-	// so it seems to be more reliable to bundle particular version of kotlin jars inside LivePlugin.
+	// Bundle kotlin compiler and stdlib with LivePlugin because they are not bundled with IDEs
+	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
+	// so it should be more reliable to have a particular version of kotlin jars inside LivePlugin.
 	runtime group: "org.jetbrains.kotlin", name: "kotlin-compiler-embeddable", version: kotlinVersion
 	runtime group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: kotlinVersion
 	runtime group: "org.jetbrains.kotlin", name: "kotlin-reflect", version: kotlinVersion
-	runtime group: "live-plugin", name: "kotlin-compiler-wrapper", version: "0.1.0"
+	runtime group: "live-plugin", name: "kotlin-compiler-wrapper", version: "0.1.2"
 
 	testCompile group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
 }
@@ -110,17 +108,24 @@ jar {
 
 task validateLivePluginZip() { doLast {
 	def pluginZip = zipTree("build/distributions/LivePlugin.zip")
-	def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*/LivePlugin.zip.*?/", "") }.toSet()
-	expectToBeEqual(pluginZipFiles, [
-		"LivePlugin/lib/LivePlugin.jar",
-		"LivePlugin/lib/annotations-13.0.jar",
-		"LivePlugin/lib/searchableOptions.jar",
-		"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
-		"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper.jar",
-		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable.jar",
-		"LivePlugin/kotlin-compiler/kotlin-reflect.jar",
-		"LivePlugin/kotlin-compiler/kotlin-stdlib.jar",
-	].toSet())
+	def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*/LivePlugin.zip.*?/", "") }
+	
+	def kotlinCompilerAndItsTransitiveDependencies = [
+			"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper.jar",
+			"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable.jar",
+			"LivePlugin/kotlin-compiler/kotlin-reflect.jar",
+			"LivePlugin/kotlin-compiler/kotlin-stdlib.jar",
+			"LivePlugin/kotlin-compiler/kotlin-stdlib-common.jar",
+			"LivePlugin/kotlin-compiler/kotlin-script-runtime.jar",
+			"LivePlugin/kotlin-compiler/trove4j.jar",
+	]
+	def expectedLivePluginJars = [
+			"LivePlugin/lib/LivePlugin.jar",
+			"LivePlugin/lib/annotations-13.0.jar",
+			"LivePlugin/lib/searchableOptions.jar",
+			"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
+	]
+	expectToBeEqual(pluginZipFiles.toSet(), (expectedLivePluginJars + kotlinCompilerAndItsTransitiveDependencies).toSet())
 
 	def livePluginJar = zipTree(pluginZip.files.find { it.name == "LivePlugin.jar" })
 	def livePluginJarFiles = livePluginJar.files.collect{ it.path.replaceFirst(".*/LivePlugin.jar.*?/", "") }.toSet()
@@ -132,7 +137,7 @@ task validateLivePluginZip() { doLast {
 		"liveplugin/plugin-util.kt",
 		"groovy/default-plugin.groovy",
 		"kotlin/default-plugin.kts",
-		"META-INF/plugin.xml"
+		"META-INF/plugin.xml",
 	].toSet())
 } }
 build.finalizedBy(saveLock)
@@ -192,10 +197,13 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
 	// Remove kotlin version from jars zipped with plugin so that when they are updated, 'LivePlugin' module dependencies are still correct.
 	def filesToMove = [
-		["kotlin-compiler-wrapper-0.1.0.jar", "kotlin-compiler-wrapper.jar"],
+		["kotlin-compiler-wrapper-0.1.2.jar", "kotlin-compiler-wrapper.jar"],
 		["kotlin-compiler-embeddable-${kotlinVersion}.jar", "kotlin-compiler-embeddable.jar"],
 		["kotlin-reflect-${kotlinVersion}.jar", "kotlin-reflect.jar"],
-		["kotlin-stdlib-${kotlinVersion}.jar", "kotlin-stdlib.jar"]
+		["kotlin-stdlib-${kotlinVersion}.jar", "kotlin-stdlib.jar"],
+		["kotlin-stdlib-common-${kotlinVersion}.jar", "kotlin-stdlib-common.jar"],
+		["kotlin-script-runtime-${kotlinVersion}.jar", "kotlin-script-runtime.jar"],
+		["trove4j-1.0.20181211.jar", "trove4j.jar"]
 	]
 	prepareSandbox.doLast {
 		filesToMove.each {
