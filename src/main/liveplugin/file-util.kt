@@ -5,7 +5,6 @@ import java.io.File
 import java.net.URL
 import java.util.*
 import java.util.Collections.emptyList
-import kotlin.coroutines.experimental.buildSequence
 
 fun File.filesList(): List<File> = listFiles()?.toList() ?: emptyList()
 
@@ -33,14 +32,16 @@ fun findScriptFilesIn(path: String, fileName: String): List<File> {
     else allFilesInDirectory(File(path)).filter { fileName == it.name }.toList()
 }
 
-fun allFilesInDirectory(dir: File): Sequence<File> = buildSequence {
+fun allFilesInDirectory(dir: File): Sequence<File> = sequence {
     val queue = LinkedList(listOf(dir))
     while (queue.isNotEmpty()) {
         val currentDir = queue.removeLast()
         val files = currentDir.listFiles() ?: emptyArray()
         for (file in files) {
-            if (file.isFile) yield(file)
-            else if (file.isDirectory) queue.addFirst(file)
+            when {
+                file.isFile      -> yield(file)
+                file.isDirectory -> queue.addFirst(file)
+            }
         }
     }
 }
