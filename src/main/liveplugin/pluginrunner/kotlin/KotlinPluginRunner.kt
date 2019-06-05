@@ -27,21 +27,20 @@ import java.io.IOException
  * There are several reasons to run kotlin plugins the way it's currently done.
  *
  * Use standalone compiler (i.e. `kotlin-compiler-embeddable.jar`, etc.) because
- *  - kotlin script seems to have few problems, so using normal compiler should be easier
+ *  - kotlin script seems to have few problems, so using normal compiler should be more stable
  *  - each version of liveplugin will have the same version of kotlin compiler
  *  - size of LivePlugin.zip shouldn't be an issue
  *
  * Use separate classloader to compile liveplugin and then load compiler classes into IDE because
  *  - kotlin compiler uses classes with the same names as IntelliJ
- *  - `kotlin-compiler-embeddable` has some of them renamed but not all of them
+ *  - `kotlin-compiler-embeddable` has some of the classes with duplicate names renamed but not all of them
  *  - kotlin compiler attempts to initialise some of the global variables which are already initialised by IDE
  *  - in theory kotlin-compiler and IDE classes could be "namespaced" by classloader,
- *    however in practice it still causes confusing problems which are really hard to debug
- *    ^^^ don't understand what it means anymore :(
+ *    however, in practice it still causes confusing problems which are really hard to debug
  *
  * Use ".kts" extension because
  *  - ".kt" must have "main" function to be executed
- *  - `LivePluginKotlinScriptDefinitionContributor` doesn't seem to work with ".kt" files.
+ *  - ".kt" won't work with `LivePluginScriptCompilationConfiguration`
  */
 class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val environment: Map<String, String>): PluginRunner {
 
