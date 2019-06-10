@@ -4,7 +4,6 @@ package liveplugin.toolwindow.addplugin.git
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
@@ -12,7 +11,6 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
-import git4idea.DialogManager
 import liveplugin.IdeUtil.showErrorDialog
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction
@@ -24,9 +22,6 @@ import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.api.GithubApiRequests
 import org.jetbrains.plugins.github.api.GithubServerPath
 import org.jetbrains.plugins.github.api.data.GithubGist
-import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager
-import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
-import org.jetbrains.plugins.github.authentication.ui.GithubChooseAccountDialog
 import org.jetbrains.plugins.github.util.GithubSettings
 import java.io.IOException
 import javax.swing.Icon
@@ -41,7 +36,7 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
             gistUrl,
             event,
             onSuccess = { gist ->
-                val newPluginId = askUserForPluginId(project)
+                val newPluginId = askUserNewPluginName(project)
                 if (newPluginId != null) {
                     try {
                         createPluginFrom(gist, newPluginId)
@@ -72,15 +67,10 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
                 event.project,
                 "Enter gist URL:",
                 dialogTitle,
-                defaultIcon, "", GistUrlValidator()
+                defaultIcon,
+                "",
+                GistUrlValidator()
             )
-
-        private class MyExecutor: GithubApiRequestExecutor.Base(GithubSettings.getInstance()) {
-            override fun <T> execute(indicator: ProgressIndicator, request: GithubApiRequest<T>): T {
-                indicator.checkCanceled()
-                return createRequestBuilder(request).execute(request, indicator)
-            }
-        }
 
         private fun fetchGistFrom(
             gistUrl: String,
@@ -95,14 +85,12 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
 
                 override fun run(indicator: ProgressIndicator) {
                     try {
-                        val executor = MyExecutor()
-
                         val gistId = extractGistIdFrom(gistUrl)
                         val request = GithubApiRequests.Gists.get(
                             server = GithubServerPath.DEFAULT_SERVER,
                             id = gistId
                         )
-                        gist = executor.execute(request)
+                        gist = SimpleExecutor().execute(request)
 
                     } catch (e: IOException) {
                         exception = e
@@ -116,36 +104,7 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
             }.queue()
         }
 
-        private fun getAccount(project: Project, remoteUrl: String): GithubAccount? {
-            val authenticationManager = service<GithubAuthenticationManager>()
-            val accounts = authenticationManager.getAccounts().filter { it.server.matches(remoteUrl) }
-            //only possible when remote is on github.com
-            if (accounts.isEmpty()) {
-                if (!GithubServerPath.DEFAULT_SERVER.matches(remoteUrl))
-                    throw IllegalArgumentException("Remote $remoteUrl does not match ${GithubServerPath.DEFAULT_SERVER}")
-                return authenticationManager.requestNewAccountForServer(GithubServerPath.DEFAULT_SERVER, project)
-            }
-
-            return accounts.singleOrNull()
-                ?: accounts.find { it == authenticationManager.getDefaultAccount(project) }
-                ?: chooseAccount(project, authenticationManager, remoteUrl, accounts)
-        }
-
-        private fun chooseAccount(
-            project: Project,
-            authenticationManager: GithubAuthenticationManager,
-            remoteUrl: String,
-            accounts: List<GithubAccount>
-        ): GithubAccount? {
-            val dialog = GithubChooseAccountDialog(project, null, accounts, "Choose GitHub account for: $remoteUrl", showHosts = false, allowDefault = true)
-            DialogManager.show(dialog)
-            if (!dialog.isOK) return null
-            val account = dialog.account
-            if (dialog.setDefault) authenticationManager.setDefaultAccount(project, account)
-            return account
-        }
-
-        private fun askUserForPluginId(project: Project?): String? =
+        private fun askUserNewPluginName(project: Project?): String? =
             Messages.showInputDialog(project, "Enter new plugin name:", dialogTitle, defaultIcon, "", PluginIdValidator())
 
         private fun createPluginFrom(gist: GithubGist, pluginId: String?) =
@@ -156,6 +115,11 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
         private fun showMessageThatFetchingGistFailed(e: IOException?, project: Project?) {
             showErrorDialog(project, "Failed to fetch gist", dialogTitle)
             log.info(e!!)
+        }
+
+        private class SimpleExecutor: GithubApiRequestExecutor.Base(GithubSettings.getInstance()) {
+            override fun <T> execute(indicator: ProgressIndicator, request: GithubApiRequest<T>): T =
+                createRequestBuilder(request).execute(request, indicator)
         }
 
         private class GistUrlValidator: InputValidatorEx {
