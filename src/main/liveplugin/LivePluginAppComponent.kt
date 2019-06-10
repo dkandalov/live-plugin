@@ -17,6 +17,7 @@ import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.IdeUtil.askIfUserWantsToRestartIde
 import liveplugin.IdeUtil.downloadFile
+import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
@@ -101,7 +102,7 @@ class LivePluginAppComponent: DumbAware {
             get() = IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
 
         private fun runAllPlugins() {
-            ApplicationManager.getApplication().invokeLater {
+            invokeLaterOnEDT {
                 val event = AnActionEvent(
                     null,
                     IdeUtil.dummyDataContext,

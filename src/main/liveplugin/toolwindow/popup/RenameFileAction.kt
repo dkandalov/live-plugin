@@ -8,9 +8,9 @@ import com.intellij.openapi.fileChooser.actions.FileChooserAction
 import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor
 import com.intellij.openapi.ui.Messages
 import liveplugin.IdeUtil
+import liveplugin.IdeUtil.invokeLaterOnEDT
 import java.io.IOException
 import java.util.*
-import javax.swing.SwingUtilities
 import javax.swing.tree.DefaultMutableTreeNode
 
 class RenameFileAction: FileChooserAction() {
@@ -51,7 +51,7 @@ class RenameFileAction: FileChooserAction() {
 
                     if (nodeContainsRenamedFile) {
                         val finalNode = node
-                        SwingUtilities.invokeLater {
+                        invokeLaterOnEDT {
                             val nodeDescriptor = userObject as FileNodeDescriptor
                             val fileElement = FileElement(file, newFileName)
                             fileElement.parent = nodeDescriptor.element.parent
@@ -63,6 +63,7 @@ class RenameFileAction: FileChooserAction() {
                                 newFileName,
                                 nodeDescriptor.comment
                             )
+                            Unit
                         }
                         return
                     }

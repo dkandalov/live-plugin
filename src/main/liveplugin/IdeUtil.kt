@@ -78,7 +78,7 @@ object IdeUtil {
             ActionManager.getInstance(),
             0
         )
-        ApplicationManager.getApplication().invokeLater { action.actionPerformed(event) }
+        invokeLaterOnEDT { action.actionPerformed(event) }
     }
 
     fun isOnClasspath(className: String): Boolean {
