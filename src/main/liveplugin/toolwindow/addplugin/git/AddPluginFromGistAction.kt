@@ -17,6 +17,7 @@ import liveplugin.IdeUtil.showErrorDialog
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.addplugin.PluginIdValidator
+import liveplugin.toolwindow.addplugin.git.AddPluginFromGistAction.Companion.GistUrlValidator.Companion.extractGistIdFrom
 import liveplugin.toolwindow.util.createFile
 import org.jetbrains.plugins.github.api.GithubApiRequest
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
@@ -61,19 +62,18 @@ class AddPluginFromGistAction: AnAction("Clone from Gist", "Clone from Gist", Al
         log.info(e)
     }
 
-    companion object {
+    private companion object {
         private val log = Logger.getInstance(AddPluginFromGistAction::class.java)
         private const val dialogTitle = "Clone Plugin From Gist"
         private val defaultIcon: Icon? = null
 
-        private fun askUserForGistUrl(event: AnActionEvent): String? {
-            return Messages.showInputDialog(
+        private fun askUserForGistUrl(event: AnActionEvent): String? =
+            Messages.showInputDialog(
                 event.project,
                 "Enter gist URL:",
                 dialogTitle,
                 defaultIcon, "", GistUrlValidator()
             )
-        }
 
         private class MyExecutor: GithubApiRequestExecutor.Base(GithubSettings.getInstance()) {
             override fun <T> execute(indicator: ProgressIndicator, request: GithubApiRequest<T>): T {
@@ -97,11 +97,10 @@ class AddPluginFromGistAction: AnAction("Clone from Gist", "Clone from Gist", Al
                     try {
                         val executor = MyExecutor()
 
-                        val i = gistUrl.lastIndexOf('/')
-                        if (i == -1) return
+                        val gistId = extractGistIdFrom(gistUrl)
                         val request = GithubApiRequests.Gists.get(
                             server = GithubServerPath.DEFAULT_SERVER,
-                            id = gistUrl.substring(i + 1)
+                            id = gistId
                         )
                         gist = executor.execute(request)
 
@@ -132,14 +131,13 @@ class AddPluginFromGistAction: AnAction("Clone from Gist", "Clone from Gist", Al
                 ?: chooseAccount(project, authenticationManager, remoteUrl, accounts)
         }
 
-        private fun chooseAccount(project: Project, authenticationManager: GithubAuthenticationManager,
-                                  remoteUrl: String, accounts: List<GithubAccount>): GithubAccount? {
-            val dialog = GithubChooseAccountDialog(project,
-                null,
-                accounts,
-                "Choose GitHub account for: $remoteUrl",
-                showHosts = false,
-                allowDefault = true)
+        private fun chooseAccount(
+            project: Project,
+            authenticationManager: GithubAuthenticationManager,
+            remoteUrl: String,
+            accounts: List<GithubAccount>
+        ): GithubAccount? {
+            val dialog = GithubChooseAccountDialog(project, null, accounts, "Choose GitHub account for: $remoteUrl", showHosts = false, allowDefault = true)
             DialogManager.show(dialog)
             if (!dialog.isOK) return null
             val account = dialog.account
