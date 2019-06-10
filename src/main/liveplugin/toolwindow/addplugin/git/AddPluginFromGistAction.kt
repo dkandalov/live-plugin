@@ -92,7 +92,7 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
 
             override fun run(indicator: ProgressIndicator) {
                 try {
-                    val gistId = extractGistIdFrom(gistUrl)
+                    val gistId = extractGistIdFrom(gistUrl)!!
                     val request = GithubApiRequests.Gists.get(
                         server = GithubServerPath.DEFAULT_SERVER,
                         id = gistId
@@ -117,22 +117,23 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
     }
 
     private class GistUrlValidator: InputValidatorEx {
-        private var errorText: String? = null
+        private var isValid = true
 
         override fun checkInput(inputString: String): Boolean {
-            val isValid = inputString.lastIndexOf('/') != -1
-            errorText = if (isValid) null else "Gist URL should have at least one '/' symbol"
+            isValid = extractGistIdFrom(inputString) != null
             return isValid
         }
 
-        override fun getErrorText(inputString: String) = errorText
+        override fun getErrorText(inputString: String) =
+            if (isValid) null else "Couldn't parse gist URL"
 
         override fun canClose(inputString: String) = true
 
         companion object {
-            fun extractGistIdFrom(gistUrl: String): String {
+            fun extractGistIdFrom(gistUrl: String): String? {
                 val i = gistUrl.lastIndexOf('/')
-                return gistUrl.substring(i + 1)
+                return if (i == -1) null
+                else gistUrl.substring(i + 1)
             }
         }
     }
