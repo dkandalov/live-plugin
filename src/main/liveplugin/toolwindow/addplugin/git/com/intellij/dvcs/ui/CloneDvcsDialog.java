@@ -3,11 +3,11 @@ package liveplugin.toolwindow.addplugin.git.com.intellij.dvcs.ui;
 import com.intellij.dvcs.DvcsRememberedInputs;
 import com.intellij.dvcs.ui.DvcsBundle;
 import com.intellij.ide.FrameStateListener;
-import com.intellij.ide.FrameStateManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
 import static com.intellij.util.ObjectUtils.assertNotNull;
 
 /**
+ * TODO check if existing clone dialog can be reused or fork the code again
+ *
  * This is a fork of {@link com.intellij.dvcs.ui.CloneDvcsDialog}.
  * The reason for fork is to disable "parent directory" and "directory name" text fields.
  */
@@ -80,12 +82,12 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 		myRepositoryUrlLabel.setDisplayedMnemonic('R');
 		setOKButtonText(DvcsBundle.getString("clone.button"));
 
-		FrameStateManager.getInstance().addListener(new FrameStateListener.Adapter() {
+		project.getMessageBus().connect(getDisposable()).subscribe(FrameStateListener.TOPIC, new FrameStateListener() {
 			@Override
 			public void onFrameActivated() {
 				updateButtons();
 			}
-		}, getDisposable());
+		});
 	}
 
 	@Override
@@ -118,30 +120,22 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 	private void initListeners() {
 		FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor();
 		fcd.setShowFileSystemRoots(true);
-		fcd.setTitle(DvcsBundle.getString("clone.destination.directory.title"));
-		fcd.setDescription(DvcsBundle.getString("clone.destination.directory.description"));
+		fcd.setTitle(DvcsBundle.getString("clone.destination.directory.browser.title"));
+		fcd.setDescription(DvcsBundle.getString("clone.destination.directory.browser.description"));
 		fcd.setHideIgnored(false);
 		myParentDirectory.addActionListener(
 				new ComponentWithBrowseButton.BrowseFolderActionListener<JTextField>(fcd.getTitle(), fcd.getDescription(), myParentDirectory,
 						myProject, fcd, TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT) {
 					@Override
 					protected VirtualFile getInitialFile() {
-						// suggest project base directory only if nothing is typed in the component.
-						String text = getComponentText();
-						if (text.length() == 0) {
-							VirtualFile file = myProject.getBaseDir();
-							if (file != null) {
-								return file;
-							}
-						}
-						return super.getInitialFile();
+						return ProjectUtil.guessProjectDir(myProject);
 					}
 				}
 		);
 
 		final DocumentListener updateOkButtonListener = new DocumentAdapter() {
 			@Override
-			protected void textChanged(DocumentEvent e) {
+			protected void textChanged(@NotNull DocumentEvent e) {
 				updateButtons();
 			}
 		};
@@ -169,7 +163,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 				() -> test(myTestURL), DvcsBundle.message("clone.testing", myTestURL), true, myProject);
 		if (testResult.isSuccess()) {
 			Messages.showInfoMessage(myTestButton, DvcsBundle.message("clone.test.success.message", myTestURL),
-					DvcsBundle.getString("clone.test.connection.title"));
+					DvcsBundle.getString("clone.repository.url.test.label"));
 			myTestResult = Boolean.TRUE;
 		}
 		else {
@@ -232,8 +226,8 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 			return false;
 		}
 		if (myTestResult != null && repository.equals(myTestURL)) {
-			if (!myTestResult.booleanValue()) {
-				setErrorText(DvcsBundle.getString("clone.test.failed.error"));
+			if (!myTestResult) {
+				setErrorText("Repository test has failed.");
 				setOKActionEnabled(false);
 				return false;
 			}
@@ -257,7 +251,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 			File file = new File(repository);
 			if (file.exists()) {
 				if (!file.isDirectory()) {
-					setErrorText(DvcsBundle.getString("clone.url.is.not.directory.error"));
+					setErrorText("Repository URL is not a directory.");
 					setOKActionEnabled(false);
 				}
 				return true;
@@ -266,7 +260,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 		catch (Exception fileExp) {
 			// do nothing
 		}
-		setErrorText(DvcsBundle.getString("clone.invalid.url"));
+		setErrorText("Repository URL is a malformed URL or non-existent directory.");
 		setOKActionEnabled(false);
 		return false;
 	}
@@ -284,9 +278,9 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 			urls.add(0, myDefaultRepoUrl);
 		}
 		myRepositoryURL.setHistory(ArrayUtil.toObjectArray(urls, String.class));
-		myRepositoryURL.addDocumentListener(new com.intellij.openapi.editor.event.DocumentAdapter() {
+		myRepositoryURL.addDocumentListener(new com.intellij.openapi.editor.event.DocumentListener() {
 			@Override
-			public void documentChanged(com.intellij.openapi.editor.event.DocumentEvent e) {
+			public void documentChanged(@NotNull com.intellij.openapi.editor.event.DocumentEvent e) {
 				// enable test button only if something is entered in repository URL
 				final String url = getCurrentUrlText();
 				myTestButton.setEnabled(url.length() != 0);
@@ -298,10 +292,6 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 				updateButtons();
 			}
 		});
-	}
-
-	public void prependToHistory(@NotNull final String item) {
-		myRepositoryURL.prependItem(item);
 	}
 
 	public void rememberSettings() {
@@ -355,7 +345,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 			myErrorMessage = errorMessage;
 		}
 
-		public boolean isSuccess() {
+		boolean isSuccess() {
 			return myErrorMessage == null;
 		}
 
