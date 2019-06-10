@@ -31,7 +31,7 @@ import org.jetbrains.plugins.github.util.GithubSettings
 import java.io.IOException
 import javax.swing.Icon
 
-class AddPluginFromGistAction: AnAction("Clone from Gist", "Clone from Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
+class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
@@ -64,7 +64,7 @@ class AddPluginFromGistAction: AnAction("Clone from Gist", "Clone from Gist", Al
 
     private companion object {
         private val log = Logger.getInstance(AddPluginFromGistAction::class.java)
-        private const val dialogTitle = "Clone Plugin From Gist"
+        private const val dialogTitle = "Copy Plugin From Gist"
         private val defaultIcon: Icon? = null
 
         private fun askUserForGistUrl(event: AnActionEvent): String? =
