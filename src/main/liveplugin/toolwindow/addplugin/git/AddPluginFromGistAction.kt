@@ -11,6 +11,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
+import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.IdeUtil.showErrorDialog
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction
@@ -32,11 +33,11 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
         val project = event.project ?: return
         val gistUrl = askUserForGistUrl(project) ?: return
 
-        fetchGistFrom(
+        fetchGist(
             gistUrl,
             project,
             onSuccess = { gist ->
-                val newPluginId = askUserNewPluginName(project)
+                val newPluginId = askUserForNewPluginName(project, gist)
                 if (newPluginId != null) {
                     try {
                         createPluginFrom(gist, newPluginId)
@@ -62,51 +63,49 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
             GistUrlValidator()
         )
 
-    private fun askUserNewPluginName(project: Project?): String? =
-        Messages.showInputDialog(project, "Enter new plugin name:", dialogTitle, defaultIcon, "", PluginIdValidator())
+    private fun askUserForNewPluginName(project: Project, gist: GithubGist): String? =
+        Messages.showInputDialog(
+            project,
+            "Enter new plugin name:",
+            dialogTitle,
+            defaultIcon,
+            gist.description,
+            PluginIdValidator()
+        )
 
     private fun createPluginFrom(gist: GithubGist, pluginId: String?) =
         gist.files.forEach { gistFile ->
             createFile("$livePluginsPath/$pluginId", gistFile.filename, gistFile.content)
         }
 
-    private fun showMessageThatCreatingPluginFailed(e: IOException, newPluginId: String?, project: Project?) {
+    private fun showMessageThatFetchingGistFailed(e: IOException?, project: Project) {
+        showErrorDialog(project, "Failed to fetch gist", dialogTitle)
+        if (e != null) log.info(e)
+    }
+
+    private fun showMessageThatCreatingPluginFailed(e: IOException, newPluginId: String?, project: Project) {
         showErrorDialog(project, "Error adding plugin \"$newPluginId\" to $livePluginsPath", dialogTitle)
         log.info(e)
     }
 
-    private fun showMessageThatFetchingGistFailed(e: IOException?, project: Project?) {
-        showErrorDialog(project, "Failed to fetch gist", dialogTitle)
-        log.info(e!!)
-    }
-
-    private fun fetchGistFrom(
+    private fun fetchGist(
         gistUrl: String,
         project: Project,
         onSuccess: (GithubGist) -> Unit,
-        onFailure: (IOException) -> Unit
+        onFailure: (IOException?) -> Unit
     ) {
         object: Task.Backgroundable(project, "Fetching Gist", true, ALWAYS_BACKGROUND) {
-            private var gist: GithubGist? = null
-            private var exception: IOException? = null
-
             override fun run(indicator: ProgressIndicator) {
                 try {
                     val gistId = extractGistIdFrom(gistUrl)!!
-                    val request = GithubApiRequests.Gists.get(
-                        server = GithubServerPath.DEFAULT_SERVER,
-                        id = gistId
-                    )
-                    gist = SimpleExecutor().execute(request)
-
+                    val request = GithubApiRequests.Gists.get(GithubServerPath.DEFAULT_SERVER, gistId)
+                    val gist = SimpleExecutor().execute(request)
+                    invokeLaterOnEDT {
+                        if (gist == null) onFailure(null) else onSuccess(gist)
+                    }
                 } catch (e: IOException) {
-                    exception = e
+                    invokeLaterOnEDT { onFailure(e) }
                 }
-            }
-
-            override fun onSuccess() {
-                val e = exception
-                if (e != null) onFailure(e) else onSuccess(gist!!)
             }
         }.queue()
     }

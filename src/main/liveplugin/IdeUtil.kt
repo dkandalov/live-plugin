@@ -96,6 +96,10 @@ object IdeUtil {
     fun downloadFile(downloadUrl: String, fileName: String, targetPath: String): Boolean =
         downloadFiles(asList(Pair(downloadUrl, fileName)), targetPath)
 
+    fun invokeLaterOnEDT(f: () -> Any) {
+        ApplicationManager.getApplication().invokeLater { f.invoke() }
+    }
+
     // TODO make download non-modal
     private fun downloadFiles(urlAndFileNames: List<Pair<String, String>>, targetPath: String): Boolean {
         val service = DownloadableFileService.getInstance()
