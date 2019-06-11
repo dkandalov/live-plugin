@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import liveplugin.Icons
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
+import liveplugin.findFileByUrl
 
 class RefreshPluginsPanelAction: AnAction(
     "Refresh Plugins Panel",
@@ -20,12 +21,14 @@ class RefreshPluginsPanelAction: AnAction(
 
     companion object {
         fun refreshPluginTree() {
-            val fileManager = VirtualFileManager.getInstance()
-            val pluginsRoot = fileManager.findFileByUrl("file://$livePluginsPath") ?: return
+            val pluginsRoot = livePluginsPath.findFileByUrl() ?: return
             ApplicationManager.getApplication().runWriteAction {
-                RefreshQueue.getInstance().refresh(false, true, Runnable {
-                    PluginToolWindowManager.reloadPluginTreesInAllProjects()
-                }, pluginsRoot)
+                RefreshQueue.getInstance().refresh(
+                    false,
+                    true,
+                    Runnable { PluginToolWindowManager.reloadPluginTreesInAllProjects() },
+                    pluginsRoot
+                )
             }
         }
     }

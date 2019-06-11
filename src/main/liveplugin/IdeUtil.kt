@@ -27,6 +27,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.Messages.showOkCancelDialog
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.containers.ContainerUtil.map
 import com.intellij.util.download.DownloadableFileService
 import com.intellij.util.text.CharArrayUtil
@@ -248,3 +249,7 @@ object IdeUtil {
         }
     }
 }
+
+fun String.findFileByUrl(): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl("file:///$this")
+
+fun String.refreshAndFindFileByUrl(): VirtualFile? = VirtualFileManager.getInstance().refreshAndFindFileByUrl("file:///$this")

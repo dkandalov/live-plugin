@@ -14,7 +14,6 @@ import com.intellij.openapi.vcs.CheckoutProvider
 import com.intellij.openapi.vcs.VcsKey
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.NewVirtualFile
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import git4idea.checkout.GitCheckoutProvider
@@ -22,6 +21,8 @@ import git4idea.commands.Git
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.isInvalidPluginFolder
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
+import liveplugin.findFileByUrl
+import liveplugin.refreshAndFindFileByUrl
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.delete
 import java.io.File
@@ -40,7 +41,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
         if (!dialog.isOK) return
         dialog.rememberSettings()
 
-        val destinationFolder = VirtualFileManager.getInstance().refreshAndFindFileByUrl("file:///${dialog.parentDirectory}/") ?: return
+        val destinationFolder = dialog.parentDirectory.refreshAndFindFileByUrl() ?: return
 
         GitCheckoutProvider.clone(
             project,
@@ -85,8 +86,6 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
         }
 
         override fun checkoutCompleted() {
-            val pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file:///$livePluginsPath") ?: return
-
             val finishRunnable = Runnable {
                 val clonedFolder = destinationFolder.findChild(pluginName)
                 if (clonedFolder == null) {
@@ -107,6 +106,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
 
                 RefreshPluginsPanelAction.refreshPluginTree()
             }
+            val pluginsRoot = livePluginsPath.findFileByUrl() ?: return
             RefreshQueue.getInstance().refresh(false, true, finishRunnable, pluginsRoot)
         }
 

@@ -5,6 +5,7 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFileManager
 import liveplugin.LivePluginAppComponent.Companion.livePluginId
+import liveplugin.findFileByUrl
 import java.io.IOException
 
 private const val requestor = livePluginId
@@ -22,8 +23,7 @@ fun createFile(parentPath: String, fileName: String, text: String) {
 
 fun delete(filePath: String) {
     runIOAction("delete") {
-        val file = VirtualFileManager.getInstance().findFileByUrl("file://$filePath")
-            ?: throw IOException("Failed to find file $filePath")
+        val file = filePath.findFileByUrl() ?: throw IOException("Failed to find file $filePath")
         file.delete(requestor)
     }
 }

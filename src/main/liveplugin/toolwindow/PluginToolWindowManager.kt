@@ -42,6 +42,7 @@ import liveplugin.Icons
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
+import liveplugin.findFileByUrl
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
 import liveplugin.toolwindow.addplugin.*
@@ -170,7 +171,7 @@ class PluginToolWindowManager {
                 descriptor.withTreeRootVisible(false)
 
                 val pluginPaths = pluginIdToPathMap().values
-                val virtualFiles = pluginPaths.mapNotNull { path -> VirtualFileManager.getInstance().findFileByUrl("file://$path") }
+                val virtualFiles = pluginPaths.mapNotNull { it.findFileByUrl() }
                 addRoots(descriptor, virtualFiles)
 
                 return descriptor
