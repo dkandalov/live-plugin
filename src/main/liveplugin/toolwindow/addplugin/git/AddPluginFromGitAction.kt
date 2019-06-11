@@ -40,7 +40,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
         if (!dialog.isOK) return
         dialog.rememberSettings()
 
-        val destinationFolder = LocalFileSystem.getInstance().findFileByIoFile(File(dialog.parentDirectory)) ?: return
+        val destinationFolder = VirtualFileManager.getInstance().refreshAndFindFileByUrl("file:///${dialog.parentDirectory}/") ?: return
 
         GitCheckoutProvider.clone(
             project,
@@ -85,7 +85,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
         }
 
         override fun checkoutCompleted() {
-            val pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file://$livePluginsPath") ?: return
+            val pluginsRoot = VirtualFileManager.getInstance().findFileByUrl("file:///$livePluginsPath") ?: return
 
             val finishRunnable = Runnable {
                 val clonedFolder = destinationFolder.findChild(pluginName)
