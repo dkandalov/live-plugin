@@ -38,13 +38,18 @@ class GroovyPluginRunner(
             val environment = environment + Pair("PLUGIN_PATH", pluginFolderPath)
 
             val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), groovyDependsOnPluginKeyword)
-            val pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), groovyAddToClasspathKeyword, environment, onError = { path ->
-                errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
-            }).map{ File(it) }.toMutableList()
-            val pluginFolderUrl = "file:///$pluginFolderPath/" // prefix with "file:///" so that unix-like path works on windows
+            val pathsToAdd = findClasspathAdditions(
+                readLines(mainScriptUrl),
+                groovyAddToClasspathKeyword,
+                environment,
+                onError = { path ->
+                    errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
+                }
+            ).map { File(it) }.toMutableList()
             pathsToAdd.add(File(pluginFolderPath))
             val classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, pluginId, errorReporter)
 
+            val pluginFolderUrl = "file:///$pluginFolderPath/" // prefix with "file:///" so that unix-like path works on windows
             // assume that GroovyScriptEngine is thread-safe
             // (according to this http://groovy.329449.n5.nabble.com/Is-the-GroovyScriptEngine-thread-safe-td331407.html)
             val scriptEngine = GroovyScriptEngine(pluginFolderUrl, classLoader)
@@ -76,18 +81,18 @@ class GroovyPluginRunner(
         }
     }
 
+    private fun createGroovyBinding(binding: Map<String, *>): Binding {
+        val result = Binding()
+        for ((key, value) in binding) {
+            result.setVariable(key, value)
+        }
+        return result
+    }
+
     companion object {
         const val mainScript = "plugin.groovy"
         const val testScript = "plugin-test.groovy"
         const val groovyAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
         const val groovyDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
-
-        private fun createGroovyBinding(binding: Map<String, *>): Binding {
-            val result = Binding()
-            for ((key, value) in binding) {
-                result.setVariable(key, value)
-            }
-            return result
-        }
     }
 }

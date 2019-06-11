@@ -6,7 +6,6 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Presentation
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.PathManager.getHomePath
 import com.intellij.openapi.application.PathManager.getPluginsPath
 import com.intellij.openapi.diagnostic.Logger
@@ -18,9 +17,12 @@ import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.IdeUtil.askIfUserWantsToRestartIde
 import liveplugin.IdeUtil.downloadFile
 import liveplugin.IdeUtil.invokeLaterOnEDT
-import liveplugin.pluginrunner.*
+import liveplugin.pluginrunner.ErrorReporter
+import liveplugin.pluginrunner.PluginRunner
+import liveplugin.pluginrunner.createPluginRunners
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
+import liveplugin.pluginrunner.runPlugins
 import liveplugin.toolwindow.PluginToolWindowManager
 import liveplugin.toolwindow.util.ExamplePluginInstaller
 import java.io.File
