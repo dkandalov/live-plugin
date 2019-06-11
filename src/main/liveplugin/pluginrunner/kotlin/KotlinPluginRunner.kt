@@ -19,7 +19,6 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependen
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
 import liveplugin.toUrl
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
-import org.jetbrains.kotlin.codegen.CompilationException
 import java.io.File
 import java.io.IOException
 
@@ -73,11 +72,14 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
             } catch (e: IOException) {
                 errorReporter.addLoadingError(pluginId, "Error creating scripting engine. ${unscrambleThrowable(e)}")
                 return
-            } catch (e: CompilationException) {
-                errorReporter.addLoadingError(pluginId, "Error compiling script. ${unscrambleThrowable(e)}")
-                return
             } catch (e: Throwable) {
-                errorReporter.addLoadingError(pluginId, "Internal error compiling script. ${unscrambleThrowable(e)}")
+                // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
+                // and LivePlugin should be able to run kotlin scripts without it
+                if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
+                    errorReporter.addLoadingError(pluginId, "Error compiling script. ${unscrambleThrowable(e)}")
+                } else {
+                    errorReporter.addLoadingError(pluginId, "Internal error compiling script. ${unscrambleThrowable(e)}")
+                }
                 return
             }
         }
