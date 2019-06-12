@@ -27,7 +27,6 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
@@ -77,173 +76,117 @@ class PluginToolWindowManager {
         })
     }
 
-    class PluginToolWindow {
-        private var myFsTreeRef = Ref<FileSystemTree>()
-        private var panel: SimpleToolWindowPanel? = null
-        private var toolWindow: ToolWindow? = null
+    companion object {
+        private val toolWindowsByProject = HashMap<Project, PluginToolWindow>()
 
-        fun registerWindowFor(project: Project) {
-            val toolWindowManager = ToolWindowManager.getInstance(project)
-            toolWindow = toolWindowManager.registerToolWindow(pluginsToolWindowId, false, ToolWindowAnchor.RIGHT, project, true)
-            toolWindow!!.icon = Icons.pluginToolwindowIcon
-
-            toolWindow!!.contentManager.addContent(createContent(project))
+        internal fun reloadPluginTreesInAllProjects() {
+            for ((project, toolWindow) in toolWindowsByProject) {
+                toolWindow.reloadPluginRoots(project)
+            }
         }
 
-        fun unregisterWindowFrom(project: Project?) {
-            ToolWindowManager.getInstance(project!!).unregisterToolWindow(pluginsToolWindowId)
+        private fun putToolWindow(pluginToolWindow: PluginToolWindow, project: Project) {
+            toolWindowsByProject[project] = pluginToolWindow
         }
 
-        private fun createContent(project: Project): Content {
-            val fsTree = createFsTree(project)
-            myFsTreeRef = Ref.create(fsTree)
+        private fun removeToolWindow(project: Project?) = toolWindowsByProject.remove(project)
 
-            installPopupMenuInto(fsTree)
-
-            val scrollPane = ScrollPaneFactory.createScrollPane(fsTree.tree)
-            panel = MySimpleToolWindowPanel(true, myFsTreeRef)
-            panel!!.add(scrollPane)
-            panel!!.toolbar = createToolBar()
-            return ContentFactory.SERVICE.getInstance().createContent(panel, "", false)
+        fun addRoots(descriptor: FileChooserDescriptor, virtualFiles: List<VirtualFile>) {
+            // Adding file parent is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement.
+            // Otherwise, if there is only one plugin, tree will show files in plugin directory instead of plugin folder.
+            // (Note that this code is also used by "Copy from Path" action.)
+            if (virtualFiles.size == 1) {
+                val parent = virtualFiles[0].parent
+                descriptor.roots = if (parent != null) listOf(parent) else virtualFiles
+            } else {
+                descriptor.roots = virtualFiles
+            }
         }
 
-        fun reloadPluginRoots(project: Project) {
-            // the only reason to create new instance of tree here is that
-            // I couldn't find a way to force tree to update it's roots
-            val fsTree = createFsTree(project)
-            myFsTreeRef.set(fsTree)
-
-            installPopupMenuInto(fsTree)
-
-            val scrollPane = ScrollPaneFactory.createScrollPane(myFsTreeRef.get().tree)
-            panel!!.remove(0)
-            panel!!.add(scrollPane, 0)
+        fun findPluginRootsFor(files: Array<VirtualFile>): Collection<VirtualFile> {
+            return files.mapNotNull { pluginFolderOf(it) }.toSet()
         }
 
-        private fun createToolBar(): JComponent {
-            val actionGroup = DefaultActionGroup().also {
-                it.add(withIcon(Icons.addPluginIcon, createAddPluginsGroup()))
-                it.add(DeletePluginAction())
-                it.add(RunPluginAction())
-                it.add(RunPluginTestsAction())
-                it.addSeparator()
-                it.add(RefreshPluginsPanelAction())
-                it.add(withIcon(Icons.expandAllIcon, ExpandAllAction()))
-                it.add(withIcon(Icons.collapseAllIcon, CollapseAllAction()))
-                it.addSeparator()
-                it.add(withIcon(Icons.settingsIcon, createSettingsGroup()))
-                it.add(withIcon(Icons.helpIcon, ShowHelpAction()))
-            }
+        private fun pluginFolderOf(file: VirtualFile): VirtualFile? {
+            if (file.parent == null) return null
 
-            // this is a "hack" to force drop-down box appear below button
-            // (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
-            val place = ActionPlaces.EDITOR_TOOLBAR
+            val pluginsRoot = File(livePluginsPath)
+            // comparing files because string comparison was observed not work on windows (e.g. "c:/..." and "C:/...")
+            return if (!FileUtil.filesEqual(File(file.parent.path), pluginsRoot)) pluginFolderOf(file.parent) else file
+        }
+    }
+}
 
-            val toolBarPanel = JPanel(GridLayout())
-            toolBarPanel.add(ActionManager.getInstance().createActionToolbar(place, actionGroup, true).component)
-            return toolBarPanel
+private const val pluginsToolWindowId = "Plugins"
+
+private class PluginToolWindow {
+    private var myFsTreeRef = Ref<FileSystemTree>()
+    private var panel: SimpleToolWindowPanel? = null
+    private var toolWindow: ToolWindow? = null
+
+    fun registerWindowFor(project: Project) {
+        val toolWindowManager = ToolWindowManager.getInstance(project)
+        toolWindow = toolWindowManager.registerToolWindow(pluginsToolWindowId, false, ToolWindowAnchor.RIGHT, project, true)
+        toolWindow!!.icon = Icons.pluginToolwindowIcon
+
+        toolWindow!!.contentManager.addContent(createContent(project))
+    }
+
+    fun unregisterWindowFrom(project: Project?) {
+        ToolWindowManager.getInstance(project!!).unregisterToolWindow(pluginsToolWindowId)
+    }
+
+    private fun createContent(project: Project): Content {
+        val fsTree = createFsTree(project)
+        myFsTreeRef = Ref.create(fsTree)
+
+        installPopupMenuInto(fsTree)
+
+        val scrollPane = ScrollPaneFactory.createScrollPane(fsTree.tree)
+        panel = MySimpleToolWindowPanel(true, myFsTreeRef)
+        panel!!.add(scrollPane)
+        panel!!.toolbar = createToolBar()
+        return ContentFactory.SERVICE.getInstance().createContent(panel, "", false)
+    }
+
+    fun reloadPluginRoots(project: Project) {
+        // the only reason to create new instance of tree here is that
+        // I couldn't find a way to force tree to update it's roots
+        val fsTree = createFsTree(project)
+        myFsTreeRef.set(fsTree)
+
+        installPopupMenuInto(fsTree)
+
+        val scrollPane = ScrollPaneFactory.createScrollPane(myFsTreeRef.get().tree)
+        panel!!.remove(0)
+        panel!!.add(scrollPane, 0)
+    }
+
+    private fun createToolBar(): JComponent {
+        val actionGroup = DefaultActionGroup().also {
+            it.add(withIcon(Icons.addPluginIcon, createAddPluginsGroup()))
+            it.add(DeletePluginAction())
+            it.add(RunPluginAction())
+            it.add(RunPluginTestsAction())
+            it.addSeparator()
+            it.add(RefreshPluginsPanelAction())
+            it.add(withIcon(Icons.expandAllIcon, ExpandAllAction()))
+            it.add(withIcon(Icons.collapseAllIcon, CollapseAllAction()))
+            it.addSeparator()
+            it.add(withIcon(Icons.settingsIcon, createSettingsGroup()))
+            it.add(withIcon(Icons.helpIcon, ShowHelpAction()))
         }
 
-        companion object {
+        // this is a "hack" to force drop-down box appear below button
+        // (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
+        val place = ActionPlaces.EDITOR_TOOLBAR
 
-            private fun installPopupMenuInto(fsTree: FileSystemTree) {
-                val action = NewElementPopupAction()
-                action.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), fsTree.tree)
-
-                CustomizationUtil.installPopupHandler(fsTree.tree, "LivePlugin.Popup", ActionPlaces.UNKNOWN)
-            }
-
-            private fun shortcutsOf(actionId: String): Array<Shortcut> {
-                return KeymapManager.getInstance().activeKeymap.getShortcuts(actionId)
-            }
-
-            private fun createFileChooserDescriptor(): FileChooserDescriptor {
-                val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
-                    override fun getIcon(file: VirtualFile): Icon {
-                        val isPlugin = pluginIdToPathMap().values.any { file.path.toLowerCase() == it.toLowerCase() }
-                        return if (isPlugin) Icons.pluginIcon else super.getIcon(file)
-                    }
-
-                    override fun getName(virtualFile: VirtualFile) = virtualFile.name
-                    override fun getComment(virtualFile: VirtualFile?) = ""
-                }
-                descriptor.withShowFileSystemRoots(false)
-                descriptor.withTreeRootVisible(false)
-
-                val pluginPaths = pluginIdToPathMap().values
-                val virtualFiles = pluginPaths.mapNotNull { it.findFileByUrl() }
-                addRoots(descriptor, virtualFiles)
-
-                return descriptor
-            }
-
-            internal fun findPluginRootsFor(files: Array<VirtualFile>): Collection<VirtualFile> {
-                return files.mapNotNull { pluginFolderOf(it) }.toSet()
-            }
-
-            private fun pluginFolderOf(file: VirtualFile): VirtualFile? {
-                if (file.parent == null) return null
-
-                val pluginsRoot = File(livePluginsPath)
-                // comparing files because string comparison was observed not work on windows (e.g. "c:/..." and "C:/...")
-                return if (!FileUtil.filesEqual(File(file.parent.path), pluginsRoot)) pluginFolderOf(file.parent) else file
-            }
-
-            private fun withIcon(icon: Icon, action: AnAction): AnAction {
-                action.templatePresentation.icon = icon
-                return action
-            }
-
-            private fun createFsTree(project: Project): FileSystemTree {
-                val myTree = MyTree(project)
-
-                // must be installed before adding tree to FileSystemTreeImpl
-                EditSourceOnDoubleClickHandler.install(myTree)
-
-                val result = object: FileSystemTreeImpl(project, createFileChooserDescriptor(), myTree, null, null, null) {
-                    override fun createTreeBuilder(tree: JTree, treeModel: DefaultTreeModel, treeStructure: AbstractTreeStructure, comparator: Comparator<NodeDescriptor<*>>, descriptor: FileChooserDescriptor, onInitialized: Runnable?): AbstractTreeBuilder {
-                        return object: FileTreeBuilder(tree, treeModel, treeStructure, comparator, descriptor, onInitialized) {
-                            override fun isAutoExpandNode(nodeDescriptor: NodeDescriptor<*>): Boolean {
-                                return nodeDescriptor.element is RootFileElement
-                            }
-                        }
-                    }
-                }
-
-                // must be installed after adding tree to FileSystemTreeImpl
-                EditSourceOnEnterKeyHandler.install(myTree)
-
-                return result
-            }
-
-            private fun createSettingsGroup(): AnAction {
-                val actionGroup = object: DefaultActionGroup("Settings", true) {
-                    override fun disableIfNoVisibleChildren(): Boolean {
-                        // without this IntelliJ calls update() on first action in the group
-                        // even if the action group is collapsed
-                        return false
-                    }
-                }
-                actionGroup.add(RunAllPluginsOnIDEStartAction())
-                actionGroup.add(AddLivePluginAndIdeJarsAsDependencies())
-
-                return actionGroup
-            }
-
-            private fun createAddPluginsGroup() =
-                DefaultActionGroup("Add Plugin", true).also {
-                    it.add(AddNewGroovyPluginAction())
-                    it.add(AddNewKotlinPluginAction())
-                    it.add(AddPluginFromGistDelegateAction())
-                    it.add(AddPluginFromGitHubDelegateAction())
-                    it.add(AddExamplePluginAction.addGroovyExamplesActionGroup)
-                    it.add(AddExamplePluginAction.addKotlinExamplesActionGroup)
-                }
-        }
+        val toolBarPanel = JPanel(GridLayout())
+        toolBarPanel.add(ActionManager.getInstance().createActionToolbar(place, actionGroup, true).component)
+        return toolBarPanel
     }
 
     private class MySimpleToolWindowPanel(vertical: Boolean, private val fileSystemTree: Ref<FileSystemTree>): SimpleToolWindowPanel(vertical) {
-
         /**
          * Provides context for actions in plugin tree popup popup menu.
          * Without it the actions will be disabled or won't work.
@@ -264,23 +207,115 @@ class PluginToolWindowManager {
         }
     }
 
-    private class MyTree constructor(private val project: Project): Tree(), DataProvider {
-        private val deleteProvider = FileDeleteProviderWithRefresh()
+    companion object {
 
-        init {
-            emptyText.text = "No plugins to show"
-            isRootVisible = false
+        private fun installPopupMenuInto(fsTree: FileSystemTree) {
+            val action = NewElementPopupAction()
+            action.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), fsTree.tree)
+
+            CustomizationUtil.installPopupHandler(fsTree.tree, "LivePlugin.Popup", ActionPlaces.UNKNOWN)
         }
 
-        override fun getData(@NonNls dataId: String): Any? {
-            return when {
-                PlatformDataKeys.NAVIGATABLE_ARRAY.`is`(dataId)       -> // need this to be able to open files in toolwindow on double-click/enter
-                    TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java)
-                        .map { OpenFileDescriptor(project, it.element.file) }
-                        .toTypedArray()
-                PlatformDataKeys.DELETE_ELEMENT_PROVIDER.`is`(dataId) -> deleteProvider
-                else                                                  -> null
+        private fun shortcutsOf(actionId: String): Array<Shortcut> {
+            return KeymapManager.getInstance().activeKeymap.getShortcuts(actionId)
+        }
+
+        private fun createFileChooserDescriptor(): FileChooserDescriptor {
+            val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
+                override fun getIcon(file: VirtualFile): Icon {
+                    val isPlugin = pluginIdToPathMap().values.any { file.path.toLowerCase() == it.toLowerCase() }
+                    return if (isPlugin) Icons.pluginIcon else super.getIcon(file)
+                }
+
+                override fun getName(virtualFile: VirtualFile) = virtualFile.name
+                override fun getComment(virtualFile: VirtualFile?) = ""
             }
+            descriptor.withShowFileSystemRoots(false)
+            descriptor.withTreeRootVisible(false)
+
+            val pluginPaths = pluginIdToPathMap().values
+            val virtualFiles = pluginPaths.mapNotNull { it.findFileByUrl() }
+            PluginToolWindowManager.addRoots(descriptor, virtualFiles)
+
+            return descriptor
+        }
+
+        private fun withIcon(icon: Icon, action: AnAction): AnAction {
+            action.templatePresentation.icon = icon
+            return action
+        }
+
+        private fun createFsTree(project: Project): FileSystemTree {
+            val myTree = MyTree(project)
+
+            // must be installed before adding tree to FileSystemTreeImpl
+            EditSourceOnDoubleClickHandler.install(myTree)
+
+            val result = object: FileSystemTreeImpl(project, createFileChooserDescriptor(), myTree, null, null, null) {
+                override fun createTreeBuilder(
+                    tree: JTree,
+                    treeModel: DefaultTreeModel,
+                    treeStructure: AbstractTreeStructure,
+                    comparator: Comparator<NodeDescriptor<*>>,
+                    descriptor: FileChooserDescriptor,
+                    onInitialized: Runnable?
+                ): AbstractTreeBuilder {
+                    return object: FileTreeBuilder(tree, treeModel, treeStructure, comparator, descriptor, onInitialized) {
+                        override fun isAutoExpandNode(nodeDescriptor: NodeDescriptor<*>): Boolean {
+                            return nodeDescriptor.element is RootFileElement
+                        }
+                    }
+                }
+            }
+
+            // must be installed after adding tree to FileSystemTreeImpl
+            EditSourceOnEnterKeyHandler.install(myTree)
+
+            return result
+        }
+
+        private fun createSettingsGroup(): AnAction {
+            val actionGroup = object: DefaultActionGroup("Settings", true) {
+                override fun disableIfNoVisibleChildren(): Boolean {
+                    // without this IntelliJ calls update() on first action in the group
+                    // even if the action group is collapsed
+                    return false
+                }
+            }
+            actionGroup.add(RunAllPluginsOnIDEStartAction())
+            actionGroup.add(AddLivePluginAndIdeJarsAsDependencies())
+
+            return actionGroup
+        }
+
+        private fun createAddPluginsGroup() =
+            DefaultActionGroup("Add Plugin", true).also {
+                it.add(AddNewGroovyPluginAction())
+                it.add(AddNewKotlinPluginAction())
+                it.add(AddPluginFromGistDelegateAction())
+                it.add(AddPluginFromGitHubDelegateAction())
+                it.add(AddExamplePluginAction.addGroovyExamplesActionGroup)
+                it.add(AddExamplePluginAction.addKotlinExamplesActionGroup)
+            }
+    }
+}
+
+private class MyTree constructor(private val project: Project): Tree(), DataProvider {
+    private val deleteProvider = FileDeleteProviderWithRefresh()
+
+    init {
+        emptyText.text = "No plugins to show"
+        isRootVisible = false
+    }
+
+    override fun getData(@NonNls dataId: String): Any? {
+        return when {
+            PlatformDataKeys.NAVIGATABLE_ARRAY.`is`(dataId)       -> // need this to be able to open files in toolwindow on double-click/enter
+                TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java)
+                    .map { OpenFileDescriptor(project, it.element.file) }
+                    .toTypedArray()
+            PlatformDataKeys.DELETE_ELEMENT_PROVIDER.`is`(dataId) -> deleteProvider
+            else                                                  -> null
         }
     }
 
@@ -294,35 +329,6 @@ class PluginToolWindowManager {
 
         override fun canDeleteElement(dataContext: DataContext): Boolean {
             return fileDeleteProvider.canDeleteElement(dataContext)
-        }
-    }
-
-    companion object {
-        private const val pluginsToolWindowId = "Plugins"
-        private val toolWindowsByProject = HashMap<Project, PluginToolWindow>()
-
-        internal fun reloadPluginTreesInAllProjects() {
-            for ((project, toolWindow) in toolWindowsByProject) {
-                toolWindow.reloadPluginRoots(project)
-            }
-        }
-
-        private fun putToolWindow(pluginToolWindow: PluginToolWindow, project: Project) {
-            toolWindowsByProject[project] = pluginToolWindow
-        }
-
-        private fun removeToolWindow(project: Project?) = toolWindowsByProject.remove(project)
-
-        private fun addRoots(descriptor: FileChooserDescriptor, virtualFiles: List<VirtualFile>) {
-            // Adding file parent is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement.
-            // Otherwise, if there is only one plugin, tree will show files in plugin directory instead of plugin folder.
-            // (Note that this code is also used by "Copy from Path" action.)
-            if (virtualFiles.size == 1) {
-                val parent = virtualFiles[0].parent
-                descriptor.roots = if (parent != null) listOf(parent) else virtualFiles
-            } else {
-                descriptor.roots = virtualFiles
-            }
         }
     }
 }

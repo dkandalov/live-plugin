@@ -3,7 +3,6 @@ package liveplugin.toolwindow.util
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.openapi.vfs.VirtualFileManager
 import liveplugin.LivePluginAppComponent.Companion.livePluginId
 import liveplugin.findFileByUrl
 import java.io.IOException
