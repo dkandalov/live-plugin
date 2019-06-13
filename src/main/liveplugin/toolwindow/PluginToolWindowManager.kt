@@ -202,25 +202,26 @@ private class PluginToolWindow {
         override fun getData(@NonNls dataId: String): Any? {
             // this is used by create directory/file to get context in which they're executed
             // (without this they would be disabled or won't work)
-            if (dataId == FileSystemTree.DATA_KEY.name) return fileSystemTree.get()
-            if (dataId == FileChooserKeys.NEW_FILE_TYPE.name) return IdeUtil.groovyFileType
-            if (dataId == FileChooserKeys.DELETE_ACTION_AVAILABLE.name) return true
-            if (dataId == PlatformDataKeys.VIRTUAL_FILE_ARRAY.name) return fileSystemTree.get().selectedFiles
-            return if (dataId == PlatformDataKeys.TREE_EXPANDER.name) DefaultTreeExpander(fileSystemTree.get().tree) else super.getData(dataId)
+            return when (dataId) {
+                FileSystemTree.DATA_KEY.name                 -> fileSystemTree.get()
+                FileChooserKeys.NEW_FILE_TYPE.name           -> IdeUtil.groovyFileType
+                FileChooserKeys.DELETE_ACTION_AVAILABLE.name -> true
+                PlatformDataKeys.VIRTUAL_FILE_ARRAY.name     -> fileSystemTree.get().selectedFiles
+                PlatformDataKeys.TREE_EXPANDER.name          -> DefaultTreeExpander(fileSystemTree.get().tree)
+                else                                         -> super.getData(dataId)
+            }
         }
     }
 
     companion object {
 
         private fun installPopupMenuInto(fsTree: FileSystemTree) {
+            fun shortcutsOf(actionId: String) = KeymapManager.getInstance().activeKeymap.getShortcuts(actionId)
+
             val action = NewElementPopupAction()
             action.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), fsTree.tree)
 
             CustomizationUtil.installPopupHandler(fsTree.tree, "LivePlugin.Popup", ActionPlaces.UNKNOWN)
-        }
-
-        private fun shortcutsOf(actionId: String): Array<Shortcut> {
-            return KeymapManager.getInstance().activeKeymap.getShortcuts(actionId)
         }
 
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
@@ -229,12 +230,12 @@ private class PluginToolWindow {
                     val isPlugin = pluginIdToPathMap().values.any { file.path.toLowerCase() == it.toLowerCase() }
                     return if (isPlugin) Icons.pluginIcon else super.getIcon(file)
                 }
-
                 override fun getName(virtualFile: VirtualFile) = virtualFile.name
                 override fun getComment(virtualFile: VirtualFile?) = ""
+            }.also {
+                it.withShowFileSystemRoots(false)
+                it.withTreeRootVisible(false)
             }
-            descriptor.withShowFileSystemRoots(false)
-            descriptor.withTreeRootVisible(false)
 
             val pluginPaths = pluginIdToPathMap().values
             val virtualFiles = pluginPaths.mapNotNull { it.findFileByUrl() }
@@ -277,19 +278,17 @@ private class PluginToolWindow {
             return result
         }
 
-        private fun createSettingsGroup(): AnAction {
-            val actionGroup = object: DefaultActionGroup("Settings", true) {
+        private fun createSettingsGroup() =
+            object: DefaultActionGroup("Settings", true) {
                 override fun disableIfNoVisibleChildren(): Boolean {
                     // without this IntelliJ calls update() on first action in the group
                     // even if the action group is collapsed
                     return false
                 }
+            }.also {
+                it.add(RunAllPluginsOnIDEStartAction())
+                it.add(AddLivePluginAndIdeJarsAsDependencies())
             }
-            actionGroup.add(RunAllPluginsOnIDEStartAction())
-            actionGroup.add(AddLivePluginAndIdeJarsAsDependencies())
-
-            return actionGroup
-        }
 
         private fun createAddPluginsGroup() =
             DefaultActionGroup("Add Plugin", true).also {
