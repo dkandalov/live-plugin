@@ -160,6 +160,9 @@ private class PluginToolWindow {
         val scrollPane = ScrollPaneFactory.createScrollPane(myFsTreeRef.get().tree)
         panel!!.remove(0)
         panel!!.add(scrollPane, 0)
+
+        panel!!.revalidate()
+        panel!!.repaint()
     }
 
     private fun createToolBar(): JComponent {
