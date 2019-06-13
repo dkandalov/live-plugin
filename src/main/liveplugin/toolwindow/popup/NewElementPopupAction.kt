@@ -7,23 +7,17 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
 
 class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
-
     override fun actionPerformed(event: AnActionEvent) {
-        showPopup(event.dataContext)
+        createPopup(event.dataContext).showInBestPositionFor(event.dataContext)
     }
 
-    private fun showPopup(context: DataContext) {
-        createPopup(context).showInBestPositionFor(context)
-    }
-
-    private fun createPopup(dataContext: DataContext): ListPopup {
-        return JBPopupFactory.getInstance().createActionGroupPopup(
+    private fun createPopup(dataContext: DataContext): ListPopup =
+        JBPopupFactory.getInstance().createActionGroupPopup(
             IdeBundle.message("title.popup.new.element"),
             livePluginNewElementPopup,
             dataContext, false, true, false, null, -1,
             LangDataKeys.PRESELECT_NEW_ACTION_CONDITION.getData(dataContext)
         )
-    }
 
     override fun update(event: AnActionEvent) {
         event.presentation.isEnabled = true

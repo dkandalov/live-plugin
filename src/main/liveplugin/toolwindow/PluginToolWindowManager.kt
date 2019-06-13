@@ -38,6 +38,11 @@ import com.intellij.util.EditSourceOnDoubleClickHandler
 import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
 import liveplugin.Icons
+import liveplugin.Icons.addPluginIcon
+import liveplugin.Icons.collapseAllIcon
+import liveplugin.Icons.expandAllIcon
+import liveplugin.Icons.helpIcon
+import liveplugin.Icons.settingsIcon
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
@@ -140,12 +145,12 @@ private class PluginToolWindow {
         val fsTree = createFsTree(project)
         fsTreeRef = Ref.create(fsTree)
 
-        installPopupMenuInto(fsTree)
+        fsTree.installPopupMenu()
 
-        val scrollPane = ScrollPaneFactory.createScrollPane(fsTree.tree)
-        panel = MySimpleToolWindowPanel(true, fsTreeRef)
-        panel!!.add(scrollPane)
-        panel!!.toolbar = createToolBar()
+        panel = MySimpleToolWindowPanel(true, fsTreeRef).also {
+            it.add(ScrollPaneFactory.createScrollPane(fsTree.tree))
+            it.toolbar = createToolBar()
+        }
         return ContentFactory.SERVICE.getInstance().createContent(panel, "", false)
     }
 
@@ -155,7 +160,7 @@ private class PluginToolWindow {
         val fsTree = createFsTree(project)
         fsTreeRef.set(fsTree)
 
-        installPopupMenuInto(fsTree)
+        fsTree.installPopupMenu()
 
         val scrollPane = ScrollPaneFactory.createScrollPane(fsTreeRef.get().tree)
         panel!!.remove(0)
@@ -166,28 +171,52 @@ private class PluginToolWindow {
     }
 
     private fun createToolBar(): JComponent {
+        fun AnAction.withIcon(icon: Icon) = apply { templatePresentation.icon = icon }
+
         val actionGroup = DefaultActionGroup().also {
-            it.add(withIcon(Icons.addPluginIcon, createAddPluginsGroup()))
+            it.add(createAddPluginsGroup().withIcon(addPluginIcon))
             it.add(DeletePluginAction())
             it.add(RunPluginAction())
             it.add(RunPluginTestsAction())
             it.addSeparator()
             it.add(RefreshPluginsPanelAction())
-            it.add(withIcon(Icons.expandAllIcon, ExpandAllAction()))
-            it.add(withIcon(Icons.collapseAllIcon, CollapseAllAction()))
+            it.add(ExpandAllAction().withIcon(expandAllIcon))
+            it.add(CollapseAllAction().withIcon(collapseAllIcon))
             it.addSeparator()
-            it.add(withIcon(Icons.settingsIcon, createSettingsGroup()))
-            it.add(withIcon(Icons.helpIcon, ShowHelpAction()))
+            it.add(createSettingsGroup().withIcon(settingsIcon))
+            it.add(ShowHelpAction().withIcon(helpIcon))
         }
 
-        // this is a "hack" to force drop-down box appear below button
-        // (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
-        val place = ActionPlaces.EDITOR_TOOLBAR
-
-        val toolBarPanel = JPanel(GridLayout())
-        toolBarPanel.add(ActionManager.getInstance().createActionToolbar(place, actionGroup, true).component)
-        return toolBarPanel
+        return JPanel(GridLayout()).also {
+            // this is a "hack" to force drop-down box appear below button
+            // (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
+            val place = ActionPlaces.EDITOR_TOOLBAR
+            it.add(ActionManager.getInstance().createActionToolbar(place, actionGroup, true).component)
+        }
     }
+
+    private fun createAddPluginsGroup() =
+        DefaultActionGroup("Add Plugin", true).also {
+            it.add(AddNewGroovyPluginAction())
+            it.add(AddNewKotlinPluginAction())
+            it.add(AddPluginFromGistDelegateAction())
+            it.add(AddPluginFromGitHubDelegateAction())
+            it.add(AddExamplePluginAction.addGroovyExamplesActionGroup)
+            it.add(AddExamplePluginAction.addKotlinExamplesActionGroup)
+        }
+
+    private fun createSettingsGroup() =
+        object: DefaultActionGroup("Settings", true) {
+            override fun disableIfNoVisibleChildren(): Boolean {
+                // without this IntelliJ calls update() on first action in the group
+                // even if the action group is collapsed
+                return false
+            }
+        }.also {
+            it.add(RunAllPluginsOnIDEStartAction())
+            it.add(AddLivePluginAndIdeJarsAsDependencies())
+        }
+
 
     private class MySimpleToolWindowPanel(vertical: Boolean, private val fileSystemTree: Ref<FileSystemTree>): SimpleToolWindowPanel(vertical) {
         /**
@@ -215,38 +244,13 @@ private class PluginToolWindow {
 
     companion object {
 
-        private fun installPopupMenuInto(fsTree: FileSystemTree) {
+        private fun FileSystemTree.installPopupMenu() {
             fun shortcutsOf(actionId: String) = KeymapManager.getInstance().activeKeymap.getShortcuts(actionId)
 
             val action = NewElementPopupAction()
-            action.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), fsTree.tree)
+            action.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), tree)
 
-            CustomizationUtil.installPopupHandler(fsTree.tree, "LivePlugin.Popup", ActionPlaces.UNKNOWN)
-        }
-
-        private fun createFileChooserDescriptor(): FileChooserDescriptor {
-            val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
-                override fun getIcon(file: VirtualFile): Icon {
-                    val isPlugin = pluginIdToPathMap().values.any { file.path.toLowerCase() == it.toLowerCase() }
-                    return if (isPlugin) Icons.pluginIcon else super.getIcon(file)
-                }
-                override fun getName(virtualFile: VirtualFile) = virtualFile.name
-                override fun getComment(virtualFile: VirtualFile?) = ""
-            }.also {
-                it.withShowFileSystemRoots(false)
-                it.withTreeRootVisible(false)
-            }
-
-            val pluginPaths = pluginIdToPathMap().values
-            val virtualFiles = pluginPaths.mapNotNull { it.findFileByUrl() }
-            PluginToolWindowManager.addRoots(descriptor, virtualFiles)
-
-            return descriptor
-        }
-
-        private fun withIcon(icon: Icon, action: AnAction): AnAction {
-            action.templatePresentation.icon = icon
-            return action
+            CustomizationUtil.installPopupHandler(tree, "LivePlugin.Popup", ActionPlaces.UNKNOWN)
         }
 
         private fun createFsTree(project: Project): FileSystemTree {
@@ -278,27 +282,25 @@ private class PluginToolWindow {
             return result
         }
 
-        private fun createSettingsGroup() =
-            object: DefaultActionGroup("Settings", true) {
-                override fun disableIfNoVisibleChildren(): Boolean {
-                    // without this IntelliJ calls update() on first action in the group
-                    // even if the action group is collapsed
-                    return false
+        private fun createFileChooserDescriptor(): FileChooserDescriptor {
+            val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
+                override fun getIcon(file: VirtualFile): Icon {
+                    val isPlugin = pluginIdToPathMap().values.any { file.path.toLowerCase() == it.toLowerCase() }
+                    return if (isPlugin) Icons.pluginIcon else super.getIcon(file)
                 }
+                override fun getName(virtualFile: VirtualFile) = virtualFile.name
+                override fun getComment(virtualFile: VirtualFile?) = ""
             }.also {
-                it.add(RunAllPluginsOnIDEStartAction())
-                it.add(AddLivePluginAndIdeJarsAsDependencies())
+                it.withShowFileSystemRoots(false)
+                it.withTreeRootVisible(false)
             }
 
-        private fun createAddPluginsGroup() =
-            DefaultActionGroup("Add Plugin", true).also {
-                it.add(AddNewGroovyPluginAction())
-                it.add(AddNewKotlinPluginAction())
-                it.add(AddPluginFromGistDelegateAction())
-                it.add(AddPluginFromGitHubDelegateAction())
-                it.add(AddExamplePluginAction.addGroovyExamplesActionGroup)
-                it.add(AddExamplePluginAction.addKotlinExamplesActionGroup)
-            }
+            val pluginPaths = pluginIdToPathMap().values
+            val virtualFiles = pluginPaths.mapNotNull { it.findFileByUrl() }
+            PluginToolWindowManager.addRoots(descriptor, virtualFiles)
+
+            return descriptor
+        }
     }
 }
 
@@ -310,16 +312,15 @@ private class MyTree constructor(private val project: Project): Tree(), DataProv
         isRootVisible = false
     }
 
-    override fun getData(@NonNls dataId: String): Any? {
-        return when {
-            PlatformDataKeys.NAVIGATABLE_ARRAY.`is`(dataId)       -> // need this to be able to open files in toolwindow on double-click/enter
+    override fun getData(@NonNls dataId: String): Any? =
+        when (dataId) {
+            PlatformDataKeys.NAVIGATABLE_ARRAY.name       -> // need this to be able to open files in toolwindow on double-click/enter
                 TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java)
                     .map { OpenFileDescriptor(project, it.element.file) }
                     .toTypedArray()
-            PlatformDataKeys.DELETE_ELEMENT_PROVIDER.`is`(dataId) -> deleteProvider
-            else                                                  -> null
+            PlatformDataKeys.DELETE_ELEMENT_PROVIDER.name -> deleteProvider
+            else                                          -> null
         }
-    }
 
     private class FileDeleteProviderWithRefresh: DeleteProvider {
         private val fileDeleteProvider = VirtualFileDeleteProvider()
