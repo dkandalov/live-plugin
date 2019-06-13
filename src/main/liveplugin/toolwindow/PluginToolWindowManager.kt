@@ -79,8 +79,8 @@ class PluginToolWindowManager {
     companion object {
         private val toolWindowsByProject = HashMap<Project, PluginToolWindow>()
 
-        internal fun reloadPluginTreesInAllProjects() {
-            for ((project, toolWindow) in toolWindowsByProject) {
+        fun reloadPluginTreesInAllProjects() {
+            toolWindowsByProject.forEach { (project, toolWindow) ->
                 toolWindow.reloadPluginRoots(project)
             }
         }
@@ -120,7 +120,7 @@ class PluginToolWindowManager {
 private const val pluginsToolWindowId = "Plugins"
 
 private class PluginToolWindow {
-    private var myFsTreeRef = Ref<FileSystemTree>()
+    private var fsTreeRef = Ref<FileSystemTree>()
     private var panel: SimpleToolWindowPanel? = null
     private var toolWindow: ToolWindow? = null
 
@@ -132,18 +132,18 @@ private class PluginToolWindow {
         toolWindow!!.contentManager.addContent(createContent(project))
     }
 
-    fun unregisterWindowFrom(project: Project?) {
-        ToolWindowManager.getInstance(project!!).unregisterToolWindow(pluginsToolWindowId)
+    fun unregisterWindowFrom(project: Project) {
+        ToolWindowManager.getInstance(project).unregisterToolWindow(pluginsToolWindowId)
     }
 
     private fun createContent(project: Project): Content {
         val fsTree = createFsTree(project)
-        myFsTreeRef = Ref.create(fsTree)
+        fsTreeRef = Ref.create(fsTree)
 
         installPopupMenuInto(fsTree)
 
         val scrollPane = ScrollPaneFactory.createScrollPane(fsTree.tree)
-        panel = MySimpleToolWindowPanel(true, myFsTreeRef)
+        panel = MySimpleToolWindowPanel(true, fsTreeRef)
         panel!!.add(scrollPane)
         panel!!.toolbar = createToolBar()
         return ContentFactory.SERVICE.getInstance().createContent(panel, "", false)
@@ -153,11 +153,11 @@ private class PluginToolWindow {
         // the only reason to create new instance of tree here is that
         // I couldn't find a way to force tree to update it's roots
         val fsTree = createFsTree(project)
-        myFsTreeRef.set(fsTree)
+        fsTreeRef.set(fsTree)
 
         installPopupMenuInto(fsTree)
 
-        val scrollPane = ScrollPaneFactory.createScrollPane(myFsTreeRef.get().tree)
+        val scrollPane = ScrollPaneFactory.createScrollPane(fsTreeRef.get().tree)
         panel!!.remove(0)
         panel!!.add(scrollPane, 0)
 
