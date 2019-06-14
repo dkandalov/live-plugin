@@ -25,7 +25,6 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Ref
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
@@ -44,7 +43,6 @@ import liveplugin.Icons.expandAllIcon
 import liveplugin.Icons.helpIcon
 import liveplugin.Icons.settingsIcon
 import liveplugin.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.findFileByUrl
 import liveplugin.pluginrunner.RunPluginAction
@@ -55,7 +53,6 @@ import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction
 import org.jetbrains.annotations.NonNls
 import java.awt.GridLayout
-import java.io.File
 import java.util.*
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -94,31 +91,7 @@ class PluginToolWindowManager {
             toolWindowsByProject[project] = pluginToolWindow
         }
 
-        private fun removeToolWindow(project: Project?) = toolWindowsByProject.remove(project)
-
-        fun addRoots(descriptor: FileChooserDescriptor, virtualFiles: List<VirtualFile>) {
-            // Adding file parent is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement.
-            // Otherwise, if there is only one plugin, tree will show files in plugin directory instead of plugin folder.
-            // (Note that this code is also used by "Copy from Path" action.)
-            if (virtualFiles.size == 1) {
-                val parent = virtualFiles[0].parent
-                descriptor.roots = if (parent != null) listOf(parent) else virtualFiles
-            } else {
-                descriptor.roots = virtualFiles
-            }
-        }
-
-        fun findPluginRootsFor(files: Array<VirtualFile>): Collection<VirtualFile> {
-            return files.mapNotNull { pluginFolderOf(it) }.toSet()
-        }
-
-        private fun pluginFolderOf(file: VirtualFile): VirtualFile? {
-            if (file.parent == null) return null
-
-            val pluginsRoot = File(livePluginsPath)
-            // comparing files because string comparison was observed not work on windows (e.g. "c:/..." and "C:/...")
-            return if (!FileUtil.filesEqual(File(file.parent.path), pluginsRoot)) pluginFolderOf(file.parent) else file
-        }
+        private fun removeToolWindow(project: Project) = toolWindowsByProject.remove(project)
     }
 }
 
@@ -297,9 +270,21 @@ private class PluginToolWindow {
 
             val pluginPaths = pluginIdToPathMap().values
             val virtualFiles = pluginPaths.mapNotNull { it.findFileByUrl() }
-            PluginToolWindowManager.addRoots(descriptor, virtualFiles)
+            addRoots(descriptor, virtualFiles)
 
             return descriptor
+        }
+
+        private fun addRoots(descriptor: FileChooserDescriptor, virtualFiles: List<VirtualFile>) {
+            // Adding file parent is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement.
+            // Otherwise, if there is only one plugin, tree will show files in plugin directory instead of plugin folder.
+            // (Note that this code is also used by "Copy from Path" action.)
+            if (virtualFiles.size == 1) {
+                val parent = virtualFiles[0].parent
+                descriptor.roots = if (parent != null) listOf(parent) else virtualFiles
+            } else {
+                descriptor.roots = virtualFiles
+            }
         }
     }
 }

@@ -83,6 +83,17 @@ class LivePluginAppComponent: DumbAware {
             return scriptFiles.none { findScriptFilesIn(virtualFile.path, it).isNotEmpty() }
         }
 
+        fun findPluginRootsFor(files: Array<VirtualFile>): Set<VirtualFile> =
+            files.mapNotNull { it.pluginFolder() }.toSet()
+
+        private fun VirtualFile.pluginFolder(): VirtualFile? {
+            val parent = parent ?: return null
+
+            val pluginsRoot = File(livePluginsPath)
+            // Compare with FileUtil because string comparison was observed to not work on windows (e.g. "c:/..." and "C:/...")
+            return if (!FileUtil.filesEqual(File(parent.path), pluginsRoot)) parent.pluginFolder() else this
+        }
+
         fun defaultPluginScript(): String = readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
 
         fun defaultPluginTestScript(): String = readSampleScriptFile(groovyExamplesPath, "default-plugin-test.groovy")
@@ -150,9 +161,7 @@ class LivePluginAppComponent: DumbAware {
 
         private fun installHelloWorldPlugins() {
             val loggingListener = object: ExamplePluginInstaller.Listener {
-                override fun onException(e: Exception, pluginPath: String) {
-                    logger.warn("Failed to install plugin: $pluginPath", e)
-                }
+                override fun onException(e: Exception, pluginPath: String) = logger.warn("Failed to install plugin: $pluginPath", e)
             }
             ExamplePluginInstaller(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")).installPlugin(loggingListener)
             ExamplePluginInstaller(groovyExamplesPath + "ide-actions/", listOf("plugin.groovy")).installPlugin(loggingListener)
