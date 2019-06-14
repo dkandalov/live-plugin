@@ -27,6 +27,7 @@ import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Ref
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
@@ -44,8 +45,8 @@ import liveplugin.Icons.expandAllIcon
 import liveplugin.Icons.helpIcon
 import liveplugin.Icons.settingsIcon
 import liveplugin.IdeUtil
+import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
-import liveplugin.findFileByUrl
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
 import liveplugin.toolwindow.addplugin.*
@@ -54,6 +55,7 @@ import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction
 import org.jetbrains.annotations.NonNls
 import java.awt.GridLayout
+import java.nio.file.Paths
 import java.util.*
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -116,15 +118,8 @@ private class PluginToolWindow(val project: Project) {
     }
 
     fun reloadPluginRoots(project: Project) {
-        // The only reason to create new instance of tree here is that
-        // I couldn't find a way to force tree to update it's roots.
-        val fsTree = createFsTree(project)
-        fsTreeRef.set(fsTree)
-        fsTree.installPopupMenu()
-
-        panel.remove(0)
-        panel.add(ScrollPaneFactory.createScrollPane(fsTreeRef.get().tree), 0)
-
+        fsTreeRef.get().updateTree()
+//
         panel.revalidate()
         panel.repaint()
     }
@@ -255,24 +250,11 @@ private class PluginToolWindow(val project: Project) {
                 it.withTreeRootVisible(false)
             }
 
-            val pluginPaths = pluginIdToPathMap().values
-            val virtualFiles = pluginPaths.mapNotNull { it.findFileByUrl() }
-            addRoots(descriptor, virtualFiles)
+            descriptor.setRoots(VfsUtil.findFile(Paths.get(LivePluginAppComponent.livePluginsPath), true))
 
             return descriptor
         }
 
-        private fun addRoots(descriptor: FileChooserDescriptor, virtualFiles: List<VirtualFile>) {
-            // Adding file parent is a hack to suppress size == 1 checks in com.intellij.openapi.fileChooser.ex.RootFileElement.
-            // Otherwise, if there is only one plugin, tree will show files in plugin directory instead of plugin folder.
-            // (Note that this code is also used by "Copy from Path" action.)
-            if (virtualFiles.size == 1) {
-                val parent = virtualFiles[0].parent
-                descriptor.roots = if (parent != null) listOf(parent) else virtualFiles
-            } else {
-                descriptor.roots = virtualFiles
-            }
-        }
     }
 }
 
