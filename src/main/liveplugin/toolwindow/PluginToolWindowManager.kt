@@ -8,6 +8,7 @@ import com.intellij.ide.ui.customization.CustomizationUtil
 import com.intellij.ide.util.treeView.AbstractTreeBuilder
 import com.intellij.ide.util.treeView.AbstractTreeStructure
 import com.intellij.ide.util.treeView.NodeDescriptor
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
@@ -24,9 +25,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.ui.SimpleToolWindowPanel
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.ScrollPaneFactory
@@ -61,19 +62,15 @@ import javax.swing.JTree
 import javax.swing.tree.DefaultTreeModel
 
 class PluginToolWindowManager {
-
     fun init() {
         val connection = ApplicationManager.getApplication().messageBus.connect()
         connection.subscribe(ProjectManager.TOPIC, object: ProjectManagerListener {
             override fun projectOpened(project: Project) {
-                val pluginToolWindow = PluginToolWindow()
-                pluginToolWindow.registerWindowFor(project)
-                putToolWindow(pluginToolWindow, project)
+                toolWindowsByProject[project] = PluginToolWindow(project)
             }
 
             override fun projectClosed(project: Project) {
-                val pluginToolWindow = removeToolWindow(project)
-                pluginToolWindow?.unregisterWindowFrom(project)
+                toolWindowsByProject.remove(project)
             }
         })
     }
@@ -86,38 +83,29 @@ class PluginToolWindowManager {
                 toolWindow.reloadPluginRoots(project)
             }
         }
-
-        private fun putToolWindow(pluginToolWindow: PluginToolWindow, project: Project) {
-            toolWindowsByProject[project] = pluginToolWindow
-        }
-
-        private fun removeToolWindow(project: Project) = toolWindowsByProject.remove(project)
     }
 }
 
-private const val pluginsToolWindowId = "Plugins"
-
-private class PluginToolWindow {
+private class PluginToolWindow(val project: Project) {
+    private val pluginsToolWindowId = "Plugins"
     private var fsTreeRef = Ref<FileSystemTree>()
-    private var panel: SimpleToolWindowPanel? = null
-    private var toolWindow: ToolWindow? = null
+    private lateinit var panel: SimpleToolWindowPanel
 
-    fun registerWindowFor(project: Project) {
+    init {
         val toolWindowManager = ToolWindowManager.getInstance(project)
-        toolWindow = toolWindowManager.registerToolWindow(pluginsToolWindowId, false, ToolWindowAnchor.RIGHT, project, true)
-        toolWindow!!.icon = Icons.pluginToolwindowIcon
+        toolWindowManager.registerToolWindow(pluginsToolWindowId, false, ToolWindowAnchor.RIGHT, project, true).also {
+            it.icon = Icons.pluginToolwindowIcon
+            it.contentManager.addContent(createContent(project))
+        }
 
-        toolWindow!!.contentManager.addContent(createContent(project))
-    }
-
-    fun unregisterWindowFrom(project: Project) {
-        ToolWindowManager.getInstance(project).unregisterToolWindow(pluginsToolWindowId)
+        Disposer.register(project, Disposable {
+            toolWindowManager.unregisterToolWindow(pluginsToolWindowId)
+        })
     }
 
     private fun createContent(project: Project): Content {
         val fsTree = createFsTree(project)
         fsTreeRef = Ref.create(fsTree)
-
         fsTree.installPopupMenu()
 
         panel = MySimpleToolWindowPanel(true, fsTreeRef).also {
@@ -128,19 +116,17 @@ private class PluginToolWindow {
     }
 
     fun reloadPluginRoots(project: Project) {
-        // the only reason to create new instance of tree here is that
-        // I couldn't find a way to force tree to update it's roots
+        // The only reason to create new instance of tree here is that
+        // I couldn't find a way to force tree to update it's roots.
         val fsTree = createFsTree(project)
         fsTreeRef.set(fsTree)
-
         fsTree.installPopupMenu()
 
-        val scrollPane = ScrollPaneFactory.createScrollPane(fsTreeRef.get().tree)
-        panel!!.remove(0)
-        panel!!.add(scrollPane, 0)
+        panel.remove(0)
+        panel.add(ScrollPaneFactory.createScrollPane(fsTreeRef.get().tree), 0)
 
-        panel!!.revalidate()
-        panel!!.repaint()
+        panel.revalidate()
+        panel.repaint()
     }
 
     private fun createToolBar(): JComponent {
@@ -196,23 +182,24 @@ private class PluginToolWindow {
          * Provides context for actions in plugin tree popup popup menu.
          * Without it the actions will be disabled or won't work.
          *
-         * Used by
+         * Implicitly used by
          * [com.intellij.openapi.fileChooser.actions.NewFileAction],
          * [com.intellij.openapi.fileChooser.actions.NewFolderAction],
          * [com.intellij.openapi.fileChooser.actions.FileDeleteAction]
          */
-        override fun getData(@NonNls dataId: String): Any? {
-            // this is used by create directory/file to get context in which they're executed
-            // (without this they would be disabled or won't work)
-            return when (dataId) {
-                FileSystemTree.DATA_KEY.name                 -> fileSystemTree.get()
+        override fun getData(@NonNls dataId: String): Any? =
+            when (dataId) {
+                FileSystemTree.DATA_KEY.name                 -> {
+                    // This is used by "create directory/file" actions to get execution context
+                    // (without it they will be disabled or won't work).
+                    fileSystemTree.get()
+                }
                 FileChooserKeys.NEW_FILE_TYPE.name           -> IdeUtil.groovyFileType
                 FileChooserKeys.DELETE_ACTION_AVAILABLE.name -> true
                 PlatformDataKeys.VIRTUAL_FILE_ARRAY.name     -> fileSystemTree.get().selectedFiles
                 PlatformDataKeys.TREE_EXPANDER.name          -> DefaultTreeExpander(fileSystemTree.get().tree)
                 else                                         -> super.getData(dataId)
             }
-        }
     }
 
     companion object {
