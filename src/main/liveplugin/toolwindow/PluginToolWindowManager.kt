@@ -55,7 +55,6 @@ import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction
 import org.jetbrains.annotations.NonNls
 import java.awt.GridLayout
-import java.nio.file.Paths
 import java.util.*
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -82,7 +81,7 @@ class PluginToolWindowManager {
 
         fun reloadPluginTreesInAllProjects() {
             toolWindowsByProject.forEach { (project, toolWindow) ->
-                toolWindow.reloadPluginRoots(project)
+                toolWindow.updateTree()
             }
         }
     }
@@ -117,11 +116,8 @@ private class PluginToolWindow(val project: Project) {
         return ContentFactory.SERVICE.getInstance().createContent(panel, "", false)
     }
 
-    fun reloadPluginRoots(project: Project) {
+    fun updateTree() {
         fsTreeRef.get().updateTree()
-//
-        panel.revalidate()
-        panel.repaint()
     }
 
     private fun createToolBar(): JComponent {
@@ -250,7 +246,10 @@ private class PluginToolWindow(val project: Project) {
                 it.withTreeRootVisible(false)
             }
 
-            descriptor.setRoots(VfsUtil.findFile(Paths.get(LivePluginAppComponent.livePluginsPath), true))
+            ApplicationManager.getApplication().runWriteAction {
+                //todo maybe optimize?
+                descriptor.setRoots(VfsUtil.createDirectoryIfMissing(LivePluginAppComponent.livePluginsPath))
+            }
 
             return descriptor
         }

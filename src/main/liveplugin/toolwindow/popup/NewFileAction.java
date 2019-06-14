@@ -12,9 +12,11 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.UnknownFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.UIBundle;
+import liveplugin.LivePluginAppComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +48,7 @@ public class NewFileAction extends FileChooserAction {
 		Presentation presentation = e.getPresentation();
 		presentation.setVisible(true);
 		VirtualFile selectedFile = fileSystemTree.getNewFileParent();
-		presentation.setEnabled(selectedFile != null);
+        presentation.setEnabled(selectedFile != null && !selectedFile.equals(LocalFileSystem.getInstance().findFileByPath(LivePluginAppComponent.livePluginsPath)));
 		// FORK DIFF (got rid of layered "new" icon because it's ugly)
 		presentation.setIcon(icon);
 	}
