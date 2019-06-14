@@ -9,7 +9,7 @@ To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Browse Repo
 See also [plugin repository page](http://plugins.jetbrains.com/plugin/7282).
 
 
-<img src="https://raw.github.com/dkandalov/live-plugin/master/live-plugin-demo.gif" alt="demo" title="demo" align="center"/>
+<img src="https://raw.github.com/dkandalov/live-plugin/master/screenshots/live-plugin-demo.gif" alt="demo" title="demo" align="center"/>
 
 
 ### Why?
