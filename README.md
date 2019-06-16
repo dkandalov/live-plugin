@@ -2,10 +2,9 @@
 
 ### LivePlugin
 
-This is a plugin for [IntelliJ](https://github.com/JetBrains/intellij-community) IDEs to write plugins at runtime. 
-It uses [Groovy](http://groovy.codehaus.org/) as main language and has experimental support for [Kotlin](http://kotlinlang.org).
-
-To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Browse Repositories`.
+This is a plugin for [IntelliJ](https://github.com/JetBrains/intellij-community) IDEs to write plugins at runtime
+using [Groovy](http://groovy.codehaus.org/) and [Kotlin](http://kotlinlang.org).
+To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Marketplace`.
 See also [plugin repository page](http://plugins.jetbrains.com/plugin/7282).
 
 
@@ -88,7 +87,7 @@ If something doesn't work, [report an issue](https://github.com/dkandalov/live-p
 
 
 ### The main idea
-LivePlugin basically runs Groovy code in JVM. Conceptually it's quite simple:
+LivePlugin basically runs Groovy or Kotlin code in JVM. Conceptually it's quite simple:
 ```java
 ClassLoader classLoader = createClassLoader(ideClassloader, ...);
 GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
