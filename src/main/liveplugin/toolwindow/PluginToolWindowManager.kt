@@ -80,7 +80,7 @@ class PluginToolWindowManager {
         private val toolWindowsByProject = HashMap<Project, PluginToolWindow>()
 
         fun reloadPluginTreesInAllProjects() {
-            toolWindowsByProject.forEach { (project, toolWindow) ->
+            toolWindowsByProject.forEach { (_, toolWindow) ->
                 toolWindow.updateTree()
             }
         }
@@ -246,8 +246,7 @@ private class PluginToolWindow(val project: Project) {
                 it.withTreeRootVisible(false)
             }
 
-            ApplicationManager.getApplication().runWriteAction {
-                //todo maybe optimize?
+            ApplicationManager.getApplication().runWriteAction { 
                 descriptor.setRoots(VfsUtil.createDirectoryIfMissing(LivePluginAppComponent.livePluginsPath))
             }
 
