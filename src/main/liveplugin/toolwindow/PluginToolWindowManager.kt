@@ -206,11 +206,10 @@ private class PluginToolWindow(val project: Project) {
 
         private fun createFsTree(project: Project): FileSystemTree {
             val myTree = MyTree(project)
-
-            // must be installed before adding tree to FileSystemTreeImpl
             EditSourceOnDoubleClickHandler.install(myTree)
+            EditSourceOnEnterKeyHandler.install(myTree)
 
-            val result = object: FileSystemTreeImpl(project, createFileChooserDescriptor(), myTree, null, null, null) {
+            return object: FileSystemTreeImpl(project, createFileChooserDescriptor(), myTree, null, null, null) {
                 override fun createTreeBuilder(
                     tree: JTree,
                     treeModel: DefaultTreeModel,
@@ -220,17 +219,10 @@ private class PluginToolWindow(val project: Project) {
                     onInitialized: Runnable?
                 ): AbstractTreeBuilder {
                     return object: FileTreeBuilder(tree, treeModel, treeStructure, comparator, descriptor, onInitialized) {
-                        override fun isAutoExpandNode(nodeDescriptor: NodeDescriptor<*>): Boolean {
-                            return nodeDescriptor.element is RootFileElement
-                        }
+                        override fun isAutoExpandNode(nodeDescriptor: NodeDescriptor<*>) = nodeDescriptor.element is RootFileElement
                     }
                 }
             }
-
-            // must be installed after adding tree to FileSystemTreeImpl
-            EditSourceOnEnterKeyHandler.install(myTree)
-
-            return result
         }
 
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
