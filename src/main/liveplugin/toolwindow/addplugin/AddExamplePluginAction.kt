@@ -7,10 +7,10 @@ import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import liveplugin.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.groovyExamplesPath
-import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
-import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
+import liveplugin.LivePluginPaths
+import liveplugin.LivePluginPaths.groovyExamplesPath
+import liveplugin.LivePluginPaths.kotlinExamplesPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.ExamplePluginInstaller
 import java.io.File
@@ -49,7 +49,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
         if (project != null) {
             IdeUtil.showErrorDialog(
                 project,
-                "Error adding plugin \"$pluginPath\" to $livePluginsPath",
+                "Error adding plugin \"$pluginPath\" to ${LivePluginPaths.livePluginsPath}",
                 "Add Plugin"
             )
         }

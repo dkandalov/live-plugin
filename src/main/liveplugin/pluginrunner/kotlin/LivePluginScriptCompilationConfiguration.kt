@@ -1,16 +1,16 @@
 package liveplugin.pluginrunner.kotlin
 
-import liveplugin.LivePluginAppComponent
+import liveplugin.LivePluginPaths
 import java.io.File
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.withUpdatedClasspath
 
 object LivePluginScriptCompilationConfiguration: ScriptCompilationConfiguration(body = {
-    val sources = File(LivePluginAppComponent.livePluginLibsPath).listFiles().toList()
+    val sources = File(LivePluginPaths.livePluginLibPath).listFiles().toList()
     val classpath = sources +
-        File("${LivePluginAppComponent.ideJarsPath}/../plugins/Kotlin/lib/").listFiles() +
-        File(LivePluginAppComponent.ideJarsPath).listFiles()
+        File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").listFiles() +
+        File(LivePluginPaths.ideJarsPath).listFiles()
 
     refineConfiguration {
         beforeParsing { context ->

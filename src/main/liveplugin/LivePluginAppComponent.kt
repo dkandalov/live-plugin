@@ -27,6 +27,19 @@ import liveplugin.toolwindow.PluginToolWindowManager
 import liveplugin.toolwindow.util.ExamplePluginInstaller
 import java.io.File
 import java.io.IOException
+import liveplugin.LivePluginPaths.groovyExamplesPath
+
+object LivePluginPaths {
+    val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
+
+    val livePluginPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/")
+    val livePluginLibPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
+    val livePluginsCompiledPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-compiled")
+    @JvmField val livePluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
+
+    const val groovyExamplesPath = "/groovy/"
+    const val kotlinExamplesPath = "/kotlin/"
+}
 
 class LivePluginAppComponent: DumbAware {
 
@@ -46,26 +59,16 @@ class LivePluginAppComponent: DumbAware {
     }
 
     companion object {
-
         const val livePluginId = "LivePlugin"
-        const val groovyExamplesPath = "/groovy/"
-        const val kotlinExamplesPath = "/kotlin/"
-        val livePluginPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/")
-        val livePluginLibsPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
-        @JvmField val livePluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
-        val livePluginsCompiledPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-compiled")
-        val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
-
-        private val livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin")
-
         private val logger = Logger.getInstance(LivePluginAppComponent::class.java)
+        private val livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin")
 
         private const val defaultIdeaOutputFolder = "out"
 
         fun pluginIdToPathMap(): Map<String, String> {
-            val containsIdeaProjectFolder = File("$livePluginsPath/$DIRECTORY_STORE_FOLDER").exists()
+            val containsIdeaProjectFolder = File("${LivePluginPaths.livePluginsPath}/$DIRECTORY_STORE_FOLDER").exists()
 
-            val files = File(livePluginsPath)
+            val files = File(LivePluginPaths.livePluginsPath)
                 .listFiles { file ->
                     file.isDirectory &&
                     file.name != DIRECTORY_STORE_FOLDER &&
@@ -89,7 +92,7 @@ class LivePluginAppComponent: DumbAware {
         private fun VirtualFile.pluginFolder(): VirtualFile? {
             val parent = parent ?: return null
 
-            val pluginsRoot = File(livePluginsPath)
+            val pluginsRoot = File(LivePluginPaths.livePluginsPath)
             // Compare with FileUtil because string comparison was observed to not work on windows (e.g. "c:/..." and "C:/...")
             return if (!FileUtil.filesEqual(File(parent.path), pluginsRoot)) parent.pluginFolder() else this
         }
@@ -139,7 +142,7 @@ class LivePluginAppComponent: DumbAware {
                 val downloaded = downloadFile(
                     "http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/",
                     "groovy-all-$groovyVersion.jar",
-                    livePluginLibsPath
+                    LivePluginPaths.livePluginLibPath
                 )
                 if (downloaded) {
                     notification.expire()

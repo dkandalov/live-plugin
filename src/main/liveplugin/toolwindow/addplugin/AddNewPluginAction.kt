@@ -8,11 +8,9 @@ import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import liveplugin.Icons
 import liveplugin.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.groovyExamplesPath
-import liveplugin.LivePluginAppComponent.Companion.kotlinExamplesPath
-import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
 import liveplugin.LivePluginAppComponent.Companion.pluginExists
 import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
+import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.RefreshPluginsPanelAction
@@ -23,14 +21,14 @@ class AddNewGroovyPluginAction: AddNewPluginAction(
     text = "Groovy Plugin",
     description = "Create new Groovy plugin",
     scriptFileName = GroovyPluginRunner.mainScript,
-    scriptFileText = readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
+    scriptFileText = readSampleScriptFile(LivePluginPaths.groovyExamplesPath, "default-plugin.groovy")
 )
 
 class AddNewKotlinPluginAction: AddNewPluginAction(
     text = "Kotlin Plugin",
     description = "Create new Kotlin plugin",
     scriptFileName = KotlinPluginRunner.mainScript,
-    scriptFileText = readSampleScriptFile(kotlinExamplesPath, "default-plugin.kts")
+    scriptFileText = readSampleScriptFile(LivePluginPaths.kotlinExamplesPath, "default-plugin.kts")
 )
 
 open class AddNewPluginAction(
@@ -54,11 +52,11 @@ open class AddNewPluginAction(
 
         try {
 
-            createFile("$livePluginsPath/$newPluginId", scriptFileName, scriptFileText)
+            createFile("${LivePluginPaths.livePluginsPath}/$newPluginId", scriptFileName, scriptFileText)
 
         } catch (e: IOException) {
             if (project != null) {
-                IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to $livePluginsPath", addNewPluginTitle)
+                IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to ${LivePluginPaths.livePluginsPath}", addNewPluginTitle)
             }
             log.error(e)
         }

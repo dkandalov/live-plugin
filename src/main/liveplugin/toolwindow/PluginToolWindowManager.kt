@@ -45,8 +45,8 @@ import liveplugin.Icons.expandAllIcon
 import liveplugin.Icons.helpIcon
 import liveplugin.Icons.settingsIcon
 import liveplugin.IdeUtil
-import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
+import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
 import liveplugin.toolwindow.addplugin.*
@@ -239,7 +239,7 @@ private class PluginToolWindow(val project: Project) {
             }
 
             ApplicationManager.getApplication().runWriteAction { 
-                descriptor.setRoots(VfsUtil.createDirectoryIfMissing(LivePluginAppComponent.livePluginsPath))
+                descriptor.setRoots(VfsUtil.createDirectoryIfMissing(LivePluginPaths.livePluginsPath))
             }
 
             return descriptor

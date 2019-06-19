@@ -10,13 +10,9 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil.toSystemIndependentName
-import liveplugin.Icons
-import liveplugin.IdeUtil
+import liveplugin.*
 import liveplugin.IdeUtil.SingleThreadBackgroundRunner
 import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
-import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
-import liveplugin.allFilesInDirectory
-import liveplugin.findScriptFileIn
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
@@ -134,7 +130,7 @@ fun environment(): MutableMap<String, String> = HashMap(System.getenv())
 
 fun pluginFolder(path: String): String? {
     val parent = File(path).parent ?: return null
-    return if (toSystemIndependentName(parent) == livePluginsPath) path else pluginFolder(parent)
+    return if (toSystemIndependentName(parent) == LivePluginPaths.livePluginsPath) path else pluginFolder(parent)
 }
 
 fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =

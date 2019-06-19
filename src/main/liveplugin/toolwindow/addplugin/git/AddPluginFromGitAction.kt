@@ -20,7 +20,7 @@ import git4idea.checkout.GitCheckoutProvider
 import git4idea.commands.Git
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.isInvalidPluginFolder
-import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
+import liveplugin.LivePluginPaths
 import liveplugin.findFileByUrl
 import liveplugin.refreshAndFindFileByUrl
 import liveplugin.toolwindow.RefreshPluginsPanelAction
@@ -106,7 +106,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
 
                 RefreshPluginsPanelAction.refreshPluginTree()
             }
-            val pluginsRoot = livePluginsPath.findFileByUrl() ?: return
+            val pluginsRoot = LivePluginPaths.livePluginsPath.findFileByUrl() ?: return
             RefreshQueue.getInstance().refresh(false, true, finishRunnable, pluginsRoot)
         }
 

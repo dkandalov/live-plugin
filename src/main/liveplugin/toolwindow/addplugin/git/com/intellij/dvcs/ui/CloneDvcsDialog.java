@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.EditorComboBox;
 import com.intellij.util.ArrayUtil;
-import liveplugin.LivePluginAppComponent;
+import liveplugin.LivePluginPaths;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -146,7 +146,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
 //			parentDir = ProjectUtil.getBaseDir();
 //		}
         //noinspection ConstantIfStatement
-        myParentDirectory.setText(LivePluginAppComponent.livePluginsPath);
+        myParentDirectory.setText(LivePluginPaths.livePluginsPath);
         // FORK DIFF ↑↑↑
 
         myDirectoryName.getDocument().addDocumentListener(updateOkButtonListener);

@@ -13,7 +13,7 @@ import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.IdeUtil.showErrorDialog
-import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
+import liveplugin.LivePluginPaths
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.addplugin.PluginIdValidator
 import liveplugin.toolwindow.addplugin.git.AddPluginFromGistAction.GistUrlValidator.Companion.extractGistIdFrom
@@ -75,7 +75,7 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
 
     private fun createPluginFrom(gist: GithubGist, pluginId: String?) =
         gist.files.forEach { gistFile ->
-            createFile("$livePluginsPath/$pluginId", gistFile.filename, gistFile.content)
+            createFile("${LivePluginPaths.livePluginsPath}/$pluginId", gistFile.filename, gistFile.content)
         }
 
     private fun showMessageThatFetchingGistFailed(e: IOException?, project: Project) {
@@ -84,7 +84,7 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
     }
 
     private fun showMessageThatCreatingPluginFailed(e: IOException, newPluginId: String?, project: Project) {
-        showErrorDialog(project, "Error adding plugin \"$newPluginId\" to $livePluginsPath", dialogTitle)
+        showErrorDialog(project, "Error adding plugin \"$newPluginId\" to ${LivePluginPaths.livePluginsPath}", dialogTitle)
         log.info(e)
     }
 

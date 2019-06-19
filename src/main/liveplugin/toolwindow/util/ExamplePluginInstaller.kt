@@ -1,7 +1,7 @@
 package liveplugin.toolwindow.util
 
 import liveplugin.LivePluginAppComponent
-import liveplugin.LivePluginAppComponent.Companion.livePluginsPath
+import liveplugin.LivePluginPaths
 import java.io.IOException
 
 class ExamplePluginInstaller(private val pluginPath: String, private val filePaths: List<String>) {
@@ -12,7 +12,7 @@ class ExamplePluginInstaller(private val pluginPath: String, private val filePat
         filePaths.forEach { relativeFilePath ->
             try {
                 val text = LivePluginAppComponent.readSampleScriptFile(pluginPath, relativeFilePath)
-                val (parentPath, fileName) = splitIntoPathAndFileName("$livePluginsPath/$pluginId/$relativeFilePath")
+                val (parentPath, fileName) = splitIntoPathAndFileName("${LivePluginPaths.livePluginsPath}/$pluginId/$relativeFilePath")
                 createFile(parentPath, fileName, text)
             } catch (e: IOException) {
                 listener.onException(e, pluginPath)
