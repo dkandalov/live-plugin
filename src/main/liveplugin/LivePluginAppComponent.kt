@@ -1,5 +1,7 @@
 package liveplugin
 
+import com.intellij.codeInsight.daemon.impl.analysis.DefaultHighlightingSettingProvider
+import com.intellij.codeInsight.daemon.impl.analysis.FileHighlightingSetting
 import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
@@ -9,11 +11,14 @@ import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.PathManager.getHomePath
 import com.intellij.openapi.application.PathManager.getPluginsPath
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessExtension
 import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.indexing.IndexableSetContributor
 import liveplugin.IdeUtil.askIfUserWantsToRestartIde
 import liveplugin.IdeUtil.downloadFile
 import liveplugin.IdeUtil.invokeLaterOnEDT
@@ -28,6 +33,7 @@ import liveplugin.toolwindow.util.ExamplePluginInstaller
 import java.io.File
 import java.io.IOException
 import liveplugin.LivePluginPaths.groovyExamplesPath
+import liveplugin.LivePluginPaths.livePluginsPath
 
 object LivePluginPaths {
     val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
@@ -42,7 +48,6 @@ object LivePluginPaths {
 }
 
 class LivePluginAppComponent: DumbAware {
-
     init {
         checkThatGroovyIsOnClasspath()
 
@@ -66,9 +71,9 @@ class LivePluginAppComponent: DumbAware {
         private const val defaultIdeaOutputFolder = "out"
 
         fun pluginIdToPathMap(): Map<String, String> {
-            val containsIdeaProjectFolder = File("${LivePluginPaths.livePluginsPath}/$DIRECTORY_STORE_FOLDER").exists()
+            val containsIdeaProjectFolder = File("$livePluginsPath/$DIRECTORY_STORE_FOLDER").exists()
 
-            val files = File(LivePluginPaths.livePluginsPath)
+            val files = File(livePluginsPath)
                 .listFiles { file ->
                     file.isDirectory &&
                     file.name != DIRECTORY_STORE_FOLDER &&
@@ -92,7 +97,7 @@ class LivePluginAppComponent: DumbAware {
         private fun VirtualFile.pluginFolder(): VirtualFile? {
             val parent = parent ?: return null
 
-            val pluginsRoot = File(LivePluginPaths.livePluginsPath)
+            val pluginsRoot = File(livePluginsPath)
             // Compare with FileUtil because string comparison was observed to not work on windows (e.g. "c:/..." and "C:/...")
             return if (!FileUtil.filesEqual(File(parent.path), pluginsRoot)) parent.pluginFolder() else this
         }
@@ -172,4 +177,22 @@ class LivePluginAppComponent: DumbAware {
             ExamplePluginInstaller(groovyExamplesPath + "popup-menu/", listOf("plugin.groovy")).installPlugin(loggingListener)
         }
     }
+}
+
+class LivePluginIndexableSetContributor: IndexableSetContributor() {
+    override fun getAdditionalRootsToIndex(): MutableSet<VirtualFile> {
+        val path = livePluginsPath.findFileByUrl() ?: return HashSet()
+        return mutableSetOf(path)
+    }
+}
+
+class EnableHighlightingForLivePlugins: DefaultHighlightingSettingProvider(), DumbAware {
+    override fun getDefaultSetting(project: Project, file: VirtualFile): FileHighlightingSetting? {
+        val isUnderPluginsRootPath = FileUtil.startsWith(file.path, livePluginsPath)
+        return if (isUnderPluginsRootPath) FileHighlightingSetting.FORCE_HIGHLIGHTING else null
+    }
+}
+
+class MakePluginFilesAlwaysEditable: NonProjectFileWritingAccessExtension {
+    override fun isWritable(file: VirtualFile) = FileUtil.startsWith(file.path, livePluginsPath)
 }

@@ -79,9 +79,10 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 	</actions>
 
 	<extensions defaultExtensionNs="com.intellij">
-		<applicationService serviceInterface="liveplugin.Settings" serviceImplementation="liveplugin.Settings"/>
+		<applicationService serviceImplementation="liveplugin.Settings"/>
 		<nonProjectFileWritingAccessExtension implementation="liveplugin.MakePluginFilesAlwaysEditable"/>
         <defaultHighlightingSettingProvider implementation="liveplugin.EnableHighlightingForLivePlugins"/>
+		<indexedRootsProvider implementation="liveplugin.LivePluginIndexableSetContributor"/>
 		<intentionAction>
 			<className>liveplugin.AddToClassPathGroovyIntention</className>
 			<category>LivePlugin</category>
