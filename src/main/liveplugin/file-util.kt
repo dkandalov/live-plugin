@@ -10,7 +10,7 @@ fun File.filesList(): List<File> = listFiles()?.toList() ?: emptyList()
 
 fun File.toUrlString(): String = toURI().toURL().toString()
 
-fun File.toUrl(): URL = this.toURI().toURL()!!
+fun File.toUrl(): URL = this.toURI().toURL()
 
 fun findScriptFileIn(path: String?, fileName: String): File? {
     if (path == null) return null
@@ -21,7 +21,7 @@ fun findScriptFileIn(path: String?, fileName: String): File? {
         result.size == 1 -> result[0]
         else             -> {
             val filePaths = result.map { it.absolutePath }
-            throw IllegalStateException("Found several scripts files under " + path + ":\n" + StringUtil.join(filePaths, ";\n"))
+            error("Found several scripts files under " + path + ":\n" + StringUtil.join(filePaths, ";\n"))
         }
     }
 }

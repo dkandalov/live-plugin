@@ -106,7 +106,7 @@ class LivePluginAppComponent: DumbAware {
         fun readSampleScriptFile(pluginPath: String, file: String): String {
             return try {
                 val path = pluginPath + file
-                val inputStream = LivePluginAppComponent::class.java.classLoader.getResourceAsStream(path) ?: throw IllegalStateException("Could find resource for '$path'.")
+                val inputStream = LivePluginAppComponent::class.java.classLoader.getResourceAsStream(path) ?: error("Could find resource for '$path'.")
                 FileUtil.loadTextAndClose(inputStream)
             } catch (e: IOException) {
                 logger.error(e)

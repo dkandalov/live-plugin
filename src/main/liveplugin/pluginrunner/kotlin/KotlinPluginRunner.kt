@@ -150,11 +150,11 @@ val javaHome = File(System.getProperty("java.home"))
 
 private fun ideLibFiles(): List<File> {
     val ideJarPath = PathManager.getJarPathForClass(IntelliJLaf::class.java)
-        ?: throw IllegalStateException("Failed to find IDE lib folder.")
+        ?: error("Failed to find IDE lib folder.")
     return File(ideJarPath).parentFile.filesList()
 }
 
 private fun jarFilesOf(dependentPlugins: List<String>): List<File> {
-    val pluginDescriptors = pluginDescriptorsOf(dependentPlugins, onError = { throw IllegalStateException("Failed to find jar for dependent plugin '$it'.") })
+    val pluginDescriptors = pluginDescriptorsOf(dependentPlugins, onError = { error("Failed to find jar for dependent plugin '$it'.") })
     return pluginDescriptors.map { it.path }
 }
