@@ -22,18 +22,17 @@ import com.intellij.util.indexing.IndexableSetContributor
 import liveplugin.IdeUtil.askIfUserWantsToRestartIde
 import liveplugin.IdeUtil.downloadFile
 import liveplugin.IdeUtil.invokeLaterOnEDT
+import liveplugin.LivePluginPaths.groovyExamplesPath
+import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.PluginRunner
 import liveplugin.pluginrunner.createPluginRunners
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.pluginrunner.runPlugins
-import liveplugin.toolwindow.PluginToolWindowManager
 import liveplugin.toolwindow.util.ExamplePluginInstaller
 import java.io.File
 import java.io.IOException
-import liveplugin.LivePluginPaths.groovyExamplesPath
-import liveplugin.LivePluginPaths.livePluginsPath
 
 object LivePluginPaths {
     val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
@@ -139,9 +138,9 @@ class LivePluginAppComponent: DumbAware {
         fun checkThatGroovyIsOnClasspath(): Boolean {
             if (isGroovyOnClasspath) return true
 
-            // this can be useful for non-java IDEs because they don't have bundled groovy libs
+            // This can be useful for non-java IDEs because they don't have bundled groovy libs.
             val listener = NotificationListener { notification, _ ->
-                val groovyVersion = "2.4.12" // version of groovy used by latest IJ
+                val groovyVersion = "2.4.17" // Version of groovy used by latest IJ.
                 val downloaded = downloadFile(
                     "http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/",
                     "groovy-all-$groovyVersion.jar",
