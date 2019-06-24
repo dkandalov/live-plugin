@@ -22,8 +22,6 @@ import com.intellij.openapi.fileChooser.impl.FileTreeBuilder
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManager
-import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Ref
@@ -63,31 +61,24 @@ import javax.swing.JTree
 import javax.swing.tree.DefaultTreeModel
 
 class PluginToolWindowManager {
-    fun init() {
-        val connection = ApplicationManager.getApplication().messageBus.connect()
-        connection.subscribe(ProjectManager.TOPIC, object: ProjectManagerListener {
-            override fun projectOpened(project: Project) {
-                toolWindowsByProject[project] = PluginToolWindow(project)
-            }
-
-            override fun projectClosed(project: Project) {
-                toolWindowsByProject.remove(project)
-            }
-        })
-    }
-
     companion object {
-        private val toolWindowsByProject = HashMap<Project, PluginToolWindow>()
+        private val toolWindows = HashSet<PluginToolWindow>()
+
+        fun add(pluginToolWindow: PluginToolWindow) {
+            toolWindows.add(pluginToolWindow)
+        }
+
+        fun remove(pluginToolWindow: PluginToolWindow) {
+            toolWindows.remove(pluginToolWindow)
+        }
 
         fun reloadPluginTreesInAllProjects() {
-            toolWindowsByProject.forEach { (_, toolWindow) ->
-                toolWindow.updateTree()
-            }
+            toolWindows.forEach { it.updateTree() }
         }
     }
 }
 
-private class PluginToolWindow(val project: Project) {
+class PluginToolWindow(val project: Project) {
     private val pluginsToolWindowId = "Plugins"
     private var fsTreeRef = Ref<FileSystemTree>()
     private lateinit var panel: SimpleToolWindowPanel
@@ -99,8 +90,11 @@ private class PluginToolWindow(val project: Project) {
             it.contentManager.addContent(createContent(project))
         }
 
+        PluginToolWindowManager.add(this)
+
         Disposer.register(project, Disposable {
             toolWindowManager.unregisterToolWindow(pluginsToolWindowId)
+            PluginToolWindowManager.remove(this)
         })
     }
 
@@ -157,11 +151,8 @@ private class PluginToolWindow(val project: Project) {
 
     private fun createSettingsGroup() =
         object: DefaultActionGroup("Settings", true) {
-            override fun disableIfNoVisibleChildren(): Boolean {
-                // without this IntelliJ calls update() on first action in the group
-                // even if the action group is collapsed
-                return false
-            }
+            // Without this IntelliJ calls update() on first action in the group even if the action group is collapsed
+            override fun disableIfNoVisibleChildren() = false
         }.also {
             it.add(RunAllPluginsOnIDEStartAction())
             it.add(AddLivePluginAndIdeJarsAsDependencies())
@@ -244,7 +235,6 @@ private class PluginToolWindow(val project: Project) {
 
             return descriptor
         }
-
     }
 }
 
