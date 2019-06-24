@@ -22,6 +22,8 @@ import com.intellij.openapi.fileChooser.impl.FileTreeBuilder
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Ref
@@ -61,6 +63,15 @@ import javax.swing.JTree
 import javax.swing.tree.DefaultTreeModel
 
 class PluginToolWindowManager {
+    fun init() {
+        val connection = ApplicationManager.getApplication().messageBus.connect()
+        connection.subscribe(ProjectManager.TOPIC, object: ProjectManagerListener {
+            override fun projectOpened(project: Project) {
+                PluginToolWindow(project)
+            }
+        })
+    }
+
     companion object {
         private val toolWindows = HashSet<PluginToolWindow>()
 

@@ -30,6 +30,7 @@ import liveplugin.pluginrunner.createPluginRunners
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.pluginrunner.runPlugins
+import liveplugin.toolwindow.PluginToolWindowManager
 import liveplugin.toolwindow.util.ExamplePluginInstaller
 import java.io.File
 import java.io.IOException
@@ -58,6 +59,8 @@ class LivePluginAppComponent: DumbAware {
         if (settings.runAllPluginsOnIDEStartup) {
             runAllPlugins()
         }
+
+        PluginToolWindowManager().init()
     }
 
     companion object {
@@ -116,9 +119,6 @@ class LivePluginAppComponent: DumbAware {
 
         fun pluginExists(pluginId: String): Boolean = pluginIdToPathMap().keys.contains(pluginId)
 
-        private val isGroovyOnClasspath: Boolean
-            get() = IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
-
         private fun runAllPlugins() {
             invokeLaterOnEDT {
                 val event = AnActionEvent(
@@ -163,6 +163,9 @@ class LivePluginAppComponent: DumbAware {
 
             return false
         }
+
+        private val isGroovyOnClasspath: Boolean
+            get() = IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
 
         private fun installHelloWorldPlugins() {
             val loggingListener = object: ExamplePluginInstaller.Listener {
