@@ -25,8 +25,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     override fun actionPerformed(event: AnActionEvent) {
         IdeUtil.saveAllFiles()
         val errorReporter = ErrorReporter()
-        val pluginRunners = createPluginRunners(errorReporter)
-        runPlugins(event.selectedFiles(), event, errorReporter, pluginRunners)
+        runPlugins(event.selectedFiles(), event, errorReporter)
     }
 
     override fun update(event: AnActionEvent) {
@@ -44,16 +43,12 @@ const val projectKey = "project"
 private val backgroundRunner = SingleThreadBackgroundRunner("LivePlugin runner thread")
 private val bindingByPluginId = WeakHashMap<String, Map<String, Any?>>()
 
-fun runPlugins(
-    pluginFilePaths: List<String>,
-    event: AnActionEvent,
-    errorReporter: ErrorReporter,
-    pluginRunners: List<PluginRunner>
-) {
+fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporter: ErrorReporter) {
     if (!checkThatGroovyIsOnClasspath()) return
 
     val project = event.project
     val isIdeStartup = event.place == ideStartup
+    val pluginRunners = createPluginRunners(errorReporter)
 
     val pluginDataAndRunners = pluginFilePaths.mapNotNull { path ->
         val pluginFolder = pluginFolder(path)
