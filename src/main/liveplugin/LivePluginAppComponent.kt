@@ -39,7 +39,6 @@ import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.PluginRunner
-import liveplugin.pluginrunner.createPluginRunners
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.pluginrunner.runPlugins
@@ -192,12 +191,12 @@ class LivePluginAppComponent: DumbAware {
     }
 
     class MakePluginFilesAlwaysEditable: NonProjectFileWritingAccessExtension {
-        override fun isWritable(file: VirtualFile) = FileUtil.startsWith(file.path, livePluginsPath)
+        override fun isWritable(file: VirtualFile) = file.isUnderLivePluginsPath()
     }
 
     class Highlighter: SyntaxHighlighterProvider {
         override fun create(fileType: FileType, project: Project?, file: VirtualFile?): SyntaxHighlighter? {
-            if (project == null || file == null || !FileUtil.startsWith(file.path, livePluginsPath)) return null
+            if (project == null || file == null || !file.isUnderLivePluginsPath()) return null
             val language = LanguageUtil.getLanguageForPsi(project, file)
             return if (language == null) null else SyntaxHighlighterFactory.getSyntaxHighlighter(language, project, file)
         }
@@ -206,7 +205,7 @@ class LivePluginAppComponent: DumbAware {
     class UsageTypeExtension: UsageTypeProvider {
         override fun getUsageType(element: PsiElement): UsageType? {
             val file = PsiUtilCore.getVirtualFile(element) ?: return null
-            if (!FileUtil.startsWith(file.path, livePluginsPath)) return null
+            if (!file.isUnderLivePluginsPath()) return null
             return UsageType("Usage in liveplugin")
         }
     }
@@ -227,7 +226,7 @@ class LivePluginAppComponent: DumbAware {
 
     private class LivePluginsSearchScope(project: Project): GlobalSearchScope(project) {
         override fun getDisplayName() = "LivePlugins"
-        override fun contains(file: VirtualFile) = FileUtil.startsWith(file.path, livePluginsPath)
+        override fun contains(file: VirtualFile) = file.isUnderLivePluginsPath()
         override fun isSearchOutsideRootModel() = true
         override fun isSearchInModuleContent(aModule: Module) = false
         override fun isSearchInLibraries() = false
@@ -241,3 +240,6 @@ class LivePluginAppComponent: DumbAware {
         }
     }
 }
+
+private fun VirtualFile.isUnderLivePluginsPath() = FileUtil.startsWith(path, livePluginsPath)
+
