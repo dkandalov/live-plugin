@@ -13,9 +13,9 @@ import com.intellij.openapi.util.io.FileUtil.toSystemIndependentName
 import liveplugin.*
 import liveplugin.IdeUtil.SingleThreadBackgroundRunner
 import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
-import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import java.io.File
 import java.util.*
@@ -40,7 +40,7 @@ const val pluginPathKey = "pluginPath"
 const val isIdeStartupKey = "isIdeStartup"
 const val projectKey = "project"
 
-private val backgroundRunner = SingleThreadBackgroundRunner("LivePlugin runner thread")
+private val backgroundRunner = HashMap<String, SingleThreadBackgroundRunner>()
 private val bindingByPluginId = WeakHashMap<String, Map<String, Any?>>()
 
 fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporter: ErrorReporter) {
@@ -89,11 +89,16 @@ fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporte
                 errorReporter.reportAllErrors { title, message -> IdeUtil.displayError(title, message, project) }
             }
         }
-        Triple(pluginId, pluginFolder, task)
+        Triple(pluginId, task, pluginRunner)
     }
 
-    tasks.forEach { (pluginId, _, task) ->
-        backgroundRunner.run(project, "Loading live-plugin '$pluginId'", task)
+    pluginRunners.forEach {
+        backgroundRunner[it.scriptName()] = SingleThreadBackgroundRunner("LivePlugin runner thread")
+    }
+
+    tasks.forEach { (pluginId, task, pluginRunner) ->
+        val runner = backgroundRunner[pluginRunner.scriptName()]!!
+        runner.run(project, "Loading live-plugin '$pluginId'", task)
     }
 }
 
