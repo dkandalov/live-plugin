@@ -191,6 +191,10 @@ class LivePluginAppComponent: DumbAware {
         }
     }
 
+    class MakePluginFilesAlwaysEditable: NonProjectFileWritingAccessExtension {
+        override fun isWritable(file: VirtualFile) = FileUtil.startsWith(file.path, livePluginsPath)
+    }
+
     class Highlighter: SyntaxHighlighterProvider {
         override fun create(fileType: FileType, project: Project?, file: VirtualFile?): SyntaxHighlighter? {
             if (project == null || file == null || !FileUtil.startsWith(file.path, livePluginsPath)) return null
@@ -204,6 +208,13 @@ class LivePluginAppComponent: DumbAware {
             val file = PsiUtilCore.getVirtualFile(element) ?: return null
             if (!FileUtil.startsWith(file.path, livePluginsPath)) return null
             return UsageType("Usage in liveplugin")
+        }
+    }
+
+    class IndexSetContributor: IndexableSetContributor() {
+        override fun getAdditionalRootsToIndex(): MutableSet<VirtualFile> {
+            val path = livePluginsPath.findFileByUrl() ?: return HashSet()
+            return mutableSetOf(path)
         }
     }
 
@@ -229,15 +240,4 @@ class LivePluginAppComponent: DumbAware {
             fun getScopeInstance(project: Project): GlobalSearchScope = SCOPE_KEY.getValue(project)
         }
     }
-}
-
-class LivePluginIndexableSetContributor: IndexableSetContributor() {
-    override fun getAdditionalRootsToIndex(): MutableSet<VirtualFile> {
-        val path = livePluginsPath.findFileByUrl() ?: return HashSet()
-        return mutableSetOf(path)
-    }
-}
-
-class MakePluginFilesAlwaysEditable: NonProjectFileWritingAccessExtension {
-    override fun isWritable(file: VirtualFile) = FileUtil.startsWith(file.path, livePluginsPath)
 }

@@ -80,9 +80,9 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 
 	<extensions defaultExtensionNs="com.intellij">
 		<applicationService serviceImplementation="liveplugin.Settings"/>
-		<nonProjectFileWritingAccessExtension implementation="liveplugin.MakePluginFilesAlwaysEditable"/>
+		<nonProjectFileWritingAccessExtension implementation="liveplugin.LivePluginAppComponent$MakePluginFilesAlwaysEditable"/>
 		<syntaxHighlighter factoryClass="liveplugin.LivePluginAppComponent$Highlighter" order="first"/>
-		<indexedRootsProvider implementation="liveplugin.LivePluginIndexableSetContributor"/>
+		<indexedRootsProvider implementation="liveplugin.LivePluginAppComponent$IndexSetContributor"/>
 		<usageTypeProvider implementation="liveplugin.LivePluginAppComponent$UsageTypeExtension" order="last"/>
 		<useScopeEnlarger implementation="liveplugin.LivePluginAppComponent$UseScopeExtension"/>
 		<intentionAction>
