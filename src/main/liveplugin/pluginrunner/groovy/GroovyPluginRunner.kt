@@ -16,12 +16,10 @@ import java.io.File
 import java.io.IOException
 
 class GroovyPluginRunner(
-    private val scriptName: String,
+    override val scriptName: String,
     private val errorReporter: ErrorReporter,
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
-
-    override fun scriptName() = scriptName
 
     override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         val mainScript = findScriptFileIn(pluginFolderPath, scriptName)!!

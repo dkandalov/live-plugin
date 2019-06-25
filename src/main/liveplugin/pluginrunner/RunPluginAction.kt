@@ -55,11 +55,11 @@ fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporte
         val pluginId = File(pluginFolder).name
 
         val pluginRunner =
-            pluginRunners.find { it.scriptName() == File(path).name } ?:
-                pluginRunners.find { findScriptFileIn(pluginFolder, it.scriptName()) != null }
+            pluginRunners.find { it.scriptName == File(path).name } ?:
+                pluginRunners.find { findScriptFileIn(pluginFolder, it.scriptName) != null }
 
         if (pluginRunner == null) {
-            errorReporter.addNoScriptError(pluginId, pluginRunners.map { it.scriptName() })
+            errorReporter.addNoScriptError(pluginId, pluginRunners.map { it.scriptName })
             null
         } else {
             Triple(pluginId, pluginFolder!!, pluginRunner)
@@ -93,11 +93,11 @@ fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporte
     }
 
     pluginRunners.forEach {
-        backgroundRunner[it.scriptName()] = SingleThreadBackgroundRunner("LivePlugin runner thread")
+        backgroundRunner[it.scriptName] = SingleThreadBackgroundRunner("LivePlugin runner thread")
     }
 
     tasks.forEach { (pluginId, task, pluginRunner) ->
-        val runner = backgroundRunner[pluginRunner.scriptName()]!!
+        val runner = backgroundRunner[pluginRunner.scriptName]!!
         runner.run(project, "Loading live-plugin '$pluginId'", task)
     }
 }
@@ -135,7 +135,7 @@ fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
     mapNotNull { path -> pluginFolder(path) }
         .any { folder ->
             pluginRunners.any { runner ->
-                allFilesInDirectory(File(folder)).any { runner.scriptName() == it.name }
+                allFilesInDirectory(File(folder)).any { runner.scriptName == it.name }
             }
         }
 

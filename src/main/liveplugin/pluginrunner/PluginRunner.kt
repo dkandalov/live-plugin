@@ -13,7 +13,7 @@ import java.io.FileFilter
 
 interface PluginRunner {
 
-    fun scriptName(): String
+    val scriptName: String
 
     /**
      * @param pluginFolderPath absolute path to plugin folder

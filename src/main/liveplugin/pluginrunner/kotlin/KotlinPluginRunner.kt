@@ -45,7 +45,7 @@ class KotlinPluginRunner(
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 
-    override fun scriptName(): String = mainScript
+    override val scriptName = mainScript
 
     override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
         val mainScriptFile = findScriptFileIn(pluginFolderPath, mainScript)!!
