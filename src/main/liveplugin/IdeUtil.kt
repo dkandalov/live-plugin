@@ -146,21 +146,6 @@ object IdeUtil {
     }
 
 
-    class SingleThreadBackgroundRunner(threadName: String) {
-        private val singleThreadExecutor: ExecutorService = newSingleThreadExecutor { runnable -> Thread(runnable, threadName) }
-
-        fun run(project: Project?, taskDescription: String, runnable: () -> Unit) {
-            object: Task.Backgroundable(project, taskDescription, false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-                override fun run(indicator: ProgressIndicator) {
-                    try {
-                        singleThreadExecutor.submit(runnable).get()
-                    } catch (ignored: InterruptedException) {
-                    } catch (ignored: ExecutionException) { }
-                }
-            }.queue()
-        }
-    }
-
     /**
      * Copy-pasted from `UnscrambleDialog#normalizeText(String)`
      * because PhpStorm doesn't have this class.

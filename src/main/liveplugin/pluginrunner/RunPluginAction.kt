@@ -6,12 +6,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState.NON_MODAL
+import com.intellij.openapi.progress.PerformInBackgroundOption
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil.toSystemIndependentName
 import liveplugin.*
-import liveplugin.IdeUtil.SingleThreadBackgroundRunner
 import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
@@ -19,6 +21,8 @@ import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import java.io.File
 import java.util.*
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
 
 
 class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runPluginIcon), DumbAware {
@@ -108,6 +112,21 @@ fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> = list
     GroovyPluginRunner(mainScript, errorReporter),
     KotlinPluginRunner(errorReporter)
 )
+
+private class SingleThreadBackgroundRunner(threadName: String) {
+    private val singleThreadExecutor = Executors.newSingleThreadExecutor { runnable -> Thread(runnable, threadName) }
+
+    fun run(project: Project?, taskDescription: String, runnable: () -> Unit) {
+        object: Task.Backgroundable(project, taskDescription, false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+            override fun run(indicator: ProgressIndicator) {
+                try {
+                    singleThreadExecutor.submit(runnable).get()
+                } catch (ignored: InterruptedException) {
+                } catch (ignored: ExecutionException) { }
+            }
+        }.queue()
+    }
+}
 
 private fun createBinding(pluginFolderPath: String, project: Project?, isIdeStartup: Boolean): Map<String, Any?> {
     val disposable = object: Disposable {
