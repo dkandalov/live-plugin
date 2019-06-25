@@ -8,6 +8,7 @@ import liveplugin.pluginrunner.PluginRunner
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
+import liveplugin.pluginrunner.systemEnvironment
 import liveplugin.readLines
 import liveplugin.toUrlString
 import org.codehaus.groovy.control.CompilationFailedException
@@ -17,7 +18,7 @@ import java.io.IOException
 class GroovyPluginRunner(
     private val scriptName: String,
     private val errorReporter: ErrorReporter,
-    private val environment: Map<String, String>
+    private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 
     override fun scriptName() = scriptName
@@ -35,7 +36,7 @@ class GroovyPluginRunner(
         runOnEDT: (() -> Unit) -> Unit
     ) {
         try {
-            val environment = environment + Pair("PLUGIN_PATH", pluginFolderPath)
+            val environment = systemEnvironment + Pair("PLUGIN_PATH", pluginFolderPath)
 
             val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), groovyDependsOnPluginKeyword)
             val pathsToAdd = findClasspathAdditions(

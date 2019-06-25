@@ -104,12 +104,10 @@ fun runPlugins(
 
 private fun runOnEdt(f: () -> Unit) = ApplicationManager.getApplication().invokeAndWait(f, NON_MODAL)
 
-fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> {
-    return ArrayList<PluginRunner>().apply {
-        add(GroovyPluginRunner(mainScript, errorReporter, environment()))
-        add(KotlinPluginRunner(errorReporter, environment()))
-    }
-}
+fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> = listOf(
+    GroovyPluginRunner(mainScript, errorReporter),
+    KotlinPluginRunner(errorReporter)
+)
 
 private fun createBinding(pluginFolderPath: String, project: Project?, isIdeStartup: Boolean): Map<String, Any?> {
     val disposable = object: Disposable {
@@ -126,9 +124,9 @@ private fun createBinding(pluginFolderPath: String, project: Project?, isIdeStar
     )
 }
 
-fun environment(): MutableMap<String, String> = HashMap(System.getenv())
+fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
-fun pluginFolder(path: String): String? {
+private fun pluginFolder(path: String): String? {
     val parent = File(path).parent ?: return null
     return if (toSystemIndependentName(parent) == LivePluginPaths.livePluginsPath) path else pluginFolder(parent)
 }

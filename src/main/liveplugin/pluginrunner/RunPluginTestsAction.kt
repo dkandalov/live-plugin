@@ -13,13 +13,13 @@ class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run Plugin Integration
     override fun actionPerformed(event: AnActionEvent) {
         IdeUtil.saveAllFiles()
         val errorReporter = ErrorReporter()
-        val pluginRunners = listOf(GroovyPluginRunner(testScript, errorReporter, environment()))
+        val pluginRunners = listOf(GroovyPluginRunner(testScript, errorReporter))
         runPlugins(event.selectedFiles(), event, errorReporter, pluginRunners)
     }
 
     override fun update(event: AnActionEvent) {
         val errorReporter = ErrorReporter()
-        val pluginRunners = listOf(GroovyPluginRunner(testScript, errorReporter, HashMap()))
+        val pluginRunners = listOf(GroovyPluginRunner(testScript, errorReporter))
         event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginRunners)
     }
 }

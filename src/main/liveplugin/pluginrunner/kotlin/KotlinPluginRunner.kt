@@ -40,7 +40,10 @@ import java.io.IOException
  *  - ".kt" must have "main" function to be executed
  *  - ".kt" won't work with `LivePluginScriptCompilationConfiguration`
  */
-class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val environment: Map<String, String>): PluginRunner {
+class KotlinPluginRunner(
+    private val errorReporter: ErrorReporter,
+    private val systemEnvironment: Map<String, String> = systemEnvironment()
+): PluginRunner {
 
     override fun scriptName(): String = mainScript
 
@@ -121,7 +124,7 @@ class KotlinPluginRunner(private val errorReporter: ErrorReporter, private val e
         return findClasspathAdditions(
             lines,
             kotlinAddToClasspathKeyword,
-            environment + Pair("PLUGIN_PATH", pluginFolderPath),
+            systemEnvironment + Pair("PLUGIN_PATH", pluginFolderPath),
             onError = { path -> errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'") }
         ).map { File(it) }
     }
