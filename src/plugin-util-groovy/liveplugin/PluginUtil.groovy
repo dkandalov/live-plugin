@@ -538,7 +538,7 @@ class PluginUtil {
 	@CanCallFromAnyThread
 	static void inspect(Object object) {
 		invokeOnEDT {
-			ObjectInspector.inspect(object)
+			ObjectInspector.showPopup(object)
 		}
 	}
 
