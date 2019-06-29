@@ -1,12 +1,19 @@
 package liveplugin.pluginrunner
 
 import liveplugin.IdeUtil.unscrambleThrowable
+import liveplugin.pluginrunner.Result.*
 import java.util.*
 
-sealed class Result<Value, Reason> {
-    class Success<Value, Reason>(val value: Value) : Result<Value, Reason>()
-    class Failure<Value, Reason>(val reason: Reason) : Result<Value, Reason>()
+sealed class Result<out Value, out Reason> {
+    class Success<out Value>(val value: Value) : Result<Value, Nothing>()
+    class Failure<out Reason>(val reason: Reason) : Result<Nothing, Reason>()
 }
+
+inline fun <T, E> Result<T, E>.onFailure(block: (Failure<E>) -> Nothing): T = when (this) {
+    is Success<T> -> value
+    is Failure<E> -> block(this)
+}
+
 
 sealed class AnError {
     data class LoadingError(val pluginId: String, val message: String): AnError()

@@ -6,7 +6,7 @@ import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import groovy.lang.GroovyClassLoader
-import liveplugin.pluginrunner.AnError.*
+import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
 import liveplugin.toUrl
@@ -30,26 +30,19 @@ interface PluginRunner {
     object ClasspathAddition {
         private val logger = Logger.getInstance(ClasspathAddition::class.java)
 
-        fun createClassLoaderWithDependencies(classPath: List<File>, pluginsToAdd: List<String>, pluginId: String): Result<ClassLoader, List<LoadingError>> {
-            val parentLoader = when (val it = createParentClassLoader(pluginsToAdd, pluginId)) {
-                is Success -> it.value
-                is Failure -> return it
-            }
-            val classLoader = GroovyClassLoader(parentLoader)
-            val errors = ArrayList<LoadingError>()
+        fun createClassLoaderWithDependencies(classPath: List<File>, pluginsToAdd: List<String>, pluginId: String): Result<ClassLoader, LoadingError> {
             classPath.forEach { file ->
-                if (file.exists()) classLoader.addURL(file.toUrl())
-                else errors.add(LoadingError(pluginId, "Didn't find plugin dependency '${file.absolutePath}'."))
+                if (!file.exists()) return Failure(LoadingError(pluginId, "Didn't find plugin dependency '${file.absolutePath}'."))
             }
-            return if (errors.isNotEmpty()) Failure(errors) else Success(classLoader)
+            val parentLoader = createParentClassLoader(pluginsToAdd, pluginId).onFailure { return it }
+            val classLoader = GroovyClassLoader(parentLoader)
+            classPath.forEach { file -> classLoader.addURL(file.toUrl()) }
+            return Success(classLoader)
         }
 
-        private fun createParentClassLoader(dependentPlugins: List<String>, pluginId: String): Result<ClassLoader, List<LoadingError>> {
-            val errors = ArrayList<LoadingError>()
-            val pluginDescriptors = pluginDescriptorsOf(dependentPlugins, onError = { dependentPluginId ->
-                errors.add(LoadingError(pluginId, "Couldn't find dependent plugin '$dependentPluginId'"))
-            })
-            if (errors.isNotEmpty()) return Failure(errors)
+        private fun createParentClassLoader(dependentPlugins: List<String>, pluginId: String): Result<ClassLoader, LoadingError> {
+            val pluginDescriptors = pluginDescriptorsOf(dependentPlugins)
+                .onFailure { return Failure(LoadingError(pluginId, "Couldn't find dependent plugin '$it'")) }
 
             val parentLoaders = pluginDescriptors.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
             val pluginVersion = "1.0.0"
@@ -62,12 +55,10 @@ interface PluginRunner {
             ))
         }
 
-        fun pluginDescriptorsOf(pluginIds: List<String>, onError: (String) -> Unit): List<IdeaPluginDescriptor> {
-            return pluginIds.mapNotNull { pluginIdString ->
-                val pluginDescriptor = PluginManager.getPlugin(PluginId.getId(pluginIdString))
-                if (pluginDescriptor == null) onError(pluginIdString)
-                pluginDescriptor
-            }
+        fun pluginDescriptorsOf(pluginIds: List<String>): Result<List<IdeaPluginDescriptor>, String> {
+            return Success(pluginIds.map {
+                PluginManager.getPlugin(PluginId.getId(it)) ?: return Failure(it)
+            })
         }
 
         fun findPluginDependencies(lines: List<String>, prefix: String): List<String> {

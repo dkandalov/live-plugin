@@ -16,7 +16,6 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderW
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
-import liveplugin.pluginrunner.Result.*
 import liveplugin.toUrl
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
@@ -93,12 +92,9 @@ class KotlinPluginRunner(
                 File(livePluginLibPath).filesList() +
                 scriptPathAdditions
 
-            val classLoader = when (val it = createClassLoaderWithDependencies(runtimeClassPath, dependentPlugins, pluginId)) {
-                is Success -> it.value
-                is Failure -> {
-                    it.reason.forEach { errorReporter.addLoadingError(it.pluginId, it.message) }
-                    return
-                }
+            val classLoader = createClassLoaderWithDependencies(runtimeClassPath, dependentPlugins, pluginId).onFailure {
+                errorReporter.addLoadingError(it.reason.pluginId, it.reason.message)
+                return
             }
             classLoader.loadClass("Plugin")
         } catch (e: Throwable) {
@@ -160,6 +156,7 @@ private fun ideLibFiles(): List<File> {
 }
 
 private fun jarFilesOf(dependentPlugins: List<String>): List<File> {
-    val pluginDescriptors = pluginDescriptorsOf(dependentPlugins, onError = { error("Failed to find jar for dependent plugin '$it'.") })
-    return pluginDescriptors.map { it.path }
+    return pluginDescriptorsOf(dependentPlugins)
+        .onFailure { error("Failed to find jar for dependent plugin '$it'.") }
+        .map { it.path }
 }
