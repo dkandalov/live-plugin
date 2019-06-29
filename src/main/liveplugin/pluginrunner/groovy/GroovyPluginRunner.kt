@@ -8,6 +8,7 @@ import liveplugin.pluginrunner.PluginRunner
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
+import liveplugin.pluginrunner.Result.*
 import liveplugin.pluginrunner.systemEnvironment
 import liveplugin.readLines
 import liveplugin.toUrlString
@@ -46,7 +47,13 @@ class GroovyPluginRunner(
                 }
             ).map { File(it) }.toMutableList()
             pathsToAdd.add(File(pluginFolderPath))
-            val classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, pluginId, errorReporter)
+            val classLoader = when (val it = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, pluginId)) {
+                is Success -> it.value
+                is Failure -> {
+                    it.reason.forEach { errorReporter.addLoadingError(it.pluginId, it.message) }
+                    return
+                }
+            }
 
             val pluginFolderUrl = "file:///$pluginFolderPath/" // prefix with "file:///" so that unix-like path works on windows
             // assume that GroovyScriptEngine is thread-safe

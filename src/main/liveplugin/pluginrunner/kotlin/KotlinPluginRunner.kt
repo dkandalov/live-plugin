@@ -16,6 +16,7 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderW
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
+import liveplugin.pluginrunner.Result.*
 import liveplugin.toUrl
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
@@ -92,12 +93,13 @@ class KotlinPluginRunner(
                 File(livePluginLibPath).filesList() +
                 scriptPathAdditions
 
-            val classLoader = createClassLoaderWithDependencies(
-                runtimeClassPath,
-                dependentPlugins,
-                pluginId,
-                errorReporter
-            )
+            val classLoader = when (val it = createClassLoaderWithDependencies(runtimeClassPath, dependentPlugins, pluginId)) {
+                is Success -> it.value
+                is Failure -> {
+                    it.reason.forEach { errorReporter.addLoadingError(it.pluginId, it.message) }
+                    return
+                }
+            }
             classLoader.loadClass("Plugin")
         } catch (e: Throwable) {
             errorReporter.addLoadingError(pluginId, "Error while loading plugin class. ${unscrambleThrowable(e)}")

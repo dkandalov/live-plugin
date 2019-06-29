@@ -3,12 +3,22 @@ package liveplugin.pluginrunner
 import liveplugin.IdeUtil.unscrambleThrowable
 import java.util.*
 
+sealed class Result<Value, Reason> {
+    class Success<Value, Reason>(val value: Value) : Result<Value, Reason>()
+    class Failure<Value, Reason>(val reason: Reason) : Result<Value, Reason>()
+}
+
+sealed class AnError {
+    data class LoadingError(val pluginId: String, val message: String): AnError()
+}
+
 /**
  * Thread-safe.
  */
-class ErrorReporter {
-    private val loadingErrors = LinkedList<String>()
-    private val runningPluginErrors = LinkedHashMap<String, String>()
+data class ErrorReporter(
+    private val loadingErrors: LinkedList<String> = LinkedList(),
+    private val runningPluginErrors: LinkedHashMap<String, String> = LinkedHashMap()
+) {
 
     @Synchronized fun addNoScriptError(pluginId: String, scriptNames: List<String>) {
         val scripts = scriptNames.joinToString(", ") { "\"$it\"" }
