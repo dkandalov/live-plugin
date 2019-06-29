@@ -9,7 +9,8 @@ import org.junit.Test
 
 import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
 
-@Ignore // Because it's not clear how to load EmbeddedCompilerRunnerKt in test with different libraries on classpath.
+// Ignore for now, because it's hard to setup KotlinPluginRunner classloaders and load EmbeddedCompilerRunnerKt.
+@Ignore
 class KotlinPluginRunnerTest {
 	private final ErrorReporter errorReporter = new ErrorReporter()
 	private final pluginRunner = new KotlinPluginRunner(errorReporter, emptyEnvironment)
