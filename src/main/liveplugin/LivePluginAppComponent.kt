@@ -37,11 +37,10 @@ import liveplugin.IdeUtil.downloadFile
 import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.livePluginsPath
-import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.PluginRunner
+import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
-import liveplugin.pluginrunner.runPlugins
 import liveplugin.toolwindow.PluginToolWindowManager
 import liveplugin.toolwindow.util.ExamplePluginInstaller
 import java.io.File
@@ -141,9 +140,8 @@ class LivePluginAppComponent: DumbAware {
                     ActionManager.getInstance(),
                     0
                 )
-                val errorReporter = ErrorReporter()
                 val pluginPaths = pluginIdToPathMap().keys.map { pluginIdToPathMap().getValue(it) }
-                runPlugins(pluginPaths, event, errorReporter)
+                runPlugins(pluginPaths, event)
             }
         }
 

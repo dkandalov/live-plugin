@@ -21,6 +21,7 @@ import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.mainScript
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.testScript
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import java.io.File
 import java.util.*
@@ -32,13 +33,32 @@ import java.util.concurrent.atomic.AtomicReference
 class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         IdeUtil.saveAllFiles()
-        val errorReporter = ErrorReporter()
-        runPlugins(event.selectedFiles(), event, errorReporter)
+        runPlugins(event.selectedFiles(), event)
     }
 
     override fun update(event: AnActionEvent) {
-        val pluginRunners = pluginRunners
         event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginRunners)
+    }
+
+    companion object {
+        @JvmStatic fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent) {
+            runPlugins(pluginFilePaths, event, pluginRunners)
+        }
+
+        @JvmStatic fun runPluginsTests(pluginFilePaths: List<String>, event: AnActionEvent) {
+            runPlugins(pluginFilePaths, event, pluginTestRunners)
+        }
+    }
+}
+
+class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run Plugin Integration Tests", Icons.testPluginIcon), DumbAware {
+    override fun actionPerformed(event: AnActionEvent) {
+        IdeUtil.saveAllFiles()
+        RunPluginAction.runPluginsTests(event.selectedFiles(), event)
+    }
+
+    override fun update(event: AnActionEvent) {
+        event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginTestRunners)
     }
 }
 
@@ -51,7 +71,13 @@ const val projectKey = "project"
 private val backgroundRunner = HashMap<String, SingleThreadBackgroundRunner>()
 private val bindingByPluginId = WeakHashMap<String, Map<String, Any?>>()
 
-fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporter: ErrorReporter) {
+private fun <T> runOnEdt(f: () -> T): T {
+    val result = AtomicReference<T>()
+    ApplicationManager.getApplication().invokeAndWait({ result.set(f()) }, NON_MODAL)
+    return result.get()
+}
+
+private fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
     if (!checkThatGroovyIsOnClasspath()) return
 
     val project = event.project
@@ -66,7 +92,7 @@ fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporte
             pluginRunners.find { findScriptFileIn(pluginFolder, it.scriptName) != null }
 
         if (pluginRunner == null) {
-            errorReporter.addNoScriptError(pluginId, pluginRunners.map { it.scriptName })
+            IdeUtil.displayError(LoadingError("Plugin: \"$pluginId\". Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
             null
         } else {
             Triple(pluginId, pluginFolder!!, pluginRunner)
@@ -104,13 +130,8 @@ fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporte
     }
 }
 
-private fun <T> runOnEdt(f: () -> T): T {
-    val result = AtomicReference<T>()
-    ApplicationManager.getApplication().invokeAndWait({ result.set(f()) }, NON_MODAL)
-    return result.get()
-}
-
-val pluginRunners = listOf(GroovyPluginRunner(mainScript), KotlinPluginRunner())
+private val pluginRunners = listOf(GroovyPluginRunner(mainScript), KotlinPluginRunner())
+private val pluginTestRunners = listOf(GroovyPluginRunner(testScript), KotlinPluginRunner())
 
 private class SingleThreadBackgroundRunner(threadName: String) {
     private val singleThreadExecutor = Executors.newSingleThreadExecutor { runnable -> Thread(runnable, threadName) }

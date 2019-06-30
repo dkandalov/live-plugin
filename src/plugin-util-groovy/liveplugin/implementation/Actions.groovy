@@ -1,4 +1,5 @@
 package liveplugin.implementation
+
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.RunManager
 import com.intellij.execution.executors.DefaultRunExecutor
@@ -13,9 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.wm.IdeFocusManager
 import liveplugin.PluginUtil
-import liveplugin.pluginrunner.ErrorReporter
 import liveplugin.pluginrunner.RunPluginAction
-import liveplugin.pluginrunner.RunPluginTestsAction
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -98,23 +97,16 @@ class Actions {
 	}
 
 	static runLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		executeLivePlugin(pluginId, project) { ErrorReporter errorReporter ->
-			RunPluginAction.createPluginRunners(errorReporter)
-		}
+		RunPluginAction.runPlugins([pluginId], dummyEvent(project))
 	}
 
 	static testLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		executeLivePlugin(pluginId, project) { ErrorReporter errorReporter ->
-			RunPluginTestsAction.createPluginRunners(errorReporter)
-		}
+		RunPluginAction.runPluginsTests([pluginId], dummyEvent(project))
 	}
 
-	private static executeLivePlugin(@NotNull String pluginId, @NotNull Project project, Closure<List> createRunners) {
+	private static AnActionEvent dummyEvent(Project project) {
 		def dataContext = new MapDataContext().put(CommonDataKeys.PROJECT.name, project)
-		def dummyEvent = new AnActionEvent(null, dataContext, "", new Presentation(), ActionManager.instance, 0)
-		def errorReporter = new ErrorReporter()
-		def pluginRunners = createRunners(errorReporter)
-		RunPluginAction.runPlugins([pluginId], dummyEvent, errorReporter, pluginRunners)
+		new AnActionEvent(null, dataContext, "", new Presentation(), ActionManager.instance, 0)
 	}
 
 	/**

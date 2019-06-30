@@ -89,14 +89,4 @@ class GroovyPluginRunnerTest {
 		file.write(fileContent)
 		file
 	}
-
-	static collectErrorsFrom(ErrorReporter errorReporter) {
-		def errors = []
-		errorReporter.reportAllErrors(new ErrorReporter.Callback() {
-			@Override void display(String title, String message) {
-				errors << [title, message]
-			}
-		})
-		errors
-	}
 }

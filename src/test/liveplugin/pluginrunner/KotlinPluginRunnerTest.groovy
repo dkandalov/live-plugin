@@ -7,13 +7,14 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 
+import static liveplugin.pluginrunner.AnError.*
 import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
+import static liveplugin.pluginrunner.Result.*
 
 // Ignore for now, because it's hard to setup KotlinPluginRunner classloaders and load EmbeddedCompilerRunnerKt.
 @Ignore
 class KotlinPluginRunnerTest {
-	private final ErrorReporter errorReporter = new ErrorReporter()
-	private final pluginRunner = new KotlinPluginRunner(errorReporter, emptyEnvironment)
+	private final pluginRunner = new KotlinPluginRunner(emptyEnvironment)
 	private File rootFolder
 	private File libPackageFolder
 
@@ -21,18 +22,18 @@ class KotlinPluginRunnerTest {
 		def scriptCode = "println(123)"
 		createFile("plugin.kts", scriptCode, rootFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
-		assert collectErrorsFrom(errorReporter).empty
+		assert result instanceof Success
 	}
 
 	@Test void "kotlin script which uses IJ API"() {
 		def scriptCode = "println(com.intellij.openapi.project.Project::class.java)"
 		createFile("plugin.kts", scriptCode, rootFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
-		assert collectErrorsFrom(errorReporter).empty
+		assert result instanceof Success
 	}
 	
 	@Test void "kotlin script which uses function from another file"() {
@@ -47,23 +48,20 @@ class KotlinPluginRunnerTest {
 		createFile("plugin.kts", scriptCode, rootFolder)
 		createFile("lib.kt", libScriptCode, libPackageFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
-		assert collectErrorsFrom(errorReporter).empty
+		assert result instanceof Success
 	}
 
 	@Test void "kotlin script with errors"() {
 		def scriptCode = "abc"
 		createFile("plugin.kts", scriptCode, rootFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
-		def errors = collectErrorsFrom(errorReporter)
-		assert errors.size == 1
-		errors.first().with {
-			assert it[0] == "Loading errors"
-			assert it[1].contains("error: unresolved reference: abc")
-		}
+		assert result instanceof Failure
+		assert (result.reason as LoadingError).pluginId == "someId"
+		assert (result.reason as LoadingError).throwable.toString().contains("unresolved reference: abc")
 	}
 
 	@Before void setup() {
