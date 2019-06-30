@@ -5,8 +5,8 @@ import liveplugin.pluginrunner.Result.*
 import java.util.*
 
 sealed class Result<out Value, out Reason> {
-    class Success<out Value>(val value: Value) : Result<Value, Nothing>()
-    class Failure<out Reason>(val reason: Reason) : Result<Nothing, Reason>()
+    data class Success<out Value>(val value: Value) : Result<Value, Nothing>()
+    data class Failure<out Reason>(val reason: Reason) : Result<Nothing, Reason>()
 }
 
 inline fun <T, E> Result<T, E>.onFailure(block: (Failure<E>) -> Nothing): T =

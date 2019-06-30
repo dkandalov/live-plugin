@@ -17,7 +17,6 @@ import java.io.IOException
 
 class GroovyPluginRunner(
     override val scriptName: String,
-    private val errorReporter: ErrorReporter,
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 

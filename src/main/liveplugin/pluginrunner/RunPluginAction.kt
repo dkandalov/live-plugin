@@ -37,7 +37,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 
     override fun update(event: AnActionEvent) {
-        val pluginRunners = createPluginRunners(ErrorReporter())
+        val pluginRunners = pluginRunners
         event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginRunners)
     }
 }
@@ -56,7 +56,6 @@ fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporte
 
     val project = event.project
     val isIdeStartup = event.place == ideStartup
-    val pluginRunners = createPluginRunners(errorReporter)
 
     val pluginDataAndRunners = pluginFilePaths.mapNotNull { path ->
         val pluginFolder = pluginFolder(path)
@@ -64,7 +63,7 @@ fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporte
 
         val pluginRunner =
             pluginRunners.find { it.scriptName == File(path).name } ?:
-                pluginRunners.find { findScriptFileIn(pluginFolder, it.scriptName) != null }
+            pluginRunners.find { findScriptFileIn(pluginFolder, it.scriptName) != null }
 
         if (pluginRunner == null) {
             errorReporter.addNoScriptError(pluginId, pluginRunners.map { it.scriptName })
@@ -111,10 +110,7 @@ private fun <T> runOnEdt(f: () -> T): T {
     return result.get()
 }
 
-fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> = listOf(
-    GroovyPluginRunner(mainScript, errorReporter),
-    KotlinPluginRunner(errorReporter)
-)
+val pluginRunners = listOf(GroovyPluginRunner(mainScript), KotlinPluginRunner())
 
 private class SingleThreadBackgroundRunner(threadName: String) {
     private val singleThreadExecutor = Executors.newSingleThreadExecutor { runnable -> Thread(runnable, threadName) }

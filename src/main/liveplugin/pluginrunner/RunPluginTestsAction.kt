@@ -17,8 +17,7 @@ class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run Plugin Integration
     }
 
     override fun update(event: AnActionEvent) {
-        val errorReporter = ErrorReporter()
-        val pluginRunners = listOf(GroovyPluginRunner(testScript, errorReporter))
+        val pluginRunners = listOf(GroovyPluginRunner(testScript))
         event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginRunners)
     }
 }

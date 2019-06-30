@@ -43,7 +43,6 @@ import java.io.IOException
  *  - ".kt" won't work with `LivePluginScriptCompilationConfiguration`
  */
 class KotlinPluginRunner(
-    private val errorReporter: ErrorReporter,
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 

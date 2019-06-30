@@ -1,7 +1,6 @@
 package liveplugin.pluginrunner
 
 import com.intellij.openapi.util.io.FileUtil
-import kotlin.Unit
 import kotlin.jvm.functions.Function0
 import kotlin.jvm.functions.Function1
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
@@ -9,20 +8,21 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
+import static liveplugin.pluginrunner.AnError.RunningError
+import static liveplugin.pluginrunner.Result.Failure
+import static liveplugin.pluginrunner.Result.Success
 import static liveplugin.pluginrunner.groovy.GroovyPluginRunner.mainScript
 
 class GroovyPluginRunnerTest {
 	static final LinkedHashMap noBindings = [:]
 	static final LinkedHashMap emptyEnvironment = [:]
-	static final Function1 runOnTheSameThread = new Function1<Function0<Unit>, Unit>() {
-		@Override Unit invoke(Function0<Unit> f) {
+	static final Function1 runOnTheSameThread = new Function1<Function0<Result>, Result>() {
+		@Override Result invoke(Function0<Result> f) {
 			f.invoke()
-			Unit.INSTANCE
 		}
 	}
 
-	private final ErrorReporter errorReporter = new ErrorReporter()
-	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(mainScript, errorReporter, emptyEnvironment)
+	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(mainScript, emptyEnvironment)
 	private File rootFolder
 	private File myPackageFolder
 
@@ -38,9 +38,9 @@ class GroovyPluginRunnerTest {
 			a + b
 		"""
 		createFile("plugin.groovy", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
-		assert collectErrorsFrom(errorReporter).empty
+		assert result instanceof Success
 	}
 
 	@Test void "run incorrect groovy script with errors"() {
@@ -48,14 +48,11 @@ class GroovyPluginRunnerTest {
 			invalid code + 1
 		"""
 		createFile("plugin.groovy", scriptCode, rootFolder)
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
-		def errors = collectErrorsFrom(errorReporter)
-		assert errors.size() == 1
-		errors.first().with{
-			assert it[0] == "someId"
-			assert it[1].startsWith("groovy.lang.MissingPropertyException")
-		}
+		assert result instanceof Failure
+		assert (result.reason as RunningError).pluginId == "someId"
+		assert (result.reason as RunningError).throwable.toString().startsWith("groovy.lang.MissingPropertyException")
 	}
 
 	@Test void "run groovy script which uses groovy class from another file"() {
@@ -72,9 +69,9 @@ class GroovyPluginRunnerTest {
 		createFile("plugin.groovy", scriptCode, rootFolder)
 		createFile("Util.groovy", scriptCode2, myPackageFolder)
 
-		pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
 
-		assert collectErrorsFrom(errorReporter).empty
+		assert result instanceof Success
 	}
 
 	@Before void setup() {
