@@ -19,9 +19,6 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
-import com.intellij.openapi.progress.PerformInBackgroundOption
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.Messages.showOkCancelDialog
@@ -32,14 +29,12 @@ import com.intellij.util.containers.ContainerUtil.map
 import com.intellij.util.download.DownloadableFileService
 import com.intellij.util.text.CharArrayUtil
 import liveplugin.LivePluginAppComponent.Companion.livePluginId
+import liveplugin.pluginrunner.AnError
 import org.jetbrains.annotations.NonNls
 import java.awt.BorderLayout
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.Arrays.asList
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors.newSingleThreadExecutor
 import javax.swing.Icon
 import javax.swing.JPanel
 
@@ -49,7 +44,15 @@ object IdeUtil {
     val dummyDataContext = DataContext { null }
     private val logger = Logger.getInstance(IdeUtil::class.java)
 
-    fun displayError(consoleTitle: String, text: String, project: Project?) {
+    fun displayError(error: AnError, project: Project?) {
+        val (title, message) = when (error) {
+            is AnError.LoadingError -> Pair("Loading error", error.message + if (error.throwable != null) "\n" + unscrambleThrowable(error.throwable) else "")
+            is AnError.RunningError -> Pair("Running error", unscrambleThrowable(error.throwable))
+        }
+        displayError(title, message, project)
+    }
+
+    private fun displayError(consoleTitle: String, text: String, project: Project?) {
         if (project == null) {
             // "project" can be null when there are no open projects or while IDE is loading.
             // It is important to log error specifying plugin id, otherwise IDE will try to guess

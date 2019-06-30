@@ -15,7 +15,10 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil.toSystemIndependentName
 import liveplugin.*
 import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
+import liveplugin.pluginrunner.AnError.LoadingError
+import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
+import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.mainScript
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
@@ -23,6 +26,7 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicReference
 
 
 class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runPluginIcon), DumbAware {
@@ -70,8 +74,8 @@ fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporte
         }
     }.distinct()
 
-    val tasks = pluginDataAndRunners.map { (pluginId, pluginFolder, pluginRunner) ->
-        val task = {
+    pluginDataAndRunners.forEach { (pluginId, pluginFolder, pluginRunner) ->
+        val task: () -> Result<Unit, AnError> = {
             try {
                 val oldBinding = bindingByPluginId[pluginId]
                 if (oldBinding != null) {
@@ -79,35 +83,33 @@ fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporte
                         try {
                             Disposer.dispose(oldBinding[pluginDisposableKey] as Disposable)
                         } catch (e: Exception) {
-                            errorReporter.addRunningError(pluginId, e)
+                            IdeUtil.displayError(RunningError(pluginId, e), project)
                         }
                     }
                 }
                 val binding = createBinding(pluginFolder, project, isIdeStartup)
                 bindingByPluginId[pluginId] = binding
+                backgroundRunner[pluginRunner.scriptName] = SingleThreadBackgroundRunner("LivePlugin runner thread")
 
                 pluginRunner.runPlugin(pluginFolder, pluginId, binding, ::runOnEdt)
-                Unit
+
             } catch (e: Throwable) {
-                errorReporter.addLoadingError(pluginId, e)
-            } finally {
-                errorReporter.reportAllErrors { title, message -> IdeUtil.displayError(title, message, project) }
+                Failure(LoadingError(pluginId, throwable = e))
             }
         }
-        Triple(pluginId, task, pluginRunner)
-    }
 
-    pluginRunners.forEach {
-        backgroundRunner[it.scriptName] = SingleThreadBackgroundRunner("LivePlugin runner thread")
-    }
-
-    tasks.forEach { (pluginId, task, pluginRunner) ->
         val runner = backgroundRunner[pluginRunner.scriptName]!!
-        runner.run(project, "Loading live-plugin '$pluginId'", task)
+        runner.run(project, "Loading live-plugin '$pluginId'") {
+            task().peekFailure { IdeUtil.displayError(it, project) }
+        }
     }
 }
 
-private fun runOnEdt(f: () -> Unit) = ApplicationManager.getApplication().invokeAndWait(f, NON_MODAL)
+private fun <T> runOnEdt(f: () -> T): T {
+    val result = AtomicReference<T>()
+    ApplicationManager.getApplication().invokeAndWait({ result.set(f()) }, NON_MODAL)
+    return result.get()
+}
 
 fun createPluginRunners(errorReporter: ErrorReporter): List<PluginRunner> = listOf(
     GroovyPluginRunner(mainScript, errorReporter),

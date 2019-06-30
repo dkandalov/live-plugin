@@ -24,7 +24,12 @@ interface PluginRunner {
      * @param binding map with implicit variables available in plugin script
      * @param runOnEDT callback which should be used to run plugin code on EDT
      */
-    fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit): Result<Unit, AnError>
+    fun runPlugin(
+        pluginFolderPath: String,
+        pluginId: String,
+        binding: Map<String, *>,
+        runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>
+    ): Result<Unit, AnError>
 
 
     object ClasspathAddition {

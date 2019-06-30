@@ -12,6 +12,7 @@ import liveplugin.LivePluginPaths.livePluginLibPath
 import liveplugin.filesList
 import liveplugin.findScriptFileIn
 import liveplugin.pluginrunner.*
+import liveplugin.pluginrunner.AnError.*
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
@@ -48,7 +49,7 @@ class KotlinPluginRunner(
 
     override val scriptName = mainScript
 
-    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit): Result<Unit, AnError> {
+    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         val mainScriptFile = findScriptFileIn(pluginFolderPath, mainScript)!!
         val dependentPlugins = findPluginDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
         val scriptPathAdditions = findClasspathAdditionsIn(mainScriptFile.readLines(), pluginFolderPath, pluginId)
@@ -69,21 +70,19 @@ class KotlinPluginRunner(
                 @Suppress("UNCHECKED_CAST")
                 val compilationErrors = compilePluginMethod.invoke(null, pluginFolderPath, compilerClasspath, compilerOutput, KotlinScriptTemplate::class.java) as List<String>
                 if (compilationErrors.isNotEmpty()) {
-                    errorReporter.addLoadingError(pluginId, "Error compiling script. " + compilationErrors.joinToString("\n"))
-                    return Success(Unit)
+                    return Failure(LoadingError(pluginId, "Error compiling script. " + compilationErrors.joinToString("\n")))
                 }
             } catch (e: IOException) {
-                errorReporter.addLoadingError(pluginId, "Error creating scripting engine. ${unscrambleThrowable(e)}")
-                return Success(Unit)
+                return Failure(LoadingError(pluginId, "Error creating scripting engine. ${unscrambleThrowable(e)}"))
             } catch (e: Throwable) {
                 // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
                 // and LivePlugin should be able to run kotlin scripts without it
-                if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
-                    errorReporter.addLoadingError(pluginId, "Error compiling script. ${unscrambleThrowable(e)}")
+                val error = if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
+                    LoadingError(pluginId, "Error compiling script. ${unscrambleThrowable(e)}")
                 } else {
-                    errorReporter.addLoadingError(pluginId, "Internal error compiling script. ${unscrambleThrowable(e)}")
+                    LoadingError(pluginId, "Internal error compiling script. ${unscrambleThrowable(e)}")
                 }
-                return Success(Unit)
+                return Failure(error)
             }
         }
 
@@ -94,16 +93,14 @@ class KotlinPluginRunner(
                 scriptPathAdditions
 
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath, dependentPlugins, pluginId).onFailure {
-                errorReporter.addLoadingError(it.reason.pluginId, it.reason.message)
-                return Success(Unit)
+                return Failure(LoadingError(it.reason.pluginId, it.reason.message))
             }
             classLoader.loadClass("Plugin")
         } catch (e: Throwable) {
-            errorReporter.addLoadingError(pluginId, "Error while loading plugin class. ${unscrambleThrowable(e)}")
-            return Success(Unit)
+            return Failure(LoadingError(pluginId, "Error while loading plugin class. ${unscrambleThrowable(e)}"))
         }
 
-        runOnEDT {
+        return runOnEDT {
             try {
                 // Arguments below must match constructor of KotlinScriptTemplate class.
                 // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
@@ -113,11 +110,11 @@ class KotlinPluginRunner(
                     binding[pluginPathKey] as String,
                     binding[pluginDisposableKey] as Disposable
                 )
+                Success(Unit)
             } catch (e: Throwable) {
-                errorReporter.addRunningError(pluginId, e)
+                Failure(RunningError(pluginId, e))
             }
         }
-        return Success(Unit)
     }
 
     private fun findClasspathAdditionsIn(lines: List<String>, pluginFolderPath: String, pluginId: String): List<File> {

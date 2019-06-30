@@ -9,14 +9,19 @@ sealed class Result<out Value, out Reason> {
     class Failure<out Reason>(val reason: Reason) : Result<Nothing, Reason>()
 }
 
-inline fun <T, E> Result<T, E>.onFailure(block: (Failure<E>) -> Nothing): T = when (this) {
-    is Success<T> -> value
-    is Failure<E> -> block(this)
-}
+inline fun <T, E> Result<T, E>.onFailure(block: (Failure<E>) -> Nothing): T =
+    when (this) {
+        is Success<T> -> value
+        is Failure<E> -> block(this)
+    }
+
+inline fun <T, E> Result<T, E>.peekFailure(f: (E) -> Unit) =
+    apply { if (this is Failure<E>) f(reason) }
 
 
 sealed class AnError {
-    data class LoadingError(val pluginId: String, val message: String): AnError()
+    data class LoadingError(val pluginId: String, val message: String = "", val throwable: Throwable? = null): AnError()
+    data class RunningError(val pluginId: String, val throwable: Throwable): AnError()
 }
 
 /**

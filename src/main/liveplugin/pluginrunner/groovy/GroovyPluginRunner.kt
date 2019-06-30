@@ -4,6 +4,7 @@ import groovy.lang.Binding
 import groovy.util.GroovyScriptEngine
 import liveplugin.findScriptFileIn
 import liveplugin.pluginrunner.*
+import liveplugin.pluginrunner.AnError.*
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
@@ -20,7 +21,7 @@ class GroovyPluginRunner(
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 
-    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit): Result<Unit, AnError> {
+    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         val mainScript = findScriptFileIn(pluginFolderPath, scriptName)!!
         return runGroovyScript(mainScript.toUrlString(), pluginFolderPath, pluginId, binding, runOnEDT)
     }
@@ -30,7 +31,7 @@ class GroovyPluginRunner(
         pluginFolderPath: String,
         pluginId: String,
         binding: Map<String, *>,
-        runOnEDT: (() -> Unit) -> Unit
+        runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>
     ): Result<Unit, AnError> {
         try {
             val environment = systemEnvironment + Pair("PLUGIN_PATH", pluginFolderPath)
@@ -46,8 +47,7 @@ class GroovyPluginRunner(
             ).map { File(it) }.toMutableList()
             pathsToAdd.add(File(pluginFolderPath))
             val classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, pluginId).onFailure {
-                errorReporter.addLoadingError(it.reason.pluginId, it.reason.message)
-                return Success(Unit)
+                return Failure(LoadingError(it.reason.pluginId, it.reason.message))
             }
 
             val pluginFolderUrl = "file:///$pluginFolderPath/" // prefix with "file:///" so that unix-like path works on windows
@@ -57,30 +57,29 @@ class GroovyPluginRunner(
             try {
                 scriptEngine.loadScriptByName(mainScriptUrl)
             } catch (e: Exception) {
-                errorReporter.addLoadingError(pluginId, e)
-                return Success(Unit)
+                return Failure(LoadingError(pluginId, throwable = e))
             }
 
-            runOnEDT {
+            return runOnEDT {
                 try {
                     scriptEngine.run(mainScriptUrl, createGroovyBinding(binding))
+                    Success(Unit)
                 } catch (e: Exception) {
-                    errorReporter.addRunningError(pluginId, e)
+                    Failure(RunningError(pluginId, e))
                 }
             }
 
         } catch (e: IOException) {
-            errorReporter.addLoadingError(pluginId, "Error creating scripting engine. ${e.message}")
+            return Failure(LoadingError(pluginId, "Error creating scripting engine. ${e.message}"))
         } catch (e: CompilationFailedException) {
-            errorReporter.addLoadingError(pluginId, "Error compiling script. ${e.message}")
+            return Failure(LoadingError(pluginId, "Error compiling script. ${e.message}"))
         } catch (e: LinkageError) {
-            errorReporter.addLoadingError(pluginId, "Error linking script. ${e.message}")
+            return Failure(LoadingError(pluginId, "Error linking script. ${e.message}"))
         } catch (e: Error) {
-            errorReporter.addLoadingError(pluginId, e)
+            return Failure(LoadingError(pluginId, throwable = e))
         } catch (e: Exception) {
-            errorReporter.addLoadingError(pluginId, e)
+            return Failure(LoadingError(pluginId, throwable = e))
         }
-        return Success(Unit)
     }
 
     private fun createGroovyBinding(binding: Map<String, *>): Binding {
