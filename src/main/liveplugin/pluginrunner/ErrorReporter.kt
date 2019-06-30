@@ -18,6 +18,18 @@ inline fun <T, E> Result<T, E>.onFailure(block: (Failure<E>) -> Nothing): T =
 inline fun <T, E> Result<T, E>.peekFailure(f: (E) -> Unit) =
     apply { if (this is Failure<E>) f(reason) }
 
+fun <T, E> Iterable<Result<T, E>>.allValues(): Result<List<T>, E> =
+    Success(map { r -> r.onFailure { return it } })
+
+inline fun <T, Tʹ, E> Result<T, E>.flatMap(f: (T) -> Result<Tʹ, E>): Result<Tʹ, E> =
+    when (this) {
+        is Success<T> -> f(value)
+        is Failure<E> -> this
+    }
+
+inline fun <T, Tʹ, E> Result<T, E>.map(f: (T) -> Tʹ): Result<Tʹ, E> =
+    flatMap { value -> Success(f(value)) }
+
 
 sealed class AnError {
     data class LoadingError(val pluginId: String, val message: String = "", val throwable: Throwable? = null): AnError()

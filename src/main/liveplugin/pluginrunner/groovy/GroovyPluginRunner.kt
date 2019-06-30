@@ -37,18 +37,11 @@ class GroovyPluginRunner(
             val environment = systemEnvironment + Pair("PLUGIN_PATH", pluginFolderPath)
 
             val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), groovyDependsOnPluginKeyword)
-            val pathsToAdd = findClasspathAdditions(
-                readLines(mainScriptUrl),
-                groovyAddToClasspathKeyword,
-                environment,
-                onError = { path ->
-                    errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'")
-                }
-            ).map { File(it) }.toMutableList()
-            pathsToAdd.add(File(pluginFolderPath))
-            val classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, pluginId).onFailure {
-                return Failure(LoadingError(it.reason.pluginId, it.reason.message))
-            }
+            val pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), groovyAddToClasspathKeyword, environment)
+                .onFailure { path -> return Failure(LoadingError(pluginId, "Couldn't find dependency '$path'")) }
+
+            val classLoader = createClassLoaderWithDependencies(pathsToAdd + File(pluginFolderPath), dependentPlugins, pluginId)
+                .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
 
             val pluginFolderUrl = "file:///$pluginFolderPath/" // prefix with "file:///" so that unix-like path works on windows
             // assume that GroovyScriptEngine is thread-safe

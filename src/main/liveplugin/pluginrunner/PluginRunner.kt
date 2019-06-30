@@ -71,18 +71,19 @@ interface PluginRunner {
                 .map { line -> line.replace(prefix, "").trim { it <= ' ' } }
         }
 
-        fun findClasspathAdditions(lines: List<String>, prefix: String, environment: Map<String, String>, onError: (String) -> Unit): List<String> {
+        fun findClasspathAdditions(lines: List<String>, prefix: String, environment: Map<String, String>): Result<List<File>, String> {
             return lines
                 .filter { it.startsWith(prefix) }
                 .map { line ->
                     val path = line.replace(prefix, "").trim { it <= ' ' }
                     inlineEnvironmentVariables(path, environment)
                 }
-                .flatMap { path ->
+                .map { path ->
                     val matchingFiles = findMatchingFiles(path)
-                    if (matchingFiles.isEmpty()) onError(path)
-                    matchingFiles
+                    if (matchingFiles.isEmpty()) Failure(path) else Success(matchingFiles)
                 }
+                .allValues()
+                .map { matchingFiles -> matchingFiles.flatten().map { File(it) } }
         }
 
         private fun findMatchingFiles(pathAndPattern: String): List<String> {

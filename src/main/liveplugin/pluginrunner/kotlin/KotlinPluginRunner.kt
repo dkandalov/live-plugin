@@ -52,7 +52,10 @@ class KotlinPluginRunner(
     override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         val mainScriptFile = findScriptFileIn(pluginFolderPath, mainScript)!!
         val dependentPlugins = findPluginDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
-        val scriptPathAdditions = findClasspathAdditionsIn(mainScriptFile.readLines(), pluginFolderPath, pluginId)
+        val environment = systemEnvironment + Pair("PLUGIN_PATH", pluginFolderPath)
+        val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment)
+            .onFailure { path -> return Failure(LoadingError(pluginId, "Couldn't find dependency '$path'")) }
+
         val compilerOutput = File(toSystemIndependentName("${LivePluginPaths.livePluginsCompiledPath}/$pluginId")).also { it.deleteRecursively() }
 
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
@@ -115,15 +118,6 @@ class KotlinPluginRunner(
                 Failure(RunningError(pluginId, e))
             }
         }
-    }
-
-    private fun findClasspathAdditionsIn(lines: List<String>, pluginFolderPath: String, pluginId: String): List<File> {
-        return findClasspathAdditions(
-            lines,
-            kotlinAddToClasspathKeyword,
-            systemEnvironment + Pair("PLUGIN_PATH", pluginFolderPath),
-            onError = { path -> errorReporter.addLoadingError(pluginId, "Couldn't find dependency '$path'") }
-        ).map { File(it) }
     }
 
     companion object {
