@@ -3,13 +3,11 @@ package liveplugin.pluginrunner.groovy
 import groovy.lang.Binding
 import groovy.util.GroovyScriptEngine
 import liveplugin.findScriptFileIn
-import liveplugin.pluginrunner.ErrorReporter
-import liveplugin.pluginrunner.PluginRunner
+import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
-import liveplugin.pluginrunner.onFailure
-import liveplugin.pluginrunner.systemEnvironment
+import liveplugin.pluginrunner.Result.*
 import liveplugin.readLines
 import liveplugin.toUrlString
 import org.codehaus.groovy.control.CompilationFailedException
@@ -22,9 +20,9 @@ class GroovyPluginRunner(
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 
-    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
+    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit): Result<Unit, AnError> {
         val mainScript = findScriptFileIn(pluginFolderPath, scriptName)!!
-        runGroovyScript(mainScript.toUrlString(), pluginFolderPath, pluginId, binding, runOnEDT)
+        return runGroovyScript(mainScript.toUrlString(), pluginFolderPath, pluginId, binding, runOnEDT)
     }
 
     private fun runGroovyScript(
@@ -33,7 +31,7 @@ class GroovyPluginRunner(
         pluginId: String,
         binding: Map<String, *>,
         runOnEDT: (() -> Unit) -> Unit
-    ) {
+    ): Result<Unit, AnError> {
         try {
             val environment = systemEnvironment + Pair("PLUGIN_PATH", pluginFolderPath)
 
@@ -49,7 +47,7 @@ class GroovyPluginRunner(
             pathsToAdd.add(File(pluginFolderPath))
             val classLoader = createClassLoaderWithDependencies(pathsToAdd, dependentPlugins, pluginId).onFailure {
                 errorReporter.addLoadingError(it.reason.pluginId, it.reason.message)
-                return
+                return Success(Unit)
             }
 
             val pluginFolderUrl = "file:///$pluginFolderPath/" // prefix with "file:///" so that unix-like path works on windows
@@ -60,7 +58,7 @@ class GroovyPluginRunner(
                 scriptEngine.loadScriptByName(mainScriptUrl)
             } catch (e: Exception) {
                 errorReporter.addLoadingError(pluginId, e)
-                return
+                return Success(Unit)
             }
 
             runOnEDT {
@@ -82,6 +80,7 @@ class GroovyPluginRunner(
         } catch (e: Exception) {
             errorReporter.addLoadingError(pluginId, e)
         }
+        return Success(Unit)
     }
 
     private fun createGroovyBinding(binding: Map<String, *>): Binding {

@@ -87,6 +87,7 @@ fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, errorReporte
                 bindingByPluginId[pluginId] = binding
 
                 pluginRunner.runPlugin(pluginFolder, pluginId, binding, ::runOnEdt)
+                Unit
             } catch (e: Throwable) {
                 errorReporter.addLoadingError(pluginId, e)
             } finally {

@@ -16,6 +16,7 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderW
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
+import liveplugin.pluginrunner.Result.*
 import liveplugin.toUrl
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
@@ -47,7 +48,7 @@ class KotlinPluginRunner(
 
     override val scriptName = mainScript
 
-    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit) {
+    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Unit) -> Unit): Result<Unit, AnError> {
         val mainScriptFile = findScriptFileIn(pluginFolderPath, mainScript)!!
         val dependentPlugins = findPluginDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
         val scriptPathAdditions = findClasspathAdditionsIn(mainScriptFile.readLines(), pluginFolderPath, pluginId)
@@ -69,11 +70,11 @@ class KotlinPluginRunner(
                 val compilationErrors = compilePluginMethod.invoke(null, pluginFolderPath, compilerClasspath, compilerOutput, KotlinScriptTemplate::class.java) as List<String>
                 if (compilationErrors.isNotEmpty()) {
                     errorReporter.addLoadingError(pluginId, "Error compiling script. " + compilationErrors.joinToString("\n"))
-                    return
+                    return Success(Unit)
                 }
             } catch (e: IOException) {
                 errorReporter.addLoadingError(pluginId, "Error creating scripting engine. ${unscrambleThrowable(e)}")
-                return
+                return Success(Unit)
             } catch (e: Throwable) {
                 // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
                 // and LivePlugin should be able to run kotlin scripts without it
@@ -82,7 +83,7 @@ class KotlinPluginRunner(
                 } else {
                     errorReporter.addLoadingError(pluginId, "Internal error compiling script. ${unscrambleThrowable(e)}")
                 }
-                return
+                return Success(Unit)
             }
         }
 
@@ -94,12 +95,12 @@ class KotlinPluginRunner(
 
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath, dependentPlugins, pluginId).onFailure {
                 errorReporter.addLoadingError(it.reason.pluginId, it.reason.message)
-                return
+                return Success(Unit)
             }
             classLoader.loadClass("Plugin")
         } catch (e: Throwable) {
             errorReporter.addLoadingError(pluginId, "Error while loading plugin class. ${unscrambleThrowable(e)}")
-            return
+            return Success(Unit)
         }
 
         runOnEDT {
@@ -116,6 +117,7 @@ class KotlinPluginRunner(
                 errorReporter.addRunningError(pluginId, e)
             }
         }
+        return Success(Unit)
     }
 
     private fun findClasspathAdditionsIn(lines: List<String>, pluginFolderPath: String, pluginId: String): List<File> {
