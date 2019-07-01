@@ -18,6 +18,7 @@ import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
+import liveplugin.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import java.io.File
@@ -52,7 +53,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
 class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run Plugin Integration Tests", Icons.testPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         IdeUtil.saveAllFiles()
-        RunPluginAction.runPluginsTests(event.selectedFiles(), event)
+        runPluginsTests(event.selectedFiles(), event)
     }
 
     override fun update(event: AnActionEvent) {
@@ -83,7 +84,7 @@ private fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, plug
     if (!checkThatGroovyIsOnClasspath()) return
     pluginFilePaths
         .map { LivePlugin(findPluginFolder(it)!!) }.distinct()
-        .map { it.runWith(pluginRunners, event.project, event.place == ideStartup) }
+        .forEach { it.runWith(pluginRunners, event.project, event.place == ideStartup) }
 }
 
 private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, project: Project?, isIdeStartup: Boolean) {
@@ -92,19 +93,7 @@ private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, project: Proje
 
     val backgroundRunner = backgroundRunner.getOrPut(pluginRunner.scriptName, { SingleThreadBackgroundRunner() })
     backgroundRunner.run(project, "Running live-plugin '$pluginId'") {
-        val oldBinding = bindingByPluginId[pluginId]
-        if (oldBinding != null) {
-            runOnEdt {
-                try {
-                    Disposer.dispose(oldBinding[pluginDisposableKey] as Disposable)
-                } catch (e: Exception) {
-                    IdeUtil.displayError(RunningError(pluginId, e), project)
-                }
-            }
-        }
-        val binding = createBinding(path, project, isIdeStartup)
-        bindingByPluginId[pluginId] = binding
-
+        val binding = createBinding(this, project, isIdeStartup)
         pluginRunner.runPlugin(path, pluginId, binding, ::runOnEdt)
             .peekFailure { IdeUtil.displayError(it, project) }
     }
@@ -130,19 +119,33 @@ private class SingleThreadBackgroundRunner(threadName: String = "LivePlugin runn
     }
 }
 
-private fun createBinding(pluginFolderPath: String, project: Project?, isIdeStartup: Boolean): Map<String, Any?> {
+private fun createBinding(livePlugin: LivePlugin, project: Project?, isIdeStartup: Boolean): Map<String, Any?> {
+    val oldBinding = bindingByPluginId[livePlugin.pluginId]
+    if (oldBinding != null) {
+        runOnEdt {
+            try {
+                Disposer.dispose(oldBinding[pluginDisposableKey] as Disposable)
+            } catch (e: Exception) {
+                IdeUtil.displayError(RunningError(livePlugin.pluginId, e), project)
+            }
+        }
+    }
+
     val disposable = object: Disposable {
         override fun dispose() {}
-        override fun toString() = "LivePlugin: $pluginFolderPath"
+        override fun toString() = "LivePlugin: $livePlugin"
     }
     Disposer.register(ApplicationManager.getApplication(), disposable)
 
-    return mapOf(
+    val binding = mapOf(
         projectKey to project,
         isIdeStartupKey to isIdeStartup,
-        pluginPathKey to pluginFolderPath,
+        pluginPathKey to livePlugin.path,
         pluginDisposableKey to disposable
     )
+    bindingByPluginId[livePlugin.pluginId] = binding
+
+    return binding
 }
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
