@@ -87,5 +87,8 @@ class GroovyPluginRunner(
         const val testScript = "plugin-test.groovy"
         const val groovyAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
         const val groovyDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
+
+        val main = GroovyPluginRunner(mainScript)
+        val test = GroovyPluginRunner(testScript)
     }
 }

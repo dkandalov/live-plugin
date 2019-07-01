@@ -79,7 +79,6 @@ private fun <T> runOnEdt(f: () -> T): T {
 
 private fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
     if (!checkThatGroovyIsOnClasspath()) return
-
     val project = event.project
     val isIdeStartup = event.place == ideStartup
 
@@ -130,8 +129,8 @@ private fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, plug
     }
 }
 
-private val pluginRunners = listOf(GroovyPluginRunner(mainScript), KotlinPluginRunner())
-private val pluginTestRunners = listOf(GroovyPluginRunner(testScript), KotlinPluginRunner())
+private val pluginRunners = listOf(GroovyPluginRunner.main, KotlinPluginRunner.main)
+private val pluginTestRunners = listOf(GroovyPluginRunner.test, KotlinPluginRunner.test)
 
 private class SingleThreadBackgroundRunner(threadName: String) {
     private val singleThreadExecutor = Executors.newSingleThreadExecutor { runnable -> Thread(runnable, threadName) }

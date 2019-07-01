@@ -43,10 +43,9 @@ import java.io.IOException
  *  - ".kt" won't work with `LivePluginScriptCompilationConfiguration`
  */
 class KotlinPluginRunner(
+    override val scriptName: String,
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
-
-    override val scriptName = mainScript
 
     override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         val mainScriptFile = findScriptFileIn(pluginFolderPath, mainScript)!!
@@ -124,6 +123,10 @@ class KotlinPluginRunner(
         const val testScript = "plugin-test.kts"
         const val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
         const val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
+
+        val main = KotlinPluginRunner(mainScript)
+        val test = KotlinPluginRunner(testScript)
+
         private val livePluginCompilerLibsPath = toSystemIndependentName("${LivePluginPaths.livePluginPath}/kotlin-compiler")
 
         private val compilerClassLoader by lazy {
