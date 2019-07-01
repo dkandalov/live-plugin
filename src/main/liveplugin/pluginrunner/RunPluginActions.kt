@@ -18,14 +18,12 @@ import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.PluginRunner.Companion.ideStartup
-import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
-import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.mainScript
-import liveplugin.pluginrunner.groovy.GroovyPluginRunner.Companion.testScript
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import java.io.File
 import java.util.*
-import java.util.concurrent.ExecutionException
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
@@ -69,7 +67,7 @@ const val isIdeStartupKey = "isIdeStartup"
 const val projectKey = "project"
 
 private val backgroundRunner = HashMap<String, SingleThreadBackgroundRunner>()
-private val bindingByPluginId = WeakHashMap<String, Map<String, Any?>>()
+private val bindingByPluginId = ConcurrentHashMap<String, Map<String, Any?>>()
 
 private fun <T> runOnEdt(f: () -> T): T {
     val result = AtomicReference<T>()
@@ -77,73 +75,58 @@ private fun <T> runOnEdt(f: () -> T): T {
     return result.get()
 }
 
+private data class LivePlugin(val path: String) {
+    val pluginId: String get() = File(path).name
+}
+
 private fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
     if (!checkThatGroovyIsOnClasspath()) return
-    val project = event.project
-    val isIdeStartup = event.place == ideStartup
+    pluginFilePaths
+        .map { LivePlugin(findPluginFolder(it)!!) }.distinct()
+        .map { it.runWith(pluginRunners, event.project, event.place == ideStartup) }
+}
 
-    val pluginDataAndRunners = pluginFilePaths.mapNotNull { path ->
-        val pluginFolder = pluginFolder(path)
-        val pluginId = File(pluginFolder).name
+private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, project: Project?, isIdeStartup: Boolean) {
+    val pluginRunner = pluginRunners.find { findScriptFileIn(path, it.scriptName) != null }
+        ?: return IdeUtil.displayError(LoadingError("Plugin: \"$pluginId\". Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
 
-        val pluginRunner =
-            pluginRunners.find { it.scriptName == File(path).name } ?:
-            pluginRunners.find { findScriptFileIn(pluginFolder, it.scriptName) != null }
-
-        if (pluginRunner == null) {
-            IdeUtil.displayError(LoadingError("Plugin: \"$pluginId\". Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
-            null
-        } else {
-            Triple(pluginId, pluginFolder!!, pluginRunner)
-        }
-    }.distinct()
-
-    pluginDataAndRunners.forEach { (pluginId, pluginFolder, pluginRunner) ->
-        val task: () -> Result<Unit, AnError> = {
-            try {
-                val oldBinding = bindingByPluginId[pluginId]
-                if (oldBinding != null) {
-                    runOnEdt {
-                        try {
-                            Disposer.dispose(oldBinding[pluginDisposableKey] as Disposable)
-                        } catch (e: Exception) {
-                            IdeUtil.displayError(RunningError(pluginId, e), project)
-                        }
-                    }
+    val backgroundRunner = backgroundRunner.getOrPut(pluginRunner.scriptName, { SingleThreadBackgroundRunner() })
+    backgroundRunner.run(project, "Running live-plugin '$pluginId'") {
+        val oldBinding = bindingByPluginId[pluginId]
+        if (oldBinding != null) {
+            runOnEdt {
+                try {
+                    Disposer.dispose(oldBinding[pluginDisposableKey] as Disposable)
+                } catch (e: Exception) {
+                    IdeUtil.displayError(RunningError(pluginId, e), project)
                 }
-                val binding = createBinding(pluginFolder, project, isIdeStartup)
-                bindingByPluginId[pluginId] = binding
-                backgroundRunner[pluginRunner.scriptName] = SingleThreadBackgroundRunner("LivePlugin runner thread")
-
-                pluginRunner.runPlugin(pluginFolder, pluginId, binding, ::runOnEdt)
-
-            } catch (e: Throwable) {
-                Failure(LoadingError(pluginId, throwable = e))
             }
         }
+        val binding = createBinding(path, project, isIdeStartup)
+        bindingByPluginId[pluginId] = binding
 
-        val runner = backgroundRunner[pluginRunner.scriptName]!!
-        runner.run(project, "Loading live-plugin '$pluginId'") {
-            task().peekFailure { IdeUtil.displayError(it, project) }
-        }
+        pluginRunner.runPlugin(path, pluginId, binding, ::runOnEdt)
+            .peekFailure { IdeUtil.displayError(it, project) }
     }
 }
 
 private val pluginRunners = listOf(GroovyPluginRunner.main, KotlinPluginRunner.main)
 private val pluginTestRunners = listOf(GroovyPluginRunner.test, KotlinPluginRunner.test)
 
-private class SingleThreadBackgroundRunner(threadName: String) {
+private class SingleThreadBackgroundRunner(threadName: String = "LivePlugin runner thread") {
     private val singleThreadExecutor = Executors.newSingleThreadExecutor { runnable -> Thread(runnable, threadName) }
 
     fun run(project: Project?, taskDescription: String, runnable: () -> Unit) {
-        object: Task.Backgroundable(project, taskDescription, false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-            override fun run(indicator: ProgressIndicator) {
-                try {
-                    singleThreadExecutor.submit(runnable).get()
-                } catch (ignored: InterruptedException) {
-                } catch (ignored: ExecutionException) { }
-            }
-        }.queue()
+        singleThreadExecutor.submit {
+            val latch = CountDownLatch(1)
+            object: Task.Backgroundable(project, taskDescription, false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+                override fun run(indicator: ProgressIndicator) {
+                    runnable()
+                    latch.countDown()
+                }
+            }.queue()
+            latch.await()
+        }
     }
 }
 
@@ -164,18 +147,18 @@ private fun createBinding(pluginFolderPath: String, project: Project?, isIdeStar
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
-private fun pluginFolder(path: String): String? {
-    val parent = File(path).parent ?: return null
-    return if (toSystemIndependentName(parent) == LivePluginPaths.livePluginsPath) path else pluginFolder(parent)
-}
-
-fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
-    mapNotNull { path -> pluginFolder(path) }
+private fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
+    mapNotNull { path -> findPluginFolder(path) }
         .any { folder ->
             pluginRunners.any { runner ->
                 allFilesInDirectory(File(folder)).any { runner.scriptName == it.name }
             }
         }
 
-fun AnActionEvent.selectedFiles(): List<String> =
+private fun AnActionEvent.selectedFiles(): List<String> =
     (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray()).map { it.path }
+
+private fun findPluginFolder(fullPath: String, path: String = fullPath): String? {
+    val parent = File(path).parent ?: return null
+    return if (toSystemIndependentName(parent) == LivePluginPaths.livePluginsPath) path else findPluginFolder(fullPath, parent)
+}
