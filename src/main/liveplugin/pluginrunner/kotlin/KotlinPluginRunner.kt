@@ -47,14 +47,14 @@ class KotlinPluginRunner(
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 
-    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
-        val mainScriptFile = findScriptFileIn(pluginFolderPath, mainScript)!!
+    override fun runPlugin(plugin: LivePlugin, binding: Map<String, *>, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
+        val mainScriptFile = findScriptFileIn(plugin.path, mainScript)!!
         val dependentPlugins = findPluginDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
-        val environment = systemEnvironment + Pair("PLUGIN_PATH", pluginFolderPath)
+        val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path)
         val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment)
-            .onFailure { path -> return Failure(LoadingError(pluginId, "Couldn't find dependency '$path'")) }
+            .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
 
-        val compilerOutput = File(toSystemIndependentName("${LivePluginPaths.livePluginsCompiledPath}/$pluginId")).also { it.deleteRecursively() }
+        val compilerOutput = File(toSystemIndependentName("${LivePluginPaths.livePluginsCompiledPath}/$plugin")).also { it.deleteRecursively() }
 
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
         compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!.let { compilePluginMethod ->
@@ -66,22 +66,22 @@ class KotlinPluginRunner(
                     File(livePluginCompilerLibsPath).filesList() +
                     jarFilesOf(dependentPlugins) +
                     scriptPathAdditions +
-                    File(pluginFolderPath)
+                    File(plugin.path)
 
                 @Suppress("UNCHECKED_CAST")
-                val compilationErrors = compilePluginMethod.invoke(null, pluginFolderPath, compilerClasspath, compilerOutput, KotlinScriptTemplate::class.java) as List<String>
+                val compilationErrors = compilePluginMethod.invoke(null, plugin.path, compilerClasspath, compilerOutput, KotlinScriptTemplate::class.java) as List<String>
                 if (compilationErrors.isNotEmpty()) {
-                    return Failure(LoadingError(pluginId, "Error compiling script. " + compilationErrors.joinToString("\n")))
+                    return Failure(LoadingError(plugin.id, "Error compiling script. " + compilationErrors.joinToString("\n")))
                 }
             } catch (e: IOException) {
-                return Failure(LoadingError(pluginId, "Error creating scripting engine. ${unscrambleThrowable(e)}"))
+                return Failure(LoadingError(plugin.id, "Error creating scripting engine. ${unscrambleThrowable(e)}"))
             } catch (e: Throwable) {
                 // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
                 // and LivePlugin should be able to run kotlin scripts without it
                 val error = if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
-                    LoadingError(pluginId, "Error compiling script. ${unscrambleThrowable(e)}")
+                    LoadingError(plugin.id, "Error compiling script. ${unscrambleThrowable(e)}")
                 } else {
-                    LoadingError(pluginId, "Internal error compiling script. ${unscrambleThrowable(e)}")
+                    LoadingError(plugin.id, "Internal error compiling script. ${unscrambleThrowable(e)}")
                 }
                 return Failure(error)
             }
@@ -93,12 +93,12 @@ class KotlinPluginRunner(
                 File(livePluginLibPath).filesList() +
                 scriptPathAdditions
 
-            val classLoader = createClassLoaderWithDependencies(runtimeClassPath, dependentPlugins, pluginId).onFailure {
+            val classLoader = createClassLoaderWithDependencies(runtimeClassPath, dependentPlugins, plugin).onFailure {
                 return Failure(LoadingError(it.reason.pluginId, it.reason.message))
             }
             classLoader.loadClass("Plugin")
         } catch (e: Throwable) {
-            return Failure(LoadingError(pluginId, "Error while loading plugin class. ${unscrambleThrowable(e)}"))
+            return Failure(LoadingError(plugin.id, "Error while loading plugin class. ${unscrambleThrowable(e)}"))
         }
 
         return runOnEDT {
@@ -113,7 +113,7 @@ class KotlinPluginRunner(
                 )
                 Success(Unit)
             } catch (e: Throwable) {
-                Failure(RunningError(pluginId, e))
+                Failure(RunningError(plugin.id, e))
             }
         }
     }

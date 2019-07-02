@@ -1,6 +1,7 @@
 package liveplugin.pluginrunner
 
 import com.intellij.openapi.util.io.FileUtil
+import kotlin.Unit
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import org.junit.After
 import org.junit.Before
@@ -14,7 +15,7 @@ import static liveplugin.pluginrunner.Result.*
 // Ignore for now, because it's hard to setup KotlinPluginRunner classloaders and load EmbeddedCompilerRunnerKt.
 @Ignore
 class KotlinPluginRunnerTest {
-	private final pluginRunner = new KotlinPluginRunner(emptyEnvironment)
+	private final pluginRunner = new KotlinPluginRunner("plugin.kts", emptyEnvironment)
 	private File rootFolder
 	private File libPackageFolder
 
@@ -22,7 +23,7 @@ class KotlinPluginRunnerTest {
 		def scriptCode = "println(123)"
 		createFile("plugin.kts", scriptCode, rootFolder)
 
-		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = runPlugin()
 
 		assert result instanceof Success
 	}
@@ -31,7 +32,7 @@ class KotlinPluginRunnerTest {
 		def scriptCode = "println(com.intellij.openapi.project.Project::class.java)"
 		createFile("plugin.kts", scriptCode, rootFolder)
 
-		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = runPlugin()
 
 		assert result instanceof Success
 	}
@@ -48,7 +49,7 @@ class KotlinPluginRunnerTest {
 		createFile("plugin.kts", scriptCode, rootFolder)
 		createFile("lib.kt", libScriptCode, libPackageFolder)
 
-		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = runPlugin()
 
 		assert result instanceof Success
 	}
@@ -57,7 +58,7 @@ class KotlinPluginRunnerTest {
 		def scriptCode = "abc"
 		createFile("plugin.kts", scriptCode, rootFolder)
 
-		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = runPlugin()
 
 		assert result instanceof Failure
 		assert (result.reason as LoadingError).pluginId == "someId"
@@ -72,5 +73,9 @@ class KotlinPluginRunnerTest {
 
 	@After void teardown() {
 		FileUtil.delete(rootFolder)
+	}
+
+	private Result<Unit, AnError> runPlugin() {
+		pluginRunner.runPlugin(new LivePlugin(rootFolder.absolutePath), noBindings, runOnTheSameThread)
 	}
 }

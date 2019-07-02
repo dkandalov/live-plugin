@@ -1,6 +1,7 @@
 package liveplugin.pluginrunner
 
 import com.intellij.openapi.util.io.FileUtil
+import kotlin.Unit
 import kotlin.jvm.functions.Function0
 import kotlin.jvm.functions.Function1
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
@@ -17,11 +18,8 @@ class GroovyPluginRunnerTest {
 	static final LinkedHashMap noBindings = [:]
 	static final LinkedHashMap emptyEnvironment = [:]
 	static final Function1 runOnTheSameThread = new Function1<Function0<Result>, Result>() {
-		@Override Result invoke(Function0<Result> f) {
-			f.invoke()
-		}
+		@Override Result invoke(Function0<Result> f) { f.invoke() }
 	}
-
 	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(mainScript, emptyEnvironment)
 	private File rootFolder
 	private File myPackageFolder
@@ -38,7 +36,7 @@ class GroovyPluginRunnerTest {
 			a + b
 		"""
 		createFile("plugin.groovy", scriptCode, rootFolder)
-		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = runPlugin()
 
 		assert result instanceof Success
 	}
@@ -48,10 +46,10 @@ class GroovyPluginRunnerTest {
 			invalid code + 1
 		"""
 		createFile("plugin.groovy", scriptCode, rootFolder)
-		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = runPlugin()
 
 		assert result instanceof Failure
-		assert (result.reason as RunningError).pluginId == "someId"
+		assert (result.reason as RunningError).pluginId == rootFolder.name
 		assert (result.reason as RunningError).throwable.toString().startsWith("groovy.lang.MissingPropertyException")
 	}
 
@@ -69,7 +67,7 @@ class GroovyPluginRunnerTest {
 		createFile("plugin.groovy", scriptCode, rootFolder)
 		createFile("Util.groovy", scriptCode2, myPackageFolder)
 
-		def result = pluginRunner.runPlugin(rootFolder.absolutePath, "someId", noBindings, runOnTheSameThread)
+		def result = runPlugin()
 
 		assert result instanceof Success
 	}
@@ -82,6 +80,10 @@ class GroovyPluginRunnerTest {
 
 	@After void teardown() {
 		FileUtil.delete(rootFolder)
+	}
+
+	private Result<Unit, AnError> runPlugin() {
+		pluginRunner.runPlugin(new LivePlugin(rootFolder.absolutePath), noBindings, runOnTheSameThread)
 	}
 
 	static createFile(String fileName, String fileContent, File directory) {

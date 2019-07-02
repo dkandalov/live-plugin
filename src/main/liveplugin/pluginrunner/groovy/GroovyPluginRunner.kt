@@ -20,36 +20,35 @@ class GroovyPluginRunner(
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 
-    override fun runPlugin(pluginFolderPath: String, pluginId: String, binding: Map<String, *>, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
-        val mainScript = findScriptFileIn(pluginFolderPath, scriptName)!!
-        return runGroovyScript(mainScript.toUrlString(), pluginFolderPath, pluginId, binding, runOnEDT)
+    override fun runPlugin(plugin: LivePlugin, binding: Map<String, *>, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
+        val mainScript = findScriptFileIn(plugin.path, scriptName)!!
+        return runGroovyScript(mainScript.toUrlString(), plugin, binding, runOnEDT)
     }
 
     private fun runGroovyScript(
         mainScriptUrl: String,
-        pluginFolderPath: String,
-        pluginId: String,
+        plugin: LivePlugin,
         binding: Map<String, *>,
         runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>
     ): Result<Unit, AnError> {
         try {
-            val environment = systemEnvironment + Pair("PLUGIN_PATH", pluginFolderPath)
+            val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path)
 
             val dependentPlugins = findPluginDependencies(readLines(mainScriptUrl), groovyDependsOnPluginKeyword)
             val pathsToAdd = findClasspathAdditions(readLines(mainScriptUrl), groovyAddToClasspathKeyword, environment)
-                .onFailure { path -> return Failure(LoadingError(pluginId, "Couldn't find dependency '$path'")) }
+                .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
 
-            val classLoader = createClassLoaderWithDependencies(pathsToAdd + File(pluginFolderPath), dependentPlugins, pluginId)
+            val classLoader = createClassLoaderWithDependencies(pathsToAdd + File(plugin.path), dependentPlugins, plugin)
                 .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
 
-            val pluginFolderUrl = "file:///$pluginFolderPath/" // prefix with "file:///" so that unix-like path works on windows
+            val pluginFolderUrl = "file:///${plugin.path}/" // prefix with "file:///" so that unix-like path works on windows
             // assume that GroovyScriptEngine is thread-safe
             // (according to this http://groovy.329449.n5.nabble.com/Is-the-GroovyScriptEngine-thread-safe-td331407.html)
             val scriptEngine = GroovyScriptEngine(pluginFolderUrl, classLoader)
             try {
                 scriptEngine.loadScriptByName(mainScriptUrl)
             } catch (e: Exception) {
-                return Failure(LoadingError(pluginId, throwable = e))
+                return Failure(LoadingError(plugin.id, throwable = e))
             }
 
             return runOnEDT {
@@ -57,20 +56,20 @@ class GroovyPluginRunner(
                     scriptEngine.run(mainScriptUrl, createGroovyBinding(binding))
                     Success(Unit)
                 } catch (e: Exception) {
-                    Failure(RunningError(pluginId, e))
+                    Failure(RunningError(plugin.id, e))
                 }
             }
 
         } catch (e: IOException) {
-            return Failure(LoadingError(pluginId, "Error creating scripting engine. ${e.message}"))
+            return Failure(LoadingError(plugin.id, "Error creating scripting engine. ${e.message}"))
         } catch (e: CompilationFailedException) {
-            return Failure(LoadingError(pluginId, "Error compiling script. ${e.message}"))
+            return Failure(LoadingError(plugin.id, "Error compiling script. ${e.message}"))
         } catch (e: LinkageError) {
-            return Failure(LoadingError(pluginId, "Error linking script. ${e.message}"))
+            return Failure(LoadingError(plugin.id, "Error linking script. ${e.message}"))
         } catch (e: Error) {
-            return Failure(LoadingError(pluginId, throwable = e))
+            return Failure(LoadingError(plugin.id, throwable = e))
         } catch (e: Exception) {
-            return Failure(LoadingError(pluginId, throwable = e))
+            return Failure(LoadingError(plugin.id, throwable = e))
         }
     }
 

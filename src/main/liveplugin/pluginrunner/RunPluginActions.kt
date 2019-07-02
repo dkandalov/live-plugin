@@ -76,8 +76,8 @@ private fun <T> runOnEdt(f: () -> T): T {
     return result.get()
 }
 
-private data class LivePlugin(val path: String) {
-    val pluginId: String get() = File(path).name
+data class LivePlugin(val path: String) {
+    val id: String get() = File(path).name
 }
 
 private fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
@@ -89,12 +89,12 @@ private fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, plug
 
 private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, project: Project?, isIdeStartup: Boolean) {
     val pluginRunner = pluginRunners.find { findScriptFileIn(path, it.scriptName) != null }
-        ?: return IdeUtil.displayError(LoadingError("Plugin: \"$pluginId\". Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
+        ?: return IdeUtil.displayError(LoadingError("Plugin: \"$id\". Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
 
     val backgroundRunner = backgroundRunner.getOrPut(pluginRunner.scriptName, { SingleThreadBackgroundRunner() })
-    backgroundRunner.run(project, "Running live-plugin '$pluginId'") {
+    backgroundRunner.run(project, "Running live-plugin '$id'") {
         val binding = createBinding(this, project, isIdeStartup)
-        pluginRunner.runPlugin(path, pluginId, binding, ::runOnEdt)
+        pluginRunner.runPlugin(this, binding, ::runOnEdt)
             .peekFailure { IdeUtil.displayError(it, project) }
     }
 }
@@ -120,13 +120,13 @@ private class SingleThreadBackgroundRunner(threadName: String = "LivePlugin runn
 }
 
 private fun createBinding(livePlugin: LivePlugin, project: Project?, isIdeStartup: Boolean): Map<String, Any?> {
-    val oldBinding = bindingByPluginId[livePlugin.pluginId]
+    val oldBinding = bindingByPluginId[livePlugin.id]
     if (oldBinding != null) {
         runOnEdt {
             try {
                 Disposer.dispose(oldBinding[pluginDisposableKey] as Disposable)
             } catch (e: Exception) {
-                IdeUtil.displayError(RunningError(livePlugin.pluginId, e), project)
+                IdeUtil.displayError(RunningError(livePlugin.id, e), project)
             }
         }
     }
@@ -143,7 +143,7 @@ private fun createBinding(livePlugin: LivePlugin, project: Project?, isIdeStartu
         pluginPathKey to livePlugin.path,
         pluginDisposableKey to disposable
     )
-    bindingByPluginId[livePlugin.pluginId] = binding
+    bindingByPluginId[livePlugin.id] = binding
 
     return binding
 }
