@@ -1,6 +1,6 @@
 package liveplugin.pluginrunner.groovy
 
-import groovy.lang.Binding
+import groovy.lang.Binding as GroovyBinding
 import groovy.util.GroovyScriptEngine
 import liveplugin.findScriptFileIn
 import liveplugin.pluginrunner.*
@@ -20,7 +20,7 @@ class GroovyPluginRunner(
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 
-    override fun runPlugin(plugin: LivePlugin, binding: Map<String, *>, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
+    override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         val mainScript = findScriptFileIn(plugin.path, scriptName)!!
         return runGroovyScript(mainScript.toUrlString(), plugin, binding, runOnEDT)
     }
@@ -28,7 +28,7 @@ class GroovyPluginRunner(
     private fun runGroovyScript(
         mainScriptUrl: String,
         plugin: LivePlugin,
-        binding: Map<String, *>,
+        binding: Binding,
         runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>
     ): Result<Unit, AnError> {
         try {
@@ -53,7 +53,7 @@ class GroovyPluginRunner(
 
             return runOnEDT {
                 try {
-                    scriptEngine.run(mainScriptUrl, createGroovyBinding(binding))
+                    scriptEngine.run(mainScriptUrl, GroovyBinding(binding.toMap()))
                     Success(Unit)
                 } catch (e: Exception) {
                     Failure(RunningError(plugin.id, e))
@@ -71,14 +71,6 @@ class GroovyPluginRunner(
         } catch (e: Exception) {
             return Failure(LoadingError(plugin.id, throwable = e))
         }
-    }
-
-    private fun createGroovyBinding(binding: Map<String, *>): Binding {
-        val result = Binding()
-        for ((key, value) in binding) {
-            result.setVariable(key, value)
-        }
-        return result
     }
 
     companion object {

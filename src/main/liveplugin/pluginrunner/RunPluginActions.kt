@@ -16,6 +16,7 @@ import liveplugin.*
 import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
+import liveplugin.pluginrunner.Binding.Companion.create
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
@@ -83,7 +84,7 @@ private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActio
     val pluginRunner = pluginRunners.find { findScriptFileIn(path, it.scriptName) != null }
         ?: return IdeUtil.displayError(LoadingError("Plugin: \"$id\". Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), event.project)
 
-    val binding = createBinding(this, event)
+    val binding = create(this, event)
 
     backgroundRunner.run(pluginRunner.scriptName, event.project, "Running live-plugin '$id'") {
         pluginRunner.runPlugin(this, binding, ::runOnEdt).peekFailure { IdeUtil.displayError(it, event.project) }
@@ -118,37 +119,48 @@ private class BackgroundRunner {
     }
 }
 
-const val pluginDisposableKey = "pluginDisposable"
-const val pluginPathKey = "pluginPath"
-const val isIdeStartupKey = "isIdeStartup"
-const val projectKey = "project"
-private val bindingByPluginId = HashMap<String, Map<String, Any?>>()
+class Binding(
+    val project: Project?,
+    val isIdeStartup: Boolean,
+    val pluginPath: String,
+    val pluginDisposable: Disposable
+) {
+    fun toMap(): Map<String, Any?> = mapOf(
+        projectKey to project,
+        isIdeStartupKey to isIdeStartup,
+        pluginPathKey to pluginPath,
+        pluginDisposableKey to pluginDisposable
+    )
 
-private fun createBinding(livePlugin: LivePlugin, event: AnActionEvent): Map<String, Any?> {
-    val oldBinding = bindingByPluginId[livePlugin.id]
-    if (oldBinding != null) {
-        try {
-            Disposer.dispose(oldBinding[pluginDisposableKey] as Disposable)
-        } catch (e: Exception) {
-            IdeUtil.displayError(RunningError(livePlugin.id, e), event.project)
+    companion object {
+        const val pluginDisposableKey = "pluginDisposable"
+        const val pluginPathKey = "pluginPath"
+        const val isIdeStartupKey = "isIdeStartup"
+        const val projectKey = "project"
+        private val bindingByPluginId = HashMap<String, Binding>()
+
+        fun create(livePlugin: LivePlugin, event: AnActionEvent): Binding {
+            val oldBinding = bindingByPluginId[livePlugin.id]
+            if (oldBinding != null) {
+                try {
+                    Disposer.dispose(oldBinding.pluginDisposable)
+                } catch (e: Exception) {
+                    IdeUtil.displayError(RunningError(livePlugin.id, e), event.project)
+                }
+            }
+
+            val disposable = object: Disposable {
+                override fun dispose() {}
+                override fun toString() = "LivePlugin: $livePlugin"
+            }
+            Disposer.register(ApplicationManager.getApplication(), disposable)
+
+            val binding = Binding(event.project, event.place == PluginRunner.ideStartup, livePlugin.path, disposable)
+            bindingByPluginId[livePlugin.id] = binding
+
+            return binding
         }
     }
-
-    val disposable = object: Disposable {
-        override fun dispose() {}
-        override fun toString() = "LivePlugin: $livePlugin"
-    }
-    Disposer.register(ApplicationManager.getApplication(), disposable)
-
-    val binding = mapOf(
-        projectKey to event.project,
-        isIdeStartupKey to (event.place == PluginRunner.ideStartup),
-        pluginPathKey to livePlugin.path,
-        pluginDisposableKey to disposable
-    )
-    bindingByPluginId[livePlugin.id] = binding
-
-    return binding
 }
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())

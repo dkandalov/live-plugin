@@ -1,5 +1,6 @@
 package liveplugin.pluginrunner
 
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import kotlin.Unit
 import kotlin.jvm.functions.Function0
@@ -15,7 +16,7 @@ import static liveplugin.pluginrunner.Result.Success
 import static liveplugin.pluginrunner.groovy.GroovyPluginRunner.mainScript
 
 class GroovyPluginRunnerTest {
-	static final LinkedHashMap noBindings = [:]
+	static final Binding noBindings = new Binding(null, false, "", Disposer.newDisposable())
 	static final LinkedHashMap emptyEnvironment = [:]
 	static final Function1 runOnTheSameThread = new Function1<Function0<Result>, Result>() {
 		@Override Result invoke(Function0<Result> f) { f.invoke() }

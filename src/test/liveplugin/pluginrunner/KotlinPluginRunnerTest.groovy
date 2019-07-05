@@ -76,6 +76,6 @@ class KotlinPluginRunnerTest {
 	}
 
 	private Result<Unit, AnError> runPlugin() {
-		pluginRunner.runPlugin(new LivePlugin(rootFolder.absolutePath), noBindings, runOnTheSameThread)
+		PluginRunner.runPlugin(new LivePlugin(rootFolder.absolutePath), noBindings, runOnTheSameThread)
 	}
 }

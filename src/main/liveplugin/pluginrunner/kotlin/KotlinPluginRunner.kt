@@ -1,9 +1,7 @@
 package liveplugin.pluginrunner.kotlin
 
 import com.intellij.ide.ui.laf.IntelliJLaf
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.IdeUtil.unscrambleThrowable
@@ -12,12 +10,14 @@ import liveplugin.LivePluginPaths.livePluginLibPath
 import liveplugin.filesList
 import liveplugin.findScriptFileIn
 import liveplugin.pluginrunner.*
-import liveplugin.pluginrunner.AnError.*
+import liveplugin.pluginrunner.AnError.LoadingError
+import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
-import liveplugin.pluginrunner.Result.*
+import liveplugin.pluginrunner.Result.Failure
+import liveplugin.pluginrunner.Result.Success
 import liveplugin.toUrl
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
@@ -47,7 +47,7 @@ class KotlinPluginRunner(
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 
-    override fun runPlugin(plugin: LivePlugin, binding: Map<String, *>, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
+    override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         val mainScriptFile = findScriptFileIn(plugin.path, mainScript)!!
         val dependentPlugins = findPluginDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
         val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path)
@@ -105,12 +105,7 @@ class KotlinPluginRunner(
             try {
                 // Arguments below must match constructor of KotlinScriptTemplate class.
                 // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
-                pluginClass.constructors[0].newInstance(
-                    binding[isIdeStartupKey] as Boolean,
-                    binding[projectKey] as Project?,
-                    binding[pluginPathKey] as String,
-                    binding[pluginDisposableKey] as Disposable
-                )
+                pluginClass.constructors[0].newInstance(binding.isIdeStartup, binding.project, binding.pluginPath, binding.pluginDisposable)
                 Success(Unit)
             } catch (e: Throwable) {
                 Failure(RunningError(plugin.id, e))
