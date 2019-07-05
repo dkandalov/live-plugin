@@ -102,8 +102,4 @@ interface PluginRunner {
             return result
         }
     }
-
-    companion object {
-        const val ideStartup = "IDE_STARTUP"
-    }
 }

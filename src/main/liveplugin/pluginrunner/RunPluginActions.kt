@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil.toSystemIndependentName
 import liveplugin.*
+import liveplugin.IdeUtil.ideStartupActionPlace
 import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
@@ -155,7 +156,7 @@ class Binding(
             }
             Disposer.register(ApplicationManager.getApplication(), disposable)
 
-            val binding = Binding(event.project, event.place == PluginRunner.ideStartup, livePlugin.path, disposable)
+            val binding = Binding(event.project, event.place == ideStartupActionPlace, livePlugin.path, disposable)
             bindingByPluginId[livePlugin.id] = binding
 
             return binding

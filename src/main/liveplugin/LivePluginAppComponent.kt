@@ -34,10 +34,11 @@ import com.intellij.usages.impl.rules.UsageTypeProvider
 import com.intellij.util.indexing.IndexableSetContributor
 import liveplugin.IdeUtil.askIfUserWantsToRestartIde
 import liveplugin.IdeUtil.downloadFile
+import liveplugin.IdeUtil.dummyDataContext
+import liveplugin.IdeUtil.ideStartupActionPlace
 import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.livePluginsPath
-import liveplugin.pluginrunner.PluginRunner
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
@@ -134,8 +135,8 @@ class LivePluginAppComponent: DumbAware {
             invokeLaterOnEDT {
                 val event = AnActionEvent(
                     null,
-                    IdeUtil.dummyDataContext,
-                    PluginRunner.ideStartup,
+                    dummyDataContext,
+                    ideStartupActionPlace,
                     Presentation(),
                     ActionManager.getInstance(),
                     0

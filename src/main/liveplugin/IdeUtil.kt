@@ -39,9 +39,12 @@ import javax.swing.Icon
 import javax.swing.JPanel
 
 object IdeUtil {
+    const val ideStartupActionPlace = "IDE_STARTUP"
+
     val groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension(".groovy")
     val kotlinFileType = KotlinScriptFileType.instance
     val dummyDataContext = DataContext { null }
+
     private val logger = Logger.getInstance(IdeUtil::class.java)
 
     fun displayError(error: AnError, project: Project?) {
