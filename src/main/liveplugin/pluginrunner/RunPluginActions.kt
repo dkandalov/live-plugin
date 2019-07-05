@@ -70,7 +70,7 @@ private fun <T> runOnEdt(f: () -> T): T {
 }
 
 data class LivePlugin(val path: String) {
-    val id: String get() = File(path).name
+    val id: String = File(path).name
 }
 
 private fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {

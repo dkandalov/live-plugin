@@ -105,7 +105,5 @@ interface PluginRunner {
 
     companion object {
         const val ideStartup = "IDE_STARTUP"
-        const val addToClasspathKeyword = "add-to-classpath "
-        const val dependsOnPluginKeyword = "depends-on-plugin "
     }
 }

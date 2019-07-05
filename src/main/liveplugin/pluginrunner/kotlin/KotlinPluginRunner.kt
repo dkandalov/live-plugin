@@ -116,8 +116,8 @@ class KotlinPluginRunner(
     companion object {
         const val mainScript = "plugin.kts"
         const val testScript = "plugin-test.kts"
-        const val kotlinAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
-        const val kotlinDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
+        const val kotlinAddToClasspathKeyword = "// add-to-classpath "
+        const val kotlinDependsOnPluginKeyword = "// depends-on-plugin "
 
         val main = KotlinPluginRunner(mainScript)
         val test = KotlinPluginRunner(testScript)

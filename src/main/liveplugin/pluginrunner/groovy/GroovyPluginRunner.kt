@@ -76,8 +76,8 @@ class GroovyPluginRunner(
     companion object {
         const val mainScript = "plugin.groovy"
         const val testScript = "plugin-test.groovy"
-        const val groovyAddToClasspathKeyword = "// " + PluginRunner.addToClasspathKeyword
-        const val groovyDependsOnPluginKeyword = "// " + PluginRunner.dependsOnPluginKeyword
+        const val groovyAddToClasspathKeyword = "// add-to-classpath "
+        const val groovyDependsOnPluginKeyword = "// depends-on-plugin "
 
         val main = GroovyPluginRunner(mainScript)
         val test = GroovyPluginRunner(testScript)
