@@ -29,21 +29,24 @@ interface PluginRunner {
     object ClasspathAddition {
         private val logger = Logger.getInstance(ClasspathAddition::class.java)
 
-        fun createClassLoaderWithDependencies(classPath: List<File>, pluginsToAdd: List<String>, plugin: LivePlugin): Result<ClassLoader, LoadingError> {
-            classPath.forEach { file ->
+        fun createClassLoaderWithDependencies(
+            additionalClasspath: List<File>,
+            dependenciesOnIdePlugins: List<IdeaPluginDescriptor>,
+            plugin: LivePlugin
+        ): Result<ClassLoader, LoadingError> {
+            val parentLoader = createParentClassLoader(dependenciesOnIdePlugins, plugin).onFailure { return it }
+            val classLoader = GroovyClassLoader(parentLoader)
+
+            additionalClasspath.forEach { file ->
                 if (!file.exists()) return Failure(LoadingError(plugin.id, "Didn't find plugin dependency '${file.absolutePath}'."))
             }
-            val parentLoader = createParentClassLoader(pluginsToAdd, plugin).onFailure { return it }
-            val classLoader = GroovyClassLoader(parentLoader)
-            classPath.forEach { file -> classLoader.addURL(file.toUrl()) }
+            additionalClasspath.forEach { file -> classLoader.addURL(file.toUrl()) }
+
             return Success(classLoader)
         }
 
-        private fun createParentClassLoader(dependentPlugins: List<String>, plugin: LivePlugin): Result<ClassLoader, LoadingError> {
-            val pluginDescriptors = pluginDescriptorsOf(dependentPlugins)
-                .onFailure { return Failure(LoadingError(plugin.id, "Couldn't find dependent plugin '$it'")) }
-
-            val parentLoaders = pluginDescriptors.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
+        private fun createParentClassLoader(dependenciesOnIdePlugins: List<IdeaPluginDescriptor>, plugin: LivePlugin): Result<ClassLoader, LoadingError> {
+            val parentLoaders = dependenciesOnIdePlugins.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
             val pluginVersion = "1.0.0"
 
             return Success(PluginClassLoader(
@@ -54,15 +57,10 @@ interface PluginRunner {
             ))
         }
 
-        fun pluginDescriptorsOf(pluginIds: List<String>): Result<List<IdeaPluginDescriptor>, String> {
-            return Success(pluginIds.map {
-                PluginManager.getPlugin(PluginId.getId(it)) ?: return Failure(it)
-            })
-        }
-
-        fun findPluginDependencies(lines: List<String>, prefix: String): List<String> {
-            return lines.filter { it.startsWith(prefix) }
-                .map { line -> line.replace(prefix, "").trim { it <= ' ' } }
+        fun findDependenciesOnIdePlugins(lines: List<String>, keyword: String): List<IdeaPluginDescriptor> {
+            return lines.filter { it.startsWith(keyword) }
+                .map { line -> line.replace(keyword, "").trim { it <= ' ' } }
+                .map { PluginManager.getPlugin(PluginId.getId(it)) ?: error("Failed to find jar for dependent plugin '$it'.") }
         }
 
         fun findClasspathAdditions(lines: List<String>, prefix: String, environment: Map<String, String>): Result<List<File>, String> {

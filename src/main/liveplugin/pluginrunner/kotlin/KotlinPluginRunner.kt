@@ -14,8 +14,7 @@ import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
-import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDependencies
-import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.pluginDescriptorsOf
+import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findDependenciesOnIdePlugins
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
 import liveplugin.toUrl
@@ -49,9 +48,9 @@ class KotlinPluginRunner(
 
     override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         val mainScriptFile = findScriptFileIn(plugin.path, mainScript)!!
-        val dependentPlugins = findPluginDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
+        val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
         val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path)
-        val scriptPathAdditions = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment)
+        val additionalClasspath = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment)
             .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
 
         val compilerOutput = File(toSystemIndependentName("${LivePluginPaths.livePluginsCompiledPath}/$plugin")).also { it.deleteRecursively() }
@@ -64,8 +63,8 @@ class KotlinPluginRunner(
                     ideLibFiles() +
                     File(livePluginLibPath).filesList() +
                     File(livePluginCompilerLibsPath).filesList() +
-                    jarFilesOf(dependentPlugins) +
-                    scriptPathAdditions +
+                    dependenciesOnIdePlugins.map { it.path } +
+                    additionalClasspath +
                     File(plugin.path)
 
                 @Suppress("UNCHECKED_CAST")
@@ -91,9 +90,9 @@ class KotlinPluginRunner(
             val runtimeClassPath =
                 listOf(compilerOutput) +
                 File(livePluginLibPath).filesList() +
-                scriptPathAdditions
+                additionalClasspath
 
-            val classLoader = createClassLoaderWithDependencies(runtimeClassPath, dependentPlugins, plugin).onFailure {
+            val classLoader = createClassLoaderWithDependencies(runtimeClassPath, dependenciesOnIdePlugins, plugin).onFailure {
                 return Failure(LoadingError(it.reason.pluginId, it.reason.message))
             }
             classLoader.loadClass("Plugin")
@@ -137,16 +136,10 @@ class KotlinPluginRunner(
 
 private fun ideJdkClassesRoots(): List<File> = JavaSdkUtil.getJdkClassesRoots(javaHome, true)
 
-val javaHome = File(System.getProperty("java.home"))
+private val javaHome = File(System.getProperty("java.home"))
 
 private fun ideLibFiles(): List<File> {
     val ideJarPath = PathManager.getJarPathForClass(IntelliJLaf::class.java)
         ?: error("Failed to find IDE lib folder.")
     return File(ideJarPath).parentFile.filesList()
-}
-
-private fun jarFilesOf(dependentPlugins: List<String>): List<File> {
-    return pluginDescriptorsOf(dependentPlugins)
-        .onFailure { error("Failed to find jar for dependent plugin '$it'.") }
-        .map { it.path }
 }
