@@ -1035,11 +1035,6 @@ class PluginUtil {
 		Misc.accessField(o, fieldName, fieldClass)
 	}
 
-	@Deprecated // Because if fails silently. Use other accessField methods.
-	@Nullable static accessField(Object o, String fieldName, Closure callback) {
-		Misc.accessField(o, fieldName, callback)
-	}
-
 	/**
 	 * Original version was borrowed from here
 	 * http://code.google.com/p/idea-string-manip/source/browse/trunk/src/main/java/osmedile/intellij/stringmanip/AbstractStringManipAction.java

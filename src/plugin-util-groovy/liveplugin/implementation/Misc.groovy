@@ -57,26 +57,6 @@ class Misc {
 		throw new IllegalStateException("Didn't find field '${fieldName}'${className} in object ${o}")
 	}
 
-	@Deprecated static accessField(Object o, String fieldName, Closure callback) {
-		catchingAll {
-			Class aClass = o.class
-			List<Class> allClasses = []
-			while (aClass != Object) {
-				allClasses.add(aClass)
-				aClass = aClass.superclass
-			}
-			def allFields = allClasses*.declaredFields.toList().flatten()
-
-			for (field in allFields) {
-				if (field.name == fieldName) {
-					field.setAccessible(true)
-					callback(field.get(o))
-					return
-				}
-			}
-		}
-	}
-
 	@Nullable static <T> T catchingAll(Closure<T> closure) {
 		try {
 
