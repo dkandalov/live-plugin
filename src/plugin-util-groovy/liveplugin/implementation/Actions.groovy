@@ -8,6 +8,7 @@ import com.intellij.ide.DataManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.AnActionListener
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
@@ -70,7 +71,9 @@ class Actions {
 	}
 
 	static AnActionListener registerActionListener(Disposable disposable, AnActionListener actionListener) {
-		ActionManager.instance.addAnActionListener(actionListener, disposable)
+        ApplicationManager.getApplication()
+                .getMessageBus().connect(disposable)
+                .subscribe(AnActionListener.TOPIC, actionListener)
 		actionListener
 	}
 

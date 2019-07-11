@@ -3,7 +3,6 @@ package liveplugin.implementation
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.compiler.CompilationStatusAdapter
 import com.intellij.openapi.compiler.CompilationStatusListener
 import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.compiler.CompilerTopics
@@ -27,7 +26,7 @@ class Compilation {
 
 	static compile(Project project, Closure onSuccessfulCompilation = {}) {
 		def disposable = Disposer.newDisposable()
-		registerCompilationListener(disposable, project, new CompilationStatusAdapter() {
+		registerCompilationListener(disposable, project, new CompilationStatusListener() {
 			@Override void compilationFinished(boolean aborted, int errors, int warnings, CompileContext compileContext) {
 				try {
 					if (errors == 0) {

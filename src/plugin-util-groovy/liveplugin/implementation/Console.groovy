@@ -1,4 +1,5 @@
 package liveplugin.implementation
+
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
@@ -28,7 +29,6 @@ import java.util.List
 import java.util.concurrent.atomic.AtomicReference
 
 import static liveplugin.PluginUtil.invokeOnEDT
-import static liveplugin.implementation.Misc.newDisposable
 
 class Console {
 	private static final extensionPoint = Extensions.rootArea.getExtensionPoint(ConsoleInputFilterProvider.INPUT_FILTER_PROVIDERS)
@@ -45,13 +45,7 @@ class Console {
 				[notFilteringListener]
 			}
 		}
-		extensionPoint.registerExtension(inputFilterProvider)
-
-		newDisposable(disposable) {
-			if (extensionPoint.hasExtension(inputFilterProvider)) {
-				extensionPoint.unregisterExtension(inputFilterProvider)
-			}
-		}
+		extensionPoint.registerExtension(inputFilterProvider, disposable)
 
 		inputFilterProvider
 	}
