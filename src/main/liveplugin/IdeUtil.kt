@@ -25,6 +25,7 @@ import com.intellij.openapi.ui.Messages.showOkCancelDialog
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.util.ReflectionUtil
 import com.intellij.util.containers.ContainerUtil.map
 import com.intellij.util.download.DownloadableFileService
 import com.intellij.util.text.CharArrayUtil
@@ -234,8 +235,15 @@ object IdeUtil {
         companion object {
             internal val instance: FileType = KotlinScriptFileType()
 
+            // The kotlin icon is missing in some IDEs like WebStorm, so it's important
+            // to set `strict` to false in findIcon, so an exception won't be thrown.
+            private fun findIconOrNull(path: String) : Icon? {
+                val callerClass = ReflectionUtil.getGrandCallerClass() ?: return null
+                return IconLoader.findIcon(path, callerClass, false, false)
+            }
+
             private val kotlinScriptIcon by lazy {
-                IconLoader.findIcon("/org/jetbrains/kotlin/idea/icons/kotlin_file.png") ?: AllIcons.FileTypes.Text
+                findIconOrNull("/org/jetbrains/kotlin/idea/icons/kotlin_file.png") ?: AllIcons.FileTypes.Text
             }
         }
     }
