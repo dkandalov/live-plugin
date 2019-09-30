@@ -1,7 +1,5 @@
 package liveplugin.pluginrunner.kotlin
 
-import com.intellij.ide.ui.laf.IntelliJLaf
-import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.IdeUtil.unscrambleThrowable
@@ -61,6 +59,7 @@ class KotlinPluginRunner(
                 val compilerClasspath =
                     ideJdkClassesRoots() +
                     ideLibFiles() +
+                    psiApiFiles() +
                     File(livePluginLibPath).filesList() +
                     File(livePluginCompilerLibsPath).filesList() +
                     dependenciesOnIdePlugins.map { it.path } +
@@ -139,7 +138,12 @@ private fun ideJdkClassesRoots(): List<File> = JavaSdkUtil.getJdkClassesRoots(ja
 private val javaHome = File(System.getProperty("java.home"))
 
 private fun ideLibFiles(): List<File> {
-    val ideJarPath = PathManager.getJarPathForClass(IntelliJLaf::class.java)
-        ?: error("Failed to find IDE lib folder.")
-    return File(ideJarPath).parentFile.filesList()
+    return File(LivePluginPaths.ideJarsPath).filesList()
 }
+
+private fun psiApiFiles() = withoutDuplicates(
+        File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList(),
+        File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList()
+)
+
+private fun <T> withoutDuplicates(vararg lists: List<T>) = lists.flatMap { it }.distinct()
