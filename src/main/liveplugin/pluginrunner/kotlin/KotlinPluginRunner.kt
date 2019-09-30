@@ -141,8 +141,9 @@ private val javaHome = File(System.getProperty("java.home"))
 
 private fun ideLibFiles(): List<File> {
     val ideJarPath = PathManager.getJarPathForClass(IntelliJLaf::class.java)
-        ?: error("Failed to find IDE lib folder.")
-    val javaApiJarPath = PathManager.getJarPathForClass(PsiClass::class.java)
-            ?: error("Failed to find java api folder.")
-    return (File(ideJarPath).parentFile.filesList() + File(javaApiJarPath).parentFile.filesList()).distinct()
+            ?: error("Failed to find IDE lib folder.")
+    return (File(ideJarPath).parentFile.filesList() +
+            File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList() +
+            File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList()
+            ).distinct()
 }
