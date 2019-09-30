@@ -3,7 +3,6 @@ package liveplugin.pluginrunner.kotlin
 import com.intellij.ide.ui.laf.IntelliJLaf
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
-import com.intellij.psi.PsiClass
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.IdeUtil.unscrambleThrowable
 import liveplugin.LivePluginPaths
