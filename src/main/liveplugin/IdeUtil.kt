@@ -35,7 +35,6 @@ import org.jetbrains.annotations.NonNls
 import java.awt.BorderLayout
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.Arrays.asList
 import javax.swing.Icon
 import javax.swing.JPanel
 
@@ -102,7 +101,7 @@ object IdeUtil {
     }
 
     fun downloadFile(downloadUrl: String, fileName: String, targetPath: String): Boolean =
-        downloadFiles(asList(Pair(downloadUrl, fileName)), targetPath)
+        downloadFiles(listOf(Pair(downloadUrl, fileName)), targetPath)
 
     fun invokeLaterOnEDT(f: () -> Any) {
         ApplicationManager.getApplication().invokeLater { f.invoke() }

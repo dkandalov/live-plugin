@@ -38,7 +38,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
         val isEnabled =
             if (pluginPath == null) true
             else {
-                val files = File(pluginPath).listFiles().map { it.name }
+                val files = File(pluginPath).listFiles()?.map { it.name } ?: emptyList()
                 sampleFiles.none { files.contains(it) }
             }
         event.presentation.isEnabled = isEnabled

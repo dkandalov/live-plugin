@@ -6,9 +6,9 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.OrderRootType.CLASSES
-import com.intellij.openapi.roots.OrderRootType.SOURCES
-import com.intellij.util.PathUtil.getJarPathForClass
+import com.intellij.util.PathUtil
 import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginPaths
 import liveplugin.toolwindow.util.addLibraryDependencyTo
@@ -26,14 +26,17 @@ class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
         if (projectLibrariesNames.contains(project, livePluginAndIdeJarsLibrary)) {
             removeLibraryDependencyFrom(project, livePluginAndIdeJarsLibrary)
         } else {
-            val livePluginEntries =
-                File(LivePluginPaths.livePluginLibPath).listFiles().filter { it.name.endsWith(".jar") }.map { Pair("jar://${it.absolutePath}!/", CLASSES) } +
-                    Pair("jar://" + getJarPathForClass(LivePluginAppComponent::class.java) + "!/", SOURCES)
+            val livePluginSrc = Pair("jar://" + PathUtil.getJarPathForClass(LivePluginAppComponent::class.java) + "!/", OrderRootType.SOURCES)
+            val livePluginJars =
+                (File(LivePluginPaths.livePluginLibPath).listFiles()
+                    ?.filter { it.name.endsWith(".jar") }
+                    ?.map { Pair("jar://${it.absolutePath}!/", CLASSES) } ?: emptyList())
 
-            val ideJars = File(LivePluginPaths.ideJarsPath).listFiles().toList().filter { it.name.endsWith(".jar") }
-                .map { Pair("jar://${it.absolutePath}!/", CLASSES) }
+            val ideJars = File(LivePluginPaths.ideJarsPath).listFiles()
+                ?.filter { it.name.endsWith(".jar") }
+                ?.map { Pair("jar://${it.absolutePath}!/", CLASSES) } ?: emptyList()
 
-            addLibraryDependencyTo(project, livePluginAndIdeJarsLibrary, livePluginEntries + ideJars)
+            addLibraryDependencyTo(project, livePluginAndIdeJarsLibrary, livePluginJars + livePluginSrc + ideJars)
         }
     }
 

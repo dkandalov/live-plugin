@@ -59,7 +59,7 @@ class KotlinPluginRunner(
                 val compilerClasspath =
                     ideJdkClassesRoots() +
                     ideLibFiles() +
-                    psiApiFiles() +
+                    psiApiFiles().distinct() +
                     File(livePluginLibPath).filesList() +
                     File(livePluginCompilerLibsPath).filesList() +
                     dependenciesOnIdePlugins.map { it.path } +
@@ -137,13 +137,8 @@ private fun ideJdkClassesRoots(): List<File> = JavaSdkUtil.getJdkClassesRoots(ja
 
 private val javaHome = File(System.getProperty("java.home"))
 
-private fun ideLibFiles(): List<File> {
-    return File(LivePluginPaths.ideJarsPath).filesList()
-}
+private fun ideLibFiles() = File(LivePluginPaths.ideJarsPath).filesList()
 
-private fun psiApiFiles() = withoutDuplicates(
-        File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList(),
-        File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList()
-)
-
-private fun <T> withoutDuplicates(vararg lists: List<T>) = lists.flatMap { it }.distinct()
+private fun psiApiFiles() =
+    File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList() +
+    File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList()
