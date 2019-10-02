@@ -11,8 +11,6 @@ import com.intellij.profile.codeInspection.BaseInspectionProfileManager
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 
-import java.util.function.Supplier
-
 import static liveplugin.implementation.Misc.accessField
 import static liveplugin.implementation.Misc.newDisposable
 
@@ -28,12 +26,18 @@ class Inspections {
 	static registerInspection(Project project, Disposable disposable = project, InspectionProfileEntry inspection) {
 		def inspections = new GlobalVar(livePluginInspections).set { List<InspectionProfileEntry> inspections ->
 			if (inspections == null) inspections = []
-			inspections.removeAll{ it.shortName == inspection.shortName }
+			inspections.removeAll { it.shortName == inspection.shortName }
 			inspections.add(inspection)
 			inspections
 		} as List<InspectionProfileEntry>
 
-		reloadAdditionalProjectInspections(project, inspections)
+		def projectProfile = inspectionsProfileOf(project)
+		inspections.each {
+			// remove using different instance of inspection should work because inspection is looked up by shortName
+			projectProfile.removeTool(InspectionToolRegistrar.wrapTool(it))
+			projectProfile.addTool(project, InspectionToolRegistrar.wrapTool(it), [:])
+		}
+		inspections.each { projectProfile.enableTool(it.shortName, project) }
 
 		if (disposable != null) {
 			Disposer.register(disposable, new Disposable() {
@@ -49,41 +53,10 @@ class Inspections {
 	}
 
 	static unregisterInspection(Project project, String inspectionName) {
-		def inspections = new GlobalVar(livePluginInspections).set { List<InspectionProfileEntry> inspections ->
-			if (inspections == null) inspections = []
-			inspections.removeAll{ it.shortName == inspectionName }
-			inspections
-		} as List<InspectionProfileEntry>
-		reloadAdditionalProjectInspections(project, inspections)
-	}
-
-	// TODO registerInspection2 seems to better solution in terms of using IntelliJ API.
-	// However, it doesn't really work:
-	//  - causes NPE at com.intellij.codeInspection.ex.InspectionProfileImpl.serializeInto(InspectionProfileImpl.java:325)
-	//  - causes NPE at com.intellij.profile.codeInspection.ui.header.InspectionToolsConfigurable$3.customize(InspectionToolsConfigurable.java:208)
-
-	static registerInspection2(Project project, InspectionProfileEntry inspection) {
-		def inspections = new GlobalVar(livePluginInspections).set { List<InspectionProfileEntry> inspections ->
-			if (inspections == null) inspections = []
-			inspections.removeAll{ it.shortName == inspection.shortName }
-			inspections.add(inspection)
-			inspections
-		} as List<InspectionProfileEntry>
-
-		def projectProfile = inspectionsProfileOf(project)
-		inspections.each {
-			// remove using different instance of inspection should work because inspection is looked up by shortName
-			projectProfile.removeTool(InspectionToolRegistrar.wrapTool(it))
-			projectProfile.addTool(project, InspectionToolRegistrar.wrapTool(it), [:])
-		}
-		inspections.each{ projectProfile.enableTool(it.shortName, project) }
-	}
-
-	static unregisterInspection2(Project project, String inspectionName) {
 		List<InspectionProfileEntry> inspectionsToDelete = []
 		new GlobalVar(livePluginInspections).set { List<InspectionProfileEntry> inspections ->
 			if (inspections == null) inspections = []
-			inspectionsToDelete = inspections.findAll{ it.shortName == inspectionName }
+			inspectionsToDelete = inspections.findAll { it.shortName == inspectionName }
 			inspections.removeAll(inspectionsToDelete)
 			inspections
 		}
@@ -94,22 +67,18 @@ class Inspections {
 		}
 	}
 
-	private static inspectionsProfileOf(Project project) {
-		InspectionProjectProfileManager.getInstance(project).getCurrentProfile() as InspectionProfileImpl
+	// TODO left for compatibility, remove it some time later
+	static registerInspection2(Project project, InspectionProfileEntry inspection) {
+		registerInspection(project, inspection)
 	}
 
-	private static void reloadAdditionalProjectInspections(Project project, List<InspectionProfileEntry> inspections) {
-		def inspectionFactories = inspections.collect { inspection ->
-			{ -> InspectionToolRegistrar.wrapTool(inspection) } as Supplier
-		}
-		def registrar = new InspectionToolRegistrar()
-		def obfuscatedNames = ["a", "b", "c"] // "abc" because there three fields in the class
-		def toolFactories = accessField(registrar, ["myInspectionToolFactories"] + obfuscatedNames, List)
-		toolFactories.addAll(inspectionFactories)
+	// TODO left for compatibility, remove it some time later
+	static unregisterInspection2(Project project, String inspectionName) {
+		unregisterInspection(project, inspectionName)
+	}
 
-		def projectProfile = InspectionProjectProfileManager.getInstance(project).getCurrentProfile()
-		def newProfile = updateProfile(projectProfile, registrar, project)
-		inspections.each{ newProfile.enableTool(it.shortName, project) }
+	private static inspectionsProfileOf(Project project) {
+		InspectionProjectProfileManager.getInstance(project).getCurrentProfile() as InspectionProfileImpl
 	}
 
 	/**
