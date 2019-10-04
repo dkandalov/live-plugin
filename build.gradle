@@ -41,7 +41,7 @@ ext.kotlinVersion = "1.3.20"
 intellij {
 	// (to find available IDE versions see https://www.jetbrains.com/intellij-repository/releases)
     def ideVersion = System.getenv().getOrDefault("LIVEPLUGIN_IDEA_VERSION", 
-			"191.6183.87" // Because of "import kotlin.script.experimental.*" classes
+			"192.5728.98" // Because of Inspections API changes (https://github.com/dkandalov/live-plugin/issues/102)
 //			"LATEST-EAP-SNAPSHOT"
 	)
 	println("Using ide version: ${ideVersion}")
@@ -52,7 +52,7 @@ intellij {
 	downloadSources = true
 	sameSinceUntilBuild = false
 	updateSinceUntilBuild = false
-	plugins = ["Groovy", "Kotlin", "git4idea", "github", "junit"]
+	plugins = ["java", "Groovy", "Kotlin", "git4idea", "github", "junit"]
 }
 dependencyLock {
 	lockFile = "../dependencyLock.json"

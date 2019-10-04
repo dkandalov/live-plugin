@@ -1,16 +1,15 @@
 <idea-plugin>
 	<id>LivePlugin</id>
-	<!--suppress PluginXmlValidity -->
     <name>LivePlugin</name>
 	<version>0.6.4 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
     <!-- https://www.jetbrains.com/intellij-repository/releases -->
-	<idea-version since-build="191.6183.87"/>
+	<idea-version since-build="192"/>
 	<category>Plugin Development</category>
 	<description>
-		<![CDATA[<html><body>
+		<![CDATA[<html lang="EN"><body>
 This is a plugin for IntelliJ IDEs to write plugins at runtime without having to restart IDE.
 It uses Groovy as main scripting language and has experimental support for Kotlin.
 <br/><br/>
