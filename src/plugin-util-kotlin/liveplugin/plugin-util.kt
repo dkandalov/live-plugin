@@ -129,7 +129,7 @@ fun createPopupMenu(
 }
 
 fun JBPopup.show(dataContext: DataContext? = null) {
-    val contextComponent = dataContext?.getData(PlatformDataKeys.CONTEXT_COMPONENT.name) as? Component
+    val contextComponent = dataContext?.getData(CONTEXT_COMPONENT.name) as? Component
     if (contextComponent != null) {
         showInCenterOf(contextComponent)
     } else {

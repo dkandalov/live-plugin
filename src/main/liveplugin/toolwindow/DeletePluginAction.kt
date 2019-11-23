@@ -58,10 +58,10 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete Plugin", Ic
         private fun userDoesNotWantToRemovePlugins(pluginRoots: Collection<VirtualFile>, project: Project?): Boolean {
             val pluginIds = pluginRoots.map { it.name }
 
-            val message = when {
-                pluginIds.size == 1 -> "Do you want to delete plugin \"" + pluginIds[0] + "\"?"
-                pluginIds.size == 2 -> "Do you want to delete plugin \"" + pluginIds[0] + "\" and \"" + pluginIds[1] + "\"?"
-                else                -> "Do you want to delete plugins \"" + StringUtil.join(pluginIds, ", ") + "\"?"
+            val message = when (pluginIds.size) {
+                1    -> "Do you want to delete plugin \"" + pluginIds[0] + "\"?"
+                2    -> "Do you want to delete plugin \"" + pluginIds[0] + "\" and \"" + pluginIds[1] + "\"?"
+                else -> "Do you want to delete plugins \"" + StringUtil.join(pluginIds, ", ") + "\"?"
             }
             val answer = Messages.showOkCancelDialog(
                 project,
