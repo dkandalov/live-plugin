@@ -1,37 +1,24 @@
 package liveplugin
 
-import com.intellij.lang.LanguageUtil
-import com.intellij.notification.NotificationGroup
-import com.intellij.notification.NotificationListener
-import com.intellij.notification.NotificationType
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.Presentation
-import com.intellij.openapi.application.PathManager.getHomePath
-import com.intellij.openapi.application.PathManager.getPluginsPath
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessExtension
-import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.fileTypes.SyntaxHighlighter
-import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
-import com.intellij.openapi.fileTypes.SyntaxHighlighterProvider
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER
-import com.intellij.openapi.util.NotNullLazyKey
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiElement
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.LocalSearchScope
-import com.intellij.psi.search.SearchScope
-import com.intellij.psi.search.UseScopeEnlarger
-import com.intellij.psi.util.PsiUtilCore
-import com.intellij.usages.impl.rules.UsageType
-import com.intellij.usages.impl.rules.UsageTypeProvider
-import com.intellij.util.indexing.IndexableSetContributor
+import com.intellij.lang.*
+import com.intellij.notification.*
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.application.PathManager.*
+import com.intellij.openapi.diagnostic.*
+import com.intellij.openapi.fileEditor.impl.*
+import com.intellij.openapi.fileTypes.*
+import com.intellij.openapi.module.*
+import com.intellij.openapi.project.*
+import com.intellij.openapi.project.Project.*
+import com.intellij.openapi.util.*
+import com.intellij.openapi.util.io.*
+import com.intellij.openapi.util.io.FileUtilRt.*
+import com.intellij.openapi.vfs.*
+import com.intellij.psi.*
+import com.intellij.psi.search.*
+import com.intellij.psi.util.*
+import com.intellij.usages.impl.rules.*
+import com.intellij.util.indexing.*
 import liveplugin.IdeUtil.askIfUserWantsToRestartIde
 import liveplugin.IdeUtil.downloadFile
 import liveplugin.IdeUtil.dummyDataContext
@@ -40,12 +27,12 @@ import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
-import liveplugin.pluginrunner.groovy.GroovyPluginRunner
-import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
-import liveplugin.toolwindow.PluginToolWindowManager
-import liveplugin.toolwindow.util.ExamplePluginInstaller
-import java.io.File
-import java.io.IOException
+import liveplugin.pluginrunner.groovy.*
+import liveplugin.pluginrunner.kotlin.*
+import liveplugin.toolwindow.*
+import liveplugin.toolwindow.util.*
+import java.io.*
+import kotlin.Pair
 
 object LivePluginPaths {
     val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
@@ -226,7 +213,6 @@ class LivePluginAppComponent: DumbAware {
     private class LivePluginsSearchScope(project: Project): GlobalSearchScope(project) {
         override fun getDisplayName() = "LivePlugins"
         override fun contains(file: VirtualFile) = file.isUnderLivePluginsPath()
-        override fun isSearchOutsideRootModel() = true
         override fun isSearchInModuleContent(aModule: Module) = false
         override fun isSearchInLibraries() = false
 
