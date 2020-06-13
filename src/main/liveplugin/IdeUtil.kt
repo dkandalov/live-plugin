@@ -142,7 +142,7 @@ object IdeUtil {
         ApplicationManager.getApplication().invokeAndWait(runnable, ModalityState.NON_MODAL)
     }
 
-    private class MyConsolePanel internal constructor(consoleView: ExecutionConsole, toolbarActions: ActionGroup): JPanel(BorderLayout()) {
+    private class MyConsolePanel(consoleView: ExecutionConsole, toolbarActions: ActionGroup): JPanel(BorderLayout()) {
         init {
             val toolbarPanel = JPanel(BorderLayout())
             toolbarPanel.add(ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarActions, false).component)
@@ -157,7 +157,7 @@ object IdeUtil {
      * because PhpStorm doesn't have this class.
      */
     private object Unscramble {
-        internal fun normalizeText(@NonNls text: String): String {
+        fun normalizeText(@NonNls text: String): String {
             val lines = text
                 .replace("(\\S[ \\t\\x0B\\f\\r]+)(at\\s+)".toRegex(), "$1\n$2")
                 .split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
