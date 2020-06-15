@@ -1,7 +1,7 @@
 package liveplugin.pluginrunner
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
-import com.intellij.ide.plugins.PluginManager
+import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
@@ -60,7 +60,7 @@ interface PluginRunner {
         fun findDependenciesOnIdePlugins(lines: List<String>, keyword: String): List<IdeaPluginDescriptor> {
             return lines.filter { it.startsWith(keyword) }
                 .map { line -> line.replace(keyword, "").trim { it <= ' ' } }
-                .map { PluginManager.getPlugin(PluginId.getId(it)) ?: error("Failed to find jar for dependent plugin '$it'.") }
+                .map { PluginManagerCore.getPlugin(PluginId.getId(it)) ?: error("Failed to find jar for dependent plugin '$it'.") }
         }
 
         fun findClasspathAdditions(lines: List<String>, prefix: String, environment: Map<String, String>): Result<List<File>, String> {

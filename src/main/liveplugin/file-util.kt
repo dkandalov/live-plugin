@@ -36,7 +36,7 @@ fun allFilesInDirectory(dir: File): Sequence<File> = sequence {
     val queue = LinkedList(listOf(dir))
     while (queue.isNotEmpty()) {
         val currentDir = queue.removeLast()
-        val files = currentDir.listFiles() ?: emptyArray()
+        val files = currentDir.listFiles() ?: emptyArray<File>()
         for (file in files) {
             when {
                 file.isFile      -> yield(file)
