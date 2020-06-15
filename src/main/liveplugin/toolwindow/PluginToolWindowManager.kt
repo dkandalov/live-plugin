@@ -65,6 +65,11 @@ import javax.swing.tree.DefaultTreeModel
 class PluginToolWindowManager {
     fun init() {
         val connection = ApplicationManager.getApplication().messageBus.connect()
+        ProjectManager.getInstance().openProjects.forEach {
+            ApplicationManager.getApplication().invokeLater {
+                PluginToolWindow(it)
+            }
+        }
         connection.subscribe(ProjectManager.TOPIC, object: ProjectManagerListener {
             override fun projectOpened(project: Project) {
                 PluginToolWindow(project)
