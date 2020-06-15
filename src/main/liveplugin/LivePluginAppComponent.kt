@@ -10,6 +10,7 @@ import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.module.*
 import com.intellij.openapi.project.*
 import com.intellij.openapi.project.Project.*
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.*
 import com.intellij.openapi.util.io.*
 import com.intellij.openapi.util.io.FileUtilRt.*
@@ -46,8 +47,8 @@ object LivePluginPaths {
     const val kotlinExamplesPath = "/kotlin/"
 }
 
-class LivePluginAppComponent: DumbAware {
-    init {
+class LivePluginAppComponent: StartupActivity, DumbAware {
+    override fun runActivity(project: Project) {
         checkThatGroovyIsOnClasspath()
 
         val settings = Settings.getInstance()
@@ -138,9 +139,9 @@ class LivePluginAppComponent: DumbAware {
 
             // This can be useful for non-java IDEs because they don't have bundled groovy libs.
             val listener = NotificationListener { notification, _ ->
-                val groovyVersion = "2.4.17" // Version of groovy used by latest IJ.
+                val groovyVersion = "2.5.11" // Version of groovy used by latest IJ.
                 val downloaded = downloadFile(
-                    "http://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/",
+                    "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/",
                     "groovy-all-$groovyVersion.jar",
                     LivePluginPaths.livePluginLibPath
                 )

@@ -41,12 +41,6 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 	<depends optional="true" config-file="groovy-plugin-integration.xml">org.intellij.groovy</depends>
 	<depends optional="true" config-file="kotlin-plugin-integration.xml">org.jetbrains.kotlin</depends>
 
-	<application-components>
-		<component>
-			<implementation-class>liveplugin.LivePluginAppComponent</implementation-class>
-		</component>
-	</application-components>
-
 	<actions>
 		<action id="LivePlugin.RunPlugin" class="liveplugin.pluginrunner.RunPluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
@@ -78,6 +72,7 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 	</actions>
 
 	<extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="liveplugin.LivePluginAppComponent"/>
 		<applicationService serviceImplementation="liveplugin.Settings"/>
 		<nonProjectFileWritingAccessExtension implementation="liveplugin.LivePluginAppComponent$MakePluginFilesAlwaysEditable"/>
 		<syntaxHighlighter factoryClass="liveplugin.LivePluginAppComponent$Highlighter" order="first"/>
