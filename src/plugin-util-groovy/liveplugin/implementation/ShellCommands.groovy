@@ -10,17 +10,9 @@ class ShellCommands {
 	}
 
 	static Map execute(String command, Collection<String> parameters) {
-		def ant = new AntBuilder()
-		ant.exec(outputproperty:"cmdOut",
-				errorproperty: "cmdErr",
-				resultproperty:"cmdExit",
-				failonerror: "false",
-				executable: command) {
-			arg(line: parameters.join(" "))
-		}
-
-		[exitCode: Integer.parseInt(ant.project.properties.cmdExit),
-		 stderr: ant.project.properties.cmdErr,
-		 stdout: ant.project.properties.cmdOut]
+		def process = new ProcessBuilder(command, *parameters.toArray()).start()
+		def stdout = process.inputStream.text
+		def stderr = process.errorStream.text
+		[exitCode: process.exitValue(), stdout: stdout, stderr: stderr]
 	}
 }

@@ -4,6 +4,7 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
 import groovy.lang.GroovyClassLoader
 import liveplugin.pluginrunner.AnError.LoadingError
@@ -13,6 +14,7 @@ import liveplugin.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
+import java.net.URL
 
 interface PluginRunner {
 
@@ -47,13 +49,12 @@ interface PluginRunner {
 
         private fun createParentClassLoader(dependenciesOnIdePlugins: List<IdeaPluginDescriptor>, plugin: LivePlugin): Result<ClassLoader, LoadingError> {
             val parentLoaders = dependenciesOnIdePlugins.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
-            val pluginVersion = "1.0.0"
 
             return Success(PluginClassLoader(
-                emptyList(),
+                emptyList<URL>(),
                 parentLoaders.toTypedArray(),
-                PluginId.getId(plugin.id),
-                pluginVersion, null
+                DefaultPluginDescriptor(plugin.id),
+                null
             ))
         }
 
