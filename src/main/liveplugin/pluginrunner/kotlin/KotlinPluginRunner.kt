@@ -56,7 +56,7 @@ class KotlinPluginRunner(
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
         compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!.let { compilePluginMethod ->
             try {
-                val compilerClasspath =
+                val compilerClasspath: List<File> =
                     ideJdkClassesRoots() +
                     ideLibFiles() +
                     psiApiFiles().distinct() +
@@ -66,8 +66,18 @@ class KotlinPluginRunner(
                     additionalClasspath +
                     File(plugin.path)
 
+                // Note that arguments passed via reflection CANNOT use pure Kotlin types
+                // because compiler uses different classloader to load Kotlin so classes won't be compatible
+                // (it's ok though to use types like kotlin.String because it becomes java.lang.String at runtime).
                 @Suppress("UNCHECKED_CAST")
-                val compilationErrors = compilePluginMethod.invoke(null, plugin.path, compilerClasspath, compilerOutput, KotlinScriptTemplate::class.java) as List<String>
+                val compilationErrors = compilePluginMethod.invoke(
+                    null,
+                    plugin.path,
+                    compilerClasspath,
+                    compilerOutput,
+                    KotlinScriptTemplate::class.java
+                ) as List<String>
+
                 if (compilationErrors.isNotEmpty()) {
                     return Failure(LoadingError(plugin.id, "Error compiling script. " + compilationErrors.joinToString("\n")))
                 }
@@ -140,5 +150,8 @@ private val javaHome = File(System.getProperty("java.home"))
 private fun ideLibFiles() = File(LivePluginPaths.ideJarsPath).filesList()
 
 private fun psiApiFiles() =
-    File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList() +
-    File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList()
+    emptyList<File>() // TODO uncomment and make sure there are not kotlin compiler plugins on the path
+//    File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList() +
+//    File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList()
+//        .filterNot { it.name.endsWith("-compiler-plugin.jar") }
+//        .filterNot { it.name.startsWith("android-") }

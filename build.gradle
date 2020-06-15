@@ -58,7 +58,7 @@ dependencies {
 	runtime "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
 	runtime "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 	runtime "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-	runtime "live-plugin:kotlin-compiler-wrapper:0.3"
+	runtime "live-plugin:kotlin-compiler-wrapper:0.5"
 	testCompile group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
@@ -133,7 +133,7 @@ task validateLivePluginZip() { doLast {
 build.finalizedBy(saveLock)
 build.finalizedBy(validateLivePluginZip)
 
-def expectToContain(Set actual, Set expected) {
+static expectToContain(Set actual, Set expected) {
 	if (!actual.containsAll(expected)) {
 		throw new GradleException(
 			"Didn't contain expected:\n" +
@@ -141,7 +141,8 @@ def expectToContain(Set actual, Set expected) {
 		)
 	}
 }
-def expectToBeEqual(Set actual, Set expected) {
+
+static expectToBeEqual(Set actual, Set expected) {
 	if (actual != expected) {
 		throw new GradleException(
 			"Expected:\n" +
@@ -183,7 +184,12 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
 	// Remove kotlin version from jars zipped with plugin so that when they are updated, 'LivePlugin' module dependencies are still correct.
 	def filesToMove = [
-		["kotlin-compiler-wrapper-0.3.jar", "kotlin-compiler-wrapper.jar"],
+		["annotations-13.0.jar", "annotations.jar"],
+		["kotlin-compiler-wrapper-0.5.jar", "kotlin-compiler-wrapper.jar"],
+		["kotlin-scripting-common-${kotlinVersion}.jar", "kotlin-scripting-common.jar"],
+		["kotlin-scripting-compiler-embeddable-${kotlinVersion}.jar", "kotlin-scripting-compiler-embeddable.jar"],
+		["kotlin-scripting-compiler-impl-embeddable-${kotlinVersion}.jar", "kotlin-scripting-compiler-impl-embeddable.jar"],
+		["kotlin-scripting-jvm-${kotlinVersion}.jar", "kotlin-scripting-jvm.jar"],
 		["kotlin-compiler-embeddable-${kotlinVersion}.jar", "kotlin-compiler-embeddable.jar"],
 		["kotlin-reflect-${kotlinVersion}.jar", "kotlin-reflect.jar"],
 		["kotlin-stdlib-${kotlinVersion}.jar", "kotlin-stdlib.jar"],
