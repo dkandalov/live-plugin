@@ -27,7 +27,7 @@ class Widgets {
 
 		def widget = new StatusBarWidget() {
 			@Override String ID() { widgetId }
-			@Override WidgetPresentation getPresentation(@NotNull PlatformType type) { presentation }
+			@Override WidgetPresentation getPresentation() { presentation }
 			@Override void install(@NotNull StatusBar statusBar) {}
 			@Override void dispose() {}
 		}

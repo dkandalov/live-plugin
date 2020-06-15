@@ -1,6 +1,6 @@
 package liveplugin.implementation
 
-import com.intellij.execution.ExecutionManager
+
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.filters.ConsoleInputFilterProvider
@@ -10,6 +10,7 @@ import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.ui.RunContentManager
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
@@ -71,7 +72,7 @@ class Console {
 			toolbarActions.add(new CloseAction(executor, descriptor, project))
 			console.createConsoleActions().each{ toolbarActions.add(it) }
 
-			ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
+			RunContentManager.getInstance(project).showRunContent(executor, descriptor)
 			result.set(console)
 		}
 		result.get()

@@ -4,15 +4,12 @@ import com.intellij.execution.testframework.TestsUIUtil
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.notification.NotificationsAdapter
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.annotations.NotNull
 
-import static liveplugin.implementation.Misc.newDisposable
-import static liveplugin.implementation.Misc.registerDisposable
-import static liveplugin.implementation.Misc.unregisterDisposable
+import static liveplugin.implementation.Misc.*
 
 class UnitTests {
 	private final MessageBusConnection busConnection
@@ -46,7 +43,7 @@ class UnitTests {
 	}
 
 	UnitTests start() {
-		busConnection.subscribe(Notifications.TOPIC, new NotificationsAdapter() {
+		busConnection.subscribe(Notifications.TOPIC, new Notifications() {
 			@Override void notify(@NotNull Notification notification) {
 				if (notification.groupId == TestsUIUtil.NOTIFICATION_GROUP.displayId) {
 					boolean testsFailed = (notification.type == NotificationType.ERROR)

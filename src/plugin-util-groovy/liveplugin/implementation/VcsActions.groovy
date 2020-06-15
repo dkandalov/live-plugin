@@ -2,7 +2,6 @@ package liveplugin.implementation
 
 import com.intellij.notification.Notification
 import com.intellij.notification.Notifications
-import com.intellij.notification.NotificationsAdapter
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.CheckinProjectPanel
@@ -22,7 +21,7 @@ class VcsActions {
 	private final MessageBusConnection busConnection
 	private final UpdatedFilesListener updatedListener
 	private final CheckinHandlerFactory checkinListener
-	private final NotificationsAdapter pushListener
+	private final Notifications pushListener
 
 	static registerVcsListener(Disposable disposable, Listener listener) {
 		Projects.registerProjectListener(disposable) { Project project ->
@@ -74,7 +73,7 @@ class VcsActions {
 
 		// see git4idea.push.GitPushResultNotification#create
 		// see org.zmlx.hg4idea.push.HgPusher#push
-		pushListener = new NotificationsAdapter() {
+		pushListener = new Notifications() {
 			@Override void notify(@NotNull Notification notification) {
 				if (!isVcsNotification(notification)) return
 
