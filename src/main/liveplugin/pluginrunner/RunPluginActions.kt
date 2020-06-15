@@ -170,7 +170,7 @@ private fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Bool
     mapNotNull { path -> findPluginFolder(path) }
         .any { folder ->
             pluginRunners.any { runner ->
-                allFilesInDirectory(File(folder)).any { runner.scriptName == it.name }
+                File(folder).allFiles().any { runner.scriptName == it.name }
             }
         }
 
