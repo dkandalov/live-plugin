@@ -192,7 +192,7 @@ class LivePluginAppComponent: DumbAware {
         override fun getUsageType(element: PsiElement): UsageType? {
             val file = PsiUtilCore.getVirtualFile(element) ?: return null
             if (!file.isUnderLivePluginsPath()) return null
-            return UsageType("Usage in liveplugin")
+            return UsageType { "Usage in liveplugin" }
         }
     }
 

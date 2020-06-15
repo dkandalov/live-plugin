@@ -97,7 +97,7 @@ class PluginToolWindow(val project: Project) {
     init {
         val toolWindowManager = ToolWindowManager.getInstance(project)
         toolWindowManager.registerToolWindow(pluginsToolWindowId, false, ToolWindowAnchor.RIGHT, project, true).also {
-            it.icon = Icons.pluginToolwindowIcon
+            it.setIcon(Icons.pluginToolwindowIcon)
             it.contentManager.addContent(createContent(project))
         }
 

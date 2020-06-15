@@ -8,7 +8,7 @@ buildscript {
 plugins {
 	id "nebula.dependency-lock" version "5.0.2"
 	id "org.jetbrains.intellij" version "0.4.18"
-	id "org.jetbrains.kotlin.jvm" version "1.3.70"
+	id "org.jetbrains.kotlin.jvm" version "1.3.72"
 }
 apply plugin:"java"
 apply plugin:"groovy"
@@ -17,10 +17,7 @@ apply plugin:"org.jetbrains.intellij"
 
 repositories {
 	mavenCentral()
-    ivy {
-        layout "pattern"
-        artifactPattern "http://raw.githubusercontent.com/dkandalov/kotlin-compiler-wrapper/master/jars/[organisation]-[artifact]-[revision](-[classifier])(.[ext])"
-    }
+	maven { setUrl("https://dl.bintray.com/dkandalov/maven") }
 }
 
 compileKotlin {
@@ -30,12 +27,12 @@ compileKotlin {
 		languageVersion = "1.3"
 	}
 }
-ext.kotlinVersion = "1.3.70"
+ext.kotlinVersion = "1.3.72"
 
 intellij {
 	// (to find available IDE versions see https://www.jetbrains.com/intellij-repository/releases)
     def ideVersion = System.getenv().getOrDefault("LIVEPLUGIN_IDEA_VERSION", 
-			"192.5728.98" // Because of Inspections API changes (https://github.com/dkandalov/live-plugin/issues/102)
+			"201.6668.113" // Because of Inspections API changes (https://github.com/dkandalov/live-plugin/issues/102)
 //			"LATEST-EAP-SNAPSHOT"
 	)
 	println("Using ide version: ${ideVersion}")
@@ -58,11 +55,10 @@ dependencies {
 	// Bundle kotlin compiler and stdlib with LivePlugin because they are not bundled with IDEs
 	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
 	// so it should be more reliable to have a particular version of kotlin jars inside LivePlugin.
-	runtime group: "org.jetbrains.kotlin", name: "kotlin-compiler-embeddable", version: kotlinVersion
-	runtime group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: kotlinVersion
-	runtime group: "org.jetbrains.kotlin", name: "kotlin-reflect", version: kotlinVersion
-	runtime group: "live-plugin", name: "kotlin-compiler-wrapper", version: "0.1.2"
-
+	runtime "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
+	runtime "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+	runtime "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+	runtime "live-plugin:kotlin-compiler-wrapper:0.3"
 	testCompile group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
@@ -173,10 +169,6 @@ task installLivePlugin() { doLast {
 	println("Path: ${toFile}")
 } }
 
-task runIdeWithDifferentJvm(type: org.jetbrains.intellij.tasks.RunIdeTask) {
-	jbrVersion "jbrex8u152b1024.10"
-}
-
 def "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"() {
 	compileJava.doLast {
 		def classesFolder = project.tasks.findByName(JavaPlugin.COMPILE_JAVA_TASK_NAME).destinationDir
@@ -191,7 +183,7 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
 	// Remove kotlin version from jars zipped with plugin so that when they are updated, 'LivePlugin' module dependencies are still correct.
 	def filesToMove = [
-		["kotlin-compiler-wrapper-0.1.2.jar", "kotlin-compiler-wrapper.jar"],
+		["kotlin-compiler-wrapper-0.3.jar", "kotlin-compiler-wrapper.jar"],
 		["kotlin-compiler-embeddable-${kotlinVersion}.jar", "kotlin-compiler-embeddable.jar"],
 		["kotlin-reflect-${kotlinVersion}.jar", "kotlin-reflect.jar"],
 		["kotlin-stdlib-${kotlinVersion}.jar", "kotlin-stdlib.jar"],
@@ -209,7 +201,7 @@ def "Move kotlin compiler jars from plugin classpath into a separate folder so t
 	}
 }
 
-def 'Move GDSL file into standardDsls folder'() {
+def "Move GDSL file into standardDsls folder"() {
 	prepareSandbox.doLast {
 		def resourcesFolder = project.tasks.findByName(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).destinationDir
 		ant.move(

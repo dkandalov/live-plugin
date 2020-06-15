@@ -1,13 +1,13 @@
 package liveplugin
 
 import com.intellij.diagnostic.PluginException
-import com.intellij.execution.ExecutionManager
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.ui.RunContentManager
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
@@ -137,7 +137,7 @@ object IdeUtil {
             toolbarActions.add(CloseAction(executor, descriptor, project))
             toolbarActions.addAll(*console.createConsoleActions())
 
-            ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor)
+            RunContentManager.getInstance(project).showRunContent(executor, descriptor)
         }
         ApplicationManager.getApplication().invokeAndWait(runnable, ModalityState.NON_MODAL)
     }

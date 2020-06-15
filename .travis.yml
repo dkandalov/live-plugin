@@ -2,7 +2,7 @@ language: java
 jdk: oraclejdk11
 
 env:
-  - LIVEPLUGIN_IDEA_VERSION=IC-192.5728.98
+  - LIVEPLUGIN_IDEA_VERSION=IC-201.6668.113
   - LIVEPLUGIN_IDEA_VERSION=LATEST-EAP-SNAPSHOT
 
 script: ./gradlew check buildPlugin --info
