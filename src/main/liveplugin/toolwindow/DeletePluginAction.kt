@@ -57,8 +57,8 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete Plugin", Ic
             val answer = Messages.showOkCancelDialog(
                 project,
                 when (pluginIds.size) {
-                    1    -> "Do you want to delete plugin \"" + pluginIds[0] + "\"?"
-                    else -> "Do you want to delete plugins \"" + pluginIds.joinToString(", ") + "\"?"
+                    1    -> "Do you want to delete plugin ${pluginIds[0]}?"
+                    else -> "Do you want to delete plugins ${pluginIds.joinToString(", ")}?"
                 },
                 "Delete",
                 ApplicationBundle.message("button.delete"),

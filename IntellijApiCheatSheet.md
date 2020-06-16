@@ -1,5 +1,3 @@
-## THIS FILE OUT-OF-DATE!
-
 ### IntelliJ API mini cheat sheet
 
 Getting source code (see also [Build Community Edition page](http://www.jetbrains.org/pages/viewpage.action?pageId=983225)):
