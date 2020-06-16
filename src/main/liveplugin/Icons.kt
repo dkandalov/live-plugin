@@ -17,7 +17,6 @@ object Icons {
     )
     val runPluginIcon = Actions.Execute
     val testPluginIcon = RunConfigurations.Junit
-    val expandAllIcon = Actions.Expandall
     val collapseAllIcon = Actions.Collapseall
     val settingsIcon = General.GearPlain
     val helpIcon = Actions.Help

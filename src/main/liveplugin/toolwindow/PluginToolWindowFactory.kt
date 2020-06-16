@@ -3,7 +3,6 @@ package liveplugin.toolwindow
 import com.intellij.ide.DefaultTreeExpander
 import com.intellij.ide.DeleteProvider
 import com.intellij.ide.actions.CollapseAllAction
-import com.intellij.ide.actions.ExpandAllAction
 import com.intellij.ide.ui.customization.CustomizationUtil
 import com.intellij.ide.util.treeView.AbstractTreeBuilder
 import com.intellij.ide.util.treeView.AbstractTreeStructure
@@ -40,7 +39,6 @@ import com.intellij.util.ui.tree.TreeUtil
 import liveplugin.Icons
 import liveplugin.Icons.addPluginIcon
 import liveplugin.Icons.collapseAllIcon
-import liveplugin.Icons.expandAllIcon
 import liveplugin.Icons.helpIcon
 import liveplugin.Icons.settingsIcon
 import liveplugin.IdeUtil
@@ -121,7 +119,6 @@ class PluginToolWindow(val project: Project) {
             it.add(RunPluginTestsAction())
             it.addSeparator()
             it.add(RefreshPluginsPanelAction())
-            it.add(ExpandAllAction().withIcon(expandAllIcon))
             it.add(CollapseAllAction().withIcon(collapseAllIcon))
             it.addSeparator()
             it.add(createSettingsGroup().withIcon(settingsIcon))
