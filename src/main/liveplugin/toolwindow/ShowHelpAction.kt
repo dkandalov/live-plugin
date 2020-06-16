@@ -7,5 +7,5 @@ import com.intellij.openapi.project.DumbAware
 
 class ShowHelpAction: AnAction("Show help on GitHub"), DumbAware {
     override fun actionPerformed(e: AnActionEvent) =
-        BrowserUtil.open("https://github.com/dkandalov/live-plugin#liveplugin")
+        BrowserUtil.open("https://github.com/dkandalov/live-plugin#how-to-start-writing-plugins")
 }
