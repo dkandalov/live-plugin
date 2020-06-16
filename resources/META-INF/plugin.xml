@@ -41,6 +41,10 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 	<depends optional="true" config-file="groovy-plugin-integration.xml">org.intellij.groovy</depends>
 	<depends optional="true" config-file="kotlin-plugin-integration.xml">org.jetbrains.kotlin</depends>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Plugins" anchor="right" factoryClass="liveplugin.toolwindow.LivePluginToolWindowFactory"/>
+    </extensions>
+
 	<actions>
 		<action id="LivePlugin.RunPlugin" class="liveplugin.pluginrunner.RunPluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>

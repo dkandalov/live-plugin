@@ -11,7 +11,7 @@ object Icons {
     val newPluginIcon = pluginIcon
     val deletePluginIcon = General.Remove
     val refreshPluginsPanelIcon = Actions.Refresh
-    val pluginToolwindowIcon = toSize(
+    val pluginToolWindowIcon = toSize(
         IconLoader.getIcon(if (isUnderDarcula()) "/liveplugin/plugin_dark.svg" else "/liveplugin/plugin.svg"),
         13, 13 // resize because IJ logs warning if toolwindow icon is not 13x13
     )

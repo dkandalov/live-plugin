@@ -59,8 +59,6 @@ class LivePluginAppComponent: StartupActivity, DumbAware {
         if (settings.runAllPluginsOnIDEStartup) {
             runAllPlugins()
         }
-
-        PluginToolWindowManager().init()
     }
 
     companion object {

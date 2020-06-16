@@ -22,15 +22,13 @@ import com.intellij.openapi.fileChooser.impl.FileTreeBuilder
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManager
-import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.wm.ToolWindowAnchor
-import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.openapi.wm.ToolWindow
+import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
@@ -63,20 +61,6 @@ import javax.swing.JTree
 import javax.swing.tree.DefaultTreeModel
 
 class PluginToolWindowManager {
-    fun init() {
-        val connection = ApplicationManager.getApplication().messageBus.connect()
-        ProjectManager.getInstance().openProjects.forEach {
-            ApplicationManager.getApplication().invokeLater {
-                PluginToolWindow(it)
-            }
-        }
-        connection.subscribe(ProjectManager.TOPIC, object: ProjectManagerListener {
-            override fun projectOpened(project: Project) {
-                PluginToolWindow(project)
-            }
-        })
-    }
-
     companion object {
         private val toolWindows = HashSet<PluginToolWindow>()
 
@@ -94,27 +78,26 @@ class PluginToolWindowManager {
     }
 }
 
+class LivePluginToolWindowFactory : ToolWindowFactory {
+    override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+        val pluginToolWindow = PluginToolWindow(project)
+
+        toolWindow.setIcon(Icons.pluginToolWindowIcon)
+        toolWindow.contentManager.addContent(pluginToolWindow.createContent(project))
+
+        PluginToolWindowManager.add(pluginToolWindow)
+
+        Disposer.register(project, Disposable {
+            PluginToolWindowManager.remove(pluginToolWindow)
+        })
+    }
+}
+
 class PluginToolWindow(val project: Project) {
-    private val pluginsToolWindowId = "Plugins"
     private var fsTreeRef = Ref<FileSystemTree>()
     private lateinit var panel: SimpleToolWindowPanel
 
-    init {
-        val toolWindowManager = ToolWindowManager.getInstance(project)
-        toolWindowManager.registerToolWindow(pluginsToolWindowId, false, ToolWindowAnchor.RIGHT, project, true).also {
-            it.setIcon(Icons.pluginToolwindowIcon)
-            it.contentManager.addContent(createContent(project))
-        }
-
-        PluginToolWindowManager.add(this)
-
-        Disposer.register(project, Disposable {
-            toolWindowManager.unregisterToolWindow(pluginsToolWindowId)
-            PluginToolWindowManager.remove(this)
-        })
-    }
-
-    private fun createContent(project: Project): Content {
+    fun createContent(project: Project): Content {
         val fsTree = createFsTree(project)
         fsTreeRef = Ref.create(fsTree)
         fsTree.installPopupMenu()
