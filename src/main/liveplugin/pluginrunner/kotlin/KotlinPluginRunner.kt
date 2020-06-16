@@ -62,7 +62,7 @@ class KotlinPluginRunner(
                     psiApiFiles().distinct() +
                     File(livePluginLibPath).filesList() +
                     File(livePluginCompilerLibsPath).filesList() +
-                    dependenciesOnIdePlugins.map { it.path } +
+                    dependenciesOnIdePlugins.map { it.pluginPath.toFile() } +
                     additionalClasspath +
                     File(plugin.path)
 
