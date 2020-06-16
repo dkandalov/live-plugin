@@ -121,8 +121,7 @@ class PluginUtil {
 	 * @param groupDisplayId (optional) an id to group notifications by (can be configured in "IDE Settings - Notifications")
 	 */
 	@CanCallFromAnyThread
-	// TODO "title" can't really be null
-	static show(@Nullable message, @Nullable String title = "", NotificationType notificationType = INFORMATION,
+	static show(@Nullable message, String title = "", NotificationType notificationType = INFORMATION,
 	            String groupDisplayId = "", @Nullable NotificationListener notificationListener = null) {
 		invokeLaterOnEDT {
 			message = Misc.asString(message)
