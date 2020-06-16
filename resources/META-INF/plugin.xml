@@ -75,8 +75,11 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 		</group>
 	</actions>
 
-	<extensions defaultExtensionNs="com.intellij">
-        <postStartupActivity implementation="liveplugin.LivePluginAppComponent"/>
+    <applicationListeners>
+        <listener class="liveplugin.LivePluginAppComponent" topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
+
+    <extensions defaultExtensionNs="com.intellij">
 		<applicationService serviceImplementation="liveplugin.Settings"/>
 		<nonProjectFileWritingAccessExtension implementation="liveplugin.LivePluginAppComponent$MakePluginFilesAlwaysEditable"/>
 		<syntaxHighlighter factoryClass="liveplugin.LivePluginAppComponent$Highlighter" order="first"/>

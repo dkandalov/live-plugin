@@ -1,5 +1,6 @@
 package liveplugin
 
+import com.intellij.ide.AppLifecycleListener
 import com.intellij.lang.*
 import com.intellij.notification.*
 import com.intellij.openapi.actionSystem.*
@@ -10,7 +11,6 @@ import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.module.*
 import com.intellij.openapi.project.*
 import com.intellij.openapi.project.Project.*
-import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.*
 import com.intellij.openapi.util.io.*
 import com.intellij.openapi.util.io.FileUtilRt.*
@@ -46,8 +46,8 @@ object LivePluginPaths {
     const val kotlinExamplesPath = "/kotlin/"
 }
 
-class LivePluginAppComponent: StartupActivity, DumbAware {
-    override fun runActivity(project: Project) {
+class LivePluginAppComponent : AppLifecycleListener {
+    override fun appFrameCreated(commandLineArgs: MutableList<String>) {
         checkThatGroovyIsOnClasspath()
 
         val settings = Settings.getInstance()
