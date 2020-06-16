@@ -22,7 +22,7 @@ object Icons {
     val settingsIcon = General.GearPlain
     val helpIcon = Actions.Help
     val newFolderIcon = Nodes.Folder
-}
 
-// Copied from UIUtil to keep plugin working while the function is being moved to StartupUiUtil
-private fun isUnderDarcula() = UIManager.getLookAndFeel().name.contains("Darcula")
+    // Copied from UIUtil to keep plugin working while the function is being moved to StartupUiUtil
+    private fun isUnderDarcula() = UIManager.getLookAndFeel().name.contains("Darcula")
+}
