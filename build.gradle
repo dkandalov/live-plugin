@@ -30,13 +30,12 @@ compileKotlin {
 ext.kotlinVersion = "1.3.72"
 
 intellij {
-	// (to find available IDE versions see https://www.jetbrains.com/intellij-repository/releases)
-    def ideVersion = System.getenv().getOrDefault("IJ_VERSION",
-			"201.6668.113" // Because of Inspections API changes (https://github.com/dkandalov/live-plugin/issues/102)
-//			"LATEST-EAP-SNAPSHOT"
+	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
+	// and https://www.jetbrains.com/intellij-repository/snapshots
+	version = System.getenv().getOrDefault("IJ_VERSION",
+		"202.5103.13-EAP-SNAPSHOT" // To be compatible with IJ 2020.2 (which broke compilation for PluginClassLoader, see also https://github.com/dkandalov/live-plugin/issues/109)
+//		"LATEST-EAP-SNAPSHOT"
 	)
-	println("Using ide version: ${ideVersion}")
-	version ideVersion
 	// The artifact name is deliberately not "live-plugin" because plugins are stored in the "live-plugins" directory.
 	// The "LivePlugin" directory is deleted on each plugin update so it's good make it distinct from "live-plugins".
 	pluginName = "LivePlugin"
@@ -99,21 +98,21 @@ jar {
 task validateLivePluginZip() { doLast {
 	def pluginZip = zipTree("build/distributions/LivePlugin.zip")
 	def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*/LivePlugin.zip.*?/", "") }
-	
+
 	def kotlinCompilerAndItsTransitiveDependencies = [
-			"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper.jar",
-			"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable.jar",
-			"LivePlugin/kotlin-compiler/kotlin-reflect.jar",
-			"LivePlugin/kotlin-compiler/kotlin-stdlib.jar",
-			"LivePlugin/kotlin-compiler/kotlin-stdlib-common.jar",
-			"LivePlugin/kotlin-compiler/kotlin-script-runtime.jar",
-			"LivePlugin/kotlin-compiler/trove4j.jar",
+		"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper.jar",
+		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable.jar",
+		"LivePlugin/kotlin-compiler/kotlin-reflect.jar",
+		"LivePlugin/kotlin-compiler/kotlin-stdlib.jar",
+		"LivePlugin/kotlin-compiler/kotlin-stdlib-common.jar",
+		"LivePlugin/kotlin-compiler/kotlin-script-runtime.jar",
+		"LivePlugin/kotlin-compiler/trove4j.jar",
 	]
 	def expectedLivePluginJars = [
-			"LivePlugin/lib/LivePlugin.jar",
-			"LivePlugin/lib/annotations-13.0.jar",
-			"LivePlugin/lib/searchableOptions.jar",
-			"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
+		"LivePlugin/lib/LivePlugin.jar",
+		"LivePlugin/lib/annotations-13.0.jar",
+		"LivePlugin/lib/searchableOptions.jar",
+		"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
 	]
 	expectToBeEqual(pluginZipFiles.toSet(), (expectedLivePluginJars + kotlinCompilerAndItsTransitiveDependencies).toSet())
 
