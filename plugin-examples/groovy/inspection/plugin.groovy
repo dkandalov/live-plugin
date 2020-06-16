@@ -1,8 +1,4 @@
-import com.intellij.codeInsight.daemon.GroupNames
-import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool
-import com.intellij.codeInspection.LocalQuickFix
-import com.intellij.codeInspection.ProblemDescriptor
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.*
 import com.intellij.openapi.project.Project
 import com.intellij.psi.JavaElementVisitor
 import com.intellij.psi.JavaPsiFacade
@@ -11,7 +7,6 @@ import com.intellij.psi.PsiLiteralExpression
 
 import static liveplugin.PluginUtil.registerInspection
 import static liveplugin.PluginUtil.show
-
 // (Please note this example won't work in IDEs without Java support.)
 
 registerInspection(pluginDisposable, new HelloWorldInspection())
@@ -32,9 +27,9 @@ class HelloWorldInspection extends AbstractBaseJavaLocalInspectionTool {
 			}
 		}
 	}
-	@Override String getGroupDisplayName() { GroupNames.BUGS_GROUP_NAME }
 	@Override String getDisplayName() { 'Replace "hello" with "Hello world"' }
 	@Override String getShortName() { "HelloWorldInspection" }
+	@Override String getGroupDisplayName() { InspectionsBundle.message("group.names.probable.bugs") }
 	@Override boolean isEnabledByDefault() { true }
 }
 

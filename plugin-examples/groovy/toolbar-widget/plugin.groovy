@@ -29,7 +29,6 @@ invokeOnEDT {
 				}
 			}
 		}
-		@Deprecated @Override String getMaxPossibleText() { "" }
 	}
 	registerWidget("FibonacciWidget", pluginDisposable, presentation)
 

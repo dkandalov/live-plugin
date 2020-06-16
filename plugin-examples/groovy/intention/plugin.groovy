@@ -17,7 +17,7 @@ if (javaIsSupportedByIde) {
 }
 
 /**
- * See also in IJ sources com.siyeh.ig.fixes.MakeFieldFinalFix.
+ * See also in IntelliJ sources com.siyeh.ig.fixes.MakeFieldFinalFix.
  */
 class JavaFinalFieldIntention extends PsiElementBaseIntentionAction {
 	private boolean isFinal

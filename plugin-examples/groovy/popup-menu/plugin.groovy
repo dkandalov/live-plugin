@@ -11,12 +11,12 @@ registerAction("HelloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 					"IntelliJ API mini cheat sheet": {
 						openInBrowser("https://github.com/dkandalov/live-plugin/blob/master/IntellijApiCheatSheet.md")
 					},
-					"IntelliJ Architectural Overview": {
-						openInBrowser("http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview.html")
+					"IntelliJ Platform SDK DevGuide - Fundamentals": {
+						openInBrowser("https://www.jetbrains.org/intellij/sdk/docs/platform/fundamentals.html")
 					}
 			],
-			"Execute command": {
-				def command = showInputDialog("Enter a command:")
+			"Execute shell command": {
+				def command = showInputDialog("Enter a command (e.g. 'ls'):")
 				if (command == null) return
 				show(execute(command))
 			},
@@ -28,9 +28,9 @@ registerAction("HelloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 				// (to make this event aware of current project popup menu is invoke like this "showPopupMenu(..., event.dataContext)"
 				show("project: ${context.event.project}")
 			},
-			"-": new AnAction("Run actual action") {
+			"-": new AnAction("Run an action") {
 				@Override void actionPerformed(AnActionEvent anActionEvent) {
-					show("Running actual action")
+					show("Running an action")
 				}
 			},
 			"--": Separator.instance,
