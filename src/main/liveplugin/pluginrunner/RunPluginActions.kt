@@ -14,7 +14,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil.toSystemIndependentName
 import liveplugin.*
 import liveplugin.IdeUtil.ideStartupActionPlace
-import liveplugin.LivePluginAppComponent.Companion.checkThatGroovyIsOnClasspath
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.Binding.Companion.create
@@ -75,7 +74,6 @@ data class LivePlugin(val path: String) {
 }
 
 private fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
-    if (!checkThatGroovyIsOnClasspath()) return
     pluginFilePaths
         .map { findPluginFolder(it)!! }.distinct()
         .forEach { LivePlugin(it).runWith(pluginRunners, event) }
