@@ -60,12 +60,11 @@ import static liveplugin.implementation.Misc.registerDisposable
 import static liveplugin.implementation.Misc.unregisterDisposable
 /**
  * This class contains a bunch of utility methods on top of IntelliJ API.
- * Some of them are very simple and were added only for reference.
+ * Some of them are very simple and were added only for reference (to keep them in one place).
  *
- * API of this class should be backward-compatible between major releases.
+ * API of this class should be backward-compatible between LivePlugin releases.
  *
- * If you are new to IntelliJ API,
- * see also http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview.html
+ * If you are new to IntelliJ API, see also https://www.jetbrains.org/intellij/sdk/docs/platform/fundamentals.html
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {
@@ -1072,7 +1071,7 @@ class PluginUtil {
 	}
 }
 
-// Annotations to make clear which thread particular method can be invoked from.
-// See also http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/general_threading_rules.html
+// Annotations to make it clear if method need to be invoked from a particular thread.
+// See also https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/general_threading_rules.html
 @interface CanCallFromAnyThread {}
 @interface CanCallWithinRunReadActionOrFromEDT {}
