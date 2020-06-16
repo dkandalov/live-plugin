@@ -45,14 +45,6 @@ class AddPluginDependencyKotlinIntention: AddAfterImportsGroovyIntention(
     isAvailable = isAvailableForKotlin
 )
 
-val isAvailableForGroovy = { editor: Editor, file: PsiFile ->
-    isGroovyPluginScript(file) && linesAboveCurrentAreImportOrPackage(editor)
-}
-
-val isAvailableForKotlin = { editor: Editor, file: PsiFile ->
-    isKotlinPluginScript(file) && linesAboveCurrentAreImportOrPackage(editor)
-}
-
 open class AddAfterImportsGroovyIntention(
     private val stringToInsert: String,
     private val modificationName: String,
@@ -81,6 +73,13 @@ open class AddAfterImportsGroovyIntention(
     override fun getFamilyName() = modificationName
 }
 
+private val isAvailableForGroovy = { editor: Editor, file: PsiFile ->
+    isGroovyPluginScript(file) && linesAboveCurrentAreImportOrPackage(editor)
+}
+
+private val isAvailableForKotlin = { editor: Editor, file: PsiFile ->
+    isKotlinPluginScript(file) && linesAboveCurrentAreImportOrPackage(editor)
+}
 
 private fun isGroovyPluginScript(file: PsiFile): Boolean {
     val virtualFile = file.virtualFile ?: return false
