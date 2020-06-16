@@ -8,7 +8,7 @@ registerAction("HelloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 	def project = event.project
 	def popupMenuDescription = [
 			"Open in browser": [
-					"IntelliJ API mini cheat sheet": {
+					"IntelliJ API mini-cheatsheet": {
 						openInBrowser("https://github.com/dkandalov/live-plugin/blob/master/IntellijApiCheatSheet.md")
 					},
 					"IntelliJ Platform SDK DevGuide - Fundamentals": {

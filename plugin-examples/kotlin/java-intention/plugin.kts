@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSuperclassOf
 
 
-// See also com.siyeh.ig.fixes.MakeFieldFinalFix in IJ sources.
+// See also com.siyeh.ig.fixes.MakeFieldFinalFix in IntelliJ sources.
 
 val javaIsSupportedByIde = Language.findLanguageByID("JAVA") != null
 if (javaIsSupportedByIde) {

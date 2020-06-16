@@ -18,7 +18,7 @@ val kotlinIsSupportedByIde = Language.findLanguageByID("kotlin") != null
 if (kotlinIsSupportedByIde) {
     PluginUtil.registerIntention(pluginDisposable, RenameKotlinFunctionToUseSpacesIntention())
     PluginUtil.registerIntention(pluginDisposable, RenameKotlinFunctionToUseCamelCaseIntention())
-    if (!isIdeStartup) show("Reloaded KotlinFunctionNameWithSpacesIntention")
+    if (!isIdeStartup) show("Reloaded Kotlin intentions")
 }
 
 class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAction(), Util {

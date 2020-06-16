@@ -11,15 +11,15 @@ registerAction("HelloPopupAction", "ctrl alt shift P") { event ->
     val menuDescription = listOf(
         SubMenu(
             "Open in browser",
-            Action("IntelliJ Architectural Overview") {
-                openInBrowser("http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview.html")
-            },
-            Action("IntelliJ API mini cheat sheet") {
+            Action("IntelliJ API mini-cheatsheet") {
                 openInBrowser("https://github.com/dkandalov/live-plugin/blob/master/IntellijApiCheatSheet.md")
+            },
+            Action("IntelliJ Platform SDK DevGuide - Fundamentals") {
+                openInBrowser("https://www.jetbrains.org/intellij/sdk/docs/platform/fundamentals.html")
             }
         ),
         Action("Execute shell command") {
-            val command = showInputDialog("Enter a command:")
+            val command = showInputDialog("Enter a command (e.g. 'ls'):")
             if (command != null) show(execute(command).toString().replace("\n", "<br/>"))
         },
         Action("Show current project") { (_, popupEvent) ->
