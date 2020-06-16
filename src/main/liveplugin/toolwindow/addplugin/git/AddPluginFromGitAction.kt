@@ -18,11 +18,8 @@ import com.intellij.openapi.vfs.newvfs.NewVirtualFile
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import git4idea.checkout.GitCheckoutProvider
 import git4idea.commands.Git
-import liveplugin.IdeUtil
+import liveplugin.*
 import liveplugin.LivePluginAppComponent.Companion.isInvalidPluginFolder
-import liveplugin.LivePluginPaths
-import liveplugin.findFileByUrl
-import liveplugin.refreshAndFindFileByUrl
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.delete
 import java.io.File
@@ -93,15 +90,17 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
                     return@Runnable
                 }
 
-                try {
-                    if (isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
-                        delete(clonedFolder.path)
+                IdeUtil.invokeLaterOnEDT {
+                    try {
+                        if (isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
+                            delete(clonedFolder.path)
+                        }
+                    } catch (e: Exception) {
+                        if (project != null) {
+                            IdeUtil.showErrorDialog(project, "Error deleting plugin \"${clonedFolder.path}\"", "Delete Plugin")
+                        }
+                        logger.error(e)
                     }
-                } catch (e: Exception) {
-                    if (project != null) {
-                        IdeUtil.showErrorDialog(project, "Error deleting plugin \"${clonedFolder.path}\"", "Delete Plugin")
-                    }
-                    logger.error(e)
                 }
 
                 RefreshPluginsPanelAction.refreshPluginTree()
