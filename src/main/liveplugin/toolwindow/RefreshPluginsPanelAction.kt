@@ -23,7 +23,7 @@ class RefreshPluginsPanelAction: AnAction(
                 RefreshQueue.getInstance().refresh(
                     false,
                     true,
-                    Runnable { PluginToolWindowManager.reloadPluginTreesInAllProjects() },
+                    Runnable { LivePluginToolWindowFactory.reloadPluginTreesInAllProjects() },
                     pluginsRoot
                 )
             }

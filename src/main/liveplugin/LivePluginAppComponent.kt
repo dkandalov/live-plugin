@@ -30,7 +30,6 @@ import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
 import liveplugin.pluginrunner.groovy.*
 import liveplugin.pluginrunner.kotlin.*
-import liveplugin.toolwindow.*
 import liveplugin.toolwindow.util.*
 import java.io.*
 import kotlin.Pair

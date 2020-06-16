@@ -60,15 +60,28 @@ import javax.swing.JPanel
 import javax.swing.JTree
 import javax.swing.tree.DefaultTreeModel
 
-class PluginToolWindowManager {
+class LivePluginToolWindowFactory : ToolWindowFactory {
+    override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+        val pluginToolWindow = PluginToolWindow(project)
+
+        toolWindow.setIcon(Icons.pluginToolWindowIcon)
+        toolWindow.contentManager.addContent(pluginToolWindow.createContent(project))
+
+        add(pluginToolWindow)
+
+        Disposer.register(project, Disposable {
+            remove(pluginToolWindow)
+        })
+    }
+
     companion object {
         private val toolWindows = HashSet<PluginToolWindow>()
 
-        fun add(pluginToolWindow: PluginToolWindow) {
+        private fun add(pluginToolWindow: PluginToolWindow) {
             toolWindows.add(pluginToolWindow)
         }
 
-        fun remove(pluginToolWindow: PluginToolWindow) {
+        private fun remove(pluginToolWindow: PluginToolWindow) {
             toolWindows.remove(pluginToolWindow)
         }
 
@@ -78,31 +91,15 @@ class PluginToolWindowManager {
     }
 }
 
-class LivePluginToolWindowFactory : ToolWindowFactory {
-    override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val pluginToolWindow = PluginToolWindow(project)
-
-        toolWindow.setIcon(Icons.pluginToolWindowIcon)
-        toolWindow.contentManager.addContent(pluginToolWindow.createContent(project))
-
-        PluginToolWindowManager.add(pluginToolWindow)
-
-        Disposer.register(project, Disposable {
-            PluginToolWindowManager.remove(pluginToolWindow)
-        })
-    }
-}
-
 class PluginToolWindow(val project: Project) {
     private var fsTreeRef = Ref<FileSystemTree>()
-    private lateinit var panel: SimpleToolWindowPanel
 
     fun createContent(project: Project): Content {
         val fsTree = createFsTree(project)
         fsTreeRef = Ref.create(fsTree)
         fsTree.installPopupMenu()
 
-        panel = MySimpleToolWindowPanel(true, fsTreeRef).also {
+        val panel = MySimpleToolWindowPanel(true, fsTreeRef).also {
             it.add(ScrollPaneFactory.createScrollPane(fsTree.tree))
             it.toolbar = createToolBar()
         }
