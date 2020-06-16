@@ -62,10 +62,7 @@ import javax.swing.tree.DefaultTreeModel
 class LivePluginToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val pluginToolWindow = PluginToolWindow(project)
-
-        toolWindow.setIcon(Icons.pluginToolWindowIcon)
         toolWindow.contentManager.addContent(pluginToolWindow.createContent(project))
-
         add(pluginToolWindow)
 
         Disposer.register(project, Disposable {

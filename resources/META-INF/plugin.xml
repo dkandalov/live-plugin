@@ -42,7 +42,9 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 	<depends optional="true" config-file="kotlin-plugin-integration.xml">org.jetbrains.kotlin</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Plugins" anchor="right" factoryClass="liveplugin.toolwindow.LivePluginToolWindowFactory"/>
+        <toolWindow id="Plugins" anchor="right"
+                    factoryClass="liveplugin.toolwindow.LivePluginToolWindowFactory"
+                    icon="/liveplugin/toolWindowPlugin.svg"/>
     </extensions>
 
 	<actions>
