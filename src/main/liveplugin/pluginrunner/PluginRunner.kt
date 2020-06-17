@@ -15,6 +15,7 @@ import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
 import java.net.URL
+import kotlin.reflect.jvm.javaType
 
 interface PluginRunner {
 
@@ -50,12 +51,25 @@ interface PluginRunner {
         private fun createParentClassLoader(dependenciesOnIdePlugins: List<IdeaPluginDescriptor>, plugin: LivePlugin): Result<ClassLoader, LoadingError> {
             val parentLoaders = dependenciesOnIdePlugins.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
 
-            return Success(PluginClassLoader(
-                emptyList<URL>(),
-                parentLoaders.toTypedArray(),
-                DefaultPluginDescriptor(plugin.id),
-                null
-            ))
+            val constructors = PluginClassLoader::class.constructors
+            val pluginClassLoader = constructors
+                .find { it.parameters[2].type.javaType == IdeaPluginDescriptor::class.java }
+                ?.call( // For compatibility with PluginClassLoader constructor in 202.5103.13-EAP-SNAPSHOT
+                    emptyList<URL>(),
+                    parentLoaders.toTypedArray(),
+                    DefaultPluginDescriptor(plugin.id),
+                    null
+                ) ?: constructors
+                .find { it.parameters.size == 5 && it.parameters[2].type.javaType == PluginId::class.java }
+                ?.call( // For compatibility with PluginClassLoader constructor in 201.6668.113
+                    emptyList<URL>(),
+                    parentLoaders.toTypedArray(),
+                    PluginId.getId(plugin.id),
+                    "1.0.0",
+                    null
+                )
+            return if (pluginClassLoader != null) Success(pluginClassLoader)
+            else Failure(LoadingError(plugin.id, "LivePlugin compatibility error with IntelliJ API"))
         }
 
         fun findDependenciesOnIdePlugins(lines: List<String>, keyword: String): List<IdeaPluginDescriptor> {

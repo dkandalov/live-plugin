@@ -117,13 +117,14 @@ class LivePluginAppComponent : AppLifecycleListener {
         fun pluginExists(pluginId: String): Boolean = pluginIdToPathMap().keys.contains(pluginId)
 
         private fun runAllPlugins() {
+            val actionManager = ActionManager.getInstance() // get ActionManager instance outside of EDT (because it failed in 201.6668.113)
             invokeLaterOnEDT {
                 val event = AnActionEvent(
                     null,
                     dummyDataContext,
                     ideStartupActionPlace,
                     Presentation(),
-                    ActionManager.getInstance(),
+                    actionManager,
                     0
                 )
                 val pluginPaths = pluginIdToPathMap().keys.map { pluginIdToPathMap().getValue(it) }
