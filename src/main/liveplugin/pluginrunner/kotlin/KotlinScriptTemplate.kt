@@ -19,9 +19,7 @@ class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
     override fun useDiscovery() = false
 }
 
-@KotlinScript(
-    compilationConfiguration = LivePluginScriptCompilationConfiguration::class
-)
+@KotlinScript(compilationConfiguration = LivePluginScriptCompilationConfiguration::class)
 abstract class KotlinScriptTemplate(
     /**
      * True on IDE startup, otherwise false.
@@ -48,28 +46,27 @@ abstract class KotlinScriptTemplate(
 )
 
 object LivePluginScriptCompilationConfiguration: ScriptCompilationConfiguration(body = {
-    val sources = File(LivePluginPaths.livePluginLibPath).filesList()
-    val classpath = sources +
-        File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList() +
-        File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList() +
-        File(LivePluginPaths.ideJarsPath).filesList()
+    fun classpath() =
+        ideLibFiles() +
+        psiApiFiles() +
+        livePluginLibAndSrcFiles()
 
     refineConfiguration {
         beforeParsing { context ->
             ResultWithDiagnostics.Success(
-                value = context.compilationConfiguration.withUpdatedClasspath(classpath),
+                value = context.compilationConfiguration.withUpdatedClasspath(classpath()),
                 reports = emptyList()
             )
         }
         beforeCompiling { context ->
             ResultWithDiagnostics.Success(
-                value = context.compilationConfiguration.withUpdatedClasspath(classpath),
+                value = context.compilationConfiguration.withUpdatedClasspath(classpath()),
                 reports = emptyList()
             )
         }
     }
     ide {
         acceptedLocations(ScriptAcceptedLocation.Everywhere)
-        dependenciesSources(JvmDependency(sources))
+        dependenciesSources(JvmDependency(livePluginLibAndSrcFiles()))
     }
 })

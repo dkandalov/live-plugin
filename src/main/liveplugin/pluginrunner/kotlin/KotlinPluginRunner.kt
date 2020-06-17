@@ -56,12 +56,13 @@ class KotlinPluginRunner(
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
         compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!.let { compilePluginMethod ->
             try {
+                // Ideally, the compilerClasspath could be replaced by LivePluginScriptCompilationConfiguration
+                // (which implicitly sets up the compiler classpath via kotlin scripting) but
+                // this approach doesn't seem to work e.g. for ideLibFiles().
                 val compilerClasspath: List<File> =
-                    ideJdkClassesRoots() +
                     ideLibFiles() +
-                    psiApiFiles().distinct() +
-                    File(livePluginLibPath).filesList() +
-                    File(livePluginCompilerLibsPath).filesList() +
+                    livePluginLibAndSrcFiles() +
+                    livePluginKotlinCompilerLibFiles() +
                     dependenciesOnIdePlugins.map { it.pluginPath.toFile() } +
                     additionalClasspath +
                     File(plugin.path)
@@ -98,7 +99,7 @@ class KotlinPluginRunner(
         val pluginClass = try {
             val runtimeClassPath =
                 listOf(compilerOutput) +
-                File(livePluginLibPath).filesList() +
+                livePluginLibAndSrcFiles() +
                 additionalClasspath
 
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath, dependenciesOnIdePlugins, plugin).onFailure {
@@ -130,11 +131,9 @@ class KotlinPluginRunner(
         val main = KotlinPluginRunner(mainScript)
         val test = KotlinPluginRunner(testScript)
 
-        private val livePluginCompilerLibsPath = toSystemIndependentName("${LivePluginPaths.livePluginPath}/kotlin-compiler")
-
         private val compilerClassLoader by lazy {
             UrlClassLoader.build()
-                .urls((ideJdkClassesRoots() + File(livePluginCompilerLibsPath).filesList()).map(File::toUrl))
+                .urls((ideJdkClassesRoots() + livePluginKotlinCompilerLibFiles()).map(File::toUrl))
                 .noPreload()
                 .allowBootstrapResources()
                 .useCache()
@@ -147,11 +146,13 @@ private fun ideJdkClassesRoots(): List<File> = JavaSdkUtil.getJdkClassesRoots(ja
 
 private val javaHome = File(System.getProperty("java.home"))
 
-private fun ideLibFiles() = File(LivePluginPaths.ideJarsPath).filesList()
+fun ideLibFiles() = File(LivePluginPaths.ideJarsPath).filesList()
 
-private fun psiApiFiles() =
-    emptyList<File>() // TODO uncomment and make sure there are not kotlin compiler plugins on the path
-//    File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList() +
-//    File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList()
-//        .filterNot { it.name.endsWith("-compiler-plugin.jar") }
-//        .filterNot { it.name.startsWith("android-") }
+// This is a hack, should be configured via "// depends-on-plugin"
+fun psiApiFiles() =
+    File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList() +
+    File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList()
+
+fun livePluginLibAndSrcFiles() = File(livePluginLibPath).filesList()
+
+fun livePluginKotlinCompilerLibFiles() = File("${LivePluginPaths.livePluginPath}/kotlin-compiler").filesList()
