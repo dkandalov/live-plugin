@@ -2,7 +2,22 @@ package liveplugin.pluginrunner.kotlin
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import liveplugin.LivePluginPaths
+import liveplugin.filesList
+import java.io.File
 import kotlin.script.experimental.annotations.KotlinScript
+import kotlin.script.experimental.api.*
+import kotlin.script.experimental.intellij.ScriptDefinitionsProvider
+import kotlin.script.experimental.jvm.JvmDependency
+import kotlin.script.experimental.jvm.withUpdatedClasspath
+
+
+class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
+    override val id = "LivePluginKotlinScriptProvider"
+    override fun getDefinitionClasses() = listOf(KotlinScriptTemplate::class.java.canonicalName)
+    override fun getDefinitionsClassPath() = File(LivePluginPaths.livePluginLibPath).listFiles()?.toList() ?: emptyList()
+    override fun useDiscovery() = false
+}
 
 @KotlinScript(
     compilationConfiguration = LivePluginScriptCompilationConfiguration::class
@@ -31,3 +46,30 @@ abstract class KotlinScriptTemplate(
      */
     val pluginDisposable: Disposable
 )
+
+object LivePluginScriptCompilationConfiguration: ScriptCompilationConfiguration(body = {
+    val sources = File(LivePluginPaths.livePluginLibPath).filesList()
+    val classpath = sources +
+        File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList() +
+        File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList() +
+        File(LivePluginPaths.ideJarsPath).filesList()
+
+    refineConfiguration {
+        beforeParsing { context ->
+            ResultWithDiagnostics.Success(
+                value = context.compilationConfiguration.withUpdatedClasspath(classpath),
+                reports = emptyList()
+            )
+        }
+        beforeCompiling { context ->
+            ResultWithDiagnostics.Success(
+                value = context.compilationConfiguration.withUpdatedClasspath(classpath),
+                reports = emptyList()
+            )
+        }
+    }
+    ide {
+        acceptedLocations(ScriptAcceptedLocation.Everywhere)
+        dependenciesSources(JvmDependency(sources))
+    }
+})
