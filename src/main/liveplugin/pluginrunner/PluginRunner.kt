@@ -16,6 +16,7 @@ import java.io.File
 import java.io.FileFilter
 import java.net.URL
 import kotlin.reflect.jvm.javaType
+import kotlin.reflect.jvm.jvmErasure
 
 interface PluginRunner {
 
@@ -53,7 +54,7 @@ interface PluginRunner {
 
             val constructors = PluginClassLoader::class.constructors
             val pluginClassLoader = constructors
-                .find { it.parameters[2].type.javaType == IdeaPluginDescriptor::class.java }
+                .find { it.parameters[2].type.jvmErasure.java.isAssignableFrom(IdeaPluginDescriptor::class.java) }
                 ?.call( // For compatibility with PluginClassLoader constructor in 202.5103.13-EAP-SNAPSHOT
                     emptyList<URL>(),
                     parentLoaders.toTypedArray(),

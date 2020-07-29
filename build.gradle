@@ -32,7 +32,7 @@ intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
 	// and https://www.jetbrains.com/intellij-repository/snapshots
 	version = System.getenv().getOrDefault("IJ_VERSION",
-		"201.6668.113" // Compatibility with IJ 2020.1 and 2020.2 (which broke compilation for PluginClassLoader, see also https://github.com/dkandalov/live-plugin/issues/109)
+		"202.6397.94" // Compatibility with IJ 2020.1 and 2020.2 (which broke compilation for PluginClassLoader, see also https://github.com/dkandalov/live-plugin/issues/109)
 //		"LATEST-EAP-SNAPSHOT"
 	)
 	// The artifact name is deliberately not "live-plugin" because plugins are stored in the "live-plugins" directory.
@@ -91,7 +91,7 @@ jar {
 
 task validateLivePluginZip() { doLast {
 	def pluginZip = zipTree("build/distributions/LivePlugin.zip")
-	def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*/LivePlugin.zip.*?/", "") }
+	def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*[/\\\\]LivePlugin.zip.*?[/\\\\]", "").replace("\\","/") }
 
 	def kotlinCompilerAndItsTransitiveDependencies = [
 		"LivePlugin/kotlin-compiler/annotations-13.0.jar",
@@ -116,7 +116,7 @@ task validateLivePluginZip() { doLast {
 	expectToBeEqual(pluginZipFiles.toSorted(), (expectedLivePluginJars + kotlinCompilerAndItsTransitiveDependencies).toSorted())
 
 	def livePluginJar = zipTree(pluginZip.files.find { it.name == "LivePlugin.jar" })
-	def livePluginJarFiles = livePluginJar.files.collect{ it.path.replaceFirst(".*/LivePlugin.jar.*?/", "") }.toSet()
+	def livePluginJarFiles = livePluginJar.files.collect{ it.path.replaceFirst(".*[/\\\\]LivePlugin.jar.*?[/\\\\]", "").replace("\\","/") }.toSet()
 	expectToContain(livePluginJarFiles, [
 		"liveplugin/LivePluginAppComponent.class",
 		"liveplugin/PluginUtil.class",
