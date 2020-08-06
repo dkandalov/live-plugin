@@ -47,6 +47,8 @@ class KotlinPluginRunner(
     override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         val mainScriptFile = findScriptFileIn(plugin.path, mainScript)!!
         val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
+            .onFailure { return Failure(LoadingError(plugin.id, it.reason)) }
+
         val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path)
         val additionalClasspath = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment)
             .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }

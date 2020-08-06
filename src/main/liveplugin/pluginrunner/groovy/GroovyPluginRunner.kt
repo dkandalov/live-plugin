@@ -35,9 +35,9 @@ class GroovyPluginRunner(
             val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path)
 
             val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(readLines(mainScriptUrl), groovyDependsOnPluginKeyword)
+                .onFailure { return Failure(LoadingError(plugin.id, it.reason)) }
             val additionalClasspath = findClasspathAdditions(readLines(mainScriptUrl), groovyAddToClasspathKeyword, environment)
                 .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
-
             val classLoader = createClassLoaderWithDependencies(additionalClasspath + File(plugin.path), dependenciesOnIdePlugins, plugin)
                 .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
 

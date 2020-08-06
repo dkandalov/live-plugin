@@ -3,7 +3,6 @@ package liveplugin.pluginrunner.kotlin
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import liveplugin.LivePluginPaths
-import liveplugin.filesList
 import java.io.File
 import kotlin.script.experimental.annotations.KotlinScript
 import kotlin.script.experimental.api.*
