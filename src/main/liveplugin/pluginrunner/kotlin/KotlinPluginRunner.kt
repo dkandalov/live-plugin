@@ -65,7 +65,9 @@ class KotlinPluginRunner(
                     ideLibFiles() +
                     livePluginLibAndSrcFiles() +
                     livePluginKotlinCompilerLibFiles() +
-                    dependenciesOnIdePlugins.map { it.pluginPath.toFile() } +
+                    dependenciesOnIdePlugins.flatMap {
+                        it.pluginPath.toFile().walkTopDown().filter { it.isFile }.toList()
+                    } +
                     additionalClasspath +
                     File(plugin.path)
 
