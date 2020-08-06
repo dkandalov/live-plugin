@@ -1,4 +1,4 @@
 import static liveplugin.PluginUtil.*
 
-// The line below won't work because by default plugin only depends on core IntelliJ classes and plugins.
-show(scratch.ide.Actions)
+// The line below won't work because by default plugin depends only on core IntelliJ classes and plugins.
+show(org.jetbrains.idea.svn.SvnVcs)

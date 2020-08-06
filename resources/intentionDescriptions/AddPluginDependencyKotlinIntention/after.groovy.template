@@ -1,6 +1,6 @@
 import static liveplugin.PluginUtil.*
 
-// depends-on-plugin Scratch
+// depends-on-plugin Subversion
 
-// Prints a class defined in the Scratch plugin.
-show(scratch.ide.Ide)
+// Prints a class defined in the Subversion plugin.
+show(org.jetbrains.idea.svn.SvnVcs)

@@ -1,9 +1,7 @@
-import org.mockito.Mockito
-
 import liveplugin.*
 
-// add-to-classpath $HOME/.m2/repository/org/mockito/mockito-all/1.9.5/mockito*.jar
+// add-to-classpath $HOME/.m2/repository/org/mockito/mockito-core/3.3.3/mockito*.jar
 
 if (!isIdeStartup) {
-    show(Mockito::class.java.name)
+    show(org.mockito.Mockito.Mockito::class.java.name)
 }
