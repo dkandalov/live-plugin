@@ -2,7 +2,6 @@ package liveplugin.pluginrunner
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
@@ -14,9 +13,6 @@ import liveplugin.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
-import java.net.URL
-import kotlin.reflect.jvm.javaType
-import kotlin.reflect.jvm.jvmErasure
 
 interface PluginRunner {
 
@@ -38,8 +34,7 @@ interface PluginRunner {
             dependenciesOnIdePlugins: List<IdeaPluginDescriptor>,
             plugin: LivePlugin
         ): Result<ClassLoader, LoadingError> {
-            val parentLoader = createParentClassLoader(dependenciesOnIdePlugins, plugin).onFailure { return it }
-            val classLoader = GroovyClassLoader(parentLoader)
+            val classLoader = GroovyClassLoader(createParentClassLoader(dependenciesOnIdePlugins, plugin))
 
             additionalClasspath.forEach { file ->
                 if (!file.exists()) return Failure(LoadingError(plugin.id, "Didn't find plugin dependency '${file.absolutePath}'."))
@@ -49,34 +44,20 @@ interface PluginRunner {
             return Success(classLoader)
         }
 
-        private fun createParentClassLoader(dependenciesOnIdePlugins: List<IdeaPluginDescriptor>, plugin: LivePlugin): Result<ClassLoader, LoadingError> {
+        private fun createParentClassLoader(dependenciesOnIdePlugins: List<IdeaPluginDescriptor>, plugin: LivePlugin): ClassLoader {
             val parentLoaders = dependenciesOnIdePlugins.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
-
-            val constructors = PluginClassLoader::class.constructors
-            val pluginClassLoader = constructors
-                .find { it.parameters[2].type.jvmErasure.java.isAssignableFrom(IdeaPluginDescriptor::class.java) }
-                ?.call( // For compatibility with PluginClassLoader constructor in 202.5103.13-EAP-SNAPSHOT
-                    emptyList<URL>(),
-                    parentLoaders.toTypedArray(),
-                    DefaultPluginDescriptor(plugin.id),
-                    null
-                ) ?: constructors
-                .find { it.parameters.size == 5 && it.parameters[2].type.javaType == PluginId::class.java }
-                ?.call( // For compatibility with PluginClassLoader constructor in 201.6668.113
-                    emptyList<URL>(),
-                    parentLoaders.toTypedArray(),
-                    PluginId.getId(plugin.id),
-                    "1.0.0",
-                    null
-                )
-            return if (pluginClassLoader != null) Success(pluginClassLoader)
-            else Failure(LoadingError(plugin.id, "LivePlugin compatibility error with IntelliJ API"))
+            return PluginClassLoader_Fork(
+                emptyList(),
+                parentLoaders.toTypedArray(),
+                DefaultPluginDescriptor(plugin.id),
+                null
+            )
         }
 
-        fun findDependenciesOnIdePlugins(lines: List<String>, keyword: String): List<IdeaPluginDescriptor> {
-            return lines.filter { it.startsWith(keyword) }
+        fun findDependenciesOnIdePlugins(lines: List<String>, keyword: String): Result<List<IdeaPluginDescriptor>, String> {
+            return Success(lines.filter { it.startsWith(keyword) }
                 .map { line -> line.replace(keyword, "").trim { it <= ' ' } }
-                .map { PluginManagerCore.getPlugin(PluginId.getId(it)) ?: error("Failed to find jar for dependent plugin '$it'.") }
+                .map { PluginManagerCore.getPlugin(PluginId.getId(it)) ?: return Failure("Failed to find dependent plugin '$it'.") })
         }
 
         fun findClasspathAdditions(lines: List<String>, prefix: String, environment: Map<String, String>): Result<List<File>, String> {
