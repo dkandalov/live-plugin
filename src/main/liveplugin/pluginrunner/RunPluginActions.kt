@@ -108,8 +108,11 @@ private class BackgroundRunner {
                 val latch = CountDownLatch(1)
                 object: Task.Backgroundable(project, taskDescription, false, ALWAYS_BACKGROUND) {
                     override fun run(indicator: ProgressIndicator) {
-                        runnable()
-                        latch.countDown()
+                        try {
+                            runnable()
+                        } finally {
+                            latch.countDown()
+                        }
                     }
                 }.queue()
                 latch.await()
