@@ -49,8 +49,8 @@ object IdeUtil {
 
     fun displayError(error: AnError, project: Project?) {
         val (title, message) = when (error) {
-            is AnError.LoadingError -> Pair("Loading error", error.message + if (error.throwable != null) "\n" + unscrambleThrowable(error.throwable) else "")
-            is AnError.RunningError -> Pair("Running error", unscrambleThrowable(error.throwable))
+            is AnError.LoadingError -> Pair("Loading error: ${error.pluginId}", error.message + if (error.throwable != null) "\n" + unscrambleThrowable(error.throwable) else "")
+            is AnError.RunningError -> Pair("Running error: ${error.pluginId}", unscrambleThrowable(error.throwable))
         }
         displayError(title, message, project)
     }
