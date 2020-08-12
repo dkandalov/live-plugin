@@ -2,11 +2,11 @@ buildscript {
 	repositories {
 		mavenCentral()
 		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-		maven { url "http://dl.bintray.com/jetbrains/intellij-plugin-service" }
+		maven { url "https://dl.bintray.com/jetbrains/intellij-plugin-service" }
 	}
 }
 plugins {
-	id "org.jetbrains.intellij" version "0.4.18"
+	id "org.jetbrains.intellij" version "0.4.21"
 	id "org.jetbrains.kotlin.jvm" version "1.3.72"
 }
 apply plugin:"java"
@@ -45,7 +45,7 @@ intellij {
 }
 
 dependencies {
-	// Bundle kotlin compiler and stdlib with LivePlugin because they are not bundled with IDEs
+	// Bundle kotlin compiler and stdlib with LivePlugin because they are not always included into IDEs
 	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
 	// so it should be more reliable to have a particular version of kotlin jars inside LivePlugin.
 	runtime "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
@@ -112,6 +112,7 @@ task validateLivePluginZip() { doLast {
 	def expectedLivePluginJars = [
 		"LivePlugin/lib/LivePlugin.jar",
 		"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
+		"LivePlugin/lib/searchableOptions.jar"
 	]
 	expectToBeEqual(pluginZipFiles.toSorted(), (expectedLivePluginJars + kotlinCompilerAndItsTransitiveDependencies).toSorted())
 
