@@ -65,15 +65,15 @@ class KotlinPluginRunner(
                     ideLibFiles() +
                     livePluginLibAndSrcFiles() +
                     livePluginKotlinCompilerLibFiles() +
-                    dependenciesOnIdePlugins.flatMap {
-                        it.pluginPath.toFile().walkTopDown().filter { it.isFile }.toList()
+                    dependenciesOnIdePlugins.flatMap { pluginDescriptor ->
+                        pluginDescriptor.pluginPath.toFile().walkTopDown().filter { it.isFile }.toList()
                     } +
                     additionalClasspath +
                     File(plugin.path)
 
                 // Note that arguments passed via reflection CANNOT use pure Kotlin types
                 // because compiler uses different classloader to load Kotlin so classes won't be compatible
-                // (it's ok though to use types like kotlin.String because it becomes java.lang.String at runtime).
+                // (it's ok though to use types like kotlin.String which becomes java.lang.String at runtime).
                 @Suppress("UNCHECKED_CAST")
                 val compilationErrors = compilePluginMethod.invoke(
                     null,

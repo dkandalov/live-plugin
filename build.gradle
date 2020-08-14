@@ -41,7 +41,8 @@ intellij {
 	downloadSources = true
 	sameSinceUntilBuild = false
 	updateSinceUntilBuild = false
-	plugins = ["java", "Groovy", "Kotlin", "git4idea", "github", "junit"]
+	// You can use "org.jetbrains.kotlin:1.4.0-rc-release-IJ2020.2-2@eap-next" for pre-release kotlin plugin
+	plugins = ["java", "Groovy", "org.jetbrains.kotlin:1.4.0-rc-release-IJ2020.2-2@eap-next", "git4idea", "github", "junit"]
 }
 
 dependencies {
