@@ -53,7 +53,7 @@ class KotlinPluginRunner(
         val additionalClasspath = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment)
             .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
 
-        val compilerOutput = File(toSystemIndependentName("${LivePluginPaths.livePluginsCompiledPath}/$plugin")).also { it.deleteRecursively() }
+        val compilerOutput = File(toSystemIndependentName("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}")).also { it.deleteRecursively() }
 
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
         compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!.let { compilePluginMethod ->
