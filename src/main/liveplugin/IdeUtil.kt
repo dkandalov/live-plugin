@@ -129,8 +129,8 @@ object IdeUtil {
             val toolbarActions = DefaultActionGroup()
             val consoleComponent = MyConsolePanel(console, toolbarActions)
             val descriptor = object: RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
-                override fun isContentReuseProhibited(): Boolean = true
-                override fun getIcon(): Icon? = AllIcons.Nodes.Plugin
+                override fun isContentReuseProhibited() = true
+                override fun getIcon() = AllIcons.Nodes.Plugin
             }
             val executor = DefaultRunExecutor.getRunExecutorInstance()
 
@@ -223,12 +223,12 @@ object IdeUtil {
      * because it will return FileType for .kt files and this will cause creating files with wrong extension.
      */
     class KotlinScriptFileType: FileType {
-        override fun getName(): String = "Kotlin"
-        override fun getDescription(): String = this.name
-        override fun getDefaultExtension(): String = "kts"
-        override fun getIcon(): Icon? = kotlinScriptIcon
-        override fun isBinary(): Boolean = false
-        override fun isReadOnly(): Boolean = false
+        override fun getName() = "Kotlin"
+        override fun getDescription() = this.name
+        override fun getDefaultExtension() = "kts"
+        override fun getIcon() = kotlinScriptIcon
+        override fun isBinary() = false
+        override fun isReadOnly() = false
         override fun getCharset(virtualFile: VirtualFile, bytes: ByteArray): String? = null
 
         companion object {
