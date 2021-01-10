@@ -18,6 +18,7 @@ import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor
 import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl
 import com.intellij.openapi.fileChooser.ex.RootFileElement
 import com.intellij.openapi.fileChooser.impl.FileTreeBuilder
+import com.intellij.openapi.fileChooser.tree.FileNode
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.DumbAware
@@ -59,7 +60,7 @@ import javax.swing.JPanel
 import javax.swing.JTree
 import javax.swing.tree.DefaultTreeModel
 
-class LivePluginToolWindowFactory : ToolWindowFactory, DumbAware {
+class LivePluginToolWindowFactory: ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val pluginToolWindow = PluginToolWindow(project)
         toolWindow.contentManager.addContent(pluginToolWindow.createContent(project))
@@ -210,9 +211,10 @@ class PluginToolWindow(val project: Project) {
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
             val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
                 override fun getIcon(file: VirtualFile): Icon {
-                    val isPlugin = pluginIdToPathMap().values.any { file.path.toLowerCase() == it.toLowerCase() }
+                    val isPlugin = pluginIdToPathMap().values.any { file.path.equals(it, ignoreCase = true) }
                     return if (isPlugin) Icons.pluginIcon else super.getIcon(file)
                 }
+
                 override fun getName(virtualFile: VirtualFile) = virtualFile.name
                 override fun getComment(virtualFile: VirtualFile?) = ""
             }.also {
@@ -220,7 +222,7 @@ class PluginToolWindow(val project: Project) {
                 it.withTreeRootVisible(false)
             }
 
-            ApplicationManager.getApplication().runWriteAction { 
+            ApplicationManager.getApplication().runWriteAction {
                 descriptor.setRoots(VfsUtil.createDirectoryIfMissing(LivePluginPaths.livePluginsPath))
             }
 
@@ -239,10 +241,11 @@ private class MyTree constructor(private val project: Project): Tree(), DataProv
 
     override fun getData(@NonNls dataId: String): Any? =
         when (dataId) {
-            PlatformDataKeys.NAVIGATABLE_ARRAY.name       -> // need this to be able to open files in toolwindow on double-click/enter
-                TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java)
-                    .map { OpenFileDescriptor(project, it.element.file) }
-                    .toTypedArray()
+            // NAVIGATABLE_ARRAY is used to open files in toolwindow on double-click/enter.
+            PlatformDataKeys.NAVIGATABLE_ARRAY.name       -> (
+                TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java).map { it.element.file } + // This worked until 2020.3. Keeping it here for backward compatibility.
+                TreeUtil.collectSelectedObjectsOfType(this, FileNode::class.java).map { it.file }
+            ).map { file -> OpenFileDescriptor(project, file) }.toTypedArray()
             PlatformDataKeys.DELETE_ELEMENT_PROVIDER.name -> deleteProvider
             else                                          -> null
         }
