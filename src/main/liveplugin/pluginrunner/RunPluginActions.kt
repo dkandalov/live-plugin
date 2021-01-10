@@ -50,7 +50,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 }
 
-class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run Plugin Integration Tests", Icons.testPluginIcon), DumbAware {
+class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run plugin integration tests", Icons.testPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         IdeUtil.saveAllFiles()
         runPluginsTests(event.selectedFiles(), event)
@@ -180,5 +180,5 @@ private fun AnActionEvent.selectedFiles(): List<String> =
 
 private fun findPluginFolder(fullPath: String, path: String = fullPath): String? {
     val parent = File(path).parent ?: return null
-    return if (toSystemIndependentName(parent) == LivePluginPaths.livePluginsPath) path else findPluginFolder(fullPath, parent)
+    return if (toSystemIndependentName(parent).equals(LivePluginPaths.livePluginsPath, ignoreCase = true)) path else findPluginFolder(fullPath, parent)
 }

@@ -11,7 +11,7 @@ import liveplugin.findFileByUrl
 
 class RefreshPluginsPanelAction: AnAction(
     "Refresh Plugins Panel",
-    "Refresh Plugins Panel",
+    "Refresh plugins panel",
     Icons.refreshPluginsPanelIcon
 ), DumbAware {
     override fun actionPerformed(e: AnActionEvent) = refreshPluginTree()

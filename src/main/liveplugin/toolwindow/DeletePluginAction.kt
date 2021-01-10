@@ -17,7 +17,7 @@ import liveplugin.toolwindow.util.delete
 import java.io.IOException
 
 
-internal class DeletePluginAction: AnAction("Delete Plugin", "Delete Plugin", Icons.deletePluginIcon), DumbAware {
+internal class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Icons.deletePluginIcon), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
         val files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.dataContext)
