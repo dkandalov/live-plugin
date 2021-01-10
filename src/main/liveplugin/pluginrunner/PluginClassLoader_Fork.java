@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.*;
  * Fork of com.intellij.ide.plugins.cl.PluginClassLoader
  * because it's been changing in IJ 2020.2 causing LivePlugin to break.
  */
+@SuppressWarnings("ALL")
 final class PluginClassLoader_Fork extends UrlClassLoader {
 	static {
 		if (registerAsParallelCapable()) {

@@ -94,7 +94,7 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
         onSuccess: (GithubGist) -> Unit,
         onFailure: (IOException?) -> Unit
     ) {
-        object: Task.Backgroundable(project, "Fetching Gist", true, ALWAYS_BACKGROUND) {
+        object: Task.Backgroundable(project, @Suppress("DialogTitleCapitalization") "Fetching Gist", true, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
                 try {
                     val gistId = extractGistIdFrom(gistUrl)!!
