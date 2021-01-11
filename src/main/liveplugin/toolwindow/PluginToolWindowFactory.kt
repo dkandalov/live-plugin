@@ -92,7 +92,6 @@ class PluginToolWindow(val project: Project) {
     fun createContent(project: Project): Content {
         val fsTree = createFsTree(project)
         fsTreeRef = Ref.create(fsTree)
-        fsTree.installPopupMenu()
 
         val panel = MySimpleToolWindowPanel(true, fsTreeRef).also {
             it.add(ScrollPaneFactory.createScrollPane(fsTree.tree))
@@ -176,21 +175,8 @@ class PluginToolWindow(val project: Project) {
 
     companion object {
 
-        private fun FileSystemTree.installPopupMenu() {
-            fun shortcutsOf(actionId: String) = KeymapManager.getInstance().activeKeymap.getShortcuts(actionId)
-
-            val action = NewElementPopupAction()
-            action.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), tree)
-
-            CustomizationUtil.installPopupHandler(tree, "LivePlugin.Popup", ActionPlaces.UNKNOWN)
-        }
-
-        private fun createFsTree(project: Project): FileSystemTree {
-            val myTree = MyTree(project)
-            EditSourceOnDoubleClickHandler.install(myTree)
-            EditSourceOnEnterKeyHandler.install(myTree)
-
-            return object: FileSystemTreeImpl(project, createFileChooserDescriptor(), myTree, null, null, null) {
+        private fun createFsTree(project: Project): FileSystemTree =
+            object: FileSystemTreeImpl(project, createFileChooserDescriptor(), MyTree(project), null, null, null) {
                 override fun createTreeBuilder(
                     tree: JTree,
                     treeModel: DefaultTreeModel,
@@ -203,8 +189,11 @@ class PluginToolWindow(val project: Project) {
                         override fun isAutoExpandNode(nodeDescriptor: NodeDescriptor<*>) = nodeDescriptor.element is RootFileElement
                     }
                 }
+            }.also {
+                EditSourceOnDoubleClickHandler.install(it.tree)
+                EditSourceOnEnterKeyHandler.install(it.tree)
+                it.tree.installPopupMenu()
             }
-        }
 
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
             val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
@@ -226,38 +215,50 @@ class PluginToolWindow(val project: Project) {
 
             return descriptor
         }
-    }
-}
 
-private class MyTree constructor(private val project: Project): Tree(), DataProvider {
-    private val deleteProvider = FileDeleteProviderWithRefresh()
+        private fun JTree.installPopupMenu() {
+            fun shortcutsOf(actionId: String) = KeymapManager.getInstance().activeKeymap.getShortcuts(actionId)
 
-    init {
-        emptyText.text = "No plugins to show"
-        isRootVisible = false
-    }
-
-    override fun getData(@NonNls dataId: String): Any? =
-        when (dataId) {
-            // NAVIGATABLE_ARRAY is used to open files in toolwindow on double-click/enter.
-            PlatformDataKeys.NAVIGATABLE_ARRAY.name       -> (
-                TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java).map { it.element.file } + // This worked until 2020.3. Keeping it here for backward compatibility.
-                TreeUtil.collectSelectedObjectsOfType(this, FileNode::class.java).map { it.file }
-            ).map { file -> OpenFileDescriptor(project, file) }.toTypedArray()
-            PlatformDataKeys.DELETE_ELEMENT_PROVIDER.name -> deleteProvider
-            else                                          -> null
+            val action = NewElementPopupAction()
+            action.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), this)
+            CustomizationUtil.installPopupHandler(this, "LivePlugin.Popup", ActionPlaces.UNKNOWN)
         }
 
-    private class FileDeleteProviderWithRefresh: DeleteProvider {
-        private val fileDeleteProvider = VirtualFileDeleteProvider()
+        private class MyTree(private val project: Project): Tree(), DataProvider {
+            private val deleteProvider = FileDeleteProviderWithRefresh()
 
-        override fun deleteElement(dataContext: DataContext) {
-            fileDeleteProvider.deleteElement(dataContext)
-            RefreshPluginsPanelAction.refreshPluginTree()
-        }
+            init {
+                emptyText.text = "No plugins to show"
+                isRootVisible = false
+            }
 
-        override fun canDeleteElement(dataContext: DataContext): Boolean {
-            return fileDeleteProvider.canDeleteElement(dataContext)
+            override fun getData(@NonNls dataId: String): Any? =
+                when (dataId) {
+                    // NAVIGATABLE_ARRAY is used to open files in toolwindow on double-click/enter.
+                    PlatformDataKeys.NAVIGATABLE_ARRAY.name       -> {
+                        val files1 = TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java).map { it.element.file } // This worked until 2020.3. Keeping it here for backward compatibility.
+                        val files2 = TreeUtil.collectSelectedObjectsOfType(this, FileNode::class.java).map { it.file }
+                        (files1 + files2)
+                            .filterNot { it.isDirectory } // Exclude directories so that they're not navigatable from the tree and EditSourceOnEnterKeyHandler expands/collapses tree nodes.
+                            .map { file -> OpenFileDescriptor(project, file) }
+                            .toTypedArray()
+                    }
+                    PlatformDataKeys.DELETE_ELEMENT_PROVIDER.name -> deleteProvider
+                    else                                          -> null
+                }
+
+            private class FileDeleteProviderWithRefresh: DeleteProvider {
+                private val fileDeleteProvider = VirtualFileDeleteProvider()
+
+                override fun deleteElement(dataContext: DataContext) {
+                    fileDeleteProvider.deleteElement(dataContext)
+                    RefreshPluginsPanelAction.refreshPluginTree()
+                }
+
+                override fun canDeleteElement(dataContext: DataContext): Boolean {
+                    return fileDeleteProvider.canDeleteElement(dataContext)
+                }
+            }
         }
     }
 }
