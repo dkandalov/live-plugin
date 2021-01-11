@@ -42,8 +42,6 @@ data class FilePath @Deprecated("Use extension functions instead") constructor(v
 
     fun toVirtualFile(): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl("file:///$this")
 
-    fun parent() = File(value).parentFile.toFilePath()
-
     operator fun plus(that: String): FilePath = FilePath("$value/$that")
 
     override fun toString() = value

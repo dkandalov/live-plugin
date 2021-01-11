@@ -73,7 +73,7 @@ data class LivePlugin(val path: FilePath) {
 
 private fun runPlugins(pluginFilePaths: List<FilePath>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
     pluginFilePaths
-        .map { findPluginFolder(it) }.distinct()
+        .mapNotNull { findPluginFolder(it) }.distinct()
         .forEach { LivePlugin(it).runWith(pluginRunners, event) }
 }
 
@@ -178,8 +178,8 @@ private fun AnActionEvent.selectedFiles(): List<FilePath> =
         .map { it.toFilePath() }
 
 // TODO similar to VirtualFile.pluginFolder
-private fun findPluginFolder(fullPath: FilePath, path: FilePath = fullPath): FilePath {
-    val parent = path.parent()
+private fun findPluginFolder(fullPath: FilePath, path: FilePath = fullPath): FilePath? {
+    val parent = path.toFile().parent?.toFilePath() ?: return null
     return if (parent == LivePluginPaths.livePluginsPath) path
     else findPluginFolder(fullPath, parent)
 }
