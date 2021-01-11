@@ -8,6 +8,7 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui.UIBundle
 import liveplugin.LivePluginAppComponent
+import liveplugin.toFilePath
 import javax.swing.Icon
 
 open class NewFileFromTemplateAction(
@@ -21,7 +22,7 @@ open class NewFileFromTemplateAction(
     override fun update(fileSystemTree: FileSystemTree, event: AnActionEvent) {
         val parentFile = fileSystemTree.newFileParent
 
-        val isAtPluginRoot = LivePluginAppComponent.pluginIdToPathMap().containsValue(parentFile?.canonicalPath)
+        val isAtPluginRoot = parentFile != null && LivePluginAppComponent.pluginIdToPathMap().containsValue(parentFile.toFilePath())
         val fileDoesNotExist = if (isAtPluginRoot) parentFile?.findChild(newFileName) == null else false
 
         event.presentation.apply {

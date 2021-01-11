@@ -32,13 +32,13 @@ class GroovyPluginRunner(
         runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>
     ): Result<Unit, AnError> {
         try {
-            val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path)
+            val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
 
             val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(readLines(mainScriptUrl), groovyDependsOnPluginKeyword)
                 .onFailure { return Failure(LoadingError(plugin.id, it.reason)) }
             val additionalClasspath = findClasspathAdditions(readLines(mainScriptUrl), groovyAddToClasspathKeyword, environment)
                 .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
-            val classLoader = createClassLoaderWithDependencies(additionalClasspath + File(plugin.path), dependenciesOnIdePlugins, plugin)
+            val classLoader = createClassLoaderWithDependencies(additionalClasspath + plugin.path.toFile(), dependenciesOnIdePlugins, plugin)
                 .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
 
             val pluginFolderUrl = "file:///${plugin.path}/" // prefix with "file:///" so that unix-like path works on windows

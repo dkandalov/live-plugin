@@ -37,14 +37,12 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.EditSourceOnDoubleClickHandler
 import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
-import liveplugin.Icons
+import liveplugin.*
 import liveplugin.Icons.addPluginIcon
 import liveplugin.Icons.collapseAllIcon
 import liveplugin.Icons.helpIcon
 import liveplugin.Icons.settingsIcon
-import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
-import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
 import liveplugin.toolwindow.addplugin.*
@@ -211,7 +209,7 @@ class PluginToolWindow(val project: Project) {
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
             val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
                 override fun getIcon(file: VirtualFile): Icon {
-                    val isPlugin = pluginIdToPathMap().values.any { file.path.equals(it, ignoreCase = true) }
+                    val isPlugin = pluginIdToPathMap().values.any { it == file.toFilePath() }
                     return if (isPlugin) Icons.pluginIcon else super.getIcon(file)
                 }
 

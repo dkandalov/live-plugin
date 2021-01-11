@@ -20,7 +20,6 @@ import liveplugin.pluginrunner.Binding.Companion.create
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
-import java.io.File
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -40,11 +39,11 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 
     companion object {
-        @JvmStatic fun runPlugins(pluginFilePaths: List<Path>, event: AnActionEvent) {
+        @JvmStatic fun runPlugins(pluginFilePaths: List<FilePath>, event: AnActionEvent) {
             runPlugins(pluginFilePaths, event, pluginRunners)
         }
 
-        @JvmStatic fun runPluginsTests(pluginFilePaths: List<Path>, event: AnActionEvent) {
+        @JvmStatic fun runPluginsTests(pluginFilePaths: List<FilePath>, event: AnActionEvent) {
             runPlugins(pluginFilePaths, event, pluginTestRunners)
         }
     }
@@ -69,11 +68,11 @@ private fun <T> runOnEdt(f: () -> T): T {
     return result.get()
 }
 
-data class LivePlugin(val path: Path) {
+data class LivePlugin(val path: FilePath) {
     val id: String = path.toFile().name
 }
 
-private fun runPlugins(pluginFilePaths: List<Path>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
+private fun runPlugins(pluginFilePaths: List<FilePath>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
     pluginFilePaths
         .map { findPluginFolder(it)!! }.distinct()
         .forEach { LivePlugin(it).runWith(pluginRunners, event) }
@@ -167,7 +166,7 @@ class Binding(
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
-private fun List<Path>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
+private fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
     mapNotNull { path -> findPluginFolder(path) }
         .any { folder ->
             pluginRunners.any { runner ->
@@ -175,12 +174,12 @@ private fun List<Path>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolea
             }
         }
 
-private fun AnActionEvent.selectedFiles(): List<Path> =
+private fun AnActionEvent.selectedFiles(): List<FilePath> =
     (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray())
-        .map { Path(toSystemIndependentName(it.path)) }
+        .map { it.toFilePath() }
 
-private fun findPluginFolder(fullPath: Path, path: Path = fullPath): Path? {
-    val parent = Path(toSystemIndependentName(path.toFile().parent))
+private fun findPluginFolder(fullPath: FilePath, path: FilePath = fullPath): FilePath? {
+    val parent = path.parent()
     return if (parent.value.equals(LivePluginPaths.livePluginsPath, ignoreCase = true)) path
     else findPluginFolder(fullPath, parent)
 }

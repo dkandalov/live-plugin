@@ -49,7 +49,7 @@ class KotlinPluginRunner(
         val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
             .onFailure { return Failure(LoadingError(plugin.id, it.reason)) }
 
-        val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path)
+        val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
         val additionalClasspath = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment)
             .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
 
@@ -69,7 +69,7 @@ class KotlinPluginRunner(
                         pluginDescriptor.pluginPath.toFile().walkTopDown().filter { it.isFile }.toList()
                     } +
                     additionalClasspath +
-                    File(plugin.path)
+                    plugin.path.toFile()
 
                 // Note that arguments passed via reflection CANNOT use pure Kotlin types
                 // because compiler uses different classloader to load Kotlin so classes won't be compatible
