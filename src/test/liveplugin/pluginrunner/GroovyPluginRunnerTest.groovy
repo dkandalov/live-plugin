@@ -5,6 +5,7 @@ import com.intellij.openapi.util.io.FileUtil
 import kotlin.Unit
 import kotlin.jvm.functions.Function0
 import kotlin.jvm.functions.Function1
+import liveplugin.FilePath
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import org.junit.After
 import org.junit.Before
@@ -84,7 +85,7 @@ class GroovyPluginRunnerTest {
 	}
 
 	private Result<Unit, AnError> runPlugin() {
-		pluginRunner.runPlugin(new LivePlugin(rootFolder.absolutePath), noBindings, runOnTheSameThread)
+		pluginRunner.runPlugin(new LivePlugin(new FilePath(rootFolder.absolutePath)), noBindings, runOnTheSameThread)
 	}
 
 	static createFile(String fileName, String fileContent, File directory) {
