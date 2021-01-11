@@ -3,7 +3,6 @@ package liveplugin.pluginrunner.kotlin
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import liveplugin.LivePluginPaths
-import java.io.File
 import kotlin.script.experimental.annotations.KotlinScript
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.host.ScriptDefinition
@@ -16,7 +15,7 @@ import kotlin.script.experimental.jvm.withUpdatedClasspath
 class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
     override val id = "LivePluginKotlinScriptProvider"
     override fun getDefinitionClasses() = listOf(KotlinScriptTemplate::class.java.canonicalName)
-    override fun getDefinitionsClassPath() = File(LivePluginPaths.livePluginLibPath).listFiles()?.toList() ?: emptyList()
+    override fun getDefinitionsClassPath() = LivePluginPaths.livePluginLibPath.listFiles()
     override fun useDiscovery() = false
     // Kotlin plugin 1.4.0-rc-release-IJ2020.2-2 throws exception without this override (not sure why because it seems to have default implementation).
     // It might be worth reviewing and removing this override at some point.

@@ -27,14 +27,14 @@ class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
             removeLibraryDependencyFrom(project, livePluginAndIdeJarsLibrary)
         } else {
             val livePluginSrc = Pair("jar://" + PathUtil.getJarPathForClass(LivePluginAppComponent::class.java) + "!/", OrderRootType.SOURCES)
-            val livePluginJars =
-                (File(LivePluginPaths.livePluginLibPath).listFiles()
-                    ?.filter { it.name.endsWith(".jar") }
-                    ?.map { Pair("jar://${it.absolutePath}!/", CLASSES) } ?: emptyList())
 
-            val ideJars = File(LivePluginPaths.ideJarsPath).listFiles()
-                ?.filter { it.name.endsWith(".jar") }
-                ?.map { Pair("jar://${it.absolutePath}!/", CLASSES) } ?: emptyList()
+            val livePluginJars = LivePluginPaths.livePluginLibPath.listFiles()
+                    .filter { it.name.endsWith(".jar") }
+                    .map { Pair("jar://${it.absolutePath}!/", CLASSES) }
+
+            val ideJars = LivePluginPaths.ideJarsPath.listFiles()
+                .filter { it.name.endsWith(".jar") }
+                .map { Pair("jar://${it.absolutePath}!/", CLASSES) }
 
             addLibraryDependencyTo(project, livePluginAndIdeJarsLibrary, livePluginJars + livePluginSrc + ideJars)
         }

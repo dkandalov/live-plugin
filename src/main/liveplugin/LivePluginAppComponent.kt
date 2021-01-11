@@ -35,12 +35,11 @@ import java.io.*
 import kotlin.Pair
 
 object LivePluginPaths {
-    // TODO use Path?
-    val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
+    val ideJarsPath = getHomePath().toFilePath() + "lib"
 
-    val livePluginPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/")
-    val livePluginLibPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/lib/")
-    val livePluginsCompiledPath = toSystemIndependentName(getPluginsPath() + "/live-plugins-compiled")
+    val livePluginPath = getPluginsPath().toFilePath() + "LivePlugin"
+    val livePluginLibPath = getPluginsPath().toFilePath() + "LivePlugin/lib"
+    val livePluginsCompiledPath = getPluginsPath().toFilePath() + "live-plugins-compiled"
     @JvmField val livePluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
 
     const val groovyExamplesPath = "/groovy/"

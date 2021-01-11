@@ -100,7 +100,7 @@ object IdeUtil {
         }
     }
 
-    fun downloadFile(downloadUrl: String, fileName: String, targetPath: String): Boolean =
+    fun downloadFile(downloadUrl: String, fileName: String, targetPath: FilePath): Boolean =
         downloadFiles(listOf(Pair(downloadUrl, fileName)), targetPath)
 
     fun invokeLaterOnEDT(f: () -> Any) {
@@ -108,10 +108,10 @@ object IdeUtil {
     }
 
     // TODO make download non-modal
-    private fun downloadFiles(urlAndFileNames: List<Pair<String, String>>, targetPath: String): Boolean {
+    private fun downloadFiles(urlAndFileNames: List<Pair<String, String>>, targetPath: FilePath): Boolean {
         val service = DownloadableFileService.getInstance()
         val descriptions = map(urlAndFileNames) { service.createFileDescription(it.first + it.second, it.second) }
-        val files = service.createDownloader(descriptions, "").downloadFilesWithProgress(targetPath, null, null)
+        val files = service.createDownloader(descriptions, "").downloadFilesWithProgress(targetPath.value, null, null)
         return files != null && files.size == urlAndFileNames.size
     }
 

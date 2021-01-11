@@ -4,7 +4,6 @@ import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.IdeUtil.unscrambleThrowable
 import liveplugin.LivePluginPaths
-import liveplugin.LivePluginPaths.livePluginLibPath
 import liveplugin.filesList
 import liveplugin.findScriptFileIn
 import liveplugin.pluginrunner.*
@@ -53,7 +52,7 @@ class KotlinPluginRunner(
         val additionalClasspath = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment)
             .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
 
-        val compilerOutput = File(toSystemIndependentName("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}")).also { it.deleteRecursively() }
+        val compilerOutput = (LivePluginPaths.livePluginsCompiledPath + plugin.id).toFile().also { it.deleteRecursively() }
 
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
         compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!.let { compilePluginMethod ->
@@ -150,13 +149,15 @@ private fun ideJdkClassesRoots(): List<File> = JavaSdkUtil.getJdkClassesRoots(ja
 
 private val javaHome = File(System.getProperty("java.home"))
 
-fun ideLibFiles() = File(LivePluginPaths.ideJarsPath).filesList()
+fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles()
 
 // This is a hack, should be configured via "// depends-on-plugin"
 fun psiApiFiles() =
-    File("${LivePluginPaths.ideJarsPath}/../plugins/java/lib/").filesList() +
-    File("${LivePluginPaths.ideJarsPath}/../plugins/Kotlin/lib/").filesList()
+    (LivePluginPaths.ideJarsPath + "../plugins/java/lib/").listFiles() +
+    (LivePluginPaths.ideJarsPath + "../plugins/Kotlin/lib/").listFiles()
 
-fun livePluginLibAndSrcFiles() = File(livePluginLibPath).filesList()
+fun livePluginLibAndSrcFiles() =
+    LivePluginPaths.livePluginLibPath.listFiles()
 
-fun livePluginKotlinCompilerLibFiles() = File("${LivePluginPaths.livePluginPath}/kotlin-compiler").filesList()
+fun livePluginKotlinCompilerLibFiles() =
+    (LivePluginPaths.livePluginPath + "kotlin-compiler").listFiles()
