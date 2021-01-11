@@ -32,6 +32,8 @@ data class FilePath @Deprecated("Use extension functions instead") constructor(v
 
     fun toFile() = file
 
+    fun allFiles() = file.walkTopDown().asSequence().filter { it.isFile }
+
     fun listFiles() = file.listFiles()?.toList() ?: emptyList()
 
     fun listFiles(predicate: (File) -> Boolean) = listFiles().filter(predicate)
@@ -43,26 +45,24 @@ data class FilePath @Deprecated("Use extension functions instead") constructor(v
     fun parent() = File(value).parentFile.toFilePath()
 
     operator fun plus(that: String): FilePath = FilePath("$value/$that")
+
     override fun toString() = value
 }
 
-fun findScriptFileIn(path: FilePath, fileName: String): File? {
-    val result = findScriptFilesIn(path, fileName)
+fun FilePath.find(fileName: String): File? {
+    val result = findAll(fileName)
     return when {
         result.isEmpty() -> null
-        result.size == 1 -> result[0]
-        else             -> error("Found several scripts files under " + path + ":\n" + result.joinToString(";\n") { it.absolutePath })
+        result.size == 1 -> result.first().toFile()
+        else             -> error("Found several scripts files under " + this + ":\n" + result.joinToString(";\n") { it.toFile().absolutePath })
     }
 }
 
-fun findScriptFilesIn(path: FilePath, fileName: String): List<File> {
-    val rootScriptFile = (path + fileName).toFile()
-    return if (rootScriptFile.exists()) listOf(rootScriptFile)
-    else path.toFile().allFiles().filter { fileName == it.name }.toList()
+fun FilePath.findAll(fileName: String): List<FilePath> {
+    val targetFilePath = this + fileName
+    return if (targetFilePath.exists()) listOf(targetFilePath)
+    else allFiles().filter { fileName == it.name }.map { it.toFilePath() }.toList()
 }
-
-fun File.allFiles(): Sequence<File> =
-    walkTopDown().asSequence().filter { it.isFile }
 
 fun readLines(url: String) =
     URL(url).openStream().bufferedReader().readLines()

@@ -3,7 +3,7 @@ package liveplugin.pluginrunner.kotlin
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.IdeUtil.unscrambleThrowable
 import liveplugin.LivePluginPaths
-import liveplugin.findScriptFileIn
+import liveplugin.find
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
@@ -42,7 +42,7 @@ class KotlinPluginRunner(
 ): PluginRunner {
 
     override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
-        val mainScriptFile = findScriptFileIn(plugin.path, mainScript)!!
+        val mainScriptFile = plugin.path.find(mainScript)!!
         val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
             .onFailure { return Failure(LoadingError(plugin.id, it.reason)) }
 
@@ -50,7 +50,7 @@ class KotlinPluginRunner(
         val additionalClasspath = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment)
             .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
 
-        val compilerOutput = (LivePluginPaths.livePluginsCompiledPath + plugin.id).toFile().also { it.deleteRecursively() }
+        val compilerOutput = File("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}").also { it.deleteRecursively() }
 
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
         compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!.let { compilePluginMethod ->

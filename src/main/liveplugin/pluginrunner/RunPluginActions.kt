@@ -78,7 +78,7 @@ private fun runPlugins(pluginFilePaths: List<FilePath>, event: AnActionEvent, pl
 }
 
 private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
-    val pluginRunner = pluginRunners.find { findScriptFileIn(path, it.scriptName) != null }
+    val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
         ?: return IdeUtil.displayError(LoadingError("Plugin: \"$id\". Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), event.project)
 
     val binding = create(this, event)
@@ -169,7 +169,7 @@ private fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Bo
     mapNotNull { path -> findPluginFolder(path) }
         .any { folder ->
             pluginRunners.any { runner ->
-                folder.toFile().allFiles().any { it.name == runner.scriptName }
+                folder.allFiles().any { it.name == runner.scriptName }
             }
         }
 
