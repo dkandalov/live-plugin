@@ -74,7 +74,7 @@ class KotlinPluginRunner(
                 @Suppress("UNCHECKED_CAST")
                 val compilationErrors = compilePluginMethod.invoke(
                     null,
-                    plugin.path,
+                    plugin.path.value,
                     compilerClasspath,
                     compilerOutput,
                     KotlinScriptTemplate::class.java
