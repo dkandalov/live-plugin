@@ -40,11 +40,11 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 
     companion object {
-        @JvmStatic fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent) {
+        @JvmStatic fun runPlugins(pluginFilePaths: List<Path>, event: AnActionEvent) {
             runPlugins(pluginFilePaths, event, pluginRunners)
         }
 
-        @JvmStatic fun runPluginsTests(pluginFilePaths: List<String>, event: AnActionEvent) {
+        @JvmStatic fun runPluginsTests(pluginFilePaths: List<Path>, event: AnActionEvent) {
             runPlugins(pluginFilePaths, event, pluginTestRunners)
         }
     }
@@ -69,11 +69,11 @@ private fun <T> runOnEdt(f: () -> T): T {
     return result.get()
 }
 
-data class LivePlugin(val path: String) {
-    val id: String = File(path).name
+data class LivePlugin(val path: Path) {
+    val id: String = path.toFile().name
 }
 
-private fun runPlugins(pluginFilePaths: List<String>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
+private fun runPlugins(pluginFilePaths: List<Path>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
     pluginFilePaths
         .map { findPluginFolder(it)!! }.distinct()
         .forEach { LivePlugin(it).runWith(pluginRunners, event) }
@@ -157,7 +157,7 @@ class Binding(
             }
             Disposer.register(ApplicationManager.getApplication(), disposable)
 
-            val binding = Binding(event.project, event.place == ideStartupActionPlace, livePlugin.path, disposable)
+            val binding = Binding(event.project, event.place == ideStartupActionPlace, livePlugin.path.value, disposable)
             bindingByPluginId[livePlugin.id] = binding
 
             return binding
@@ -167,20 +167,20 @@ class Binding(
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
-private fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
+private fun List<Path>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
     mapNotNull { path -> findPluginFolder(path) }
         .any { folder ->
             pluginRunners.any { runner ->
-                File(folder).allFiles().any { it.name == runner.scriptName }
+                folder.toFile().allFiles().any { it.name == runner.scriptName }
             }
         }
 
-private fun AnActionEvent.selectedFiles(): List<String> =
+private fun AnActionEvent.selectedFiles(): List<Path> =
     (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray())
-        .map { toSystemIndependentName(it.path) }
+        .map { Path(toSystemIndependentName(it.path)) }
 
-private fun findPluginFolder(fullPath: String, path: String = fullPath): String? {
-    val parent = File(path).parent ?: return null
-    return if (toSystemIndependentName(parent).equals(LivePluginPaths.livePluginsPath, ignoreCase = true)) path
+private fun findPluginFolder(fullPath: Path, path: Path = fullPath): Path? {
+    val parent = Path(toSystemIndependentName(path.toFile().parent))
+    return if (parent.value.equals(LivePluginPaths.livePluginsPath, ignoreCase = true)) path
     else findPluginFolder(fullPath, parent)
 }

@@ -35,6 +35,7 @@ import java.io.*
 import kotlin.Pair
 
 object LivePluginPaths {
+    // TODO use Path?
     val ideJarsPath = toSystemIndependentName(getHomePath() + "/lib")
 
     val livePluginPath = toSystemIndependentName(getPluginsPath() + "/LivePlugin/")
@@ -67,7 +68,7 @@ class LivePluginAppComponent : AppLifecycleListener {
 
         private const val defaultIdeaOutputFolder = "out"
 
-        fun pluginIdToPathMap(): Map<String, String> {
+        fun pluginIdToPathMap(): Map<String, Path> {
             val containsIdeaProjectFolder = File("$livePluginsPath/$DIRECTORY_STORE_FOLDER").exists()
 
             val files = File(livePluginsPath)
@@ -77,7 +78,7 @@ class LivePluginAppComponent : AppLifecycleListener {
                     !(containsIdeaProjectFolder && file.name == defaultIdeaOutputFolder)
                 } ?: return emptyMap()
 
-            return files.associate { Pair(it.name, toSystemIndependentName(it.absolutePath)) }
+            return files.associate { Pair(it.name, Path(toSystemIndependentName(it.absolutePath))) }
         }
 
         fun isInvalidPluginFolder(virtualFile: VirtualFile): Boolean {
@@ -85,7 +86,7 @@ class LivePluginAppComponent : AppLifecycleListener {
                 GroovyPluginRunner.mainScript,
                 KotlinPluginRunner.mainScript
             )
-            return scriptFiles.none { findScriptFilesIn(virtualFile.path, it).isNotEmpty() }
+            return scriptFiles.none { findScriptFilesIn(Path(virtualFile.path), it).isNotEmpty() }
         }
 
         fun findPluginRootsFor(files: Array<VirtualFile>): Set<VirtualFile> =
