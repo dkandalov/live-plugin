@@ -176,7 +176,8 @@ private fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Bool
         }
 
 private fun AnActionEvent.selectedFiles(): List<String> =
-    (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray()).map { it.path }
+    (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray())
+        .map { toSystemIndependentName(it.path) }
 
 private fun findPluginFolder(fullPath: String, path: String = fullPath): String? {
     val parent = File(path).parent ?: return null

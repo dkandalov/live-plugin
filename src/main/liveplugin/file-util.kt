@@ -20,7 +20,7 @@ fun findScriptFileIn(path: String, fileName: String): File? {
 }
 
 fun findScriptFilesIn(path: String, fileName: String): List<File> {
-    val rootScriptFile = File(path + File.separator + fileName)
+    val rootScriptFile = File("$path/$fileName")
     return if (rootScriptFile.exists()) listOf(rootScriptFile)
     else File(path).allFiles().filter { fileName == it.name }.toList()
 }
