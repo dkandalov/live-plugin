@@ -1,10 +1,8 @@
 package liveplugin.pluginrunner.kotlin
 
-import com.intellij.openapi.util.io.FileUtilRt.toSystemIndependentName
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.IdeUtil.unscrambleThrowable
 import liveplugin.LivePluginPaths
-import liveplugin.filesList
 import liveplugin.findScriptFileIn
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.AnError.LoadingError

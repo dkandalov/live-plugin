@@ -13,7 +13,6 @@ import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginPaths
 import liveplugin.toolwindow.util.addLibraryDependencyTo
 import liveplugin.toolwindow.util.removeLibraryDependencyFrom
-import java.io.File
 
 class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
     private val livePluginAndIdeJarsLibrary = "LivePlugin and IDE jars (to enable navigation and auto-complete)"
@@ -28,12 +27,12 @@ class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
         } else {
             val livePluginSrc = Pair("jar://" + PathUtil.getJarPathForClass(LivePluginAppComponent::class.java) + "!/", OrderRootType.SOURCES)
 
-            val livePluginJars = LivePluginPaths.livePluginLibPath.listFiles()
-                    .filter { it.name.endsWith(".jar") }
-                    .map { Pair("jar://${it.absolutePath}!/", CLASSES) }
+            val livePluginJars = LivePluginPaths.livePluginLibPath
+                .listFiles { it.name.endsWith(".jar") }
+                .map { Pair("jar://${it.absolutePath}!/", CLASSES) }
 
-            val ideJars = LivePluginPaths.ideJarsPath.listFiles()
-                .filter { it.name.endsWith(".jar") }
+            val ideJars = LivePluginPaths.ideJarsPath
+                .listFiles { it.name.endsWith(".jar") }
                 .map { Pair("jar://${it.absolutePath}!/", CLASSES) }
 
             addLibraryDependencyTo(project, livePluginAndIdeJarsLibrary, livePluginJars + livePluginSrc + ideJars)

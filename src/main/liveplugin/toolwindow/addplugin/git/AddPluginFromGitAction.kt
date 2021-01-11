@@ -105,7 +105,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
 
                 RefreshPluginsPanelAction.refreshPluginTree()
             }
-            val pluginsRoot = LivePluginPaths.livePluginsPath.findFileByUrl() ?: return
+            val pluginsRoot = LivePluginPaths.livePluginsPath.toVirtualFile() ?: return
             RefreshQueue.getInstance().refresh(false, true, finishRunnable, pluginsRoot)
         }
 

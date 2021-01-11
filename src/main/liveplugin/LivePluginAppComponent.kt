@@ -13,7 +13,6 @@ import com.intellij.openapi.project.*
 import com.intellij.openapi.project.Project.*
 import com.intellij.openapi.util.*
 import com.intellij.openapi.util.io.*
-import com.intellij.openapi.util.io.FileUtilRt.*
 import com.intellij.openapi.vfs.*
 import com.intellij.psi.*
 import com.intellij.psi.search.*
@@ -40,7 +39,7 @@ object LivePluginPaths {
     val livePluginPath = getPluginsPath().toFilePath() + "LivePlugin"
     val livePluginLibPath = getPluginsPath().toFilePath() + "LivePlugin/lib"
     val livePluginsCompiledPath = getPluginsPath().toFilePath() + "live-plugins-compiled"
-    @JvmField val livePluginsPath = toSystemIndependentName(getPluginsPath() + "/live-plugins")
+    @JvmField val livePluginsPath = getPluginsPath().toFilePath() + "live-plugins"
 
     const val groovyExamplesPath = "/groovy/"
     const val kotlinExamplesPath = "/kotlin/"
@@ -68,14 +67,14 @@ class LivePluginAppComponent : AppLifecycleListener {
         private const val defaultIdeaOutputFolder = "out"
 
         fun pluginIdToPathMap(): Map<String, FilePath> {
-            val containsIdeaProjectFolder = File("$livePluginsPath/$DIRECTORY_STORE_FOLDER").exists()
+            val containsIdeaProjectFolder = (livePluginsPath + DIRECTORY_STORE_FOLDER).exists()
 
-            val files = File(livePluginsPath)
+            val files = livePluginsPath
                 .listFiles { file ->
                     file.isDirectory &&
                     file.name != DIRECTORY_STORE_FOLDER &&
                     !(containsIdeaProjectFolder && file.name == defaultIdeaOutputFolder)
-                } ?: return emptyMap()
+                }
 
             return files.associate { Pair(it.name, it.toFilePath()) }
         }
@@ -93,10 +92,7 @@ class LivePluginAppComponent : AppLifecycleListener {
 
         private fun VirtualFile.pluginFolder(): VirtualFile? {
             val parent = parent ?: return null
-
-            val pluginsRoot = File(livePluginsPath)
-            // Compare with FileUtil because string comparison was observed to not work on windows (e.g. "c:/..." and "C:/...")
-            return if (!FileUtil.filesEqual(File(parent.path), pluginsRoot)) parent.pluginFolder() else this
+            return if (parent.toFilePath() == livePluginsPath) this else parent.pluginFolder()
         }
 
         fun defaultPluginScript(): String = readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
@@ -198,9 +194,8 @@ class LivePluginAppComponent : AppLifecycleListener {
     }
 
     class IndexSetContributor: IndexableSetContributor() {
-        override fun getAdditionalRootsToIndex(): MutableSet<VirtualFile> {
-            val path = livePluginsPath.findFileByUrl() ?: return HashSet()
-            return mutableSetOf(path)
+        override fun getAdditionalRootsToIndex(): Set<VirtualFile> {
+            return mutableSetOf(livePluginsPath.toVirtualFile() ?: return HashSet())
         }
     }
 
@@ -227,5 +222,5 @@ class LivePluginAppComponent : AppLifecycleListener {
     }
 }
 
-private fun VirtualFile.isUnderLivePluginsPath() = FileUtil.startsWith(path, livePluginsPath)
+private fun VirtualFile.isUnderLivePluginsPath() = FileUtil.startsWith(path, livePluginsPath.value)
 

@@ -11,7 +11,6 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.util.io.FileUtil.toSystemIndependentName
 import liveplugin.*
 import liveplugin.IdeUtil.ideStartupActionPlace
 import liveplugin.pluginrunner.AnError.LoadingError
@@ -74,7 +73,7 @@ data class LivePlugin(val path: FilePath) {
 
 private fun runPlugins(pluginFilePaths: List<FilePath>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
     pluginFilePaths
-        .map { findPluginFolder(it)!! }.distinct()
+        .map { findPluginFolder(it) }.distinct()
         .forEach { LivePlugin(it).runWith(pluginRunners, event) }
 }
 
@@ -178,8 +177,9 @@ private fun AnActionEvent.selectedFiles(): List<FilePath> =
     (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray())
         .map { it.toFilePath() }
 
-private fun findPluginFolder(fullPath: FilePath, path: FilePath = fullPath): FilePath? {
+// TODO similar to VirtualFile.pluginFolder
+private fun findPluginFolder(fullPath: FilePath, path: FilePath = fullPath): FilePath {
     val parent = path.parent()
-    return if (parent.value.equals(LivePluginPaths.livePluginsPath, ignoreCase = true)) path
+    return if (parent == LivePluginPaths.livePluginsPath) path
     else findPluginFolder(fullPath, parent)
 }

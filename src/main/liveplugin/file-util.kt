@@ -2,11 +2,10 @@ package liveplugin
 
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import java.io.File
 import java.net.URL
 import java.util.Collections.emptyList
-
-fun File.filesList(): List<File> = listFiles()?.toList() ?: emptyList()
 
 fun File.toUrlString(): String = toURI().toURL().toString()
 
@@ -29,14 +28,21 @@ fun VirtualFile.toFilePath() =
  */
 @Suppress("DEPRECATION")
 data class FilePath @Deprecated("Use extension functions instead") constructor(val value: String) {
-    fun toFile() = File(value)
+    private val file = File(value)
 
-    fun listFiles(): List<File> = toFile().filesList()
+    fun toFile() = file
+
+    fun listFiles() = file.listFiles()?.toList() ?: emptyList()
+
+    fun listFiles(predicate: (File) -> Boolean) = listFiles().filter(predicate)
+
+    fun exists() = file.exists()
+
+    fun toVirtualFile(): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl("file:///$this")
 
     fun parent() = File(value).parentFile.toFilePath()
 
     operator fun plus(that: String): FilePath = FilePath("$value/$that")
-
     override fun toString() = value
 }
 

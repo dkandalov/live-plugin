@@ -73,7 +73,7 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
             PluginIdValidator()
         )
 
-    private fun createPluginFrom(gist: GithubGist, pluginId: String?) =
+    private fun createPluginFrom(gist: GithubGist, pluginId: String) =
         gist.files.forEach { gistFile ->
             createFile("${LivePluginPaths.livePluginsPath}/$pluginId", gistFile.filename, gistFile.content)
         }

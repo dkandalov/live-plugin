@@ -221,7 +221,7 @@ class PluginToolWindow(val project: Project) {
             }
 
             ApplicationManager.getApplication().runWriteAction {
-                descriptor.setRoots(VfsUtil.createDirectoryIfMissing(LivePluginPaths.livePluginsPath))
+                descriptor.setRoots(VfsUtil.createDirectoryIfMissing(LivePluginPaths.livePluginsPath.value))
             }
 
             return descriptor

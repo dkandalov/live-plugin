@@ -48,7 +48,7 @@ public class NewFileAction extends FileChooserAction {
 		Presentation presentation = e.getPresentation();
 		presentation.setVisible(true);
 		VirtualFile selectedFile = fileSystemTree.getNewFileParent();
-        presentation.setEnabled(selectedFile != null && !selectedFile.equals(LocalFileSystem.getInstance().findFileByPath(LivePluginPaths.livePluginsPath)));
+        presentation.setEnabled(selectedFile != null && !selectedFile.equals(LocalFileSystem.getInstance().findFileByPath(LivePluginPaths.livePluginsPath.getValue())));
 		// FORK DIFF (got rid of layered "new" icon because it's ugly)
 		presentation.setIcon(icon);
 	}
