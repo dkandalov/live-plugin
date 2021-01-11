@@ -10,9 +10,7 @@ fun File.toUrlString(): String = toURI().toURL().toString()
 
 fun File.toUrl(): URL = this.toURI().toURL()
 
-fun findScriptFileIn(path: String?, fileName: String): File? {
-    if (path == null) return null
-
+fun findScriptFileIn(path: String, fileName: String): File? {
     val result = findScriptFilesIn(path, fileName)
     return when {
         result.isEmpty() -> null

@@ -171,7 +171,7 @@ private fun List<String>.canBeHandledBy(pluginRunners: List<PluginRunner>): Bool
     mapNotNull { path -> findPluginFolder(path) }
         .any { folder ->
             pluginRunners.any { runner ->
-                File(folder).allFiles().any { runner.scriptName == it.name }
+                File(folder).allFiles().any { it.name == runner.scriptName }
             }
         }
 
@@ -180,5 +180,6 @@ private fun AnActionEvent.selectedFiles(): List<String> =
 
 private fun findPluginFolder(fullPath: String, path: String = fullPath): String? {
     val parent = File(path).parent ?: return null
-    return if (toSystemIndependentName(parent).equals(LivePluginPaths.livePluginsPath, ignoreCase = true)) path else findPluginFolder(fullPath, parent)
+    return if (toSystemIndependentName(parent).equals(LivePluginPaths.livePluginsPath, ignoreCase = true)) path
+    else findPluginFolder(fullPath, parent)
 }
