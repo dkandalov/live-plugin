@@ -63,7 +63,7 @@ class LivePluginToolWindowFactory: ToolWindowFactory, DumbAware {
         toolWindow.contentManager.addContent(pluginToolWindow.createContent())
         add(pluginToolWindow)
 
-        Disposer.register(project, Disposable {
+        Disposer.register(toolWindow.disposable, Disposable {
             remove(pluginToolWindow)
         })
     }
@@ -71,17 +71,11 @@ class LivePluginToolWindowFactory: ToolWindowFactory, DumbAware {
     companion object {
         private val toolWindows = HashSet<PluginToolWindow>()
 
-        private fun add(pluginToolWindow: PluginToolWindow) {
-            toolWindows.add(pluginToolWindow)
-        }
+        private fun add(pluginToolWindow: PluginToolWindow) = toolWindows.add(pluginToolWindow)
 
-        private fun remove(pluginToolWindow: PluginToolWindow) {
-            toolWindows.remove(pluginToolWindow)
-        }
+        private fun remove(pluginToolWindow: PluginToolWindow) = toolWindows.remove(pluginToolWindow)
 
-        fun reloadPluginTreesInAllProjects() {
-            toolWindows.forEach { it.updateTree() }
-        }
+        fun reloadPluginTreesInAllProjects() = toolWindows.forEach { it.updateTree() }
     }
 }
 
@@ -101,7 +95,7 @@ class PluginToolWindow(project: Project) {
     }
 
     private fun createToolBar(): JComponent {
-        fun AnAction.withIcon(icon: Icon) = apply { templatePresentation.icon = icon }
+        fun AnAction.withIcon(icon: Icon) = also { it.templatePresentation.icon = icon }
 
         val actionGroup = DefaultActionGroup().also {
             it.add(createAddPluginsGroup().withIcon(addPluginIcon))
