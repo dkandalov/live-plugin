@@ -2,7 +2,7 @@ language: java
 jdk: oraclejdk11
 
 env:
-  - IJ_VERSION=202.6397.94
+  - IJ_VERSION=203.5981.155
   - IJ_VERSION=LATEST-EAP-SNAPSHOT
 
 script: ./gradlew check buildPlugin --info
