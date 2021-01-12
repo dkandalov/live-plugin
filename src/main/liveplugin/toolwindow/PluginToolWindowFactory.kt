@@ -25,7 +25,6 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
@@ -61,7 +60,7 @@ import javax.swing.tree.DefaultTreeModel
 class LivePluginToolWindowFactory: ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val pluginToolWindow = PluginToolWindow(project)
-        toolWindow.contentManager.addContent(pluginToolWindow.createContent(project))
+        toolWindow.contentManager.addContent(pluginToolWindow.createContent())
         add(pluginToolWindow)
 
         Disposer.register(project, Disposable {
@@ -86,22 +85,19 @@ class LivePluginToolWindowFactory: ToolWindowFactory, DumbAware {
     }
 }
 
-class PluginToolWindow(val project: Project) {
-    private var fsTreeRef = Ref<FileSystemTree>()
+class PluginToolWindow(project: Project) {
+    private val fileSystemTree = createFileSystemTree(project)
 
-    fun createContent(project: Project): Content {
-        val fsTree = createFsTree(project)
-        fsTreeRef = Ref.create(fsTree)
-
-        val panel = MySimpleToolWindowPanel(true, fsTreeRef).also {
-            it.add(ScrollPaneFactory.createScrollPane(fsTree.tree))
+    fun createContent(): Content {
+        val panel = MySimpleToolWindowPanel(true, fileSystemTree).also {
+            it.add(ScrollPaneFactory.createScrollPane(fileSystemTree.tree))
             it.toolbar = createToolBar()
         }
         return ContentFactory.SERVICE.getInstance().createContent(panel, "", false)
     }
 
     fun updateTree() {
-        fsTreeRef.get().updateTree()
+        fileSystemTree.updateTree()
     }
 
     private fun createToolBar(): JComponent {
@@ -148,7 +144,7 @@ class PluginToolWindow(val project: Project) {
         }
 
 
-    private class MySimpleToolWindowPanel(vertical: Boolean, private val fileSystemTree: Ref<FileSystemTree>): SimpleToolWindowPanel(vertical) {
+    private class MySimpleToolWindowPanel(vertical: Boolean, private val fileSystemTree: FileSystemTree): SimpleToolWindowPanel(vertical) {
         /**
          * Provides context for actions in plugin tree popup popup menu.
          * Without it the actions will be disabled or won't work.
@@ -163,19 +159,19 @@ class PluginToolWindow(val project: Project) {
                 FileSystemTree.DATA_KEY.name                 -> {
                     // This is used by "create directory/file" actions to get execution context
                     // (without it they will be disabled or won't work).
-                    fileSystemTree.get()
+                    fileSystemTree
                 }
                 FileChooserKeys.NEW_FILE_TYPE.name           -> IdeUtil.groovyFileType
                 FileChooserKeys.DELETE_ACTION_AVAILABLE.name -> true
-                PlatformDataKeys.VIRTUAL_FILE_ARRAY.name     -> fileSystemTree.get().selectedFiles
-                PlatformDataKeys.TREE_EXPANDER.name          -> DefaultTreeExpander(fileSystemTree.get().tree)
+                PlatformDataKeys.VIRTUAL_FILE_ARRAY.name     -> fileSystemTree.selectedFiles
+                PlatformDataKeys.TREE_EXPANDER.name          -> DefaultTreeExpander(fileSystemTree.tree)
                 else                                         -> super.getData(dataId)
             }
     }
 
     companion object {
 
-        private fun createFsTree(project: Project): FileSystemTree =
+        private fun createFileSystemTree(project: Project): FileSystemTree =
             object: FileSystemTreeImpl(project, createFileChooserDescriptor(), MyTree(project), null, null, null) {
                 override fun createTreeBuilder(
                     tree: JTree,
