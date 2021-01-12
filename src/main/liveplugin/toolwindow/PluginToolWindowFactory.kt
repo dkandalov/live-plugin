@@ -172,7 +172,10 @@ class PluginToolWindow(project: Project) {
     companion object {
 
         private fun createFileSystemTree(project: Project): FileSystemTree =
-            object: FileSystemTreeImpl(project, createFileChooserDescriptor(), MyTree(project), null, null, null) {
+            object: FileSystemTreeImpl(project, createFileChooserDescriptor(), MyTree(project).also {
+                // This handler only seems to work before creating FileSystemTreeImpl.
+                EditSourceOnDoubleClickHandler.install(it) }, null, null, null
+            ) {
                 override fun createTreeBuilder(
                     tree: JTree,
                     treeModel: DefaultTreeModel,
@@ -186,8 +189,7 @@ class PluginToolWindow(project: Project) {
                     }
                 }
             }.also {
-                EditSourceOnDoubleClickHandler.install(it.tree)
-                EditSourceOnEnterKeyHandler.install(it.tree)
+                EditSourceOnEnterKeyHandler.install(it.tree) // This handler only seems to work after creating FileSystemTreeImpl.
                 it.tree.installPopupMenu()
             }
 
@@ -221,8 +223,6 @@ class PluginToolWindow(project: Project) {
         }
 
         private class MyTree(private val project: Project): Tree(), DataProvider {
-            private val deleteProvider = FileDeleteProviderWithRefresh()
-
             init {
                 emptyText.text = "No plugins to show"
                 isRootVisible = false
@@ -239,11 +239,11 @@ class PluginToolWindow(project: Project) {
                             .map { file -> OpenFileDescriptor(project, file) }
                             .toTypedArray()
                     }
-                    PlatformDataKeys.DELETE_ELEMENT_PROVIDER.name -> deleteProvider
+                    PlatformDataKeys.DELETE_ELEMENT_PROVIDER.name -> FileDeleteProviderWithRefresh
                     else                                          -> null
                 }
 
-            private class FileDeleteProviderWithRefresh: DeleteProvider {
+            private object FileDeleteProviderWithRefresh: DeleteProvider {
                 private val fileDeleteProvider = VirtualFileDeleteProvider()
 
                 override fun deleteElement(dataContext: DataContext) {
@@ -251,9 +251,8 @@ class PluginToolWindow(project: Project) {
                     RefreshPluginsPanelAction.refreshPluginTree()
                 }
 
-                override fun canDeleteElement(dataContext: DataContext): Boolean {
-                    return fileDeleteProvider.canDeleteElement(dataContext)
-                }
+                override fun canDeleteElement(dataContext: DataContext) =
+                    fileDeleteProvider.canDeleteElement(dataContext)
             }
         }
     }
