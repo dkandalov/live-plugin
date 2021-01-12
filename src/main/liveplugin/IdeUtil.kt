@@ -19,6 +19,7 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
+import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.Messages.showOkCancelDialog
@@ -41,7 +42,8 @@ import javax.swing.JPanel
 object IdeUtil {
     const val ideStartupActionPlace = "IDE_STARTUP"
 
-    val groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension(".groovy")
+    val textFileType: FileType = PlainTextFileType.INSTANCE
+    val groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension("groovy")
     val kotlinFileType = KotlinScriptFileType.instance
     val dummyDataContext = DataContext { null }
 
@@ -219,7 +221,7 @@ object IdeUtil {
 
 
     /**
-     * Can't use `FileTypeManager.getInstance().getFileTypeByExtension(".kts");` here
+     * Can't use `FileTypeManager.getInstance().getFileTypeByExtension("kts");` here
      * because it will return FileType for .kt files and this will cause creating files with wrong extension.
      */
     class KotlinScriptFileType: FileType {

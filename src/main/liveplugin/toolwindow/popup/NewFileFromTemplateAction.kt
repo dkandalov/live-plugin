@@ -35,7 +35,7 @@ open class NewFileFromTemplateAction(
     override fun actionPerformed(fileSystemTree: FileSystemTree, event: AnActionEvent) {
         val parentFile = fileSystemTree.newFileParent
 
-        val failReason = (fileSystemTree as FileSystemTreeImpl).createNewFile(parentFile, newFileName, fileType, fileContent)
+        val failReason = NewFileAction.createNewFile(event.project, fileSystemTree as FileSystemTreeImpl, parentFile, newFileName, fileType, fileContent)
         if (failReason != null) {
             val message = UIBundle.message("create.new.file.could.not.create.file.error.message", newFileName)
             val title = UIBundle.message("error.dialog.title")
