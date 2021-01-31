@@ -53,8 +53,11 @@ fun <T> runWriteAction(f: () -> T): T =
     }
 
 fun registerAction(
-    id: String, keyStroke: String = "", actionGroupId: String? = null,
-    displayText: String = id, disposable: Disposable? = null,
+    id: String,
+    keyStroke: String = "",
+    actionGroupId: String? = null,
+    displayText: String = id,
+    disposable: Disposable,
     callback: (AnActionEvent) -> Unit
 ): AnAction {
     val function = Function<AnActionEvent, Unit> { callback(it) }
@@ -62,8 +65,11 @@ fun registerAction(
 }
 
 fun registerAction(
-    id: String, keyStroke: String = "", actionGroupId: String? = null,
-    displayText: String = id, disposable: Disposable? = null,
+    id: String,
+    keyStroke: String = "",
+    actionGroupId: String? = null,
+    displayText: String = id,
+    disposable: Disposable,
     action: AnAction
 ): AnAction = Actions.registerAction(id, keyStroke, actionGroupId, displayText, disposable, action)
 
