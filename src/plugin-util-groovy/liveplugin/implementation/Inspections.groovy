@@ -67,16 +67,6 @@ class Inspections {
 		}
 	}
 
-	// TODO left for compatibility, remove it some time later
-	static registerInspection2(Project project, InspectionProfileEntry inspection) {
-		registerInspection(project, inspection)
-	}
-
-	// TODO left for compatibility, remove it some time later
-	static unregisterInspection2(Project project, String inspectionName) {
-		unregisterInspection(project, inspectionName)
-	}
-
 	private static inspectionsProfileOf(Project project) {
 		InspectionProjectProfileManager.getInstance(project).getCurrentProfile() as InspectionProfileImpl
 	}
