@@ -52,8 +52,8 @@ object LivePluginPaths {
     val livePluginsCompiledPath = getPluginsPath().toFilePath() + "live-plugins-compiled"
     @JvmField val livePluginsPath = getPluginsPath().toFilePath() + "live-plugins"
 
-    const val groovyExamplesPath = "/groovy/"
-    const val kotlinExamplesPath = "/kotlin/"
+    const val groovyExamplesPath = "groovy/"
+    const val kotlinExamplesPath = "kotlin/"
 }
 
 class LivePluginAppComponent : AppLifecycleListener {
