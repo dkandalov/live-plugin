@@ -170,18 +170,6 @@ class PluginToolWindow(project: Project) {
                 // This handler only seems to work before creating FileSystemTreeImpl.
                 EditSourceOnDoubleClickHandler.install(it) }, null, null, null
             ) {
-                override fun createTreeBuilder(
-                    tree: JTree,
-                    treeModel: DefaultTreeModel,
-                    treeStructure: AbstractTreeStructure,
-                    comparator: Comparator<NodeDescriptor<*>>,
-                    descriptor: FileChooserDescriptor,
-                    onInitialized: Runnable?
-                ): AbstractTreeBuilder {
-                    return object: FileTreeBuilder(tree, treeModel, treeStructure, comparator, descriptor, onInitialized) {
-                        override fun isAutoExpandNode(nodeDescriptor: NodeDescriptor<*>) = nodeDescriptor.element is RootFileElement
-                    }
-                }
             }.also {
                 EditSourceOnEnterKeyHandler.install(it.tree) // This handler only seems to work after creating FileSystemTreeImpl.
                 it.tree.installPopupMenu()
