@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dkandalov/live-plugin.svg?branch=master)](https://travis-ci.org/dkandalov/live-plugin)
+[![Build Status](https://github.com/dkandalov/live-plugin/workflows/CI/badge.svg)](https://github.com/dkandalov/live-plugin/actions)
 
 ### LivePlugin
 
