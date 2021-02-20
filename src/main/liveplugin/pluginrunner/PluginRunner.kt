@@ -2,9 +2,11 @@ package liveplugin.pluginrunner
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.util.lang.UrlClassLoader
 import groovy.lang.GroovyClassLoader
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.Result.Failure
@@ -47,9 +49,12 @@ interface PluginRunner {
         private fun createParentClassLoader(dependenciesOnIdePlugins: List<IdeaPluginDescriptor>, plugin: LivePlugin): ClassLoader {
             val parentLoaders = dependenciesOnIdePlugins.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
             return PluginClassLoader_Fork(
-                emptyList(),
+                UrlClassLoader.build().files(emptyList()).allowLock(true).useCache(),
                 parentLoaders.toTypedArray(),
                 DefaultPluginDescriptor(plugin.id),
+                null,
+                PluginManagerCore::class.java.classLoader,
+                null,
                 null
             )
         }
