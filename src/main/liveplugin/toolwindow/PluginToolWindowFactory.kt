@@ -4,7 +4,6 @@ import com.intellij.ide.DefaultTreeExpander
 import com.intellij.ide.DeleteProvider
 import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.ide.ui.customization.CustomizationUtil
-import com.intellij.ide.util.treeView.AbstractTreeBuilder
 import com.intellij.ide.util.treeView.AbstractTreeStructure
 import com.intellij.ide.util.treeView.NodeDescriptor
 import com.intellij.openapi.Disposable
@@ -17,7 +16,6 @@ import com.intellij.openapi.fileChooser.ex.FileChooserKeys
 import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor
 import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl
 import com.intellij.openapi.fileChooser.ex.RootFileElement
-import com.intellij.openapi.fileChooser.impl.FileTreeBuilder
 import com.intellij.openapi.fileChooser.tree.FileNode
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.keymap.KeymapManager
@@ -44,6 +42,7 @@ import liveplugin.Icons.settingsIcon
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
+import liveplugin.toolwindow.PluginToolWindow.Companion.installPopupMenu
 import liveplugin.toolwindow.addplugin.*
 import liveplugin.toolwindow.popup.NewElementPopupAction
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
@@ -165,15 +164,18 @@ class PluginToolWindow(project: Project) {
 
     companion object {
 
-        private fun createFileSystemTree(project: Project): FileSystemTree =
-            object: FileSystemTreeImpl(project, createFileChooserDescriptor(), MyTree(project).also {
-                // This handler only seems to work before creating FileSystemTreeImpl.
-                EditSourceOnDoubleClickHandler.install(it) }, null, null, null
-            ) {
-            }.also {
-                EditSourceOnEnterKeyHandler.install(it.tree) // This handler only seems to work after creating FileSystemTreeImpl.
-                it.tree.installPopupMenu()
+        private fun createFileSystemTree(project: Project): FileSystemTree {
+            val myTree = MyTree(project)
+            EditSourceOnDoubleClickHandler.install(myTree) // This handler only seems to work before creating FileSystemTreeImpl.
+
+            val fileSystemTree = FileSystemTreeImpl(project, createFileChooserDescriptor(), myTree, null, null, null)
+
+            fileSystemTree.tree.let {
+                EditSourceOnEnterKeyHandler.install(it) // This handler only seems to work after creating FileSystemTreeImpl.
+                it.installPopupMenu()
             }
+            return fileSystemTree
+        }
 
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
             val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
@@ -214,7 +216,8 @@ class PluginToolWindow(project: Project) {
                 when (dataId) {
                     // NAVIGATABLE_ARRAY is used to open files in toolwindow on double-click/enter.
                     PlatformDataKeys.NAVIGATABLE_ARRAY.name       -> {
-                        val files1 = TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java).map { it.element.file } // This worked until 2020.3. Keeping it here for backward compatibility.
+                        val files1 = TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java)
+                            .map { it.element.file } // This worked until 2020.3. Keeping it here for backward compatibility.
                         val files2 = TreeUtil.collectSelectedObjectsOfType(this, FileNode::class.java).map { it.file }
                         (files1 + files2)
                             .filterNot { it.isDirectory } // Exclude directories so that they're not navigatable from the tree and EditSourceOnEnterKeyHandler expands/collapses tree nodes.

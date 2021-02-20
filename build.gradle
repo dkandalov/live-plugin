@@ -79,7 +79,9 @@ sourceSets {
 	}
 	pluginUtilGroovy {
 		groovy { srcDir "src/plugin-util-groovy" }
-		compileClasspath = main.output + configurations.compileClasspath + configurations.pluginUtilGroovyCompileClasspath
+		compileClasspath = main.output +
+			configurations.compileClasspath + configurations.runtimeClasspath +
+			configurations.pluginUtilGroovyCompileClasspath + configurations.pluginUtilGroovyRuntimeClasspath
 	}
 	pluginUtilKotlin {
 		kotlin { srcDir "src/plugin-util-kotlin" }
