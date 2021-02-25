@@ -75,6 +75,7 @@ class GroovyPluginRunnerTest {
 	}
 
 	@Before void setup() {
+		PluginClassLoader_Fork.class.classLoader.defaultAssertionStatus = false // This is to avoid "Core loader must be not specified in parents" error.
 		rootFolder = FileUtil.createTempDirectory("", "")
 		myPackageFolder = new File(rootFolder, "myPackage")
 		myPackageFolder.mkdir()
