@@ -12,7 +12,6 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAddit
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findDependenciesOnIdePlugins
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
-import liveplugin.toUrl
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
 import java.io.IOException
@@ -134,7 +133,7 @@ class KotlinPluginRunner(
 
         private val compilerClassLoader by lazy {
             UrlClassLoader.build()
-                .urls((ideJdkClassesRoots() + livePluginKotlinCompilerLibFiles()).map(File::toUrl))
+                .files(ideJdkClassesRoots() + livePluginKotlinCompilerLibFiles().map(File::toPath))
                 .noPreload()
                 .allowBootstrapResources()
                 .useCache()
@@ -143,9 +142,7 @@ class KotlinPluginRunner(
     }
 }
 
-private fun ideJdkClassesRoots(): List<File> = JavaSdkUtil.getJdkClassesRoots(javaHome, true)
-
-private val javaHome = File(System.getProperty("java.home"))
+private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath(), true)
 
 fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles()
 
