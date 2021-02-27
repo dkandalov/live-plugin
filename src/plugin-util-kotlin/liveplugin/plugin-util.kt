@@ -27,6 +27,7 @@ import liveplugin.implementation.Actions
 import liveplugin.implementation.Editors
 import liveplugin.implementation.MapDataContext
 import liveplugin.implementation.Threads
+import liveplugin.pluginrunner.kotlin.KotlinScriptTemplate
 import java.awt.Component
 import java.util.function.Function
 import javax.swing.JPanel
@@ -51,6 +52,24 @@ fun <T> runWriteAction(f: () -> T): T =
     invokeOnEDT {
         ApplicationManager.getApplication().runWriteAction(Computable { f() })
     }
+
+fun KotlinScriptTemplate.registerAction(
+    id: String,
+    keyStroke: String = "",
+    actionGroupId: String? = null,
+    displayText: String = id,
+    action: AnAction
+): AnAction =
+    registerAction(id, keyStroke, actionGroupId, displayText, pluginDisposable, action)
+
+fun KotlinScriptTemplate.registerAction(
+    id: String,
+    keyStroke: String = "",
+    actionGroupId: String? = null,
+    displayText: String = id,
+    callback: (AnActionEvent) -> Unit
+): AnAction =
+    registerAction(id, keyStroke, actionGroupId, displayText, pluginDisposable, callback)
 
 fun registerAction(
     id: String,
