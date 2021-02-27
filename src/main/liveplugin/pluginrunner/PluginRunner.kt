@@ -2,7 +2,6 @@ package liveplugin.pluginrunner
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
@@ -70,7 +69,7 @@ interface PluginRunner {
                 .filter { it.startsWith(prefix) }
                 .map { line ->
                     val path = line.replace(prefix, "").trim { it <= ' ' }
-                    inlineEnvironmentVariables(path, environment)
+                    path.inlineEnvironmentVariables(environment)
                 }
                 .map { path ->
                     val matchingFiles = findMatchingFiles(path)
@@ -91,10 +90,10 @@ interface PluginRunner {
             return files.map { it.absolutePath }
         }
 
-        private fun inlineEnvironmentVariables(path: String, environment: Map<String, String>): String {
-            var result = path
+        private fun String.inlineEnvironmentVariables(environment: Map<String, String>): String {
+            var result = this
             var wasModified = false
-            for ((key, value) in environment) {
+            environment.forEach { (key, value) ->
                 result = result.replace("$$key", value)
                 wasModified = true
             }
