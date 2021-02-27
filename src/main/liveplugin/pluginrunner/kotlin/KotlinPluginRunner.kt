@@ -42,7 +42,7 @@ class KotlinPluginRunner(
 ): PluginRunner {
 
     override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
-        val mainScriptFile = plugin.path.find(mainScript)!!
+        val mainScriptFile = plugin.path.find(scriptName)!!
         val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
             .onFailure { return Failure(LoadingError(plugin.id, it.reason)) }
 

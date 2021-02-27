@@ -1,18 +1,19 @@
 package liveplugin.pluginrunner.groovy
 
-import groovy.lang.Binding as GroovyBinding
 import groovy.util.GroovyScriptEngine
 import liveplugin.find
 import liveplugin.pluginrunner.*
-import liveplugin.pluginrunner.AnError.*
+import liveplugin.pluginrunner.AnError.LoadingError
+import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findDependenciesOnIdePlugins
-import liveplugin.pluginrunner.Result.*
-import liveplugin.readLines
+import liveplugin.pluginrunner.Result.Failure
+import liveplugin.pluginrunner.Result.Success
 import liveplugin.toUrlString
 import org.codehaus.groovy.control.CompilationFailedException
 import java.io.IOException
+import groovy.lang.Binding as GroovyBinding
 
 class GroovyPluginRunner(
     override val scriptName: String,
@@ -20,22 +21,13 @@ class GroovyPluginRunner(
 ): PluginRunner {
 
     override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
-        val mainScript = plugin.path.find(scriptName)!!
-        return runGroovyScript(mainScript.toUrlString(), plugin, binding, runOnEDT)
-    }
-
-    private fun runGroovyScript(
-        mainScriptUrl: String,
-        plugin: LivePlugin,
-        binding: Binding,
-        runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>
-    ): Result<Unit, AnError> {
         try {
+            val mainScript = plugin.path.find(scriptName)!!
             val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
 
-            val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(readLines(mainScriptUrl), groovyDependsOnPluginKeyword)
+            val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(mainScript.readLines(), groovyDependsOnPluginKeyword)
                 .onFailure { return Failure(LoadingError(plugin.id, it.reason)) }
-            val additionalClasspath = findClasspathAdditions(readLines(mainScriptUrl), groovyAddToClasspathKeyword, environment)
+            val additionalClasspath = findClasspathAdditions(mainScript.readLines(), groovyAddToClasspathKeyword, environment)
                 .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
             val classLoader = createClassLoaderWithDependencies(additionalClasspath + plugin.path.toFile(), dependenciesOnIdePlugins, plugin)
                 .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
@@ -45,14 +37,14 @@ class GroovyPluginRunner(
             // (according to this http://groovy.329449.n5.nabble.com/Is-the-GroovyScriptEngine-thread-safe-td331407.html)
             val scriptEngine = GroovyScriptEngine(pluginFolderUrl, classLoader)
             try {
-                scriptEngine.loadScriptByName(mainScriptUrl)
+                scriptEngine.loadScriptByName(mainScript.toUrlString())
             } catch (e: Exception) {
                 return Failure(LoadingError(plugin.id, throwable = e))
             }
 
             return runOnEDT {
                 try {
-                    scriptEngine.run(mainScriptUrl, GroovyBinding(binding.toMap()))
+                    scriptEngine.run(mainScript.toUrlString(), GroovyBinding(binding.toMap()))
                     Success(Unit)
                 } catch (e: Exception) {
                     Failure(RunningError(plugin.id, e))

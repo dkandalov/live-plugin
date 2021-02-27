@@ -61,6 +61,3 @@ fun FilePath.findAll(fileName: String): List<FilePath> {
     return if (targetFilePath.exists()) listOf(targetFilePath)
     else allFiles().filter { fileName == it.name }.map { it.toFilePath() }.toList()
 }
-
-fun readLines(url: String) =
-    URL(url).openStream().bufferedReader().readLines()
