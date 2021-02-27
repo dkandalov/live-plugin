@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
 import liveplugin.PluginUtil
+import liveplugin.registerIntention
 import liveplugin.show
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSuperclassOf
@@ -15,8 +16,8 @@ import kotlin.reflect.full.isSuperclassOf
 
 // See also com.siyeh.ig.fixes.MakeFieldFinalFix in IntelliJ sources.
 
-PluginUtil.registerIntention(pluginDisposable, MakeJavaFieldFinalIntention())
-PluginUtil.registerIntention(pluginDisposable, MakeJavaFieldNonFinalIntention())
+registerIntention(MakeJavaFieldFinalIntention())
+registerIntention(MakeJavaFieldNonFinalIntention())
 if (!isIdeStartup) show("Reloaded MakeJavaFieldFinalIntention")
 
 class MakeJavaFieldFinalIntention: PsiElementBaseIntentionAction() {

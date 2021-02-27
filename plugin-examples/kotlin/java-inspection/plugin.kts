@@ -4,12 +4,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.JavaElementVisitor
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiLiteralExpression
-import liveplugin.PluginUtil
+import liveplugin.registerInspection
 import liveplugin.show
 
 // depends-on-plugin com.intellij.java
 
-PluginUtil.registerInspection(pluginDisposable, HelloWorldInspection())
+registerInspection(HelloWorldInspection())
 if (!isIdeStartup) {
     show("Loaded hello world inspection<br/>It replaces \"hello\" string literal in Java code with \"Hello world\"")
 }

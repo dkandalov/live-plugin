@@ -2,6 +2,8 @@
 
 package liveplugin
 
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationType.INFORMATION
@@ -36,7 +38,7 @@ fun show(
     message: Any?,
     title: String = "",
     notificationType: NotificationType = INFORMATION,
-    groupDisplayId: String  = "",
+    groupDisplayId: String = "",
     notificationListener: NotificationListener? = null
 ) {
     PluginUtil.show(message, title, notificationType, groupDisplayId, notificationListener)
@@ -92,6 +94,15 @@ fun registerAction(
     action: AnAction
 ): AnAction = Actions.registerAction(id, keyStroke, actionGroupId, displayText, disposable, action)
 
+@CanCallFromAnyThread
+fun KotlinScriptTemplate.registerIntention(intention: IntentionAction): IntentionAction =
+    PluginUtil.registerIntention(pluginDisposable, intention)
+
+@CanCallFromAnyThread
+fun KotlinScriptTemplate.registerInspection(inspection: InspectionProfileEntry) {
+    PluginUtil.registerInspection(pluginDisposable, inspection)
+}
+
 fun Document.runWriteAction(project: Project, description: String? = null, callback: (Document) -> Unit) {
     runWriteAction {
         val f = { callback(this) }
@@ -114,20 +125,20 @@ sealed class MenuEntry {
 fun createNestedActionGroup(description: List<MenuEntry>, actionGroup: DefaultActionGroup = DefaultActionGroup()): ActionGroup {
     description.forEach {
         when (it) {
-            is MenuEntry.Action -> {
+            is MenuEntry.Action   -> {
                 actionGroup.add(object: AnAction(it.text) {
                     override fun actionPerformed(event: AnActionEvent) {
                         it.callback(Pair(it.text, event))
                     }
                 })
             }
-            is MenuEntry.SubMenu -> {
+            is MenuEntry.SubMenu  -> {
                 val actionGroupName = it.text
                 val isPopup = true
                 actionGroup.add(createNestedActionGroup(it.nestedEntries, DefaultActionGroup(actionGroupName, isPopup)))
             }
             is MenuEntry.Delegate -> actionGroup.add(it.action)
-            MenuEntry.Separator -> actionGroup.add(Separator.getInstance())
+            MenuEntry.Separator   -> actionGroup.add(Separator.getInstance())
         }
     }
     return actionGroup
@@ -163,13 +174,17 @@ fun JBPopup.show(dataContext: DataContext? = null) {
 }
 
 @CanCallWithinRunReadActionOrFromEDT
-val Project.currentEditor: Editor? get() = Editors.currentEditorIn(this)
+val Project.currentEditor: Editor?
+    get() = Editors.currentEditorIn(this)
 
 @CanCallWithinRunReadActionOrFromEDT
-val Project.currentFile: VirtualFile? get() = (FileEditorManagerEx.getInstance(this) as FileEditorManagerEx).currentFile
+val Project.currentFile: VirtualFile?
+    get() = (FileEditorManagerEx.getInstance(this) as FileEditorManagerEx).currentFile
 
 @CanCallWithinRunReadActionOrFromEDT
-val Project.currentDocument: Document? get() = this.currentFile?.document
+val Project.currentDocument: Document?
+    get() = currentFile?.document
 
 @CanCallWithinRunReadActionOrFromEDT
-val VirtualFile.document: Document? get() = FileDocumentManager.getInstance().getDocument(this)
+val VirtualFile.document: Document?
+    get() = FileDocumentManager.getInstance().getDocument(this)

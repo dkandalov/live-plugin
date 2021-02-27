@@ -1,3 +1,4 @@
+
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -7,16 +8,16 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
-import liveplugin.PluginUtil
 import liveplugin.invokeLaterOnEDT
+import liveplugin.registerIntention
 import liveplugin.show
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 val kotlinIsSupportedByIde = Language.findLanguageByID("kotlin") != null
 if (kotlinIsSupportedByIde) {
-    PluginUtil.registerIntention(pluginDisposable, RenameKotlinFunctionToUseSpacesIntention())
-    PluginUtil.registerIntention(pluginDisposable, RenameKotlinFunctionToUseCamelCaseIntention())
+    registerIntention(RenameKotlinFunctionToUseSpacesIntention())
+    registerIntention(RenameKotlinFunctionToUseCamelCaseIntention())
     if (!isIdeStartup) show("Reloaded Kotlin intentions")
 } else {
     if (!isIdeStartup) show("IDE doesn't support Kotlin (maybe it needs Kotlin plugin)")
