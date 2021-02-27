@@ -11,17 +11,13 @@ import liveplugin.show
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSuperclassOf
 
+// depends-on-plugin com.intellij.java
 
 // See also com.siyeh.ig.fixes.MakeFieldFinalFix in IntelliJ sources.
 
-val javaIsSupportedByIde = Language.findLanguageByID("JAVA") != null
-if (javaIsSupportedByIde) {
-    PluginUtil.registerIntention(pluginDisposable, MakeJavaFieldFinalIntention())
-    PluginUtil.registerIntention(pluginDisposable, MakeJavaFieldNonFinalIntention())
-    if (!isIdeStartup) show("Reloaded MakeJavaFieldFinalIntention")
-} else {
-    if (!isIdeStartup) show("IDE doesn't support Java")
-}
+PluginUtil.registerIntention(pluginDisposable, MakeJavaFieldFinalIntention())
+PluginUtil.registerIntention(pluginDisposable, MakeJavaFieldNonFinalIntention())
+if (!isIdeStartup) show("Reloaded MakeJavaFieldFinalIntention")
 
 class MakeJavaFieldFinalIntention: PsiElementBaseIntentionAction() {
     override fun isAvailable(project: Project, editor: Editor, element: PsiElement) =
@@ -32,7 +28,7 @@ class MakeJavaFieldFinalIntention: PsiElementBaseIntentionAction() {
     }
 
     override fun getText() = "Make 'final'"
-    override fun getFamilyName() = "Make Java Field (Non-)Final"
+    override fun getFamilyName() = "Make Java field (non-)final"
 }
 
 class MakeJavaFieldNonFinalIntention: PsiElementBaseIntentionAction() {
@@ -44,7 +40,7 @@ class MakeJavaFieldNonFinalIntention: PsiElementBaseIntentionAction() {
     }
 
     override fun getText() = "Make 'non-final'"
-    override fun getFamilyName() = "Make Java Field (Non-)Final"
+    override fun getFamilyName() = "Make Java field (non-)final"
 }
 
 fun PsiElement.isInJavaFile(): Boolean {

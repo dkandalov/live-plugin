@@ -1,6 +1,5 @@
 
 import com.intellij.codeInspection.*
-import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
 import com.intellij.psi.JavaElementVisitor
 import com.intellij.psi.JavaPsiFacade
@@ -8,12 +7,11 @@ import com.intellij.psi.PsiLiteralExpression
 import liveplugin.PluginUtil
 import liveplugin.show
 
-val javaIsSupportedByIde = Language.findLanguageByID("JAVA") != null
-if (javaIsSupportedByIde) {
-    PluginUtil.registerInspection(pluginDisposable, HelloWorldInspection())
-    if (!isIdeStartup) show("""Loaded hello world inspection<br/>It replaces "hello" string literal in Java code with "Hello world"""")
-} else {
-    if (!isIdeStartup) show("IDE doesn't support Java")
+// depends-on-plugin com.intellij.java
+
+PluginUtil.registerInspection(pluginDisposable, HelloWorldInspection())
+if (!isIdeStartup) {
+    show("Loaded hello world inspection<br/>It replaces \"hello\" string literal in Java code with \"Hello world\"")
 }
 
 class HelloWorldInspection: AbstractBaseJavaLocalInspectionTool() {
