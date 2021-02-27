@@ -14,6 +14,8 @@ def javaIsSupportedByIde = Language.findLanguageByID("JAVA") != null
 if (javaIsSupportedByIde) {
 	registerIntention(pluginDisposable, new JavaFinalFieldIntention())
 	if (!isIdeStartup) show("Reloaded 'Finalize Java Fields' plugin")
+} else {
+	if (!isIdeStartup) show("IDE doesn't support Java")
 }
 
 /**

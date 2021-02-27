@@ -13,7 +13,6 @@ import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.kotlinExamplesPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.ExamplePluginInstaller
-import java.io.File
 
 class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<String>): AnAction(), DumbAware {
     private val logger = Logger.getInstance(AddExamplePluginAction::class.java)
@@ -99,7 +98,8 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
                 add(AddExamplePluginAction(kotlinExamplesPath + "insert-new-line-above/", listOf("plugin.kts")))
                 add(AddExamplePluginAction(kotlinExamplesPath + "popup-menu/", listOf("plugin.kts")))
                 add(AddExamplePluginAction(kotlinExamplesPath + "java-intention/", listOf("plugin.kts")))
-                add(AddExamplePluginAction(kotlinExamplesPath + "kotlin-intention/", listOf("plugin.kts")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "java-inspection/", listOf("plugin.kts")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "intention/", listOf("plugin.kts")))
                 add(AddExamplePluginAction(kotlinExamplesPath + "additional-classpath/", listOf("plugin.kts")))
                 add(AddExamplePluginAction(kotlinExamplesPath + "multiple-src-files/", listOf("plugin.kts", "foo.kt", "bar/bar.kt")))
                 addSeparator()

@@ -18,6 +18,8 @@ if (kotlinIsSupportedByIde) {
     PluginUtil.registerIntention(pluginDisposable, RenameKotlinFunctionToUseSpacesIntention())
     PluginUtil.registerIntention(pluginDisposable, RenameKotlinFunctionToUseCamelCaseIntention())
     if (!isIdeStartup) show("Reloaded Kotlin intentions")
+} else {
+    if (!isIdeStartup) show("IDE doesn't support Kotlin (maybe it needs Kotlin plugin)")
 }
 
 inner class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAction() {

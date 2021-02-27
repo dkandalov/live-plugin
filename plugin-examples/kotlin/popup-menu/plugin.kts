@@ -47,5 +47,5 @@ class HelloAction: AnAction("Run AnAction") {
 if (!isIdeStartup) show("Loaded 'helloPopupAction'<br/>Use ctrl+alt+shift+P to run it")
 
 //
-// See next java-intention and kotlin-intention examples.
-//          ^^^^^^^^^^^^^^     ^^^^^^^^^^^^^^^^
+// See next intention and java-intention examples.
+//          ^^^^^^^^^     ^^^^^^^^^^^^^^

@@ -19,6 +19,8 @@ if (javaIsSupportedByIde) {
     PluginUtil.registerIntention(pluginDisposable, MakeJavaFieldFinalIntention())
     PluginUtil.registerIntention(pluginDisposable, MakeJavaFieldNonFinalIntention())
     if (!isIdeStartup) show("Reloaded MakeJavaFieldFinalIntention")
+} else {
+    if (!isIdeStartup) show("IDE doesn't support Java")
 }
 
 class MakeJavaFieldFinalIntention: PsiElementBaseIntentionAction() {
