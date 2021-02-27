@@ -21,8 +21,7 @@ if (javaIsSupportedByIde) {
     if (!isIdeStartup) show("Reloaded MakeJavaFieldFinalIntention")
 }
 
-class MakeJavaFieldFinalIntention: PsiElementBaseIntentionAction(), Util {
-
+class MakeJavaFieldFinalIntention: PsiElementBaseIntentionAction() {
     override fun isAvailable(project: Project, editor: Editor, element: PsiElement) =
         element.isInJavaFile() && element.findParent(PsiField::class)?.hasModifierProperty("final") == false
 
@@ -34,8 +33,7 @@ class MakeJavaFieldFinalIntention: PsiElementBaseIntentionAction(), Util {
     override fun getFamilyName() = "Make Java Field (Non-)Final"
 }
 
-class MakeJavaFieldNonFinalIntention: PsiElementBaseIntentionAction(), Util {
-
+class MakeJavaFieldNonFinalIntention: PsiElementBaseIntentionAction() {
     override fun isAvailable(project: Project, editor: Editor, element: PsiElement) =
         element.isInJavaFile() && element.findParent(PsiField::class)?.hasModifierProperty("final") == true
 
@@ -47,16 +45,14 @@ class MakeJavaFieldNonFinalIntention: PsiElementBaseIntentionAction(), Util {
     override fun getFamilyName() = "Make Java Field (Non-)Final"
 }
 
-interface Util {
-    fun PsiElement.isInJavaFile(): Boolean {
-        val fileType = containingFile?.fileType ?: return false
-        return fileType is LanguageFileType && fileType.language.id == "JAVA"
-    }
+fun PsiElement.isInJavaFile(): Boolean {
+    val fileType = containingFile?.fileType ?: return false
+    return fileType is LanguageFileType && fileType.language.id == "JAVA"
+}
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T: PsiElement> PsiElement?.findParent(aClass: KClass<T>): T? = when {
-        this == null -> null
-        aClass.isSuperclassOf(this::class) -> this as T
-        else -> parent.findParent(aClass)
-    }
+@Suppress("UNCHECKED_CAST")
+fun <T: PsiElement> PsiElement?.findParent(aClass: KClass<T>): T? = when {
+    this == null -> null
+    aClass.isSuperclassOf(this::class) -> this as T
+    else -> parent.findParent(aClass)
 }

@@ -13,7 +13,6 @@ import liveplugin.show
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-
 val kotlinIsSupportedByIde = Language.findLanguageByID("kotlin") != null
 if (kotlinIsSupportedByIde) {
     PluginUtil.registerIntention(pluginDisposable, RenameKotlinFunctionToUseSpacesIntention())
@@ -21,7 +20,7 @@ if (kotlinIsSupportedByIde) {
     if (!isIdeStartup) show("Reloaded Kotlin intentions")
 }
 
-class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAction(), Util {
+inner class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAction() {
     override fun isAvailable(project: Project, editor: Editor?, element: PsiElement) =
         element.isInKotlinFile() && element.findKtNamedFunction()?.name?.contains(' ') == false
 
@@ -43,7 +42,7 @@ class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAction(),
     override fun getFamilyName() = "RenameKotlinFunctionIntention"
 }
 
-class RenameKotlinFunctionToUseCamelCaseIntention: PsiElementBaseIntentionAction(), Util {
+inner class RenameKotlinFunctionToUseCamelCaseIntention: PsiElementBaseIntentionAction() {
     override fun isAvailable(project: Project, editor: Editor?, element: PsiElement) =
         element.isInKotlinFile() && element.findKtNamedFunction()?.name?.contains(' ') == true
 
@@ -67,34 +66,32 @@ class RenameKotlinFunctionToUseCamelCaseIntention: PsiElementBaseIntentionAction
     override fun getFamilyName() = "RenameKotlinFunctionIntention"
 }
 
-interface Util {
-    fun doRenameRefactoring(element: PsiElement, project: Project, editor: Editor?, rename: (String) -> String) {
-        val function = element.findKtNamedFunction()!!
-        val newName = rename(function.name!!)
+fun doRenameRefactoring(element: PsiElement, project: Project, editor: Editor?, rename: (String) -> String) {
+    val function = element.findKtNamedFunction()!!
+    val newName = rename(function.name!!)
 
-        val processor = RenamePsiElementProcessor.forElement(element)
-        processor.createRenameDialog(project, function as PsiElement, function as PsiElement, editor).let {
-            try {
-                it.setPreviewResults(false)
-                it.performRename(newName)
-            } finally {
-                it.close(DialogWrapper.CANCEL_EXIT_CODE) // to avoid dialog leak
-            }
+    val processor = RenamePsiElementProcessor.forElement(element)
+    processor.createRenameDialog(project, function as PsiElement, function as PsiElement, editor).let {
+        try {
+            it.setPreviewResults(false)
+            it.performRename(newName)
+        } finally {
+            it.close(DialogWrapper.CANCEL_EXIT_CODE) // to avoid dialog leak
         }
     }
+}
 
-    fun PsiElement.findKtNamedFunction(): KtNamedFunction? {
-        val isOnFunctionIdentifier =
-            this is LeafPsiElement &&
+fun PsiElement.findKtNamedFunction(): KtNamedFunction? {
+    val isOnFunctionIdentifier =
+        this is LeafPsiElement &&
             elementType == KtTokens.IDENTIFIER &&
             parent.let {
                 it != null && KtNamedFunction::class.java.isAssignableFrom(it.javaClass)
             }
-        return if (isOnFunctionIdentifier) parent as KtNamedFunction else null
-    }
+    return if (isOnFunctionIdentifier) parent as KtNamedFunction else null
+}
 
-    fun PsiElement.isInKotlinFile(): Boolean {
-        val fileType = (containingFile?.fileType as? LanguageFileType) ?: return false
-        return fileType.language.id.toLowerCase() == "kotlin"
-    }
+fun PsiElement.isInKotlinFile(): Boolean {
+    val fileType = (containingFile?.fileType as? LanguageFileType) ?: return false
+    return fileType.language.id.toLowerCase() == "kotlin"
 }
