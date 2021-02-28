@@ -7,7 +7,7 @@ buildscript {
 }
 plugins {
 	id "org.jetbrains.intellij" version "0.4.21"
-	id "org.jetbrains.kotlin.jvm" version "1.3.72"
+	id "org.jetbrains.kotlin.jvm" version "1.4.31"
 }
 apply plugin:"java"
 apply plugin:"groovy"
@@ -16,18 +16,20 @@ apply plugin:"org.jetbrains.intellij"
 
 repositories {
 	mavenCentral()
-	maven { setUrl("https://dl.bintray.com/dkandalov/maven") }
+	flatDir {
+		dirs 'gradle/libs'
+	}
 }
 
 compileKotlin {
 	kotlinOptions {
 		jvmTarget = "11"
-		apiVersion = "1.3"
-		languageVersion = "1.3"
+		apiVersion = "1.4"
+		languageVersion = "1.4"
 		freeCompilerArgs = ["-Xjvm-default=enable"] // Added for the rendundant override in LivePluginKotlinScriptProvider
 	}
 }
-ext.kotlinVersion = "1.3.72"
+ext.kotlinVersion = "1.4.31"
 
 intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
@@ -57,9 +59,10 @@ dependencies {
 	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
 	// so it should be more reliable to have a particular version of kotlin jars inside LivePlugin.
 	runtime "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
+	runtime "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion"
 	runtime "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 	runtime "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-	runtime "live-plugin:kotlin-compiler-wrapper:0.5"
+	runtime "live-plugin:kotlin-compiler-wrapper:0.6"
 	testCompile group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
@@ -105,18 +108,20 @@ task validateLivePluginZip() { doLast {
 
 	def kotlinCompilerAndItsTransitiveDependencies = [
 		"LivePlugin/kotlin-compiler/annotations-13.0.jar",
-		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.3.72.jar",
-		"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper-0.5.jar",
-		"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.3.72.jar",
-		"LivePlugin/kotlin-compiler/kotlin-reflect-1.3.72.jar",
-		"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.3.72.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-common-1.3.72.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-embeddable-1.3.72.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-1.3.72.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.3.72.jar",
-		"LivePlugin/kotlin-compiler/kotlin-stdlib-1.3.72.jar",
-		"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.3.72.jar",
-		"LivePlugin/kotlin-compiler/kotlinx-coroutines-core-1.2.1.jar",
+		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper-0.6.jar",
+		"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-reflect-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-scripting-common-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-embeddable-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-stdlib-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-stdlib-jdk7-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-stdlib-jdk8-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlinx-coroutines-core-1.3.8.jar",
 		"LivePlugin/kotlin-compiler/trove4j-1.0.20181211.jar"
 	]
 	def expectedLivePluginJars = [

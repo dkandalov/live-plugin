@@ -5,6 +5,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import java.io.File
 import java.net.URL
+import java.nio.file.Path
 import java.util.Collections.emptyList
 
 fun File.toUrlString(): String = toURI().toURL().toString()
@@ -19,6 +20,9 @@ fun String.toFilePath() =
 fun File.toFilePath() =
     FilePath(FileUtilRt.toSystemIndependentName(this.absolutePath).toLowerCase())
 
+fun Path.toFilePath() =
+    toFile().toFilePath()
+
 @Suppress("DEPRECATION")
 fun VirtualFile.toFilePath() =
     FilePath(this.path.toLowerCase())
@@ -27,7 +31,7 @@ fun VirtualFile.toFilePath() =
  * Full path with system-independent separator '/' (as it's used in IJ API)
  */
 @Suppress("DEPRECATION")
-data class FilePath @Deprecated("Use extension functions instead") constructor(val value: String) {
+data class FilePath @Deprecated("Use the extension functions declared above") constructor(val value: String) {
     private val file = File(value)
 
     fun toFile() = file
