@@ -32,10 +32,10 @@ interface PluginRunner {
 
         fun createClassLoaderWithDependencies(
             additionalClasspath: List<File>,
-            dependenciesOnIdePlugins: List<IdeaPluginDescriptor>,
+            pluginDescriptors: List<IdeaPluginDescriptor>,
             plugin: LivePlugin
         ): Result<ClassLoader, LoadingError> {
-            val classLoader = GroovyClassLoader(createParentClassLoader(dependenciesOnIdePlugins, plugin))
+            val classLoader = GroovyClassLoader(createParentClassLoader(pluginDescriptors, plugin))
 
             additionalClasspath.forEach { file ->
                 if (!file.exists()) return Failure(LoadingError(plugin.id, "Didn't find plugin dependency '${file.absolutePath}'."))
@@ -45,8 +45,8 @@ interface PluginRunner {
             return Success(classLoader)
         }
 
-        private fun createParentClassLoader(dependenciesOnIdePlugins: List<IdeaPluginDescriptor>, plugin: LivePlugin): ClassLoader {
-            val parentLoaders = dependenciesOnIdePlugins.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
+        private fun createParentClassLoader(pluginDescriptors: List<IdeaPluginDescriptor>, plugin: LivePlugin): ClassLoader {
+            val parentLoaders = pluginDescriptors.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
             return PluginClassLoader_Fork(
                 UrlClassLoader.build().files(emptyList()).allowLock(true).useCache(),
                 parentLoaders.toTypedArray(),
@@ -58,7 +58,7 @@ interface PluginRunner {
             )
         }
 
-        fun findDependenciesOnIdePlugins(lines: List<String>, keyword: String): Result<List<IdeaPluginDescriptor>, String> {
+        fun findPluginDescriptorsOfDependencies(lines: List<String>, keyword: String): Result<List<IdeaPluginDescriptor>, String> {
             return Success(lines.filter { it.startsWith(keyword) }
                 .map { line -> line.replace(keyword, "").trim { it <= ' ' } }
                 .map { PluginManagerCore.getPlugin(PluginId.getId(it)) ?: return Failure("Failed to find dependent plugin '$it'.") })

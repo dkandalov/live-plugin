@@ -1,5 +1,6 @@
 package liveplugin.pluginrunner.kotlin
 
+import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.IdeUtil.unscrambleThrowable
 import liveplugin.LivePluginPaths
@@ -9,7 +10,7 @@ import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
-import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findDependenciesOnIdePlugins
+import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
 import liveplugin.toFilePath
@@ -43,7 +44,7 @@ class KotlinPluginRunner(
 
     override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         val mainScriptFile = plugin.path.find(scriptName)!!
-        val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
+        val pluginDescriptorsOfDependencies = findPluginDescriptorsOfDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
             .onFailure { return Failure(LoadingError(plugin.id, it.reason)) }
 
         val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
@@ -62,14 +63,7 @@ class KotlinPluginRunner(
                     ideLibFiles() +
                     livePluginLibAndSrcFiles() +
                     livePluginKotlinCompilerLibFiles() +
-                    dependenciesOnIdePlugins.flatMap { pluginDescriptor ->
-                        (pluginDescriptor.pluginPath.toFilePath() + "lib")
-                            .listFiles {
-                                // Exclusions specifically for Kotlin which contains jars with kotlin-compiler-plugins
-                                // which compiled with IJ API and are not compatible with Kotlin compiler.
-                                !it.name.contains("compiler-plugin")
-                            }
-                    } +
+                    pluginDescriptorsOfDependencies.toLibFiles() +
                     additionalClasspath +
                     plugin.path.toFile()
 
@@ -108,7 +102,7 @@ class KotlinPluginRunner(
                 livePluginLibAndSrcFiles() +
                 additionalClasspath
 
-            val classLoader = createClassLoaderWithDependencies(runtimeClassPath, dependenciesOnIdePlugins, plugin).onFailure {
+            val classLoader = createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin).onFailure {
                 return Failure(LoadingError(it.reason.pluginId, it.reason.message))
             }
             classLoader.loadClass("Plugin")
@@ -145,6 +139,16 @@ class KotlinPluginRunner(
                 .useCache()
                 .get()
         }
+
+        fun List<IdeaPluginDescriptor>.toLibFiles(): List<File> =
+            flatMap { pluginDescriptor ->
+                (pluginDescriptor.pluginPath.toFilePath() + "lib")
+                    .listFiles {
+                        // Exclusion specifically for Kotlin plugin which includes kotlin-compiler-plugins jars
+                        // which seem to be compiled with IJ API and are not compatible with actual Kotlin compilers.
+                        !it.name.contains("compiler-plugin")
+                    }
+            }
     }
 }
 
@@ -156,7 +160,7 @@ fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles()
 // The path should be collected from the "// depends-on-plugin" declarations.
 fun psiApiFiles() =
     (LivePluginPaths.ideJarsPath + "../plugins/java/lib/").listFiles() +
-    (LivePluginPaths.ideJarsPath + "../plugins/Kotlin/lib/").listFiles()
+        (LivePluginPaths.ideJarsPath + "../plugins/Kotlin/lib/").listFiles()
 
 fun livePluginLibAndSrcFiles() =
     LivePluginPaths.livePluginLibPath.listFiles()

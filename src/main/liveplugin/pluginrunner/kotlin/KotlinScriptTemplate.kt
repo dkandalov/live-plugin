@@ -57,6 +57,7 @@ object LivePluginScriptCompilationConfiguration: ScriptCompilationConfiguration(
 
     refineConfiguration {
         beforeParsing { context ->
+//            context.source
             ResultWithDiagnostics.Success(
                 value = context.compilationConfiguration.withUpdatedClasspath(classpath()),
                 reports = emptyList()

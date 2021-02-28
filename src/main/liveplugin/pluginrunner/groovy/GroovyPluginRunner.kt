@@ -7,7 +7,7 @@ import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
-import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findDependenciesOnIdePlugins
+import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
 import liveplugin.toUrlString
@@ -25,11 +25,11 @@ class GroovyPluginRunner(
             val mainScript = plugin.path.find(scriptName)!!
             val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
 
-            val dependenciesOnIdePlugins = findDependenciesOnIdePlugins(mainScript.readLines(), groovyDependsOnPluginKeyword)
+            val pluginDescriptors = findPluginDescriptorsOfDependencies(mainScript.readLines(), groovyDependsOnPluginKeyword)
                 .onFailure { return Failure(LoadingError(plugin.id, it.reason)) }
             val additionalClasspath = findClasspathAdditions(mainScript.readLines(), groovyAddToClasspathKeyword, environment)
                 .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
-            val classLoader = createClassLoaderWithDependencies(additionalClasspath + plugin.path.toFile(), dependenciesOnIdePlugins, plugin)
+            val classLoader = createClassLoaderWithDependencies(additionalClasspath + plugin.path.toFile(), pluginDescriptors, plugin)
                 .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
 
             val pluginFolderUrl = "file:///${plugin.path}/" // prefix with "file:///" so that unix-like path works on windows
