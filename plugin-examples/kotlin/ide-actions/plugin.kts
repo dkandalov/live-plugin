@@ -1,6 +1,7 @@
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.DumbAware
 import liveplugin.registerAction
 import liveplugin.show
 
@@ -10,7 +11,7 @@ import liveplugin.show
 // and creates some side effect, e.g. moves cursor up or displays a message as in the code below.
 //
 
-class HelloWorldAction: AnAction() {
+class HelloWorldAction: AnAction(), DumbAware {
     override fun actionPerformed(event: AnActionEvent) = show("Hello world")
 }
 registerAction(id = "HelloWorldAction", keyStroke = "ctrl shift H", action = HelloWorldAction())

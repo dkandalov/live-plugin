@@ -31,6 +31,7 @@ class Actions {
 	                               String displayText = actionId, Disposable disposable = null, Function<AnActionEvent, ?> callback) {
 		registerAction(actionId, keyStroke, actionGroupId, displayText, disposable, new AnAction() {
 			@Override void actionPerformed(AnActionEvent event) { callback.apply(event) }
+			@Override boolean isDumbAware() { true }
 		})
 	}
 
