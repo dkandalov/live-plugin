@@ -32,7 +32,7 @@ registerAction("HelloPopupAction", "ctrl alt shift P") { event ->
         Delegate(HelloAction()),
         Separator,
         Action("Edit Popup Menu...") {
-            openInEditor(pluginPath + "/plugin.kts")
+            openInEditor("$pluginPath/plugin.kts")
         }
     )
     createPopupMenu(menuDescription, popupTitle = "Hello PopupMenu", dataContext = event.dataContext).show()

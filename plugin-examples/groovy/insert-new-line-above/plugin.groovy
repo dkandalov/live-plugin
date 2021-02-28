@@ -10,7 +10,7 @@ import static liveplugin.PluginUtil.*
 // Note that there is build-in "Start New Line Before Current" action (ctrl+alt+enter) which does almost the same thing.
 //
 
-registerAction("InsertNewLineAbove", "alt shift ENTER") { AnActionEvent event ->
+registerAction("InsertNewLineAbove", "ctrl shift ENTER") { AnActionEvent event ->
 	runDocumentWriteAction(event.project) {
 		currentEditorIn(event.project).with {
 			def offset = caretModel.offset
@@ -22,7 +22,7 @@ registerAction("InsertNewLineAbove", "alt shift ENTER") { AnActionEvent event ->
 		}
 	}
 }
-if (!isIdeStartup) show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
+if (!isIdeStartup) show("Loaded 'InsertNewLineAbove' action<br/>Use 'Ctrl+Shift+Enter' to run it")
 
 //
 // See next popup-menu example.

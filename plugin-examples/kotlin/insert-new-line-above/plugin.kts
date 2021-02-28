@@ -12,7 +12,7 @@ import liveplugin.show
 // Note that there is build-in "Start New Line Before Current" action (ctrl+alt+enter) which does almost the same thing.
 //
 
-registerAction(id = "InsertNewLineAbove", keyStroke = "alt shift ENTER", callback = { event: AnActionEvent ->
+registerAction(id = "InsertNewLineAbove", keyStroke = "ctrl shift ENTER", callback = { event: AnActionEvent ->
     val project = event.project!!
     val editor = project.currentEditor!!
     editor.document.runWriteAction(project, description = "Insert New Line Above", callback = {
@@ -24,7 +24,7 @@ registerAction(id = "InsertNewLineAbove", keyStroke = "alt shift ENTER", callbac
         editor.caretModel.moveToOffset(offset + 1)
     })
 })
-if (!isIdeStartup) show("Loaded 'InsertNewLineAbove' action<br/>Use 'Alt+Shift+Enter' to run it")
+if (!isIdeStartup) show("Loaded 'InsertNewLineAbove' action<br/>Use 'Ctrl+Shift+Enter' to run it")
 
 //
 // See next popup-menu example.
