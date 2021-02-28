@@ -13,6 +13,8 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAddit
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
+import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinDependsOnPluginKeyword
+import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.toLibFiles
 import liveplugin.toFilePath
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
@@ -156,11 +158,10 @@ private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.ge
 
 fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles()
 
-// This is a hack just to make Kotlin PSI hightlighting work.
-// The path should be collected from the "// depends-on-plugin" declarations.
-fun psiApiFiles() =
-    (LivePluginPaths.ideJarsPath + "../plugins/java/lib/").listFiles() +
-        (LivePluginPaths.ideJarsPath + "../plugins/Kotlin/lib/").listFiles()
+fun depenciesOnOtherPlugins(scriptText: List<String>): List<File> =
+    findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
+        .map { it.toLibFiles() }
+        .onFailure { return emptyList() }
 
 fun livePluginLibAndSrcFiles() =
     LivePluginPaths.livePluginLibPath.listFiles()
