@@ -59,24 +59,23 @@ interface PluginRunner {
         }
 
         fun findPluginDescriptorsOfDependencies(lines: List<String>, keyword: String): Result<List<IdeaPluginDescriptor>, String> {
-            return Success(lines.filter { it.startsWith(keyword) }
+            return lines.filter { it.startsWith(keyword) }
                 .map { line -> line.replace(keyword, "").trim { it <= ' ' } }
-                .map { PluginManagerCore.getPlugin(PluginId.getId(it)) ?: return Failure("Failed to find dependent plugin '$it'.") })
+                .map { PluginManagerCore.getPlugin(PluginId.getId(it)) ?: return Failure("Failed to find dependent plugin '$it'.") }
+                .asSuccess()
         }
 
-        fun findClasspathAdditions(lines: List<String>, prefix: String, environment: Map<String, String>): Result<List<File>, String> {
-            return lines
-                .filter { it.startsWith(prefix) }
+        fun findClasspathAdditions(lines: List<String>, keyword: String, environment: Map<String, String>): Result<List<File>, String> {
+            return lines.filter { it.startsWith(keyword) }
                 .map { line ->
-                    val path = line.replace(prefix, "").trim { it <= ' ' }
-                    path.inlineEnvironmentVariables(environment)
+                    line.replace(keyword, "").trim { it <= ' ' }
+                        .inlineEnvironmentVariables(environment)
                 }
-                .map { path ->
-                    val matchingFiles = findMatchingFiles(path)
-                    if (matchingFiles.isEmpty()) Failure(path) else Success(matchingFiles)
+                .flatMap { path ->
+                    findMatchingFiles(path).ifEmpty { return Failure(path) }
                 }
-                .allValues()
-                .map { matchingFiles -> matchingFiles.flatten().map { File(it) } }
+                .map { File(it) }
+                .asSuccess()
         }
 
         private fun findMatchingFiles(pathAndPattern: String): List<String> {

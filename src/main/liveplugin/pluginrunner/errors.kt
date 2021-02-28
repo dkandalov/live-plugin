@@ -8,6 +8,8 @@ sealed class Result<out Value, out Reason> {
     data class Failure<out Reason>(val reason: Reason) : Result<Nothing, Reason>()
 }
 
+fun <T> T.asSuccess() = Success(this)
+
 inline fun <T, E> Result<T, E>.onFailure(block: (Failure<E>) -> Nothing): T =
     when (this) {
         is Success<T> -> value
@@ -16,9 +18,6 @@ inline fun <T, E> Result<T, E>.onFailure(block: (Failure<E>) -> Nothing): T =
 
 inline fun <T, E> Result<T, E>.peekFailure(f: (E) -> Unit) =
     apply { if (this is Failure<E>) f(reason) }
-
-fun <T, E> Iterable<Result<T, E>>.allValues(): Result<List<T>, E> =
-    Success(map { r -> r.onFailure { return it } })
 
 inline fun <T, Tʹ, E> Result<T, E>.flatMap(f: (T) -> Result<Tʹ, E>): Result<Tʹ, E> =
     when (this) {
