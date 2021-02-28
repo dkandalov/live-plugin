@@ -158,7 +158,7 @@ private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.ge
 
 fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles()
 
-fun depenciesOnOtherPlugins(scriptText: List<String>): List<File> =
+fun dependenciesOnOtherPlugins(scriptText: List<String>): List<File> =
     findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
         .map { it.toLibFiles() }
         .onFailure { return emptyList() }

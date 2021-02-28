@@ -52,7 +52,7 @@ abstract class KotlinScriptTemplate(
 object LivePluginScriptCompilationConfiguration: ScriptCompilationConfiguration(body = {
     fun classpath(scriptText: List<String>) =
         ideLibFiles() +
-        depenciesOnOtherPlugins(scriptText) +
+        dependenciesOnOtherPlugins(scriptText) +
         livePluginLibAndSrcFiles()
 
     refineConfiguration {
