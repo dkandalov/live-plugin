@@ -24,7 +24,7 @@ fun VirtualFile.toFilePath() =
     FilePath(this.path.toLowerCase())
 
 /**
- * Full path with system-independent separator '/' (as it's use in IJ API)
+ * Full path with system-independent separator '/' (as it's used in IJ API)
  */
 @Suppress("DEPRECATION")
 data class FilePath @Deprecated("Use extension functions instead") constructor(val value: String) {
@@ -34,7 +34,7 @@ data class FilePath @Deprecated("Use extension functions instead") constructor(v
 
     fun allFiles() = file.walkTopDown().asSequence().filter { it.isFile }
 
-    fun listFiles() = file.listFiles()?.toList() ?: emptyList()
+    fun listFiles(): List<File> = file.listFiles()?.toList() ?: emptyList()
 
     fun listFiles(predicate: (File) -> Boolean) = listFiles().filter(predicate)
 

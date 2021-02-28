@@ -1,6 +1,5 @@
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
@@ -14,14 +13,11 @@ import liveplugin.show
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-val kotlinIsSupportedByIde = Language.findLanguageByID("kotlin") != null
-if (kotlinIsSupportedByIde) {
-    registerIntention(RenameKotlinFunctionToUseSpacesIntention())
-    registerIntention(RenameKotlinFunctionToUseCamelCaseIntention())
-    if (!isIdeStartup) show("Reloaded Kotlin intentions")
-} else {
-    if (!isIdeStartup) show("IDE doesn't support Kotlin (maybe it needs Kotlin plugin)")
-}
+// depends-on-plugin org.jetbrains.kotlin
+
+registerIntention(RenameKotlinFunctionToUseSpacesIntention())
+registerIntention(RenameKotlinFunctionToUseCamelCaseIntention())
+if (!isIdeStartup) show("Reloaded Kotlin intentions")
 
 inner class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAction() {
     override fun isAvailable(project: Project, editor: Editor?, element: PsiElement) =
@@ -29,16 +25,16 @@ inner class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAct
 
     override fun invoke(project: Project, editor: Editor?, element: PsiElement) {
         invokeLaterOnEDT {
-            doRenameRefactoring(element, project, editor, this::renameToSpaces)
+            doRenameRefactoring(element, project, editor, ::camelCaseToSpaces)
         }
     }
 
-    private fun renameToSpaces(name: String): String {
-        val chars = name.flatMap {
-            if (Character.isUpperCase(it)) listOf(' ', it.toLowerCase())
-            else listOf(it)
-        }
-        return "`" + String(chars.toCharArray()) + "`"
+    private fun camelCaseToSpaces(name: String): String {
+        val newName = name.flatMap { char ->
+            if (char.isLowerCase()) listOf(char)
+            else listOf(' ', char.toLowerCase())
+        }.joinToString("")
+        return "`$newName`"
     }
 
     override fun getText() = "Rename to use spaces"
@@ -51,16 +47,15 @@ inner class RenameKotlinFunctionToUseCamelCaseIntention: PsiElementBaseIntention
 
     override fun invoke(project: Project, editor: Editor?, element: PsiElement) {
         invokeLaterOnEDT {
-            doRenameRefactoring(element, project, editor, this::renameToCamelCase)
+            doRenameRefactoring(element, project, editor, this::spacesToCamelCase)
         }
     }
 
-    private fun renameToCamelCase(name: String): String {
+    private fun spacesToCamelCase(name: String): String {
         return name.split(' ')
             .filter { it.isNotEmpty() }
-            .mapIndexed { i, s ->
-                if (i == 0) s
-                else s[0].toUpperCase() + s.drop(1)
+            .mapIndexed { i, word ->
+                if (i == 0) word else word.capitalize()
             }
             .joinToString("")
     }
