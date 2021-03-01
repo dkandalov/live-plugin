@@ -14,7 +14,6 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescript
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinDependsOnPluginKeyword
-import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.toLibFiles
 import liveplugin.toFilePath
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
@@ -47,11 +46,11 @@ class KotlinPluginRunner(
     override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         val mainScriptFile = plugin.path.find(scriptName)!!
         val pluginDescriptorsOfDependencies = findPluginDescriptorsOfDependencies(mainScriptFile.readLines(), kotlinDependsOnPluginKeyword)
-            .onFailure { return Failure(LoadingError(plugin.id, it.reason)) }
+            .map { it.onFailure { (message) -> return Failure(LoadingError(plugin.id, message)) } }
 
         val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
         val additionalClasspath = findClasspathAdditions(mainScriptFile.readLines(), kotlinAddToClasspathKeyword, environment)
-            .onFailure { path -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) }
+            .flatMap { it.onFailure { (path) -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path.'")) } }
 
         val compilerOutput = File("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}").also { it.deleteRecursively() }
 
@@ -65,7 +64,7 @@ class KotlinPluginRunner(
                     ideLibFiles() +
                     livePluginLibAndSrcFiles() +
                     livePluginKotlinCompilerLibFiles() +
-                    pluginDescriptorsOfDependencies.toLibFiles() +
+                    pluginDescriptorsOfDependencies.flatMap { it.toLibFiles() } +
                     additionalClasspath +
                     plugin.path.toFile()
 
@@ -141,30 +140,27 @@ class KotlinPluginRunner(
                 .useCache()
                 .get()
         }
-
-        fun List<IdeaPluginDescriptor>.toLibFiles(): List<File> =
-            flatMap { pluginDescriptor ->
-                (pluginDescriptor.pluginPath.toFilePath() + "lib")
-                    .listFiles {
-                        // Exclusion specifically for Kotlin plugin which includes kotlin-compiler-plugins jars
-                        // which seem to be compiled with IJ API and are not compatible with actual Kotlin compilers.
-                        !it.name.contains("compiler-plugin")
-                    }
-            }
     }
 }
 
-private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath(), true)
-
 fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles()
 
-fun dependenciesOnOtherPlugins(scriptText: List<String>): List<File> =
+fun dependenciesOnOtherPluginsForHighlighting(scriptText: List<String>): List<File> =
     findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
-        .map { it.toLibFiles() }
-        .onFailure { return emptyList() }
+        .filterIsInstance<Success<IdeaPluginDescriptor>>() // Ignore unresolved dependencies because they're less relevant for highlighting.
+        .flatMap { it.value.toLibFiles() }
 
 fun livePluginLibAndSrcFiles() =
     LivePluginPaths.livePluginLibPath.listFiles()
 
-fun livePluginKotlinCompilerLibFiles() =
+private fun livePluginKotlinCompilerLibFiles() =
     (LivePluginPaths.livePluginPath + "kotlin-compiler").listFiles()
+
+private fun IdeaPluginDescriptor.toLibFiles() =
+    (pluginPath.toFilePath() + "lib").listFiles {
+        // Exclusion specifically for Kotlin plugin which includes kotlin-compiler-plugins jars
+        // which seem to be compiled with IJ API and are not compatible with actual Kotlin compilers.
+        !it.name.contains("compiler-plugin")
+    }
+
+private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath(), true)

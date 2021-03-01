@@ -58,24 +58,20 @@ interface PluginRunner {
             )
         }
 
-        fun findPluginDescriptorsOfDependencies(lines: List<String>, keyword: String): Result<List<IdeaPluginDescriptor>, String> {
-            return lines.filter { it.startsWith(keyword) }
+        fun findPluginDescriptorsOfDependencies(lines: List<String>, keyword: String): List<Result<IdeaPluginDescriptor, String>> {
+            return lines.filter { line -> line.startsWith(keyword) }
                 .map { line -> line.replace(keyword, "").trim { it <= ' ' } }
-                .map { PluginManagerCore.getPlugin(PluginId.getId(it)) ?: return Failure("Failed to find dependent plugin '$it'.") }
-                .asSuccess()
+                .map { PluginManagerCore.getPlugin(PluginId.getId(it))?.asSuccess() ?: Failure("Failed to find dependent plugin '$it'.") }
         }
 
-        fun findClasspathAdditions(lines: List<String>, keyword: String, environment: Map<String, String>): Result<List<File>, String> {
-            return lines.filter { it.startsWith(keyword) }
-                .map { line ->
-                    line.replace(keyword, "").trim { it <= ' ' }
-                        .inlineEnvironmentVariables(environment)
+        fun findClasspathAdditions(lines: List<String>, keyword: String, environment: Map<String, String>): List<Result<List<File>, String>> {
+            return lines.filter { line -> line.startsWith(keyword) }
+                .map { line -> line.replace(keyword, "").trim { it <= ' ' } }
+                .map { line -> line.inlineEnvironmentVariables(environment) }
+                .map { path ->
+                    val files = findMatchingFiles(path).map { File(it) }
+                    if (files.isEmpty()) path.asFailure() else files.asSuccess()
                 }
-                .flatMap { path ->
-                    findMatchingFiles(path).ifEmpty { return Failure(path) }
-                }
-                .map { File(it) }
-                .asSuccess()
         }
 
         private fun findMatchingFiles(pathAndPattern: String): List<String> {

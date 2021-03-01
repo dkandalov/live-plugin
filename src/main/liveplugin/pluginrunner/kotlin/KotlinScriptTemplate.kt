@@ -55,7 +55,7 @@ abstract class KotlinScriptTemplate(
 object LivePluginScriptCompilationConfiguration: ScriptCompilationConfiguration(body = {
     fun classpath(scriptText: List<String>) =
         ideLibFiles() +
-        dependenciesOnOtherPlugins(scriptText) +
+        dependenciesOnOtherPluginsForHighlighting(scriptText) +
         livePluginLibAndSrcFiles()
 
     refineConfiguration {

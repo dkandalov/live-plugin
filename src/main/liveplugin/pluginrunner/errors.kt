@@ -9,6 +9,7 @@ sealed class Result<out Value, out Reason> {
 }
 
 fun <T> T.asSuccess() = Success(this)
+fun <T> T.asFailure() = Failure(this)
 
 inline fun <T, E> Result<T, E>.onFailure(block: (Failure<E>) -> Nothing): T =
     when (this) {
