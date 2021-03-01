@@ -2,7 +2,6 @@ package liveplugin
 
 import com.intellij.ide.AppLifecycleListener
 import com.intellij.lang.LanguageUtil
-import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType

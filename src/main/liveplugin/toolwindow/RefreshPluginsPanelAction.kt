@@ -19,12 +19,8 @@ class RefreshPluginsPanelAction: AnAction(
         fun refreshPluginTree() {
             val pluginsRoot = LivePluginPaths.livePluginsPath.toVirtualFile() ?: return
             ApplicationManager.getApplication().runWriteAction {
-                RefreshQueue.getInstance().refresh(
-                    false,
-                    true,
-                    Runnable { LivePluginToolWindowFactory.reloadPluginTreesInAllProjects() },
-                    pluginsRoot
-                )
+                val finishRunnable = { LivePluginToolWindowFactory.reloadPluginTreesInAllProjects() }
+                RefreshQueue.getInstance().refresh(false, true, finishRunnable, pluginsRoot)
             }
         }
     }

@@ -19,7 +19,6 @@ import liveplugin.pluginrunner.Binding.Companion.create
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
-import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
@@ -94,7 +93,7 @@ private class BackgroundRunner {
     private val runnerById = HashMap<String, SingleThreadBackgroundRunner>()
 
     fun run(id: String, project: Project?, taskDescription: String, runnable: () -> Unit) {
-        runnerById.getOrPut(id, { SingleThreadBackgroundRunner() })
+        runnerById.getOrPut(id) { SingleThreadBackgroundRunner() }
             .run(project, taskDescription, runnable)
     }
 

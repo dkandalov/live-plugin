@@ -2,7 +2,6 @@ package liveplugin.pluginrunner
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.lang.UrlClassLoader
@@ -28,8 +27,6 @@ interface PluginRunner {
 
 
     object ClasspathAddition {
-        private val logger = Logger.getInstance(ClasspathAddition::class.java)
-
         fun createClassLoaderWithDependencies(
             additionalClasspath: List<File>,
             pluginDescriptors: List<IdeaPluginDescriptor>,
@@ -87,12 +84,9 @@ interface PluginRunner {
 
         private fun String.inlineEnvironmentVariables(environment: Map<String, String>): String {
             var result = this
-            var wasModified = false
             environment.forEach { (key, value) ->
                 result = result.replace("$$key", value)
-                wasModified = true
             }
-            if (wasModified) logger.info("Additional classpath with inlined env variables: $result")
             return result
         }
     }

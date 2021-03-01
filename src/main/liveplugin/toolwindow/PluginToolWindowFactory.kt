@@ -4,9 +4,6 @@ import com.intellij.ide.DefaultTreeExpander
 import com.intellij.ide.DeleteProvider
 import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.ide.ui.customization.CustomizationUtil
-import com.intellij.ide.util.treeView.AbstractTreeStructure
-import com.intellij.ide.util.treeView.NodeDescriptor
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
@@ -15,7 +12,6 @@ import com.intellij.openapi.fileChooser.actions.VirtualFileDeleteProvider
 import com.intellij.openapi.fileChooser.ex.FileChooserKeys
 import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor
 import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl
-import com.intellij.openapi.fileChooser.ex.RootFileElement
 import com.intellij.openapi.fileChooser.tree.FileNode
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.keymap.KeymapManager
@@ -34,27 +30,27 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.EditSourceOnDoubleClickHandler
 import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
-import liveplugin.*
+import liveplugin.Icons
 import liveplugin.Icons.addPluginIcon
 import liveplugin.Icons.collapseAllIcon
 import liveplugin.Icons.helpIcon
 import liveplugin.Icons.settingsIcon
+import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
+import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
-import liveplugin.toolwindow.PluginToolWindow.Companion.installPopupMenu
+import liveplugin.toFilePath
 import liveplugin.toolwindow.addplugin.*
 import liveplugin.toolwindow.popup.NewElementPopupAction
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.toolwindow.settingsmenu.RunAllPluginsOnIDEStartAction
 import org.jetbrains.annotations.NonNls
 import java.awt.GridLayout
-import java.util.*
 import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JTree
-import javax.swing.tree.DefaultTreeModel
 
 class LivePluginToolWindowFactory: ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
@@ -62,9 +58,9 @@ class LivePluginToolWindowFactory: ToolWindowFactory, DumbAware {
         toolWindow.contentManager.addContent(pluginToolWindow.createContent())
         add(pluginToolWindow)
 
-        Disposer.register(toolWindow.disposable, Disposable {
+        Disposer.register(toolWindow.disposable) {
             remove(pluginToolWindow)
-        })
+        }
     }
 
     companion object {
