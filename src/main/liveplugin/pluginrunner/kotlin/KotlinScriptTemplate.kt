@@ -23,7 +23,10 @@ class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
         super.provideDefinitions(baseHostConfiguration, loadedScriptDefinitions)
 }
 
-@KotlinScript(compilationConfiguration = LivePluginScriptCompilationConfiguration::class)
+@KotlinScript(
+    // filePathPattern = ".*/live-plugins/.*", // This seem to fix errors in Kotlin worksheets but breaks highlighting for live-plugins 🤔
+    compilationConfiguration = LivePluginScriptCompilationConfiguration::class
+)
 abstract class KotlinScriptTemplate(
     /**
      * True on IDE startup, otherwise false.
