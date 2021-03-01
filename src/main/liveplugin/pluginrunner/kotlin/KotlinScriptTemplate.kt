@@ -53,21 +53,22 @@ abstract class KotlinScriptTemplate(
 )
 
 object LivePluginScriptCompilationConfiguration: ScriptCompilationConfiguration(body = {
-    fun classpath(scriptText: List<String>) =
+    fun classpath(scriptText: List<String>, scriptPath: String) =
         ideLibFiles() +
         dependenciesOnOtherPluginsForHighlighting(scriptText) +
+        findClasspathAdditionsForHighlighting(scriptText, scriptPath) +
         livePluginLibAndSrcFiles()
 
     refineConfiguration {
         beforeParsing { context ->
             ResultWithDiagnostics.Success(
-                value = context.compilationConfiguration.withUpdatedClasspath(classpath(context.script.text.split('\n'))),
+                value = context.compilationConfiguration.withUpdatedClasspath(classpath(context.script.text.split('\n'), context.script.locationId ?: "")),
                 reports = emptyList()
             )
         }
         beforeCompiling { context ->
             ResultWithDiagnostics.Success(
-                value = context.compilationConfiguration.withUpdatedClasspath(classpath(context.script.text.split('\n'))),
+                value = context.compilationConfiguration.withUpdatedClasspath(classpath(context.script.text.split('\n'), context.script.locationId ?: "")),
                 reports = emptyList()
             )
         }

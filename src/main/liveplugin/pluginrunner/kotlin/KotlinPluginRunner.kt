@@ -13,6 +13,7 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAddit
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
+import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinAddToClasspathKeyword
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinDependsOnPluginKeyword
 import liveplugin.toFilePath
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
@@ -149,6 +150,11 @@ fun dependenciesOnOtherPluginsForHighlighting(scriptText: List<String>): List<Fi
     findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
         .filterIsInstance<Success<IdeaPluginDescriptor>>() // Ignore unresolved dependencies because they're less relevant for highlighting.
         .flatMap { it.value.toLibFiles() }
+
+fun findClasspathAdditionsForHighlighting(scriptText: List<String>, scriptPath: String): List<File> =
+    findClasspathAdditions(scriptText, kotlinAddToClasspathKeyword, systemEnvironment() + Pair("PLUGIN_PATH", scriptPath))
+        .filterIsInstance<Success<List<File>>>() // Ignore unresolved dependencies because they're less relevant for highlighting.
+        .flatMap { it.value }
 
 fun livePluginLibAndSrcFiles() =
     LivePluginPaths.livePluginLibPath.listFiles()
