@@ -38,7 +38,7 @@ fun show(
     message: Any?,
     title: String = "",
     notificationType: NotificationType = INFORMATION,
-    groupDisplayId: String = "",
+    groupDisplayId: String = "Live Plugin",
     notificationListener: NotificationListener? = null
 ) {
     PluginUtil.show(message, title, notificationType, groupDisplayId, notificationListener)

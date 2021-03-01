@@ -45,6 +45,7 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
         <toolWindow id="Plugins" anchor="right"
                     factoryClass="liveplugin.toolwindow.LivePluginToolWindowFactory"
                     icon="/liveplugin/toolWindowPlugin.svg"/>
+        <notificationGroup displayType="BALLOON" id="Live Plugin"/>
     </extensions>
 
 	<actions>

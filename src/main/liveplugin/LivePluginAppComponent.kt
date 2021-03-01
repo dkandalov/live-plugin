@@ -3,6 +3,7 @@ package liveplugin
 import com.intellij.ide.AppLifecycleListener
 import com.intellij.lang.LanguageUtil
 import com.intellij.notification.NotificationGroup
+import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionManager
@@ -73,7 +74,7 @@ class LivePluginAppComponent : AppLifecycleListener {
     companion object {
         const val livePluginId = "LivePlugin"
         private val logger = Logger.getInstance(LivePluginAppComponent::class.java)
-        private val livePluginNotificationGroup = NotificationGroup.balloonGroup("Live Plugin")
+        private val livePluginNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("Live Plugin")
 
         private const val defaultIdeaOutputFolder = "out"
 
