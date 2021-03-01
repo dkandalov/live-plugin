@@ -23,12 +23,15 @@ class GroovyPluginRunner(
     override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
         try {
             val mainScript = plugin.path.find(scriptName)!!
-            val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
 
             val pluginDescriptors = findPluginDescriptorsOfDependencies(mainScript.readLines(), groovyDependsOnPluginKeyword)
                 .map { it.onFailure { (message) -> return Failure(LoadingError(plugin.id, message)) } }
+                .onEach { if (!it.isEnabled) return Failure(LoadingError(plugin.id, "Dependent plugin '${it.pluginId}' is disabled")) }
+
+            val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
             val additionalClasspath = findClasspathAdditions(mainScript.readLines(), groovyAddToClasspathKeyword, environment)
                 .flatMap { it.onFailure { (path) -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) } }
+
             val classLoader = createClassLoaderWithDependencies(additionalClasspath + plugin.path.toFile(), pluginDescriptors, plugin)
                 .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
 
