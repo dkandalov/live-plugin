@@ -6,11 +6,11 @@ import com.intellij.openapi.actionSystem.ActionGroup.EMPTY_GROUP
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 import liveplugin.implementation.ToolWindows
-import liveplugin.pluginrunner.kotlin.KotlinScriptTemplate
+import liveplugin.pluginrunner.kotlin.LivePluginScript
 import liveplugin.runWriteActionOnEdt
 import javax.swing.JComponent
 
-fun KotlinScriptTemplate.registerToolWindow(
+fun LivePluginScript.registerToolWindow(
     toolWindowId: String,
     anchor: ToolWindowAnchor = RIGHT,
     actionGroup: ActionGroup = EMPTY_GROUP,
@@ -23,6 +23,6 @@ fun registerToolWindow(
     anchor: ToolWindowAnchor = RIGHT,
     actionGroup: ActionGroup = EMPTY_GROUP,
     createComponent: () -> JComponent
-) = runWriteActionOnEdt {
+): Unit = runWriteActionOnEdt {
     ToolWindows.registerToolWindow(toolWindowId, disposable, anchor, actionGroup) { createComponent() }
 }

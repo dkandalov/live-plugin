@@ -189,7 +189,7 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 		ant.copy(toDir: classesFolder.absolutePath, overwrite: true) {
 			ant.fileset(dir: "./src/plugin-util-groovy", includes: "**/*")
 			ant.fileset(dir: "./src/plugin-util-kotlin", includes: "**/*")
-			ant.fileset(dir: "./src/main", includes: "**/KotlinScriptTemplate.kt")
+			ant.fileset(dir: "./src/main", includes: "**/LivePluginScript.kt")
 		}
 	}
 }

@@ -90,7 +90,7 @@ class KotlinPluginRunner(
 
         return runOnEDT {
             try {
-                // Arguments below must match constructor of KotlinScriptTemplate class.
+                // Arguments below must match constructor of LivePluginScript class.
                 // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
                 pluginClass.constructors[0].newInstance(binding.isIdeStartup, binding.project, binding.pluginPath, binding.pluginDisposable)
                 Success(Unit)
@@ -141,7 +141,7 @@ private class KotlinPluginCompiler {
                 pluginFolderPath,
                 compilerClasspath,
                 compilerOutput,
-                KotlinScriptTemplate::class.java
+                LivePluginScript::class.java
             ) as List<String>
 
             if (compilationErrors.isNotEmpty()) {

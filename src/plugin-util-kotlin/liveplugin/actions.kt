@@ -5,10 +5,10 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import liveplugin.implementation.Actions
 import liveplugin.noNeedForEdtOrWriteActionWhenUsingActionManager
-import liveplugin.pluginrunner.kotlin.KotlinScriptTemplate
+import liveplugin.pluginrunner.kotlin.LivePluginScript
 import java.util.function.Function
 
-fun KotlinScriptTemplate.registerAction(
+fun LivePluginScript.registerAction(
     id: String,
     keyStroke: String = "",
     actionGroupId: String? = null,
@@ -18,7 +18,7 @@ fun KotlinScriptTemplate.registerAction(
     registerAction(id, keyStroke, actionGroupId, displayText, pluginDisposable, action)
 }
 
-fun KotlinScriptTemplate.registerAction(
+fun LivePluginScript.registerAction(
     id: String,
     keyStroke: String = "",
     actionGroupId: String? = null,

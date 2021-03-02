@@ -26,7 +26,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.implementation.Editors
 import liveplugin.implementation.MapDataContext
 import liveplugin.implementation.Threads
-import liveplugin.pluginrunner.kotlin.KotlinScriptTemplate
+import liveplugin.pluginrunner.kotlin.LivePluginScript
 import java.awt.Component
 import javax.swing.JPanel
 
@@ -51,10 +51,10 @@ fun <T> runWriteActionOnEdt(f: () -> T): T =
         ApplicationManager.getApplication().runWriteAction(Computable { f() })
     }
 
-fun KotlinScriptTemplate.registerIntention(intention: IntentionAction): IntentionAction =
+fun LivePluginScript.registerIntention(intention: IntentionAction): IntentionAction =
     PluginUtil.registerIntention(pluginDisposable, intention)
 
-fun KotlinScriptTemplate.registerInspection(inspection: InspectionProfileEntry) {
+fun LivePluginScript.registerInspection(inspection: InspectionProfileEntry) {
     PluginUtil.registerInspection(pluginDisposable, inspection)
 }
 

@@ -12,7 +12,7 @@ import kotlin.script.experimental.jvm.withUpdatedClasspath
 
 class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
     override val id = "LivePluginKotlinScriptProvider"
-    override fun getDefinitionClasses() = listOf(KotlinScriptTemplate::class.java.canonicalName)
+    override fun getDefinitionClasses() = listOf(LivePluginScript::class.java.canonicalName)
     override fun getDefinitionsClassPath() = LivePluginPaths.livePluginLibPath.listFiles()
     override fun useDiscovery() = false
 }
@@ -21,7 +21,7 @@ class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
     // filePathPattern = ".*/live-plugins/.*", // This seem to fix errors in Kotlin worksheets but breaks highlighting for live-plugins 🤔
     compilationConfiguration = LivePluginScriptCompilationConfiguration::class
 )
-abstract class KotlinScriptTemplate(
+abstract class LivePluginScript(
     /**
      * True on IDE startup, otherwise false.
      * Where "IDE startup" means executing code on LivePlugin application component initialisation.
