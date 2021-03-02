@@ -42,6 +42,7 @@ import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.util.ExamplePluginInstaller
+import org.jetbrains.kotlin.idea.core.util.toVirtualFile
 import java.io.IOException
 
 object LivePluginPaths {
@@ -60,7 +61,7 @@ class LivePluginAppComponent : AppLifecycleListener {
     override fun appFrameCreated(commandLineArgs: MutableList<String>) {
         checkThatGroovyIsOnClasspath()
 
-        val settings = Settings.getInstance()
+        val settings = Settings.instance
         if (settings.justInstalled) {
             installHelloWorldPlugins()
             settings.justInstalled = false
