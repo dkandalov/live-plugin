@@ -118,49 +118,48 @@ private class KotlinPluginCompiler {
         additionalClasspath: List<File>,
         compilerOutput: File
     ): Result<Unit, String> {
+        // Ideally, the compilerClasspath could be replaced by LivePluginScriptCompilationConfiguration
+        // (which implicitly sets up the compiler classpath via kotlin scripting) but
+        // this approach doesn't seem to work e.g. for ideLibFiles().
+        val compilerClasspath: List<File> =
+            ideLibFiles() +
+            livePluginLibAndSrcFiles() +
+            livePluginKotlinCompilerLibFiles() +
+            pluginDescriptorsOfDependencies.flatMap { it.toLibFiles() } +
+            additionalClasspath +
+            File(pluginFolderPath)
+
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
-        return compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!.let { compilePluginMethod ->
-            try {
-                // Ideally, the compilerClasspath could be replaced by LivePluginScriptCompilationConfiguration
-                // (which implicitly sets up the compiler classpath via kotlin scripting) but
-                // this approach doesn't seem to work e.g. for ideLibFiles().
-                val compilerClasspath: List<File> =
-                    ideLibFiles() +
-                    livePluginLibAndSrcFiles() +
-                    livePluginKotlinCompilerLibFiles() +
-                    pluginDescriptorsOfDependencies.flatMap { it.toLibFiles() } +
-                    additionalClasspath +
-                    File(pluginFolderPath)
+        val compilePluginMethod = compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!
+        return try {
+            // Note that arguments passed via reflection CANNOT use pure Kotlin types
+            // because compiler uses different classloader to load Kotlin so classes won't be compatible
+            // (it's ok though to use types like kotlin.String which becomes java.lang.String at runtime).
+            @Suppress("UNCHECKED_CAST")
+            val compilationErrors = compilePluginMethod.invoke(
+                null,
+                pluginFolderPath,
+                compilerClasspath,
+                compilerOutput,
+                KotlinScriptTemplate::class.java
+            ) as List<String>
 
-                // Note that arguments passed via reflection CANNOT use pure Kotlin types
-                // because compiler uses different classloader to load Kotlin so classes won't be compatible
-                // (it's ok though to use types like kotlin.String which becomes java.lang.String at runtime).
-                @Suppress("UNCHECKED_CAST")
-                val compilationErrors = compilePluginMethod.invoke(
-                    null,
-                    pluginFolderPath,
-                    compilerClasspath,
-                    compilerOutput,
-                    KotlinScriptTemplate::class.java
-                ) as List<String>
-
-                if (compilationErrors.isNotEmpty()) {
-                    return Failure("Error compiling script. " + compilationErrors.joinToString("\n"))
-                } else {
-                    Unit.asSuccess()
-                }
-            } catch (e: IOException) {
-                return Failure("Error creating scripting engine. ${unscrambleThrowable(e)}")
-            } catch (e: Throwable) {
-                // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
-                // and LivePlugin should be able to run kotlin scripts without it
-                val reason = if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
-                    "Error compiling script. ${unscrambleThrowable(e)}"
-                } else {
-                    "Internal error compiling script. ${unscrambleThrowable(e)}"
-                }
-                return Failure(reason)
+            if (compilationErrors.isNotEmpty()) {
+                return Failure("Error compiling script. " + compilationErrors.joinToString("\n"))
+            } else {
+                Unit.asSuccess()
             }
+        } catch (e: IOException) {
+            return Failure("Error creating scripting engine. ${unscrambleThrowable(e)}")
+        } catch (e: Throwable) {
+            // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
+            // and LivePlugin should be able to run kotlin scripts without it
+            val reason = if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
+                "Error compiling script. ${unscrambleThrowable(e)}"
+            } else {
+                "Internal error compiling script. ${unscrambleThrowable(e)}"
+            }
+            return Failure(reason)
         }
     }
 
