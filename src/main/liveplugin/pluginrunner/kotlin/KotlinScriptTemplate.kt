@@ -5,8 +5,6 @@ import com.intellij.openapi.project.Project
 import liveplugin.LivePluginPaths
 import kotlin.script.experimental.annotations.KotlinScript
 import kotlin.script.experimental.api.*
-import kotlin.script.experimental.host.ScriptDefinition
-import kotlin.script.experimental.host.ScriptingHostConfiguration
 import kotlin.script.experimental.intellij.ScriptDefinitionsProvider
 import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.withUpdatedClasspath
@@ -17,10 +15,6 @@ class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
     override fun getDefinitionClasses() = listOf(KotlinScriptTemplate::class.java.canonicalName)
     override fun getDefinitionsClassPath() = LivePluginPaths.livePluginLibPath.listFiles()
     override fun useDiscovery() = false
-    // Kotlin plugin 1.4.0-rc-release-IJ2020.2-2 throws exception without this override (not sure why because it seems to have default implementation).
-    // It might be worth reviewing and removing this override at some point.
-    override fun provideDefinitions(baseHostConfiguration: ScriptingHostConfiguration, loadedScriptDefinitions: List<ScriptDefinition>): Iterable<ScriptDefinition> =
-        super.provideDefinitions(baseHostConfiguration, loadedScriptDefinitions)
 }
 
 @KotlinScript(
