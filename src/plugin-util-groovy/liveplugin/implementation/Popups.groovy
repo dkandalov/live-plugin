@@ -115,11 +115,15 @@ class Popups {
 		}
 
 		def chooseByNameItemProvider = new ChooseByNameItemProvider() {
-			@Override boolean filterElements(@NotNull ChooseByNameBase base, @NotNull String pattern, boolean everywhere,
+			@Override boolean filterElements(@NotNull ChooseByNameViewModel base, @NotNull String pattern, boolean everywhere,
 			                                 @NotNull ProgressIndicator cancelled, @NotNull Processor<Object> consumer) {
 				def items = itemProvider.call(pattern, cancelled)
-				items.each{ consumer.process(it) }
+				items.each { consumer.process(it) }
 				!items.empty
+			}
+			@Override boolean filterElements(@NotNull ChooseByNameBase base, @NotNull String pattern, boolean everywhere,
+			                                 @NotNull ProgressIndicator cancelled, @NotNull Processor<Object> consumer) {
+				filterElements(base, pattern, everywhere, cancelled, consumer)
 			}
 			@Override List<String> filterNames(@NotNull ChooseByNameBase base, @NotNull String[] names, @NotNull String pattern) {
 				// never called (can only be called from ChooseByNameBase)

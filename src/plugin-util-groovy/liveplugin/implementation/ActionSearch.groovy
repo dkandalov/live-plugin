@@ -24,7 +24,7 @@ class ActionSearch {
 	}
 
 	static Collection<String> allActionIds() {
-		ActionManager.instance.getActionIds("")
+		ActionManager.instance.getActionIdList("")
 	}
 
 	@Nullable static AnAction actionById(String id) {
