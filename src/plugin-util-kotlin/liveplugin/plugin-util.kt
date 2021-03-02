@@ -7,7 +7,6 @@ import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationType.INFORMATION
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.application.ApplicationManager
@@ -23,15 +22,12 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
 import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.util.Computable
-import com.intellij.openapi.util.Condition
 import com.intellij.openapi.vfs.VirtualFile
-import liveplugin.implementation.Actions
 import liveplugin.implementation.Editors
 import liveplugin.implementation.MapDataContext
 import liveplugin.implementation.Threads
 import liveplugin.pluginrunner.kotlin.KotlinScriptTemplate
 import java.awt.Component
-import java.util.function.Function
 import javax.swing.JPanel
 
 fun show(
@@ -50,61 +46,20 @@ fun invokeLaterOnEDT(f: () -> Any) {
     ApplicationManager.getApplication().invokeLater { f.invoke() }
 }
 
-fun <T> runWriteAction(f: () -> T): T =
+fun <T> runWriteActionOnEDT(f: () -> T): T =
     invokeOnEDT {
         ApplicationManager.getApplication().runWriteAction(Computable { f() })
     }
 
-fun KotlinScriptTemplate.registerAction(
-    id: String,
-    keyStroke: String = "",
-    actionGroupId: String? = null,
-    displayText: String = id,
-    action: AnAction
-): AnAction =
-    registerAction(id, keyStroke, actionGroupId, displayText, pluginDisposable, action)
-
-fun KotlinScriptTemplate.registerAction(
-    id: String,
-    keyStroke: String = "",
-    actionGroupId: String? = null,
-    displayText: String = id,
-    callback: (AnActionEvent) -> Unit
-): AnAction =
-    registerAction(id, keyStroke, actionGroupId, displayText, pluginDisposable, callback)
-
-fun registerAction(
-    id: String,
-    keyStroke: String = "",
-    actionGroupId: String? = null,
-    displayText: String = id,
-    disposable: Disposable,
-    callback: (AnActionEvent) -> Unit
-): AnAction {
-    val function = Function<AnActionEvent, Unit> { callback(it) }
-    return Actions.registerAction(id, keyStroke, actionGroupId, displayText, disposable, function)
-}
-
-fun registerAction(
-    id: String,
-    keyStroke: String = "",
-    actionGroupId: String? = null,
-    displayText: String = id,
-    disposable: Disposable,
-    action: AnAction
-): AnAction = Actions.registerAction(id, keyStroke, actionGroupId, displayText, disposable, action)
-
-@CanCallFromAnyThread
 fun KotlinScriptTemplate.registerIntention(intention: IntentionAction): IntentionAction =
     PluginUtil.registerIntention(pluginDisposable, intention)
 
-@CanCallFromAnyThread
 fun KotlinScriptTemplate.registerInspection(inspection: InspectionProfileEntry) {
     PluginUtil.registerInspection(pluginDisposable, inspection)
 }
 
-fun Document.runWriteAction(project: Project, description: String? = null, callback: (Document) -> Unit) {
-    runWriteAction {
+fun Document.runWriteActionOnEDT(project: Project, description: String? = null, callback: (Document) -> Unit) {
+    runWriteActionOnEDT {
         val f = { callback(this) }
         CommandProcessor.getInstance().executeCommand(project, f, description, null, UndoConfirmationPolicy.DEFAULT, this)
     }
@@ -159,9 +114,8 @@ fun createPopupMenu(
         false,
         selectionAidMethod == MNEMONICS,
         null,
-        -1,
-        Condition { isPreselected(it) }
-    )
+        -1
+    ) { isPreselected(it) }
 }
 
 fun JBPopup.show(dataContext: DataContext? = null) {
@@ -188,3 +142,8 @@ val Project.currentDocument: Document?
 @CanCallWithinRunReadActionOrFromEDT
 val VirtualFile.document: Document?
     get() = FileDocumentManager.getInstance().getDocument(this)
+
+/**
+ * @see liveplugin.PluginUtil.assertNoNeedForEdtOrWriteActionWhenUsingActionManager
+ */
+inline fun <T> noNeedForEdtOrWriteActionWhenUsingActionManager(f: () -> T) = f()

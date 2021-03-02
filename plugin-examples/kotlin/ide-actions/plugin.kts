@@ -1,8 +1,7 @@
-
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
-import liveplugin.registerAction
+import liveplugin.actions.registerAction
 import liveplugin.show
 
 //

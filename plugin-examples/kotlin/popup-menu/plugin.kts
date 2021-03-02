@@ -3,7 +3,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import liveplugin.MenuEntry.*
 import liveplugin.PluginUtil.*
 import liveplugin.createPopupMenu
-import liveplugin.registerAction
+import liveplugin.actions.registerAction
 import liveplugin.show
 
 registerAction("HelloPopupAction", "ctrl alt shift P") { event ->
