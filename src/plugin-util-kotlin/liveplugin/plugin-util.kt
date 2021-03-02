@@ -40,14 +40,14 @@ fun show(
     PluginUtil.show(message, title, notificationType, groupDisplayId, notificationListener)
 }
 
-fun <T> invokeOnEDT(f: () -> T): T = Threads.invokeOnEDT { f() }
+fun <T> invokeOnEdt(f: () -> T): T = Threads.invokeOnEDT { f() }
 
-fun invokeLaterOnEDT(f: () -> Any) {
+fun invokeLaterOnEdt(f: () -> Any) {
     ApplicationManager.getApplication().invokeLater { f.invoke() }
 }
 
-fun <T> runWriteActionOnEDT(f: () -> T): T =
-    invokeOnEDT {
+fun <T> runWriteActionOnEdt(f: () -> T): T =
+    invokeOnEdt {
         ApplicationManager.getApplication().runWriteAction(Computable { f() })
     }
 
@@ -58,8 +58,8 @@ fun KotlinScriptTemplate.registerInspection(inspection: InspectionProfileEntry) 
     PluginUtil.registerInspection(pluginDisposable, inspection)
 }
 
-fun Document.runWriteActionOnEDT(project: Project, description: String? = null, callback: (Document) -> Unit) {
-    runWriteActionOnEDT {
+fun Document.runWriteActionOnEdt(project: Project, description: String? = null, callback: (Document) -> Unit) {
+    runWriteActionOnEdt {
         val f = { callback(this) }
         CommandProcessor.getInstance().executeCommand(project, f, description, null, UndoConfirmationPolicy.DEFAULT, this)
     }

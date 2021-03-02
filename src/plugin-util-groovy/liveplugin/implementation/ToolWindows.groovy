@@ -12,6 +12,7 @@ import com.intellij.ui.content.ContentFactory
 import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
+import java.util.function.Function
 
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 import static liveplugin.PluginUtil.unregisterToolWindow
@@ -20,7 +21,7 @@ import static liveplugin.implementation.Misc.*
 class ToolWindows {
 
 	static registerToolWindow(String toolWindowId, Disposable disposable = null, ToolWindowAnchor location = RIGHT,
-	                          ActionGroup toolbarActionGroup = null, Closure<JComponent> createComponent) {
+	                          ActionGroup toolbarActionGroup = null, Function<Void, JComponent> createComponent) {
 		def disposableId = registerDisposable(toolWindowId)
 		disposable = (disposable == null ? disposableId : newDisposable([disposable, disposableId]))
 
@@ -30,7 +31,7 @@ class ToolWindows {
 	}
 
 	static ToolWindow registerToolWindow(Project project, String toolWindowId, Disposable disposable = null, ToolWindowAnchor location = RIGHT,
-	                          ActionGroup toolbarActionGroup = null, Closure<JComponent> createComponent) {
+	                          ActionGroup toolbarActionGroup = null, Function<Void, JComponent> createComponent) {
 		def disposableId = registerDisposable(toolWindowId)
 		disposable = (disposable == null ? disposableId : newDisposable([disposable, disposableId]))
 
@@ -73,7 +74,7 @@ class ToolWindows {
 
 	private static ToolWindow registerToolWindowIn(Project project, String toolWindowId, Disposable disposable,
 	                                               ToolWindowAnchor location = RIGHT, ActionGroup toolbarActionGroup = null,
-	                                               Closure<JComponent> createComponent) {
+	                                               Function<Void, JComponent> createComponent) {
 		newDisposable(disposable) {
 			ToolWindowManager.getInstance(project).unregisterToolWindow(toolWindowId)
 		}
