@@ -196,8 +196,8 @@ class LivePluginAppComponent : AppLifecycleListener {
     class UsageTypeExtension: UsageTypeProvider {
         override fun getUsageType(element: PsiElement): UsageType? {
             val file = PsiUtilCore.getVirtualFile(element) ?: return null
-            if (!file.isUnderLivePluginsPath()) return null
-            return UsageType { "Usage in liveplugin" }
+            return if (!file.isUnderLivePluginsPath()) null
+            else UsageType { "Usage in liveplugin" }
         }
     }
 

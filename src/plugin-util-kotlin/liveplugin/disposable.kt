@@ -5,7 +5,7 @@ import com.intellij.openapi.util.Disposer
 import java.util.concurrent.atomic.AtomicBoolean
 
 fun Disposable.whenDisposed(f: () -> Unit = {}): Disposable {
-    Disposer.register(this, Disposable { f() })
+    Disposer.register(this) { f() }
     return this
 }
 
@@ -18,10 +18,10 @@ fun newDisposable(debugName: String? = null, whenDisposed: () -> Unit = {}): Dis
 fun Disposable.registerParent(vararg parentDisposables: Disposable): Disposable {
     parentDisposables.forEach { parentDisposable ->
         val isDisposed = AtomicBoolean(false)
-        Disposer.register(parentDisposable, Disposable {
+        Disposer.register(parentDisposable) {
             val wasUpdated = isDisposed.compareAndSet(false, true)
             if (wasUpdated) Disposer.dispose(this)
-        })
+        }
     }
     return this
 }
