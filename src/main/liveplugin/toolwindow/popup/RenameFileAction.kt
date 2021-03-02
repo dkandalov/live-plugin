@@ -2,16 +2,16 @@ package liveplugin.toolwindow.popup
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.fileChooser.FileElement
 import com.intellij.openapi.fileChooser.FileSystemTree
 import com.intellij.openapi.fileChooser.actions.FileChooserAction
-import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor
+import com.intellij.openapi.fileChooser.tree.FileNode
 import com.intellij.openapi.ui.Messages
 import liveplugin.IdeUtil
 import liveplugin.IdeUtil.invokeLaterOnEDT
 import java.io.IOException
 import java.util.*
-import javax.swing.tree.DefaultMutableTreeNode
+import kotlin.reflect.full.functions
+import kotlin.reflect.jvm.isAccessible
 
 class RenameFileAction: FileChooserAction() {
 
@@ -33,43 +33,34 @@ class RenameFileAction: FileChooserAction() {
             }
 
             /**
-             * Couldn't find any way to update file chooser tree to show new file name, therefore this hack.
-             * There is still a problem with this except that it's a hack.
-             * If new file name is longer than previous name, it's not shown fully.
-             * The workaround is to collapse, expand parent tree node.
+             * Couldn't find any other non-hacky way to update file chooser tree to show new file name
+             * (because com.intellij.openapi.fileChooser.tree.FileTreeModel.process code is unfinished and has todos).
+             *
+             * There is a problem with this hack that if new file name is longer than previous name,
+             * it's not shown fully. The workaround is to collapse, expand parent tree node.
              */
             private fun updateTreeModel_HACK() {
                 val model = fileSystemTree.tree.model
-                val queue = LinkedList<DefaultMutableTreeNode>()
-                var node = model.root as DefaultMutableTreeNode
+                val queue = LinkedList<FileNode>()
+                var node = model.root as FileNode
                 queue.add(node)
 
                 while (!queue.isEmpty()) {
                     node = queue.remove()
-                    val userObject = node.userObject
-                    val nodeContainsRenamedFile = userObject is FileNodeDescriptor && file == userObject.element.file
 
+                    val nodeContainsRenamedFile = file == node.file
                     if (nodeContainsRenamedFile) {
-                        val finalNode = node
                         invokeLaterOnEDT {
-                            val nodeDescriptor = userObject as FileNodeDescriptor
-                            val fileElement = FileElement(file, newFileName)
-                            fileElement.parent = nodeDescriptor.element.parent
-                            finalNode.userObject = FileNodeDescriptor(
-                                nodeDescriptor.project,
-                                fileElement,
-                                nodeDescriptor.parentDescriptor,
-                                nodeDescriptor.icon,
-                                newFileName,
-                                nodeDescriptor.comment
-                            )
+                            val kFunction = FileNode::class.functions.find { it.name == "updateName" }!!
+                            kFunction.isAccessible = true
+                            kFunction.call(node, file.name)
                             Unit
                         }
                         return
                     }
 
-                    for (i in 0 until model.getChildCount(node)) {
-                        queue.add(model.getChild(node, i) as DefaultMutableTreeNode)
+                    (0 until model.getChildCount(node)).forEach { i ->
+                        queue.add(model.getChild(node, i) as FileNode)
                     }
                 }
             }
