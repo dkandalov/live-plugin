@@ -17,37 +17,37 @@ import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinAddToClasspathKeyword
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinDependsOnPluginKeyword
 
-class AddToClassPathGroovyIntention: AddAfterImportsGroovyIntention(
+class AddToClassPathGroovyIntention: AddAfterImportsIntention(
     stringToInsert = groovyAddToClasspathKeyword + "\n",
-    modificationName = "Inserted 'add-to-classpath'",
-    popupText = "Insert 'add-to-classpath' directive",
-    isAvailable = isAvailableForGroovy
+    intentionName = "Insert 'add-to-classpath' directive for Groovy",
+    popupText = "Insert 'add-to-classpath'",
+    isAvailable = availableInGroovyLivePlugins
 )
 
-class AddPluginDependencyGroovyIntention: AddAfterImportsGroovyIntention(
+class AddPluginDependencyGroovyIntention: AddAfterImportsIntention(
     stringToInsert = groovyDependsOnPluginKeyword + "\n",
-    modificationName = "Inserted 'depends-on-plugin'",
-    popupText = "Insert 'depends-on-plugin' directive",
-    isAvailable = isAvailableForGroovy
+    intentionName = "Insert 'depends-on-plugin' directive for Groovy",
+    popupText = "Insert 'depends-on-plugin'",
+    isAvailable = availableInGroovyLivePlugins
 )
 
-class AddToClassPathKotlinIntention: AddAfterImportsGroovyIntention(
+class AddToClassPathKotlinIntention: AddAfterImportsIntention(
     stringToInsert = kotlinAddToClasspathKeyword + "\n",
-    modificationName = "Inserted 'add-to-classpath'",
-    popupText = "Insert 'add-to-classpath' directive",
-    isAvailable = isAvailableForKotlin
+    intentionName = "Insert 'add-to-classpath' directive for Kotlin",
+    popupText = "Insert 'add-to-classpath'",
+    isAvailable = availableInKotlinLivePlugins
 )
 
-class AddPluginDependencyKotlinIntention: AddAfterImportsGroovyIntention(
+class AddPluginDependencyKotlinIntention: AddAfterImportsIntention(
     stringToInsert = kotlinDependsOnPluginKeyword + "\n",
-    modificationName = "Inserted 'depends-on-plugin'",
-    popupText = "Insert 'depends-on-plugin' directive",
-    isAvailable = isAvailableForKotlin
+    intentionName = "Insert 'depends-on-plugin' directive for Kotlin",
+    popupText = "Insert 'depends-on-plugin'",
+    isAvailable = availableInKotlinLivePlugins
 )
 
-open class AddAfterImportsGroovyIntention(
+open class AddAfterImportsIntention(
     private val stringToInsert: String,
-    private val modificationName: String,
+    private val intentionName: String,
     private val popupText: String,
     private val isAvailable: (editor: Editor, file: PsiFile) -> Boolean
 ): IntentionAction, DumbAware {
@@ -58,26 +58,28 @@ open class AddAfterImportsGroovyIntention(
         val document = editor.document
         val caretModel = editor.caretModel
 
-        CommandProcessor.getInstance().executeCommand(project, {
+        val runnable = {
             val lineNumber = document.getLineNumber(caretModel.offset)
             val lineStartOffset = document.getLineStartOffset(lineNumber)
             document.insertString(lineStartOffset, stringToInsert)
             caretModel.moveToOffset(lineStartOffset + stringToInsert.length - 1)
-        }, modificationName, livePluginId, UndoConfirmationPolicy.DEFAULT, document)
+        }
+        CommandProcessor.getInstance()
+            .executeCommand(project, runnable, popupText, livePluginId, UndoConfirmationPolicy.DEFAULT, document)
     }
 
     override fun startInWriteAction() = true
 
     override fun getText() = popupText
 
-    override fun getFamilyName() = modificationName
+    override fun getFamilyName() = intentionName
 }
 
-private val isAvailableForGroovy = { editor: Editor, file: PsiFile ->
+private val availableInGroovyLivePlugins = { editor: Editor, file: PsiFile ->
     isGroovyPluginScript(file) && linesAboveCurrentAreImportOrPackage(editor)
 }
 
-private val isAvailableForKotlin = { editor: Editor, file: PsiFile ->
+private val availableInKotlinLivePlugins = { editor: Editor, file: PsiFile ->
     isKotlinPluginScript(file) && linesAboveCurrentAreImportOrPackage(editor)
 }
 
