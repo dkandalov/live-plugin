@@ -18,7 +18,7 @@ class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
 }
 
 @KotlinScript(
-    // filePathPattern = ".*/live-plugins/.*", // This seem to fix errors in Kotlin worksheets but breaks highlighting for live-plugins 🤔
+    filePathPattern = ".*live-plugins.*\\.kts", // Use this regex, because otherwise LivePluginScript makes highlighting red in Kotlin worksheets
     compilationConfiguration = LivePluginScriptCompilationConfiguration::class
 )
 abstract class LivePluginScript(
