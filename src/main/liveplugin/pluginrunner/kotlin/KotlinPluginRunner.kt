@@ -183,7 +183,7 @@ fun dependenciesOnOtherPluginsForHighlighting(scriptText: List<String>): List<Fi
         .flatMap { it.value.toLibFiles() }
 
 fun findClasspathAdditionsForHighlighting(scriptText: List<String>, scriptPath: String): List<File> =
-    findClasspathAdditions(scriptText, kotlinAddToClasspathKeyword, systemEnvironment() + Pair("PLUGIN_PATH", scriptPath))
+    findClasspathAdditions(scriptText, kotlinAddToClasspathKeyword, systemEnvironment() + Pair("PLUGIN_PATH", File(scriptPath).parent))
         .filterIsInstance<Success<List<File>>>() // Ignore unresolved dependencies because they're less relevant for highlighting.
         .flatMap { it.value }
 
