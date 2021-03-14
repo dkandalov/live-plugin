@@ -14,18 +14,18 @@ fun File.toUrl(): URL = this.toURI().toURL()
 
 @Suppress("DEPRECATION")
 fun String.toFilePath() =
-    FilePath(FileUtilRt.toSystemIndependentName(this).toLowerCase())
+    FilePath(FileUtilRt.toSystemIndependentName(this))
 
 @Suppress("DEPRECATION")
 fun File.toFilePath() =
-    FilePath(FileUtilRt.toSystemIndependentName(this.absolutePath).toLowerCase())
+    FilePath(FileUtilRt.toSystemIndependentName(this.absolutePath))
 
 fun Path.toFilePath() =
     toFile().toFilePath()
 
 @Suppress("DEPRECATION")
 fun VirtualFile.toFilePath() =
-    FilePath(this.path.toLowerCase())
+    FilePath(this.path)
 
 /**
  * Full path with system-independent separator '/' (as it's used in IJ API)
@@ -36,7 +36,7 @@ data class FilePath @Deprecated("Use the extension functions declared above") co
 
     fun toFile() = file
 
-    fun allFiles() = file.walkTopDown().asSequence().filter { it.isFile }
+    fun allFiles(): Sequence<File> = file.walkTopDown().asSequence().filter { it.isFile }
 
     fun listFiles(): List<File> = file.listFiles()?.toList() ?: emptyList()
 

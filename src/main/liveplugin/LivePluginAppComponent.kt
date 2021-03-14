@@ -42,7 +42,6 @@ import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.util.ExamplePluginInstaller
-import org.jetbrains.kotlin.idea.core.util.toVirtualFile
 import java.io.IOException
 
 object LivePluginPaths {
@@ -107,8 +106,8 @@ class LivePluginAppComponent : AppLifecycleListener {
 
         fun defaultPluginTestScript(): String = readSampleScriptFile(groovyExamplesPath, "default-plugin-test.groovy")
 
-        fun readSampleScriptFile(pluginPath: String, file: String): String {
-            return try {
+        fun readSampleScriptFile(pluginPath: String, file: String): String =
+            try {
                 val path = pluginPath + file
                 val inputStream = LivePluginAppComponent::class.java.classLoader.getResourceAsStream(path) ?: error("Could find resource for '$path'.")
                 FileUtil.loadTextAndClose(inputStream)
@@ -116,7 +115,6 @@ class LivePluginAppComponent : AppLifecycleListener {
                 logger.error(e)
                 ""
             }
-        }
 
         fun pluginExists(pluginId: String): Boolean = pluginIdToPathMap().keys.contains(pluginId)
 
