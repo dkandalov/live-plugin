@@ -119,9 +119,9 @@ private class KotlinPluginCompiler {
         additionalClasspath: List<File>,
         compilerOutput: File
     ): Result<Unit, String> {
-        // Ideally, the compilerClasspath could be replaced by LivePluginScriptCompilationConfiguration
+        // Ideally, the compilerClasspath could be replaced by LivePluginScriptConfig
         // (which implicitly sets up the compiler classpath via kotlin scripting) but
-        // this approach doesn't seem to work e.g. for ideLibFiles().
+        // this approach doesn't seem to work e.g. for ideLibFiles() and resolving dependent plugins.
         val compilerClasspath: List<File> =
             ideLibFiles() +
             livePluginLibAndSrcFiles() +
@@ -142,7 +142,7 @@ private class KotlinPluginCompiler {
                 pluginFolderPath,
                 compilerClasspath,
                 compilerOutput,
-                LivePluginScript::class.java
+                LivePluginScriptForCompilation::class.java
             ) as List<String>
 
             if (compilationErrors.isNotEmpty()) {
@@ -178,6 +178,7 @@ private class KotlinPluginCompiler {
 
 fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles()
 
+// TODO transitive dependencies
 fun dependenciesOnOtherPluginsForHighlighting(scriptText: List<String>): List<File> =
     findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
         .filterIsInstance<Success<IdeaPluginDescriptor>>() // Ignore unresolved dependencies because they're less relevant for highlighting.
