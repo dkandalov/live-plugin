@@ -58,11 +58,7 @@ class KotlinPluginRunner(
 
         val compilerOutput = File("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}")
 
-        val hash = plugin.path.allFiles()
-            .filter { it.extension == "kt" || it.extension == "kts" }
-            .fold(0L) { hash, file ->
-                MurmurHash3.hash32(hash, file.readText().hashCode().toLong()).toLong()
-            }
+        val hash = calculateSourceCodeHash(plugin)
         val hashFilePath = compilerOutput.toFilePath() + "hash32.txt"
         if (!hashFilePath.exists() || hashFilePath.toFile().readText().toLongOrNull() != hash) {
             compilerOutput.deleteRecursively()
@@ -79,10 +75,8 @@ class KotlinPluginRunner(
                 listOf(compilerOutput) +
                 livePluginLibAndSrcFiles() +
                 additionalClasspath
-
-            val classLoader = createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin).onFailure {
-                return Failure(LoadingError(it.reason.pluginId, it.reason.message))
-            }
+            val classLoader = createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin)
+                .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
             classLoader.loadClass("Plugin")
         } catch (e: Throwable) {
             return Failure(LoadingError(plugin.id, "Error while loading plugin class. ${unscrambleThrowable(e)}"))
@@ -99,6 +93,13 @@ class KotlinPluginRunner(
             }
         }
     }
+
+    private fun calculateSourceCodeHash(plugin: LivePlugin) =
+        plugin.path.allFiles()
+            .filter { it.extension == "kt" || it.extension == "kts" }
+            .fold(0L) { hash, file ->
+                MurmurHash3.hash32(hash, file.readText().hashCode().toLong()).toLong()
+            }
 
     companion object {
         const val mainScript = "plugin.kts"
