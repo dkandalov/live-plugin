@@ -1,12 +1,10 @@
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
-import liveplugin.PluginUtil
 import liveplugin.registerIntention
 import liveplugin.show
 import kotlin.reflect.KClass

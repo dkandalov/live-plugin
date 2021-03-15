@@ -103,6 +103,6 @@ class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
     override val id = "LivePluginKotlinScriptProvider"
     override fun getDefinitionClasses() = listOf(LivePluginScript::class.java.canonicalName)
     override fun getDefinitionsClassPath() = LivePluginPaths.livePluginLibPath.listFiles()
-    // + File(".../live-plugin/build/idea-sandbox/plugins/live-plugins/multiple-src-files/foo.kt") This doesn't work 😠
+        // + File(".../live-plugin/build/idea-sandbox/plugins/live-plugins/multiple-src-files/foo.kt") This doesn't work 😠
     override fun useDiscovery() = false
 }
