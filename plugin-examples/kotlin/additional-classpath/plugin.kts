@@ -1,11 +1,11 @@
 import liveplugin.*
 
 // add-to-classpath $HOME/.m2/repository/org/mockito/mockito-core/3.3.3/mockito*.jar
-// depends-on-plugin Subversion
+// depends-on-plugin Git4Idea
 
 if (!isIdeStartup) {
     show(org.mockito.Mockito::class.java.name)
-    show(org.jetbrains.idea.svn.SvnVcs::class.java.name)
+    show(git4idea.GitUtil::class.java.name)
 }
 
 // You can add jars or folder with class files to plugin classloader:
