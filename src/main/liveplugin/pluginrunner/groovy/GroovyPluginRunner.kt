@@ -8,6 +8,7 @@ import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
+import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.withTransitiveDependencies
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
 import liveplugin.toUrlString
@@ -27,6 +28,7 @@ class GroovyPluginRunner(
             val pluginDescriptors = findPluginDescriptorsOfDependencies(mainScript.readLines(), groovyDependsOnPluginKeyword)
                 .map { it.onFailure { (message) -> return Failure(LoadingError(plugin.id, message)) } }
                 .onEach { if (!it.isEnabled) return Failure(LoadingError(plugin.id, "Dependent plugin '${it.pluginId}' is disabled")) }
+                .withTransitiveDependencies()
 
             val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
             val additionalClasspath = findClasspathAdditions(mainScript.readLines(), groovyAddToClasspathKeyword, environment)

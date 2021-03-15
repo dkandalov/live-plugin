@@ -7,12 +7,13 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.lang.UrlClassLoader
 import groovy.lang.GroovyClassLoader
 import liveplugin.pluginrunner.AnError.LoadingError
-import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
 import liveplugin.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
+import java.util.*
+import kotlin.collections.HashSet
 
 interface PluginRunner {
 
@@ -35,7 +36,7 @@ interface PluginRunner {
             val classLoader = GroovyClassLoader(createParentClassLoader(pluginDescriptors, plugin))
 
             additionalClasspath.forEach { file ->
-                if (!file.exists()) return Failure(LoadingError(plugin.id, "Didn't find plugin dependency '${file.absolutePath}'."))
+                if (!file.exists()) return LoadingError(plugin.id, "Didn't find plugin dependency '${file.absolutePath}'.").asFailure()
             }
             additionalClasspath.forEach { file -> classLoader.addURL(file.toUrl()) }
 
@@ -58,7 +59,20 @@ interface PluginRunner {
         fun findPluginDescriptorsOfDependencies(lines: List<String>, keyword: String): List<Result<IdeaPluginDescriptor, String>> {
             return lines.filter { line -> line.startsWith(keyword) }
                 .map { line -> line.replace(keyword, "").trim { it <= ' ' } }
-                .map { PluginManagerCore.getPlugin(PluginId.getId(it))?.asSuccess() ?: Failure("Failed to find dependent plugin '$it'.") }
+                .map { PluginManagerCore.getPlugin(PluginId.getId(it))?.asSuccess() ?: "Failed to find dependent plugin '$it'.".asFailure() }
+        }
+
+        fun List<IdeaPluginDescriptor>.withTransitiveDependencies(): List<IdeaPluginDescriptor> {
+            val result = HashSet<IdeaPluginDescriptor>()
+            val queue = LinkedList(this)
+            while (queue.isNotEmpty()) {
+                val descriptor = queue.remove()
+                if (descriptor !in result) {
+                    result.add(descriptor)
+                    queue.addAll(descriptor.dependencies.mapNotNull { PluginManagerCore.getPlugin(it.pluginId) })
+                }
+            }
+            return result.toList()
         }
 
         fun findClasspathAdditions(lines: List<String>, keyword: String, environment: Map<String, String>): List<Result<List<File>, String>> {

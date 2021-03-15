@@ -11,6 +11,7 @@ import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
+import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.withTransitiveDependencies
 import liveplugin.pluginrunner.Result.Failure
 import liveplugin.pluginrunner.Result.Success
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinAddToClasspathKeyword
@@ -51,6 +52,7 @@ class KotlinPluginRunner(
         val pluginDescriptorsOfDependencies = findPluginDescriptorsOfDependencies(mainScript.readLines(), kotlinDependsOnPluginKeyword)
             .map { it.onFailure { (message) -> return Failure(LoadingError(plugin.id, message)) } }
             .onEach { if (!it.isEnabled) return Failure(LoadingError(plugin.id, "Dependent plugin '${it.pluginId}' is disabled")) }
+            .withTransitiveDependencies()
 
         val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
         val additionalClasspath = findClasspathAdditions(mainScript.readLines(), kotlinAddToClasspathKeyword, environment)
@@ -178,11 +180,11 @@ private class KotlinPluginCompiler {
 
 fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles()
 
-// TODO transitive dependencies
 fun dependenciesOnOtherPluginsForHighlighting(scriptText: List<String>): List<File> =
     findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
         .filterIsInstance<Success<IdeaPluginDescriptor>>() // Ignore unresolved dependencies because they're less relevant for highlighting.
-        .flatMap { it.value.toLibFiles() }
+        .map { it.value }.withTransitiveDependencies()
+        .flatMap { it.toLibFiles() }
 
 fun findClasspathAdditionsForHighlighting(scriptText: List<String>, scriptFolderPath: String): List<File> =
     findClasspathAdditions(scriptText, kotlinAddToClasspathKeyword, systemEnvironment() + Pair("PLUGIN_PATH", scriptFolderPath))
