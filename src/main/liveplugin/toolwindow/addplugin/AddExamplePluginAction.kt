@@ -12,10 +12,10 @@ import liveplugin.LivePluginPaths.kotlinExamplesPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.ExamplePluginInstaller
 
-class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<String>): AnAction(), DumbAware {
+class AddExamplePluginAction(pluginPath: String, private vararg val sampleFiles: String): AnAction(), DumbAware {
     private val logger = Logger.getInstance(AddExamplePluginAction::class.java)
     private val pluginId = ExamplePluginInstaller.extractPluginIdFrom(pluginPath)
-    private val examplePluginInstaller = ExamplePluginInstaller(pluginPath, sampleFiles)
+    private val examplePluginInstaller = ExamplePluginInstaller(pluginPath, sampleFiles.toList())
 
     init {
         templatePresentation.text = pluginId
@@ -34,10 +34,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
         val pluginPath = pluginIdToPathMap()[pluginId]
         val isEnabled =
             if (pluginPath == null) true
-            else {
-                val files = pluginPath.listFiles().map { it.name }
-                sampleFiles.none { files.contains(it) }
-            }
+            else (sampleFiles.toList() - pluginPath.listFiles().map { it.name }).isEmpty()
         event.presentation.isEnabled = isEnabled
     }
 
@@ -74,21 +71,21 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
     companion object {
         val addGroovyExamplesActionGroup by lazy {
             DefaultActionGroup("Groovy Examples", true).apply {
-                add(AddExamplePluginAction(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "ide-actions/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "insert-new-line-above/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "popup-menu/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "popup-search/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "tool-window/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "toolbar-widget/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "text-editor/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "transform-selected-text/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "java-inspection/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "java-intention/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "project-files-stats/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "misc-util/", listOf("util/AClass.groovy", "plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "additional-classpath/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "integration-test/", listOf("plugin-test.groovy", "plugin.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "hello-world/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "ide-actions/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "insert-new-line-above/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "popup-menu/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "popup-search/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "tool-window/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "toolbar-widget/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "text-editor/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "transform-selected-text/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "java-inspection/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "java-intention/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "project-files-stats/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "misc-util/", "util/AClass.groovy", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "additional-classpath/", "plugin.groovy"))
+                add(AddExamplePluginAction(groovyExamplesPath + "integration-test/", "plugin-test.groovy", "plugin.groovy"))
                 addSeparator()
                 add(PerformAllGroupActions("Add All", "", this))
             }
@@ -96,15 +93,15 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
 
         val addKotlinExamplesActionGroup by lazy {
             DefaultActionGroup("Kotlin Examples", true).apply {
-                add(AddExamplePluginAction(kotlinExamplesPath + "hello-world/", listOf("plugin.kts")))
-                add(AddExamplePluginAction(kotlinExamplesPath + "ide-actions/", listOf("plugin.kts")))
-                add(AddExamplePluginAction(kotlinExamplesPath + "insert-new-line-above/", listOf("plugin.kts")))
-                add(AddExamplePluginAction(kotlinExamplesPath + "popup-menu/", listOf("plugin.kts")))
-                add(AddExamplePluginAction(kotlinExamplesPath + "java-intention/", listOf("plugin.kts")))
-                add(AddExamplePluginAction(kotlinExamplesPath + "java-inspection/", listOf("plugin.kts")))
-                add(AddExamplePluginAction(kotlinExamplesPath + "kotlin-intention/", listOf("plugin.kts")))
-                add(AddExamplePluginAction(kotlinExamplesPath + "additional-classpath/", listOf("plugin.kts")))
-                add(AddExamplePluginAction(kotlinExamplesPath + "multiple-src-files/", listOf("foo.kt", "bar/bar.kt", "plugin.kts")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "hello-world/", "plugin.kts"))
+                add(AddExamplePluginAction(kotlinExamplesPath + "ide-actions/", "plugin.kts"))
+                add(AddExamplePluginAction(kotlinExamplesPath + "insert-new-line-above/", "plugin.kts"))
+                add(AddExamplePluginAction(kotlinExamplesPath + "popup-menu/", "plugin.kts"))
+                add(AddExamplePluginAction(kotlinExamplesPath + "java-intention/", "plugin.kts"))
+                add(AddExamplePluginAction(kotlinExamplesPath + "java-inspection/", "plugin.kts"))
+                add(AddExamplePluginAction(kotlinExamplesPath + "kotlin-intention/", "plugin.kts"))
+                add(AddExamplePluginAction(kotlinExamplesPath + "additional-classpath/", "plugin.kts"))
+                add(AddExamplePluginAction(kotlinExamplesPath + "multiple-src-files/", "foo.kt", "bar/bar.kt", "plugin.kts"))
                 addSeparator()
                 add(PerformAllGroupActions("Add All", "", this))
             }
