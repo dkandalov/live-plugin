@@ -81,7 +81,7 @@ class KotlinPluginRunner(
                 .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
             classLoader.loadClass("Plugin")
         } catch (e: Throwable) {
-            return Failure(LoadingError(plugin.id, "Error while loading plugin class. ${unscrambleThrowable(e)}"))
+            return Failure(LoadingError(plugin.id, "Error while loading plugin class.\n${unscrambleThrowable(e)}"))
         }
 
         return runOnEDT {
@@ -148,19 +148,19 @@ private class KotlinPluginCompiler {
             ) as List<String>
 
             if (compilationErrors.isNotEmpty()) {
-                return Failure("Error compiling script. " + compilationErrors.joinToString("\n"))
+                return Failure("Error compiling script.\n${compilationErrors.joinToString("\n")}")
             } else {
                 Unit.asSuccess()
             }
         } catch (e: IOException) {
-            return Failure("Error creating scripting engine. ${unscrambleThrowable(e)}")
+            return Failure("Error creating scripting engine.\n${unscrambleThrowable(e)}")
         } catch (e: Throwable) {
             // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
             // and LivePlugin should be able to run kotlin scripts without it
             val reason = if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
-                "Error compiling script. ${unscrambleThrowable(e)}"
+                "Error compiling script.\n${unscrambleThrowable(e)}"
             } else {
-                "Internal error compiling script. ${unscrambleThrowable(e)}"
+                "Internal error compiling script.\n${unscrambleThrowable(e)}"
             }
             return Failure(reason)
         }
