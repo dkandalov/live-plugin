@@ -185,13 +185,13 @@ fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles()
 
 fun dependenciesOnOtherPluginsForHighlighting(scriptText: List<String>): List<File> =
     findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
-        .filterIsInstance<Success<IdeaPluginDescriptor>>() // Ignore unresolved dependencies because they're less relevant for highlighting.
+        .filterIsInstance<Success<IdeaPluginDescriptor>>() // Ignore unresolved dependencies because they will be checked before runnig plugin anyway.
         .map { it.value }.withTransitiveDependencies()
         .flatMap { it.toLibFiles() }
 
-fun findClasspathAdditionsForHighlighting(scriptText: List<String>, scriptFolderPath: String): List<File> =
+fun findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText: List<String>, scriptFolderPath: String): List<File> =
     findClasspathAdditions(scriptText, kotlinAddToClasspathKeyword, systemEnvironment() + Pair("PLUGIN_PATH", scriptFolderPath))
-        .filterIsInstance<Success<List<File>>>() // Ignore unresolved dependencies because they're less relevant for highlighting.
+        .filterIsInstance<Success<List<File>>>() // Ignore unresolved dependencies because they will be checked before runnig plugin anyway.
         .flatMap { it.value }
 
 fun livePluginLibAndSrcFiles() =

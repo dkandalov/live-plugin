@@ -88,7 +88,7 @@ private fun createScriptConfig(context: ScriptConfigurationRefinementContext, cl
 private fun highlightingClasspath(scriptText: List<String>, scriptFolderPath: String) =
     ideLibFiles() +
     dependenciesOnOtherPluginsForHighlighting(scriptText) +
-    findClasspathAdditionsForHighlighting(scriptText, scriptFolderPath) +
+    findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText, scriptFolderPath) +
     livePluginLibAndSrcFiles()
 
 // Skip depenencies on other plugins because PluginDescriptorLoader fails with "NoClassDefFoundError: Could not initialize class com.intellij.ide.plugins.PluginXmlFactory"
@@ -96,7 +96,7 @@ private fun highlightingClasspath(scriptText: List<String>, scriptFolderPath: St
 // All dependent plugins are directly added to the compiler classpath anyway.
 private fun compilingClasspath(scriptText: List<String>, scriptFolderPath: String) =
     ideLibFiles() +
-    findClasspathAdditionsForHighlighting(scriptText, scriptFolderPath) +
+    findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText, scriptFolderPath) +
     livePluginLibAndSrcFiles()
 
 class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {

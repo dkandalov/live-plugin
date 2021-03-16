@@ -78,18 +78,6 @@ object IdeUtil {
         ApplicationManager.getApplication().runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
     }
 
-    fun performAction(action: AnAction, place: String) {
-        val event = AnActionEvent(
-            null,
-            dummyDataContext,
-            place,
-            action.templatePresentation,
-            ActionManager.getInstance(),
-            0
-        )
-        invokeLaterOnEDT { action.actionPerformed(event) }
-    }
-
     fun isOnClasspath(className: String): Boolean {
         val resource = IdeUtil::class.java.classLoader.getResource(className.replace(".", "/") + ".class")
         return resource != null

@@ -1,9 +1,6 @@
 package liveplugin.toolwindow.addplugin
 
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.actionSystem.Separator
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import liveplugin.IdeUtil
@@ -64,7 +61,12 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
         override fun actionPerformed(e: AnActionEvent) {
             actionGroup.childActionsOrStubs
                 .filter { it != this && it !is Separator }
-                .forEach { IdeUtil.performAction(it, place) }
+                .forEach { performAction(it, place) }
+        }
+
+        private fun performAction(action: AnAction, place: String) {
+            val event = AnActionEvent(null, IdeUtil.dummyDataContext, place, action.templatePresentation, ActionManager.getInstance(), 0)
+            IdeUtil.invokeLaterOnEDT { action.actionPerformed(event) }
         }
     }
 
