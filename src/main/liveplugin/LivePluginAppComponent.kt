@@ -161,13 +161,11 @@ class LivePluginAppComponent : AppLifecycleListener {
 
         private fun installHelloWorldPlugins() {
             invokeLaterOnEDT {
-                val loggingListener = object: ExamplePluginInstaller.Listener {
-                    override fun onException(e: Exception, pluginPath: String) = logger.warn("Failed to install plugin: $pluginPath", e)
-                }
-                ExamplePluginInstaller(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")).installPlugin(loggingListener)
-                ExamplePluginInstaller(groovyExamplesPath + "ide-actions/", listOf("plugin.groovy")).installPlugin(loggingListener)
-                ExamplePluginInstaller(groovyExamplesPath + "insert-new-line-above/", listOf("plugin.groovy")).installPlugin(loggingListener)
-                ExamplePluginInstaller(groovyExamplesPath + "popup-menu/", listOf("plugin.groovy")).installPlugin(loggingListener)
+                val handleError = { e: Exception, pluginPath: String -> logger.warn("Failed to install plugin: $pluginPath", e) }
+                ExamplePluginInstaller(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")).installPlugin(handleError)
+                ExamplePluginInstaller(groovyExamplesPath + "ide-actions/", listOf("plugin.groovy")).installPlugin(handleError)
+                ExamplePluginInstaller(groovyExamplesPath + "insert-new-line-above/", listOf("plugin.groovy")).installPlugin(handleError)
+                ExamplePluginInstaller(groovyExamplesPath + "popup-menu/", listOf("plugin.groovy")).installPlugin(handleError)
             }
         }
     }

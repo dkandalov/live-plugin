@@ -21,11 +21,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
     }
 
     override fun actionPerformed(event: AnActionEvent) {
-        examplePluginInstaller.installPlugin(object: ExamplePluginInstaller.Listener {
-            override fun onException(e: Exception, pluginPath: String) {
-                logException(e, event, pluginPath)
-            }
-        })
+        examplePluginInstaller.installPlugin(handleError = { e, pluginPath -> logException(e, event, pluginPath) })
         RefreshPluginsPanelAction.refreshPluginTree()
     }
 

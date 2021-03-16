@@ -6,7 +6,7 @@ import java.io.IOException
 
 class ExamplePluginInstaller(private val pluginPath: String, private val filePaths: List<String>) {
 
-    fun installPlugin(listener: Listener) {
+    fun installPlugin(handleError: (e: Exception, pluginPath: String) -> Unit) {
         val pluginId = extractPluginIdFrom(pluginPath)
 
         filePaths.forEach { relativeFilePath ->
@@ -15,13 +15,9 @@ class ExamplePluginInstaller(private val pluginPath: String, private val filePat
                 val (parentPath, fileName) = splitIntoPathAndFileName("${LivePluginPaths.livePluginsPath}/$pluginId/$relativeFilePath")
                 createFile(parentPath, fileName, text)
             } catch (e: IOException) {
-                listener.onException(e, pluginPath)
+                handleError(e, pluginPath)
             }
         }
-    }
-
-    interface Listener {
-        fun onException(e: Exception, pluginPath: String)
     }
 
     companion object {
