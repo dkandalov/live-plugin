@@ -127,8 +127,11 @@ private class KotlinPluginCompiler {
         val compilerClasspath: List<File> =
             ideLibFiles() +
             livePluginLibAndSrcFiles() +
-            livePluginKotlinCompilerLibFiles() +
             pluginDescriptorsOfDependencies.flatMap { it.toLibFiles() } +
+            // Put kotlin compiler libs after plugin dependencies because if there is Kotlin plugin in plugin dependencies,
+            // it somehow picks up wrong PSI classes from kotlin-compiler-embeddable.jar.
+            // E.g. "type mismatch: inferred type is KtVisitor<Void, Void> but PsiElementVisitor was expected".
+            livePluginKotlinCompilerLibFiles() +
             additionalClasspath +
             File(pluginFolderPath)
 
