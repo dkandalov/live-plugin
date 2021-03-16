@@ -1,19 +1,20 @@
 package liveplugin.toolwindow.util
 
+import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginPaths
 import java.io.IOException
 
 class ExamplePluginInstaller(private val pluginPath: String, private val filePaths: List<String>) {
 
-    fun installPlugin(handleError: (e: Exception, pluginPath: String) -> Unit) {
+    fun installPlugin(handleError: (e: Exception, pluginPath: String) -> Unit, whenCreated: (VirtualFile) -> Unit = {}) {
         val pluginId = extractPluginIdFrom(pluginPath)
 
         filePaths.forEach { relativeFilePath ->
             try {
                 val text = LivePluginAppComponent.readSampleScriptFile(pluginPath, relativeFilePath)
                 val (parentPath, fileName) = splitIntoPathAndFileName("${LivePluginPaths.livePluginsPath}/$pluginId/$relativeFilePath")
-                createFile(parentPath, fileName, text)
+                createFile(parentPath, fileName, text, whenCreated)
             } catch (e: IOException) {
                 handleError(e, pluginPath)
             }

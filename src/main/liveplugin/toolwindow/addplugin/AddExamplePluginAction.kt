@@ -2,6 +2,7 @@ package liveplugin.toolwindow.addplugin
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
@@ -21,7 +22,11 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
     }
 
     override fun actionPerformed(event: AnActionEvent) {
-        examplePluginInstaller.installPlugin(handleError = { e, pluginPath -> logException(e, event, pluginPath) })
+        val project = event.project
+        examplePluginInstaller.installPlugin(
+            whenCreated = { if (project != null) FileEditorManager.getInstance(project).openFile(it, true) },
+            handleError = { e, pluginPath -> logException(e, event, pluginPath) }
+        )
         RefreshPluginsPanelAction.refreshPluginTree()
     }
 
@@ -81,9 +86,9 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
                 add(AddExamplePluginAction(groovyExamplesPath + "java-inspection/", listOf("plugin.groovy")))
                 add(AddExamplePluginAction(groovyExamplesPath + "java-intention/", listOf("plugin.groovy")))
                 add(AddExamplePluginAction(groovyExamplesPath + "project-files-stats/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "misc-util/", listOf("plugin.groovy", "util/AClass.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "misc-util/", listOf("util/AClass.groovy", "plugin.groovy")))
                 add(AddExamplePluginAction(groovyExamplesPath + "additional-classpath/", listOf("plugin.groovy")))
-                add(AddExamplePluginAction(groovyExamplesPath + "integration-test/", listOf("plugin.groovy", "plugin-test.groovy")))
+                add(AddExamplePluginAction(groovyExamplesPath + "integration-test/", listOf("plugin-test.groovy", "plugin.groovy")))
                 addSeparator()
                 add(PerformAllGroupActions("Add All", "", this))
             }
@@ -99,7 +104,7 @@ class AddExamplePluginAction(pluginPath: String, private val sampleFiles: List<S
                 add(AddExamplePluginAction(kotlinExamplesPath + "java-inspection/", listOf("plugin.kts")))
                 add(AddExamplePluginAction(kotlinExamplesPath + "kotlin-intention/", listOf("plugin.kts")))
                 add(AddExamplePluginAction(kotlinExamplesPath + "additional-classpath/", listOf("plugin.kts")))
-                add(AddExamplePluginAction(kotlinExamplesPath + "multiple-src-files/", listOf("plugin.kts", "foo.kt", "bar/bar.kt")))
+                add(AddExamplePluginAction(kotlinExamplesPath + "multiple-src-files/", listOf("foo.kt", "bar/bar.kt", "plugin.kts")))
                 addSeparator()
                 add(PerformAllGroupActions("Add All", "", this))
             }
