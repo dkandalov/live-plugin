@@ -75,18 +75,11 @@ class LivePluginAppComponent : AppLifecycleListener {
         private val logger = Logger.getInstance(LivePluginAppComponent::class.java)
         private val livePluginNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("Live Plugin")
 
-        private const val defaultIdeaOutputFolder = "out"
-
         fun pluginIdToPathMap(): Map<String, FilePath> {
-            val containsIdeaProjectFolder = (livePluginsPath + DIRECTORY_STORE_FOLDER).exists()
-
-            val files = livePluginsPath
-                .listFiles { file ->
-                    file.isDirectory &&
-                    file.name != DIRECTORY_STORE_FOLDER &&
-                    !(containsIdeaProjectFolder && file.name == defaultIdeaOutputFolder)
-                }
-
+            // TODO Use virtual file because the code below will access file system every time this function is called to update availability of actions
+            val files = livePluginsPath.listFiles { file ->
+                file.isDirectory && file.name != DIRECTORY_STORE_FOLDER
+            }
             return files.associate { Pair(it.name, it.toFilePath()) }
         }
 
