@@ -3,6 +3,7 @@ package liveplugin.toolwindow.addplugin
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
@@ -45,19 +46,18 @@ open class AddNewPluginAction(
         val project = event.project
 
         val newPluginId = Messages.showInputDialog(
-            event.project,
+            project,
             "Enter new plugin name:",
             addNewPluginTitle, null, "", PluginIdValidator()
         ) ?: return
 
         try {
-
-            createFile("${LivePluginPaths.livePluginsPath}/$newPluginId", scriptFileName, scriptFileText)
+            createFile("${LivePluginPaths.livePluginsPath}/$newPluginId", scriptFileName, scriptFileText, whenCreated = { virtualFile ->
+                if (project != null) FileEditorManager.getInstance(project).openFile(virtualFile, true)
+            })
 
         } catch (e: IOException) {
-            if (project != null) {
-                IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to ${LivePluginPaths.livePluginsPath}", addNewPluginTitle)
-            }
+            if (project != null) IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to ${LivePluginPaths.livePluginsPath}", addNewPluginTitle)
             log.error(e)
         }
         RefreshPluginsPanelAction.refreshPluginTree()

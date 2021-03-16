@@ -3,19 +3,20 @@ package liveplugin.toolwindow.util
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.LivePluginAppComponent.Companion.livePluginId
 import liveplugin.findFileByUrl
 import java.io.IOException
 
 private const val requestor = livePluginId
 
-fun createFile(parentPath: String, fileName: String, text: String) {
+fun createFile(parentPath: String, fileName: String, text: String, whenCreated: (VirtualFile) -> Unit = {}) {
     runIOAction("createFile") {
-        val parentFolder = VfsUtil.createDirectoryIfMissing(parentPath)
-            ?: throw IOException("Failed to create folder $parentPath")
+        val parentFolder = VfsUtil.createDirectoryIfMissing(parentPath) ?: throw IOException("Failed to create folder $parentPath")
         if (parentFolder.findChild(fileName) == null) {
-            val file = parentFolder.createChildData(requestor, fileName)
-            VfsUtil.saveText(file, text)
+            val virtualFile = parentFolder.createChildData(requestor, fileName)
+            VfsUtil.saveText(virtualFile, text)
+            whenCreated(virtualFile)
         }
     }
 }
