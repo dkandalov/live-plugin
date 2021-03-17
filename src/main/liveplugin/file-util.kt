@@ -28,7 +28,7 @@ fun VirtualFile.toFilePath() =
     FilePath(this.path)
 
 /**
- * Full path with system-independent separator '/' (as it's used in IJ API)
+ * File path with system-independent separator '/' (as it's used in IJ API)
  */
 @Suppress("DEPRECATION")
 data class FilePath @Deprecated("Use the extension functions declared above") constructor(val value: String) {

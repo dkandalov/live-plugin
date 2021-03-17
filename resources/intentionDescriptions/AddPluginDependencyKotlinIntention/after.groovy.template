@@ -1,6 +1,0 @@
-import static liveplugin.PluginUtil.*
-
-// depends-on-plugin Subversion
-
-// Prints a class defined in the Subversion plugin.
-show(org.jetbrains.idea.svn.SvnVcs)

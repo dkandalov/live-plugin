@@ -4,8 +4,8 @@ import liveplugin.*
 // depends-on-plugin Git4Idea
 
 if (!isIdeStartup) {
-    show(org.mockito.Mockito::class.java.name)
-    show(git4idea.GitUtil::class.java.name)
+    show(org.mockito.Mockito::class)
+    show(git4idea.GitUtil::class)
 }
 
 // You can add jars or folder with class files to plugin classloader:

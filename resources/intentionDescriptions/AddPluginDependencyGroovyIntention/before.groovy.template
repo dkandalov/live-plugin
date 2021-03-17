@@ -1,4 +1,4 @@
 import static liveplugin.PluginUtil.*
 
 // The line below won't work because by default plugin depends only on core IntelliJ classes and plugins.
-show(org.jetbrains.idea.svn.SvnVcs)
+show(git4idea.GitUtil)
