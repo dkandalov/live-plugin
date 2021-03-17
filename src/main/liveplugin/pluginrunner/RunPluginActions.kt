@@ -15,7 +15,6 @@ import liveplugin.*
 import liveplugin.IdeUtil.ideStartupActionPlace
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
-import liveplugin.pluginrunner.Binding.Companion.create
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
@@ -80,7 +79,7 @@ private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActio
     val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
         ?: return IdeUtil.displayError(LoadingError("Plugin: \"$id\". Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), event.project)
 
-    val binding = create(this, event)
+    val binding = Binding.create(this, event)
 
     backgroundRunner.run(pluginRunner.scriptName, event.project, "Running live-plugin '$id'") {
         pluginRunner.runPlugin(this, binding, ::runOnEdt).peekFailure { IdeUtil.displayError(it, event.project) }
@@ -132,10 +131,10 @@ class Binding(
     )
 
     companion object {
-        const val pluginDisposableKey = "pluginDisposable"
-        const val pluginPathKey = "pluginPath"
-        const val isIdeStartupKey = "isIdeStartup"
-        const val projectKey = "project"
+        private const val pluginDisposableKey = "pluginDisposable"
+        private const val pluginPathKey = "pluginPath"
+        private const val isIdeStartupKey = "isIdeStartup"
+        private const val projectKey = "project"
         private val bindingByPluginId = HashMap<String, Binding>()
 
         fun create(livePlugin: LivePlugin, event: AnActionEvent): Binding {

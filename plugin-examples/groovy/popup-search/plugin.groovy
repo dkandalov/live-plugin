@@ -5,7 +5,7 @@ import groovy.json.JsonSlurper
 
 import static liveplugin.PluginUtil.*
 
-registerAction("GoogleSearchAction", "alt shift G") { AnActionEvent event ->
+registerAction("GoogleSearchAction", "ctrl alt shift G") { AnActionEvent event ->
 	def itemProvider = { String pattern, ProgressIndicator indicator ->
 		googleSuggestionsFor(pattern)
 	}
@@ -20,4 +20,4 @@ static List<String> googleSuggestionsFor(String text) {
 	new JsonSlurper().parseText(json)[1].toList()
 }
 
-if (!isIdeStartup) show("Loaded GoogleSearchAction<br/>Use alt+shift+G to run it")
+if (!isIdeStartup) show("Loaded GoogleSearchAction<br/>Use ctrl+alt+shift+G to run it")
