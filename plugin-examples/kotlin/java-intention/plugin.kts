@@ -5,10 +5,9 @@ import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
+import com.intellij.psi.util.parentOfType
 import liveplugin.registerIntention
 import liveplugin.show
-import kotlin.reflect.KClass
-import kotlin.reflect.full.isSuperclassOf
 
 // depends-on-plugin com.intellij.java
 
@@ -20,10 +19,10 @@ if (!isIdeStartup) show("Reloaded MakeJavaFieldFinalIntention")
 
 class MakeJavaFieldFinalIntention: PsiElementBaseIntentionAction() {
     override fun isAvailable(project: Project, editor: Editor, element: PsiElement) =
-        element.isInJavaFile() && element.findParent(PsiField::class)?.hasModifierProperty("final") == false
+        element.isInJavaFile() && element.parentPsiField()?.hasModifierProperty("final") == false
 
     override fun invoke(project: Project, editor: Editor, element: PsiElement) {
-        element.findParent(PsiField::class)?.modifierList?.setModifierProperty("final", true)
+        element.parentPsiField()?.modifierList?.setModifierProperty("final", true)
     }
 
     override fun getText() = "Make 'final'"
@@ -32,10 +31,10 @@ class MakeJavaFieldFinalIntention: PsiElementBaseIntentionAction() {
 
 class MakeJavaFieldNonFinalIntention: PsiElementBaseIntentionAction() {
     override fun isAvailable(project: Project, editor: Editor, element: PsiElement) =
-        element.isInJavaFile() && element.findParent(PsiField::class)?.hasModifierProperty("final") == true
+        element.isInJavaFile() && element.parentPsiField()?.hasModifierProperty("final") == true
 
     override fun invoke(project: Project, editor: Editor, element: PsiElement) {
-        element.findParent(PsiField::class)?.modifierList?.setModifierProperty("final", false)
+        element.parentPsiField()?.modifierList?.setModifierProperty("final", false)
     }
 
     override fun getText() = "Make 'non-final'"
@@ -47,9 +46,4 @@ fun PsiElement.isInJavaFile(): Boolean {
     return fileType is LanguageFileType && fileType.language.id == "JAVA"
 }
 
-@Suppress("UNCHECKED_CAST")
-fun <T: PsiElement> PsiElement?.findParent(aClass: KClass<T>): T? = when {
-    this == null -> null
-    aClass.isSuperclassOf(this::class) -> this as T
-    else -> parent.findParent(aClass)
-}
+fun PsiElement.parentPsiField() = parentOfType<PsiField>()
