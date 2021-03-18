@@ -14,6 +14,7 @@ import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.wm.IdeFocusManager
+import liveplugin.FilePath
 import liveplugin.PluginUtil
 import liveplugin.pluginrunner.RunPluginAction
 import org.jetbrains.annotations.NotNull
@@ -101,11 +102,11 @@ class Actions {
 	}
 
 	static runLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		RunPluginAction.runPlugins([pluginId], dummyEvent(project))
+		RunPluginAction.runPlugins([new FilePath(pluginId)], dummyEvent(project))
 	}
 
 	static testLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		RunPluginAction.runPluginsTests([pluginId], dummyEvent(project))
+		RunPluginAction.runPluginsTests([new FilePath(pluginId)], dummyEvent(project))
 	}
 
 	private static AnActionEvent dummyEvent(Project project) {
