@@ -80,6 +80,8 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 
     <applicationListeners>
         <listener class="liveplugin.LivePluginAppComponent" topic="com.intellij.ide.AppLifecycleListener"/>
+        <listener class="liveplugin.LivePluginAppComponent"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">

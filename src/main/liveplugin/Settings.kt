@@ -9,6 +9,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 @State(name = "LivePluginSettings", storages = [Storage(value = "\$APP_CONFIG$/live-plugin.xml")])
 data class Settings(
     var justInstalled: Boolean = true,
+    var runPluginsOnProjectOpen: Boolean = false,
     var runAllPluginsOnIDEStartup: Boolean = false
 ): PersistentStateComponent<Settings> {
 

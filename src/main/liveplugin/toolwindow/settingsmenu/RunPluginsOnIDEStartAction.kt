@@ -5,7 +5,11 @@ import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.project.DumbAware
 import liveplugin.Settings
 
-class RunAllPluginsOnIDEStartAction: ToggleAction("Run All Live Plugins on IDE Start"), DumbAware {
+class RunPluginsOnIDEStartAction: ToggleAction(
+    "Run Live Plugins on IDE Start",
+    "Run all application-level live plugins on IDE start. Note that this might slow down IDE startup.",
+    null
+), DumbAware {
     override fun isSelected(event: AnActionEvent) =
         Settings.instance.runAllPluginsOnIDEStartup
 

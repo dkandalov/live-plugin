@@ -238,6 +238,10 @@ object IdeUtil {
     }
 }
 
+class MapDataContext(val map: Map<String, Any?>) : DataContext {
+    override fun getData(dataId: String) = map[dataId]
+}
+
 fun String.findFileByUrl(): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl("file:///$this")
 
 fun String.refreshAndFindFileByUrl(): VirtualFile? = VirtualFileManager.getInstance().refreshAndFindFileByUrl("file:///$this")

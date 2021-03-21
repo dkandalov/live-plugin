@@ -7,6 +7,7 @@ import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.PathManager.getHomePath
 import com.intellij.openapi.application.PathManager.getPluginsPath
@@ -19,6 +20,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER
+import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.util.NotNullLazyKey
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -38,7 +40,9 @@ import liveplugin.IdeUtil.ideStartupActionPlace
 import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.livePluginsPath
+import liveplugin.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
+import liveplugin.pluginrunner.UnloadPluginAction.Companion.unloadPlugins
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.util.ExamplePluginInstaller
@@ -51,12 +55,13 @@ object LivePluginPaths {
     val livePluginLibPath = getPluginsPath().toFilePath() + "LivePlugin/lib"
     val livePluginsCompiledPath = getPluginsPath().toFilePath() + "live-plugins-compiled"
     @JvmField val livePluginsPath = getPluginsPath().toFilePath() + "live-plugins"
+    val livePluginsProjectDirName = ".live-plugins"
 
     const val groovyExamplesPath = "groovy/"
     const val kotlinExamplesPath = "kotlin/"
 }
 
-class LivePluginAppComponent : AppLifecycleListener {
+class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
     override fun appFrameCreated(commandLineArgs: MutableList<String>) {
         checkThatGroovyIsOnClasspath()
 
@@ -68,6 +73,26 @@ class LivePluginAppComponent : AppLifecycleListener {
         if (settings.runAllPluginsOnIDEStartup) {
             runAllPlugins()
         }
+    }
+
+    override fun projectOpened(project: Project) {
+        if (!Settings.instance.runPluginsOnProjectOpen) return
+
+        val projectPath = project.basePath?.toFilePath() ?: return
+        val pluginsPath = projectPath + livePluginsProjectDirName
+        if (!pluginsPath.exists()) return
+
+        val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
+        val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)
+
+        runPlugins(pluginsPath.listFiles().map { it.toFilePath() }, dummyEvent)
+    }
+
+    override fun projectClosing(project: Project) {
+        val projectPath = project.basePath?.toFilePath() ?: return
+        val pluginsPath = projectPath + livePluginsProjectDirName
+        if (!pluginsPath.exists()) return
+        unloadPlugins(pluginsPath.listFiles().map { it.toFilePath() })
     }
 
     companion object {
@@ -92,7 +117,15 @@ class LivePluginAppComponent : AppLifecycleListener {
 
         private fun VirtualFile.pluginFolder(): VirtualFile? {
             val parent = parent ?: return null
-            return if (parent.toFilePath() == livePluginsPath) this else parent.pluginFolder()
+            return if (parent.toFilePath() == livePluginsPath || parent.name == livePluginsProjectDirName) this
+            else parent.pluginFolder()
+        }
+
+        // TODO similar to VirtualFile.pluginFolder
+        fun FilePath.findPluginFolder(): FilePath? {
+            val parent = toFile().parent?.toFilePath() ?: return null
+            return if (parent == livePluginsPath || parent.name == livePluginsProjectDirName) this
+            else parent.findPluginFolder()
         }
 
         fun defaultPluginScript(): String = readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
@@ -127,7 +160,8 @@ class LivePluginAppComponent : AppLifecycleListener {
             }
         }
 
-        fun checkThatGroovyIsOnClasspath(): Boolean {
+        private fun checkThatGroovyIsOnClasspath(): Boolean {
+            val isGroovyOnClasspath = IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
             if (isGroovyOnClasspath) return true
 
             // This can be useful for non-java IDEs because they don't have bundled groovy libs.
@@ -155,9 +189,6 @@ class LivePluginAppComponent : AppLifecycleListener {
 
             return false
         }
-
-        private val isGroovyOnClasspath: Boolean
-            get() = IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
 
         private fun installHelloWorldPlugins() {
             invokeLaterOnEDT {

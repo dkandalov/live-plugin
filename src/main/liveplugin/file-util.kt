@@ -34,6 +34,8 @@ fun VirtualFile.toFilePath() =
 data class FilePath @Deprecated("Use the extension functions declared above") constructor(val value: String) {
     private val file = File(value)
 
+    val name: String = file.name
+
     fun toFile() = file
 
     fun allFiles(): Sequence<File> = file.walkTopDown().asSequence().filter { it.isFile }

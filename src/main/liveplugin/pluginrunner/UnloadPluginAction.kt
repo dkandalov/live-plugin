@@ -5,19 +5,25 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
 import liveplugin.FilePath
 import liveplugin.Icons
+import liveplugin.LivePluginAppComponent.Companion.findPluginFolder
 
 class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", Icons.unloadPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
-        event.selectedFilePaths()
-            .forEach { it.toBinding()?.dispose() }
+        unloadPlugins(event.selectedFilePaths())
     }
 
     override fun update(event: AnActionEvent) {
         event.presentation.isEnabled = event.selectedFilePaths().any { it.toBinding() != null }
     }
 
-    private fun FilePath.toBinding(): Binding? {
-        val filePath = findPluginFolder(this) ?: return null
-        return Binding.lookup(LivePlugin(filePath))
+    companion object {
+        @JvmStatic fun unloadPlugins(pluginFilePaths: List<FilePath>) {
+            pluginFilePaths.forEach { it.toBinding()?.dispose() }
+        }
+
+        private fun FilePath.toBinding(): Binding? {
+            val pluginFolder = findPluginFolder() ?: return null
+            return Binding.lookup(LivePlugin(pluginFolder))
+        }
     }
 }

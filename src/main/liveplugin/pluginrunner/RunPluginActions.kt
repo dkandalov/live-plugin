@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import liveplugin.*
 import liveplugin.IdeUtil.ideStartupActionPlace
+import liveplugin.LivePluginAppComponent.Companion.findPluginFolder
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPluginsTests
@@ -71,7 +72,7 @@ data class LivePlugin(val path: FilePath) {
 
 private fun runPlugins(pluginFilePaths: List<FilePath>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
     pluginFilePaths
-        .mapNotNull { findPluginFolder(it) }.distinct()
+        .mapNotNull { it.findPluginFolder() }.distinct()
         .forEach { LivePlugin(it).runWith(pluginRunners, event) }
 }
 
@@ -172,7 +173,7 @@ class Binding(
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
 private fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
-    mapNotNull { path -> findPluginFolder(path) }
+    mapNotNull { path -> path.findPluginFolder() }
         .any { folder ->
             pluginRunners.any { runner ->
                 folder.allFiles().any { it.name == runner.scriptName }
@@ -182,10 +183,3 @@ private fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Bo
 fun AnActionEvent.selectedFilePaths(): List<FilePath> =
     (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray())
         .map { it.toFilePath() }
-
-// TODO similar to VirtualFile.pluginFolder
-fun findPluginFolder(fullPath: FilePath, path: FilePath = fullPath): FilePath? {
-    val parent = path.toFile().parent?.toFilePath() ?: return null
-    return if (parent == LivePluginPaths.livePluginsPath) path
-    else findPluginFolder(fullPath, parent)
-}
