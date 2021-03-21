@@ -44,14 +44,11 @@ class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
 
         if (projectLibrariesNames.contains(project, livePluginAndIdeJarsLibrary)) {
             event.presentation.text = "Remove LivePlugin and IDE Jars from Project"
-            event.presentation.description = "" +
-                "Remove LivePlugin and IDE Jars from project dependencies. " +
-                "This will enable auto-complete and other IDE features for IntelliJ classes."
+            event.presentation.description = "Remove LivePlugin and IDE Jars from project dependencies."
         } else {
             event.presentation.text = "Add LivePlugin and IDE Jars to Project"
-            event.presentation.description = "" +
-                "Add LivePlugin and IDE jars to project dependencies. " +
-                "This will enable auto-complete and other IDE features."
+            event.presentation.description = "Add LivePlugin and IDE jars to project dependencies. " +
+                "This will enable auto-complete and other IDE features for Groovy live-plugins."
         }
     }
 

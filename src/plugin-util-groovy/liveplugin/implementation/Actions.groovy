@@ -17,6 +17,7 @@ import com.intellij.openapi.wm.IdeFocusManager
 import liveplugin.FilePath
 import liveplugin.PluginUtil
 import liveplugin.pluginrunner.RunPluginAction
+import liveplugin.pluginrunner.UnloadPluginAction
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -103,6 +104,10 @@ class Actions {
 
 	static runLivePlugin(@NotNull String pluginId, @NotNull Project project) {
 		RunPluginAction.runPlugins([new FilePath(pluginId)], dummyEvent(project))
+	}
+
+	static unloadLivePlugin(@NotNull String pluginId) {
+		UnloadPluginAction.unloadPlugins([new FilePath(pluginId)])
 	}
 
 	static testLivePlugin(@NotNull String pluginId, @NotNull Project project) {
