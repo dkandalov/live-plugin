@@ -36,12 +36,11 @@ import liveplugin.Icons.collapseAllIcon
 import liveplugin.Icons.helpIcon
 import liveplugin.Icons.settingsIcon
 import liveplugin.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
+import liveplugin.LivePluginAppComponent.Companion.isInvalidPluginFolder
 import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
 import liveplugin.pluginrunner.UnloadPluginAction
-import liveplugin.toFilePath
 import liveplugin.toolwindow.addplugin.*
 import liveplugin.toolwindow.popup.NewElementPopupAction
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
@@ -179,11 +178,7 @@ class PluginToolWindow(project: Project) {
 
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
             val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
-                override fun getIcon(file: VirtualFile): Icon {
-                    val isPlugin = pluginIdToPathMap().values.any { it == file.toFilePath() }
-                    return if (isPlugin) Icons.pluginIcon else super.getIcon(file)
-                }
-
+                override fun getIcon(file: VirtualFile) = if (isInvalidPluginFolder(file)) super.getIcon(file) else Icons.pluginIcon
                 override fun getName(virtualFile: VirtualFile) = virtualFile.name
                 override fun getComment(virtualFile: VirtualFile?) = ""
             }.also {
