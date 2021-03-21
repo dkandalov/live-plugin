@@ -40,6 +40,7 @@ import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
+import liveplugin.pluginrunner.UnloadPluginAction
 import liveplugin.toFilePath
 import liveplugin.toolwindow.addplugin.*
 import liveplugin.toolwindow.popup.NewElementPopupAction
@@ -97,6 +98,7 @@ class PluginToolWindow(project: Project) {
             it.add(DeletePluginAction())
             it.add(RunPluginAction())
             it.add(RunPluginTestsAction())
+            it.add(UnloadPluginAction())
             it.addSeparator()
             it.add(RefreshPluginsPanelAction())
             it.add(CollapseAllAction().withIcon(collapseAllIcon))

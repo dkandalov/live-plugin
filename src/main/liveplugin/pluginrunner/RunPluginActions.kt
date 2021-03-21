@@ -28,11 +28,11 @@ private val pluginTestRunners = listOf(GroovyPluginRunner.test, KotlinPluginRunn
 class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         IdeUtil.saveAllFiles()
-        runPlugins(event.selectedFiles(), event)
+        runPlugins(event.selectedFilePaths(), event)
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginRunners)
+        event.presentation.isEnabled = event.selectedFilePaths().canBeHandledBy(pluginRunners)
     }
 
     companion object {
@@ -49,11 +49,11 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
 class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run plugin integration tests", Icons.testPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         IdeUtil.saveAllFiles()
-        runPluginsTests(event.selectedFiles(), event)
+        runPluginsTests(event.selectedFilePaths(), event)
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginTestRunners)
+        event.presentation.isEnabled = event.selectedFilePaths().canBeHandledBy(pluginTestRunners)
     }
 }
 
@@ -130,12 +130,20 @@ class Binding(
         pluginDisposableKey to pluginDisposable
     )
 
+    internal fun dispose() {
+        Disposer.dispose(pluginDisposable)
+        bindingByPluginId.remove(LivePlugin(pluginPath.toFilePath()).id)
+    }
+
     companion object {
         private const val pluginDisposableKey = "pluginDisposable"
         private const val pluginPathKey = "pluginPath"
         private const val isIdeStartupKey = "isIdeStartup"
         private const val projectKey = "project"
         private val bindingByPluginId = HashMap<String, Binding>()
+
+        fun lookup(livePlugin: LivePlugin): Binding? =
+            bindingByPluginId[livePlugin.id]
 
         fun create(livePlugin: LivePlugin, event: AnActionEvent): Binding {
             val oldBinding = bindingByPluginId[livePlugin.id]
@@ -171,12 +179,12 @@ private fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Bo
             }
         }
 
-private fun AnActionEvent.selectedFiles(): List<FilePath> =
+fun AnActionEvent.selectedFilePaths(): List<FilePath> =
     (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray())
         .map { it.toFilePath() }
 
 // TODO similar to VirtualFile.pluginFolder
-private fun findPluginFolder(fullPath: FilePath, path: FilePath = fullPath): FilePath? {
+fun findPluginFolder(fullPath: FilePath, path: FilePath = fullPath): FilePath? {
     val parent = path.toFile().parent?.toFilePath() ?: return null
     return if (parent == LivePluginPaths.livePluginsPath) path
     else findPluginFolder(fullPath, parent)

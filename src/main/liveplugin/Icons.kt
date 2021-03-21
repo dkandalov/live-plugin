@@ -9,6 +9,7 @@ object Icons {
     val deletePluginIcon = General.Remove
     val refreshPluginsPanelIcon = Actions.Refresh
     val runPluginIcon = Actions.Execute
+    val unloadPluginIcon = Actions.Suspend
     val testPluginIcon = RunConfigurations.Junit
     val collapseAllIcon = Actions.Collapseall
     val settingsIcon = General.GearPlain

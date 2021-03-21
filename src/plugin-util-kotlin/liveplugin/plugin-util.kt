@@ -23,6 +23,8 @@ import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
 import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiManager
 import liveplugin.implementation.Editors
 import liveplugin.implementation.MapDataContext
 import liveplugin.implementation.Threads
@@ -134,6 +136,10 @@ val Project.currentEditor: Editor?
 @CanCallWithinRunReadActionOrFromEDT
 val Project.currentFile: VirtualFile?
     get() = (FileEditorManagerEx.getInstance(this) as FileEditorManagerEx).currentFile
+
+@CanCallWithinRunReadActionOrFromEDT
+val Project.currentPsiFile: PsiFile?
+    get() = currentFile?.let { PsiManager.getInstance(this).findFile(it) }
 
 @CanCallWithinRunReadActionOrFromEDT
 val Project.currentDocument: Document?
