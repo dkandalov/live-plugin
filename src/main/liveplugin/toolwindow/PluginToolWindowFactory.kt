@@ -6,6 +6,7 @@ import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.ide.ui.customization.CustomizationUtil
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileSystemTree
 import com.intellij.openapi.fileChooser.actions.VirtualFileDeleteProvider
@@ -186,7 +187,7 @@ class PluginToolWindow(project: Project) {
                 it.withTreeRootVisible(false)
             }
 
-            ApplicationManager.getApplication().runWriteAction {
+            runWriteAction {
                 descriptor.setRoots(VfsUtil.createDirectoryIfMissing(LivePluginPaths.livePluginsPath.value))
             }
 

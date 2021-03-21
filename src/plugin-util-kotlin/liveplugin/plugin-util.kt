@@ -10,6 +10,7 @@ import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.editor.Document
@@ -21,7 +22,6 @@ import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
 import com.intellij.openapi.ui.popup.ListPopup
-import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
@@ -50,7 +50,7 @@ fun invokeLaterOnEdt(f: () -> Any) {
 
 fun <T> runWriteActionOnEdt(f: () -> T): T =
     invokeOnEdt {
-        ApplicationManager.getApplication().runWriteAction(Computable { f() })
+        runWriteAction { f() }
     }
 
 fun LivePluginScript.registerIntention(intention: IntentionAction): IntentionAction =

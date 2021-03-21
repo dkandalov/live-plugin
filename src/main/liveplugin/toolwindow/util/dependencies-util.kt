@@ -1,6 +1,6 @@
 package liveplugin.toolwindow.util
 
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
@@ -10,7 +10,7 @@ import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.LibraryTable
 
 fun removeLibraryDependencyFrom(project: Project, libraryName: String) {
-    ApplicationManager.getApplication().runWriteAction {
+    runWriteAction {
         ModuleManager.getInstance(project).modules.forEach { module ->
             if (module.dependsOn(libraryName)) {
                 module.removeDependencyOn(libraryName)
@@ -30,7 +30,7 @@ private fun Module.removeDependencyOn(libraryName: String) {
 }
 
 fun addLibraryDependencyTo(project: Project, libraryName: String, paths: List<Pair<String, OrderRootType>>) {
-    ApplicationManager.getApplication().runWriteAction {
+    runWriteAction {
         val modules = ModuleManager.getInstance(project).modules
         if (modules.isNotEmpty()) {
             // Add dependency to the first module because this is enough for IntelliJ too see classes

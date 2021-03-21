@@ -1,6 +1,6 @@
 package liveplugin.toolwindow.util
 
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -30,7 +30,7 @@ fun delete(filePath: String) {
 
 private fun runIOAction(actionName: String, f: () -> Unit) {
     var exception: IOException? = null
-    ApplicationManager.getApplication().runWriteAction {
+    runWriteAction {
         CommandProcessor.getInstance().executeCommand(null, {
             try {
                 f()

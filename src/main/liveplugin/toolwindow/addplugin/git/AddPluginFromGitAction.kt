@@ -3,7 +3,7 @@ package liveplugin.toolwindow.addplugin.git
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
@@ -62,7 +62,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
          */
         private fun refreshVFS(directory: File): VirtualFile {
             val result = Ref<VirtualFile>()
-            ApplicationManager.getApplication().runWriteAction {
+            runWriteAction {
                 val lfs = LocalFileSystem.getInstance()
                 val vDir = lfs.refreshAndFindFileByIoFile(directory)
                 result.set(vDir)
