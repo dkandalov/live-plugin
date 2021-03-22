@@ -10,7 +10,7 @@ import java.util.Collections.emptyList
 
 fun File.toUrlString(): String = toURI().toURL().toString()
 
-fun File.toUrl(): URL = this.toURI().toURL()
+fun File.toUrl(): URL = toURI().toURL()
 
 @Suppress("DEPRECATION")
 fun String.toFilePath() =

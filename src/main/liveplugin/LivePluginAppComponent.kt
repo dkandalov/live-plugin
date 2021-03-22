@@ -8,6 +8,7 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
 import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.PathManager.getHomePath
 import com.intellij.openapi.application.PathManager.getPluginsPath
@@ -35,7 +36,6 @@ import com.intellij.usages.impl.rules.UsageTypeProvider
 import com.intellij.util.indexing.IndexableSetContributor
 import liveplugin.IdeUtil.askIfUserWantsToRestartIde
 import liveplugin.IdeUtil.downloadFile
-import liveplugin.IdeUtil.dummyDataContext
 import liveplugin.IdeUtil.ideStartupActionPlace
 import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.LivePluginPaths.groovyExamplesPath
@@ -45,7 +45,8 @@ import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
 import liveplugin.pluginrunner.UnloadPluginAction.Companion.unloadPlugins
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
-import liveplugin.toolwindow.util.ExamplePluginInstaller
+import liveplugin.toolwindow.util.GroovyExamples
+import liveplugin.toolwindow.util.installPlugin
 import java.io.IOException
 
 object LivePluginPaths {
@@ -115,6 +116,8 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
         fun findPluginRootsFor(files: Array<VirtualFile>): Set<VirtualFile> =
             files.mapNotNull { it.pluginFolder() }.toSet()
 
+        fun pluginExists(pluginId: String): Boolean = pluginId in pluginIdToPathMap().keys
+
         private fun VirtualFile.pluginFolder(): VirtualFile? {
             val parent = parent ?: return null
             return if (parent.toFilePath() == livePluginsPath || parent.name == livePluginsProjectDirName) this
@@ -135,21 +138,19 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
         fun readSampleScriptFile(pluginPath: String, file: String): String =
             try {
                 val path = pluginPath + file
-                val inputStream = LivePluginAppComponent::class.java.classLoader.getResourceAsStream(path) ?: error("Could find resource for '$path'.")
+                val inputStream = LivePluginAppComponent::class.java.classLoader.getResourceAsStream(path) ?: error("Couldn't find resource for '$path'.")
                 FileUtil.loadTextAndClose(inputStream)
             } catch (e: IOException) {
                 logger.error(e)
                 ""
             }
 
-        fun pluginExists(pluginId: String): Boolean = pluginIdToPathMap().keys.contains(pluginId)
-
         private fun runAllPlugins() {
             val actionManager = ActionManager.getInstance() // get ActionManager instance outside of EDT (because it failed in 201.6668.113)
             invokeLaterOnEDT {
                 val event = AnActionEvent(
                     null,
-                    dummyDataContext,
+                    EMPTY_CONTEXT,
                     ideStartupActionPlace,
                     Presentation(),
                     actionManager,
@@ -192,11 +193,9 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
 
         private fun installHelloWorldPlugins() {
             invokeLaterOnEDT {
-                val handleError = { e: Exception, pluginPath: String -> logger.warn("Failed to install plugin: $pluginPath", e) }
-                ExamplePluginInstaller(groovyExamplesPath + "hello-world/", listOf("plugin.groovy")).installPlugin(handleError)
-                ExamplePluginInstaller(groovyExamplesPath + "ide-actions/", listOf("plugin.groovy")).installPlugin(handleError)
-                ExamplePluginInstaller(groovyExamplesPath + "insert-new-line-above/", listOf("plugin.groovy")).installPlugin(handleError)
-                ExamplePluginInstaller(groovyExamplesPath + "popup-menu/", listOf("plugin.groovy")).installPlugin(handleError)
+                listOf(GroovyExamples.helloWorld, GroovyExamples.ideActions, GroovyExamples.newLineAbove, GroovyExamples.popupMenu).forEach {
+                    it.installPlugin(handleError = { e: Exception, pluginPath: String -> logger.warn("Failed to install plugin: $pluginPath", e) })
+                }
             }
         }
     }

@@ -46,7 +46,6 @@ object IdeUtil {
     val textFileType: FileType = PlainTextFileType.INSTANCE
     val groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension("groovy")
     val kotlinFileType = KotlinScriptFileType.instance
-    val dummyDataContext = DataContext { null }
 
     private val logger = Logger.getInstance(IdeUtil::class.java)
 

@@ -3,33 +3,67 @@ package liveplugin.toolwindow.util
 import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginPaths
+import liveplugin.LivePluginPaths.groovyExamplesPath
 import java.io.IOException
 
-class ExamplePluginInstaller(private val pluginPath: String, private val filePaths: List<String>) {
+data class ExamplePlugin(val path: String, val pluginId: String, val filePaths: List<String>) {
+    constructor(path: String, pluginId: String, vararg filePaths: String): this(path, pluginId, filePaths.toList())
+}
 
-    fun installPlugin(handleError: (e: Exception, pluginPath: String) -> Unit, whenCreated: (VirtualFile) -> Unit = {}) {
-        val pluginId = extractPluginIdFrom(pluginPath)
+object GroovyExamples {
+    val helloWorld = ExamplePlugin(groovyExamplesPath, "hello-world", "plugin.groovy")
+    val ideActions = ExamplePlugin(groovyExamplesPath, "ide-actions/", "plugin.groovy")
+    val newLineAbove = ExamplePlugin(groovyExamplesPath, "insert-new-line-above/", "plugin.groovy")
+    val popupMenu = ExamplePlugin(groovyExamplesPath, "popup-menu/", "plugin.groovy")
 
-        filePaths.forEach { relativeFilePath ->
-            try {
-                val text = LivePluginAppComponent.readSampleScriptFile(pluginPath, relativeFilePath)
-                val (parentPath, fileName) = splitIntoPathAndFileName("${LivePluginPaths.livePluginsPath}/$pluginId/$relativeFilePath")
-                createFile(parentPath, fileName, text, whenCreated)
-            } catch (e: IOException) {
-                handleError(e, pluginPath)
-            }
+    val all = listOf(
+        helloWorld,
+        ideActions,
+        newLineAbove,
+        popupMenu,
+        ExamplePlugin(groovyExamplesPath, "popup-search/", "plugin.groovy"),
+        ExamplePlugin(groovyExamplesPath, "tool-window/", "plugin.groovy"),
+        ExamplePlugin(groovyExamplesPath, "toolbar-widget/", "plugin.groovy"),
+        ExamplePlugin(groovyExamplesPath, "text-editor/", "plugin.groovy"),
+        ExamplePlugin(groovyExamplesPath, "transform-selected-text/", "plugin.groovy"),
+        ExamplePlugin(groovyExamplesPath, "java-inspection/", "plugin.groovy"),
+        ExamplePlugin(groovyExamplesPath, "java-intention/", "plugin.groovy"),
+        ExamplePlugin(groovyExamplesPath, "project-files-stats/", "plugin.groovy"),
+        ExamplePlugin(groovyExamplesPath, "misc-util/", "util/AClass.groovy", "plugin.groovy"),
+        ExamplePlugin(groovyExamplesPath, "additional-classpath/", "plugin.groovy"),
+        ExamplePlugin(groovyExamplesPath, "integration-test/", "plugin-test.groovy", "plugin.groovy"),
+    )
+}
+
+object KotlinExamples {
+    val all = listOf(
+        ExamplePlugin(LivePluginPaths.kotlinExamplesPath, "hello-world/", "plugin.kts"),
+        ExamplePlugin(LivePluginPaths.kotlinExamplesPath, "ide-actions/", "plugin.kts"),
+        ExamplePlugin(LivePluginPaths.kotlinExamplesPath, "insert-new-line-above/", "plugin.kts"),
+        ExamplePlugin(LivePluginPaths.kotlinExamplesPath, "popup-menu/", "plugin.kts"),
+        ExamplePlugin(LivePluginPaths.kotlinExamplesPath, "kotlin-intention/", "plugin.kts"),
+        ExamplePlugin(LivePluginPaths.kotlinExamplesPath, "kotlin-inspection/", "plugin.kts"),
+        ExamplePlugin(LivePluginPaths.kotlinExamplesPath, "java-intention/", "plugin.kts"),
+        ExamplePlugin(LivePluginPaths.kotlinExamplesPath, "java-inspection/", "plugin.kts"),
+        ExamplePlugin(LivePluginPaths.kotlinExamplesPath, "additional-classpath/", "plugin.kts"),
+        ExamplePlugin(LivePluginPaths.kotlinExamplesPath, "multiple-src-files/", "foo.kt", "bar/bar.kt", "plugin.kts"),
+    )
+}
+
+fun ExamplePlugin.installPlugin(handleError: (e: Exception, pluginPath: String) -> Unit, whenCreated: (VirtualFile) -> Unit = {}) {
+    filePaths.forEach { relativeFilePath ->
+        val pluginPath = "$path/$pluginId"
+        try {
+            val text = LivePluginAppComponent.readSampleScriptFile(pluginPath, relativeFilePath)
+            val (parentPath, fileName) = splitIntoPathAndFileName("${LivePluginPaths.livePluginsPath}/$pluginId/$relativeFilePath")
+            createFile(parentPath, fileName, text, whenCreated)
+        } catch (e: IOException) {
+            handleError(e, pluginPath)
         }
     }
+}
 
-    companion object {
-        private fun splitIntoPathAndFileName(filePath: String): Pair<String, String> {
-            val index = filePath.lastIndexOf("/")
-            return Pair(filePath.substring(0, index), filePath.substring(index + 1))
-        }
-
-        fun extractPluginIdFrom(pluginPath: String): String {
-            val split = pluginPath.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            return split[split.size - 1]
-        }
-    }
+private fun splitIntoPathAndFileName(filePath: String): Pair<String, String> {
+    val index = filePath.lastIndexOf("/")
+    return Pair(filePath.substring(0, index), filePath.substring(index + 1))
 }

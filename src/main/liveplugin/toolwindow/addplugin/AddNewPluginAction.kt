@@ -12,6 +12,8 @@ import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.pluginExists
 import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
 import liveplugin.LivePluginPaths
+import liveplugin.LivePluginPaths.groovyExamplesPath
+import liveplugin.LivePluginPaths.kotlinExamplesPath
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.RefreshPluginsPanelAction
@@ -22,14 +24,14 @@ class AddNewGroovyPluginAction: AddNewPluginAction(
     text = "Groovy Plugin",
     description = "Create new Groovy plugin",
     scriptFileName = GroovyPluginRunner.mainScript,
-    scriptFileText = readSampleScriptFile(LivePluginPaths.groovyExamplesPath, "default-plugin.groovy")
+    scriptFileText = readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
 )
 
 class AddNewKotlinPluginAction: AddNewPluginAction(
     text = "Kotlin Plugin",
     description = "Create new Kotlin plugin",
     scriptFileName = KotlinPluginRunner.mainScript,
-    scriptFileText = readSampleScriptFile(LivePluginPaths.kotlinExamplesPath, "default-plugin.kts")
+    scriptFileText = readSampleScriptFile(kotlinExamplesPath, "default-plugin.kts")
 )
 
 open class AddNewPluginAction(
@@ -55,7 +57,6 @@ open class AddNewPluginAction(
             createFile("${LivePluginPaths.livePluginsPath}/$newPluginId", scriptFileName, scriptFileText, whenCreated = { virtualFile ->
                 if (project != null) FileEditorManager.getInstance(project).openFile(virtualFile, true)
             })
-
         } catch (e: IOException) {
             if (project != null) IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to ${LivePluginPaths.livePluginsPath}", addNewPluginTitle)
             log.error(e)
