@@ -21,14 +21,6 @@ repositories {
 	}
 }
 
-compileKotlin {
-	kotlinOptions {
-		jvmTarget = "11"
-		apiVersion = "1.4"
-		languageVersion = "1.4"
-		freeCompilerArgs = ["-Xjvm-default=enable"] // Added for the rendundant override in LivePluginKotlinScriptProvider
-	}
-}
 ext.kotlinVersion = "1.4.31"
 
 intellij {
@@ -95,6 +87,16 @@ sourceSets {
 		compileClasspath = main.output + pluginUtilGroovy.output + configurations.testCompileClasspath + configurations.pluginUtilGroovyCompileClasspath
 		runtimeClasspath = test.output + main.output + pluginUtilGroovy.output +
 			configurations.testRuntimeClasspath + configurations.pluginUtilGroovyRuntimeClasspath
+	}
+}
+
+// Configure kotlinOptions for all tasks for each of the sourcesets specified above.
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+	kotlinOptions {
+		jvmTarget = "11"
+		apiVersion = "1.4"
+		languageVersion = "1.4"
+		freeCompilerArgs = ["-Xjvm-default=enable"] // Added for LivePluginKotlinScriptProvider
 	}
 }
 
