@@ -86,14 +86,14 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
         val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
         val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)
 
-        runPlugins(pluginsPath.listFiles().map { it.toFilePath() }, dummyEvent)
+        runPlugins(pluginsPath.listFiles(), dummyEvent)
     }
 
     override fun projectClosing(project: Project) {
         val projectPath = project.basePath?.toFilePath() ?: return
         val pluginsPath = projectPath + livePluginsProjectDirName
         if (!pluginsPath.exists()) return
-        unloadPlugins(pluginsPath.listFiles().map { it.toFilePath() })
+        unloadPlugins(pluginsPath.listFiles())
     }
 
     companion object {
@@ -103,10 +103,9 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
 
         fun pluginIdToPathMap(): Map<String, FilePath> {
             // TODO Use virtual file because the code below will access file system every time this function is called to update availability of actions
-            val files = livePluginsPath.listFiles { file ->
-                file.isDirectory && file.name != DIRECTORY_STORE_FOLDER
-            }
-            return files.associate { Pair(it.name, it.toFilePath()) }
+            return livePluginsPath
+                .listFiles { file -> file.isDirectory && file.name != DIRECTORY_STORE_FOLDER }
+                .associateBy { it.name }
         }
 
         fun isInvalidPluginFolder(virtualFile: VirtualFile): Boolean =

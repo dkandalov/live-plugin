@@ -79,7 +79,8 @@ private fun createScriptConfig(context: ScriptConfigurationRefinementContext, cl
         val scriptFolderPath = context.script.locationId?.let { File(it).parent } ?: ""
         updateClasspath(classpath(scriptText, scriptFolderPath))
 
-        val filesInThePluginFolder = scriptFolderPath.toFilePath().allFiles().filter { it.path != context.script.locationId }.toList()
+        val filesInThePluginFolder = scriptFolderPath.toFilePath().allFiles()
+            .filter { it.value != context.script.locationId }.map { it.toFile() }.toList()
         // The `importScripts` seem to be used by org.jetbrains.kotlin.scripting.resolve.LazyScriptDescriptor.ImportedScriptDescriptorsFinder()
         // which only reads definitions from KtScript psi elements (.kts files) but it doesn't work even if all files are renamed to .kts 😠 The scripting API is endless WTF!!!!!
         // See also https://youtrack.jetbrains.com/issue/KT-28916
@@ -103,7 +104,7 @@ private fun compilingClasspath(scriptText: List<String>, scriptFolderPath: Strin
 class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
     override val id = "LivePluginKotlinScriptProvider"
     override fun getDefinitionClasses() = listOf(LivePluginScript::class.java.canonicalName)
-    override fun getDefinitionsClassPath() = LivePluginPaths.livePluginLibPath.listFiles()
+    override fun getDefinitionsClassPath() = LivePluginPaths.livePluginLibPath.listFiles().map { it.toFile() }
         // + File(".../live-plugin/build/idea-sandbox/plugins/live-plugins/multiple-src-files/foo.kt") This doesn't work 😠
     override fun useDiscovery() = false
 }

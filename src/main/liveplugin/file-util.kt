@@ -35,20 +35,24 @@ data class FilePath @Deprecated("Use the extension functions declared above") co
     private val file = File(value)
 
     val name: String = file.name
+    val isDirectory: Boolean = file.isDirectory
+    val extension: String = file.extension
 
-    fun toFile() = file
+    fun allFiles(): Sequence<FilePath> = file.walkTopDown().filter { it.isFile }.map { it.toFilePath() }
 
-    fun allFiles(): Sequence<File> = file.walkTopDown().asSequence().filter { it.isFile }
+    fun listFiles(): List<FilePath> = file.listFiles()?.map { it.toFilePath() } ?: emptyList()
 
-    fun listFiles(): List<File> = file.listFiles()?.toList() ?: emptyList()
-
-    fun listFiles(predicate: (File) -> Boolean) = listFiles().filter(predicate)
+    fun listFiles(predicate: (FilePath) -> Boolean) = listFiles().filter(predicate)
 
     fun exists() = file.exists()
 
-    fun toVirtualFile(): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl("file:///$this")
+    fun readText() = file.readText()
 
     operator fun plus(that: String): FilePath = FilePath("$value/$that")
+
+    fun toFile() = file
+
+    fun toVirtualFile(): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl("file:///$this")
 
     override fun toString() = value
 }
@@ -65,5 +69,5 @@ fun FilePath.find(fileName: String): File? {
 fun FilePath.findAll(fileName: String): List<FilePath> {
     val targetFilePath = this + fileName
     return if (targetFilePath.exists()) listOf(targetFilePath)
-    else allFiles().filter { fileName == it.name }.map { it.toFilePath() }.toList()
+    else allFiles().filter { fileName == it.name }.toList()
 }

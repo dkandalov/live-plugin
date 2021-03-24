@@ -181,7 +181,7 @@ private class KotlinPluginCompiler {
     }
 }
 
-fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles()
+fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles().map { it.toFile() }
 
 fun dependenciesOnOtherPluginsForHighlighting(scriptText: List<String>): List<File> =
     findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
@@ -195,16 +195,16 @@ fun findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText: List<Stri
         .flatMap { it.value }
 
 fun livePluginLibAndSrcFiles() =
-    LivePluginPaths.livePluginLibPath.listFiles()
+    LivePluginPaths.livePluginLibPath.listFiles().map { it.toFile() }
 
 private fun livePluginKotlinCompilerLibFiles() =
-    (LivePluginPaths.livePluginPath + "kotlin-compiler").listFiles()
+    (LivePluginPaths.livePluginPath + "kotlin-compiler").listFiles().map { it.toFile() }
 
 private fun IdeaPluginDescriptor.toLibFiles() =
     (pluginPath.toFilePath() + "lib").listFiles {
         // Exclusion specifically for Kotlin plugin which includes kotlin-compiler-plugins jars
         // which seem to be compiled with IJ API and are not compatible with actual Kotlin compilers.
         !it.name.contains("compiler-plugin")
-    }
+    }.map { it.toFile() }
 
 private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath(), true)
