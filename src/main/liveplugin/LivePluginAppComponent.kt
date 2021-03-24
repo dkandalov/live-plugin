@@ -131,14 +131,13 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
             else parent.findPluginFolder()
         }
 
-        fun defaultPluginScript(): String = readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
+        fun defaultPluginScript(): String = readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy")
 
-        fun defaultPluginTestScript(): String = readSampleScriptFile(groovyExamplesPath, "default-plugin-test.groovy")
+        fun defaultPluginTestScript(): String = readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy")
 
-        fun readSampleScriptFile(pluginPath: String, file: String): String =
+        fun readSampleScriptFile(filePath: String): String =
             try {
-                val path = pluginPath + file
-                val inputStream = LivePluginAppComponent::class.java.classLoader.getResourceAsStream(path) ?: error("Couldn't find resource for '$path'.")
+                val inputStream = LivePluginAppComponent::class.java.classLoader.getResourceAsStream(filePath) ?: error("Couldn't find resource for '$filePath'.")
                 FileUtil.loadTextAndClose(inputStream)
             } catch (e: IOException) {
                 logger.error(e)

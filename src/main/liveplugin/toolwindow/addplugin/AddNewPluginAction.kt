@@ -24,14 +24,14 @@ class AddNewGroovyPluginAction: AddNewPluginAction(
     text = "Groovy Plugin",
     description = "Create new Groovy plugin",
     scriptFileName = GroovyPluginRunner.mainScript,
-    scriptFileText = readSampleScriptFile(groovyExamplesPath, "default-plugin.groovy")
+    scriptFileText = readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy")
 )
 
 class AddNewKotlinPluginAction: AddNewPluginAction(
     text = "Kotlin Plugin",
     description = "Create new Kotlin plugin",
     scriptFileName = KotlinPluginRunner.mainScript,
-    scriptFileText = readSampleScriptFile(kotlinExamplesPath, "default-plugin.kts")
+    scriptFileText = readSampleScriptFile("$kotlinExamplesPath/default-plugin.kts")
 )
 
 open class AddNewPluginAction(

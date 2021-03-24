@@ -5,7 +5,6 @@ import com.intellij.ide.DeleteProvider
 import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.ide.ui.customization.CustomizationUtil
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileSystemTree
@@ -179,7 +178,7 @@ class PluginToolWindow(project: Project) {
 
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
             val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
-                override fun getIcon(file: VirtualFile) = if (isInvalidPluginFolder(file)) super.getIcon(file) else Icons.pluginIcon
+                override fun getIcon(file: VirtualFile) = if (!file.isDirectory || isInvalidPluginFolder(file)) super.getIcon(file) else Icons.pluginIcon
                 override fun getName(virtualFile: VirtualFile) = virtualFile.name
                 override fun getComment(virtualFile: VirtualFile?) = ""
             }.also {

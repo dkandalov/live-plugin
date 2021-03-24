@@ -6,7 +6,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import liveplugin.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.pluginExists
 import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.ExamplePlugin
@@ -28,10 +27,6 @@ class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): AnAction
             handleError = { e, pluginPath -> logException(e, event, pluginPath) }
         )
         RefreshPluginsPanelAction.refreshPluginTree()
-    }
-
-    override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = pluginExists(examplePlugin.pluginId)
     }
 
     private fun logException(e: Exception, event: AnActionEvent, pluginPath: String) {
