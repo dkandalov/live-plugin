@@ -33,6 +33,8 @@ import com.intellij.util.download.DownloadableFileService
 import com.intellij.util.text.CharArrayUtil
 import liveplugin.LivePluginAppComponent.Companion.livePluginId
 import liveplugin.pluginrunner.AnError
+import liveplugin.pluginrunner.AnError.LoadingError
+import liveplugin.pluginrunner.AnError.RunningError
 import org.jetbrains.annotations.NonNls
 import java.awt.BorderLayout
 import java.io.PrintWriter
@@ -45,14 +47,14 @@ object IdeUtil {
 
     val textFileType: FileType = PlainTextFileType.INSTANCE
     val groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension("groovy")
-    val kotlinFileType = KotlinScriptFileType.instance
+    val kotlinFileType = KotlinScriptFileType
 
     private val logger = Logger.getInstance(IdeUtil::class.java)
 
     fun displayError(error: AnError, project: Project?) {
         val (title, message) = when (error) {
-            is AnError.LoadingError -> Pair("Loading error: ${error.pluginId}", error.message + if (error.throwable != null) "\n" + unscrambleThrowable(error.throwable) else "")
-            is AnError.RunningError -> Pair("Running error: ${error.pluginId}", unscrambleThrowable(error.throwable))
+            is LoadingError -> Pair("Loading error: ${error.pluginId}", error.message + if (error.throwable != null) "\n" + unscrambleThrowable(error.throwable) else "")
+            is RunningError -> Pair("Running error: ${error.pluginId}", unscrambleThrowable(error.throwable))
         }
         displayError(title, message, project)
     }
@@ -212,7 +214,7 @@ object IdeUtil {
      * Can't use `FileTypeManager.getInstance().getFileTypeByExtension("kts");` here
      * because it will return FileType for .kt files and this will cause creating files with wrong extension.
      */
-    class KotlinScriptFileType: FileType {
+    object KotlinScriptFileType: FileType {
         override fun getName() = "Kotlin"
         override fun getDescription() = this.name
         override fun getDefaultExtension() = "kts"
@@ -221,19 +223,15 @@ object IdeUtil {
         override fun isReadOnly() = false
         override fun getCharset(virtualFile: VirtualFile, bytes: ByteArray): String? = null
 
-        companion object {
-            internal val instance: FileType = KotlinScriptFileType()
+        private val kotlinScriptIcon by lazy {
+            findIconOrNull("/org/jetbrains/kotlin/idea/icons/kotlin_file.png") ?: AllIcons.FileTypes.Text
+        }
 
-            // The kotlin icon is missing in some IDEs like WebStorm, so it's important
-            // to set `strict` to false in findIcon, so an exception won't be thrown.
-            private fun findIconOrNull(path: String) : Icon? {
-                val callerClass = ReflectionUtil.getGrandCallerClass() ?: return null
-                return IconLoader.findIcon(path, callerClass, false, false)
-            }
-
-            private val kotlinScriptIcon by lazy {
-                findIconOrNull("/org/jetbrains/kotlin/idea/icons/kotlin_file.png") ?: AllIcons.FileTypes.Text
-            }
+        // The kotlin icon is missing in some IDEs like WebStorm, so it's important
+        // to set `strict` to false in findIcon, so an exception won't be thrown.
+        private fun findIconOrNull(path: String) : Icon? {
+            val callerClass = ReflectionUtil.getGrandCallerClass() ?: return null
+            return IconLoader.findIcon(path, callerClass, false, false)
         }
     }
 }

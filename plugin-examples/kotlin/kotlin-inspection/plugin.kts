@@ -31,7 +31,7 @@ class HelloWorldInspectionKotlin : AbstractKotlinInspection() {
 
 class HelloWorldQuickFix : LocalQuickFix {
     override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
-        val stringLiteral = KtPsiFactory(descriptor.psiElement).createExpressionByPattern("\"Hello World\"")
+        val stringLiteral = KtPsiFactory(descriptor.psiElement).createExpression("\"Hello World\"")
         descriptor.psiElement.replace(stringLiteral)
     }
     override fun getName() = "Replace with \"Hello World\""
