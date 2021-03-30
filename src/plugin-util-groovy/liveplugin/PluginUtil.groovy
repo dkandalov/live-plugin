@@ -109,12 +109,12 @@ class PluginUtil {
 
 	/**
 	 * Shows popup balloon notification.
-	 * (It actually sends IDE notification event which by default shows "balloon".
-	 * This also means that message will be added to "Event Log" console.)
 	 *
-	 * See "IDE Settings - Notifications".
+	 * Under the hood, this function sends IDE notification event
+	 * which is displayed as a "balloon" and added to the "Event Log" console.
+	 * See also "IDE Settings - Notifications".
 	 *
-	 * @param message message to display (can have html tags in it)
+	 * @param message message to display (can include html tags)
 	 * @param title (optional) popup title
 	 * @param notificationType (optional) see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/notification/NotificationType.java
 	 * @param groupDisplayId (optional) an id to group notifications by (can be configured in "IDE Settings - Notifications")

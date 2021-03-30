@@ -32,6 +32,13 @@ import liveplugin.pluginrunner.kotlin.LivePluginScript
 import java.awt.Component
 import javax.swing.JPanel
 
+/**
+ * Shows popup balloon notification with the specified [message] (which can include HTML tags),
+ * [title], [notificationType] and [groupDisplayId] (see `IDE Settings - Appearance & Behavior - Notifications`).
+ *
+ * Under the hood, this function sends IDE notification event
+ * which is displayed as a "balloon" and added to the `Event Log` console.
+ */
 fun show(
     message: Any?,
     title: String = "",
