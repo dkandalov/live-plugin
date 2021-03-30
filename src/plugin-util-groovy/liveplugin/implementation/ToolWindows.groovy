@@ -1,10 +1,12 @@
 package liveplugin.implementation
+
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.SimpleToolWindowPanel
+import com.intellij.openapi.wm.RegisterToolWindowTask
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
@@ -12,7 +14,6 @@ import com.intellij.ui.content.ContentFactory
 import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
-import java.util.function.Function
 
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 import static liveplugin.PluginUtil.unregisterToolWindow
@@ -21,7 +22,7 @@ import static liveplugin.implementation.Misc.*
 class ToolWindows {
 
 	static registerToolWindow(String toolWindowId, Disposable disposable = null, ToolWindowAnchor location = RIGHT,
-	                          ActionGroup toolbarActionGroup = null, Function<Void, JComponent> createComponent) {
+	                          ActionGroup toolbarActionGroup = null, Closure<JComponent> createComponent) {
 		def disposableId = registerDisposable(toolWindowId)
 		disposable = (disposable == null ? disposableId : newDisposable([disposable, disposableId]))
 
@@ -31,7 +32,7 @@ class ToolWindows {
 	}
 
 	static ToolWindow registerToolWindow(Project project, String toolWindowId, Disposable disposable = null, ToolWindowAnchor location = RIGHT,
-	                          ActionGroup toolbarActionGroup = null, Function<Void, JComponent> createComponent) {
+	                          ActionGroup toolbarActionGroup = null, Closure<JComponent> createComponent) {
 		def disposableId = registerDisposable(toolWindowId)
 		disposable = (disposable == null ? disposableId : newDisposable([disposable, disposableId]))
 
@@ -42,13 +43,15 @@ class ToolWindows {
 		unregisterDisposable(toolWindowId)
 		// manually remove toolwindows from open projects in case they were registered without disposable
 		ProjectManager.instance.openProjects.each { Project project ->
-			ToolWindowManager.getInstance(project).unregisterToolWindow(toolWindowId)
+			def toolWindow = ToolWindowManager.getInstance(project).getToolWindow(toolWindowId)
+			if (toolWindowId != null) toolWindow.remove()
 		}
 	}
 
 	static unregisterToolWindow(String toolWindowId, Project project) {
 		unregisterDisposable(toolWindowId)
-		ToolWindowManager.getInstance(project).unregisterToolWindow(toolWindowId)
+		def toolWindow = ToolWindowManager.getInstance(project).getToolWindow(toolWindowId)
+		if (toolWindow != null) toolWindow.remove()
 	}
 
 	static Collection<ToolWindow> findToolWindows(String toolWindowId) {
@@ -74,14 +77,15 @@ class ToolWindows {
 
 	private static ToolWindow registerToolWindowIn(Project project, String toolWindowId, Disposable disposable,
 	                                               ToolWindowAnchor location = RIGHT, ActionGroup toolbarActionGroup = null,
-	                                               Function<Void, JComponent> createComponent) {
+	                                               Closure<JComponent> createComponent) {
 		newDisposable(disposable) {
-			ToolWindowManager.getInstance(project).unregisterToolWindow(toolWindowId)
+			def toolWindow = ToolWindowManager.getInstance(project).getToolWindow(toolWindowId)
+			if (toolWindow != null) toolWindow.remove()
 		}
 
 		def manager = ToolWindowManager.getInstance(project)
 		if (manager.getToolWindow(toolWindowId) != null) {
-			manager.unregisterToolWindow(toolWindowId)
+			manager.getToolWindow(toolWindowId).remove()
 		}
 
 		def component
@@ -93,7 +97,7 @@ class ToolWindows {
 			component.toolbar = ActionManager.instance.createActionToolbar(ActionPlaces.EDITOR_TOOLBAR, toolbarActionGroup, true).component
 		}
 
-		def toolWindow = manager.registerToolWindow(toolWindowId, false, location)
+		def toolWindow = manager.registerToolWindow(RegisterToolWindowTask.notClosable(toolWindowId, location))
 		def content = ContentFactory.SERVICE.instance.createContent(component, "", false)
 		toolWindow.contentManager.addContent(content)
 		toolWindow

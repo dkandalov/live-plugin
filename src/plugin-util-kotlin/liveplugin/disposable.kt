@@ -1,4 +1,4 @@
-package liveplugin
+package liveplugin.disposable
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer
@@ -16,8 +16,8 @@ fun newDisposable(debugName: String? = null, whenDisposed: () -> Unit = {}): Dis
     }
 
 fun Disposable.registerParent(vararg parentDisposables: Disposable): Disposable {
+    val isDisposed = AtomicBoolean(false)
     parentDisposables.forEach { parentDisposable ->
-        val isDisposed = AtomicBoolean(false)
         Disposer.register(parentDisposable) {
             val wasUpdated = isDisposed.compareAndSet(false, true)
             if (wasUpdated) Disposer.dispose(this)
