@@ -4,33 +4,43 @@ import com.intellij.openapi.project.DumbAware
 import liveplugin.actions.registerAction
 import liveplugin.show
 
-//
 // Most of the user interactions with IDE are performed using actions.
-// Conceptually, an action is a stateless function which takes AnActionEvent object and creates some side effect,
-// for example, moves cursor, modifies source code or displays a message as in the code below.
-//
+// Conceptually, an action is a stateless function that takes AnActionEvent object and creates some side effect.
+// For example, moves cursor, modifies source code or displays a message as in the code below.
+// (See also https://plugins.jetbrains.com/docs/intellij/basic-action-system.html)
 
+// Option 1.
+// You can create and register an action using registerAction() function which takes:
+//  - actionId (must be unique)
+//  - keystroke (see https://docs.oracle.com/javase/8/docs/api/javax/swing/KeyStroke.html#getKeyStroke-java.lang.String-)
+//  - callback which will be invoked when the action is executed
+//  - disposable which will unregister the action when disposed.
+//    It can be passed explicitly or via LivePluginScript.registerAction() extention function like in the code below
 registerAction(id = "HelloWorldActionAsFunction", keyStroke = "alt shift H") { event: AnActionEvent ->
-    show("Hello '${event.project?.name}'")
+    show("Hello from action! Project: ${event.project?.name}")
 }
 if (!isIdeStartup) show("Loaded 'HelloWorldActionAsFunction'<br/>Use alt+shift+H to run it")
 
-
-class HelloWorldAction: AnAction(), DumbAware {
-    override fun actionPerformed(event: AnActionEvent) = show("Hello world")
+// Option 2.
+// You can create an instance of AnAction class and pass it to registerAction().
+class ProjectPathAction: AnAction(), DumbAware {
+    override fun actionPerformed(event: AnActionEvent) =
+        show("Project path: ${event.project?.basePath}")
 }
-registerAction(id = "HelloWorldAction", keyStroke = "ctrl shift H", action = HelloWorldAction())
-if (!isIdeStartup) show("Loaded 'HelloWorldAction'<br/>Use ctrl+shift+H to run it")
+registerAction(id = "ProjectPathAction", keyStroke = "ctrl shift H", action = ProjectPathAction())
+if (!isIdeStartup) show("Loaded 'ProjectPathAction'<br/>Use ctrl+shift+H to run it")
 
-//
+// Option 3.
+// Use ActionManager directly to add, remove or find actions.
+// See https://upsource.jetbrains.com/idea-ce/file/idea-ce-d60a9e652f1458d4e67e0bb6e8215fb125f5a478/platform/editor-ui-api/src/com/intellij/openapi/actionSystem/ActionManager.java
+
 // In the code examples above "registerAction" and "show" are functions imported from LivePlugin libraries.
 // They wrap IntelliJ API to hide boilerplate code needed for registering an action.
-// You can find source code here https://github.com/dkandalov/live-plugin/blob/master/src/plugin-util-kotlin/liveplugin/plugin-util.kt.
-//
-// In IDEs with Kotlin support you should be able to auto-complete and navigate the code above.
-// LivePlugin comes with the source code for its libraries so you should be to see implementation of "show" and "registerAction".
-//
+// You can find source code here https://github.com/dkandalov/live-plugin/blob/master/src/plugin-util-groovy/liveplugin/PluginUtil.groovy.
 
-//
+// In IDEs with Kotlin support you should be able to auto-complete and navigate the code above.
+// LivePlugin comes with the source code for its libraries so you should be to see
+// implementation of "show" and "registerAction".
+
 // See next insert-new-line-above example.
 //          ^^^^^^^^^^^^^^^^^^^^^

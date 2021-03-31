@@ -165,7 +165,7 @@ class PluginUtil {
 	 * If there is already an action with {@code actionId}, it will be replaced.
 	 * (The main reason to replace action is to be able to incrementally add code to it without restarting IDE.)
 	 *
-	 * @param actionId unique identifier for action
+	 * @param actionId unique identifier for the action
 	 * @param keyStroke (optional) e.g. "ctrl alt shift H" or "alt C, alt H" for double key stroke;
 	 *        on OSX "meta" means "command" button. Note that letters must be uppercase, modification keys lowercase.
 	 *        See {@link javax.swing.KeyStroke#getKeyStroke(String)}

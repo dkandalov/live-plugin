@@ -8,7 +8,7 @@ import liveplugin.*
 
 // The code below will show balloon message with "Hello world" text (which should also appear in "Event Log" toolwindow).
 // If there is no balloon, it might be disabled in "IDE Settings - Notifications".
-show("Hello kotlin world")
+show("Hello Kotlin world")
 
 // There are several implicit variables available in plugin.groovy files.
 //  - "isIdeStartup" which is true on IDE startup, otherwise false. Plugins are executed on IDE startup

@@ -34,6 +34,5 @@ show("pluginPath: $pluginPath")
 println("Hello world on stdout")
 Logger.getInstance("HelloLogger").info("Hello world")
 
-//
 // See next ide-actions example.
 //          ^^^^^^^^^^^
