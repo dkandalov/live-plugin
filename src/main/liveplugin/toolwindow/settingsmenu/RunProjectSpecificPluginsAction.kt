@@ -5,15 +5,15 @@ import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.project.DumbAware
 import liveplugin.Settings
 
-class RunPluginsOnProjectOpenAction: ToggleAction(
-    "Run Live Plugins On Project Open",
-    "Run all live plugins in the project when it's open. The project-level plugins must be located in '.live-plugins' directory.",
+class RunProjectSpecificPluginsAction: ToggleAction(
+    "Run Project Specific Plugins",
+    "Run plugins in the '.live-plugins' directory of the project when it's open.",
     null
 ), DumbAware {
     override fun isSelected(event: AnActionEvent) =
-        Settings.instance.runPluginsOnProjectOpen
+        Settings.instance.runProjectSpecificPlugins
 
     override fun setSelected(event: AnActionEvent, state: Boolean) {
-        Settings.instance.runPluginsOnProjectOpen = state
+        Settings.instance.runProjectSpecificPlugins = state
     }
 }

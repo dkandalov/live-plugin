@@ -77,7 +77,7 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
     }
 
     override fun projectOpened(project: Project) {
-        if (!Settings.instance.runPluginsOnProjectOpen) return
+        if (!Settings.instance.runProjectSpecificPlugins) return
 
         val projectPath = project.basePath?.toFilePath() ?: return
         val pluginsPath = projectPath + livePluginsProjectDirName

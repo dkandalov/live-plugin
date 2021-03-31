@@ -45,7 +45,7 @@ import liveplugin.toolwindow.addplugin.*
 import liveplugin.toolwindow.popup.NewElementPopupAction
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.toolwindow.settingsmenu.RunPluginsOnIDEStartAction
-import liveplugin.toolwindow.settingsmenu.RunPluginsOnProjectOpenAction
+import liveplugin.toolwindow.settingsmenu.RunProjectSpecificPluginsAction
 import org.jetbrains.annotations.NonNls
 import java.awt.GridLayout
 import javax.swing.Icon
@@ -130,8 +130,8 @@ class PluginToolWindow(project: Project) {
             // Without this IntelliJ calls update() on first action in the group even if the action group is collapsed
             override fun disableIfNoVisibleChildren() = false
         }.also {
-            it.add(RunPluginsOnProjectOpenAction())
             it.add(RunPluginsOnIDEStartAction())
+            it.add(RunProjectSpecificPluginsAction())
             it.add(AddLivePluginAndIdeJarsAsDependencies())
         }
 
