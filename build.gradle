@@ -16,9 +16,6 @@ apply plugin:"org.jetbrains.intellij"
 
 repositories {
 	mavenCentral()
-	flatDir {
-		dirs 'gradle/libs'
-	}
 }
 
 ext.kotlinVersion = "1.4.31"
@@ -54,7 +51,6 @@ dependencies {
 	runtime "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion"
 	runtime "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 	runtime "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-	runtime "live-plugin:kotlin-compiler-wrapper:0.6"
 	testCompile group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
@@ -111,7 +107,6 @@ task validateLivePluginZip() { doLast {
 	def kotlinCompilerAndItsTransitiveDependencies = [
 		"LivePlugin/kotlin-compiler/annotations-13.0.jar",
 		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.4.31.jar",
-		"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper-0.6.jar",
 		"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.4.31.jar",
 		"LivePlugin/kotlin-compiler/kotlin-reflect-1.4.31.jar",
 		"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.4.31.jar",
