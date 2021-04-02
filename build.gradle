@@ -44,6 +44,7 @@ intellij {
 }
 
 dependencies {
+	compile project(":kotlin-compiler-wrapper")
 	// Bundle kotlin compiler and stdlib with LivePlugin because they are not always included into IDEs
 	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
 	// so it should be more reliable to have a particular version of kotlin jars inside LivePlugin.
@@ -80,7 +81,8 @@ sourceSets {
 	}
 	test {
 		groovy { srcDir "src/test" }
-		compileClasspath = main.output + pluginUtilGroovy.output + configurations.testCompileClasspath + configurations.pluginUtilGroovyCompileClasspath
+		compileClasspath = main.output + pluginUtilGroovy.output +
+			configurations.testCompileClasspath + configurations.pluginUtilGroovyCompileClasspath
 		runtimeClasspath = test.output + main.output + pluginUtilGroovy.output +
 			configurations.testRuntimeClasspath + configurations.pluginUtilGroovyRuntimeClasspath
 	}
@@ -107,6 +109,7 @@ task validateLivePluginZip() { doLast {
 	def kotlinCompilerAndItsTransitiveDependencies = [
 		"LivePlugin/kotlin-compiler/annotations-13.0.jar",
 		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.4.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper-0.6.jar",
 		"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.4.31.jar",
 		"LivePlugin/kotlin-compiler/kotlin-reflect-1.4.31.jar",
 		"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.4.31.jar",
