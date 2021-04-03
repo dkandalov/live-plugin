@@ -7,8 +7,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
-import liveplugin.invokeLaterOnEdt
-import liveplugin.registerIntention
+import liveplugin.runLaterOnEdt
 import liveplugin.show
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -24,7 +23,7 @@ inner class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAct
         element.isInKotlinFile() && element.findKtNamedFunction()?.name?.contains(' ') == false
 
     override fun invoke(project: Project, editor: Editor?, element: PsiElement) {
-        invokeLaterOnEdt {
+        runLaterOnEdt {
             doRenameRefactoring(element, project, editor, ::camelCaseToSpaces)
         }
     }
@@ -46,7 +45,7 @@ inner class RenameKotlinFunctionToUseCamelCaseIntention: PsiElementBaseIntention
         element.isInKotlinFile() && element.findKtNamedFunction()?.name?.contains(' ') == true
 
     override fun invoke(project: Project, editor: Editor?, element: PsiElement) {
-        invokeLaterOnEdt {
+        runLaterOnEdt {
             doRenameRefactoring(element, project, editor, this::spacesToCamelCase)
         }
     }

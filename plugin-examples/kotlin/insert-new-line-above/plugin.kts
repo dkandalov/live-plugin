@@ -1,7 +1,7 @@
 import com.intellij.openapi.actionSystem.AnActionEvent
 import liveplugin.actions.registerAction
 import liveplugin.currentEditor
-import liveplugin.runWriteActionOnEdt
+import liveplugin.executeCommand
 import liveplugin.show
 
 //
@@ -15,7 +15,7 @@ import liveplugin.show
 registerAction(id = "InsertNewLineAbove", keyStroke = "ctrl shift ENTER", function = { event: AnActionEvent ->
     val project = event.project!!
     val editor = project.currentEditor!!
-    editor.document.runWriteActionOnEdt(project, description = "Insert New Line Above", callback = {
+    editor.document.executeCommand(project, description = "Insert New Line Above", callback = {
         val offset = editor.caretModel.offset
         val currentLine = editor.caretModel.logicalPosition.line
         val lineStartOffset = editor.document.getLineStartOffset(currentLine)

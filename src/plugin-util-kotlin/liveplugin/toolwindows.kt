@@ -11,8 +11,8 @@ import liveplugin.disposable.newDisposable
 import liveplugin.disposable.registerParent
 import liveplugin.pluginrunner.kotlin.LivePluginScript
 import liveplugin.projects.registerProjectOpenListener
-import liveplugin.runWriteActionOnEdt
 import liveplugin.show
+import liveplugin.withWriteLockOnEdt
 import javax.swing.JComponent
 
 fun LivePluginScript.registerIdeToolWindow(
@@ -43,7 +43,7 @@ fun registerProjectToolWindow(
     disposable: Disposable,
     anchor: ToolWindowAnchor = RIGHT,
     component: JComponent
-): ToolWindow = runWriteActionOnEdt {
+): ToolWindow = withWriteLockOnEdt {
     val toolWindow = ToolWindowManager.getInstance(project)
         .registerToolWindow(RegisterToolWindowTask(toolWindowId, anchor, component))
     newDisposable(whenDisposed = { toolWindow.remove() }).registerParent(disposable, project)

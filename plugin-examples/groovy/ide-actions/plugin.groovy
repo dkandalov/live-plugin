@@ -15,20 +15,20 @@ import static liveplugin.PluginUtil.show
 //  - actionId (must be unique)
 //  - keystroke (see https://docs.oracle.com/javase/8/docs/api/javax/swing/KeyStroke.html#getKeyStroke-java.lang.String-)
 //  - callback which will be invoked when the action is executed
-registerAction("HelloAction", "alt shift H") { AnActionEvent event ->
+registerAction("Hello World", "alt shift H") { AnActionEvent event ->
 	show("Hello from action! Project: ${event.project.name}")
 }
-if (!isIdeStartup) show("Loaded 'HelloAction'<br/>Use alt+shift+H to run it")
+if (!isIdeStartup) show("Loaded 'Hello World'<br/>Use alt+shift+H to run it")
 
 // Option 2.
 // You can create an instance of AnAction class and pass it to registerAction().
-class ProjectPathAction extends AnAction implements DumbAware {
+class ShowProjectPathAction extends AnAction implements DumbAware {
 	@Override void actionPerformed(AnActionEvent event) {
 		show("Project path: ${event.project.basePath}")
 	}
 }
-registerAction("ProjectPathAction", "alt shift P", new ProjectPathAction())
-if (!isIdeStartup) show("Loaded 'ProjectPathAction'<br/>Use alt+shift+P to run it")
+registerAction("Show Project Path", "alt shift P", new ShowProjectPathAction())
+if (!isIdeStartup) show("Loaded 'Show Project Path'<br/>Use alt+shift+P to run it")
 
 // Option 3.
 // Use ActionManager directly to add, remove or find actions.

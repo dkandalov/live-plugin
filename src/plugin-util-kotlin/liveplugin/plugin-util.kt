@@ -10,7 +10,6 @@ import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.editor.Document
@@ -22,14 +21,16 @@ import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
 import com.intellij.openapi.ui.popup.ListPopup
+import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import liveplugin.implementation.Editors
 import liveplugin.implementation.MapDataContext
-import liveplugin.implementation.Threads
 import liveplugin.pluginrunner.kotlin.LivePluginScript
 import java.awt.Component
+import java.util.concurrent.atomic.AtomicReference
 import javax.swing.JPanel
 
 /**
@@ -49,29 +50,38 @@ fun show(
     PluginUtil.show(message, title, notificationType, groupDisplayId, notificationListener)
 }
 
-fun <T> invokeOnEdt(f: () -> T): T = Threads.invokeOnEDT { f() }
-
-fun invokeLaterOnEdt(f: () -> Any) {
-    ApplicationManager.getApplication().invokeLater { f.invoke() }
+inline fun <T> runOnEdt(crossinline f: () -> T): T {
+    val result = AtomicReference<T>()
+    ApplicationManager.getApplication().invokeAndWait {
+        result.set(f())
+    }
+    return result.get()
 }
 
-fun <T> runWriteActionOnEdt(f: () -> T): T =
-    invokeOnEdt {
-        runWriteAction { f() }
+inline fun runLaterOnEdt(crossinline f: () -> Any?) =
+    ApplicationManager.getApplication().invokeLater { f() }
+
+inline fun <T> withReadLock(crossinline f: () -> T): T =
+    ApplicationManager.getApplication().runReadAction(Computable { f() })
+
+inline fun <T> withWriteLockOnEdt(crossinline f: () -> T): T =
+    runOnEdt {
+        ApplicationManager.getApplication().runWriteAction(Computable { f() })
     }
+
+fun Document.executeCommand(project: Project, description: String? = null, callback: (Document) -> Unit) {
+    withWriteLockOnEdt {
+        val document = this
+        val command = { callback(document) }
+        CommandProcessor.getInstance().executeCommand(project, command, description, null, UndoConfirmationPolicy.DEFAULT, document)
+    }
+}
 
 fun LivePluginScript.registerIntention(intention: IntentionAction): IntentionAction =
     PluginUtil.registerIntention(pluginDisposable, intention)
 
 fun LivePluginScript.registerInspection(inspection: InspectionProfileEntry) {
     PluginUtil.registerInspection(pluginDisposable, inspection)
-}
-
-fun Document.runWriteActionOnEdt(project: Project, description: String? = null, callback: (Document) -> Unit) {
-    runWriteActionOnEdt {
-        val f = { callback(this) }
-        CommandProcessor.getInstance().executeCommand(project, f, description, null, UndoConfirmationPolicy.DEFAULT, this)
-    }
 }
 
 sealed class MenuEntry {
@@ -136,25 +146,41 @@ fun JBPopup.show(dataContext: DataContext? = null) {
     }
 }
 
-@CanCallWithinRunReadActionOrFromEDT
+@CanCallWithReadLockOrFromEDT
+val AnActionEvent.editor: Editor?
+    get() = CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(this.dataContext)
+
+@CanCallWithReadLockOrFromEDT
+val AnActionEvent.virtualFile: VirtualFile?
+    get() = CommonDataKeys.VIRTUAL_FILE.getData(this.dataContext)
+
+@CanCallWithReadLockOrFromEDT
+val AnActionEvent.psiFile: PsiFile?
+    get() = CommonDataKeys.PSI_FILE.getData(this.dataContext)
+
+@CanCallWithReadLockOrFromEDT
+val AnActionEvent.psiElement: PsiElement?
+    get() = CommonDataKeys.PSI_ELEMENT.getData(this.dataContext)
+
+@CanCallWithReadLockOrFromEDT
+val VirtualFile.document: Document?
+    get() = FileDocumentManager.getInstance().getDocument(this)
+
+@CanCallWithReadLockOrFromEDT
 val Project.currentEditor: Editor?
     get() = Editors.currentEditorIn(this)
 
-@CanCallWithinRunReadActionOrFromEDT
+@CanCallWithReadLockOrFromEDT
 val Project.currentFile: VirtualFile?
     get() = (FileEditorManagerEx.getInstance(this) as FileEditorManagerEx).currentFile
 
-@CanCallWithinRunReadActionOrFromEDT
+@CanCallWithReadLockOrFromEDT
 val Project.currentPsiFile: PsiFile?
     get() = currentFile?.let { PsiManager.getInstance(this).findFile(it) }
 
-@CanCallWithinRunReadActionOrFromEDT
+@CanCallWithReadLockOrFromEDT
 val Project.currentDocument: Document?
     get() = currentFile?.document
-
-@CanCallWithinRunReadActionOrFromEDT
-val VirtualFile.document: Document?
-    get() = FileDocumentManager.getInstance().getDocument(this)
 
 /**
  * @see liveplugin.PluginUtil.assertNoNeedForEdtOrWriteActionWhenUsingActionManager

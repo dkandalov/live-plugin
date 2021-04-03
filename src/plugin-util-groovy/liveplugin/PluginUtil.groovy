@@ -402,7 +402,7 @@ class PluginUtil {
 	 * @param listener invoked for all open projects and on project open events
 	 *                 (cleanup on project closed is supposed to be done through {@code disposable}
 	 */
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	static registerProjectListener(Disposable disposable, Closure listener) {
 		Projects.registerProjectListener(disposable, listener)
 	}
@@ -414,22 +414,22 @@ class PluginUtil {
 	 *                         (e.g. "pluginDisposable" to remove listener on plugin reload)
 	 * @param listener see https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/project/ProjectManagerListener.java
 	 */
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	static registerProjectListener(Disposable parentDisposable, ProjectManagerListener listener) {
 		Projects.registerProjectListener(parentDisposable, listener)
 	}
 
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	static registerProjectListener(String id, Closure closure) {
 		registerProjectListener(registerDisposable(id), closure)
 	}
 
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	static registerProjectListener(String id, ProjectManagerListener listener) {
 		registerProjectListener(registerDisposable(id), listener)
 	}
 
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	static unregisterProjectListener(String id) {
 		unregisterDisposable(id)
 	}
@@ -556,7 +556,7 @@ class PluginUtil {
 	 * This method exists for reference only.
 	 * For more dialogs see https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/Messages.java
 	 */
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	@Nullable static String showInputDialog(String message = "", String title = "", @Nullable Icon icon = null) {
 		Messages.showInputDialog(message, title, icon)
 	}
@@ -564,7 +564,7 @@ class PluginUtil {
 	/**
 	 * @return currently open editor; null if there are no open editors
 	 */
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	@Nullable static Editor currentEditorIn(@NotNull Project project) {
 		Editors.currentEditorIn(project)
 	}
@@ -575,7 +575,7 @@ class PluginUtil {
 	 *
 	 * It is intended to be used while writing plugin code which modifies content of another open editor.
 	 */
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	@NotNull static Editor anotherOpenEditorIn(@NotNull Project project) {
 		Editors.anotherOpenEditorIn(project)
 	}
@@ -599,7 +599,7 @@ class PluginUtil {
 	/**
 	 * @return {@PsiFile} for opened editor tab; null if there are no open files
 	 */
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	@Nullable static PsiFile currentPsiFileIn(@NotNull Project project) {
 		psiFile(currentFileIn(project), project)
 	}
@@ -607,7 +607,7 @@ class PluginUtil {
 	/**
 	 * @return {@link Document} for opened editor tab; null if there are no open files
 	 */
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	@Nullable static Document currentDocumentIn(@NotNull Project project) {
 		document(currentFileIn(project))
 	}
@@ -615,7 +615,7 @@ class PluginUtil {
 	/**
 	 * @return {@link VirtualFile} for opened editor tab; null if there are no open files
 	 */
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	@Nullable static VirtualFile currentFileIn(@NotNull Project project) {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).currentFile
 	}
@@ -847,12 +847,12 @@ class PluginUtil {
 		}
 	}
 
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	static VirtualFile file(Document document) {
 		FileDocumentManager.instance.getFile(document)
 	}
 
-	@CanCallWithinRunReadActionOrFromEDT
+	@CanCallWithReadLockOrFromEDT
 	static PsiFile psiFile(Document document, Project project) {
 		PsiDocumentManager.getInstance(project).getPsiFile(document)
 	}
@@ -1078,4 +1078,4 @@ class PluginUtil {
 // Annotations to make it clear if method need to be invoked from a particular thread.
 // See also https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/general_threading_rules.html
 @interface CanCallFromAnyThread {}
-@interface CanCallWithinRunReadActionOrFromEDT {}
+@interface CanCallWithReadLockOrFromEDT {}
