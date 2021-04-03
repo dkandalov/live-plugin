@@ -11,15 +11,15 @@ import liveplugin.show
 
 // Option 1.
 // You can create and register an action using registerAction() function which takes:
-//  - actionId (must be unique)
+//  - action id (must be unique)
 //  - keystroke (see https://docs.oracle.com/javase/8/docs/api/javax/swing/KeyStroke.html#getKeyStroke-java.lang.String-)
 //  - callback which will be invoked when the action is executed
-//  - disposable which will unregister the action when disposed.
-//    It can be passed explicitly or via LivePluginScript.registerAction() extention function like in the code below
-registerAction(id = "HelloWorldActionAsFunction", keyStroke = "alt shift H") { event: AnActionEvent ->
+//  - disposable which will unregister the action when disposed;
+//    it can be passed explicitly or via LivePluginScript.registerAction() extension function like in the code below
+registerAction(id = "Hello World", keyStroke = "alt shift H") { event: AnActionEvent ->
     show("Hello from action! Project: ${event.project?.name}")
 }
-if (!isIdeStartup) show("Loaded 'HelloWorldActionAsFunction'<br/>Use alt+shift+H to run it")
+if (!isIdeStartup) show("Loaded 'Hello World'<br/>Use alt+shift+H to run it")
 
 // Option 2.
 // You can create an instance of AnAction class and pass it to registerAction().
@@ -27,8 +27,8 @@ class ProjectPathAction: AnAction(), DumbAware {
     override fun actionPerformed(event: AnActionEvent) =
         show("Project path: ${event.project?.basePath}")
 }
-registerAction(id = "ProjectPathAction", keyStroke = "ctrl shift H", action = ProjectPathAction())
-if (!isIdeStartup) show("Loaded 'ProjectPathAction'<br/>Use ctrl+shift+H to run it")
+registerAction(id = "Show Project Path", keyStroke = "ctrl shift H", action = ProjectPathAction())
+if (!isIdeStartup) show("Loaded 'Show Project Path'<br/>Use ctrl+shift+H to run it")
 
 // Option 3.
 // Use ActionManager directly to add, remove or find actions.
