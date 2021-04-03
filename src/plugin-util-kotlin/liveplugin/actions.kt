@@ -28,7 +28,7 @@ fun LivePluginScript.registerAction(
     actionGroupId: String? = null,
     function: (AnActionEvent) -> Unit
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
-    registerAction(id, keyStroke, actionGroupId, pluginDisposable, function.toAction())
+    registerAction(id, keyStroke, actionGroupId, pluginDisposable, AnAction(id, function))
 }
 
 fun LivePluginScript.registerAction(
@@ -47,7 +47,7 @@ fun registerAction(
     disposable: Disposable,
     function: (AnActionEvent) -> Unit
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
-    registerAction(id, keyStroke, actionGroupId, disposable, function.toAction())
+    registerAction(id, keyStroke, actionGroupId, disposable, AnAction(id, function))
 }
 
 fun registerAction(
@@ -78,6 +78,12 @@ fun registerAction(
     return action
 }
 
+fun AnAction(text: String? = null, f: (AnActionEvent) -> Unit) =
+    object: AnAction(text) {
+        override fun actionPerformed(event: AnActionEvent) = f(event)
+        override fun isDumbAware() = true
+    }
+
 private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     val parts = trim().split(",")
     if (parts.isEmpty()) return null
@@ -86,9 +92,3 @@ private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     val secondKeystroke = if (parts.size > 1) KeyStroke.getKeyStroke(parts[1]) else null
     return KeyboardShortcut(firstKeystroke, secondKeystroke)
 }
-
-private fun ((AnActionEvent) -> Unit).toAction() =
-    object: AnAction() {
-        override fun actionPerformed(event: AnActionEvent) = this@toAction(event)
-        override fun isDumbAware() = true
-    }

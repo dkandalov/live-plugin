@@ -24,8 +24,8 @@ registerAction("HelloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 				// note that "event.project" cannot be used here because AnActionEvents are not shareable between swing events
 				// (in this case showing popup menu and choosing menu item are two different swing events)
 				show("project: ${project}")
-				// you can get AnActionEvent of choosing menu item action as shown below
-				// (to make this event aware of current project popup menu is invoke like this "showPopupMenu(..., event.dataContext)"
+				// you can get AnActionEvent of the choosen menu item action as shown below
+				// (to make this event aware of current project popup menu is invoked like this "showPopupMenu(..., event.dataContext)"
 				show("project: ${context.event.project}")
 			},
 			"-": new AnAction("Run an action") {

@@ -7,8 +7,8 @@ import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationType.INFORMATION
-import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
@@ -17,21 +17,14 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.JBPopup
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
-import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import liveplugin.implementation.Editors
-import liveplugin.implementation.MapDataContext
 import liveplugin.pluginrunner.kotlin.LivePluginScript
-import java.awt.Component
 import java.util.concurrent.atomic.AtomicReference
-import javax.swing.JPanel
 
 /**
  * Shows popup balloon notification with the specified [message] (which can include HTML tags),
