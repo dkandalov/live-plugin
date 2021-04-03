@@ -12,7 +12,7 @@ registerAction("HelloPopupAction", "ctrl alt shift P"){ AnActionEvent event ->
 						openInBrowser("https://github.com/dkandalov/live-plugin/blob/master/IntellijApiCheatSheet.md")
 					},
 					"IntelliJ Platform SDK DevGuide - Fundamentals": {
-						openInBrowser("https://www.jetbrains.org/intellij/sdk/docs/platform/fundamentals.html")
+						openInBrowser("https://plugins.jetbrains.com/docs/intellij/fundamentals.html")
 					}
 			],
 			"Execute shell command": {

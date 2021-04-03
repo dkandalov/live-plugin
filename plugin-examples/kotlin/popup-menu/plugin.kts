@@ -1,8 +1,8 @@
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import liveplugin.MenuEntry.*
 import liveplugin.PluginUtil.*
-import liveplugin.createPopupMenu
+import liveplugin.popups.*
+import liveplugin.popups.MenuEntry.*
 import liveplugin.actions.registerAction
 import liveplugin.show
 
@@ -15,7 +15,7 @@ registerAction("HelloPopupAction", "ctrl alt shift P") { event ->
                 openInBrowser("https://github.com/dkandalov/live-plugin/blob/master/IntellijApiCheatSheet.md")
             },
             Action("IntelliJ Platform SDK DevGuide - Fundamentals") {
-                openInBrowser("https://www.jetbrains.org/intellij/sdk/docs/platform/fundamentals.html")
+                openInBrowser("https://plugins.jetbrains.com/docs/intellij/fundamentals.html")
             }
         ),
         Action("Execute shell command") {

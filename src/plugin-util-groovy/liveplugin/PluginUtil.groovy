@@ -64,7 +64,7 @@ import static liveplugin.implementation.Misc.unregisterDisposable
  *
  * API of this class should be backward-compatible between LivePlugin releases.
  *
- * If you are new to IntelliJ API, see also https://www.jetbrains.org/intellij/sdk/docs/platform/fundamentals.html
+ * If you are new to IntelliJ API, see also https://plugins.jetbrains.com/docs/intellij/fundamentals.html
  */
 @SuppressWarnings(["GroovyUnusedDeclaration", "UnnecessaryQualifiedReference"])
 class PluginUtil {

@@ -26,4 +26,4 @@ showInConsole(new Exception("This is a fake exception to show exception in a con
 inspect(project)
 
 // For more util methods see
-// https://github.com/dkandalov/live-plugin/blob/master/src/runtime/liveplugin/PluginUtil.groovy
+// https://github.com/dkandalov/live-plugin/blob/master/src/plugin-util-groovy/liveplugin/PluginUtil.groovy
