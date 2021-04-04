@@ -14,13 +14,13 @@ data class ExamplePlugin(val path: String, val pluginId: String, val filePaths: 
 object GroovyExamples {
     val helloWorld = ExamplePlugin(groovyExamplesPath, "hello-world", "plugin.groovy")
     val ideActions = ExamplePlugin(groovyExamplesPath, "ide-actions", "plugin.groovy")
-    val newLineAbove = ExamplePlugin(groovyExamplesPath, "insert-new-line-above", "plugin.groovy")
+    val modifyDocument = ExamplePlugin(groovyExamplesPath, "modify-document", "plugin.groovy")
     val popupMenu = ExamplePlugin(groovyExamplesPath, "popup-menu", "plugin.groovy")
 
     val all = listOf(
         helloWorld,
         ideActions,
-        newLineAbove,
+        modifyDocument,
         popupMenu,
         ExamplePlugin(groovyExamplesPath, "popup-search", "plugin.groovy"),
         ExamplePlugin(groovyExamplesPath, "tool-window", "plugin.groovy"),
@@ -40,7 +40,7 @@ object KotlinExamples {
     val all = listOf(
         ExamplePlugin(kotlinExamplesPath, "hello-world", "plugin.kts"),
         ExamplePlugin(kotlinExamplesPath, "ide-actions", "plugin.kts"),
-        ExamplePlugin(kotlinExamplesPath, "insert-new-line-above", "plugin.kts"),
+        ExamplePlugin(kotlinExamplesPath, "modify-document", "plugin.kts"),
         ExamplePlugin(kotlinExamplesPath, "popup-menu", "plugin.kts"),
         ExamplePlugin(kotlinExamplesPath, "kotlin-intention", "plugin.kts"),
         ExamplePlugin(kotlinExamplesPath, "kotlin-inspection", "plugin.kts"),

@@ -45,5 +45,5 @@ if (!isIdeStartup) show("Loaded 'Show Project Path'<br/>Use alt+shift+P to run i
 //    Of course, adding jars unrelated to current project is a hack but most of the time
 //    it shouldn't cause many problems and you can always undo it in ""Plugins toolwindow -> Settings".
 
-// See next insert-new-line-above example.
-//          ^^^^^^^^^^^^^^^^^^^^^
+// See next modify-document example.
+//          ^^^^^^^^^^^^^^^

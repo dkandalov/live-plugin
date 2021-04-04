@@ -82,6 +82,10 @@ val AnActionEvent.editor: Editor?
     get() = CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(this.dataContext)
 
 @CanCallWithReadLockOrFromEDT
+val AnActionEvent.document: Document?
+    get() = editor?.document
+
+@CanCallWithReadLockOrFromEDT
 val AnActionEvent.virtualFile: VirtualFile?
     get() = CommonDataKeys.VIRTUAL_FILE.getData(this.dataContext)
 

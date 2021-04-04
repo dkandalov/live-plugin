@@ -42,5 +42,5 @@ if (!isIdeStartup) show("Loaded 'Show Project Path'<br/>Use ctrl+shift+H to run 
 // LivePlugin comes with the source code for its libraries so you should be to see
 // implementation of "show" and "registerAction".
 
-// See next insert-new-line-above example.
-//          ^^^^^^^^^^^^^^^^^^^^^
+// See next modify-document example.
+//          ^^^^^^^^^^^^^^^

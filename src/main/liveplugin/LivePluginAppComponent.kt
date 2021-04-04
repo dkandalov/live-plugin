@@ -191,7 +191,7 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
 
         private fun installHelloWorldPlugins() {
             invokeLaterOnEDT {
-                listOf(GroovyExamples.helloWorld, GroovyExamples.ideActions, GroovyExamples.newLineAbove, GroovyExamples.popupMenu).forEach {
+                listOf(GroovyExamples.helloWorld, GroovyExamples.ideActions, GroovyExamples.modifyDocument, GroovyExamples.popupMenu).forEach {
                     it.installPlugin(handleError = { e: Exception, pluginPath: String -> logger.warn("Failed to install plugin: $pluginPath", e) })
                 }
             }
