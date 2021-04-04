@@ -10,9 +10,11 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFile
-import liveplugin.IdeUtil
 import liveplugin.Icons
-import liveplugin.LivePluginAppComponent.Companion.findPluginRootsFor
+import liveplugin.IdeUtil
+import liveplugin.LivePluginAppComponent.Companion.pluginFolder
+import liveplugin.pluginrunner.UnloadPluginAction.Companion.unloadPlugins
+import liveplugin.toFilePath
 import liveplugin.toolwindow.util.delete
 import java.io.IOException
 
@@ -23,8 +25,10 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Ic
         val files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.dataContext)
         if (files.isNullOrEmpty()) return
 
-        val pluginRoots = findPluginRootsFor(files)
+        val pluginRoots = files.mapNotNull { it.pluginFolder() }.distinct()
         if (userDoesNotWantToRemovePlugins(pluginRoots, event.project)) return
+
+        unloadPlugins(pluginRoots.map { it.toFilePath() })
 
         pluginRoots.forEach { pluginRoot ->
             try {
@@ -44,8 +48,7 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Ic
     override fun update(event: AnActionEvent) {
         val files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.dataContext)
         event.presentation.isEnabled =
-            if (files.isNullOrEmpty()) false
-            else findPluginRootsFor(files).isNotEmpty()
+            files != null && files.any { it.pluginFolder() != null }
     }
 
     companion object {
@@ -53,13 +56,13 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Ic
 
         private fun userDoesNotWantToRemovePlugins(pluginRoots: Collection<VirtualFile>, project: Project?): Boolean {
             val pluginIds = pluginRoots.map { it.name }
-
+            val message = when (pluginIds.size) {
+                1    -> "Do you want to delete plugin ${pluginIds.first()}?"
+                else -> "Do you want to delete plugins ${pluginIds.joinToString(", ")}?"
+            }
             val answer = Messages.showOkCancelDialog(
                 project,
-                when (pluginIds.size) {
-                    1    -> "Do you want to delete plugin ${pluginIds[0]}?"
-                    else -> "Do you want to delete plugins ${pluginIds.joinToString(", ")}?"
-                },
+                message,
                 "Delete",
                 ApplicationBundle.message("button.delete"),
                 CommonBundle.getCancelButtonText(),

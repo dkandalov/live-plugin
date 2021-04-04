@@ -112,12 +112,9 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
             virtualFile.toFilePath().findAll(GroovyPluginRunner.mainScript).isEmpty() &&
             virtualFile.toFilePath().findAll(KotlinPluginRunner.mainScript).isEmpty()
 
-        fun findPluginRootsFor(files: Array<VirtualFile>): Set<VirtualFile> =
-            files.mapNotNull { it.pluginFolder() }.toSet()
-
         fun pluginExists(pluginId: String): Boolean = pluginId in pluginIdToPathMap().keys
 
-        private fun VirtualFile.pluginFolder(): VirtualFile? {
+        fun VirtualFile.pluginFolder(): VirtualFile? {
             val parent = parent ?: return null
             return if (parent.toFilePath() == livePluginsPath || parent.name == livePluginsProjectDirName) this
             else parent.pluginFolder()
