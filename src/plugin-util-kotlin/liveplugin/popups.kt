@@ -5,42 +5,32 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
-import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid
 import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
 import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.util.NlsActions.ActionText
-import liveplugin.implementation.MapDataContext
-import java.awt.Component
+import liveplugin.MapDataContext
 import javax.swing.JPanel
 
-fun createPopupMenu(
-    actionGroup: ActionGroup,
+fun ActionGroup.createPopup(
     dataContext: DataContext? = null,
+    selectionAidMethod: ActionSelectionAid = SPEEDSEARCH,
+    showNumbers: Boolean = selectionAidMethod == NUMBERING || selectionAidMethod == ALPHA_NUMBERING,
     showDisabledActions: Boolean = false,
-    selectionAidMethod: JBPopupFactory.ActionSelectionAid = SPEEDSEARCH,
     isPreselected: (AnAction) -> Boolean = { false }
-): ListPopup {
-    return JBPopupFactory.getInstance().createActionGroupPopup(
-        actionGroup.templatePresentation.text,
-        actionGroup,
-        dataContext ?: MapDataContext().put(CONTEXT_COMPONENT.name, JPanel()), // prevent createActionGroupPopup() from crashing without context component
-        selectionAidMethod == NUMBERING || selectionAidMethod == ALPHA_NUMBERING,
+): ListPopup =
+    JBPopupFactory.getInstance().createActionGroupPopup(
+        templatePresentation.text,
+        this,
+        dataContext ?: MapDataContext(mapOf(CONTEXT_COMPONENT.name to JPanel())), // prevent createActionGroupPopup() from crashing without context component
+        showNumbers,
         showDisabledActions,
         selectionAidMethod == MNEMONICS,
         null,
-        -1
-    ) { isPreselected(it) }
-}
+        -1,
+        isPreselected
+    )
 
 fun PopupActionGroup(@ActionText name: String, vararg actions: AnAction) =
     DefaultActionGroup(name, actions.toList()).also { it.isPopup = true }
-
-fun JBPopup.show(dataContext: DataContext? = null) {
-    val contextComponent = dataContext?.getData(CONTEXT_COMPONENT.name) as? Component
-    if (contextComponent != null) {
-        showInCenterOf(contextComponent)
-    } else {
-        showInFocusCenter()
-    }
-}

@@ -3,6 +3,7 @@ package liveplugin.actions
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.keymap.KeymapManager
+import com.intellij.openapi.util.NlsActions.ActionText
 import liveplugin.disposable.whenDisposed
 import liveplugin.noNeedForEdtOrWriteActionWhenUsingActionManager
 import liveplugin.pluginrunner.kotlin.LivePluginScript
@@ -78,7 +79,7 @@ fun registerAction(
     return action
 }
 
-fun AnAction(text: String? = null, f: (AnActionEvent) -> Unit) =
+fun AnAction(@ActionText text: String? = null, f: (AnActionEvent) -> Unit) =
     object: AnAction(text) {
         override fun actionPerformed(event: AnActionEvent) = f(event)
         override fun isDumbAware() = true

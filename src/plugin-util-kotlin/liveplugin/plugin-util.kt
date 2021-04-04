@@ -9,6 +9,7 @@ import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
@@ -24,6 +25,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import liveplugin.implementation.Editors
 import liveplugin.pluginrunner.kotlin.LivePluginScript
+import java.awt.Component
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -76,44 +78,36 @@ fun LivePluginScript.registerInspection(inspection: InspectionProfileEntry) {
     PluginUtil.registerInspection(pluginDisposable, inspection)
 }
 
+val AnActionEvent.contextComponent: Component?
+    get() = PlatformDataKeys.CONTEXT_COMPONENT.getData(this.dataContext)
 
-@CanCallWithReadLockOrFromEDT
 val AnActionEvent.editor: Editor?
     get() = CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(this.dataContext)
 
-@CanCallWithReadLockOrFromEDT
 val AnActionEvent.document: Document?
     get() = editor?.document
 
-@CanCallWithReadLockOrFromEDT
 val AnActionEvent.virtualFile: VirtualFile?
     get() = CommonDataKeys.VIRTUAL_FILE.getData(this.dataContext)
 
-@CanCallWithReadLockOrFromEDT
 val AnActionEvent.psiFile: PsiFile?
     get() = CommonDataKeys.PSI_FILE.getData(this.dataContext)
 
-@CanCallWithReadLockOrFromEDT
 val AnActionEvent.psiElement: PsiElement?
     get() = CommonDataKeys.PSI_ELEMENT.getData(this.dataContext)
 
-@CanCallWithReadLockOrFromEDT
 val VirtualFile.document: Document?
     get() = FileDocumentManager.getInstance().getDocument(this)
 
-@CanCallWithReadLockOrFromEDT
 val Project.currentEditor: Editor?
     get() = Editors.currentEditorIn(this)
 
-@CanCallWithReadLockOrFromEDT
 val Project.currentFile: VirtualFile?
     get() = (FileEditorManagerEx.getInstance(this) as FileEditorManagerEx).currentFile
 
-@CanCallWithReadLockOrFromEDT
 val Project.currentPsiFile: PsiFile?
     get() = currentFile?.let { PsiManager.getInstance(this).findFile(it) }
 
-@CanCallWithReadLockOrFromEDT
 val Project.currentDocument: Document?
     get() = currentFile?.document
 
