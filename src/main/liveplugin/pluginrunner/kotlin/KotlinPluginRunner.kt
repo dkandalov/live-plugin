@@ -100,7 +100,7 @@ class KotlinPluginRunner(
         plugin.path.allFiles()
             .filter { it.extension == "kt" || it.extension == "kts" }
             .fold(0L) { hash, file ->
-                MurmurHash3.hash32(hash, file.readText().hashCode().toLong()).toLong()
+                MurmurHash3.hash32(hash, (file.name + file.readText()).hashCode().toLong()).toLong()
             }
 
     companion object {
