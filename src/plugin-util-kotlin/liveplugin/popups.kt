@@ -1,4 +1,4 @@
-package liveplugin.popups
+package liveplugin
 
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.AnAction

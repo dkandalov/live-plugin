@@ -1,4 +1,4 @@
-package liveplugin.disposable
+package liveplugin
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer

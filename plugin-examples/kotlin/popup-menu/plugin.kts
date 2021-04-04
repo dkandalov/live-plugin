@@ -3,9 +3,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.ui.Messages
 import liveplugin.PluginUtil.*
-import liveplugin.actions.*
-import liveplugin.popups.*
-import liveplugin.show
+import liveplugin.*
 
 registerAction(id = "Show Actions Popup", "ctrl alt shift P") { event ->
     val actionGroup = PopupActionGroup("Some Actions",

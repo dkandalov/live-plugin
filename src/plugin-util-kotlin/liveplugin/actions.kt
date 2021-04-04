@@ -1,11 +1,9 @@
-package liveplugin.actions
+package liveplugin
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.util.NlsActions.ActionText
-import liveplugin.disposable.whenDisposed
-import liveplugin.noNeedForEdtOrWriteActionWhenUsingActionManager
 import liveplugin.pluginrunner.kotlin.LivePluginScript
 import javax.swing.KeyStroke
 

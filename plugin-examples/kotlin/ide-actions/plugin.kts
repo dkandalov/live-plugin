@@ -1,8 +1,7 @@
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
-import liveplugin.actions.registerAction
-import liveplugin.show
+import liveplugin.*
 
 // Most of the user interactions with IDE are performed using actions.
 // Conceptually, an action is a stateless function that takes AnActionEvent object and creates some side effect.

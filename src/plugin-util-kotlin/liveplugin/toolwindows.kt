@@ -1,4 +1,4 @@
-package liveplugin.toolwindows
+package liveplugin
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
@@ -7,12 +7,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 import com.intellij.openapi.wm.ToolWindowManager
-import liveplugin.disposable.newDisposable
-import liveplugin.disposable.registerParent
 import liveplugin.pluginrunner.kotlin.LivePluginScript
-import liveplugin.projects.registerProjectOpenListener
-import liveplugin.show
-import liveplugin.withWriteLockOnEdt
 import javax.swing.JComponent
 
 fun LivePluginScript.registerIdeToolWindow(

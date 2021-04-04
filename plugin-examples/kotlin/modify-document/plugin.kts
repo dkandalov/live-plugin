@@ -1,6 +1,5 @@
 import com.intellij.openapi.actionSystem.AnActionEvent
 import liveplugin.*
-import liveplugin.actions.registerAction
 
 // One of the most fundamental things you can do in an Action is to modify text
 // in the current editor using `com.intellij.openapi.editor.Document` API.
