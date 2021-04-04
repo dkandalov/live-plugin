@@ -35,7 +35,7 @@ class RenameFileAction: FileChooserAction() {
             var node = model.root as FileNode
             queue.add(node)
 
-            while (!queue.isEmpty()) {
+            while (queue.isNotEmpty()) {
                 node = queue.remove()
 
                 val nodeContainsRenamedFile = file == node.file
@@ -60,7 +60,11 @@ class RenameFileAction: FileChooserAction() {
                 file.rename(null, newFileName)
                 updateTreeModel_HACK()
             } catch (e: IOException) {
-                IdeUtil.showErrorDialog(event.project, "Couldn't rename " + file.name + " to " + newFileName, "Error")
+                IdeUtil.showErrorDialog(
+                    event.project,
+                    "Couldn't rename ${file.name} to $newFileName",
+                    "Error"
+                )
             }
         }
     }
