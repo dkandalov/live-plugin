@@ -3,8 +3,11 @@ package liveplugin
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.keymap.KeymapManager
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.util.NlsActions.ActionText
 import liveplugin.pluginrunner.kotlin.LivePluginScript
+import javax.swing.JPanel
 import javax.swing.KeyStroke
 
 /**
@@ -82,6 +85,28 @@ fun AnAction(@ActionText text: String? = null, f: (AnActionEvent) -> Unit) =
         override fun actionPerformed(event: AnActionEvent) = f(event)
         override fun isDumbAware() = true
     }
+
+fun PopupActionGroup(@ActionText name: String, vararg actions: AnAction) =
+    DefaultActionGroup(name, actions.toList()).also { it.isPopup = true }
+
+fun ActionGroup.createPopup(
+    dataContext: DataContext? = null,
+    selectionAidMethod: JBPopupFactory.ActionSelectionAid = JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+    showNumbers: Boolean = selectionAidMethod == JBPopupFactory.ActionSelectionAid.NUMBERING || selectionAidMethod == JBPopupFactory.ActionSelectionAid.ALPHA_NUMBERING,
+    showDisabledActions: Boolean = false,
+    isPreselected: (AnAction) -> Boolean = { false }
+): ListPopup =
+    JBPopupFactory.getInstance().createActionGroupPopup(
+        templatePresentation.text,
+        this,
+        dataContext ?: MapDataContext(mapOf(PlatformDataKeys.CONTEXT_COMPONENT.name to JPanel())), // prevent createActionGroupPopup() from crashing without context component
+        showNumbers,
+        showDisabledActions,
+        selectionAidMethod == JBPopupFactory.ActionSelectionAid.MNEMONICS,
+        null,
+        -1,
+        isPreselected
+    )
 
 private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     val parts = trim().split(",")
