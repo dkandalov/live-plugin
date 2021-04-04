@@ -25,8 +25,6 @@ object GroovyExamples {
         ExamplePlugin(groovyExamplesPath, "popup-search", "plugin.groovy"),
         ExamplePlugin(groovyExamplesPath, "tool-window", "plugin.groovy"),
         ExamplePlugin(groovyExamplesPath, "toolbar-widget", "plugin.groovy"),
-        ExamplePlugin(groovyExamplesPath, "text-editor", "plugin.groovy"),
-        ExamplePlugin(groovyExamplesPath, "transform-selected-text", "plugin.groovy"),
         ExamplePlugin(groovyExamplesPath, "java-inspection", "plugin.groovy"),
         ExamplePlugin(groovyExamplesPath, "java-intention", "plugin.groovy"),
         ExamplePlugin(groovyExamplesPath, "project-files-stats", "plugin.groovy"),
