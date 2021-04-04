@@ -15,14 +15,14 @@ import liveplugin.show
 registerAction(id = "InsertNewLineAbove", keyStroke = "ctrl shift ENTER", function = { event: AnActionEvent ->
     val project = event.project!!
     val editor = project.currentEditor!!
-    editor.document.executeCommand(project, description = "Insert New Line Above", callback = {
+    executeCommand(editor.document, project, description = "Insert New Line Above") {
         val offset = editor.caretModel.offset
         val currentLine = editor.caretModel.logicalPosition.line
         val lineStartOffset = editor.document.getLineStartOffset(currentLine)
 
         editor.document.insertString(lineStartOffset, "\n")
         editor.caretModel.moveToOffset(offset + 1)
-    })
+    }
 })
 if (!isIdeStartup) show("Loaded 'InsertNewLineAbove' action<br/>Use 'Ctrl+Shift+Enter' to run it")
 

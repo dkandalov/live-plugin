@@ -62,9 +62,8 @@ inline fun <T> withWriteLockOnEdt(crossinline f: () -> T): T =
         ApplicationManager.getApplication().runWriteAction(Computable { f() })
     }
 
-fun Document.executeCommand(project: Project, description: String? = null, callback: (Document) -> Unit) {
+fun executeCommand(document: Document, project: Project, description: String? = null, callback: (Document) -> Unit) {
     withWriteLockOnEdt {
-        val document = this
         val command = { callback(document) }
         CommandProcessor.getInstance().executeCommand(project, command, description, null, UndoConfirmationPolicy.DEFAULT, document)
     }

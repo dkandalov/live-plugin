@@ -36,7 +36,7 @@ if (!isIdeStartup) show("Loaded 'Show Project Path'<br/>Use ctrl+shift+H to run 
 
 // In the code examples above "registerAction" and "show" are functions imported from LivePlugin libraries.
 // They wrap IntelliJ API to hide boilerplate code needed for registering an action.
-// You can find source code here https://github.com/dkandalov/live-plugin/blob/master/src/plugin-util-groovy/liveplugin/PluginUtil.groovy.
+// You can find source code here https://github.com/dkandalov/live-plugin/blob/master/src/plugin-util-kotlin/liveplugin.
 
 // In IDEs with Kotlin support you should be able to auto-complete and navigate the code above.
 // LivePlugin comes with the source code for its libraries so you should be to see
