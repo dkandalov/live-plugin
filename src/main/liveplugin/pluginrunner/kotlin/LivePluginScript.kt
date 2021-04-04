@@ -79,12 +79,19 @@ private fun createScriptConfig(context: ScriptConfigurationRefinementContext, cl
         val scriptFolderPath = context.script.locationId?.let { File(it).parent } ?: ""
         updateClasspath(classpath(scriptText, scriptFolderPath))
 
-        val filesInThePluginFolder = scriptFolderPath.toFilePath().allFiles()
-            .filter { it.value != context.script.locationId }.map { it.toFile() }.toList()
-        // The `importScripts` seem to be used by org.jetbrains.kotlin.scripting.resolve.LazyScriptDescriptor.ImportedScriptDescriptorsFinder()
-        // which only reads definitions from KtScript psi elements (.kts files) but it doesn't work even if all files are renamed to .kts 😠 The scripting API is endless WTF!!!!!
-        // See also https://youtrack.jetbrains.com/issue/KT-28916
-        importScripts.append(filesInThePluginFolder.map { file -> FileScriptSource(file) })
+        // Disabled because it doesn't work and can only cause confusion
+        // because multiple .kts files will be compiled referencing each other in constructor arguments.
+        // E.g. "class Plugin(..., `$$importedScriptSome`: Some)" which will not work the code creating object from script class.
+        @Suppress("ConstantConditionIf")
+        if (false) {
+            val filesInThePluginFolder = scriptFolderPath.toFilePath().allFiles()
+                .filter { it.extension == "kt" || it.extension == "kts" }
+                .filter { it.value != context.script.locationId }.map { it.toFile() }.toList()
+            // The `importScripts` seem to be used by org.jetbrains.kotlin.scripting.resolve.LazyScriptDescriptor.ImportedScriptDescriptorsFinder()
+            // which only reads definitions from KtScript psi elements (.kts files) but it doesn't work even if all files are renamed to .kts 😠 The scripting API is endless WTF!!!!!
+            // See also https://youtrack.jetbrains.com/issue/KT-28916
+            importScripts.append(filesInThePluginFolder.map { file -> FileScriptSource(file) })
+        }
     })
 
 private fun highlightingClasspath(scriptText: List<String>, scriptFolderPath: String) =
@@ -93,9 +100,10 @@ private fun highlightingClasspath(scriptText: List<String>, scriptFolderPath: St
     findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText, scriptFolderPath) +
     livePluginLibAndSrcFiles()
 
-// Skip depenencies on other plugins because PluginDescriptorLoader fails with "NoClassDefFoundError: Could not initialize class com.intellij.ide.plugins.PluginXmlFactory"
-// when running via KotlinPluginCompiler (even though it works fine in IDE) which I guess picks it up via @KotlinScript annotation.
-// All dependent plugins are directly added to the compiler classpath anyway.
+// Similar to highlightingClasspath() but without depenencies on other plugins
+// because PluginDescriptorLoader fails with "NoClassDefFoundError: Could not initialize class com.intellij.ide.plugins.PluginXmlFactory"
+// when running KotlinPluginCompiler which I guess somehow picks it up via @KotlinScript annotation.
+// All dependent plugins are directly added to the compiler classpath anyway in KotlinPluginCompiler.compile().
 private fun compilingClasspath(scriptText: List<String>, scriptFolderPath: String) =
     ideLibFiles() +
     findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText, scriptFolderPath) +
