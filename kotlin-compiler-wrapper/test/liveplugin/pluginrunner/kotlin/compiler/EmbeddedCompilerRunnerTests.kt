@@ -10,40 +10,54 @@ import kotlin.script.experimental.annotations.KotlinScript
 
 @Ignore // Run manually from current ContentRoot because KtsScriptFixture needs paths to stdlib and kotlin scripting jars
 class EmbeddedCompilerRunnerTests {
-    @Test fun `can compile an empty file`() = KtsScriptFixture(
-        scriptSourceCode = ""
-    ).run {
+    @Test fun `compile an empty file`() = KtsScriptFixture().run {
+        createFile("plugin.kts", text = "")
         assertThat(compileScript(), equalTo(emptyList()))
-        assertTrue(outputFile.exists())
+        assertTrue(outputDir.resolve("Plugin.class").exists())
+    }
+    
+    @Test fun `compile println`() = KtsScriptFixture().run {
+        createFile("plugin.kts", text = "println(123)")
+        assertThat(compileScript(), equalTo(emptyList()))
+        assertTrue(outputDir.resolve("Plugin.class").exists())
     }
 
-    @Test fun `can compile println`() = KtsScriptFixture(
-        scriptSourceCode = "println(123)"
-    ).run {
+    @Test fun `compile kts and a text file`() = KtsScriptFixture().run {
+        createFile("plugin.kts", text = "println(123)")
+        createFile("some.txt", text = "foo\nbar")
+
         assertThat(compileScript(), equalTo(emptyList()))
-        assertTrue(outputFile.exists())
+        assertTrue(outputDir.resolve("Plugin.class").exists())
+        assertFalse(outputDir.resolve("some.txt").exists())
     }
 
-    @Test fun `can compile println of script template variable`() = KtsScriptFixture(
-        scriptSourceCode = "println(foo.toString())",
-        scriptTemplateClass = FooScriptTemplate::class.java
-    ).run {
+    @Test fun `compile two kts files`() = KtsScriptFixture().run {
+        createFile("plugin.kts", text = "println(123)")
+        createFile("some.kts", text = "println(456)")
+
         assertThat(compileScript(), equalTo(emptyList()))
-        assertTrue(outputFile.exists())
+        assertTrue(outputDir.resolve("Plugin.class").exists())
+        assertTrue(outputDir.resolve("Some.class").exists())
     }
 
-    @Test fun `fails to compile unresolved reference`() = KtsScriptFixture(
-        scriptSourceCode = "nonExistingFunction()"
-    ).run {
+    @Test fun `compile println with script template variable`() = KtsScriptFixture().run {
+        createFile("plugin.kts", text = "println(foo.toString())")
+        assertThat(compileScript(templateClass = FooScriptTemplate::class.java), equalTo(emptyList()))
+        assertTrue(outputDir.resolve("Plugin.class").exists())
+    }
+
+    @Test fun `fail to compile unresolved reference`() = KtsScriptFixture().run {
+        createFile("plugin.kts", text = "nonExistingFunction()")
+        
         val errors = compileScript()
         assertThat(errors.size, equalTo(1))
         assertTrue(errors.first().contains("unresolved reference: nonExistingFunction"))
-        assertFalse(outputFile.exists())
+        assertFalse(outputDir.resolve("Plugin.class").exists())
     }
 
     @Ignore
-    @Test fun `KtVisitor shouldn't end up being incompatible with PsiElementVisitor`() = KtsScriptFixture(
-        scriptSourceCode = """
+    @Test fun `KtVisitor shouldn't end up being incompatible with PsiElementVisitor`() = KtsScriptFixture().run {
+        createFile("plugin.kts", text = """
             import org.jetbrains.kotlin.psi.*
             import com.intellij.psi.PsiElementVisitor
 
@@ -51,46 +65,46 @@ class EmbeddedCompilerRunnerTests {
             println(PsiElementVisitor::class)
             val foo: PsiElementVisitor = (expressionVisitor {} as KtVisitor<Void, Void>)
             println(foo)
-        """
-    ).run {
+        """)
+
         assertThat(compileScript(), equalTo(emptyList()))
-        assertTrue(outputFile.exists())
+        assertTrue(outputDir.resolve("Plugin.class").exists())
     }
 }
 
-private data class KtsScriptFixture(
-    val scriptSourceCode: String,
-    val scriptTemplateClass: Class<*> = EmptyScriptTemplate::class.java,
-) {
+private class KtsScriptFixture {
     private val srcDir: File = Files.createTempDirectory("").toFile()
-    private val outputDir: File = Files.createTempDirectory("").toFile()
-    private val srcFile: File = File("${srcDir.absolutePath}/script.kts").also { it.writeText(scriptSourceCode) }
     private val kotlinStdLibPath: String = properties["kotlin-stdlib-path"]!!
     private val kotlinScriptRuntimePath: String = properties["kotlin-script-runtime-path"]!!
     private val kotlinScriptCommonPath: String = properties["kotlin-script-common-path"]!!
     private val kotlinScriptJvmPath: String = properties["kotlin-script-jvm"]!!
     private val kotlinScriptCompilerEmbeddablePath: String = properties["kotlin-script-compiler-embeddable-path"]!!
     private val kotlinScriptCompilerImplEmbeddablePath: String = properties["kotlin-script-compiler-impl-embeddable-path"]!!
-    val outputFile get() = outputDir.resolve(srcFile.nameWithoutExtension.capitalize() + ".class")
+    val outputDir: File = Files.createTempDirectory("").toFile()
 
-    fun compileScript(): List<String> = compile(
+    fun createFile(name: String, text: String) {
+        File("${srcDir.absolutePath}/${name}").writeText(text)
+    }
+    
+    fun compileScript(templateClass: Class<*> = EmptyScriptTemplate::class.java): List<String> = compile(
         sourceRoot = srcDir.absolutePath,
         classpath = listOf(
-                File(kotlinStdLibPath),
-                File(kotlinScriptJvmPath),
-                File(kotlinScriptCommonPath),
-                File(kotlinScriptRuntimePath),
-                File(kotlinScriptCompilerEmbeddablePath),
-                File(kotlinScriptCompilerImplEmbeddablePath),
-                File("../build/classes/kotlin/test/")
+            File(kotlinStdLibPath),
+            File(kotlinScriptJvmPath),
+            File(kotlinScriptCommonPath),
+            File(kotlinScriptRuntimePath),
+            File(kotlinScriptCompilerEmbeddablePath),
+            File(kotlinScriptCompilerImplEmbeddablePath),
+            File(srcDir.absolutePath), // Because this is what KotlinPluginCompiler class is doing.
+            File("build/classes/kotlin/test/") // For EmptyScriptTemplate and FooScriptTemplate classes
         ),
         outputDirectory = outputDir,
-        livePluginScriptClass = scriptTemplateClass
+        livePluginScriptClass = templateClass
     )
 
     companion object {
         private val properties by lazy {
-            File("liveplugin/pluginrunner/kotlin/compiler/fixture.properties").readLines()
+            File("test/liveplugin/pluginrunner/kotlin/compiler/fixture.properties").readLines()
                 .map { line -> line.split("=") }
                 .map { (key, value) -> key to value.replace("\$USER_HOME", System.getProperty("user.home")) }
                 .onEach { (_, value) -> if (!File(value).exists()) error("File doesn't exist: $value") }
