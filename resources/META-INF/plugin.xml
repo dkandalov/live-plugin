@@ -70,6 +70,8 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
                 <action id="LivePlugin.AddNewKotlinPluginAction" class="liveplugin.toolwindow.addplugin.AddNewKotlinPluginAction"/>
                 <action id="LivePlugin.AddPluginFromGistAction" class="liveplugin.toolwindow.addplugin.AddPluginFromGistDelegateAction"/>
                 <action id="LivePlugin.AddPluginFromGitHubAction" class="liveplugin.toolwindow.addplugin.AddPluginFromGitHubDelegateAction"/>
+                <action id="LivePlugin.AddGroovyExamplesActionGroup" class="liveplugin.toolwindow.addplugin.AddGroovyExamplesActionGroup"/>
+                <action id="LivePlugin.AddKotlinExamplesActionGroup" class="liveplugin.toolwindow.addplugin.AddKotlinExamplesActionGroup"/>
             </group>
 			<separator/>
             <action id="LivePlugin.RunPluginAction" class="liveplugin.pluginrunner.RunPluginAction" text="Run Plugin"/>

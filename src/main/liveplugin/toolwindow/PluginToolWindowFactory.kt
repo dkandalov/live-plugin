@@ -121,8 +121,8 @@ class PluginToolWindow(project: Project) {
             it.add(AddNewKotlinPluginAction())
             it.add(AddPluginFromGistDelegateAction())
             it.add(AddPluginFromGitHubDelegateAction())
-            it.add(AddExamplePluginAction.addGroovyExamplesActionGroup)
-            it.add(AddExamplePluginAction.addKotlinExamplesActionGroup)
+            it.add(AddGroovyExamplesActionGroup())
+            it.add(AddKotlinExamplesActionGroup())
         }
 
     private fun createSettingsGroup() =

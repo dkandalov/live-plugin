@@ -14,7 +14,28 @@ import liveplugin.toolwindow.util.GroovyExamples
 import liveplugin.toolwindow.util.KotlinExamples
 import liveplugin.toolwindow.util.installPlugin
 
-class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): AnAction(), DumbAware {
+class AddGroovyExamplesActionGroup: DefaultActionGroup("Groovy Examples", true) {
+    init {
+        GroovyExamples.all.forEach {
+            add(AddExamplePluginAction(it))
+        }
+        addSeparator()
+        add(PerformAllGroupActions("Add All", "", this))
+    }
+}
+
+class AddKotlinExamplesActionGroup: DefaultActionGroup("Kotlin Examples", true) {
+    init {
+        KotlinExamples.all.forEach {
+            add(AddExamplePluginAction(it))
+        }
+        addSeparator()
+        add(PerformAllGroupActions("Add All", "", this))
+
+    }
+}
+
+private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): AnAction(), DumbAware {
     private val logger = Logger.getInstance(AddExamplePluginAction::class.java)
 
     init {
@@ -47,44 +68,22 @@ class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): AnAction
         }
         logger.error(e)
     }
+}
 
-    private class PerformAllGroupActions(
-        name: String,
-        description: String,
-        private val actionGroup: DefaultActionGroup,
-        private val place: String = ""
-    ): AnAction(name, description, null), DumbAware {
-        override fun actionPerformed(e: AnActionEvent) {
-            actionGroup.childActionsOrStubs
-                .filter { it != this && it !is Separator }
-                .forEach { performAction(it, place) }
-        }
-
-        private fun performAction(action: AnAction, place: String) {
-            val event = AnActionEvent(null, EMPTY_CONTEXT, place, action.templatePresentation, ActionManager.getInstance(), 0)
-            IdeUtil.invokeLaterOnEDT { action.actionPerformed(event) }
-        }
+private class PerformAllGroupActions(
+    name: String,
+    description: String,
+    private val actionGroup: DefaultActionGroup,
+    private val place: String = ""
+): AnAction(name, description, null), DumbAware {
+    override fun actionPerformed(e: AnActionEvent) {
+        actionGroup.childActionsOrStubs
+            .filter { it != this && it !is Separator }
+            .forEach { performAction(it, place) }
     }
 
-    companion object {
-        val addGroovyExamplesActionGroup by lazy {
-            DefaultActionGroup("Groovy Examples", true).apply {
-                GroovyExamples.all.forEach {
-                    add(AddExamplePluginAction(it))
-                }
-                addSeparator()
-                add(PerformAllGroupActions("Add All", "", this))
-            }
-        }
-
-        val addKotlinExamplesActionGroup by lazy {
-            DefaultActionGroup("Kotlin Examples", true).apply {
-                KotlinExamples.all.forEach {
-                    add(AddExamplePluginAction(it))
-                }
-                addSeparator()
-                add(PerformAllGroupActions("Add All", "", this))
-            }
-        }
+    private fun performAction(action: AnAction, place: String) {
+        val event = AnActionEvent(null, EMPTY_CONTEXT, place, action.templatePresentation, ActionManager.getInstance(), 0)
+        IdeUtil.invokeLaterOnEDT { action.actionPerformed(event) }
     }
 }
