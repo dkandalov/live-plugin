@@ -17,6 +17,7 @@ import javax.swing.JPanel
 fun createPopupMenu(
     actionGroup: ActionGroup,
     dataContext: DataContext? = null,
+    showDisabledActions: Boolean = false,
     selectionAidMethod: JBPopupFactory.ActionSelectionAid = SPEEDSEARCH,
     isPreselected: (AnAction) -> Boolean = { false }
 ): ListPopup {
@@ -25,7 +26,7 @@ fun createPopupMenu(
         actionGroup,
         dataContext ?: MapDataContext().put(CONTEXT_COMPONENT.name, JPanel()), // prevent createActionGroupPopup() from crashing without context component
         selectionAidMethod == NUMBERING || selectionAidMethod == ALPHA_NUMBERING,
-        false,
+        showDisabledActions,
         selectionAidMethod == MNEMONICS,
         null,
         -1

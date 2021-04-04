@@ -20,7 +20,7 @@ import javax.swing.KeyStroke
  * e.g. "ToolsMenu" corresponds to `Main menu - Tools`.
  *
  * Note that the action is registered with the `pluginDisposable` and will be automatically unregistered
- * when the plugin is unloaded or evaluated again.
+ * when the plugin is unloaded or evaluated again. See https://plugins.jetbrains.com/docs/intellij/disposers.html.
  */
 fun LivePluginScript.registerAction(
     id: String,
