@@ -7,11 +7,13 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState.NON_MODAL
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import liveplugin.*
+import liveplugin.IdeUtil.displayError
 import liveplugin.IdeUtil.ideStartupActionPlace
 import liveplugin.LivePluginAppComponent.Companion.findPluginFolder
 import liveplugin.pluginrunner.AnError.LoadingError
@@ -19,8 +21,7 @@ import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
 private val pluginRunners = listOf(GroovyPluginRunner.main, KotlinPluginRunner.main)
@@ -38,12 +39,15 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
 
     companion object {
         @JvmStatic fun runPlugins(pluginFilePaths: List<FilePath>, event: AnActionEvent) {
-            runPlugins(pluginFilePaths, event, pluginRunners)
+            pluginFilePaths.toLivePlugins().forEach { it.runWith(pluginRunners, event) }
         }
 
         @JvmStatic fun runPluginsTests(pluginFilePaths: List<FilePath>, event: AnActionEvent) {
-            runPlugins(pluginFilePaths, event, pluginTestRunners)
+            pluginFilePaths.toLivePlugins().forEach { it.runWith(pluginTestRunners, event) }
         }
+
+        private fun List<FilePath>.toLivePlugins() =
+            mapNotNull { it.findPluginFolder() }.distinct().map { LivePlugin(it) }
     }
 }
 
@@ -58,7 +62,22 @@ class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run plugin integration
     }
 }
 
-private val backgroundRunner = BackgroundRunner()
+data class LivePlugin(val path: FilePath) {
+    val id: String = path.toFile().name
+}
+
+private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
+    val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
+        ?: return displayError(LoadingError(id, message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), event.project)
+    val binding = Binding.create(this, event)
+
+    runInBackground(event.project, "Running live-plugin '$id'") {
+        pluginRunner.runPlugin(this, binding, ::runOnEdt)
+    }.whenComplete { result, throwable ->
+        if (throwable != null) displayError(LoadingError(id, message = "Unexpected Error", throwable), event.project)
+        else result.peekFailure { displayError(it, event.project) }
+    }
+}
 
 private fun <T> runOnEdt(f: () -> T): T {
     val result = AtomicReference<T>()
@@ -66,56 +85,23 @@ private fun <T> runOnEdt(f: () -> T): T {
     return result.get()
 }
 
-data class LivePlugin(val path: FilePath) {
-    val id: String = path.toFile().name
-}
-
-private fun runPlugins(pluginFilePaths: List<FilePath>, event: AnActionEvent, pluginRunners: List<PluginRunner>) {
-    pluginFilePaths
-        .mapNotNull { it.findPluginFolder() }.distinct()
-        .forEach { LivePlugin(it).runWith(pluginRunners, event) }
-}
-
-private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
-    val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
-        ?: return IdeUtil.displayError(LoadingError("Plugin: \"$id\". Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), event.project)
-
-    val binding = Binding.create(this, event)
-
-    backgroundRunner.run(pluginRunner.scriptName, event.project, "Running live-plugin '$id'") {
-        pluginRunner.runPlugin(this, binding, ::runOnEdt).peekFailure { IdeUtil.displayError(it, event.project) }
-    }
-}
-
-
-
-private class BackgroundRunner {
-    private val runnerById = HashMap<String, SingleThreadBackgroundRunner>()
-
-    fun run(id: String, project: Project?, taskDescription: String, runnable: () -> Unit) {
-        runnerById.getOrPut(id) { SingleThreadBackgroundRunner() }
-            .run(project, taskDescription, runnable)
-    }
-
-    private class SingleThreadBackgroundRunner(threadName: String = "LivePlugin runner thread") {
-        private val singleThreadExecutor = Executors.newSingleThreadExecutor { runnable -> Thread(runnable, threadName) }
-
-        fun run(project: Project?, taskDescription: String, runnable: () -> Unit) {
-            singleThreadExecutor.submit {
-                val latch = CountDownLatch(1)
-                object: Task.Backgroundable(project, taskDescription, false, ALWAYS_BACKGROUND) {
-                    override fun run(indicator: ProgressIndicator) {
-                        try {
-                            runnable()
-                        } finally {
-                            latch.countDown()
-                        }
-                    }
-                }.queue()
-                latch.await()
+private fun runInBackground(project: Project?, taskDescription: String, function: () -> Result<Unit, AnError>): CompletableFuture<Result<Unit, AnError>> {
+    val futureResult = CompletableFuture<Result<Unit, AnError>>()
+    if (project == null) {
+        // Can't use ProgressManager here because it will show with modal dialogs on IDE startup when there is no project
+        futureResult.complete(function())
+    } else {
+        ProgressManager.getInstance().run(object: Task.Backgroundable(project, taskDescription, false, ALWAYS_BACKGROUND) {
+            override fun run(indicator: ProgressIndicator) {
+                try {
+                    futureResult.complete(function())
+                } catch (e: Exception) {
+                    futureResult.completeExceptionally(e)
+                }
             }
-        }
+        })
     }
+    return futureResult
 }
 
 class Binding(
@@ -152,7 +138,7 @@ class Binding(
                 try {
                     Disposer.dispose(oldBinding.pluginDisposable)
                 } catch (e: Exception) {
-                    IdeUtil.displayError(RunningError(livePlugin.id, e), event.project)
+                    displayError(RunningError(livePlugin.id, e), event.project)
                 }
             }
 
