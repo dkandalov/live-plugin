@@ -11,9 +11,9 @@ import liveplugin.*
 show("Hello Kotlin world")
 
 // There are several implicit variables available in plugin.groovy files.
-//  - "isIdeStartup" which is true on IDE startup, otherwise false. Plugins are executed on IDE startup
-//    if "Plugins toolwindow -> Settings -> Run all plugins on IDE start" option is enabled.
-//  - "project" in which plugin is executed, it can be null on IDE startup or if there are no open projects.
+//  - "isIdeStartup" which is true on IDE start, otherwise false. Plugins are executed on IDE start
+//    if "Plugins toolwindow -> Settings -> Run Plugins on IDE Start" option is enabled.
+//  - "project" in which plugin is executed, it can be null on IDE start or if there are no open projects.
 //    It is an instance of com.intellij.openapi.project.Project, see
 //    https://upsource.jetbrains.com/idea-ce/file/idea-ce-ba0c8fc9ab9bf23a71a6a963cd84fc89b09b9fc8/platform/core-api/src/com/intellij/openapi/project/Project.java
 //  - "pluginDisposable" instance of com.intellij.openapi.Disposable which will be disposed

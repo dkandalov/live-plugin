@@ -10,15 +10,13 @@
 	<category>Plugin Development</category>
 	<description>
 		<![CDATA[<html lang="EN"><body>
-This is a plugin for IntelliJ IDEs to write plugins at runtime without having to restart IDE.
-It uses Groovy as main scripting language and has experimental support for Kotlin.
+Allows writing plugins at runtime without IDE restart in Groovy and Kotlin.
 <br/><br/>
 To get started:
 <ul>
 <li>open "Plugins" tool window</li>
-<li>select one of the plugin entries in the panel
-    (entries are folders, and "plugin.groovy" are startup scripts for plugins)</li>
-<li>click "Run" icon to execute plugin (or use keyboard shortcut "alt+C, alt+E" or "ctrl+shift+L")</li>
+<li>select one of the plugin entries in the panel (entries are folders, and "plugin.groovy" are startup scripts for plugins)</li>
+<li>click "Run" icon to execute plugin (keyboard shortcut "ctrl+shift+L" or "alt+C, alt+E")</li>
 </ul>
 If the above worked fine:
 <ul>

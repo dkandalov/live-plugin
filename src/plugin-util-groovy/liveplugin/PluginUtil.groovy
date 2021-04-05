@@ -1065,7 +1065,7 @@ class PluginUtil {
 		// Dummy method to document that there is no need for EDT or writeAction since ActionManager uses its own internal lock.
 		// Obviously, to be properly "thread-safe" group of operations on ActionManager should be atomic,
 		// this is not the case. The assumption is that normally mini-plugins don't change the same actions and
-		// using writeAction on IDE startup can cause deadlock, e.g. when running at the same time as ServiceManager:
+		// using writeAction on IDE start can cause deadlock, e.g. when running at the same time as ServiceManager:
 		//    at com.intellij.openapi.application.impl.ApplicationImpl.getStateStore(ApplicationImpl.java:197)
 		//    at com.intellij.openapi.application.impl.ApplicationImpl.initializeComponent(ApplicationImpl.java:205)
 		//    at com.intellij.openapi.components.impl.ServiceManagerImpl$MyComponentAdapter.initializeInstance(ServiceManagerImpl.java:164)
