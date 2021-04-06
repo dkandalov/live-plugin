@@ -12,8 +12,9 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderW
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.withTransitiveDependencies
-import liveplugin.pluginrunner.Result.Failure
-import liveplugin.pluginrunner.Result.Success
+import liveplugin.Result.Failure
+import liveplugin.Result.Success
+import liveplugin.*
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinAddToClasspathKeyword
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinDependsOnPluginKeyword
 import liveplugin.toFilePath

@@ -7,11 +7,12 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
+import liveplugin.Result
 
 import static liveplugin.pluginrunner.AnError.LoadingError
 import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
-import static liveplugin.pluginrunner.Result.Failure
-import static liveplugin.pluginrunner.Result.Success
+import static liveplugin.Result.Failure
+import static liveplugin.Result.Success
 
 // Ignore for now, because it's hard to setup KotlinPluginRunner classloaders and load EmbeddedCompilerRunnerKt.
 @Ignore

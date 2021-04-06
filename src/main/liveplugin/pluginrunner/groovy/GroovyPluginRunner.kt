@@ -1,7 +1,9 @@
 package liveplugin.pluginrunner.groovy
 
 import groovy.util.GroovyScriptEngine
-import liveplugin.find
+import liveplugin.*
+import liveplugin.Result.Failure
+import liveplugin.Result.Success
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
@@ -9,9 +11,6 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderW
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.withTransitiveDependencies
-import liveplugin.pluginrunner.Result.Failure
-import liveplugin.pluginrunner.Result.Success
-import liveplugin.toUrlString
 import org.codehaus.groovy.control.CompilationFailedException
 import java.io.IOException
 import groovy.lang.Binding as GroovyBinding

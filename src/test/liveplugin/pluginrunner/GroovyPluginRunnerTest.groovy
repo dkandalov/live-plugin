@@ -3,25 +3,21 @@ package liveplugin.pluginrunner
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import kotlin.Unit
-import kotlin.jvm.functions.Function0
-import kotlin.jvm.functions.Function1
 import liveplugin.FilePath
+import liveplugin.Result
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
+import static liveplugin.Result.Failure
+import static liveplugin.Result.Success
 import static liveplugin.pluginrunner.AnError.RunningError
-import static liveplugin.pluginrunner.Result.Failure
-import static liveplugin.pluginrunner.Result.Success
 import static liveplugin.pluginrunner.groovy.GroovyPluginRunner.mainScript
 
 class GroovyPluginRunnerTest {
 	static final Binding noBindings = new Binding(null, false, "", Disposer.newDisposable())
 	static final LinkedHashMap emptyEnvironment = [:]
-	static final Function1 runOnTheSameThread = new Function1<Function0<Result>, Result>() {
-		@Override Result invoke(Function0<Result> f) { f.invoke() }
-	}
 	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(mainScript, emptyEnvironment)
 	private File rootFolder
 	private File myPackageFolder

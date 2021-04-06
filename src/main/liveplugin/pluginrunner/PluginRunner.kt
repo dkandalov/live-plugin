@@ -7,7 +7,8 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.lang.UrlClassLoader
 import groovy.lang.GroovyClassLoader
 import liveplugin.pluginrunner.AnError.LoadingError
-import liveplugin.pluginrunner.Result.Success
+import liveplugin.Result.Success
+import liveplugin.*
 import liveplugin.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
@@ -101,4 +102,9 @@ interface PluginRunner {
             return result
         }
     }
+}
+
+sealed class AnError {
+    data class LoadingError(val message: String = "", val throwable: Throwable? = null): AnError()
+    data class RunningError(val throwable: Throwable): AnError()
 }
