@@ -2,9 +2,10 @@ package liveplugin.pluginrunner.kotlin
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.util.lang.UrlClassLoader
+import liveplugin.*
 import liveplugin.IdeUtil.unscrambleThrowable
-import liveplugin.LivePluginPaths
-import liveplugin.find
+import liveplugin.Result.Failure
+import liveplugin.Result.Success
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
@@ -12,12 +13,8 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderW
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.withTransitiveDependencies
-import liveplugin.Result.Failure
-import liveplugin.Result.Success
-import liveplugin.*
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinAddToClasspathKeyword
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinDependsOnPluginKeyword
-import liveplugin.toFilePath
 import org.apache.commons.codec.digest.MurmurHash3
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
@@ -46,7 +43,7 @@ class KotlinPluginRunner(
     override val scriptName: String,
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
-    private data class ExecutableKotlinPlugin(val pluginClass: Class<*>, val pluginId: String) : ExecutablePlugin
+    private data class ExecutableKotlinPlugin(val pluginClass: Class<*>) : ExecutablePlugin
 
     override fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError> {
         val mainScript = plugin.path.find(scriptName)
@@ -86,11 +83,11 @@ class KotlinPluginRunner(
         } catch (e: Throwable) {
             return Failure(LoadingError("Error while loading plugin class.", e))
         }
-        return ExecutableKotlinPlugin(pluginClass, plugin.id).asSuccess()
+        return ExecutableKotlinPlugin(pluginClass).asSuccess()
     }
 
     override fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError> {
-        val (pluginClass, pluginId) = (executablePlugin as ExecutableKotlinPlugin)
+        val pluginClass = (executablePlugin as ExecutableKotlinPlugin).pluginClass
         return try {
             // Arguments below must match constructor of LivePluginScript class.
             // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.

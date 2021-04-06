@@ -12,6 +12,7 @@ import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAddit
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
 import liveplugin.pluginrunner.PluginRunner.ClasspathAddition.withTransitiveDependencies
 import org.codehaus.groovy.control.CompilationFailedException
+import org.jetbrains.plugins.groovy.dsl.GdslScriptProvider
 import java.io.IOException
 import groovy.lang.Binding as GroovyBinding
 
@@ -22,8 +23,7 @@ class GroovyPluginRunner(
 
     private data class ExecutableGroovyPlugin(
         val scriptEngine: GroovyScriptEngine,
-        val scriptUrl: String,
-        val pluginId: String
+        val scriptUrl: String
     ) : ExecutablePlugin
 
     override fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError> {
@@ -53,7 +53,7 @@ class GroovyPluginRunner(
                 return Failure(LoadingError(throwable = e))
             }
 
-            return ExecutableGroovyPlugin(scriptEngine, mainScript.toUrlString(), plugin.id).asSuccess()
+            return ExecutableGroovyPlugin(scriptEngine, mainScript.toUrlString()).asSuccess()
 
         } catch (e: IOException) {
             return Failure(LoadingError("Error creating scripting engine. ${e.message}"))
@@ -69,7 +69,7 @@ class GroovyPluginRunner(
     }
 
     override fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError> {
-        val (scriptEngine, scriptUrl, pluginId) = executablePlugin as ExecutableGroovyPlugin
+        val (scriptEngine, scriptUrl) = executablePlugin as ExecutableGroovyPlugin
         return try {
             scriptEngine.run(scriptUrl, GroovyBinding(binding.toMap()))
             Success(Unit)
@@ -88,3 +88,5 @@ class GroovyPluginRunner(
         val test = GroovyPluginRunner(testScript)
     }
 }
+
+class LivePluginGdslScriptProvider: GdslScriptProvider
