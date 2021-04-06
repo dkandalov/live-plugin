@@ -26,14 +26,11 @@ If the above worked fine:
 </ul>
 
 If something doesn't work, feel free to <a href="https://github.com/dkandalov/live-plugin/issues">report an issue</a>.
-<br/>
-(To use alt+... shortcuts on OSX with JDK8 you might need to edit keyboard layout, please see
-<a href="https://github.com/dkandalov/live-plugin/wiki/Alt-keyboard-shortcuts-on-osx">this wiki page</a>.)
     </body></html>]]>
 	</description>
     <change-notes>
         <![CDATA[
-        <html><body><ul>
+        <html lang="EN"><body><ul>
             <li>"Unload Plugin" action</li>
             <li>support for project-specific plugins located in ".live-plugins" directory of the project
                 (they're run when project is open and unloaded when it's closed)</li>

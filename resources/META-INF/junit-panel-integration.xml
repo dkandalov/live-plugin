@@ -1,7 +1,5 @@
 <idea-plugin>
-    <application-components>
-        <component>
-            <implementation-class>liveplugin.testrunner.IntegrationTestsRunner</implementation-class>
-        </component>
-    </application-components>
+    <applicationListeners>
+        <listener class="liveplugin.testrunner.IntegrationTestsRunner" topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
 </idea-plugin>
