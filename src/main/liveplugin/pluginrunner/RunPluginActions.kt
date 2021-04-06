@@ -67,15 +67,17 @@ data class LivePlugin(val path: FilePath) {
 }
 
 private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
-    val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
-        ?: return displayError(LoadingError(id, message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), event.project)
+    val project = event.project
     val binding = Binding.create(this, event)
+    runInBackground(project, "Running live-plugin '$id'") {
 
-    runInBackground(event.project, "Running live-plugin '$id'") {
-        pluginRunner.runPlugin(this, binding, ::runOnEdt)
+        val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
+        pluginRunner?.runPlugin(this, binding, ::runOnEdt)
+            ?: LoadingError(id, message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}").asFailure()
+
     }.whenComplete { result, throwable ->
-        if (throwable != null) displayError(LoadingError(id, message = "Unexpected Error", throwable), event.project)
-        else result.peekFailure { displayError(it, event.project) }
+        if (throwable != null) displayError(LoadingError(id, message = "Unexpected Error", throwable), project)
+        else result.peekFailure { displayError(it, project) }
     }
 }
 
