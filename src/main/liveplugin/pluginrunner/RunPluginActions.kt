@@ -89,7 +89,11 @@ private fun runInBackground(project: Project?, taskDescription: String, function
     val futureResult = CompletableFuture<Result<Unit, AnError>>()
     if (project == null) {
         // Can't use ProgressManager here because it will show with modal dialogs on IDE startup when there is no project
-        futureResult.complete(function())
+        try {
+            futureResult.complete(function())
+        } catch (e: Exception) {
+            futureResult.completeExceptionally(e)
+        }
     } else {
         ProgressManager.getInstance().run(object: Task.Backgroundable(project, taskDescription, false, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
