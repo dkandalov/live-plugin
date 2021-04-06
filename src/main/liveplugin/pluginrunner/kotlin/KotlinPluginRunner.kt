@@ -48,16 +48,17 @@ class KotlinPluginRunner(
     private data class ExecutableKotlinPlugin(val pluginClass: Class<*>, val pluginId: String) : ExecutablePlugin
 
     override fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError> {
-        val mainScript = plugin.path.find(scriptName)!!
+        val mainScript = plugin.path.find(scriptName)
+            ?: return LoadingError(message = "Startup script $scriptName was not found.").asFailure()
 
         val pluginDescriptorsOfDependencies = findPluginDescriptorsOfDependencies(mainScript.readLines(), kotlinDependsOnPluginKeyword)
-            .map { it.onFailure { (message) -> return Failure(LoadingError(plugin.id, message)) } }
-            .onEach { if (!it.isEnabled) return Failure(LoadingError(plugin.id, "Dependent plugin '${it.pluginId}' is disabled")) }
+            .map { it.onFailure { (message) -> return Failure(LoadingError(message)) } }
+            .onEach { if (!it.isEnabled) return Failure(LoadingError("Dependent plugin '${it.pluginId}' is disabled")) }
             .withTransitiveDependencies()
 
         val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
         val additionalClasspath = findClasspathAdditions(mainScript.readLines(), kotlinAddToClasspathKeyword, environment)
-            .flatMap { it.onFailure { (path) -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path.'")) } }
+            .flatMap { it.onFailure { (path) -> return Failure(LoadingError("Couldn't find dependency '$path.'")) } }
 
         val compilerOutput = File("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}")
 
@@ -68,7 +69,7 @@ class KotlinPluginRunner(
 
             KotlinPluginCompiler()
                 .compile(plugin.path.value, pluginDescriptorsOfDependencies, additionalClasspath, compilerOutput)
-                .onFailure { (reason) -> return Failure(LoadingError(plugin.id, reason)) }
+                .onFailure { (reason) -> return Failure(LoadingError(reason)) }
 
             hashFilePath.toFile().writeText(hash.toString())
         }
@@ -79,10 +80,10 @@ class KotlinPluginRunner(
                 livePluginLibAndSrcFiles() +
                 additionalClasspath
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin)
-                .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
+                .onFailure { return Failure(LoadingError(it.reason.message)) }
             classLoader.loadClass("Plugin")
         } catch (e: Throwable) {
-            return Failure(LoadingError(plugin.id, "Error while loading plugin class.\n${unscrambleThrowable(e)}"))
+            return Failure(LoadingError("Error while loading plugin class.", e))
         }
         return ExecutableKotlinPlugin(pluginClass, plugin.id).asSuccess()
     }
@@ -95,7 +96,7 @@ class KotlinPluginRunner(
             pluginClass.constructors[0].newInstance(binding.isIdeStartup, binding.project, binding.pluginPath, binding.pluginDisposable)
             Success(Unit)
         } catch (e: Throwable) {
-            Failure(RunningError(pluginId, e))
+            Failure(RunningError(e))
         }
     }
 

@@ -51,15 +51,7 @@ object IdeUtil {
 
     private val logger = Logger.getInstance(IdeUtil::class.java)
 
-    fun displayError(error: AnError, project: Project?) {
-        val (title, message) = when (error) {
-            is LoadingError -> Pair("Loading error: ${error.pluginId}", error.message + if (error.throwable != null) "\n" + unscrambleThrowable(error.throwable) else "")
-            is RunningError -> Pair("Running error: ${error.pluginId}", unscrambleThrowable(error.throwable))
-        }
-        displayError(title, message, project)
-    }
-
-    private fun displayError(consoleTitle: String, text: String, project: Project?) {
+    fun displayError(consoleTitle: String, text: String, project: Project?) {
         if (project == null) {
             // "project" can be null when there are no open projects or while IDE is loading.
             // It is important to log error specifying plugin id, otherwise IDE will try to guess

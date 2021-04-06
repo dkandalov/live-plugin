@@ -51,7 +51,6 @@ class GroovyPluginRunnerTest {
 		def result = runPlugin()
 
 		assert result instanceof Failure
-		assert (result.reason as RunningError).pluginId == rootFolder.name
 		assert (result.reason as RunningError).throwable.toString().startsWith("groovy.lang.MissingPropertyException")
 	}
 

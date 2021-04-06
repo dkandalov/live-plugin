@@ -33,7 +33,7 @@ interface PluginRunner {
             val classLoader = GroovyClassLoader(createParentClassLoader(pluginDescriptors, plugin))
 
             additionalClasspath.forEach { file ->
-                if (!file.exists()) return LoadingError(plugin.id, "Didn't find plugin dependency '${file.absolutePath}'.").asFailure()
+                if (!file.exists()) return LoadingError("Didn't find plugin dependency '${file.absolutePath}'.").asFailure()
             }
             additionalClasspath.forEach { file -> classLoader.addURL(file.toUrl()) }
 

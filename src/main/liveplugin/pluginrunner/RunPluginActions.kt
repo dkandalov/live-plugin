@@ -69,12 +69,12 @@ private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActio
     val project = event.project
     val binding = Binding.create(this, event)
     val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
-        ?: return displayError(LoadingError(id, message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
+        ?: return displayError(id, LoadingError(message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
 
     runInBackground(project, "Running live-plugin '$id'") {
         pluginRunner.setup(this)
             .flatMap { runOnEdt { pluginRunner.run(it, binding) } }
-            .peekFailure { displayError(it, project) }
+            .peekFailure { displayError(id, it, project) }
     }
 }
 
@@ -131,7 +131,7 @@ class Binding(
                 try {
                     Disposer.dispose(oldBinding.pluginDisposable)
                 } catch (e: Exception) {
-                    displayError(RunningError(livePlugin.id, e), event.project)
+                    displayError(livePlugin.id, RunningError(e), event.project)
                 }
             }
 
@@ -162,3 +162,11 @@ private fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Bo
 fun AnActionEvent.selectedFilePaths(): List<FilePath> =
     (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray())
         .map { it.toFilePath() }
+
+private fun displayError(pluginId: String, error: AnError, project: Project?) {
+    val (title, message) = when (error) {
+        is LoadingError -> Pair("Loading error: $pluginId", error.message + if (error.throwable != null) "\n" + IdeUtil.unscrambleThrowable(error.throwable) else "")
+        is RunningError -> Pair("Running error: $pluginId", IdeUtil.unscrambleThrowable(error.throwable))
+    }
+    displayError(title, message, project)
+}

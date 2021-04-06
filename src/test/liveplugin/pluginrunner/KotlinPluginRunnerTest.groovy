@@ -62,7 +62,6 @@ class KotlinPluginRunnerTest {
 		def result = runPlugin()
 
 		assert result instanceof Failure
-		assert (result.reason as LoadingError).pluginId == "someId"
 		assert (result.reason as LoadingError).throwable.toString().contains("unresolved reference: abc")
 	}
 

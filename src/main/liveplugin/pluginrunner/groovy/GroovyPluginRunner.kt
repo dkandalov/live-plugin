@@ -29,19 +29,20 @@ class GroovyPluginRunner(
 
     override fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError> {
         try {
-            val mainScript = plugin.path.find(scriptName)!!
+            val mainScript = plugin.path.find(scriptName)
+                ?: return LoadingError(message = "Startup script $scriptName was not found.").asFailure()
 
             val pluginDescriptors = findPluginDescriptorsOfDependencies(mainScript.readLines(), groovyDependsOnPluginKeyword)
-                .map { it.onFailure { (message) -> return Failure(LoadingError(plugin.id, message)) } }
-                .onEach { if (!it.isEnabled) return Failure(LoadingError(plugin.id, "Dependent plugin '${it.pluginId}' is disabled")) }
+                .map { it.onFailure { (message) -> return Failure(LoadingError(message)) } }
+                .onEach { if (!it.isEnabled) return Failure(LoadingError("Dependent plugin '${it.pluginId}' is disabled")) }
                 .withTransitiveDependencies()
 
             val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
             val additionalClasspath = findClasspathAdditions(mainScript.readLines(), groovyAddToClasspathKeyword, environment)
-                .flatMap { it.onFailure { (path) -> return Failure(LoadingError(plugin.id, "Couldn't find dependency '$path'")) } }
+                .flatMap { it.onFailure { (path) -> return Failure(LoadingError("Couldn't find dependency '$path'")) } }
 
             val classLoader = createClassLoaderWithDependencies(additionalClasspath + plugin.path.toFile(), pluginDescriptors, plugin)
-                .onFailure { return Failure(LoadingError(it.reason.pluginId, it.reason.message)) }
+                .onFailure { return Failure(LoadingError(it.reason.message)) }
 
             val pluginFolderUrl = "file:///${plugin.path}/" // prefix with "file:///" so that unix-like path works on windows
             // assume that GroovyScriptEngine is thread-safe
@@ -50,21 +51,21 @@ class GroovyPluginRunner(
             try {
                 scriptEngine.loadScriptByName(mainScript.toUrlString())
             } catch (e: Exception) {
-                return Failure(LoadingError(plugin.id, throwable = e))
+                return Failure(LoadingError(throwable = e))
             }
 
             return ExecutableGroovyPlugin(scriptEngine, mainScript.toUrlString(), plugin.id).asSuccess()
 
         } catch (e: IOException) {
-            return Failure(LoadingError(plugin.id, "Error creating scripting engine. ${e.message}"))
+            return Failure(LoadingError("Error creating scripting engine. ${e.message}"))
         } catch (e: CompilationFailedException) {
-            return Failure(LoadingError(plugin.id, "Error compiling script. ${e.message}"))
+            return Failure(LoadingError("Error compiling script. ${e.message}"))
         } catch (e: LinkageError) {
-            return Failure(LoadingError(plugin.id, "Error linking script. ${e.message}"))
+            return Failure(LoadingError("Error linking script. ${e.message}"))
         } catch (e: Error) {
-            return Failure(LoadingError(plugin.id, throwable = e))
+            return Failure(LoadingError(throwable = e))
         } catch (e: Exception) {
-            return Failure(LoadingError(plugin.id, throwable = e))
+            return Failure(LoadingError(throwable = e))
         }
     }
 
@@ -74,7 +75,7 @@ class GroovyPluginRunner(
             scriptEngine.run(scriptUrl, GroovyBinding(binding.toMap()))
             Success(Unit)
         } catch (e: Exception) {
-            Failure(RunningError(pluginId, e))
+            Failure(RunningError(e))
         }
     }
 

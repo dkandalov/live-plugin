@@ -31,6 +31,6 @@ inline fun <T, Tʹ, E> Result<T, E>.map(f: (T) -> Tʹ): Result<Tʹ, E> =
 
 
 sealed class AnError {
-    data class LoadingError(val pluginId: String, val message: String = "", val throwable: Throwable? = null): AnError()
-    data class RunningError(val pluginId: String, val throwable: Throwable): AnError()
+    data class LoadingError(val message: String = "", val throwable: Throwable? = null): AnError()
+    data class RunningError(val throwable: Throwable): AnError()
 }
