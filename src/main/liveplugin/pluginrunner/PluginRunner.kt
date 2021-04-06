@@ -15,17 +15,14 @@ import java.io.FileFilter
 import java.util.*
 import kotlin.collections.HashSet
 
-interface PluginRunner {
+interface ExecutablePlugin
 
+interface PluginRunner {
     val scriptName: String
 
-    /**
-     * @param plugin plugin to be run
-     * @param binding map with implicit variables available in plugin script
-     * @param runOnEDT callback which should be used to run plugin code on EDT
-     */
-    fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError>
-
+    fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError>
+    
+    fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError>
 
     object ClasspathAddition {
         fun createClassLoaderWithDependencies(

@@ -21,7 +21,6 @@ import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
 private val pluginRunners = listOf(GroovyPluginRunner.main, KotlinPluginRunner.main)
@@ -69,15 +68,13 @@ data class LivePlugin(val path: FilePath) {
 private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
     val project = event.project
     val binding = Binding.create(this, event)
+    val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
+        ?: return displayError(LoadingError(id, message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
+
     runInBackground(project, "Running live-plugin '$id'") {
-
-        val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
-        pluginRunner?.runPlugin(this, binding, ::runOnEdt)
-            ?: LoadingError(id, message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}").asFailure()
-
-    }.whenComplete { result, throwable ->
-        if (throwable != null) displayError(LoadingError(id, message = "Unexpected Error", throwable), project)
-        else result.peekFailure { displayError(it, project) }
+        pluginRunner.setup(this)
+            .flatMap { runOnEdt { pluginRunner.run(it, binding) } }
+            .peekFailure { displayError(it, project) }
     }
 }
 
@@ -87,27 +84,17 @@ private fun <T> runOnEdt(f: () -> T): T {
     return result.get()
 }
 
-private fun runInBackground(project: Project?, taskDescription: String, function: () -> Result<Unit, AnError>): CompletableFuture<Result<Unit, AnError>> {
-    val futureResult = CompletableFuture<Result<Unit, AnError>>()
+private fun runInBackground(project: Project?, taskDescription: String, function: () -> Any) {
     if (project == null) {
         // Can't use ProgressManager here because it will show with modal dialogs on IDE startup when there is no project
-        try {
-            futureResult.complete(function())
-        } catch (e: Exception) {
-            futureResult.completeExceptionally(e)
-        }
+        function()
     } else {
         ProgressManager.getInstance().run(object: Task.Backgroundable(project, taskDescription, false, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
-                try {
-                    futureResult.complete(function())
-                } catch (e: Exception) {
-                    futureResult.completeExceptionally(e)
-                }
+                function()
             }
         })
     }
-    return futureResult
 }
 
 class Binding(

@@ -21,7 +21,13 @@ class GroovyPluginRunner(
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
 
-    override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
+    private data class ExecutableGroovyPlugin(
+        val scriptEngine: GroovyScriptEngine,
+        val scriptUrl: String,
+        val pluginId: String
+    ) : ExecutablePlugin
+
+    override fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError> {
         try {
             val mainScript = plugin.path.find(scriptName)!!
 
@@ -47,14 +53,7 @@ class GroovyPluginRunner(
                 return Failure(LoadingError(plugin.id, throwable = e))
             }
 
-            return runOnEDT {
-                try {
-                    scriptEngine.run(mainScript.toUrlString(), GroovyBinding(binding.toMap()))
-                    Success(Unit)
-                } catch (e: Exception) {
-                    Failure(RunningError(plugin.id, e))
-                }
-            }
+            return ExecutableGroovyPlugin(scriptEngine, mainScript.toUrlString(), plugin.id).asSuccess()
 
         } catch (e: IOException) {
             return Failure(LoadingError(plugin.id, "Error creating scripting engine. ${e.message}"))
@@ -66,6 +65,16 @@ class GroovyPluginRunner(
             return Failure(LoadingError(plugin.id, throwable = e))
         } catch (e: Exception) {
             return Failure(LoadingError(plugin.id, throwable = e))
+        }
+    }
+
+    override fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError> {
+        val (scriptEngine, scriptUrl, pluginId) = executablePlugin as ExecutableGroovyPlugin
+        return try {
+            scriptEngine.run(scriptUrl, GroovyBinding(binding.toMap()))
+            Success(Unit)
+        } catch (e: Exception) {
+            Failure(RunningError(pluginId, e))
         }
     }
 

@@ -86,7 +86,8 @@ class GroovyPluginRunnerTest {
 	}
 
 	private Result<Unit, AnError> runPlugin() {
-		pluginRunner.runPlugin(new LivePlugin(new FilePath(rootFolder.absolutePath)), noBindings, runOnTheSameThread)
+		def result = pluginRunner.setup(new LivePlugin(new FilePath(rootFolder.absolutePath)))
+		pluginRunner.run(result.value, noBindings)
 	}
 
 	static createFile(String fileName, String fileContent, File directory) {

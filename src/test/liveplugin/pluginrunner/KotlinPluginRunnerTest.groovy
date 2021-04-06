@@ -8,9 +8,10 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 
-import static liveplugin.pluginrunner.AnError.*
+import static liveplugin.pluginrunner.AnError.LoadingError
 import static liveplugin.pluginrunner.GroovyPluginRunnerTest.*
-import static liveplugin.pluginrunner.Result.*
+import static liveplugin.pluginrunner.Result.Failure
+import static liveplugin.pluginrunner.Result.Success
 
 // Ignore for now, because it's hard to setup KotlinPluginRunner classloaders and load EmbeddedCompilerRunnerKt.
 @Ignore
@@ -76,6 +77,7 @@ class KotlinPluginRunnerTest {
 	}
 
 	private Result<Unit, AnError> runPlugin() {
-		PluginRunner.runPlugin(new LivePlugin(rootFolder.absolutePath), noBindings, runOnTheSameThread)
+		def result = pluginRunner.setup(new LivePlugin(rootFolder.absolutePath))
+		pluginRunner.run(result.value, noBindings)
 	}
 }

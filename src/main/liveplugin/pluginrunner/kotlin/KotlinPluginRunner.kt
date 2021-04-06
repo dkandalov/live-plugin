@@ -45,8 +45,9 @@ class KotlinPluginRunner(
     override val scriptName: String,
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
+    private data class ExecutableKotlinPlugin(val pluginClass: Class<*>, val pluginId: String) : ExecutablePlugin
 
-    override fun runPlugin(plugin: LivePlugin, binding: Binding, runOnEDT: (() -> Result<Unit, AnError>) -> Result<Unit, AnError>): Result<Unit, AnError> {
+    override fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError> {
         val mainScript = plugin.path.find(scriptName)!!
 
         val pluginDescriptorsOfDependencies = findPluginDescriptorsOfDependencies(mainScript.readLines(), kotlinDependsOnPluginKeyword)
@@ -83,16 +84,18 @@ class KotlinPluginRunner(
         } catch (e: Throwable) {
             return Failure(LoadingError(plugin.id, "Error while loading plugin class.\n${unscrambleThrowable(e)}"))
         }
+        return ExecutableKotlinPlugin(pluginClass, plugin.id).asSuccess()
+    }
 
-        return runOnEDT {
-            try {
-                // Arguments below must match constructor of LivePluginScript class.
-                // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
-                pluginClass.constructors[0].newInstance(binding.isIdeStartup, binding.project, binding.pluginPath, binding.pluginDisposable)
-                Success(Unit)
-            } catch (e: Throwable) {
-                Failure(RunningError(plugin.id, e))
-            }
+    override fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError> {
+        val (pluginClass, pluginId) = (executablePlugin as ExecutableKotlinPlugin)
+        return try {
+            // Arguments below must match constructor of LivePluginScript class.
+            // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
+            pluginClass.constructors[0].newInstance(binding.isIdeStartup, binding.project, binding.pluginPath, binding.pluginDisposable)
+            Success(Unit)
+        } catch (e: Throwable) {
+            Failure(RunningError(pluginId, e))
         }
     }
 
