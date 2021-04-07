@@ -38,7 +38,6 @@ import liveplugin.IdeUtil.askIfUserWantsToRestartIde
 import liveplugin.IdeUtil.downloadFile
 import liveplugin.IdeUtil.ideStartupActionPlace
 import liveplugin.IdeUtil.invokeLaterOnEDT
-import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
@@ -126,10 +125,6 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
             return if (parent == livePluginsPath || parent.name == livePluginsProjectDirName) this
             else parent.findPluginFolder()
         }
-
-        fun defaultPluginScript(): String = readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy")
-
-        fun defaultPluginTestScript(): String = readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy")
 
         fun readSampleScriptFile(filePath: String): String =
             try {

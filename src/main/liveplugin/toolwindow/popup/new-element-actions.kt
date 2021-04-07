@@ -3,8 +3,9 @@ package liveplugin.toolwindow.popup
 import com.intellij.openapi.fileChooser.actions.NewFolderAction
 import liveplugin.Icons
 import liveplugin.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.defaultPluginScript
-import liveplugin.LivePluginAppComponent.Companion.defaultPluginTestScript
+import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
+import liveplugin.LivePluginPaths.groovyExamplesPath
+import liveplugin.LivePluginPaths.kotlinExamplesPath
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import javax.swing.Icon
 
@@ -19,7 +20,7 @@ class NewKotlinFileAction: NewFileAction("Kotlin File", IdeUtil.kotlinFileType)
 class NewGroovyMainScript: NewFileFromTemplateAction(
     GroovyPluginRunner.mainScript,
     GroovyPluginRunner.mainScript,
-    defaultPluginScript(),
+    readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy"),
     inferIconFromFileType,
     IdeUtil.groovyFileType
 )
@@ -27,9 +28,17 @@ class NewGroovyMainScript: NewFileFromTemplateAction(
 class NewGroovyTestScript: NewFileFromTemplateAction(
     GroovyPluginRunner.testScript,
     GroovyPluginRunner.testScript,
-    defaultPluginTestScript(),
+    readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy"),
     inferIconFromFileType,
     IdeUtil.groovyFileType
+)
+
+class NewPluginXmlScript: NewFileFromTemplateAction(
+    "plugin.xml",
+    "plugin.xml",
+    readSampleScriptFile("$kotlinExamplesPath/plugin.xml"),
+    inferIconFromFileType,
+    IdeUtil.xmlFileType
 )
 
 private val inferIconFromFileType: Icon? = null

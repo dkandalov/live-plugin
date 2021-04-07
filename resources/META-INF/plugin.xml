@@ -73,6 +73,7 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
                 <action id="LivePlugin.NewDirectoryAction" class="liveplugin.toolwindow.popup.NewDirectoryAction"/>
                 <action id="LivePlugin.NewGroovyMainScript" class="liveplugin.toolwindow.popup.NewGroovyMainScript"/>
                 <action id="LivePlugin.NewGroovyTestScript" class="liveplugin.toolwindow.popup.NewGroovyTestScript"/>
+                <action id="LivePlugin.NewPluginXmlScript" class="liveplugin.toolwindow.popup.NewPluginXmlScript"/>
                 <separator/>
                 <action id="LivePlugin.AddNewGroovyPluginAction" class="liveplugin.toolwindow.addplugin.AddNewGroovyPluginAction"/>
                 <action id="LivePlugin.AddNewKotlinPluginAction" class="liveplugin.toolwindow.addplugin.AddNewKotlinPluginAction"/>

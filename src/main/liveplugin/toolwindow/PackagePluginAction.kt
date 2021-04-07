@@ -3,6 +3,8 @@ package liveplugin.toolwindow
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
 import com.intellij.util.io.Compressor
 import liveplugin.Icons
 import liveplugin.LivePluginPaths
@@ -13,6 +15,7 @@ import liveplugin.pluginrunner.kotlin.SrcHashCode
 import liveplugin.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
 import liveplugin.pluginrunner.selectedFilePaths
 import liveplugin.pluginrunner.toLivePlugins
+import liveplugin.toolwindow.popup.NewPluginXmlScript
 import java.util.jar.Manifest
 
 class PackagePluginAction: AnAction(
@@ -20,18 +23,26 @@ class PackagePluginAction: AnAction(
     "Package selected plugins so they can be uploaded to plugins marketplace",
     Icons.packagePluginIcon
 ), DumbAware {
-    override fun actionPerformed(event: AnActionEvent) {
-        event.selectedFilePaths().toLivePlugins().forEach { packagePlugin(it) }
-    }
-
     override fun update(event: AnActionEvent) {
         event.presentation.isEnabled = event.selectedFilePaths().canBeHandledBy(listOf(KotlinPluginRunner.main))
     }
 
-    private fun packagePlugin(plugin: LivePlugin) {
+    override fun actionPerformed(event: AnActionEvent) {
+        val project = event.project ?: return
+        event.selectedFilePaths().toLivePlugins()
+            .forEach { packagePlugin(it, project, event) }
+    }
+
+    private fun packagePlugin(plugin: LivePlugin, project: Project, event: AnActionEvent) {
         val pluginXml = plugin.path + "plugin.xml"
         if (!pluginXml.exists()) {
-            error("Missing plugin.xml")
+            val command = Messages.showOkCancelDialog(project, "Do you want to create plugin.xml?", "", "Ok", "Cancel", null)
+            if (command != Messages.OK) return
+            else {
+                NewPluginXmlScript().actionPerformed(event)
+                // TODO FileEditorManager.getInstance(project).openFile(virtualFile, true)
+                return
+            }
         }
 
         val compilerOutput = LivePluginPaths.livePluginsCompiledPath + plugin.id
