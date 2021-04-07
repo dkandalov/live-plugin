@@ -44,9 +44,6 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
         @JvmStatic fun runPluginsTests(pluginFilePaths: List<FilePath>, event: AnActionEvent) {
             pluginFilePaths.toLivePlugins().forEach { it.runWith(pluginTestRunners, event) }
         }
-
-        private fun List<FilePath>.toLivePlugins() =
-            mapNotNull { it.findPluginFolder() }.distinct().map { LivePlugin(it) }
     }
 }
 
@@ -151,13 +148,16 @@ class Binding(
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
-private fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
+fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
     mapNotNull { path -> path.findPluginFolder() }
         .any { folder ->
             pluginRunners.any { runner ->
                 folder.allFiles().any { it.name == runner.scriptName }
             }
         }
+
+fun List<FilePath>.toLivePlugins() =
+    mapNotNull { it.findPluginFolder() }.distinct().map { LivePlugin(it) }
 
 fun AnActionEvent.selectedFilePaths(): List<FilePath> =
     (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray())

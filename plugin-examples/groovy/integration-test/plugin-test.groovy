@@ -10,6 +10,8 @@ import org.junit.Test
 
 import static liveplugin.PluginUtil.runReadAction
 
+// depends-on-plugin com.intellij.java
+
 // This is example of integration test.
 // The idea is that for code which heavily uses IntelliJ API it can be faster
 // to run tests inside IntelliJ without need for potentially long or complex initialisation.

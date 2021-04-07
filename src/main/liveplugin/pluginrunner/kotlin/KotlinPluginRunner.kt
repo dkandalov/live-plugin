@@ -43,7 +43,7 @@ class KotlinPluginRunner(
     override val scriptName: String,
     private val systemEnvironment: Map<String, String> = systemEnvironment()
 ): PluginRunner {
-    private data class ExecutableKotlinPlugin(val pluginClass: Class<*>) : ExecutablePlugin
+    data class ExecutableKotlinPlugin(val pluginClass: Class<*>) : ExecutablePlugin
 
     override fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError> {
         val mainScript = plugin.path.find(scriptName)
@@ -60,16 +60,15 @@ class KotlinPluginRunner(
 
         val compilerOutput = File("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}")
 
-        val hash = calculateSourceCodeHash(plugin)
-        val hashFilePath = compilerOutput.toFilePath() + "hash32.txt"
-        if (!hashFilePath.exists() || hashFilePath.toFile().readText().toLongOrNull() != hash) {
+        val srcHashCode = SrcHashCode(plugin.path, compilerOutput.toFilePath())
+        if (srcHashCode.needsUpdate()) {
             compilerOutput.deleteRecursively()
 
             KotlinPluginCompiler()
                 .compile(plugin.path.value, pluginDescriptorsOfDependencies, additionalClasspath, compilerOutput)
                 .onFailure { (reason) -> return Failure(LoadingError(reason)) }
 
-            hashFilePath.toFile().writeText(hash.toString())
+            srcHashCode.update()
         }
 
         val pluginClass = try {
@@ -97,13 +96,6 @@ class KotlinPluginRunner(
             Failure(RunningError(e))
         }
     }
-
-    private fun calculateSourceCodeHash(plugin: LivePlugin) =
-        plugin.path.allFiles()
-            .filter { it.extension == "kt" || it.extension == "kts" }
-            .fold(0L) { hash, file ->
-                MurmurHash3.hash32(hash, (file.name + file.readText()).hashCode().toLong()).toLong()
-            }
 
     companion object {
         const val mainScript = "plugin.kts"
@@ -210,3 +202,23 @@ private fun IdeaPluginDescriptor.toLibFiles() =
     }.map { it.toFile() }
 
 private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath(), true)
+
+class SrcHashCode(srcDir: FilePath, compilerOutputDir: FilePath) {
+    private val hashFilePath = compilerOutputDir + hashFileName
+    private val hash = calculateSourceCodeHash(srcDir)
+
+    fun needsUpdate() = !hashFilePath.exists() || hashFilePath.toFile().readText().toLongOrNull() != hash
+
+    fun update() = hashFilePath.toFile().writeText(hash.toString())
+
+    fun calculateSourceCodeHash(srcDirPath: FilePath) =
+        srcDirPath.allFiles()
+            .filter { it.extension == "kt" || it.extension == "kts" }
+            .fold(0L) { hash, file ->
+                MurmurHash3.hash32(hash, (file.name + file.readText()).hashCode().toLong()).toLong()
+            }
+
+    companion object {
+        const val hashFileName = "hash32.txt"
+    }
+}

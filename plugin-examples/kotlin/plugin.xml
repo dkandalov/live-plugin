@@ -1,0 +1,17 @@
+<idea-plugin>
+    <id>com.your.company.unique.plugin.id</id>
+    <name>TODO Plugin Name</name>
+    <version>1.0</version>
+    <vendor email="author@yourcompany.com" url="https://yourcompany.com">Your name</vendor>
+    <description><![CDATA[ TODO plugind description]]></description>
+
+    <!-- Please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for details -->
+    <idea-version since-build="173.0"/>
+
+    <!-- Please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html for details -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <applicationListeners>
+        <listener class="liveplugin.pluginrunner.kotlin.PackagedKotlinPluginRunner" topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
+</idea-plugin>

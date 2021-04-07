@@ -99,6 +99,7 @@ class PluginToolWindow(project: Project) {
             it.add(RunPluginAction())
             it.add(RunPluginTestsAction())
             it.add(UnloadPluginAction())
+            it.add(PackagePluginAction())
             it.addSeparator()
             it.add(RefreshPluginsPanelAction())
             it.add(CollapseAllAction().withIcon(collapseAllIcon))

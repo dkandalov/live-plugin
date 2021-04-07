@@ -62,6 +62,8 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.RunPluginTestsAction" text="Test Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
+		<action id="LivePlugin.PackagePlugin" class="liveplugin.toolwindow.PackagePluginAction" text="Package Current Plugin">
+		</action>
 
 		<group id="LivePlugin.Popup">
             <group id="LivePlugin.NewElementPopup" text="New" popup="true">
