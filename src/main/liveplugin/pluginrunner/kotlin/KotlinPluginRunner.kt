@@ -211,7 +211,7 @@ class SrcHashCode(srcDir: FilePath, compilerOutputDir: FilePath) {
 
     fun update() = hashFilePath.toFile().writeText(hash.toString())
 
-    fun calculateSourceCodeHash(srcDirPath: FilePath) =
+    private fun calculateSourceCodeHash(srcDirPath: FilePath) =
         srcDirPath.allFiles()
             .filter { it.extension == "kt" || it.extension == "kts" }
             .fold(0L) { hash, file ->

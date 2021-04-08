@@ -33,6 +33,7 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Ic
         pluginRoots.forEach { pluginRoot ->
             try {
                 delete(pluginRoot.path)
+                // TODO delete(pluginRoot.path) File("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}")
             } catch (e: IOException) {
                 val project = event.project
                 if (project != null) {

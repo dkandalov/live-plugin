@@ -42,6 +42,9 @@ intellij {
 		"junit"
 	]
 }
+tasks.buildSearchableOptions {
+	enabled = false
+}
 
 dependencies {
 	compile project(":kotlin-compiler-wrapper")

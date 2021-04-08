@@ -43,7 +43,7 @@ open class NewFileFromTemplateAction(
     }
 
     override fun actionPerformed(fileSystemTree: FileSystemTree, event: AnActionEvent) {
-        val parentFile = fileSystemTree.newFileParent?.parent ?: return
+        val parentFile = fileSystemTree.newFileParent?.directory() ?: return
 
         val failReason = createNewFile(event.project, fileSystemTree as FileSystemTreeImpl, parentFile, newFileName, fileType, fileContent)
         if (failReason != null) {
