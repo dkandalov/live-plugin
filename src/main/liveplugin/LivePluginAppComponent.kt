@@ -98,7 +98,7 @@ class LivePluginAppComponent: AppLifecycleListener, ProjectManagerListener {
     companion object {
         const val livePluginId = "LivePlugin"
         private val logger = Logger.getInstance(LivePluginAppComponent::class.java)
-        private val livePluginNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("Live Plugin")
+        val livePluginNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("Live Plugin")
 
         fun pluginIdToPathMap(): Map<String, FilePath> {
             // TODO Use virtual file because the code below will access file system every time this function is called to update availability of actions

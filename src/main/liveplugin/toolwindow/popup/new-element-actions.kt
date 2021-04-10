@@ -7,7 +7,6 @@ import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
 import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.kotlinExamplesPath
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
-import javax.swing.Icon
 
 class NewDirectoryAction: NewFolderAction("Directory", "", Icons.newFolderIcon)
 
@@ -21,7 +20,6 @@ class NewGroovyMainScript: NewFileFromTemplateAction(
     GroovyPluginRunner.mainScript,
     GroovyPluginRunner.mainScript,
     readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy"),
-    inferIconFromFileType,
     IdeUtil.groovyFileType
 )
 
@@ -29,16 +27,14 @@ class NewGroovyTestScript: NewFileFromTemplateAction(
     GroovyPluginRunner.testScript,
     GroovyPluginRunner.testScript,
     readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy"),
-    inferIconFromFileType,
     IdeUtil.groovyFileType
 )
 
-class NewPluginXmlScript: NewFileFromTemplateAction(
+class NewPluginXmlScript(
+    fileContent: String = readSampleScriptFile("$kotlinExamplesPath/plugin.xml")
+): NewFileFromTemplateAction(
     "plugin.xml",
     "plugin.xml",
-    readSampleScriptFile("$kotlinExamplesPath/plugin.xml"),
-    inferIconFromFileType,
+    fileContent,
     IdeUtil.xmlFileType
 )
-
-private val inferIconFromFileType: Icon? = null
