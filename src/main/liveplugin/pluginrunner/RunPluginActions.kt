@@ -84,7 +84,9 @@ private fun <T> runOnEdt(f: () -> T): T {
 private fun runInBackground(project: Project?, taskDescription: String, function: () -> Any) {
     if (project == null) {
         // Can't use ProgressManager here because it will show with modal dialogs on IDE startup when there is no project
-        function()
+        ApplicationManager.getApplication().executeOnPooledThread {
+            function()
+        }
     } else {
         ProgressManager.getInstance().run(object: Task.Backgroundable(project, taskDescription, false, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
