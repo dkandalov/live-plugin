@@ -130,7 +130,6 @@ task validateLivePluginZip() { doLast {
 	def expectedLivePluginJars = [
 		"LivePlugin/lib/LivePlugin.jar",
 		"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
-		"LivePlugin/lib/searchableOptions.jar"
 	]
 	expectToBeEqual(pluginZipFiles.toSorted(), (expectedLivePluginJars + kotlinCompilerAndItsTransitiveDependencies).toSorted())
 
