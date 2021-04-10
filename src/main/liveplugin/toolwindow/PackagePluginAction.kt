@@ -41,19 +41,10 @@ class PackagePluginAction: AnAction(
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        event.selectedFilePaths().toLivePlugins()
-            .forEach { packagePlugin(it, project, event) }
+        event.selectedFilePaths().toLivePlugins().forEach { packagePlugin(it, project) }
     }
 
-    @Suppress("UnstableApiUsage")
-    private fun Project.showOkCancelDialog(
-        @DialogMessage message: String,
-        @DialogTitle title: String,
-        @Button okText: String,
-        @Button cancelText: String
-    ): Unit? = if (showOkCancelDialog(this, message, title, okText, cancelText, null) == CANCEL) null else Unit
-
-    private fun packagePlugin(plugin: LivePlugin, project: Project, event: AnActionEvent) {
+    private fun packagePlugin(plugin: LivePlugin, project: Project) {
         val pluginXml = plugin.path + "plugin.xml"
         if (!pluginXml.exists()) {
             val fileContent = readSampleScriptFile("${LivePluginPaths.kotlinExamplesPath}/plugin.xml")
@@ -79,7 +70,7 @@ class PackagePluginAction: AnAction(
             val message =
                 if (files.size == 1) "File ${files.first().name} already exists. Do you want to continue and overwrite it?"
                 else "Files ${files.joinToString { it.name }} already exist. Do you want to continue and overwrite them?"
-            project.showOkCancelDialog(message, "Package Plugin", "Ok", "Cancel") ?: return
+            if (showOkCancelDialog(project, message, "Package Plugin", "Ok", "Cancel", null) == CANCEL) return
         }
 
         ProgressManager.getInstance().run(object: Task.Backgroundable(project, "Packaging ${plugin.id}", false, ALWAYS_BACKGROUND) {
