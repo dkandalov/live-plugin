@@ -9,12 +9,14 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.Icons
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.pluginFolder
+import liveplugin.LivePluginPaths
+import liveplugin.pluginrunner.LivePlugin
 import liveplugin.pluginrunner.UnloadPluginAction.Companion.unloadPlugins
-import liveplugin.toFilePath
+import liveplugin.pluginrunner.selectedFilePaths
+import liveplugin.pluginrunner.toLivePlugins
 import liveplugin.toolwindow.util.delete
 import java.io.IOException
 
@@ -22,22 +24,19 @@ import java.io.IOException
 internal class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Icons.deletePluginIcon), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
-        val files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.dataContext)
-        if (files.isNullOrEmpty()) return
+        val livePlugins = event.selectedFilePaths().toLivePlugins().ifEmpty { return }
+        if (userDoesNotWantToRemovePlugins(livePlugins, event.project)) return
 
-        val pluginRoots = files.mapNotNull { it.pluginFolder() }.distinct()
-        if (userDoesNotWantToRemovePlugins(pluginRoots, event.project)) return
+        unloadPlugins(livePlugins.map { it.path })
 
-        unloadPlugins(pluginRoots.map { it.toFilePath() })
-
-        pluginRoots.forEach { pluginRoot ->
+        livePlugins.forEach { plugin ->
             try {
-                delete(pluginRoot.path)
-                // TODO delete(pluginRoot.path) File("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}")
+                delete(plugin.path.value)
+                delete((LivePluginPaths.livePluginsCompiledPath + plugin.id).value)
             } catch (e: IOException) {
                 val project = event.project
                 if (project != null) {
-                    IdeUtil.showErrorDialog(project, "Error deleting plugin \"" + pluginRoot.path, "Delete Plugin")
+                    IdeUtil.showErrorDialog(project, "Error deleting plugin \"" + plugin.path, "Delete Plugin")
                 }
                 logger.error(e)
             }
@@ -55,8 +54,8 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Ic
     companion object {
         private val logger = Logger.getInstance(DeletePluginAction::class.java)
 
-        private fun userDoesNotWantToRemovePlugins(pluginRoots: Collection<VirtualFile>, project: Project?): Boolean {
-            val pluginIds = pluginRoots.map { it.name }
+        private fun userDoesNotWantToRemovePlugins(plugins: List<LivePlugin>, project: Project?): Boolean {
+            val pluginIds = plugins.map { it.id }
             val message = when (pluginIds.size) {
                 1    -> "Do you want to delete plugin ${pluginIds.first()}?"
                 else -> "Do you want to delete plugins ${pluginIds.joinToString(", ")}?"
