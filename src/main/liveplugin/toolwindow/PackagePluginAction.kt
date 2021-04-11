@@ -49,7 +49,7 @@ class PackagePluginAction: AnAction(
         if (!pluginXml.exists()) {
             val fileContent = readSampleScriptFile("${LivePluginPaths.kotlinExamplesPath}/plugin.xml")
                 .replaceFirst("com.your.company.unique.plugin.id", plugin.id)
-                .replaceFirst("TODO Plugin Name", plugin.id.replace('-', ' ').capitalize())
+                .replaceFirst("TODO Plugin Name", plugin.id.replace('-', ' ').split(' ').filter { it.isNotEmpty() }.joinToString(" ") { it.capitalize() })
                 .replaceFirst("Your name", System.getProperty("user.name"))
             NewPluginXmlScript(fileContent).createNewFile(project, plugin.path.toVirtualFile() ?: error("Can't create virtual file for '${plugin.path.value}'"))
             val message = "Please review and <a href=\"\">edit its content</a> before publishing the plugin."
