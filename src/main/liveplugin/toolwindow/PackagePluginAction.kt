@@ -14,6 +14,7 @@ import com.intellij.openapi.ui.Messages.CANCEL
 import com.intellij.openapi.ui.Messages.showOkCancelDialog
 import com.intellij.openapi.util.NlsContexts.*
 import com.intellij.util.io.Compressor
+import liveplugin.FilePath
 import liveplugin.Icons
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
@@ -46,39 +47,24 @@ class PackagePluginAction: AnAction(
 
     private fun packagePlugin(plugin: LivePlugin, project: Project) {
         val pluginXml = plugin.path + "plugin.xml"
-        if (!pluginXml.exists()) {
-            val fileContent = readSampleScriptFile("${LivePluginPaths.kotlinExamplesPath}/plugin.xml")
-                .replaceFirst("com.your.company.unique.plugin.id", plugin.id)
-                .replaceFirst("TODO Plugin Name", plugin.id.replace('-', ' ').split(' ').filter { it.isNotEmpty() }.joinToString(" ") { it.capitalize() })
-                .replaceFirst("Your name", System.getProperty("user.name"))
-            NewPluginXmlScript(fileContent).createNewFile(project, plugin.path.toVirtualFile() ?: error("Can't create virtual file for '${plugin.path.value}'"))
-            val message = "Please review and <a href=\"\">edit its content</a> before publishing the plugin."
-            val listener = NotificationListener { _, _ ->
-                val virtualFile = pluginXml.toVirtualFile() ?: return@NotificationListener
-                FileEditorManager.getInstance(project).openFile(virtualFile, true, true)
-            }
-            livePluginNotificationGroup.createNotification("Created plugin.xml", message, INFORMATION, listener).notify(project)
-        }
-
-        val compilerOutput = LivePluginPaths.livePluginsCompiledPath + plugin.id
         val livePluginJar = LivePluginPaths.livePluginLibPath + "LivePlugin.jar"
-
         val jarFile = (plugin.path + "${plugin.id}.jar").toFile()
         val zipFile = (plugin.path + "${plugin.id}.zip").toFile()
-        val files = listOf(jarFile, zipFile).filter { it.exists() }
-        if (files.isNotEmpty()) {
-            val message =
-                if (files.size == 1) "File ${files.first().name} already exists. Do you want to continue and overwrite it?"
-                else "Files ${files.joinToString { it.name }} already exist. Do you want to continue and overwrite them?"
+
+        if (jarFile.exists()) {
+            val message = "File ${jarFile.name} already exists. Do you want to continue and overwrite it?"
             if (showOkCancelDialog(project, message, "Package Plugin", "Ok", "Cancel", null) == CANCEL) return
         }
 
         ProgressManager.getInstance().run(object: Task.Backgroundable(project, "Packaging ${plugin.id}", false, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
+                if (!pluginXml.exists()) project.createPluginXml(plugin, pluginXml)
+                if (!livePluginJar.exists()) error("Couldn't find '${livePluginJar.value}'")
+
+                val compilerOutput = LivePluginPaths.livePluginsCompiledPath + plugin.id
                 if (SrcHashCode(plugin.path, compilerOutput).needsUpdate()) {
                     KotlinPluginRunner.main.setup(plugin)
                 }
-                if (!livePluginJar.exists()) error("Couldn't find '${livePluginJar.value}'")
 
                 Compressor.Jar(jarFile).use { jar ->
                     jar.addManifest(Manifest(ByteArrayInputStream("Manifest-Version: 1.0\n".toByteArray())))
@@ -108,5 +94,19 @@ class PackagePluginAction: AnAction(
                 jarFile.delete()
             }
         })
+    }
+
+    private fun Project.createPluginXml(plugin: LivePlugin, filePath: FilePath) {
+        val fileContent = readSampleScriptFile("${LivePluginPaths.kotlinExamplesPath}/plugin.xml")
+            .replaceFirst("com.your.company.unique.plugin.id", plugin.id)
+            .replaceFirst("TODO Plugin Name", plugin.id.replace('-', ' ').split(' ').filter { it.isNotEmpty() }.joinToString(" ") { it.capitalize() })
+            .replaceFirst("Your name", System.getProperty("user.name"))
+        NewPluginXmlScript(fileContent).createNewFile(this, plugin.path.toVirtualFile() ?: error("Can't create virtual file for '${plugin.path.value}'"))
+        val message = "Please review and <a href=\"\">edit its content</a> before publishing the plugin."
+        val listener = NotificationListener { _, _ ->
+            val virtualFile = filePath.toVirtualFile() ?: return@NotificationListener
+            FileEditorManager.getInstance(this).openFile(virtualFile, true, true)
+        }
+        livePluginNotificationGroup.createNotification("Created plugin.xml", message, INFORMATION, listener).notify(this)
     }
 }
