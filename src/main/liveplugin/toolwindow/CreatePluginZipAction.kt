@@ -1,5 +1,6 @@
 package liveplugin.toolwindow
 
+import com.intellij.ide.BrowserUtil.browse
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.AnAction
@@ -108,7 +109,8 @@ class CreatePluginZipAction: AnAction(
 
                 val message = "You can now upload it to <a href=\"https://plugins.jetbrains.com\">Plugins Marketplace</a> " +
                     "or share as a file and install with <b>Install Plugin from Disk</b> action."
-                livePluginNotificationGroup.createNotification("Packaged plugin into ${zipFile.name}", message, INFORMATION).notify(project)
+                val listener = NotificationListener { _, event -> browse(event.url) }
+                livePluginNotificationGroup.createNotification("Packaged plugin into ${zipFile.name}", message, INFORMATION, listener).notify(project)
             }
         })
     }
