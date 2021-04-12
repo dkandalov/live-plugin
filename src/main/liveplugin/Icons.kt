@@ -10,7 +10,8 @@ object Icons {
     val refreshPluginsPanelIcon = Actions.Refresh
     val runPluginIcon = Actions.Execute
     val unloadPluginIcon = Actions.Suspend
-    val packagePluginIcon = ToolbarDecorator.Export
+    val sharePluginIcon = ToolbarDecorator.Export
+    val packagePluginIcon = FileTypes.Archive
     val testPluginIcon = RunConfigurations.Junit
     val collapseAllIcon = Actions.Collapseall
     val settingsIcon = General.GearPlain

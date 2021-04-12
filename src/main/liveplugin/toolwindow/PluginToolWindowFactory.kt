@@ -35,6 +35,7 @@ import liveplugin.Icons.addPluginIcon
 import liveplugin.Icons.collapseAllIcon
 import liveplugin.Icons.helpIcon
 import liveplugin.Icons.settingsIcon
+import liveplugin.Icons.sharePluginIcon
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.isInvalidPluginFolder
 import liveplugin.LivePluginPaths
@@ -91,21 +92,31 @@ class PluginToolWindow(project: Project) {
     }
 
     private fun createToolBar(): JComponent {
-        fun AnAction.withIcon(icon: Icon) = also { it.templatePresentation.icon = icon }
+        fun AnAction.with(icon: Icon) = also { it.templatePresentation.icon = icon }
 
-        val actionGroup = DefaultActionGroup().also {
-            it.add(createAddPluginsGroup().withIcon(addPluginIcon))
-            it.add(DeletePluginAction())
-            it.add(RunPluginAction())
-            it.add(UnloadPluginAction())
-            it.add(RunPluginTestsAction())
-            it.add(PackagePluginAction())
-            it.addSeparator()
-            it.add(RefreshPluginsPanelAction())
-            it.add(CollapseAllAction().withIcon(collapseAllIcon))
-            it.addSeparator()
-            it.add(createSettingsGroup().withIcon(settingsIcon))
-            it.add(ShowHelpAction().withIcon(helpIcon))
+        val actionGroup = DefaultActionGroup().apply {
+            add(DefaultActionGroup("Add Plugin", true).apply {
+                add(AddNewGroovyPluginAction())
+                add(AddNewKotlinPluginAction())
+                add(AddPluginFromGistDelegateAction())
+                add(AddPluginFromGitHubDelegateAction())
+                add(AddGroovyExamplesActionGroup())
+                add(AddKotlinExamplesActionGroup())
+            }.with(addPluginIcon))
+            add(DeletePluginAction())
+            add(RunPluginAction())
+            add(UnloadPluginAction())
+            add(RunPluginTestsAction())
+            add(DefaultActionGroup("Share Plugin", true).apply {
+                add(SharePluginAsGistDelegateAction())
+                add(CreatePluginZipAction())
+            }.with(sharePluginIcon))
+            addSeparator()
+            add(RefreshPluginsPanelAction())
+            add(CollapseAllAction().with(collapseAllIcon))
+            addSeparator()
+            add(createSettingsGroup().with(settingsIcon))
+            add(ShowHelpAction().with(helpIcon))
         }
 
         return JPanel(GridLayout()).also {
@@ -115,16 +126,6 @@ class PluginToolWindow(project: Project) {
             it.add(ActionManager.getInstance().createActionToolbar(place, actionGroup, true).component)
         }
     }
-
-    private fun createAddPluginsGroup() =
-        DefaultActionGroup("Add Plugin", true).also {
-            it.add(AddNewGroovyPluginAction())
-            it.add(AddNewKotlinPluginAction())
-            it.add(AddPluginFromGistDelegateAction())
-            it.add(AddPluginFromGitHubDelegateAction())
-            it.add(AddGroovyExamplesActionGroup())
-            it.add(AddKotlinExamplesActionGroup())
-        }
 
     private fun createSettingsGroup() =
         object: DefaultActionGroup("Settings", true) {

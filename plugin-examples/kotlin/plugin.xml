@@ -6,7 +6,7 @@
     <description><![CDATA[ TODO plugin description]]></description>
 
     <!-- Please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for details -->
-    <idea-version since-build="173.0"/>
+    <idea-version since-build="211.0"/>
 
     <!-- Please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html for details -->
     <depends>com.intellij.modules.platform</depends>

@@ -11,6 +11,9 @@ class AddPluginFromGistDelegateAction: DelegateAction(::addFromGistAction)
 var addFromGitHubAction: AnAction? = null
 class AddPluginFromGitHubDelegateAction: DelegateAction(::addFromGitHubAction)
 
+var shareAsGistAction: AnAction? = null
+class SharePluginAsGistDelegateAction: DelegateAction(::shareAsGistAction)
+
 open class DelegateAction(private val property: KMutableProperty0<AnAction?>): AnAction(), DumbAware {
 
     override fun actionPerformed(e: AnActionEvent) {

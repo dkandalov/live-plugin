@@ -47,8 +47,7 @@ internal class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Ic
 
     override fun update(event: AnActionEvent) {
         val files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.dataContext)
-        event.presentation.isEnabled =
-            files != null && files.any { it.pluginFolder() != null }
+        event.presentation.isEnabled = files != null && files.any { it.pluginFolder() != null }
     }
 
     companion object {

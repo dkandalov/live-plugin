@@ -32,9 +32,9 @@ import liveplugin.toolwindow.popup.NewPluginXmlScript
 import java.io.ByteArrayInputStream
 import java.util.jar.Manifest
 
-class PackagePluginAction: AnAction(
-    "Package Plugin",
-    "Package selected plugins so they can be uploaded to plugins marketplace",
+class CreatePluginZipAction: AnAction(
+    "Create Plugin Zip",
+    "Package selected live plugin into zip so that it can be uploaded to plugins marketplace",
     Icons.packagePluginIcon
 ), DumbAware {
     override fun update(event: AnActionEvent) {
@@ -107,7 +107,7 @@ class PackagePluginAction: AnAction(
                 pluginJarFile.delete()
 
                 val message = "You can now upload it to <a href=\"https://plugins.jetbrains.com\">Plugins Marketplace</a> " +
-                    "or share and install using <b>Install Plugin from Disk</b> action."
+                    "or share as a file and install with <b>Install Plugin from Disk</b> action."
                 livePluginNotificationGroup.createNotification("Packaged plugin into ${zipFile.name}", message, INFORMATION).notify(project)
             }
         })
