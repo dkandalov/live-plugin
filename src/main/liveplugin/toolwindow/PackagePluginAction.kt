@@ -14,6 +14,7 @@ import com.intellij.openapi.ui.Messages.CANCEL
 import com.intellij.openapi.ui.Messages.showOkCancelDialog
 import com.intellij.openapi.util.NlsContexts.*
 import com.intellij.util.io.Compressor
+import com.intellij.util.io.zip.JBZipFile
 import liveplugin.FilePath
 import liveplugin.Icons
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
@@ -47,18 +48,19 @@ class PackagePluginAction: AnAction(
 
     private fun packagePlugin(plugin: LivePlugin, project: Project) {
         val pluginXml = plugin.path + "plugin.xml"
+        val pluginJarFile = (plugin.path + "${plugin.id}.jar").toFile()
         val livePluginJar = LivePluginPaths.livePluginLibPath + "LivePlugin.jar"
-        val jarFile = (plugin.path + "${plugin.id}.jar").toFile()
+        val livePluginTrimmedJar = plugin.path + "LivePlugin.jar"
         val zipFile = (plugin.path + "${plugin.id}.zip").toFile()
 
-        if (jarFile.exists()) {
-            val message = "File ${jarFile.name} already exists. Do you want to continue and overwrite it?"
+        if (!pluginXml.exists()) project.createPluginXml(plugin, pluginXml)
+        if (pluginJarFile.exists()) {
+            val message = "File ${pluginJarFile.name} already exists. Do you want to continue and overwrite it?"
             if (showOkCancelDialog(project, message, "Package Plugin", "Ok", "Cancel", null) == CANCEL) return
         }
 
         ProgressManager.getInstance().run(object: Task.Backgroundable(project, "Packaging ${plugin.id}", false, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
-                if (!pluginXml.exists()) project.createPluginXml(plugin, pluginXml)
                 if (!livePluginJar.exists()) error("Couldn't find '${livePluginJar.value}'")
 
                 val compilerOutput = LivePluginPaths.livePluginsCompiledPath + plugin.id
@@ -66,7 +68,7 @@ class PackagePluginAction: AnAction(
                     KotlinPluginRunner.main.setup(plugin)
                 }
 
-                Compressor.Jar(jarFile).use { jar ->
+                Compressor.Jar(pluginJarFile).use { jar ->
                     jar.addManifest(Manifest(ByteArrayInputStream("Manifest-Version: 1.0\n".toByteArray())))
                     jar.addFile("META-INF/plugin.xml", pluginXml.toFile())
                     compilerOutput.allFiles()
@@ -77,21 +79,36 @@ class PackagePluginAction: AnAction(
                         }
                     // Include source code and other files (e.g. if there are some resources required by the plugin)
                     plugin.path.allFiles()
-                        .filterNot { it == pluginXml || it == jarFile.toFilePath() || it == zipFile.toFilePath() }
+                        .filterNot { it == pluginXml || it == pluginJarFile.toFilePath() || it == zipFile.toFilePath() }
                         .forEach { filePath ->
                             val relativePath = filePath.value.removePrefix(plugin.path.value + "/")
                             jar.addFile(relativePath, filePath.toFile())
                         }
                 }
 
+                Compressor.Jar(livePluginTrimmedJar.toFile()).use { jar ->
+                    JBZipFile(livePluginJar.toFile()).entries.asSequence()
+                        .filter { it.name.startsWith("liveplugin") && (it.isDirectory || it.name.endsWith(".class")) }
+                        .filterNot { it.name.startsWith("liveplugin/toolwindow") || it.name.startsWith("liveplugin/testrunner") }
+                        .forEach {
+                            if (it.isDirectory) jar.addDirectory(it.name)
+                            else jar.addFile(it.name, it.data)
+                        }
+                }
+
                 Compressor.Zip(zipFile).use { zip ->
                     val libDir = plugin.id + "/lib"
                     zip.addDirectory(libDir)
-                    zip.addFile("$libDir/${jarFile.name}", jarFile)
-                    zip.addFile("$libDir/${livePluginJar.name}", livePluginJar.toFile()) // TODO remove unnecessary files from LivePlugin.jar
+                    zip.addFile("$libDir/${pluginJarFile.name}", pluginJarFile)
+                    zip.addFile("$libDir/${livePluginTrimmedJar.name}", livePluginTrimmedJar.toFile())
                 }
 
-                jarFile.delete()
+                livePluginTrimmedJar.toFile().delete()
+                pluginJarFile.delete()
+
+                val message = "You can now upload it to <a href=\"https://plugins.jetbrains.com\">Plugins Marketplace</a> " +
+                    "or share and install using <b>Install Plugin from Disk</b> action."
+                livePluginNotificationGroup.createNotification("Packaged plugin into ${zipFile.name}", message, INFORMATION).notify(project)
             }
         })
     }
