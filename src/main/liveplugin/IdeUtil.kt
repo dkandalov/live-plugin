@@ -13,7 +13,6 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
@@ -23,13 +22,10 @@ import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.ui.Messages.showOkCancelDialog
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.ReflectionUtil
-import com.intellij.util.containers.ContainerUtil.map
-import com.intellij.util.download.DownloadableFileService
 import com.intellij.util.text.CharArrayUtil
 import liveplugin.LivePluginAppComponent.Companion.livePluginId
 import org.jetbrains.annotations.NonNls
@@ -70,31 +66,8 @@ object IdeUtil {
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
     }
 
-    fun isOnClasspath(className: String): Boolean {
-        val resource = IdeUtil::class.java.classLoader.getResource(className.replace(".", "/") + ".class")
-        return resource != null
-    }
-
-    fun askIfUserWantsToRestartIde(message: String) {
-        val answer = showOkCancelDialog(message, "Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon())
-        if (answer == Messages.OK) {
-            ApplicationManagerEx.getApplicationEx().restart(true)
-        }
-    }
-
-    fun downloadFile(downloadUrl: String, fileName: String, targetPath: FilePath): Boolean =
-        downloadFiles(listOf(Pair(downloadUrl, fileName)), targetPath)
-
     fun invokeLaterOnEDT(f: () -> Any) {
         ApplicationManager.getApplication().invokeLater { f.invoke() }
-    }
-
-    // TODO make download non-modal
-    private fun downloadFiles(urlAndFileNames: List<Pair<String, String>>, targetPath: FilePath): Boolean {
-        val service = DownloadableFileService.getInstance()
-        val descriptions = map(urlAndFileNames) { service.createFileDescription(it.first + it.second, it.second) }
-        val files = service.createDownloader(descriptions, "").downloadFilesWithProgress(targetPath.value, null, null)
-        return files != null && files.size == urlAndFileNames.size
     }
 
     @JvmStatic fun unscrambleThrowable(throwable: Throwable): String {

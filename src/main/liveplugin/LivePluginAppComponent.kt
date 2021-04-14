@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
 import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessExtension
 import com.intellij.openapi.fileTypes.FileType
@@ -21,6 +22,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER
 import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.NotNullLazyKey
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -32,9 +34,9 @@ import com.intellij.psi.search.UseScopeEnlarger
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.usages.impl.rules.UsageType
 import com.intellij.usages.impl.rules.UsageTypeProvider
+import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.download.DownloadableFileService
 import com.intellij.util.indexing.IndexableSetContributor
-import liveplugin.IdeUtil.askIfUserWantsToRestartIde
-import liveplugin.IdeUtil.downloadFile
 import liveplugin.IdeUtil.ideStartupActionPlace
 import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.LivePluginAppComponent.Companion.runAllPlugins
@@ -73,7 +75,7 @@ class LivePluginAppListener: AppLifecycleListener {
     }
 
     private fun checkThatGroovyIsOnClasspath(): Boolean {
-        val isGroovyOnClasspath = IdeUtil.isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
+        val isGroovyOnClasspath = isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
         if (isGroovyOnClasspath) return true
 
         // This can be useful for non-java IDEs because they don't have bundled groovy libs.
@@ -101,6 +103,27 @@ class LivePluginAppListener: AppLifecycleListener {
 
         return false
     }
+
+    private fun downloadFile(downloadUrl: String, fileName: String, targetPath: FilePath): Boolean =
+        downloadFiles(listOf(Pair(downloadUrl, fileName)), targetPath)
+
+    // TODO make download non-modal
+    private fun downloadFiles(urlAndFileNames: List<Pair<String, String>>, targetPath: FilePath): Boolean {
+        val service = DownloadableFileService.getInstance()
+        val descriptions = ContainerUtil.map(urlAndFileNames) { service.createFileDescription(it.first + it.second, it.second) }
+        val files = service.createDownloader(descriptions, "").downloadFilesWithProgress(targetPath.value, null, null)
+        return files != null && files.size == urlAndFileNames.size
+    }
+
+    private fun askIfUserWantsToRestartIde(message: String) {
+        val answer = Messages.showOkCancelDialog(message, "Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon())
+        if (answer == Messages.OK) {
+            ApplicationManagerEx.getApplicationEx().restart(true)
+        }
+    }
+
+    private fun isOnClasspath(className: String) =
+        LivePluginAppListener::class.java.classLoader.getResource(className.replace(".", "/") + ".class") != null
 }
 
 class LivePluginProjectListener : ProjectManagerListener {
