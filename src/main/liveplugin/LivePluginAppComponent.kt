@@ -51,7 +51,10 @@ import liveplugin.toolwindow.util.installPlugin
 import java.io.IOException
 
 class LivePluginAppListener: AppLifecycleListener {
-    override fun appFrameCreated(commandLineArgs: MutableList<String>) {
+    override fun appFrameCreated(commandLineArgs: List<String>) {
+        // If liveplugins call ActionManager before that app frame is created, it will fail with:
+        // Should be called at least in the state COMPONENTS_LOADED, the current state is: CONFIGURATION_STORE_INITIALIZED
+
         checkThatGroovyIsOnClasspath()
 
         val settings = Settings.instance
