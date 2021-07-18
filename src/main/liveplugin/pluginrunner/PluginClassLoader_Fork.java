@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.*;
 public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwareClassLoader {
     public static final ClassLoader[] EMPTY_CLASS_LOADER_ARRAY = new ClassLoader[0];
 
-    private static final boolean isParallelCapable = USE_PARALLEL_LOADING && registerAsParallelCapable();
+    private static final boolean isParallelCapable = registerAsParallelCapable();
 
     private static final @Nullable Writer logStream;
     private static final AtomicInteger instanceIdProducer = new AtomicInteger();
@@ -129,7 +129,7 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
                                   @NotNull ClassLoader coreLoader,
                                   @Nullable String packagePrefix,
                                   @Nullable ClassPath.ResourceFileFactory resourceFileFactory) {
-        super(builder, resourceFileFactory, isParallelCapable);
+        super(builder, null, isParallelCapable, false);
 
         instanceId = instanceIdProducer.incrementAndGet();
 
@@ -320,7 +320,7 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
 
             Writer logStream = PluginClassLoader_Fork.logStream;
             try {
-                c = classPath.findClass(name);
+                c = classPath.findClass(name, classDataConsumer);
             }
             catch (LinkageError e) {
                 if (logStream != null) {

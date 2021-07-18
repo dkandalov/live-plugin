@@ -23,8 +23,8 @@ intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
 	// and https://www.jetbrains.com/intellij-repository/snapshots
 	version = System.getenv().getOrDefault("IJ_VERSION",
-		"211.6085-EAP-CANDIDATE-SNAPSHOT" // Compatibility with IJ 2021 (which broke PluginClassLoader again, see also https://github.com/dkandalov/live-plugin/issues/117)
-//		"LATEST-EAP-SNAPSHOT"
+//		"211.6085-EAP-CANDIDATE-SNAPSHOT" // Compatibility with IJ 2021 (which broke PluginClassLoader again, see also https://github.com/dkandalov/live-plugin/issues/117)
+		"LATEST-EAP-SNAPSHOT"
 	)
 	// The artifact name is deliberately not "live-plugin" because plugins are stored in the "live-plugins" directory.
 	// The "LivePlugin" directory is deleted on each plugin update so it's good make it distinct from "live-plugins".

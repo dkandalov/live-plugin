@@ -121,11 +121,7 @@ class Popups {
 				items.each { consumer.process(it) }
 				!items.empty
 			}
-			@Override boolean filterElements(@NotNull ChooseByNameBase base, @NotNull String pattern, boolean everywhere,
-			                                 @NotNull ProgressIndicator cancelled, @NotNull Processor<Object> consumer) {
-				filterElements(base, pattern, everywhere, cancelled, consumer)
-			}
-			@Override List<String> filterNames(@NotNull ChooseByNameBase base, @NotNull String[] names, @NotNull String pattern) {
+			@Override List<String> filterNames(@NotNull ChooseByNameViewModel base, @NotNull String[] names, @NotNull String pattern) {
 				// never called (can only be called from ChooseByNameBase)
 				names.toList()
 			}
