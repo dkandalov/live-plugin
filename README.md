@@ -6,7 +6,7 @@ using [Groovy](http://groovy.codehaus.org) and [Kotlin](http://kotlinlang.org).
 To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Marketplace`.
 See also [plugin repository page](http://plugins.jetbrains.com/plugin/7282).
 
-<img src="https://raw.github.com/dkandalov/live-plugin/master/screenshots/live-plugin-demo.gif" alt="demo" title="demo" align="center"/>
+<img src="https://raw.github.com/dkandalov/live-plugin/master/screenshots/live-plugin-demo.gif" alt="demo" title="demo" align="middle"/>
 
 
 ### Why?
@@ -30,7 +30,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import static liveplugin.PluginUtil.*
 
 // Action to insert new line above the current line.
-// Based on this post http://martinfowler.com/bliki/InternalReprogrammability.html
+// Based on this post https://martinfowler.com/bliki/InternalReprogrammability.html
 // Note that there is "Start New Line Before Current" action (ctrl+alt+enter) which does almost the same thing.
 registerAction("Insert New Line Above", "alt shift ENTER") { AnActionEvent event ->
 	runDocumentWriteAction(event.project) {
