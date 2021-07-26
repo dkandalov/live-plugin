@@ -205,8 +205,8 @@ class LivePluginAppComponent {
             }
 
         fun runAllPlugins() {
-            val actionManager = ActionManager.getInstance() // get ActionManager instance outside of EDT (because it failed in 201.6668.113)
             invokeLaterOnEDT {
+                val actionManager = ActionManager.getInstance()
                 val event = AnActionEvent(
                     null,
                     EMPTY_CONTEXT,
