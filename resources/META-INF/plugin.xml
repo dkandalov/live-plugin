@@ -62,7 +62,7 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.RunPluginTestsAction" text="Test Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
-		<action id="LivePlugin.CreatePluginZip" class="liveplugin.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>
+<!--		<action id="LivePlugin.CreatePluginZip" class="liveplugin.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>-->
 		<action id="LivePlugin.SharePluginAsGistAction" class="liveplugin.toolwindow.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
 
 		<group id="LivePlugin.Popup">
