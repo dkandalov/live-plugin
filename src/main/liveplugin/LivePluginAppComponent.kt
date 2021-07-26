@@ -3,8 +3,8 @@ package liveplugin
 import com.intellij.ide.AppLifecycleListener
 import com.intellij.lang.LanguageUtil
 import com.intellij.notification.NotificationGroupManager
-import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
+import com.intellij.notification.NotificationType.ERROR
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -82,7 +82,11 @@ class LivePluginAppListener: AppLifecycleListener {
         if (isGroovyOnClasspath) return true
 
         // This can be useful for non-java IDEs because they don't have bundled groovy libs.
-        val listener = NotificationListener { notification, _ ->
+        LivePluginAppComponent.livePluginNotificationGroup.createNotification(
+            title = "LivePlugin didn't find Groovy libraries on classpath",
+            content = "Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~7Mb)",
+            type = ERROR
+        ).setListener { notification, _ ->
             val groovyVersion = "2.5.11" // Version of groovy used by latest IJ.
             val downloaded = downloadFile(
                 "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/",
@@ -96,13 +100,7 @@ class LivePluginAppListener: AppLifecycleListener {
                 LivePluginAppComponent.livePluginNotificationGroup
                     .createNotification("Failed to download Groovy libraries", NotificationType.WARNING)
             }
-        }
-        LivePluginAppComponent.livePluginNotificationGroup.createNotification(
-            "LivePlugin didn't find Groovy libraries on classpath",
-            "Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~7Mb)",
-            NotificationType.ERROR,
-            listener
-        ).notify(null)
+        }.notify(null)
 
         return false
     }

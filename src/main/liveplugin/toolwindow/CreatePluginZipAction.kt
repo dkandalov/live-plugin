@@ -13,7 +13,6 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages.CANCEL
 import com.intellij.openapi.ui.Messages.showOkCancelDialog
-import com.intellij.openapi.util.NlsContexts.*
 import com.intellij.util.io.Compressor
 import com.intellij.util.io.zip.JBZipFile
 import liveplugin.FilePath
@@ -109,8 +108,9 @@ class CreatePluginZipAction: AnAction(
 
                 val message = "You can now upload it to <a href=\"https://plugins.jetbrains.com\">Plugins Marketplace</a> " +
                     "or share as a file and install with <b>Install Plugin from Disk</b> action."
-                val listener = NotificationListener { _, event -> browse(event.url) }
-                livePluginNotificationGroup.createNotification("Packaged plugin into ${zipFile.name}", message, INFORMATION, listener).notify(project)
+                livePluginNotificationGroup.createNotification("Packaged plugin into ${zipFile.name}", message, INFORMATION)
+                    .setListener { _, event -> browse(event.url) }
+                    .notify(project)
             }
         })
     }
@@ -122,10 +122,11 @@ class CreatePluginZipAction: AnAction(
             .replaceFirst("Your name", System.getProperty("user.name"))
         NewPluginXmlScript(fileContent).createNewFile(this, plugin.path.toVirtualFile() ?: error("Can't create virtual file for '${plugin.path.value}'"))
         val message = "Please review and <a href=\"\">edit its content</a> before publishing the plugin."
-        val listener = NotificationListener { _, _ ->
-            val virtualFile = filePath.toVirtualFile() ?: return@NotificationListener
-            FileEditorManager.getInstance(this).openFile(virtualFile, true, true)
-        }
-        livePluginNotificationGroup.createNotification("Created plugin.xml", message, INFORMATION, listener).notify(this)
+        livePluginNotificationGroup.createNotification("Created plugin.xml", message, INFORMATION)
+            .setListener(NotificationListener { _, _ ->
+                val virtualFile = filePath.toVirtualFile() ?: return@NotificationListener
+                FileEditorManager.getInstance(this).openFile(virtualFile, true, true)
+            })
+            .notify(this)
     }
 }
