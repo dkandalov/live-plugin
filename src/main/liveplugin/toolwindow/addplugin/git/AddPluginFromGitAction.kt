@@ -3,8 +3,8 @@ package liveplugin.toolwindow.addplugin.git
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runWriteAction
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -44,7 +44,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
 
         GitCheckoutProvider.clone(
             project,
-            ServiceManager.getService(Git::class.java),
+            ApplicationManager.getApplication().getService(Git::class.java),
             MyCheckoutListener(project, destinationFolder, dialog.directoryName),
             destinationFolder,
             dialog.sourceRepositoryURL,
