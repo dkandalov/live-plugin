@@ -26,7 +26,7 @@ import javax.swing.KeyStroke
  */
 fun LivePluginScript.registerAction(
     id: String,
-    keyStroke: String = "",
+    keyStroke: String? = null,
     actionGroupId: String? = null,
     function: (AnActionEvent) -> Unit
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
@@ -35,7 +35,7 @@ fun LivePluginScript.registerAction(
 
 fun LivePluginScript.registerAction(
     id: String,
-    keyStroke: String = "",
+    keyStroke: String? = null,
     actionGroupId: String? = null,
     action: AnAction
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
@@ -44,7 +44,7 @@ fun LivePluginScript.registerAction(
 
 fun registerAction(
     id: String,
-    keyStroke: String = "",
+    keyStroke: String? = null,
     actionGroupId: String? = null,
     disposable: Disposable,
     function: (AnActionEvent) -> Unit
@@ -54,7 +54,7 @@ fun registerAction(
 
 fun registerAction(
     id: String,
-    keyStroke: String = "",
+    keyStroke: String? = null,
     actionGroupId: String? = null,
     disposable: Disposable,
     action: AnAction
@@ -66,7 +66,7 @@ fun registerAction(
     action.templatePresentation.setText(id, true)
 
     val actionGroup = if (actionGroupId == null) null else actionManager.getAction(actionGroupId) as? DefaultActionGroup
-    val shortcut = keyStroke.toKeyboardShortcut()
+    val shortcut = keyStroke?.toKeyboardShortcut()
 
     if (shortcut != null) keymapManager.activeKeymap.addShortcut(id, shortcut)
     actionManager.registerAction(id, action)
@@ -110,7 +110,7 @@ fun ActionGroup.createPopup(
 
 private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     val parts = trim().split(",")
-    if (parts.isEmpty()) return null
+    if (parts.isEmpty() || parts.all { it.isEmpty() }) return null
 
     val firstKeystroke = KeyStroke.getKeyStroke(parts[0]) ?: error("Invalid keystroke '${this}'")
     val secondKeystroke = if (parts.size > 1) KeyStroke.getKeyStroke(parts[1]) else null
