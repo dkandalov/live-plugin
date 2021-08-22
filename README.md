@@ -1,28 +1,25 @@
 [![Build Status](https://github.com/dkandalov/live-plugin/workflows/CI/badge.svg)](https://github.com/dkandalov/live-plugin/actions)
 
 ### LivePlugin
-This is a plugin for [IntelliJ](https://github.com/JetBrains/intellij-community) IDEs to create plugins at runtime
+Plugin for [IntelliJ](https://github.com/JetBrains/intellij-community)-based IDEs to create plugins at runtime
 using [Groovy](http://groovy.codehaus.org) and [Kotlin](http://kotlinlang.org).
-To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Marketplace`.
-See also [plugin repository page](http://plugins.jetbrains.com/plugin/7282).
+To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Marketplace`
+or use "Install" button on the [Plugin Marketplace website](http://plugins.jetbrains.com/plugin/7282).
 
 <img src="https://raw.github.com/dkandalov/live-plugin/master/screenshots/live-plugin-demo.gif" alt="demo" title="demo" align="middle"/>
 
 
 ### Why?
- - **Minimal setup** — you can edit and execute plugins in any project, i.e. less effort compared to creating a separate project for plugin development.
- - **Fast feedback loop** — plugins are executed in the same JVM instance as IDE, so there is no need to restart
-   (this is similar to [dynamic plugins](https://plugins.jetbrains.com/docs/intellij/dynamic-plugins.html)
-   except that it works in the same IDE instance).
- - **Usable IDE API** — LivePlugin adds a thin API layer on top of the IntelliJ to highlight some entry points
-   and make common tasks easier.
+ - **Minimal setup** — no need to set up a separate project for plugin development, you can modify and run plugins in any project
+ - **Fast feedback loop** — plugins run (and reloaded) in the same JVM instance as IDE, so there is no need to restart
+ - **Usable IDE API** — LivePlugin adds a thin API layer on top of the IntelliJ to highlight some entry points and make common tasks easier
 
 
 ### Examples
-Hello world:
+Hello world in Groovy:
 ```groovy
 import static liveplugin.PluginUtil.show
-show("Hello world") // shows balloon message with "Hello world" text
+show("Hello world") // Shows balloon notification popup with "Hello world" text
 ```
 Insert New Line Above Action:
 ```groovy
@@ -33,16 +30,16 @@ import static liveplugin.PluginUtil.*
 // Based on this post https://martinfowler.com/bliki/InternalReprogrammability.html
 // Note that there is "Start New Line Before Current" action (ctrl+alt+enter) which does almost the same thing.
 registerAction("Insert New Line Above", "alt shift ENTER") { AnActionEvent event ->
-	runDocumentWriteAction(event.project) {
-		currentEditorIn(event.project).with {
-			def offset = caretModel.offset
-			def currentLine = caretModel.logicalPosition.line
-			def lineStartOffset = document.getLineStartOffset(currentLine)
+    runDocumentWriteAction(event.project) {
+        currentEditorIn(event.project).with {
+            def offset = caretModel.offset
+            def currentLine = caretModel.logicalPosition.line
+            def lineStartOffset = document.getLineStartOffset(currentLine)
 
-			document.insertString(lineStartOffset, "\n")
-			caretModel.moveToOffset(offset + 1)
-		}
-	}
+            document.insertString(lineStartOffset, "\n")
+            caretModel.moveToOffset(offset + 1)
+        }
+    }
 }
 show("Loaded 'Insert New Line Above' action<br/>Use 'Alt+Shift+Enter' to run it")
 ```
