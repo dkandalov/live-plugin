@@ -1,6 +1,6 @@
 package liveplugin.toolwindow.addplugin.git
 
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import git4idea.GitUtil
 import git4idea.GitVcs
@@ -12,7 +12,7 @@ import java.io.File
 
 class GitCloneDialog(project: Project): CloneDvcsDialog(project, GitVcs.NAME, GitUtil.DOT_GIT, null) {
 
-    private val myGit = ApplicationManager.getApplication().getService(Git::class.java)
+    private val myGit = service<Git>()
 
     override fun test(url: String): TestResult {
         val result = myGit.lsRemote(myProject, File("."), url)

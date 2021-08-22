@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runWriteAction
+import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -44,7 +45,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
 
         GitCheckoutProvider.clone(
             project,
-            ApplicationManager.getApplication().getService(Git::class.java),
+            service<Git>(),
             MyCheckoutListener(project, destinationFolder, dialog.directoryName),
             destinationFolder,
             dialog.sourceRepositoryURL,
