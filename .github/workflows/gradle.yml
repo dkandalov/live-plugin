@@ -17,8 +17,8 @@ jobs:
       run: |
         chmod +x gradlew
         ./gradlew check buildPlugin --info
-    - name: Build plugin with EAP
-      run: |
-        chmod +x gradlew
-        export IJ_VERSION=LATEST-EAP-SNAPSHOT
-        ./gradlew check buildPlugin --info
+#    - name: Build plugin with EAP
+#      run: |
+#        chmod +x gradlew
+#        export IJ_VERSION=LATEST-EAP-SNAPSHOT
+#        ./gradlew check buildPlugin --info
