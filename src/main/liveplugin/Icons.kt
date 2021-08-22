@@ -9,6 +9,7 @@ object Icons {
     val deletePluginIcon = General.Remove
     val refreshPluginsPanelIcon = Actions.Refresh
     val runPluginIcon = Actions.Execute
+    val rerunPluginIcon = Actions.Restart
     val unloadPluginIcon = Actions.Suspend
     val sharePluginIcon = ToolbarDecorator.Export
     val packagePluginIcon = FileTypes.Archive
