@@ -1,17 +1,11 @@
 package liveplugin
 
-import com.intellij.ide.AppLifecycleListener
 import com.intellij.lang.LanguageUtil
 import com.intellij.notification.NotificationGroupManager
-import com.intellij.notification.NotificationType
-import com.intellij.notification.NotificationType.ERROR
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
 import com.intellij.openapi.actionSystem.Presentation
-import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessExtension
 import com.intellij.openapi.fileTypes.FileType
@@ -21,8 +15,6 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER
-import com.intellij.openapi.project.ProjectManagerListener
-import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.NotNullLazyKey
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -34,132 +26,15 @@ import com.intellij.psi.search.UseScopeEnlarger
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.usages.impl.rules.UsageType
 import com.intellij.usages.impl.rules.UsageTypeProvider
-import com.intellij.util.containers.ContainerUtil
-import com.intellij.util.download.DownloadableFileService
 import com.intellij.util.indexing.IndexableSetContributor
 import liveplugin.IdeUtil.ideStartupActionPlace
 import liveplugin.IdeUtil.invokeLaterOnEDT
-import liveplugin.LivePluginAppComponent.Companion.runAllPlugins
 import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
-import liveplugin.pluginrunner.UnloadPluginAction.Companion.unloadPlugins
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
-import liveplugin.toolwindow.util.GroovyExamples
-import liveplugin.toolwindow.util.installPlugin
 import java.io.IOException
-
-class LivePluginAppListener: AppLifecycleListener {
-    @Suppress("UnstableApiUsage")
-    override fun appStarted() {
-        checkThatGroovyIsOnClasspath()
-
-        val settings = Settings.instance
-        if (settings.justInstalled) {
-            installHelloWorldPlugins()
-            settings.justInstalled = false
-        }
-        if (settings.runAllPluginsOnIDEStartup) {
-            runAllPlugins()
-        }
-    }
-
-    private fun installHelloWorldPlugins() {
-        invokeLaterOnEDT {
-            listOf(GroovyExamples.helloWorld, GroovyExamples.ideActions, GroovyExamples.modifyDocument, GroovyExamples.popupMenu).forEach {
-                it.installPlugin(handleError = { e: Exception, pluginPath: String ->
-                    LivePluginAppComponent.logger.warn("Failed to install plugin: $pluginPath", e)
-                })
-            }
-        }
-    }
-
-    private fun checkThatGroovyIsOnClasspath(): Boolean {
-        val isGroovyOnClasspath = isOnClasspath("org.codehaus.groovy.runtime.DefaultGroovyMethods")
-        if (isGroovyOnClasspath) return true
-
-        // This can be useful for non-java IDEs because they don't have bundled groovy libs.
-        LivePluginAppComponent.livePluginNotificationGroup.createNotification(
-            title = "LivePlugin didn't find Groovy libraries on classpath",
-            content = "Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~7Mb)",
-            type = ERROR
-        ).setListener { notification, _ ->
-            val groovyVersion = "2.5.11" // Version of groovy used by latest IJ.
-            val downloaded = downloadFile(
-                "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-all/$groovyVersion/",
-                "groovy-all-$groovyVersion.jar",
-                LivePluginPaths.livePluginLibPath
-            )
-            if (downloaded) {
-                notification.expire()
-                askIfUserWantsToRestartIde("For Groovy libraries to be loaded IDE restart is required. Restart now?")
-            } else {
-                LivePluginAppComponent.livePluginNotificationGroup
-                    .createNotification("Failed to download Groovy libraries", NotificationType.WARNING)
-            }
-        }.notify(null)
-
-        return false
-    }
-
-    private fun downloadFile(downloadUrl: String, fileName: String, targetPath: FilePath): Boolean =
-        downloadFiles(listOf(Pair(downloadUrl, fileName)), targetPath)
-
-    // TODO make download non-modal
-    private fun downloadFiles(urlAndFileNames: List<Pair<String, String>>, targetPath: FilePath): Boolean {
-        val service = DownloadableFileService.getInstance()
-        val descriptions = ContainerUtil.map(urlAndFileNames) { service.createFileDescription(it.first + it.second, it.second) }
-        val files = service.createDownloader(descriptions, "").downloadFilesWithProgress(targetPath.value, null, null)
-        return files != null && files.size == urlAndFileNames.size
-    }
-
-    private fun askIfUserWantsToRestartIde(message: String) {
-        val answer = Messages.showOkCancelDialog(message, "Restart Is Required", "Restart", "Postpone", Messages.getQuestionIcon())
-        if (answer == Messages.OK) {
-            ApplicationManagerEx.getApplicationEx().restart(true)
-        }
-    }
-
-    private fun isOnClasspath(className: String) =
-        LivePluginAppListener::class.java.classLoader.getResource(className.replace(".", "/") + ".class") != null
-}
-
-class LivePluginProjectListener : ProjectManagerListener {
-    override fun projectOpened(project: Project) {
-        if (!Settings.instance.runProjectSpecificPlugins) return
-
-        val projectPath = project.basePath?.toFilePath() ?: return
-        val pluginsPath = projectPath + livePluginsProjectDirName
-        if (!pluginsPath.exists()) return
-
-        val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
-        val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)
-
-        runPlugins(pluginsPath.listFiles(), dummyEvent)
-    }
-
-    override fun projectClosing(project: Project) {
-        val projectPath = project.basePath?.toFilePath() ?: return
-        val pluginsPath = projectPath + livePluginsProjectDirName
-        if (!pluginsPath.exists()) return
-
-        unloadPlugins(pluginsPath.listFiles())
-    }
-}
-
-object LivePluginPaths {
-    val ideJarsPath = PathManager.getHomePath().toFilePath() + "lib"
-
-    val livePluginPath = PathManager.getPluginsPath().toFilePath() + "LivePlugin"
-    val livePluginLibPath = PathManager.getPluginsPath().toFilePath() + "LivePlugin/lib"
-    val livePluginsCompiledPath = PathManager.getPluginsPath().toFilePath() + "live-plugins-compiled"
-    @JvmField val livePluginsPath = PathManager.getPluginsPath().toFilePath() + "live-plugins"
-    val livePluginsProjectDirName = ".live-plugins"
-
-    const val groovyExamplesPath = "groovy/"
-    const val kotlinExamplesPath = "kotlin/"
-}
 
 class LivePluginAppComponent {
     companion object {
