@@ -10,38 +10,36 @@ or use "Install" button on the [Plugin Marketplace website](http://plugins.jetbr
 
 
 ### Why?
- - **Minimal setup** — no need to set up a separate project for plugin development, you can modify and run plugins in any project
- - **Fast feedback loop** — plugins run (and reloaded) in the same JVM instance as IDE, so there is no need to restart
- - **Usable IDE API** — LivePlugin adds a thin API layer on top of the IntelliJ to highlight some entry points and make common tasks easier
+ - **Minimal setup** — no need to set up a separate project for plugin development (modify plugins in any project)
+ - **Fast feedback loop** — plugins run (and reloaded) in the same JVM instance as IDE (without IDE restart)
+ - **Usable IDE API** — LivePlugin has a small API with entry points for IDE APIs
 
 
 ### Examples
-Hello world in Groovy:
+Hello world (in Groovy):
 ```groovy
 import static liveplugin.PluginUtil.show
 show("Hello world") // Shows balloon notification popup with "Hello world" text
 ```
-Insert New Line Above Action:
-```groovy
+Insert New Line Above action (in Kotlin):
+```kotlin
 import com.intellij.openapi.actionSystem.AnActionEvent
-import static liveplugin.PluginUtil.*
+import liveplugin.*
 
 // Action to insert new line above the current line.
 // Based on this post https://martinfowler.com/bliki/InternalReprogrammability.html
-// Note that there is "Start New Line Before Current" action (ctrl+alt+enter) which does almost the same thing.
-registerAction("Insert New Line Above", "alt shift ENTER") { AnActionEvent event ->
-    runDocumentWriteAction(event.project) {
-        currentEditorIn(event.project).with {
-            def offset = caretModel.offset
-            def currentLine = caretModel.logicalPosition.line
-            def lineStartOffset = document.getLineStartOffset(currentLine)
-
-            document.insertString(lineStartOffset, "\n")
-            caretModel.moveToOffset(offset + 1)
-        }
+// Note that there is also built-in "Start New Line Before Current" action (ctrl+alt+enter).
+registerAction(id = "Insert New Line Above", keyStroke = "ctrl alt shift ENTER") { event: AnActionEvent ->
+    val project = event.project ?: return@registerAction
+    val editor = event.editor ?: return@registerAction
+    executeCommand(editor.document, project) { document ->
+        val caretModel = editor.caretModel
+        val lineStartOffset = document.getLineStartOffset(caretModel.logicalPosition.line)
+        document.insertString(lineStartOffset, "\n")
+        caretModel.moveToOffset(caretModel.offset + 1)
     }
 }
-show("Loaded 'Insert New Line Above' action<br/>Use 'Alt+Shift+Enter' to run it")
+show("Loaded 'Insert New Line Above' action<br/>Use 'ctrl+alt+shift+Enter' to run it")
 ```
 
 
