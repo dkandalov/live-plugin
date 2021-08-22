@@ -68,11 +68,14 @@ open class AddNewPluginAction(
 class PluginIdValidator: InputValidatorEx {
     private var errorText: String? = null
 
-    override fun checkInput(pluginId: String): Boolean {
-        val pluginExists = pluginId in pluginIdToPathMap().keys
-        errorText = if (!pluginExists) null else "There is already a plugin with this name"
-        return pluginExists
-    }
+    override fun checkInput(pluginId: String) =
+        if (pluginId in pluginIdToPathMap().keys) {
+            errorText = "There is already a plugin with this name"
+            false
+        } else {
+            errorText = null
+            true
+        }
 
     override fun getErrorText(pluginId: String) = errorText
 
