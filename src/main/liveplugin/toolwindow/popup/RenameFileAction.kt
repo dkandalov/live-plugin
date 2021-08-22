@@ -31,12 +31,11 @@ class RenameFileAction: FileChooserAction() {
          */
         fun updateTreeModel_HACK() {
             val model = fileSystemTree.tree.model
-            val queue = LinkedList<FileNode>()
-            var node = model.root as FileNode
-            queue.add(node)
+            val queue = LinkedList<FileNode?>()
+            queue.add(model.root as? FileNode)
 
             while (queue.isNotEmpty()) {
-                node = queue.remove()
+                val node = queue.remove() ?: continue
 
                 val nodeContainsRenamedFile = file == node.file
                 if (nodeContainsRenamedFile) {
@@ -50,7 +49,8 @@ class RenameFileAction: FileChooserAction() {
                 }
 
                 (0 until model.getChildCount(node)).forEach { i ->
-                    queue.add(model.getChild(node, i) as FileNode)
+                    // Do a soft cast to FileNode because it's been observed that children can also be a LoadingNode.
+                    queue.add(model.getChild(node, i) as? FileNode)
                 }
             }
         }
