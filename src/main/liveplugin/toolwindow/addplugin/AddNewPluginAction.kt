@@ -9,7 +9,7 @@ import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import liveplugin.Icons
 import liveplugin.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.pluginExists
+import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
 import liveplugin.LivePluginPaths
 import liveplugin.LivePluginPaths.groovyExamplesPath
@@ -69,9 +69,9 @@ class PluginIdValidator: InputValidatorEx {
     private var errorText: String? = null
 
     override fun checkInput(pluginId: String): Boolean {
-        val isValid = !pluginExists(pluginId)
-        errorText = if (isValid) null else "There is already a plugin with this name"
-        return isValid
+        val pluginExists = pluginId in pluginIdToPathMap().keys
+        errorText = if (!pluginExists) null else "There is already a plugin with this name"
+        return pluginExists
     }
 
     override fun getErrorText(pluginId: String) = errorText
