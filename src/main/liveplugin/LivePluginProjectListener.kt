@@ -23,7 +23,7 @@ class LivePluginProjectListener : ProjectManagerListener {
         @Suppress("UnstableApiUsage")
         if (!project.isTrusted()) {
             val message = "Skipped execution of project specific plugins because the project is not trusted."
-            livePluginNotificationGroup.createNotification(title = "Live Plugin", message, INFORMATION).notify(project)
+            livePluginNotificationGroup.createNotification(title = "Live plugin", message, INFORMATION).notify(project)
             return
         }
 
