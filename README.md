@@ -10,18 +10,18 @@ or use "Install" button on the [Plugin Marketplace website](http://plugins.jetbr
 
 
 ### Why?
- - **Minimal setup** — no need to set up a separate project for plugin development (modify plugins in any project)
- - **Fast feedback loop** — plugins run (and reloaded) in the same JVM instance as IDE (without IDE restart)
- - **Usable IDE API** — LivePlugin has a small API with entry points for IDE APIs
+ - **Minimal setup** — no need to set up a separate project for plugin development
+ - **Fast feedback loop** — plugins are (re)loaded in the same JVM instance as IDE without restart
+ - **Usable IDE API** — LivePlugin has a small API with entry points for common IDE APIs
 
 
 ### Examples
-Hello world (in Groovy):
+Hello world (Groovy):
 ```groovy
 import static liveplugin.PluginUtil.show
 show("Hello world") // Shows balloon notification popup with "Hello world" text
 ```
-Insert New Line Above action (in Kotlin):
+Insert New Line Above action (Kotlin):
 ```kotlin
 import com.intellij.openapi.actionSystem.AnActionEvent
 import liveplugin.*
@@ -43,41 +43,38 @@ show("Loaded 'Insert New Line Above' action<br/>Use 'ctrl+alt+shift+Enter' to ru
 ```
 
 
-### How to start writing plugins
+### How to get started
 Make sure "hello world" works fine:
 - In the `Plugins` tool window select "hello-world" plugin and click "Run" button to execute the plugin (`Run Plugin`
   action with `ctrl+shift+L` or `alt+C, alt+E` shortcut). It should display a message.
 - Make a small modification in `plugin.groovy`/`plugin.kts` and rerun the plugin. 
   On the second run, previous version of the plugin will be unloaded before the code is evaluated again.
 - Modify `plugin.groovy`/`plugin.kts` file again so that it fails to compile/run.
-  You should see an error message in the `Run` tool window which, hopefully, makes sense.
+  You should see an error message in the `Run` tool window.
 - Note that plugins are just folders with `plugin.groovy` or `plugin.kts` scripts as entry points. 
   This means that you can, for example, copy path to the plugin folder using `Copy Path` action (`ctrl/cmd+alt+C` shortcut).
 
 Try bundled examples:
-- In the `Plugins` tool window click "Plus" button (`Add Plugin` action) and select 
-  Groovy or Kotlin examples. 
+- In the `Plugins` tool window click "Plus" button (`Add Plugin` action) and add Groovy or Kotlin examples. 
 - It might be useful to install [Groovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) or 
   [Kotlin](https://plugins.jetbrains.com/plugin/6954-kotlin) plugin if your IDE supports them. 
 
 Take a look at settings in the `Plugins` toowindow:
-- `Run Plugins on IDE Start` — to run all plugins on IDE start.
-- `Run Project Specific Plugins` — to run all plugins in `.live-plugins` project directory when 
+- `Run Plugins on IDE Start` — run all plugins on IDE start.
+- `Run Project Specific Plugins` — run all plugins in `.live-plugins` project directory when 
 the project is opened and unload them when the project is closed.
 - `Add LivePlugin and IDE Jars to Project` — useful for Groovy plugins
 to get auto-completion and code navigation in plugin code.
-(There is no doubt that adding jars unrelated to your project is a hack 
-but there seems to be no major problems with it.) Note that Kotlin plugins should
-have auto-completion and code navigation without it.
+(Adding jars unrelated to your project is a bit of a hack but there seems to be no major problems with it.)
+Note that Kotlin plugins should have auto-completion and code navigation without it.
 
 Learn more about IntelliJ API:
-- Read (or at least skim) [plugin development fundamentals](https://plugins.jetbrains.com/docs/intellij/fundamentals.html)
-  and the following sections.
-- Clone [IntelliJ source code](https://github.com/JetBrains/intellij-community)
-or explore it on GitHub or 
+- Read (or at least skim) [plugin development fundamentals](https://plugins.jetbrains.com/docs/intellij/fundamentals.html).
+- Explore [IntelliJ source code](https://github.com/JetBrains/intellij-community)
+by cloning it, browsing it on GitHub or in 
 [Upsource](https://upsource.jetbrains.com/idea-ce/structure/idea-ce-ba0c8fc9ab9bf23a71a6a963cd84fc89b09b9fc8/).
-  One strategy which I like is to search for text you can see in IDE UI and try to figure out 
-  how it's connected to the code which does actual work.
+  One useful strategy is to search for text you can see in IDE UI and then figure out 
+  how it's connected to the code which does the actual work.
 - [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src/plugin-util-groovy/liveplugin/PluginUtil.groovy) class
   and [liveplugin](https://github.com/dkandalov/live-plugin/tree/master/src/plugin-util-kotlin/liveplugin) package
   might have some good starting points to explore IntelliJ API.
@@ -110,13 +107,6 @@ This means that your code is executed in the same environment as IDE internal co
 You can use any internal API and observe/change state of any object inside IDE.
 There are some limitations of course, like `final` fields and complex APIs not designed to be re-initialized. 
 
-To simplify usage of IntelliJ API for practical purposes some parts of IntelliJ API are wrapped in 
-[PluginUtil class](https://github.com/dkandalov/live-plugin/blob/master/src/plugin-util-groovy/liveplugin/PluginUtil.groovy).
-This is essentially a layer on top of the standard IntelliJ API. 
-If you find yourself writing interesting IDE scripts, feel free to create pull request or send a gist
-to include your code into `PluginUtil`. This is experimental API and there is no intention to keep it minimal.
-`PluginUtil` is not required though and you can always use IntelliJ classes directly.
-  
 Also note that:
  - plugins are evaluated with new classloader on each run
  - plugins are stored in `$HOME/.$INTELLIJ_VERSION/config/live-plugins`
@@ -168,12 +158,12 @@ Note that you can use `ctrl+shift+C` shortcut to copy file/folder path.
 ### Similar plugins
 The idea of running code inside IntelliJ is not original. 
 There are/were similar plugins:
- - [IDE Scripting Console](https://youtrack.jetbrains.com/issue/IDEA-138252) (experimental feature, bundled with IntelliJ since 14.1)
- - [Script Monkey](http://plugins.intellij.net/plugin?pr=idea&pluginId=3674)
+ - [IDE Scripting Console](https://youtrack.jetbrains.com/issue/IDEA-138252) - experimental feature bundled since IntelliJ 14.1
+ - [Script Monkey](http://plugins.intellij.net/plugin?pr=idea&pluginId=3674) (out-of-date)
  - [PMIP - Poor Mans IDE Plugin](http://plugins.intellij.net/plugin/?idea&pluginId=4571) (no longer available)
- - [Remote Groovy Console](http://plugins.intellij.net/plugin/?id=5373) (most likely out-of-date)
- - [Groovy Console Plugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=4660) (most likely out-of-date)
- - [HotPlugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=1020) (most likely out-of-date)
+ - [Remote Groovy Console](http://plugins.intellij.net/plugin/?id=5373) (out-of-date)
+ - [Groovy Console Plugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=4660) (out-of-date)
+ - [HotPlugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=1020) (out-of-date)
 
 
 ### Contributing
