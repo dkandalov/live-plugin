@@ -71,7 +71,7 @@ class GroovyPluginRunner(
         val (scriptEngine, scriptUrl) = executablePlugin as ExecutableGroovyPlugin
         return try {
             scriptEngine.run(scriptUrl, GroovyBinding(binding.toMap()))
-            Success(Unit)
+            Unit.asSuccess()
         } catch (e: Exception) {
             RunningError(e).asFailure()
         }

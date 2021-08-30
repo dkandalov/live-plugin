@@ -6,15 +6,15 @@ import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.lang.UrlClassLoader
 import groovy.lang.GroovyClassLoader
+import liveplugin.Result
+import liveplugin.asFailure
+import liveplugin.asSuccess
 import liveplugin.pluginrunner.AnError.LoadingError
-import liveplugin.Result.Success
-import liveplugin.*
 import liveplugin.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
 import java.util.*
-import kotlin.collections.HashSet
 
 interface ExecutablePlugin
 
@@ -38,7 +38,7 @@ interface PluginRunner {
             }
             additionalClasspath.forEach { file -> classLoader.addURL(file.toUrl()) }
 
-            return Success(classLoader)
+            return classLoader.asSuccess()
         }
 
         private fun createParentClassLoader(pluginDescriptors: List<IdeaPluginDescriptor>, plugin: LivePlugin): ClassLoader {

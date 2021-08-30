@@ -90,7 +90,7 @@ class KotlinPluginRunner(
             // Arguments below must match constructor of LivePluginScript class.
             // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
             pluginClass.constructors[0].newInstance(binding.isIdeStartup, binding.project, binding.pluginPath, binding.pluginDisposable)
-            Success(Unit)
+            Unit.asSuccess()
         } catch (e: Throwable) {
             RunningError(e).asFailure()
         }
