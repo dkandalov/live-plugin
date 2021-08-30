@@ -89,30 +89,26 @@ or [report an issue](https://github.com/dkandalov/live-plugin/issues)
 (it's ok to report an issue even if it's just a question).
 
 
-### Practical use cases
- - prototyping of IntelliJ plugins
- - experimenting with IntelliJ API
- - project-specific workflow automation
- - integrating shell scripts with IDE
+### Some practical use cases
+- project-specific workflow automation
+- integrating shell scripts with IDE
+- prototyping plugins, experimenting with IntelliJ API
  
 
-### The main idea
-LivePlugin basically runs Groovy or Kotlin code in JVM. Conceptually it's quite simple:
-```java
-ClassLoader classLoader = createClassLoader(ideClassloader, ...);
-GroovyScriptEngine scriptEngine = new GroovyScriptEngine(pluginFolderUrl, classLoader);
-scriptEngine.run(mainScriptUrl, createGroovyBinding(binding));
-```
-This means that your code is executed in the same environment as IDE internal code.
-You can use any internal API and observe/change state of any object inside IDE.
-There are some limitations of course, like `final` fields and complex APIs not designed to be re-initialized. 
+### How does it actually work?
+Overall, the idea is just to load and run plugin Groovy or Kotlin classes in the IDE JVM at runtime.
+More specifically the steps are:
+- if there is an instance of `pluginDisposable` from previous execution, then dispose it (on EDT)
+- create a new classloader with dependencies on other plugins and jars (on a background thread)
+- compile code if necessary and load classes in the classloader (on a background thread)
+- run the plugin code (on EDT)
 
-Also note that:
- - plugins are evaluated with new classloader on each run
- - plugins are stored in `$HOME/.$INTELLIJ_VERSION/config/live-plugins`
-(on Mac `$HOME/Library/Application Support/IntelliJIdea15/live-plugins`)
-Note that you can use `ctrl+shift+C` shortcut to copy file/folder path.
- - if available, Groovy library bundled with IDE is used
+This means that plugin code can use any internal IDE API and observe/change IDE state.
+There are some limitations of course, such as `final` fields and IDE APIs which are not designed to be re-initialized. 
+
+Most of IntelliJ-based IDEs come with a bundled Groovy jar which is used for loading and running live plugins
+(otherwise, the groovy-all jar will be downloaded). LivePlugin uses its own version of Kotlin stdlib and compiler because
+the version bundled with IDEs changes quite often and seems to be harder to rely on.
 
 
 ### More examples
