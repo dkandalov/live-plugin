@@ -4,7 +4,6 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.*
 import liveplugin.IdeUtil.unscrambleThrowable
-import liveplugin.Result.Failure
 import liveplugin.Result.Success
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.AnError.LoadingError
@@ -50,13 +49,13 @@ class KotlinPluginRunner(
             ?: return LoadingError(message = "Startup script $scriptName was not found.").asFailure()
 
         val pluginDescriptorsOfDependencies = findPluginDescriptorsOfDependencies(mainScript.readLines(), kotlinDependsOnPluginKeyword)
-            .map { it.onFailure { (message) -> return Failure(LoadingError(message)) } }
-            .onEach { if (!it.isEnabled) return Failure(LoadingError("Dependent plugin '${it.pluginId}' is disabled")) }
+            .map { it.onFailure { (message) -> return LoadingError(message).asFailure() } }
+            .onEach { if (!it.isEnabled) return LoadingError("Dependent plugin '${it.pluginId}' is disabled").asFailure() }
             .withTransitiveDependencies()
 
         val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
         val additionalClasspath = findClasspathAdditions(mainScript.readLines(), kotlinAddToClasspathKeyword, environment)
-            .flatMap { it.onFailure { (path) -> return Failure(LoadingError("Couldn't find dependency '$path.'")) } }
+            .flatMap { it.onFailure { (path) -> return LoadingError("Couldn't find dependency '$path.'").asFailure() } }
 
         val compilerOutput = File("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}")
 
@@ -66,7 +65,7 @@ class KotlinPluginRunner(
 
             KotlinPluginCompiler()
                 .compile(plugin.path.value, pluginDescriptorsOfDependencies, additionalClasspath, compilerOutput)
-                .onFailure { (reason) -> return Failure(LoadingError(reason)) }
+                .onFailure { (reason) -> return LoadingError(reason).asFailure() }
 
             srcHashCode.update()
         }
@@ -77,10 +76,10 @@ class KotlinPluginRunner(
                 livePluginLibAndSrcFiles() +
                 additionalClasspath
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin)
-                .onFailure { return Failure(LoadingError(it.reason.message)) }
+                .onFailure { return LoadingError(it.reason.message).asFailure() }
             classLoader.loadClass("Plugin")
         } catch (e: Throwable) {
-            return Failure(LoadingError("Error while loading plugin class.", e))
+            return LoadingError("Error while loading plugin class.", e).asFailure()
         }
         return ExecutableKotlinPlugin(pluginClass).asSuccess()
     }
@@ -93,7 +92,7 @@ class KotlinPluginRunner(
             pluginClass.constructors[0].newInstance(binding.isIdeStartup, binding.project, binding.pluginPath, binding.pluginDisposable)
             Success(Unit)
         } catch (e: Throwable) {
-            Failure(RunningError(e))
+            RunningError(e).asFailure()
         }
     }
 
@@ -145,12 +144,12 @@ private class KotlinPluginCompiler {
             ) as List<String>
 
             if (compilationErrors.isNotEmpty()) {
-                return Failure("Error compiling script.\n${compilationErrors.joinToString("\n")}")
+                return "Error compiling script.\n${compilationErrors.joinToString("\n")}".asFailure()
             } else {
                 Unit.asSuccess()
             }
         } catch (e: IOException) {
-            return Failure("Error creating scripting engine.\n${unscrambleThrowable(e)}")
+            return "Error creating scripting engine.\n${unscrambleThrowable(e)}".asFailure()
         } catch (e: Throwable) {
             // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
             // and LivePlugin should be able to run kotlin scripts without it
@@ -159,7 +158,7 @@ private class KotlinPluginCompiler {
             } else {
                 "Internal error compiling script.\n${unscrambleThrowable(e)}"
             }
-            return Failure(reason)
+            return reason.asFailure()
         }
     }
 
