@@ -12,32 +12,32 @@ import javax.swing.JComponent
 
 fun LivePluginScript.registerIdeToolWindow(
     toolWindowId: String,
-    anchor: ToolWindowAnchor = RIGHT,
-    component: JComponent
+    component: JComponent,
+    anchor: ToolWindowAnchor = RIGHT
 ) {
     registerProjectOpenListener(pluginDisposable) { project ->
-        registerProjectToolWindow(toolWindowId, project, pluginDisposable, anchor, component)
+        registerProjectToolWindow(toolWindowId, component, project, pluginDisposable, anchor)
     }
 }
 
 fun LivePluginScript.registerProjectToolWindow(
     toolWindowId: String,
-    anchor: ToolWindowAnchor = RIGHT,
-    component: JComponent
+    component: JComponent,
+    anchor: ToolWindowAnchor = RIGHT
 ): ToolWindow? =
     if (project == null) {
         show("Can't register toolwindow '$toolWindowId' because project is null")
         null
     } else {
-        registerProjectToolWindow(toolWindowId, project!!, pluginDisposable, anchor, component)
+        registerProjectToolWindow(toolWindowId, component, project!!, pluginDisposable, anchor)
     }
 
 fun registerProjectToolWindow(
     toolWindowId: String,
+    component: JComponent,
     project: Project,
     disposable: Disposable,
-    anchor: ToolWindowAnchor = RIGHT,
-    component: JComponent
+    anchor: ToolWindowAnchor = RIGHT
 ): ToolWindow = withWriteLockOnEdt {
     val toolWindow = ToolWindowManager.getInstance(project)
         .registerToolWindow(RegisterToolWindowTask(toolWindowId, anchor, component))
