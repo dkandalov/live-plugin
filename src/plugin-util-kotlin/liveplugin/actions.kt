@@ -11,12 +11,14 @@ import javax.swing.JPanel
 import javax.swing.KeyStroke
 
 /**
- * Registers action with the specified [id] (which must be unique)
- * where the action is represented as a [function] that takes an [AnActionEvent] and creates a side-effect.
+ * Registers action with the specified [id] (which must be unique in IDE)
+ * where the action is represented as a [function] that takes an [AnActionEvent] and creates a side effect.
  *
- * You can specify [keyStroke] for the action, for example "ctrl alt shift H" or comma-separated "alt C, alt H"
- * for shortcut with two keystrokes. Note that letters are uppercase and modification keys are lowercase.
- * For shortcuts syntax details, see [javax.swing.KeyStroke.getKeyStroke] javadoc.
+ * You can specify [keyStroke] for the action. For example, "ctrl shift H",
+ * or for a shortcut with double keystroke "alt C, alt D" (hold alt, press C, release C, press D).
+ * Modification keys are lowercase, e.g. ctrl, alt, shift, cmd. Letters are uppercase.
+ * Other keys are uppercase based on the constant names in [java.awt.event.KeyEvent] without "VK_" prefix,
+ * e.g. ENTER, ESCAPE, SPACE, LEFT, UP, F1, F12. For details, see [javax.swing.KeyStroke.getKeyStroke] javadoc.
  *
  * You can also specify [actionGroupId] to add actions to existing menus,
  * e.g. "ToolsMenu" corresponds to `Main menu - Tools`.
@@ -65,7 +67,9 @@ fun registerAction(
     if ((actionManager.getAction(id) != null)) error("Action '$id' is already registered")
     action.templatePresentation.setText(id, true)
 
-    val actionGroup = if (actionGroupId == null) null else actionManager.getAction(actionGroupId) as? DefaultActionGroup
+    val actionGroup =
+        if (actionGroupId == null) null
+        else actionManager.getAction(actionGroupId) as? DefaultActionGroup
     val shortcut = keyStroke?.toKeyboardShortcut()
 
     if (shortcut != null) keymapManager.activeKeymap.addShortcut(id, shortcut)
@@ -109,8 +113,20 @@ fun ActionGroup.createPopup(
     )
 
 private fun String.toKeyboardShortcut(): KeyboardShortcut? {
-    val parts = trim().split(",")
-    if (parts.isEmpty() || parts.all { it.isEmpty() }) return null
+    val parts = split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        .map {
+            it.replace(".", "PERIOD")
+            replace("-", "MINUS")
+            replace("=", "EQUALS")
+            replace(";", "SEMICOLON")
+            replace("/", "SLASH")
+            replace("[", "OPEN_BRACKET")
+            replace("\\", "BACK_SLASH")
+            replace("]", "CLOSE_BRACKET")
+            replace("`", "BACK_QUOTE")
+            replace("'", "QUOTE")
+        }
+    if (parts.isEmpty()) return null
 
     val firstKeystroke = KeyStroke.getKeyStroke(parts[0]) ?: error("Invalid keystroke '${this}'")
     val secondKeystroke = if (parts.size > 1) KeyStroke.getKeyStroke(parts[1]) else null
