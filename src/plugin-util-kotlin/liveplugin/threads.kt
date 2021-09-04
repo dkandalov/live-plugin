@@ -1,7 +1,10 @@
 package liveplugin
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.util.Computable
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -41,3 +44,35 @@ inline fun <T> runOnEdtWithWriteLock(crossinline f: () -> T): T =
 @Deprecated(message = "Replace with runOnEdtWithWriteLock", replaceWith = ReplaceWith("runOnEdtWithWriteLock"))
 inline fun <T> withWriteLockOnEdt(crossinline f: () -> T): T =
     runOnEdtWithWriteLock(f)
+
+/**
+ * See also [com.intellij.openapi.progress.ProgressManager]
+ */
+fun <T> runBackgroundTask(
+    taskTitle: String = "",
+    canBeCancelledInUI: Boolean = true,
+    f: (ProgressIndicator) -> T,
+): CompletableFuture<T> {
+    val future = CompletableFuture<T>()
+    val result = AtomicReference<T>()
+    runLaterOnEdt {
+        object: Task.Backgroundable(null, taskTitle, canBeCancelledInUI, ALWAYS_BACKGROUND) {
+            override fun run(indicator: ProgressIndicator) = result.set(f(indicator))
+
+            // Invoked on EDT
+            override fun onSuccess() {
+                future.complete(result.get())
+            }
+
+            // Invoked on EDT
+            override fun onThrowable(error: Throwable) {
+                future.completeExceptionally(error)
+            }
+
+            override fun onCancel() {
+                future.cancel(true)
+            }
+        }.queue()
+    }
+    return future
+}
