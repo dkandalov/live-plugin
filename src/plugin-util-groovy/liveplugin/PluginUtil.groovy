@@ -148,6 +148,11 @@ class PluginUtil {
 		Console.showInConsole(message, consoleTitle, project, contentType)
 	}
 
+	/**
+	 * @param disposable disposable to unregister the listener
+	 * @param callback closure which will be called with console text passed as a parameter,
+	 *                 it should return new console output or null if console output should not be modified
+	 */
 	static registerConsoleFilter(Disposable disposable, Closure callback) {
 		Console.registerConsoleFilter(disposable, callback)
 	}
@@ -156,6 +161,10 @@ class PluginUtil {
 		Console.registerConsoleFilter(disposable, inputFilter)
 	}
 
+	/**
+	 * @param disposable disposable to unregister the listener
+	 * @param callback closure which will be called with console text passed as a parameter
+	 */
 	static registerConsoleListener(Disposable disposable, Closure callback) {
 		Console.registerConsoleListener(disposable, callback)
 	}

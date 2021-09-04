@@ -40,8 +40,9 @@ class Console {
 	static registerConsoleFilter(Disposable disposable, Closure callback) {
 		registerConsoleFilter(disposable, new InputFilter() {
 			@Override List<Pair<String, ConsoleViewContentType>> applyFilter(String consoleText, ConsoleViewContentType contentType) {
-				callback(consoleText, contentType)
-				null
+				def newConsoleText = callback(consoleText)
+				if (newConsoleText == null) null
+				else new Pair(newConsoleText, contentType)
 			}
 		})
 	}
