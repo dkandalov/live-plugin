@@ -10,7 +10,6 @@ import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.PlatformDataKeys
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.editor.Document
@@ -18,7 +17,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
@@ -26,7 +24,6 @@ import com.intellij.psi.PsiManager
 import liveplugin.implementation.Editors
 import liveplugin.pluginrunner.kotlin.LivePluginScript
 import java.awt.Component
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Shows popup balloon notification with the specified [message] (which can include HTML tags),
@@ -45,27 +42,8 @@ fun show(
     PluginUtil.show(message, title, notificationType, groupDisplayId, notificationListener)
 }
 
-inline fun <T> runOnEdt(crossinline f: () -> T): T {
-    val result = AtomicReference<T>()
-    ApplicationManager.getApplication().invokeAndWait {
-        result.set(f())
-    }
-    return result.get()
-}
-
-inline fun runLaterOnEdt(crossinline f: () -> Any?) =
-    ApplicationManager.getApplication().invokeLater { f() }
-
-inline fun <T> withReadLock(crossinline f: () -> T): T =
-    ApplicationManager.getApplication().runReadAction(Computable { f() })
-
-inline fun <T> withWriteLockOnEdt(crossinline f: () -> T): T =
-    runOnEdt {
-        ApplicationManager.getApplication().runWriteAction(Computable { f() })
-    }
-
 fun executeCommand(document: Document, project: Project, description: String? = null, callback: (Document) -> Unit) {
-    withWriteLockOnEdt {
+    runOnEdtWithWriteLock {
         val command = { callback(document) }
         CommandProcessor.getInstance().executeCommand(project, command, description, null, UndoConfirmationPolicy.DEFAULT, document)
     }
@@ -110,8 +88,3 @@ val Project.currentPsiFile: PsiFile?
 
 val Project.currentDocument: Document?
     get() = currentFile?.document
-
-/**
- * @see liveplugin.PluginUtil.assertNoNeedForEdtOrWriteActionWhenUsingActionManager
- */
-inline fun <T> noNeedForEdtOrWriteActionWhenUsingActionManager(f: () -> T) = f()

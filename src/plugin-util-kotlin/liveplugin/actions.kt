@@ -131,3 +131,8 @@ private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     val secondKeystroke = if (parts.size > 1) KeyStroke.getKeyStroke(parts[1]) else null
     return KeyboardShortcut(firstKeystroke, secondKeystroke)
 }
+
+/**
+ * @see liveplugin.PluginUtil.assertNoNeedForEdtOrWriteActionWhenUsingActionManager
+ */
+inline fun <T> noNeedForEdtOrWriteActionWhenUsingActionManager(f: () -> T) = f()
