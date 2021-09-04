@@ -387,11 +387,11 @@ class PluginUtil {
 	}
 
 	/**
-	 * @param parentDisposable disposable for this listener (can be "pluginDisposable" to remove listener on plugin reload)
+	 * @param disposable disposable for this listener (can be "pluginDisposable" to remove listener on plugin reload)
 	 */
 	@CanCallFromAnyThread
-	static AnActionListener registerActionListener(Disposable parentDisposable, AnActionListener actionListener) {
-		Actions.registerActionListener(parentDisposable, actionListener)
+	static AnActionListener registerActionListener(Disposable disposable, AnActionListener actionListener) {
+		Actions.registerActionListener(disposable, actionListener)
 	}
 
 	@CanCallFromAnyThread
@@ -419,13 +419,13 @@ class PluginUtil {
 	/**
 	 * Registers project manager listener which will be replaced between plugin reloads.
 	 *
-	 * @param parentDisposable disposable to automatically unregister this listener
-	 *                         (e.g. "pluginDisposable" to remove listener on plugin reload)
+	 * @param disposable disposable to automatically unregister this listener
+	 *                   (e.g. "pluginDisposable" to remove listener on plugin reload)
 	 * @param listener see https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/project/ProjectManagerListener.java
 	 */
 	@CanCallWithReadLockOrFromEDT
-	static registerProjectListener(Disposable parentDisposable, ProjectManagerListener listener) {
-		Projects.registerProjectListener(parentDisposable, listener)
+	static registerProjectListener(Disposable disposable, ProjectManagerListener listener) {
+		Projects.registerProjectListener(disposable, listener)
 	}
 
 	@CanCallWithReadLockOrFromEDT
