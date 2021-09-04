@@ -32,7 +32,7 @@ fun LivePluginScript.registerAction(
     actionGroupId: String? = null,
     function: (AnActionEvent) -> Unit
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
-    registerAction(id, keyStroke, actionGroupId, pluginDisposable, AnAction(id, function))
+    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, pluginDisposable, AnAction(id, function))
 }
 
 fun LivePluginScript.registerAction(
@@ -41,7 +41,7 @@ fun LivePluginScript.registerAction(
     actionGroupId: String? = null,
     action: AnAction
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
-    registerAction(id, keyStroke, actionGroupId, pluginDisposable, action)
+    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, pluginDisposable, action)
 }
 
 fun registerAction(
@@ -51,12 +51,12 @@ fun registerAction(
     disposable: Disposable,
     function: (AnActionEvent) -> Unit
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
-    registerAction(id, keyStroke, actionGroupId, disposable, AnAction(id, function))
+    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, disposable, AnAction(id, function))
 }
 
 fun registerAction(
     id: String,
-    keyStroke: String? = null,
+    keyboardShortcut: KeyboardShortcut? = null,
     actionGroupId: String? = null,
     disposable: Disposable,
     action: AnAction
@@ -70,16 +70,15 @@ fun registerAction(
     val actionGroup =
         if (actionGroupId == null) null
         else actionManager.getAction(actionGroupId) as? DefaultActionGroup
-    val shortcut = keyStroke?.toKeyboardShortcut()
 
-    if (shortcut != null) keymapManager.activeKeymap.addShortcut(id, shortcut)
+    if (keyboardShortcut != null) keymapManager.activeKeymap.addShortcut(id, keyboardShortcut)
     actionManager.registerAction(id, action)
     actionGroup?.add(action)
 
     disposable.whenDisposed {
         actionGroup?.remove(action)
         actionManager.unregisterAction(id)
-        if (shortcut != null) keymapManager.activeKeymap.removeShortcut(id, shortcut)
+        if (keyboardShortcut != null) keymapManager.activeKeymap.removeShortcut(id, keyboardShortcut)
     }
     return action
 }
