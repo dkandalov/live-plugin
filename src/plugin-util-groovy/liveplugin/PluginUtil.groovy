@@ -939,7 +939,8 @@ class PluginUtil {
 	}
 
 	static showPopupMenu(Map menuDescription, String popupTitle = "", JComponent contextComponent) {
-		def map = [PlatformDataKeys.CONTEXT_COMPONENT.name:contextComponent]
+		def map = [:]
+		map.put(PlatformDataKeys.CONTEXT_COMPONENT.name, contextComponent)
 		showPopupMenu(menuDescription, popupTitle, new MapDataContext(map))
 	}
 
