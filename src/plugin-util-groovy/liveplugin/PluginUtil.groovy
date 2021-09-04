@@ -2,6 +2,7 @@ package liveplugin
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.InspectionProfileEntry
+import com.intellij.execution.filters.InputFilter
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.BrowserUtil
@@ -145,6 +146,14 @@ class PluginUtil {
 	static ConsoleView showInConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
 	                                 ConsoleViewContentType contentType = Console.guessContentTypeOf(message)) {
 		Console.showInConsole(message, consoleTitle, project, contentType)
+	}
+
+	static registerConsoleFilter(Disposable disposable, Closure callback) {
+		Console.registerConsoleFilter(disposable, callback)
+	}
+
+	static registerConsoleFilter(Disposable disposable, InputFilter inputFilter) {
+		Console.registerConsoleFilter(disposable, inputFilter)
 	}
 
 	static registerConsoleListener(Disposable disposable, Closure callback) {

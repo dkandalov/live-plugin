@@ -14,6 +14,7 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.extensions.LoadingOrder
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Pair
 import org.jetbrains.annotations.NotNull
@@ -28,23 +29,34 @@ import static com.intellij.execution.filters.ConsoleInputFilterProvider.INPUT_FI
 import static liveplugin.PluginUtil.invokeOnEDT
 
 class Console {
-	private static final extensionPoint = ApplicationManager.application.extensionArea.getExtensionPoint(INPUT_FILTER_PROVIDERS)
 
 	static registerConsoleListener(Disposable disposable, Closure callback) {
-		def notFilteringListener = new InputFilter() {
+		registerConsoleFilter(disposable) { consoleText ->
+			callback(consoleText)
+			null // no filtering of console output
+		}
+	}
+
+	static registerConsoleFilter(Disposable disposable, Closure callback) {
+		registerConsoleFilter(disposable, new InputFilter() {
 			@Override List<Pair<String, ConsoleViewContentType>> applyFilter(String consoleText, ConsoleViewContentType contentType) {
-				callback(consoleText)
+				callback(consoleText, contentType)
 				null
 			}
-		}
-	    def inputFilterProvider = new ConsoleInputFilterProvider() {
+		})
+	}
+
+	static registerConsoleFilter(Disposable disposable, InputFilter inputFilter) {
+		def extensionPoint = ApplicationManager.application.extensionArea.getExtensionPoint(INPUT_FILTER_PROVIDERS)
+		extensionPoint.registerExtension(consoleFilterProviderFor(inputFilter), LoadingOrder.FIRST, disposable)
+	}
+
+	private static ConsoleInputFilterProvider consoleFilterProviderFor(InputFilter inputFilter) {
+		new ConsoleInputFilterProvider() {
 			@Override InputFilter[] getDefaultFilters(@NotNull Project project) {
-				[notFilteringListener]
+				[inputFilter]
 			}
 		}
-		extensionPoint.registerExtension(inputFilterProvider, disposable)
-
-		inputFilterProvider
 	}
 
 	static ConsoleView showInConsole(@Nullable message, String consoleTitle = "", @NotNull Project project,
