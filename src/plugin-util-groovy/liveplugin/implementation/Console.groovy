@@ -1,16 +1,11 @@
 package liveplugin.implementation
 
-
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.filters.ConsoleInputFilterProvider
 import com.intellij.execution.filters.InputFilter
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.ui.ConsoleView
-import com.intellij.execution.ui.ConsoleViewContentType
-import com.intellij.execution.ui.ExecutionConsole
-import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.execution.ui.RunContentManager
+import com.intellij.execution.ui.*
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
@@ -18,7 +13,7 @@ import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Pair
 import org.jetbrains.annotations.NotNull
@@ -29,10 +24,11 @@ import java.awt.*
 import java.util.List
 import java.util.concurrent.atomic.AtomicReference
 
+import static com.intellij.execution.filters.ConsoleInputFilterProvider.INPUT_FILTER_PROVIDERS
 import static liveplugin.PluginUtil.invokeOnEDT
 
 class Console {
-	private static final extensionPoint = Extensions.rootArea.getExtensionPoint(ConsoleInputFilterProvider.INPUT_FILTER_PROVIDERS)
+	private static final extensionPoint = ApplicationManager.application.extensionArea.getExtensionPoint(INPUT_FILTER_PROVIDERS)
 
 	static registerConsoleListener(Disposable disposable, Closure callback) {
 		def notFilteringListener = new InputFilter() {
@@ -62,6 +58,7 @@ class Console {
 			console.print(Misc.asString(message), contentType)
 
 			DefaultActionGroup toolbarActions = new DefaultActionGroup()
+			//noinspection GroovyUnusedAssignment (IntelliJ is wrong and has been wrong for years now :()
 			def consoleComponent = new MyConsolePanel(console, toolbarActions)
 			RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, titleRef.get()) {
 				@Override boolean isContentReuseProhibited() { true }
