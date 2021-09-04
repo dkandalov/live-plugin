@@ -8,34 +8,26 @@
     <!-- https://www.jetbrains.com/intellij-repository/releases -->
 	<idea-version since-build="212.4746.92"/>
 	<category>Plugin Development</category>
-	<description>
-		<![CDATA[<html lang="EN"><body>
-Allows writing plugins at runtime without IDE restart in Groovy and Kotlin.
-<br/><br/>
-To get started:
-<ul>
-<li>open "Plugins" tool window</li>
-<li>select one of the plugin entries in the panel (entries are folders, and "plugin.groovy" are startup scripts for plugins)</li>
-<li>click "Run" icon to execute plugin (keyboard shortcut "ctrl+shift+L" or "alt+C, alt+E")</li>
-</ul>
-If the above worked fine:
-<ul>
-<li>modify "plugin.groovy" and rerun plugin to see results</li>
-<li>add built-in plugin examples and experiment with them</li>
-<li>for more details see <a href="https://github.com/dkandalov/live-plugin">readme on GitHub</a></li>
-</ul>
-
-If something doesn't work, feel free to <a href="https://github.com/dkandalov/live-plugin/issues">report an issue</a>.
-    </body></html>]]>
+    <description>
+		<![CDATA[
+        <html lang="EN">
+        <body>
+        Plugin for writing plugins at runtime without IDE restarts using Groovy and Kotlin.
+        <br/><br/>
+        <ul>
+            <li><b>Minimal setup</b> — no need to set up a separate project for plugin development</li>
+            <li><b>Fast feedback loop</b> — plugins are (re)loaded in the same JVM instance as IDE without restart</li>
+            <li><b>Usable IDE API</b> — LivePlugin has a small API with entry points for common IDE APIs</li>
+        </ul>
+        <br/><br/>
+        For documentation and more details see <a href="https://github.com/dkandalov/live-plugin">readme on GitHub</a>.
+        </body>
+        </html>
+        ]]>
 	</description>
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>"Unload Plugin" action</li>
-            <li>support for project-specific plugins located in ".live-plugins" directory of the project
-                (they're run when project is open and unloaded when it's closed)</li>
-            <li>improved Kotlin support</li>
-            <li>updated examples</li>
         </ul></body></html>
         ]]>
     </change-notes>
@@ -62,7 +54,7 @@ If something doesn't work, feel free to <a href="https://github.com/dkandalov/li
 		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.RunPluginTestsAction" text="Test Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
-<!--		<action id="LivePlugin.CreatePluginZip" class="liveplugin.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>-->
+		<action id="LivePlugin.CreatePluginZip" class="liveplugin.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>
 		<action id="LivePlugin.SharePluginAsGistAction" class="liveplugin.toolwindow.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
 
 		<group id="LivePlugin.Popup">

@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/dkandalov/live-plugin/workflows/CI/badge.svg)](https://github.com/dkandalov/live-plugin/actions)
 
-### LivePlugin
+# LivePlugin
 Plugin for [IntelliJ](https://github.com/JetBrains/intellij-community)-based IDEs to create plugins at runtime
 using [Groovy](http://groovy.codehaus.org) and [Kotlin](http://kotlinlang.org).
 To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Marketplace`
@@ -9,13 +9,13 @@ or use "Install" button on the [Plugin Marketplace website](http://plugins.jetbr
 <img src="https://raw.github.com/dkandalov/live-plugin/master/screenshots/live-plugin-demo.gif" alt="demo" title="demo" align="middle"/>
 
 
-### Why?
+## Why?
  - **Minimal setup** — no need to set up a separate project for plugin development
  - **Fast feedback loop** — plugins are (re)loaded in the same JVM instance as IDE without restart
  - **Usable IDE API** — LivePlugin has a small API with entry points for common IDE APIs
 
 
-### Examples
+## Examples
 Hello world (Groovy):
 ```groovy
 import static liveplugin.PluginUtil.show
@@ -43,7 +43,7 @@ show("Loaded 'Insert New Line Above' action<br/>Use 'ctrl+alt+shift+Enter' to ru
 ```
 
 
-### How to get started
+## How to get started
 Make sure "hello world" works fine:
 - In the `Plugins` tool window select "hello-world" plugin and click "Run" button to execute the plugin (`Run Plugin`
   action with `ctrl+shift+L` or `alt+C, alt+E` shortcut). It should display a message.
@@ -89,13 +89,13 @@ or [report an issue](https://github.com/dkandalov/live-plugin/issues)
 (it's ok to report an issue even if it's just a question).
 
 
-### Some practical use cases
+## Some practical use cases
 - project-specific workflow automation
 - integrating shell scripts with IDE
 - prototyping plugins, experimenting with IntelliJ API
  
 
-### How does it actually work?
+## How does it actually work?
 Overall, the idea is just to load and run plugin Groovy or Kotlin classes in the IDE JVM at runtime.
 More specifically the steps are:
 - if there is an instance of `pluginDisposable` from previous execution, then dispose it (on EDT)
@@ -111,7 +111,7 @@ Most of IntelliJ-based IDEs come with a bundled Groovy jar which is used for loa
 the version bundled with IDEs changes quite often and seems to be harder to rely on.
 
 
-### More examples
+## More examples
  - [intellij-emacs](https://github.com/kenfox/intellij-emacs) - macros for making IntelliJ more friendly to emacs users (see also [blog post](http://spin.atomicobject.com/2014/08/07/intellij-emacs/))
  - [Simplistic "compile and run haskell" action](https://gist.github.com/dkandalov/11051113) - this can also be done for other languages/environments
  - [Google quick search popup](https://gist.github.com/dkandalov/277800d12ecbfc533fcd) - prototype of google popup search mini-plugin
@@ -150,7 +150,7 @@ the version bundled with IDEs changes quite often and seems to be harder to rely
  - [Refocus Pinned Find Window](https://gist.github.com/fc1943s/411540e9e29a1296650bcaa8f9a27eec) - Shortcut to refocus the 'Find in Path' dialog with the Pin option enabled after selecting a result entry
 
 
-### Similar plugins
+## Similar plugins
 The idea of running code inside IntelliJ is not original. 
 There are/were similar plugins:
  - [IDE Scripting Console](https://youtrack.jetbrains.com/issue/IDEA-138252) - experimental feature bundled since IntelliJ 14.1
@@ -161,5 +161,5 @@ There are/were similar plugins:
  - [HotPlugin](http://plugins.intellij.net/plugin?pr=idea&pluginId=1020) (out-of-date)
 
 
-### Contributing
+## Contributing
 Please see [CONTRIBUTING.md](https://github.com/dkandalov/live-plugin/blob/master/CONTRIBUTING.md).
