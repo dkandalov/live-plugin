@@ -56,6 +56,7 @@ fun registerAction(
 
 fun registerAction(
     id: String,
+    // TODO @ActionText text: String = id,
     keyboardShortcut: KeyboardShortcut? = null,
     actionGroupId: String? = null,
     disposable: Disposable,
@@ -115,15 +116,15 @@ private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     val parts = split(",").map { it.trim() }.filter { it.isNotEmpty() }
         .map {
             it.replace(".", "PERIOD")
-            replace("-", "MINUS")
-            replace("=", "EQUALS")
-            replace(";", "SEMICOLON")
-            replace("/", "SLASH")
-            replace("[", "OPEN_BRACKET")
-            replace("\\", "BACK_SLASH")
-            replace("]", "CLOSE_BRACKET")
-            replace("`", "BACK_QUOTE")
-            replace("'", "QUOTE")
+                .replace("-", "MINUS")
+                .replace("=", "EQUALS")
+                .replace(";", "SEMICOLON")
+                .replace("/", "SLASH")
+                .replace("[", "OPEN_BRACKET")
+                .replace("\\", "BACK_SLASH")
+                .replace("]", "CLOSE_BRACKET")
+                .replace("`", "BACK_QUOTE")
+                .replace("'", "QUOTE")
         }
     if (parts.isEmpty()) return null
 
