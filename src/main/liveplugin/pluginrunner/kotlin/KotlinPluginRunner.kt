@@ -29,8 +29,8 @@ import java.io.IOException
  *
  * Use separate classloader to compile liveplugin and then load compiler classes into IDE because
  *  - kotlin compiler uses classes with the same names as IntelliJ
- *  - `kotlin-compiler-embeddable` has some of the classes with duplicate names renamed but not all of them
- *  - kotlin compiler attempts to initialise some of the global variables which are already initialised by IDE
+ *  - `kotlin-compiler-embeddable` has some classes with duplicate names renamed but not all of them
+ *  - kotlin compiler attempts to initialise some global variables which are already initialised by IDE
  *  - in theory kotlin-compiler and IDE classes could be "namespaced" by classloader,
  *    however, in practice it still causes confusing problems which are really hard to debug
  *
