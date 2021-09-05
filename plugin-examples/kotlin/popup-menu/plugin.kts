@@ -14,9 +14,10 @@ registerAction(id = "Show Actions Popup", "ctrl alt shift P") { event ->
         AnAction("Show Current Project") { popupEvent ->
             // Note that "event" from the outer "Show Actions Popup" action cannot be used here
             // because AnActionEvent objects are not shareable between swing events.
-            // show("project: ${event.project}") // Will throw "cannot share data context between Swing events".
+            // The following line might throw "cannot share data context between Swing events"
+            // show("project: ${event.project}")
 
-            // Instead we should use "popupEvent" specific to the "Show current project" action.
+            // Instead, we should use "popupEvent" specific to the "Show current project" action.
             // (In order for "project" to be available in the "popupEvent", createPopup() is called with "event.dataContext" argument.)
             show("project: ${popupEvent.project}")
         },

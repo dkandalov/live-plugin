@@ -51,13 +51,13 @@ inline fun <T> withWriteLockOnEdt(crossinline f: () -> T): T =
 fun <T> runBackgroundTask(
     taskTitle: String = "",
     canBeCancelledInUI: Boolean = true,
-    f: (ProgressIndicator) -> T,
+    task: (ProgressIndicator) -> T,
 ): CompletableFuture<T> {
     val future = CompletableFuture<T>()
     val result = AtomicReference<T>()
     runLaterOnEdt {
         object: Task.Backgroundable(null, taskTitle, canBeCancelledInUI, ALWAYS_BACKGROUND) {
-            override fun run(indicator: ProgressIndicator) = result.set(f(indicator))
+            override fun run(indicator: ProgressIndicator) = result.set(task(indicator))
 
             // Invoked on EDT
             override fun onSuccess() {
