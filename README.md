@@ -89,12 +89,6 @@ or [report an issue](https://github.com/dkandalov/live-plugin/issues)
 (it's ok to report an issue even if it's just a question).
 
 
-## Some practical use cases
-- project-specific workflow automation
-- integrating shell scripts with IDE
-- prototyping plugins, experimenting with IntelliJ API
- 
-
 ## How does it actually work?
 Overall, the idea is just to load and run plugin Groovy or Kotlin classes in the IDE JVM at runtime.
 More specifically the steps are:
@@ -109,6 +103,12 @@ There are some limitations of course, such as `final` fields and IDE APIs which 
 Most of IntelliJ-based IDEs come with a bundled Groovy jar which is used for loading and running live plugins
 (otherwise, the groovy-all jar will be downloaded). LivePlugin uses its own version of Kotlin stdlib and compiler because
 the version bundled with IDEs changes quite often and seems to be harder to rely on.
+
+
+## Some practical use cases
+- project-specific workflow automation
+- integrating shell scripts with IDE
+- prototyping plugins, experimenting with IntelliJ API
 
 
 ## More examples
