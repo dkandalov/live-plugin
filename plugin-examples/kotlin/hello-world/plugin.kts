@@ -1,5 +1,5 @@
-import com.intellij.openapi.diagnostic.Logger
-import liveplugin.*
+import liveplugin.show
+import liveplugin.whenDisposed
 
 // To run a plugin press "Run plugin" button in the "Plugins" toolwindow ("alt+C, alt+E" or "ctrl/cmd+shift+L" shortcut).
 // This will run the plugin currently selected in the toolwindow or opened in editor.
