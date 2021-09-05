@@ -4,6 +4,9 @@ package liveplugin
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.InspectionProfileEntry
+import com.intellij.execution.ui.ConsoleView
+import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.ide.BrowserUtil
 import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationType.INFORMATION
@@ -12,15 +15,18 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
+import com.intellij.openapi.fileEditor.impl.HTMLEditorProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
+import liveplugin.implementation.Console
 import liveplugin.implementation.Editors
 import liveplugin.pluginrunner.kotlin.LivePluginScript
 import java.awt.Component
@@ -42,6 +48,13 @@ fun show(
     PluginUtil.show(message, title, notificationType, groupDisplayId, notificationListener)
 }
 
+fun Project.showInConsole(
+    message: Any?,
+    consoleTitle: String = "",
+    contentType: ConsoleViewContentType = Console.guessContentTypeOf(message)
+): ConsoleView =
+    Console.showInConsole(message, consoleTitle, this, contentType)
+
 fun executeCommand(document: Document, project: Project, description: String? = null, callback: (Document) -> Unit) {
     runOnEdtWithWriteLock {
         val command = { callback(document) }
@@ -55,6 +68,14 @@ fun LivePluginScript.registerIntention(intention: IntentionAction): IntentionAct
 fun LivePluginScript.registerInspection(inspection: InspectionProfileEntry) {
     PluginUtil.registerInspection(pluginDisposable, inspection)
 }
+
+fun openInBrowser(url: String) =
+    BrowserUtil.open(url)
+
+fun Project.openInIdeBrowser(url: String, title: String = "") =
+    HTMLEditorProvider.openEditor(this, title, url, null)
+
+val logger: Logger = Logger.getInstance("LivePlugin")
 
 val AnActionEvent.contextComponent: Component?
     get() = PlatformDataKeys.CONTEXT_COMPONENT.getData(this.dataContext)
