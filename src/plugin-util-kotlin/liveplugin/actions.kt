@@ -56,6 +56,16 @@ fun registerAction(
 
 fun registerAction(
     id: String,
+    keyStroke: String? = null,
+    actionGroupId: String? = null,
+    disposable: Disposable,
+    action: AnAction
+): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
+    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, disposable, action)
+}
+
+fun registerAction(
+    id: String,
     // TODO @ActionText text: String = id,
     keyboardShortcut: KeyboardShortcut? = null,
     actionGroupId: String? = null,
