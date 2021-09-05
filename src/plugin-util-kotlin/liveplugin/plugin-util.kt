@@ -26,6 +26,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
+import liveplugin.PluginUtil.openUrlInEditor
 import liveplugin.implementation.Console
 import liveplugin.implementation.Editors
 import liveplugin.pluginrunner.kotlin.LivePluginScript
@@ -74,6 +75,10 @@ fun openInBrowser(url: String) =
 
 fun Project.openInIdeBrowser(url: String, title: String = "") =
     HTMLEditorProvider.openEditor(this, title, url, null)
+
+fun Project.openInEditor(filePath: String) {
+    openUrlInEditor("file://${filePath}", this)
+}
 
 val logger: Logger = Logger.getInstance("LivePlugin")
 
