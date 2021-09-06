@@ -16,7 +16,7 @@ fun LivePluginScript.registerIdeToolWindow(
     anchor: ToolWindowAnchor = RIGHT
 ) {
     registerProjectOpenListener(pluginDisposable) { project ->
-        registerProjectToolWindow(toolWindowId, component, project, pluginDisposable, anchor)
+        project.registerToolWindow(toolWindowId, component, pluginDisposable, anchor)
     }
 }
 
@@ -24,23 +24,21 @@ fun LivePluginScript.registerProjectToolWindow(
     toolWindowId: String,
     component: JComponent,
     anchor: ToolWindowAnchor = RIGHT
-): ToolWindow? =
+): ToolWindow =
     if (project == null) {
-        show("Can't register toolwindow '$toolWindowId' because project is null")
-        null
+        error("Can't register toolwindow '$toolWindowId' because project is null")
     } else {
-        registerProjectToolWindow(toolWindowId, component, project!!, pluginDisposable, anchor)
+        project!!.registerToolWindow(toolWindowId, component, pluginDisposable, anchor)
     }
 
-fun registerProjectToolWindow(
+fun Project.registerToolWindow(
     toolWindowId: String,
     component: JComponent,
-    project: Project,
     disposable: Disposable,
     anchor: ToolWindowAnchor = RIGHT
-): ToolWindow = withWriteLockOnEdt {
-    val toolWindow = ToolWindowManager.getInstance(project)
+): ToolWindow = runOnEdtWithWriteLock {
+    val toolWindow = ToolWindowManager.getInstance(this)
         .registerToolWindow(RegisterToolWindowTask(toolWindowId, anchor, component))
-    newDisposable(whenDisposed = { toolWindow.remove() }).registerParent(disposable, project)
+    newDisposable(whenDisposed = { toolWindow.remove() }).registerParent(disposable, this)
     toolWindow
 }
