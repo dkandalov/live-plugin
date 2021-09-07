@@ -14,7 +14,7 @@ data class ExamplePlugin(val path: String, val pluginId: String, val filePaths: 
 object GroovyExamples {
     val helloWorld = ExamplePlugin(groovyExamplesPath, "hello-world", "plugin.groovy")
     val ideActions = ExamplePlugin(groovyExamplesPath, "ide-actions", "plugin.groovy")
-    val modifyDocument = ExamplePlugin(groovyExamplesPath, "modify-document", "plugin.groovy")
+    val modifyDocument = ExamplePlugin(groovyExamplesPath, "text-editor", "plugin.groovy")
     val popupMenu = ExamplePlugin(groovyExamplesPath, "popup-menu", "plugin.groovy")
 
     val all = listOf(
@@ -38,7 +38,7 @@ object KotlinExamples {
     val all = listOf(
         ExamplePlugin(kotlinExamplesPath, "hello-world", "plugin.kts"),
         ExamplePlugin(kotlinExamplesPath, "ide-actions", "plugin.kts"),
-        ExamplePlugin(kotlinExamplesPath, "modify-document", "plugin.kts"),
+        ExamplePlugin(kotlinExamplesPath, "text-editor", "plugin.kts"),
         ExamplePlugin(kotlinExamplesPath, "popup-menu", "plugin.kts"),
         ExamplePlugin(kotlinExamplesPath, "kotlin-intention", "plugin.kts"),
         ExamplePlugin(kotlinExamplesPath, "kotlin-inspection", "plugin.kts"),
