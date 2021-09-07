@@ -143,6 +143,36 @@ private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     return KeyboardShortcut(firstKeystroke, secondKeystroke)
 }
 
+object ActionGroupIds {
+    // Action groups in the IDE main menu
+    object Menu {
+        val File = "FileMenu"
+        val Edit = "EditMenu"
+        val View = "ViewMenu"
+        val Navigate = "GoToMenu"
+        val Code = "CodeMenu"
+        val Refactor = "RefactoringMenu"
+        val Build = "BuildMenu"
+        val Run = "RunMenu"
+        val Tools = "ToolsMenu"
+        val Vcs = "VcsGroups"
+        val Window = "WindowMenu"
+        val Help = "HelpMenu"
+    }
+
+    // Action groups in the toolbar (to enable check "Main Menu -> View -> Appearance -> Toolbar")
+    object Toolbar {
+        val Main = "MainToolBar"
+        val Run = "ToolbarRunGroup"
+        val Make = "ToolbarMakeGroup"
+        val Find = "ToolbarFindGroup"
+    }
+
+    val NewFileMenu = "NewGroup"
+    val EditorPopupMenu = "EditorPopupMenu"
+    val GeneratePopupMenu = "GenerateGroup"
+}
+
 /**
  * @see liveplugin.PluginUtil.assertNoNeedForEdtOrWriteActionWhenUsingActionManager
  */
