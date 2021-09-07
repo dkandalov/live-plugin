@@ -80,7 +80,7 @@ fun registerAction(
 
     val actionGroup =
         if (actionGroupId == null) null
-        else actionManager.getAction(actionGroupId) as? DefaultActionGroup
+        else (actionManager.getAction(actionGroupId) as? DefaultActionGroup) ?: error("Action group id is not found: '$actionGroupId'")
 
     if (keyboardShortcut != null) keymapManager.activeKeymap.addShortcut(id, keyboardShortcut)
     actionManager.registerAction(id, action)
