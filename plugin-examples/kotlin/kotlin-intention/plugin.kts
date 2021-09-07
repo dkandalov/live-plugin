@@ -7,6 +7,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
+import liveplugin.registerIntention
 import liveplugin.runLaterOnEdt
 import liveplugin.show
 import org.jetbrains.kotlin.lexer.KtTokens
