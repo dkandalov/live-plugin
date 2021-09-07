@@ -51,10 +51,11 @@
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 			<keyboard-shortcut keymap="$default" first-keystroke="control shift l"/>
 		</action>
-		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.RunPluginTestsAction" text="Test Current Plugin">
+		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.RunPluginTestsAction" text="Run Plugin Tests">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
-		<action id="LivePlugin.CreatePluginZip" class="liveplugin.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>
+        <action id="LivePlugin.UnloadPlugin" class="liveplugin.pluginrunner.UnloadPluginAction" text="Unload Current Plugin"/>
+        <action id="LivePlugin.CreatePluginZip" class="liveplugin.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>
 		<action id="LivePlugin.SharePluginAsGistAction" class="liveplugin.toolwindow.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
 
 		<group id="LivePlugin.Popup">
@@ -76,6 +77,7 @@
             </group>
 			<separator/>
             <action id="LivePlugin.RunPluginAction" class="liveplugin.pluginrunner.RunPluginAction" text="Run Plugin"/>
+            <action id="LivePlugin.UnloadPlugin" class="liveplugin.pluginrunner.UnloadPluginAction" text="Unload Plugin"/>
             <action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.popup.RenameFileAction" text="Rename" use-shortcut-of="RenameElement"/>
 			<action id="LivePlugin.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction" text="Delete"/>
 		</group>
