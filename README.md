@@ -29,7 +29,7 @@ import liveplugin.*
 // Action to insert new line above the current line.
 // Based on this post https://martinfowler.com/bliki/InternalReprogrammability.html
 // Note that there is also built-in "Start New Line Before Current" action (ctrl+alt+enter).
-registerAction(id = "Insert New Line Above", keyStroke = "ctrl alt shift ENTER") { event: AnActionEvent ->
+registerAction(id = "Insert New Line Above", keyStroke = "ctrl alt shift ENTER") { event ->
     val project = event.project ?: return@registerAction
     val editor = event.editor ?: return@registerAction
     executeCommand(editor.document, project) { document ->
