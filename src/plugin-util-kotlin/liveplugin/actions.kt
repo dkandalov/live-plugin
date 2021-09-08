@@ -143,6 +143,7 @@ private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     return KeyboardShortcut(firstKeystroke, secondKeystroke)
 }
 
+@Suppress("unused")
 object ActionGroupIds {
     // Action groups in the IDE main menu
     object Menu {

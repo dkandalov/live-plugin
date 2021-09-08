@@ -35,7 +35,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     override fun update(event: AnActionEvent) {
         event.presentation.isEnabled = event.selectedFilePaths().canBeHandledBy(pluginRunners)
         val hasPluginsToUnload = event.hasPluginsToUnload()
-        event.presentation.text = if (hasPluginsToUnload) "Unload and Run Plugin" else "Run Plugin"
+        event.presentation.text = if (hasPluginsToUnload) "Rerun Plugin" else "Run Plugin"
         event.presentation.icon = if (hasPluginsToUnload) Icons.rerunPluginIcon else Icons.runPluginIcon
     }
 
