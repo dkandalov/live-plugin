@@ -57,31 +57,7 @@
         <action id="LivePlugin.UnloadPlugin" class="liveplugin.pluginrunner.UnloadPluginAction" text="Unload Current Plugin"/>
         <action id="LivePlugin.CreatePluginZip" class="liveplugin.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>
 		<action id="LivePlugin.SharePluginAsGistAction" class="liveplugin.toolwindow.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
-
-		<group id="LivePlugin.Popup">
-            <group id="LivePlugin.NewElementPopup" text="New" popup="true">
-                <action id="LivePlugin.NewGroovyFileAction" class="liveplugin.toolwindow.popup.NewGroovyFileAction"/>
-                <action id="LivePlugin.NewKotlinFileAction" class="liveplugin.toolwindow.popup.NewKotlinFileAction"/>
-                <action id="LivePlugin.NewTextFileAction" class="liveplugin.toolwindow.popup.NewTextFileAction"/>
-                <action id="LivePlugin.NewDirectoryAction" class="liveplugin.toolwindow.popup.NewDirectoryAction"/>
-                <action id="LivePlugin.NewGroovyMainScript" class="liveplugin.toolwindow.popup.NewGroovyMainScript"/>
-                <action id="LivePlugin.NewGroovyTestScript" class="liveplugin.toolwindow.popup.NewGroovyTestScript"/>
-                <action id="LivePlugin.NewPluginXmlScript" class="liveplugin.toolwindow.popup.NewPluginXmlScript"/>
-                <separator/>
-                <action id="LivePlugin.AddNewGroovyPluginAction" class="liveplugin.toolwindow.addplugin.AddNewGroovyPluginAction"/>
-                <action id="LivePlugin.AddNewKotlinPluginAction" class="liveplugin.toolwindow.addplugin.AddNewKotlinPluginAction"/>
-                <action id="LivePlugin.AddPluginFromGistAction" class="liveplugin.toolwindow.addplugin.AddPluginFromGistDelegateAction"/>
-                <action id="LivePlugin.AddPluginFromGitHubAction" class="liveplugin.toolwindow.addplugin.AddPluginFromGitHubDelegateAction"/>
-                <action id="LivePlugin.AddGroovyExamplesActionGroup" class="liveplugin.toolwindow.addplugin.AddGroovyExamplesActionGroup"/>
-                <action id="LivePlugin.AddKotlinExamplesActionGroup" class="liveplugin.toolwindow.addplugin.AddKotlinExamplesActionGroup"/>
-            </group>
-			<separator/>
-            <action id="LivePlugin.RunPluginAction" class="liveplugin.pluginrunner.RunPluginAction" text="Run Plugin"/>
-            <action id="LivePlugin.UnloadPlugin" class="liveplugin.pluginrunner.UnloadPluginAction" text="Unload Plugin"/>
-            <action id="LivePlugin.RenameFileAction" class="liveplugin.toolwindow.popup.RenameFileAction" text="Rename" use-shortcut-of="RenameElement"/>
-			<action id="LivePlugin.FileDeleteAction" class="com.intellij.openapi.fileChooser.actions.FileDeleteAction" text="Delete"/>
-		</group>
-	</actions>
+    </actions>
 
     <applicationListeners>
         <listener class="liveplugin.LivePluginAppListener" topic="com.intellij.ide.AppLifecycleListener"/>

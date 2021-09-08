@@ -3,11 +3,12 @@ package liveplugin.toolwindow
 import com.intellij.ide.DefaultTreeExpander
 import com.intellij.ide.DeleteProvider
 import com.intellij.ide.actions.CollapseAllAction
-import com.intellij.ide.ui.customization.CustomizationUtil
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.impl.PopupMenuPreloader
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileSystemTree
+import com.intellij.openapi.fileChooser.actions.FileDeleteAction
 import com.intellij.openapi.fileChooser.actions.VirtualFileDeleteProvider
 import com.intellij.openapi.fileChooser.ex.FileChooserKeys
 import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor
@@ -23,6 +24,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.ui.PopupHandler
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
@@ -43,12 +45,13 @@ import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
 import liveplugin.pluginrunner.UnloadPluginAction
 import liveplugin.toolwindow.addplugin.*
-import liveplugin.toolwindow.popup.NewElementPopupAction
+import liveplugin.toolwindow.popup.*
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.toolwindow.settingsmenu.RunPluginsOnIDEStartAction
 import liveplugin.toolwindow.settingsmenu.RunProjectSpecificPluginsAction
 import org.jetbrains.annotations.NonNls
 import java.awt.GridLayout
+import java.awt.event.MouseListener
 import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -137,10 +140,9 @@ class PluginToolWindow(project: Project) {
             it.add(AddLivePluginAndIdeJarsAsDependencies())
         }
 
-
     private class MySimpleToolWindowPanel(vertical: Boolean, private val fileSystemTree: FileSystemTree): SimpleToolWindowPanel(vertical) {
         /**
-         * Provides context for actions in plugin tree popup popup menu.
+         * Provides context for actions in plugin tree popup menu.
          * Without it the actions will be disabled or won't work.
          *
          * Implicitly used by
@@ -200,7 +202,39 @@ class PluginToolWindow(project: Project) {
 
             val action = NewElementPopupAction()
             action.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), this)
-            CustomizationUtil.installPopupHandler(this, "LivePlugin.Popup", ActionPlaces.UNKNOWN)
+            val popupActionGroup = DefaultActionGroup(
+                DefaultActionGroup(
+                    { "New" },
+                    listOf(
+                        NewGroovyFileAction(),
+                        NewKotlinFileAction(),
+                        NewTextFileAction(),
+                        NewDirectoryAction(),
+                        NewGroovyMainScript(),
+                        NewGroovyTestScript(),
+                        NewPluginXmlScript(),
+                        Separator.getInstance(),
+                        AddNewGroovyPluginAction(),
+                        AddNewKotlinPluginAction(),
+                        AddPluginFromGistDelegateAction(),
+                        AddPluginFromGitHubDelegateAction(),
+                        AddGroovyExamplesActionGroup(),
+                        AddKotlinExamplesActionGroup(),
+                    )
+                ).also { it.isPopup = true },
+                RunPluginAction(),
+                UnloadPluginAction(),
+                RenameFileAction(),
+                FileDeleteAction()
+            ).also { it.isPopup = true }
+            installPopupHandler(this, popupActionGroup)
+        }
+
+        private fun installPopupHandler(component: JComponent, actionGroup: ActionGroup): MouseListener {
+            val place = ActionPlaces.UNKNOWN
+            val popupHandler = PopupHandler.installPopupMenu(component, actionGroup, place)
+            PopupMenuPreloader.install(component, place, popupHandler) { actionGroup }
+            return popupHandler
         }
 
         private class MyTree(private val project: Project): Tree(), DataProvider {
