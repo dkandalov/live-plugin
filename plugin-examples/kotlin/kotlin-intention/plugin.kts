@@ -24,9 +24,7 @@ inner class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAct
         element.isInKotlinFile() && element.findKtNamedFunction()?.name?.contains(' ') == false
 
     override fun invoke(project: Project, editor: Editor?, element: PsiElement) {
-        runLaterOnEdt {
-            doRenameRefactoring(element, project, editor, ::camelCaseToSpaces)
-        }
+        doRenameRefactoring(element, project, editor, ::camelCaseToSpaces)
     }
 
     private fun camelCaseToSpaces(name: String): String {
@@ -46,9 +44,7 @@ inner class RenameKotlinFunctionToUseCamelCaseIntention: PsiElementBaseIntention
         element.isInKotlinFile() && element.findKtNamedFunction()?.name?.contains(' ') == true
 
     override fun invoke(project: Project, editor: Editor?, element: PsiElement) {
-        runLaterOnEdt {
-            doRenameRefactoring(element, project, editor, this::spacesToCamelCase)
-        }
+        doRenameRefactoring(element, project, editor, this::spacesToCamelCase)
     }
 
     private fun spacesToCamelCase(name: String): String {
@@ -69,12 +65,13 @@ fun doRenameRefactoring(element: PsiElement, project: Project, editor: Editor?, 
     val newName = rename(function.name!!)
 
     val processor = RenamePsiElementProcessor.forElement(element)
-    processor.createRenameDialog(project, function as PsiElement, function as PsiElement, editor).let {
+    val renameDialog = processor.createRenameDialog(project, function as PsiElement, function as PsiElement, editor)
+    renameDialog.setPreviewResults(false)
+    runLaterOnEdt {
         try {
-            it.setPreviewResults(false)
-            it.performRename(newName)
+            renameDialog.performRename(newName)
         } finally {
-            it.close(DialogWrapper.CANCEL_EXIT_CODE) // to avoid dialog leak
+            renameDialog.close(DialogWrapper.CANCEL_EXIT_CODE) // to avoid dialog leak
         }
     }
 }
