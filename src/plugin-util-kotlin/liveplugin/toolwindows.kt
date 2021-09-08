@@ -10,13 +10,17 @@ import com.intellij.openapi.wm.ToolWindowManager
 import liveplugin.pluginrunner.kotlin.LivePluginScript
 import javax.swing.JComponent
 
+/**
+ * Registers tool windows with [toolWindowId] in all IDE frames.
+ * Each tool window will have content created by [createComponent] function.
+ */
 fun LivePluginScript.registerIdeToolWindow(
     toolWindowId: String,
-    component: JComponent,
-    anchor: ToolWindowAnchor = RIGHT
+    anchor: ToolWindowAnchor = RIGHT,
+    createComponent: (Project) -> JComponent
 ) {
     registerProjectOpenListener(pluginDisposable) { project ->
-        project.registerToolWindow(toolWindowId, component, pluginDisposable, anchor)
+        project.registerToolWindow(toolWindowId, createComponent(project), pluginDisposable, anchor)
     }
 }
 
@@ -26,11 +30,14 @@ fun LivePluginScript.registerProjectToolWindow(
     anchor: ToolWindowAnchor = RIGHT
 ): ToolWindow =
     if (project == null) {
-        error("Can't register toolwindow '$toolWindowId' because project is null")
+        error("Can't register tool window '$toolWindowId' because project is null")
     } else {
         project!!.registerToolWindow(toolWindowId, component, pluginDisposable, anchor)
     }
 
+/**
+ * Registers tool window with [toolWindowId] and content specified by [component] in the project.
+ */
 fun Project.registerToolWindow(
     toolWindowId: String,
     component: JComponent,
