@@ -138,14 +138,16 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
         pluginId = pluginDescriptor.getPluginId();
         this.packagePrefix = (packagePrefix == null || packagePrefix.endsWith(".")) ? packagePrefix : (packagePrefix + '.');
         this.coreLoader = coreLoader;
-        if (PluginClassLoader_Fork.class.desiredAssertionStatus()) {
-            for (ClassLoader parent : this.parents) {
-                if (parent == coreLoader) {
-                    Logger.getInstance(PluginClassLoader_Fork.class).error("Core loader must be not specified in parents " +
-                        "(parents=" + Arrays.toString(parents) + ", coreLoader=" + coreLoader + ")");
-                }
-            }
-        }
+
+        // Commented out because this error is thrown for plugins with: depends-on-plugin org.jetbrains.kotlin
+//        if (PluginClassLoader_Fork.class.desiredAssertionStatus()) {
+//            for (ClassLoader parent : this.parents) {
+//                if (parent == coreLoader) {
+//                    Logger.getInstance(PluginClassLoader_Fork.class).error("Core loader must be not specified in parents " +
+//                        "(parents=" + Arrays.toString(parents) + ", coreLoader=" + coreLoader + ")");
+//                }
+//            }
+//        }
 
         libDirectories = new SmartList<>();
         if (pluginRoot != null) {
