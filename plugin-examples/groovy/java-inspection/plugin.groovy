@@ -28,7 +28,7 @@ class HelloWorldInspection extends AbstractBaseJavaLocalInspectionTool {
 	}
 	@Override String getDisplayName() { 'Replace "hello" with "Hello world"' }
 	@Override String getShortName() { "HelloWorldInspection" }
-	@Override String getGroupDisplayName() { "Live Plugin" }
+	@Override String getGroupDisplayName() { "Live plugin" }
 	@Override boolean isEnabledByDefault() { true }
 }
 

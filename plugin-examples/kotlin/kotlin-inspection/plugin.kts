@@ -25,7 +25,7 @@ class HelloWorldInspectionKotlin : AbstractKotlinInspection() {
     }
     override fun getDisplayName() = "Replace \"hello\" with \"Hello world\" in Kotlin"
     override fun getShortName() = "HelloWorldInspectionKotlin"
-    override fun getGroupDisplayName() = "Live Plugin"
+    override fun getGroupDisplayName() = "Live plugin"
     override fun isEnabledByDefault() = true
 }
 
