@@ -2,14 +2,13 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.ui.Messages
-import liveplugin.PluginUtil.*
 import liveplugin.*
 
-registerAction(id = "Show Actions Popup", "ctrl alt shift P") { event ->
+registerAction(id = "Show Actions Popup", keyStroke = "ctrl alt shift P") { event: AnActionEvent ->
     val actionGroup = PopupActionGroup("Some Actions",
         AnAction("Execute Shell Command") {
             val command = Messages.showInputDialog("Enter a command (e.g. 'ls'):", "Dialog Title", null)
-            if (command != null) show(execute(command).toString().replace("\n", "<br/>"))
+            if (command != null) show(runShellCommand(command).toString().replace("\n", "<br/>"))
         },
         AnAction("Show Current Project") { popupEvent ->
             // Note that "event" from the outer "Show Actions Popup" action cannot be used here
@@ -24,7 +23,7 @@ registerAction(id = "Show Actions Popup", "ctrl alt shift P") { event ->
         HelloAction(),
         Separator.getInstance(),
         AnAction("Edit Popup...") {
-            openInEditor("$pluginPath/plugin.kts")
+            it.project?.openInEditor("$pluginPath/plugin.kts")
         },
         PopupActionGroup("Documentation",
             AnAction("IntelliJ API Mini-Cheatsheet") {

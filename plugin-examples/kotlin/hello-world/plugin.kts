@@ -1,3 +1,4 @@
+import com.intellij.openapi.diagnostic.Logger
 import liveplugin.show
 import liveplugin.whenDisposed
 
