@@ -28,6 +28,10 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
+            <li>don't run project specific plugin if the project is not trusted</li>
+            <li>improved liveplugin Kotlin API</li>
+            <li>updated examples so that they work ok in the latest IntelliJ</li>
+            <li>fixed usages of deprecated IntelliJ API</li>
         </ul></body></html>
         ]]>
     </change-notes>
