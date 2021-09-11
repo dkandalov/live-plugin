@@ -56,10 +56,10 @@ fun Project.showInConsole(
 ): ConsoleView =
     Console.showInConsole(message, consoleTitle, this, contentType)
 
-fun executeCommand(document: Document, project: Project, description: String? = null, callback: (Document) -> Unit) {
+fun Document.executeCommand(project: Project, description: String? = null, callback: Document.() -> Unit) {
     runOnEdtWithWriteLock {
-        val command = { callback(document) }
-        CommandProcessor.getInstance().executeCommand(project, command, description, null, UndoConfirmationPolicy.DEFAULT, document)
+        val command = { callback(this) }
+        CommandProcessor.getInstance().executeCommand(project, command, description, null, UndoConfirmationPolicy.DEFAULT, this)
     }
 }
 

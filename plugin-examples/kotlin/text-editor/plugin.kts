@@ -10,8 +10,8 @@ registerAction(id = "Insert Hello World", keyStroke = "ctrl shift W") { event: A
     val editor = event.editor ?: return@registerAction // Can be null if focus is not in the editor or no editors are open.
 
     // Document modifications must be done inside "commands" which will support undo/redo functionality.
-    executeCommand(editor.document, project, description = "Insert Hello World") { document ->
-        document.insertString(editor.caretModel.offset, "/* Hello world */")
+    editor.document.executeCommand(project, description = "Insert Hello World") {
+        insertString(editor.caretModel.offset, "/* Hello world */")
     }
 
     // This is related to the topic of threading rules:
