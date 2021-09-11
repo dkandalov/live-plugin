@@ -214,7 +214,8 @@ def "Move GDSL file into standardDsls folder"() {
 		def resourcesFolder = project.tasks.findByName(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).destinationDir
 		ant.move(
 			file: resourcesFolder.absolutePath + "/liveplugin/livePluginCompletions.gdsl",
-			tofile: "build/idea-sandbox/plugins/LivePlugin/lib/standardDsls/livePluginCompletions.gdsl"
+			tofile: "build/idea-sandbox/plugins/LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
+			quiet: true
 		)
 	}
 }

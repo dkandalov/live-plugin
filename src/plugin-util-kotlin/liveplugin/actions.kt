@@ -2,8 +2,11 @@ package liveplugin
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid
+import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
 import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.util.NlsActions.ActionText
 import com.intellij.openapi.wm.WindowManager
@@ -70,7 +73,6 @@ fun registerAction(
 
 fun registerAction(
     id: String,
-    // TODO @ActionText text: String = id,
     keyboardShortcut: KeyboardShortcut? = null,
     actionGroupId: String? = null,
     positionInGroup: Constraints = Constraints.LAST,
@@ -110,8 +112,8 @@ fun PopupActionGroup(@ActionText name: String, vararg actions: AnAction) =
 
 fun ActionGroup.createPopup(
     dataContext: DataContext? = null,
-    selectionAidMethod: JBPopupFactory.ActionSelectionAid = JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-    showNumbers: Boolean = selectionAidMethod == JBPopupFactory.ActionSelectionAid.NUMBERING || selectionAidMethod == JBPopupFactory.ActionSelectionAid.ALPHA_NUMBERING,
+    selectionAidMethod: ActionSelectionAid = SPEEDSEARCH,
+    showNumbers: Boolean = selectionAidMethod == NUMBERING || selectionAidMethod == ALPHA_NUMBERING,
     showDisabledActions: Boolean = false,
     isPreselected: (AnAction) -> Boolean = { false }
 ): ListPopup =
@@ -121,14 +123,14 @@ fun ActionGroup.createPopup(
         dataContext ?: defaultDataContext(), // Use deafult context so that IJ doesn't throw an exception.
         showNumbers,
         showDisabledActions,
-        selectionAidMethod == JBPopupFactory.ActionSelectionAid.MNEMONICS,
+        selectionAidMethod == MNEMONICS,
         null,
         -1,
         isPreselected
     )
 
-private fun defaultDataContext(): MapDataContext =
-    MapDataContext(mapOf(PlatformDataKeys.CONTEXT_COMPONENT.name to WindowManager.getInstance().findVisibleFrame()))
+private fun defaultDataContext() =
+    MapDataContext(mapOf(CONTEXT_COMPONENT.name to WindowManager.getInstance().findVisibleFrame()))
 
 private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     val parts = split(",").map { it.trim() }.filter { it.isNotEmpty() }
