@@ -11,6 +11,7 @@ import com.intellij.execution.ui.RunContentManager
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.impl.AsyncDataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.runWriteAction
@@ -199,7 +200,7 @@ object IdeUtil {
     }
 }
 
-class MapDataContext(val map: Map<String, Any?>) : DataContext {
+class MapDataContext(val map: Map<String, Any?>) : DataContext, AsyncDataContext {
     override fun getData(dataId: String) = map[dataId]
 }
 
