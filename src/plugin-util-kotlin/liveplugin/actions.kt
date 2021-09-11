@@ -21,7 +21,7 @@ import javax.swing.KeyStroke
  * e.g. ENTER, ESCAPE, SPACE, LEFT, UP, F1, F12. For details, see [javax.swing.KeyStroke.getKeyStroke] javadoc.
  *
  * You can also specify [actionGroupId] to add actions to existing menus,
- * e.g. "ToolsMenu" corresponds to `Main menu - Tools`.
+ * e.g. "ToolsMenu" corresponds to `Main menu - Tools`. See [ActionGroupIds] for common group ids.
  *
  * Note that the action is registered with the `pluginDisposable` and will be automatically unregistered
  * when the plugin is unloaded or evaluated again. See https://plugins.jetbrains.com/docs/intellij/disposers.html.
@@ -30,38 +30,42 @@ fun LivePluginScript.registerAction(
     id: String,
     keyStroke: String? = null,
     actionGroupId: String? = null,
+    positionInGroup: Constraints = Constraints.LAST,
     function: (AnActionEvent) -> Unit
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
-    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, pluginDisposable, AnAction(id, function))
+    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, positionInGroup, pluginDisposable, AnAction(id, function))
 }
 
 fun LivePluginScript.registerAction(
     id: String,
     keyStroke: String? = null,
     actionGroupId: String? = null,
+    positionInGroup: Constraints = Constraints.LAST,
     action: AnAction
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
-    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, pluginDisposable, action)
+    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, positionInGroup, pluginDisposable, action)
 }
 
 fun registerAction(
     id: String,
     keyStroke: String? = null,
     actionGroupId: String? = null,
+    positionInGroup: Constraints = Constraints.LAST,
     disposable: Disposable,
     function: (AnActionEvent) -> Unit
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
-    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, disposable, AnAction(id, function))
+    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, positionInGroup, disposable, AnAction(id, function))
 }
 
 fun registerAction(
     id: String,
     keyStroke: String? = null,
     actionGroupId: String? = null,
+    positionInGroup: Constraints = Constraints.LAST,
     disposable: Disposable,
     action: AnAction
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
-    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, disposable, action)
+    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, positionInGroup, disposable, action)
 }
 
 fun registerAction(
@@ -69,6 +73,7 @@ fun registerAction(
     // TODO @ActionText text: String = id,
     keyboardShortcut: KeyboardShortcut? = null,
     actionGroupId: String? = null,
+    positionInGroup: Constraints = Constraints.LAST,
     disposable: Disposable,
     action: AnAction
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
@@ -84,7 +89,7 @@ fun registerAction(
 
     if (keyboardShortcut != null) keymapManager.activeKeymap.addShortcut(id, keyboardShortcut)
     actionManager.registerAction(id, action)
-    actionGroup?.add(action)
+    actionGroup?.add(action, positionInGroup, actionManager)
 
     disposable.whenDisposed {
         actionGroup?.remove(action)
