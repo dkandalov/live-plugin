@@ -43,7 +43,7 @@ show("Loaded 'Insert New Line Above' action<br/>Use 'ctrl+alt+shift+Enter' to ru
 ```
 
 
-## How to get started
+## Getting started
 Make sure "hello world" works fine:
 - In the `Plugins` tool window select "hello-world" plugin and click "Run" button to execute the plugin (`Run Plugin`
   action with `ctrl+shift+L` or `alt+C, alt+E` shortcut). It should display a message.
@@ -89,7 +89,7 @@ or [report an issue](https://github.com/dkandalov/live-plugin/issues)
 (it's ok to report an issue even if it's just a question).
 
 
-## How does it actually work?
+## How does LivePlugin work?
 Overall, the idea is just to load and run plugin Groovy or Kotlin classes in the IDE JVM at runtime.
 More specifically the steps are:
 - if there is an instance of `pluginDisposable` from previous execution, then dispose it (on EDT)
