@@ -6,8 +6,8 @@ import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.util.NlsActions.ActionText
+import com.intellij.openapi.wm.WindowManager
 import liveplugin.pluginrunner.kotlin.LivePluginScript
-import javax.swing.JPanel
 import javax.swing.KeyStroke
 
 /**
@@ -118,7 +118,7 @@ fun ActionGroup.createPopup(
     JBPopupFactory.getInstance().createActionGroupPopup(
         templatePresentation.text,
         this,
-        dataContext ?: MapDataContext(mapOf(PlatformDataKeys.CONTEXT_COMPONENT.name to JPanel())), // prevent createActionGroupPopup() from crashing without context component
+        dataContext ?: defaultDataContext(), // Use deafult context so that IJ doesn't throw an exception.
         showNumbers,
         showDisabledActions,
         selectionAidMethod == JBPopupFactory.ActionSelectionAid.MNEMONICS,
@@ -126,6 +126,9 @@ fun ActionGroup.createPopup(
         -1,
         isPreselected
     )
+
+private fun defaultDataContext(): MapDataContext =
+    MapDataContext(mapOf(PlatformDataKeys.CONTEXT_COMPONENT.name to WindowManager.getInstance().findVisibleFrame()))
 
 private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     val parts = split(",").map { it.trim() }.filter { it.isNotEmpty() }

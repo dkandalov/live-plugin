@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Condition
+import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.codeStyle.NameUtil
 import com.intellij.ui.ColoredListCellRenderer
 import com.intellij.util.Processor
@@ -27,8 +28,8 @@ class Popups {
 	                     ActionSelectionAid selectionAidMethod = SPEEDSEARCH, Closure isPreselected = {false}) {
 		def contextComponent = dataContext?.getData(PlatformDataKeys.CONTEXT_COMPONENT.name) as Component
 		if (contextComponent == null) {
-			// this is to prevent createActionGroupPopup() from crashing without context component
-			def dummyComponent = new JPanel()
+			// Create context so that IJ doesn't throw an exception.
+			def dummyComponent = WindowManager.getInstance().findVisibleFrame()
 			dataContext = new MapDataContext().put(PlatformDataKeys.CONTEXT_COMPONENT.name, dummyComponent)
 		}
 
