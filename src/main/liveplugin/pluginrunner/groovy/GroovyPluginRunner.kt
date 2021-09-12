@@ -2,7 +2,6 @@ package liveplugin.pluginrunner.groovy
 
 import groovy.util.GroovyScriptEngine
 import liveplugin.*
-import liveplugin.Result.Success
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError

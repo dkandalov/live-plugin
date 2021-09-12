@@ -5,7 +5,7 @@ import com.intellij.openapi.application.ApplicationManager
 import liveplugin.pluginrunner.Binding
 
 class PackagedKotlinPluginRunner: AppLifecycleListener {
-    override fun appFrameCreated(commandLineArgs: MutableList<String>) {
+    override fun appFrameCreated(commandLineArgs: List<String>) {
         val binding = Binding(
             project = null,
             isIdeStartup = true,
