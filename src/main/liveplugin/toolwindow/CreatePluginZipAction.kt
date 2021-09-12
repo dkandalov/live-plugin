@@ -54,8 +54,8 @@ class CreatePluginZipAction: AnAction(
         val zipFile = (plugin.path + "${plugin.id}.zip").toFile()
 
         if (!pluginXml.exists()) project.createPluginXml(plugin, pluginXml)
-        if (pluginJarFile.exists()) {
-            val message = "File ${pluginJarFile.name} already exists. Do you want to continue and overwrite it?"
+        if (zipFile.exists()) {
+            val message = "File ${zipFile.name} already exists. Do you want to overwrite it?"
             if (showOkCancelDialog(project, message, "Package Plugin", "Ok", "Cancel", null) == CANCEL) return
         }
 
@@ -106,7 +106,7 @@ class CreatePluginZipAction: AnAction(
                 livePluginTrimmedJar.toFile().delete()
                 pluginJarFile.delete()
 
-                val message = "You can now upload it to <a href=\"https://plugins.jetbrains.com\">Plugins Marketplace</a> " +
+                val message = "You can upload it to <a href=\"https://plugins.jetbrains.com\">Plugins Marketplace</a> " +
                     "or share as a file and install with <b>Install Plugin from Disk</b> action."
                 livePluginNotificationGroup.createNotification("Packaged plugin into ${zipFile.name}", message, INFORMATION)
                     .setListener { _, event -> browse(event.url) }
