@@ -11,8 +11,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages.CANCEL
-import com.intellij.openapi.ui.Messages.showOkCancelDialog
 import com.intellij.util.io.Compressor
 import com.intellij.util.io.zip.JBZipFile
 import liveplugin.FilePath
@@ -54,10 +52,6 @@ class CreatePluginZipAction: AnAction(
         val zipFile = (plugin.path + "${plugin.id}.zip").toFile()
 
         if (!pluginXml.exists()) project.createPluginXml(plugin, pluginXml)
-        if (zipFile.exists()) {
-            val message = "File ${zipFile.name} already exists. Do you want to overwrite it?"
-            if (showOkCancelDialog(project, message, "Package Plugin", "Ok", "Cancel", null) == CANCEL) return
-        }
 
         ProgressManager.getInstance().run(object: Task.Backgroundable(project, "Packaging ${plugin.id}", false, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
