@@ -12,10 +12,10 @@ import liveplugin.MapDataContext
 import liveplugin.toFilePath
 
 class SharePluginAsGistAction: AnAction("Share as Gist", "Share as plugin files as ag Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
-    // Lookup action at runtime because org.jetbrains.plugins.github.GithubCreateGistAction.GithubCreateGistAction() is protected.
-    private val delegate = ActionManager.getInstance().getAction("Github.Create.Gist")
 
     override fun actionPerformed(event: AnActionEvent) {
+        // Lookup action at runtime because org.jetbrains.plugins.github.GithubCreateGistAction.GithubCreateGistAction() is protected.
+        val delegate = ActionManager.getInstance().getAction("Github.Create.Gist")
         val files = VIRTUAL_FILE_ARRAY.getData(event.dataContext) ?: return
         val project = event.project
         files.mapNotNullTo(HashSet()) { it.pluginFolder() }
