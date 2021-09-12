@@ -126,7 +126,11 @@ class PluginToolWindow(project: Project) {
             // this is a "hack" to force drop-down box appear below button
             // (see com.intellij.openapi.actionSystem.ActionPlaces#isToolbarPlace implementation for details)
             val place = ActionPlaces.EDITOR_TOOLBAR
-            it.add(ActionManager.getInstance().createActionToolbar(place, actionGroup, true).component)
+            val toolbar = ActionManager.getInstance().createActionToolbar(place, actionGroup, true)
+            // Set target component to avoid this error:
+            // 'EditorToolbar' toolbar by default uses any focused component to update its actions. Toolbar actions that need local UI context would be incorrectly disabled. Please call toolbar.setTargetComponent() explicitly. java.lang.Throwable: toolbar creation trace
+            toolbar.setTargetComponent(it)
+            it.add(toolbar.component)
         }
     }
 
