@@ -14,10 +14,8 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.impl.AsyncDataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.fileTypes.PlainTextFileType
@@ -61,10 +59,6 @@ object IdeUtil {
 
     fun showErrorDialog(project: Project?, message: String, title: String) {
         Messages.showMessageDialog(project, message, title, Messages.getErrorIcon())
-    }
-
-    fun saveAllFiles() {
-        runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
     }
 
     fun invokeLaterOnEDT(f: () -> Any) {
