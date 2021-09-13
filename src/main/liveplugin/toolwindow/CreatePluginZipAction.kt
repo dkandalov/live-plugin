@@ -5,6 +5,8 @@ import com.intellij.notification.NotificationListener
 import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.runWriteAction
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
@@ -52,6 +54,7 @@ class CreatePluginZipAction: AnAction(
         val zipFile = (plugin.path + "${plugin.id}.zip").toFile()
 
         if (!pluginXml.exists()) project.createPluginXml(plugin, pluginXml)
+        runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
 
         ProgressManager.getInstance().run(object: Task.Backgroundable(project, "Packaging ${plugin.id}", false, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
