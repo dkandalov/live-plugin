@@ -1,5 +1,6 @@
 package liveplugin.pluginrunner.groovy
 
+import com.intellij.openapi.project.Project
 import groovy.util.GroovyScriptEngine
 import liveplugin.*
 import liveplugin.pluginrunner.*
@@ -24,7 +25,7 @@ class GroovyPluginRunner(
         val scriptUrl: String
     ) : ExecutablePlugin
 
-    override fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError> {
+    override fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, AnError> {
         try {
             val mainScript = plugin.path.find(scriptName)
                 ?: return LoadingError(message = "Startup script $scriptName was not found.").asFailure()
@@ -34,7 +35,7 @@ class GroovyPluginRunner(
                 .onEach { if (!it.isEnabled) return LoadingError("Dependent plugin '${it.pluginId}' is disabled").asFailure() }
                 .withTransitiveDependencies()
 
-            val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
+            val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value) + Pair("PROJECT_PATH", project?.basePath ?: "PROJECT_PATH")
             val additionalClasspath = findClasspathAdditions(mainScript.readLines(), groovyAddToClasspathKeyword, environment)
                 .flatMap { it.onFailure { (path) -> return LoadingError("Couldn't find dependency '$path'").asFailure() } }
 

@@ -74,7 +74,7 @@ private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActio
         ?: return displayError(id, LoadingError(message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
 
     runInBackground(project, "Running live-plugin '$id'") {
-        pluginRunner.setup(this)
+        pluginRunner.setup(this, project)
             .flatMap { runOnEdt { pluginRunner.run(it, binding) } }
             .peekFailure { displayError(id, it, project) }
     }

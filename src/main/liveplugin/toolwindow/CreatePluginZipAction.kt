@@ -62,7 +62,7 @@ class CreatePluginZipAction: AnAction(
 
                 val compilerOutput = LivePluginPaths.livePluginsCompiledPath + plugin.id
                 if (SrcHashCode(plugin.path, compilerOutput).needsUpdate()) {
-                    KotlinPluginRunner.main.setup(plugin)
+                    KotlinPluginRunner.main.setup(plugin, project)
                 }
 
                 Compressor.Jar(pluginJarFile).use { jar ->
@@ -74,7 +74,6 @@ class CreatePluginZipAction: AnAction(
                             val relativePath = filePath.value.removePrefix(compilerOutput.value + "/")
                             jar.addFile(relativePath, filePath.toFile())
                         }
-                    // Include source code and other files (e.g. if there are some resources required by the plugin)
                     plugin.path.allFiles()
                         .filterNot { it == pluginXml || it == pluginJarFile.toFilePath() || it == zipFile.toFilePath() }
                         .forEach { filePath ->

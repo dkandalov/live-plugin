@@ -4,6 +4,7 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.project.Project
 import com.intellij.util.lang.UrlClassLoader
 import groovy.lang.GroovyClassLoader
 import liveplugin.Result
@@ -21,7 +22,7 @@ interface ExecutablePlugin
 interface PluginRunner {
     val scriptName: String
 
-    fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError>
+    fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, AnError>
     
     fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError>
 

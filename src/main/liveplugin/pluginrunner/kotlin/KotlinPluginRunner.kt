@@ -1,6 +1,7 @@
 package liveplugin.pluginrunner.kotlin
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
+import com.intellij.openapi.project.Project
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.*
 import liveplugin.IdeUtil.unscrambleThrowable
@@ -44,7 +45,7 @@ class KotlinPluginRunner(
 ): PluginRunner {
     data class ExecutableKotlinPlugin(val pluginClass: Class<*>) : ExecutablePlugin
 
-    override fun setup(plugin: LivePlugin): Result<ExecutablePlugin, AnError> {
+    override fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, AnError> {
         val mainScript = plugin.path.find(scriptName)
             ?: return LoadingError(message = "Startup script $scriptName was not found.").asFailure()
 
@@ -53,7 +54,7 @@ class KotlinPluginRunner(
             .onEach { if (!it.isEnabled) return LoadingError("Dependent plugin '${it.pluginId}' is disabled").asFailure() }
             .withTransitiveDependencies()
 
-        val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value)
+        val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value) + Pair("PROJECT_PATH", project?.basePath ?: "PROJECT_PATH")
         val additionalClasspath = findClasspathAdditions(mainScript.readLines(), kotlinAddToClasspathKeyword, environment)
             .flatMap { it.onFailure { (path) -> return LoadingError("Couldn't find dependency '$path.'").asFailure() } }
 
