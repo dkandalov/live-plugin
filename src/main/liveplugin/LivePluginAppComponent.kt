@@ -40,7 +40,10 @@ class LivePluginAppComponent {
     companion object {
         const val livePluginId = "LivePlugin"
         val logger = Logger.getInstance(LivePluginAppComponent::class.java)
-        val livePluginNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("Live Plugin")!!
+        // Lazy because it seems that it can be initialised before notification group is initilised in plugin.xml
+        val livePluginNotificationGroup by lazy {
+            NotificationGroupManager.getInstance().getNotificationGroup("Live Plugin")!!
+        }
 
         fun pluginIdToPathMap(): Map<String, FilePath> {
             // TODO Use virtual file because the code below will access file system every time this function is called to update availability of actions
