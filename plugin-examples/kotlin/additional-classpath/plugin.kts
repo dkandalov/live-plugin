@@ -1,10 +1,10 @@
 import liveplugin.*
 
-// add-to-classpath $HOME/.m2/repository/org/mockito/mockito-core/3.3.3/mockito*.jar
+// add-to-classpath $HOME/.gradle/caches/modules-2/files-2.1/org.http4k/http4k-core/4.17.0.0/*/*.jar
 // depends-on-plugin Git4Idea
 
 if (!isIdeStartup) {
-    show(org.mockito.Mockito::class)
+    show(org.http4k.core.Request::class)
     show(git4idea.GitUtil::class)
 }
 
