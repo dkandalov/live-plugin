@@ -30,7 +30,7 @@ import javax.swing.KeyStroke
  * when the plugin is unloaded or evaluated again. See https://plugins.jetbrains.com/docs/intellij/disposers.html.
  */
 fun LivePluginScript.registerAction(
-    id: String,
+    @ActionText id: String,
     keyStroke: String? = null,
     actionGroupId: String? = null,
     positionInGroup: Constraints = Constraints.LAST,
@@ -40,7 +40,7 @@ fun LivePluginScript.registerAction(
 }
 
 fun LivePluginScript.registerAction(
-    id: String,
+    @ActionText id: String,
     keyStroke: String? = null,
     actionGroupId: String? = null,
     positionInGroup: Constraints = Constraints.LAST,
@@ -50,7 +50,7 @@ fun LivePluginScript.registerAction(
 }
 
 fun registerAction(
-    id: String,
+    @ActionText id: String,
     keyStroke: String? = null,
     actionGroupId: String? = null,
     positionInGroup: Constraints = Constraints.LAST,
@@ -61,7 +61,7 @@ fun registerAction(
 }
 
 fun registerAction(
-    id: String,
+    @ActionText id: String,
     keyStroke: String? = null,
     actionGroupId: String? = null,
     positionInGroup: Constraints = Constraints.LAST,
@@ -72,7 +72,7 @@ fun registerAction(
 }
 
 fun registerAction(
-    id: String,
+    @ActionText id: String,
     keyboardShortcut: KeyboardShortcut? = null,
     actionGroupId: String? = null,
     positionInGroup: Constraints = Constraints.LAST,
