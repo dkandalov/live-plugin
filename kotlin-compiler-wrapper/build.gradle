@@ -17,9 +17,9 @@ repositories {
 }
 
 group "live-plugin"
-version "0.6"
+version "0.7"
 
-ext.kotlinVersion = "1.4.31"
+ext.kotlinVersion = "1.5.31"
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
@@ -28,7 +28,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-scripting-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:$kotlinVersion")
-    testCompile("junit:junit:4.12")
+	testImplementation("junit:junit:4.12")
 }
 
 sourceSets {
