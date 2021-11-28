@@ -1,11 +1,11 @@
 ### IntelliJ API mini cheat sheet
-You can explore code on GitHub or [Upsourse]:
+You can explore source code on GitHub, [Upsourse] or clone it:
 ```
 git clone https://github.com/JetBrains/intellij-community.git
 ```
 "Manager" postfix in class names in general means the class is "Facade" for some subsystem. 
-"Manager" classes can also have "ManagerEx" implementation with extended functionality 
-(e.g. ``ApplicationManager``, ``ApplicationManagerEx``).
+Classes and interfaces might also have implementation with "Ex" postfix meaning that they have extended functionality 
+(e.g. `ApplicationManagerEx`).
 
 
 #### "Core" classes
