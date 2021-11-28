@@ -1,5 +1,5 @@
 ### IntelliJ API mini cheat sheet
-Getting source code (see also [Build Community Edition page](http://www.jetbrains.org/pages/viewpage.action?pageId=983225)):
+You can explore code on GitHub or [Upsourse]:
 ```
 git clone https://github.com/JetBrains/intellij-community.git
 ```
@@ -32,17 +32,17 @@ git clone https://github.com/JetBrains/intellij-community.git
 - [MarkupModel] - highlights ranges of text in a document, paints markers on the gutter and so on
 - [FileEditorManager] - open/close/get current editor
 - [Document] - represents the contents of a text file loaded into memory and possibly opened in a text editor
-(see also [IntelliJ Platform SDK page](http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/documents.html))
+(see also [IntelliJ Platform SDK docs](https://plugins.jetbrains.com/docs/intellij/documents.html))
 - [FileDocumentManager] - gets document for VirtualFile, etc.
 - [VirtualFile] - represent a file on disk, in archive, HTTP server, etc. 
-(see also [IntelliJ Platform SDK page](http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/virtual_file.html))
-- [VirtualFileSystem] - abstraction on top of file systems; delete/move/rename files (see also [IntelliJ Platform SDK page](http://www.jetbrains.org/intellij/sdk/docs/basics/virtual_file_system.html))
+(see also [IntelliJ Platform SDK docs](http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/virtual_file.html))
+- [VirtualFileSystem] - abstraction on top of file systems; delete/move/rename files (see also [IntelliJ Platform SDK docs](https://plugins.jetbrains.com/docs/intellij/virtual-file-system.html))
 - [VirtualFileListener] - receives notifications about changes in the virtual file system
 - [VirtualFileManager] - add VirtualFile listener, refresh VirtualFileSystem
 
 
 #### Syntax tree
-- [PsiElement] - the common base interface for all elements of the PSI tree (see also [IntelliJ Platform SDK page](http://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/psi_files.html))
+- [PsiElement] - the common base interface for all elements of the PSI tree (see also [IntelliJ Platform SDK docs](https://plugins.jetbrains.com/docs/intellij/psi-files.html))
 - [PsiFile] - PSI element representing a file
 - [PsiManager] - gets PsiFile for VirtualFile
 - "PsiUtil" classes - misc methods for PSI manipulation
@@ -59,7 +59,7 @@ git clone https://github.com/JetBrains/intellij-community.git
 - [DialogBuilder] - builder for custom dialogs
 - [ToolWindowManager] - get registered tool windows, balloon notification for tool windows
 - [ToolWindowFactory] - creates tool windows
-- See also [User Interface Components IntelliJ Platform SDK page](http://www.jetbrains.org/intellij/sdk/docs/user_interface_components/user_interface_components.html)
+- See also [User Interface Components IntelliJ Platform SDK page](https://plugins.jetbrains.com/docs/intellij/user-interface-components.html)
 
 
 #### Threading rules
@@ -77,6 +77,7 @@ git clone https://github.com/JetBrains/intellij-community.git
 - com.intellij.psi.util.PsiUtilCore
 
 
+[Upsourse]: https://upsource.jetbrains.com/idea-ce/structure/HEAD
 [Application]: https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/application/Application.java
 [MessageBus]: https://github.com/JetBrains/intellij-community/blob/master/platform/extensions/src/com/intellij/util/messages/MessageBus.java
 [Project]: https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/project/Project.java
