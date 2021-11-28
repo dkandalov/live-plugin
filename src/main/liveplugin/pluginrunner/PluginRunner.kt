@@ -43,7 +43,7 @@ interface PluginRunner {
         }
 
         private fun createParentClassLoader(pluginDescriptors: List<IdeaPluginDescriptor>, plugin: LivePlugin): ClassLoader {
-            val parentLoaders = pluginDescriptors.map { it.pluginClassLoader } + PluginRunner::class.java.classLoader
+            val parentLoaders = pluginDescriptors.mapNotNull { it.pluginClassLoader } + PluginRunner::class.java.classLoader
             return PluginClassLoader_Fork(
                 UrlClassLoader.build().files(emptyList()).allowLock(true).useCache(),
                 parentLoaders.toTypedArray(),
