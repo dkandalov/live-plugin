@@ -59,7 +59,7 @@
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
         <action id="LivePlugin.UnloadPlugin" class="liveplugin.pluginrunner.UnloadPluginAction" text="Unload Current Plugin"/>
-        <action id="LivePlugin.CreatePluginZip" class="liveplugin.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>
+<!--        <action id="LivePlugin.CreatePluginZip" class="liveplugin.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>-->
 		<action id="LivePlugin.SharePluginAsGistAction" class="liveplugin.toolwindow.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
     </actions>
 
