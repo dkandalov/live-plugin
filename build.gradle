@@ -54,6 +54,11 @@ dependencies {
 	runtimeOnly "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion"
 	runtimeOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 	runtimeOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+
+	// Explicit groovy dependency because even though groovy is bundled with IJ,
+	// it's not picked up by groovy compiler in the latest versions.
+	compileOnly "org.codehaus.groovy:groovy-all:2.5.14"
+
 	testImplementation group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
