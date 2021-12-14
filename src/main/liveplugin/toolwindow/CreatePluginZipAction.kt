@@ -29,6 +29,7 @@ import liveplugin.pluginrunner.selectedFilePaths
 import liveplugin.pluginrunner.toLivePlugins
 import liveplugin.toFilePath
 import liveplugin.toolwindow.popup.NewPluginXmlScript
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeFirstWord
 import java.io.ByteArrayInputStream
 import java.util.jar.Manifest
 
@@ -114,7 +115,10 @@ class CreatePluginZipAction: AnAction(
     private fun Project.createPluginXml(plugin: LivePlugin, filePath: FilePath) {
         val fileContent = readSampleScriptFile("${LivePluginPaths.kotlinExamplesPath}/plugin.xml")
             .replaceFirst("com.your.company.unique.plugin.id", plugin.id)
-            .replaceFirst("TODO Plugin Name", plugin.id.replace('-', ' ').split(' ').filter { it.isNotEmpty() }.joinToString(" ") { it.capitalize() })
+            .replaceFirst(
+                "TODO Plugin Name",
+                plugin.id.replace('-', ' ').split(' ').filter { it.isNotEmpty() }.joinToString(" ") { it.capitalizeFirstWord() }
+            )
             .replaceFirst("Your name", System.getProperty("user.name"))
         NewPluginXmlScript(fileContent).createNewFile(this, plugin.path.toVirtualFile() ?: error("Can't create virtual file for '${plugin.path.value}'"))
         val message = "Please review and <a href=\"\">edit its content</a> before publishing the plugin."
