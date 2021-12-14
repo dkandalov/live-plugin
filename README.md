@@ -4,7 +4,7 @@
 Plugin for [IntelliJ](https://github.com/JetBrains/intellij-community)-based IDEs to create plugins at runtime
 using [Groovy](http://groovy.codehaus.org) and [Kotlin](http://kotlinlang.org).
 To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Marketplace`
-or use "Install" button on the [Plugin Marketplace website](http://plugins.jetbrains.com/plugin/7282).
+or use the "Install" button on the [Plugin Marketplace website](http://plugins.jetbrains.com/plugin/7282).
 
 <img src="https://raw.github.com/dkandalov/live-plugin/master/screenshots/live-plugin-demo.gif" alt="demo" title="demo" align="middle"/>
 
@@ -26,7 +26,7 @@ Insert New Line Above action (Kotlin):
 import com.intellij.openapi.actionSystem.AnActionEvent
 import liveplugin.*
 
-// Action to insert new line above the current line.
+// Action to insert a new line above the current line.
 // Based on this post https://martinfowler.com/bliki/InternalReprogrammability.html
 // Note that there is also built-in "Start New Line Before Current" action (ctrl+alt+enter).
 registerAction(id = "Insert New Line Above", keyStroke = "ctrl alt shift ENTER") { event ->
@@ -48,14 +48,14 @@ Make sure "hello world" works fine:
 - In the `Plugins` tool window select "hello-world" plugin and click "Run" button to execute the plugin (`Run Plugin`
   action with `ctrl+shift+L` or `alt+C, alt+E` shortcut). It should display a message.
 - Make a small modification in `plugin.groovy`/`plugin.kts` and rerun the plugin. 
-  On the second run, previous version of the plugin will be unloaded before the code is evaluated again.
+  On the second run, the previous version of the plugin will be unloaded before the code is evaluated again.
 - Modify `plugin.groovy`/`plugin.kts` file again so that it fails to compile/run.
   You should see an error message in the `Run` tool window.
 - Note that plugins are just folders with `plugin.groovy` or `plugin.kts` scripts as entry points. 
-  This means that you can, for example, copy path to the plugin folder using `Copy Path` action (`ctrl/cmd+alt+C` shortcut).
+  This means that you can, for example, copy the path to the plugin folder using the `Copy Path` action (`ctrl/cmd+alt+C` shortcut).
 
 Try bundled examples:
-- In the `Plugins` tool window click "Plus" button (`Add Plugin` action) and add Groovy or Kotlin examples. 
+- In the `Plugins` tool window click the "Plus" button (`Add Plugin` action) and add Groovy or Kotlin examples. 
 - It might be useful to install [Groovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) or 
   [Kotlin](https://plugins.jetbrains.com/plugin/6954-kotlin) plugin if your IDE supports them. 
 
@@ -100,7 +100,7 @@ More specifically the steps are:
 This means that plugin code can use any internal IDE API and observe/change IDE state.
 There are some limitations of course, such as `final` fields and IDE APIs which are not designed to be re-initialized. 
 
-Most of IntelliJ-based IDEs come with a bundled Groovy jar which is used for loading and running live plugins
+Most IntelliJ-based IDEs come with a bundled Groovy jar which is used for loading and running live plugins
 (otherwise, the groovy-all jar will be downloaded). LivePlugin uses its own version of Kotlin stdlib and compiler because
 the version bundled with IDEs changes quite often and seems to be harder to rely on.
 
