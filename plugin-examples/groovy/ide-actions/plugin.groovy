@@ -7,7 +7,7 @@ import static liveplugin.PluginUtil.show
 
 // Most of the user interactions with IDE are performed using actions.
 // Conceptually, an action is a stateless function that takes AnActionEvent object and creates some side effect.
-// For example, moves cursor, modifies source code or displays a message as in the code below.
+// For example, moves the cursor, modifies source code or displays a message as in the code below.
 // (See also https://plugins.jetbrains.com/docs/intellij/basic-action-system.html)
 
 // Option 1.
@@ -40,10 +40,10 @@ if (!isIdeStartup) show("Loaded 'Show Project Path'<br/>Use alt+shift+P to run i
 
 // In IDEs with Java/Groovy support you can make code navigable by doing the following:
 //  - install/enable Groovy plugin
-//  - enable checkbox "Plugins toolwindow -> Settings -> Add LivePlugin and IDE Jars to Project"
+//  - enable checkbox "Plugins tool window -> Settings -> Add LivePlugin and IDE Jars to Project"
 //    (this will also include source code for PluginUtil class).
 //    Of course, adding jars unrelated to current project is a hack but most of the time
-//    it shouldn't cause many problems and you can always undo it in ""Plugins toolwindow -> Settings".
+//    it shouldn't cause many problems and you can always undo it in "Plugins tool window -> Settings".
 
 // See next text-editor example.
 //          ^^^^^^^^^^^

@@ -512,7 +512,7 @@ class PluginUtil {
 	 *               Some of built-in widget ids:
 	 *               IdeMessagePanel.FATAL_ERROR - error notification icon;
 	 *               Position - goto line widget;
-	 *               IdeNotificationArea.WIDGET_ID - notification toolwindow widget;
+	 *               IdeNotificationArea.WIDGET_ID - notification tool window widget;
 	 *               Encoding - encoding widget;
 	 *               LineSeparator - line separator widget;
 	 * @param presentation see examples of implementations here

@@ -19,7 +19,7 @@ import kotlin.script.experimental.jvm.updateClasspath
 abstract class LivePluginScript(
     /**
      * True on IDE start, otherwise false.
-     * Use "Plugins toolwindow -> Settings -> Run Plugins on IDE Start" to enable/disable it.
+     * Use "Plugins tool window -> Settings -> Run Plugins on IDE Start" to enable/disable it.
      */
     open val isIdeStartup: Boolean,
 

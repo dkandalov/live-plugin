@@ -12,13 +12,13 @@ import static liveplugin.PluginUtil.runReadAction
 
 // depends-on-plugin com.intellij.java
 
-// This is example of integration test.
+// This is an example of integration test.
 // The idea is that for code which heavily uses IntelliJ API it can be faster
 // to run tests inside IntelliJ without need for potentially long or complex initialisation.
 
 // "plugin-test.groovy" is an entry point just like "plugin.groovy",
 // therefore, tests need to be run explicitly, e.g. with IntegrationTestsRunner.runIntegrationTests().
-// (Note that this is not original JUnit runner and it only supports @Test and @Ignore annotations.)
+// (Note that this is not the original JUnit runner and it only supports @Test and @Ignore annotations.)
 
 IntegrationTestsRunner.runIntegrationTests([ExampleTest, PsiElementsTest], project, pluginPath)
 

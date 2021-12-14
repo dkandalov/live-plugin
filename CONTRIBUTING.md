@@ -9,6 +9,6 @@ To specify IDE version use `IJ_VERSION` env variable or modify `build.gradle` fi
 
 ### Understanding the code
 Just like with any other IntelliJ plugin the best place to start is probably `plugin.xml`.
-Packages are structured in an attempt to reflect toolwindow UI of the plugin.
+Packages are structured in an attempt to reflect tool window UI of the plugin.
 But overall, this is an experimental proof-of-concept project, and I never managed to refactor it to a good state.
 

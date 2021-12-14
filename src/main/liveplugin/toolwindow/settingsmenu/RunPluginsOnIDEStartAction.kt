@@ -7,7 +7,7 @@ import liveplugin.Settings
 
 class RunPluginsOnIDEStartAction: ToggleAction(
     "Run Plugins on IDE Start",
-    "Run all plugins in the Plugins toolwindow on IDE start. Note that this might slow down IDE startup.",
+    "Run all plugins in the Plugins tool window on IDE start. Note that this might slow down IDE startup.",
     null
 ), DumbAware {
     override fun isSelected(event: AnActionEvent) =

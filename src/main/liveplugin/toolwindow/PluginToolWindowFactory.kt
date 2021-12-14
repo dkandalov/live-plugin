@@ -249,7 +249,7 @@ class PluginToolWindow(project: Project) {
 
             override fun getData(@NonNls dataId: String): Any? =
                 when (dataId) {
-                    // NAVIGATABLE_ARRAY is used to open files in toolwindow on double-click/enter.
+                    // NAVIGATABLE_ARRAY is used to open files in tool window on double-click/enter.
                     PlatformDataKeys.NAVIGATABLE_ARRAY.name       -> {
                         val files1 = TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java)
                             .map { it.element.file } // This worked until 2020.3. Keeping it here for backward compatibility.

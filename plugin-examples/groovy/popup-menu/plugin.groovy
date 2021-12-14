@@ -18,7 +18,7 @@ registerAction("Show Actions Popup", "ctrl alt shift P") { AnActionEvent event -
 			show("project: ${project}") // But it's ok to use "project" from the previous event.
 
 			// You can get AnActionEvent of the chosen menu item action as shown below
-			// (to make event aware of the current project showPopupMenu() is invoked with "event.dataContext" argument).
+			// (to make the event aware of the current project showPopupMenu() is invoked with "event.dataContext" argument).
 			show("project: ${context.event.project}")
 		},
 		"-": new AnAction("Hello Action") {

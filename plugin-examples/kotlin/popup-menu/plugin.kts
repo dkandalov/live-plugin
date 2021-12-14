@@ -17,7 +17,7 @@ registerAction(id = "Show Actions Popup", keyStroke = "ctrl alt shift P") { even
             // show("project: ${event.project}")
 
             // Instead, we should use "popupEvent" specific to the "Show current project" action.
-            // (In order for "project" to be available in the "popupEvent", createPopup() is called with "event.dataContext" argument.)
+            // (In order for "project" to be available in the "popupEvent", createPopup() is called with the "event.dataContext" argument.)
             show("project: ${popupEvent.project}")
         },
         HelloAction(),

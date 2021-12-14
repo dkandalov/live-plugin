@@ -5,7 +5,7 @@ import liveplugin.*
 
 // Most of the user interactions with IDE are performed using actions.
 // Conceptually, an action is a stateless function that takes AnActionEvent object and creates some side effect.
-// For example, moves cursor, modifies source code or displays a message as in the code below.
+// For example, moves the cursor, modifies source code or displays a message as in the code below.
 // (See also https://plugins.jetbrains.com/docs/intellij/basic-action-system.html)
 
 // Option 1.
