@@ -28,10 +28,10 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>don't run project specific plugin if the project is not trusted</li>
-            <li>improved liveplugin Kotlin API</li>
-            <li>updated examples so that they work ok in the latest IntelliJ</li>
-            <li>fixed usages of deprecated IntelliJ API</li>
+            <ul>Kotlin 1.5.31 so that plugins work in the latest IDEs which are not compatible with Kotlin 1.4 🙄</ul>
+			<ul>improved liveplugin Kotlin API</ul>
+			<ul>updated examples</ul>
+			<ul>misc fixes</ul>
         </ul></body></html>
         ]]>
     </change-notes>
