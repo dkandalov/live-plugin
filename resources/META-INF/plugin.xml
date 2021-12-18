@@ -28,10 +28,10 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <ul>Kotlin 1.5.31 so that plugins work in the latest IDEs which are not compatible with Kotlin 1.4 🙄</ul>
-			<ul>improved liveplugin Kotlin API</ul>
-			<ul>updated examples</ul>
-			<ul>misc fixes</ul>
+            <li>Kotlin 1.5.31 so that plugins work in the latest IDEs which are not compatible with Kotlin 1.4 🙄</li>
+			<li>improved liveplugin Kotlin API</li>
+			<li>updated examples</li>
+			<li>misc fixes</li>
         </ul></body></html>
         ]]>
     </change-notes>

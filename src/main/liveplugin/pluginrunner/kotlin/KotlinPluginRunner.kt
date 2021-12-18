@@ -121,7 +121,7 @@ private class KotlinPluginCompiler {
         val compilerClasspath: List<File> =
             ideLibFiles() +
             livePluginLibAndSrcFiles() +
-            pluginDescriptorsOfDependencies.flatMap { it.toLibFiles() } +
+            pluginDescriptorsOfDependencies.flatMap { descriptor -> descriptor.toLibFiles() } +
             // Put kotlin compiler libs after plugin dependencies because if there is Kotlin plugin in plugin dependencies,
             // it somehow picks up wrong PSI classes from kotlin-compiler-embeddable.jar.
             // E.g. "type mismatch: inferred type is KtVisitor<Void, Void> but PsiElementVisitor was expected".
@@ -179,13 +179,13 @@ fun ideLibFiles() = LivePluginPaths.ideJarsPath.listFiles().map { it.toFile() }
 
 fun dependenciesOnOtherPluginsForHighlighting(scriptText: List<String>): List<File> =
     findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
-        .filterIsInstance<Success<IdeaPluginDescriptor>>() // Ignore unresolved dependencies because they will be checked before runnig plugin anyway.
+        .filterIsInstance<Success<IdeaPluginDescriptor>>() // Ignore unresolved dependencies because they will be checked before running plugin anyway.
         .map { it.value }.withTransitiveDependencies()
         .flatMap { it.toLibFiles() }
 
 fun findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText: List<String>, scriptFolderPath: String): List<File> =
     findClasspathAdditions(scriptText, kotlinAddToClasspathKeyword, systemEnvironment() + Pair("PLUGIN_PATH", scriptFolderPath))
-        .filterIsInstance<Success<List<File>>>() // Ignore unresolved dependencies because they will be checked before runnig plugin anyway.
+        .filterIsInstance<Success<List<File>>>() // Ignore unresolved dependencies because they will be checked before running plugin anyway.
         .flatMap { it.value }
 
 fun livePluginLibAndSrcFiles() =
@@ -198,7 +198,7 @@ private fun IdeaPluginDescriptor.toLibFiles() =
     (pluginPath.toFilePath() + "lib").listFiles {
         // Exclusion specifically for Kotlin plugin which includes kotlin-compiler-plugins jars
         // which seem to be compiled with IJ API and are not compatible with actual Kotlin compilers.
-        !it.name.contains("compiler-plugin")
+        "compiler-plugin" !in it.name
     }.map { it.toFile() }
 
 private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath(), true)
