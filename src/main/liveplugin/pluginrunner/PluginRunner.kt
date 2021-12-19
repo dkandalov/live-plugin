@@ -1,6 +1,7 @@
 package liveplugin.pluginrunner
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
+import com.intellij.ide.plugins.IdeaPluginDescriptorImpl
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
@@ -68,7 +69,13 @@ interface PluginRunner {
                 val descriptor = queue.remove()
                 if (descriptor !in result) {
                     result.add(descriptor)
-                    queue.addAll(descriptor.dependencies.mapNotNull { PluginManagerCore.getPlugin(it.pluginId) })
+
+                    @Suppress("UnstableApiUsage") // This is a "temporary" hack for https://youtrack.jetbrains.com/issue/IDEA-206274
+                    val dependenciesDescriptors =
+                        if (descriptor is IdeaPluginDescriptorImpl) descriptor.dependencies.plugins.mapNotNull { PluginManagerCore.getPlugin(it.id) }
+                        else descriptor.dependencies.mapNotNull { PluginManagerCore.getPlugin(it.pluginId) }
+
+                    queue.addAll(dependenciesDescriptors)
                 }
             }
             return result.toList()
