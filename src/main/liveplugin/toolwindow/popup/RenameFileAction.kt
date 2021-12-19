@@ -13,7 +13,7 @@ import java.util.*
 import kotlin.reflect.full.functions
 import kotlin.reflect.jvm.isAccessible
 
-class RenameFileAction: FileChooserAction() {
+class RenameFileAction: FileChooserAction("Rename", "", null) {
 
     override fun actionPerformed(fileSystemTree: FileSystemTree, event: AnActionEvent) {
         val file = fileSystemTree.selectedFile ?: return
