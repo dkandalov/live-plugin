@@ -3,7 +3,6 @@ package liveplugin.toolwindow.addplugin.git
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
@@ -42,10 +41,11 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
         dialog.rememberSettings()
 
         val destinationFolder = dialog.parentDirectory.refreshAndFindFileByUrl() ?: return
+        val gitService = service<Git>()
 
         GitCheckoutProvider.clone(
             project,
-            service<Git>(),
+            gitService,
             MyCheckoutListener(project, destinationFolder, dialog.directoryName),
             destinationFolder,
             dialog.sourceRepositoryURL,
