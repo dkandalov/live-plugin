@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>LivePlugin</id>
     <name>LivePlugin</name>
-	<version>0.7.4 beta</version>
+	<version>0.7.5 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<!-- http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
@@ -28,9 +28,9 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>Kotlin 1.5.31 so that plugins work in the latest IDEs which are not compatible with Kotlin 1.4 🙄</li>
-			<li>improved liveplugin Kotlin API</li>
-			<li>updated examples</li>
+            <li>Exclude android compiler plugin from Kotlin plugin (otherwise, live plugins cannot depend on Kotlin)</li>
+			<li>Fixed popup actions in the Plugins tool window</li>
+            <li>Kotlin 1.6.10 (compiling to 1.5)</li>
 			<li>misc fixes</li>
         </ul></body></html>
         ]]>
