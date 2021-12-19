@@ -58,6 +58,7 @@ dependencies {
 	// Explicit groovy dependency because even though groovy is bundled with IJ,
 	// it's not picked up by groovy compiler in the latest versions.
 	compileOnly "org.codehaus.groovy:groovy-all:2.5.14"
+	testCompileOnly "org.codehaus.groovy:groovy-all:2.5.14"
 
 	testImplementation group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
 }
