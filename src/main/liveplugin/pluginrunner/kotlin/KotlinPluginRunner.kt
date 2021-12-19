@@ -157,7 +157,7 @@ private class KotlinPluginCompiler {
             val reason = if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
                 "Error compiling script.\n${unscrambleThrowable(e)}"
             } else {
-                "Internal error compiling script.\n${unscrambleThrowable(e)}"
+                "LivePlugin error while compiling script.\n${unscrambleThrowable(e)}"
             }
             return reason.asFailure()
         }
