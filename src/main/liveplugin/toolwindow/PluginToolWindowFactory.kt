@@ -204,8 +204,8 @@ class PluginToolWindow(project: Project) {
         private fun JTree.installPopupMenu() {
             fun shortcutsOf(actionId: String) = KeymapManager.getInstance().activeKeymap.getShortcuts(actionId)
 
-            val action = NewElementPopupAction()
-            action.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), this)
+            NewElementPopupAction().registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), this)
+
             val popupActionGroup = DefaultActionGroup(
                 DefaultActionGroup(
                     { "New" },
@@ -228,9 +228,10 @@ class PluginToolWindow(project: Project) {
                 ).also { it.isPopup = true },
                 RunPluginAction(),
                 UnloadPluginAction(),
-                RenameFileAction(),
-                FileDeleteAction()
+                RenameFileAction().also { it.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("RenameElement")), this) },
+                FileDeleteAction().also { it.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("SafeDelete")), this) },
             ).also { it.isPopup = true }
+
             installPopupHandler(this, popupActionGroup)
         }
 
