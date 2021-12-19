@@ -17,6 +17,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.LoadingOrder
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Pair
+import liveplugin.IdeUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -42,7 +43,7 @@ class Console {
 			@Override List<Pair<String, ConsoleViewContentType>> applyFilter(String consoleText, ConsoleViewContentType contentType) {
 				def newConsoleText = callback(consoleText)
 				if (newConsoleText == null) null
-				else new Pair(newConsoleText, contentType)
+				else [new Pair(newConsoleText, contentType)]
 			}
 		})
 	}
@@ -96,10 +97,9 @@ class Console {
 		MyConsolePanel(ExecutionConsole consoleView, ActionGroup toolbarActions) {
 			super(new BorderLayout())
 			def toolbarPanel = new JPanel(new BorderLayout())
-			toolbarPanel.add(ActionManager.instance.createActionToolbar(ActionPlaces.UNKNOWN, toolbarActions, false).component)
+			toolbarPanel.add(ActionManager.instance.createActionToolbar(IdeUtil.livePluginActionPlace, toolbarActions, false).component)
 			add(toolbarPanel, BorderLayout.WEST)
 			add(consoleView.component, BorderLayout.CENTER)
 		}
 	}
-
 }

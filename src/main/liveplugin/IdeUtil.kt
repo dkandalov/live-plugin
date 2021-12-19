@@ -36,6 +36,7 @@ import javax.swing.JPanel
 
 object IdeUtil {
     const val ideStartupActionPlace = "IDE_STARTUP"
+    const val livePluginActionPlace = "LIVE_PLUGIN"
 
     val textFileType: FileType = PlainTextFileType.INSTANCE
     val groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension("groovy")
@@ -94,8 +95,11 @@ object IdeUtil {
 
     private class MyConsolePanel(consoleView: ExecutionConsole, toolbarActions: ActionGroup): JPanel(BorderLayout()) {
         init {
-            val toolbarPanel = JPanel(BorderLayout())
-            toolbarPanel.add(ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarActions, false).component)
+            val toolbarPanel = JPanel(BorderLayout()).also {
+                val actionToolbar = ActionManager.getInstance().createActionToolbar(livePluginActionPlace, toolbarActions, false)
+                actionToolbar.setTargetComponent(this)
+                it.add(actionToolbar.component)
+            }
             add(toolbarPanel, BorderLayout.WEST)
             add(consoleView.component, BorderLayout.CENTER)
         }

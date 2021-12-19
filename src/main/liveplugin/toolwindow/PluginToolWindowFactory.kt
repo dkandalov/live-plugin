@@ -235,7 +235,7 @@ class PluginToolWindow(project: Project) {
         }
 
         private fun installPopupHandler(component: JComponent, actionGroup: ActionGroup): MouseListener {
-            val place = ActionPlaces.UNKNOWN
+            val place = IdeUtil.livePluginActionPlace
             val popupHandler = PopupHandler.installPopupMenu(component, actionGroup, place)
             PopupMenuPreloader.install(component, place, popupHandler) { actionGroup }
             return popupHandler

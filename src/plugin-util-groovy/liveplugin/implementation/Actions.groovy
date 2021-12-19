@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.wm.IdeFocusManager
 import liveplugin.FilePath
+import liveplugin.IdeUtil
 import liveplugin.PluginUtil
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.UnloadPluginAction
@@ -126,7 +127,7 @@ class Actions {
 	static AnActionEvent anActionEvent(DataContext dataContext = dataContextFromFocus(),
 	                     Presentation templatePresentation = new Presentation()) {
 		def actionManager = ActionManager.instance
-		new AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, templatePresentation, actionManager, 0)
+		new AnActionEvent(null, dataContext, IdeUtil.livePluginActionPlace, templatePresentation, actionManager, 0)
 	}
 
 	static DataContext dataContextFromFocus() {

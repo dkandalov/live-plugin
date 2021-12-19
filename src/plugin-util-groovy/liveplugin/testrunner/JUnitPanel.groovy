@@ -20,7 +20,6 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.project.DumbAwareAction
@@ -28,12 +27,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.components.panels.NonOpaquePanel
+import liveplugin.IdeUtil
 import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
 import java.awt.*
 
-import static com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude.*
+import static com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude.ERROR_INDEX
+import static com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude.FAILED_INDEX
 
 class JUnitPanel implements TestReporter {
 	private static final Icon INTEGRATION_TEST_TAB_ICON = AllIcons.Nodes.TestSourceFolder
@@ -89,7 +90,7 @@ class JUnitPanel implements TestReporter {
 		})
 		actionGroup.add(new CloseAction(DefaultRunExecutor.runExecutorInstance, descriptor, project))
 
-		def toolbar = ActionManager.instance.createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, false)
+		def toolbar = ActionManager.instance.createActionToolbar(IdeUtil.livePluginActionPlace, actionGroup, false)
 		toolbar.setTargetComponent(targetComponent)
 		toolbar
 	}
