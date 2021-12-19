@@ -6,7 +6,7 @@ buildscript {
 }
 plugins {
 	id "org.jetbrains.intellij" version "1.3.0"
-	id "org.jetbrains.kotlin.jvm" version "1.5.31"
+	id "org.jetbrains.kotlin.jvm" version "1.6.10"
 }
 apply plugin:"java"
 apply plugin:"groovy"
@@ -17,7 +17,7 @@ repositories {
 	mavenCentral()
 }
 
-ext.kotlinVersion = "1.5.31"
+ext.kotlinVersion = "1.6.10"
 
 intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
@@ -117,17 +117,17 @@ task validateLivePluginZip() { doLast {
 
 	def kotlinCompilerAndItsTransitiveDependencies = [
 		"LivePlugin/kotlin-compiler/annotations-13.0.jar",
-		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.5.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.6.10.jar",
 		"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper-0.7.jar",
-		"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.5.31.jar",
-		"LivePlugin/kotlin-compiler/kotlin-reflect-1.5.31.jar",
-		"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.5.31.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-common-1.5.31.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-embeddable-1.5.31.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-1.5.31.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.5.31.jar",
-		"LivePlugin/kotlin-compiler/kotlin-stdlib-1.5.31.jar",
-		"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.5.31.jar",
+		"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.6.10.jar",
+		"LivePlugin/kotlin-compiler/kotlin-reflect-1.6.10.jar",
+		"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.6.10.jar",
+		"LivePlugin/kotlin-compiler/kotlin-scripting-common-1.6.10.jar",
+		"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-embeddable-1.6.10.jar",
+		"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-1.6.10.jar",
+		"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.6.10.jar",
+		"LivePlugin/kotlin-compiler/kotlin-stdlib-1.6.10.jar",
+		"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.6.10.jar",
 		"LivePlugin/kotlin-compiler/kotlin-stdlib-jdk7-1.5.0.jar",
 		"LivePlugin/kotlin-compiler/kotlin-stdlib-jdk8-1.5.0.jar",
 		"LivePlugin/kotlin-compiler/kotlinx-coroutines-core-jvm-1.5.0.jar",
