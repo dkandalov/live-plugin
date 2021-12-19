@@ -70,7 +70,9 @@ interface PluginRunner {
                 if (descriptor !in result) {
                     result.add(descriptor)
 
-                    val dependenciesDescriptors = descriptor.dependencies.mapNotNull { PluginManagerCore.getPlugin(it.pluginId) }
+                    val dependenciesDescriptors = descriptor.dependencies.mapNotNull {
+                        if (it.isOptional) null else PluginManagerCore.getPlugin(it.pluginId)
+                    }
 
                     @Suppress("UnstableApiUsage") // This is a "temporary" hack for https://youtrack.jetbrains.com/issue/IDEA-206274
                     val dependenciesDescriptors2 =
