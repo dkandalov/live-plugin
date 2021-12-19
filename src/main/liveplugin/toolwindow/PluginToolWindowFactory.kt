@@ -46,6 +46,7 @@ import liveplugin.pluginrunner.RunPluginTestsAction
 import liveplugin.pluginrunner.UnloadPluginAction
 import liveplugin.toolwindow.addplugin.*
 import liveplugin.toolwindow.popup.*
+import liveplugin.toolwindow.popup.NewElementPopupAction.Companion.livePluginNewElementPopup
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.toolwindow.settingsmenu.RunPluginsOnIDEStartAction
 import liveplugin.toolwindow.settingsmenu.RunProjectSpecificPluginsAction
@@ -207,25 +208,7 @@ class PluginToolWindow(project: Project) {
             NewElementPopupAction().registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("NewElement")), this)
 
             val popupActionGroup = DefaultActionGroup(
-                DefaultActionGroup(
-                    { "New" },
-                    listOf(
-                        NewGroovyFileAction(),
-                        NewKotlinFileAction(),
-                        NewTextFileAction(),
-                        NewDirectoryAction(),
-                        NewGroovyMainScript(),
-                        NewGroovyTestScript(),
-                        NewPluginXmlScript(),
-                        Separator.getInstance(),
-                        AddNewGroovyPluginAction(),
-                        AddNewKotlinPluginAction(),
-                        AddPluginFromGistDelegateAction(),
-                        AddPluginFromGitHubDelegateAction(),
-                        AddGroovyExamplesActionGroup(),
-                        AddKotlinExamplesActionGroup(),
-                    )
-                ).also { it.isPopup = true },
+                livePluginNewElementPopup,
                 RunPluginAction(),
                 UnloadPluginAction(),
                 RenameFileAction().also { it.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("RenameElement")), this) },

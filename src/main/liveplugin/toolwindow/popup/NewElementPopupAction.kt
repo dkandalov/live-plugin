@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
+import liveplugin.toolwindow.addplugin.*
 
 class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
     override fun actionPerformed(event: AnActionEvent) {
@@ -24,8 +25,26 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
     }
 
     companion object {
-        private val livePluginNewElementPopup by lazy {
-            ActionManager.getInstance().getAction("LivePlugin.NewElementPopup") as ActionGroup
+        val livePluginNewElementPopup by lazy {
+            DefaultActionGroup(
+                { "New" },
+                listOf(
+                    NewGroovyFileAction(),
+                    NewKotlinFileAction(),
+                    NewTextFileAction(),
+                    NewDirectoryAction(),
+                    NewGroovyMainScript(),
+                    NewGroovyTestScript(),
+                    NewPluginXmlScript(),
+                    Separator.getInstance(),
+                    AddNewGroovyPluginAction(),
+                    AddNewKotlinPluginAction(),
+                    AddPluginFromGistDelegateAction(),
+                    AddPluginFromGitHubDelegateAction(),
+                    AddGroovyExamplesActionGroup(),
+                    AddKotlinExamplesActionGroup(),
+                )
+            ).also { it.isPopup = true }
         }
     }
 }
