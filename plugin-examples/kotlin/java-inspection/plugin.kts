@@ -26,7 +26,7 @@ class HelloWorldInspection: AbstractBaseJavaLocalInspectionTool() {
 
     override fun getDisplayName() = "Replace \"hello\" with \"Hello world\" in Java"
     override fun getShortName() = "HelloWorldInspection"
-    override fun getGroupDisplayName() = "Live Plugin"
+    override fun getGroupDisplayName() = "Live plugin"
     override fun isEnabledByDefault() = true
 }
 

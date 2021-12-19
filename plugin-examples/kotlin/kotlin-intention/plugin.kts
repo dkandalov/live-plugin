@@ -30,7 +30,7 @@ inner class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAct
     private fun camelCaseToSpaces(name: String): String {
         val newName = name.flatMap { char ->
             if (char.isLowerCase()) listOf(char)
-            else listOf(' ', char.toLowerCase())
+            else listOf(' ', char.lowercaseChar())
         }.joinToString("")
         return "`$newName`"
     }
@@ -51,7 +51,7 @@ inner class RenameKotlinFunctionToUseCamelCaseIntention: PsiElementBaseIntention
         return name.split(' ')
             .filter { it.isNotEmpty() }
             .mapIndexed { i, word ->
-                if (i == 0) word else word.capitalize()
+                if (i == 0) word else word.replaceFirstChar { it.uppercaseChar() }
             }
             .joinToString("")
     }
@@ -88,5 +88,5 @@ fun PsiElement.findKtNamedFunction(): KtNamedFunction? {
 
 fun PsiElement.isInKotlinFile(): Boolean {
     val fileType = (containingFile?.fileType as? LanguageFileType) ?: return false
-    return fileType.language.id.toLowerCase() == "kotlin"
+    return fileType.language.id.lowercase() == "kotlin"
 }
