@@ -24,7 +24,7 @@ interface PluginRunner {
     val scriptName: String
 
     fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, AnError>
-    
+
     fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError>
 
     object ClasspathAddition {
@@ -70,12 +70,14 @@ interface PluginRunner {
                 if (descriptor !in result) {
                     result.add(descriptor)
 
-                    @Suppress("UnstableApiUsage") // This is a "temporary" hack for https://youtrack.jetbrains.com/issue/IDEA-206274
-                    val dependenciesDescriptors =
-                        if (descriptor is IdeaPluginDescriptorImpl) descriptor.dependencies.plugins.mapNotNull { PluginManagerCore.getPlugin(it.id) }
-                        else descriptor.dependencies.mapNotNull { PluginManagerCore.getPlugin(it.pluginId) }
+                    val dependenciesDescriptors = descriptor.dependencies.mapNotNull { PluginManagerCore.getPlugin(it.pluginId) }
 
-                    queue.addAll(dependenciesDescriptors)
+                    @Suppress("UnstableApiUsage") // This is a "temporary" hack for https://youtrack.jetbrains.com/issue/IDEA-206274
+                    val dependenciesDescriptors2 =
+                        if (descriptor !is IdeaPluginDescriptorImpl) emptyList()
+                        else descriptor.dependencies.plugins.mapNotNull { PluginManagerCore.getPlugin(it.id) }
+
+                    queue.addAll((dependenciesDescriptors + dependenciesDescriptors2).distinctBy { it.pluginId })
                 }
             }
             return result.toList()
@@ -113,6 +115,6 @@ interface PluginRunner {
 }
 
 sealed class AnError {
-    data class LoadingError(val message: String = "", val throwable: Throwable? = null): AnError()
-    data class RunningError(val throwable: Throwable): AnError()
+    data class LoadingError(val message: String = "", val throwable: Throwable? = null) : AnError()
+    data class RunningError(val throwable: Throwable) : AnError()
 }
