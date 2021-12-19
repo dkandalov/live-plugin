@@ -8,13 +8,16 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.ERROR
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.EXCEPTION
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSourceLocation
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
+import org.jetbrains.kotlin.cli.common.messages.MessageCollectorUtil
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer.PLAIN_FULL_PATHS
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles.JVM_CONFIG_FILES
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinToJVMBytecodeCompiler
 import org.jetbrains.kotlin.cli.jvm.config.JvmClasspathRoot
-import org.jetbrains.kotlin.cli.jvm.plugins.PluginCliParser
+import org.jetbrains.kotlin.cli.jvm.plugins.ServiceLoaderLite
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
+import org.jetbrains.kotlin.compiler.plugin.*
+import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar.Companion.PLUGIN_COMPONENT_REGISTRARS
 import org.jetbrains.kotlin.config.ApiVersion
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.LANGUAGE_VERSION_SETTINGS
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.MODULE_NAME
@@ -26,6 +29,8 @@ import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
 import org.jetbrains.kotlin.scripting.configuration.ScriptingConfigurationKeys.SCRIPT_DEFINITIONS
 import org.jetbrains.kotlin.scripting.definitions.ScriptDefinition
 import java.io.File
+import java.net.URL
+import java.net.URLClassLoader
 import kotlin.reflect.KClass
 import kotlin.script.experimental.host.ScriptingHostConfiguration
 import kotlin.script.experimental.host.configurationDependencies
@@ -77,13 +82,16 @@ private fun createCompilerConfiguration(
 ) = CompilerConfiguration().apply {
     put(MODULE_NAME, "KotlinCompilerWrapperModule")
     put(MESSAGE_COLLECTOR_KEY, messageCollector)
-    add(SCRIPT_DEFINITIONS, ScriptDefinition.FromTemplate(
-        ScriptingHostConfiguration {
-            configurationDependencies.put(listOf(JvmDependency(classpath)))
-            getScriptingClass(JvmGetScriptingClass())
-        },
-        livePluginScriptClass
-    ))
+    add(
+        SCRIPT_DEFINITIONS,
+        ScriptDefinition.FromTemplate(
+            ScriptingHostConfiguration {
+                configurationDependencies.put(listOf(JvmDependency(classpath)))
+                getScriptingClass(JvmGetScriptingClass())
+            },
+            livePluginScriptClass
+        )
+    )
 
     add(CONTENT_ROOTS, KotlinSourceRoot(path = sourceRoot, isCommon = false))
     classpath.forEach { file ->
@@ -91,10 +99,13 @@ private fun createCompilerConfiguration(
     }
 
     // Based on org.jetbrains.kotlin.script.ScriptTestUtilKt#loadScriptingPlugin
-    PluginCliParser.loadPluginsSafe(
-        pluginOptions = null,
-        configuration = this,
-        pluginClasspaths = classpath.map { it.path }
+    addAll(
+        PLUGIN_COMPONENT_REGISTRARS,
+        loadPluginsSafe(classpath.map { it.path }, messageCollector)
+            .filter {
+                // Exclude AndroidComponentRegistrar because its API is not compatible with kotlin-compiler-embedded (see https://youtrack.jetbrains.com/issue/KT-43086)
+                "AndroidComponentRegistrar" !in it.javaClass.name
+            }
     )
 
     put(JVM_TARGET, JVM_11)
@@ -102,3 +113,19 @@ private fun createCompilerConfiguration(
     put(OUTPUT_DIRECTORY, outputDirectory)
     put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_1_5, ApiVersion.KOTLIN_1_5))
 }
+
+// Based on refactored org.jetbrains.kotlin.cli.jvm.plugins.PluginCliParser.loadPluginsSafe
+private fun loadPluginsSafe(
+    pluginClasspaths: Iterable<String>,
+    messageCollector: MessageCollector
+): List<ComponentRegistrar> =
+    try {
+        val classLoader = URLClassLoader(
+            pluginClasspaths.map { File(it).toURI().toURL() }.toTypedArray<URL?>(),
+            ErrorMessageCollector::class.java.classLoader
+        )
+        ServiceLoaderLite.loadImplementations(ComponentRegistrar::class.java, classLoader)
+    } catch (t: Throwable) {
+        MessageCollectorUtil.reportException(messageCollector, t)
+        emptyList()
+    }
