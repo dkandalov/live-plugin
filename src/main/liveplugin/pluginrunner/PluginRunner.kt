@@ -3,6 +3,7 @@ package liveplugin.pluginrunner
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl
 import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.ide.plugins.PluginManagerCore.CORE_ID
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
@@ -70,16 +71,19 @@ interface PluginRunner {
                 if (descriptor !in result) {
                     result.add(descriptor)
 
-                    val dependenciesDescriptors = descriptor.dependencies.mapNotNull {
+                    val dependenciesDescriptors1 = descriptor.dependencies.mapNotNullTo(HashSet()) {
                         if (it.isOptional) null else PluginManagerCore.getPlugin(it.pluginId)
                     }
 
                     @Suppress("UnstableApiUsage") // This is a "temporary" hack for https://youtrack.jetbrains.com/issue/IDEA-206274
                     val dependenciesDescriptors2 =
                         if (descriptor !is IdeaPluginDescriptorImpl) emptyList()
-                        else descriptor.dependencies.plugins.mapNotNull { PluginManagerCore.getPlugin(it.id) }
+                        else descriptor.dependencies.plugins.mapNotNullTo(HashSet()) { PluginManagerCore.getPlugin(it.id) }
 
-                    queue.addAll((dependenciesDescriptors + dependenciesDescriptors2).distinctBy { it.pluginId })
+                    val descriptors = (dependenciesDescriptors1 + dependenciesDescriptors2)
+                        .filter { it.pluginId != CORE_ID }.distinctBy { it.pluginId }
+
+                    queue.addAll(descriptors)
                 }
             }
             return result.toList()
