@@ -82,7 +82,7 @@ class PluginUtil {
 
 	@CanCallFromAnyThread
 	static <T> T invokeOnEDT(Closure closure) {
-		Threads.invokeOnEDT(closure as Function)
+		Threads.invokeOnEDT(closure as Function) as T
 	}
 
 	@CanCallFromAnyThread
@@ -128,7 +128,7 @@ class PluginUtil {
 			// this is because Notification doesn't accept empty messages
 			if (message.trim().empty) message = "[empty message]"
 
-			def notification = new Notification(groupDisplayId, title, message, notificationType, notificationListener)
+			def notification = new Notification(groupDisplayId, title, message, notificationType).setListener(notificationListener)
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		}
 	}
@@ -817,7 +817,7 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	static <T> T runReadAction(Closure callback) {
-		ApplicationManager.application.runReadAction(callback as Computable)
+		ApplicationManager.application.runReadAction(callback as Computable) as T
 	}
 
 
@@ -903,7 +903,7 @@ class PluginUtil {
 	 * @return new value
 	 */
 	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, Closure callback) {
-		GlobalVar.changeGlobalVar(varName, initialValue, callback)
+		GlobalVar.changeGlobalVar(varName, initialValue, callback) as T
 	}
 
 	@Nullable static <T> T setGlobalVar(String varName, @Nullable varValue) {

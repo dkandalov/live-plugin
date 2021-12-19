@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static com.intellij.util.ObjectUtils.assertNotNull;
@@ -77,10 +78,10 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
         myVcsDirectoryName = vcsDirectoryName;
         init();
         initListeners();
-        setTitle(DvcsBundle.getString("clone.title"));
+        setTitle(DvcsBundle.message("clone.title"));
         myRepositoryUrlLabel.setText("Clone Repository URL"); // FORK DIFF
         myRepositoryUrlLabel.setDisplayedMnemonic('R');
-        setOKButtonText(DvcsBundle.getString("clone.button"));
+        setOKButtonText(DvcsBundle.message("clone.button"));
 
         project.getMessageBus().connect(getDisposable()).subscribe(FrameStateListener.TOPIC, new FrameStateListener() {
             @Override
@@ -120,11 +121,11 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
     private void initListeners() {
         FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor();
         fcd.setShowFileSystemRoots(true);
-        fcd.setTitle(DvcsBundle.getString("clone.destination.directory.browser.title"));
-        fcd.setDescription(DvcsBundle.getString("clone.destination.directory.browser.description"));
+        fcd.setTitle(DvcsBundle.message("clone.destination.directory.browser.title"));
+        fcd.setDescription(DvcsBundle.message("clone.destination.directory.browser.description"));
         fcd.setHideIgnored(false);
         myParentDirectory.addActionListener(
-                new ComponentWithBrowseButton.BrowseFolderActionListener<JTextField>(fcd.getTitle(), fcd.getDescription(), myParentDirectory,
+                new ComponentWithBrowseButton.BrowseFolderActionListener<>(fcd.getTitle(), fcd.getDescription(), myParentDirectory,
                         myProject, fcd, TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT) {
                     @Override
                     protected VirtualFile getInitialFile() {
@@ -163,10 +164,10 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
                 () -> test(myTestURL), DvcsBundle.message("clone.testing", myTestURL), true, myProject);
         if (testResult.isSuccess()) {
             Messages.showInfoMessage(myTestButton, DvcsBundle.message("clone.test.success.message", myTestURL),
-                    DvcsBundle.getString("clone.repository.url.test.label"));
+                    DvcsBundle.message("clone.repository.url.test.label"));
             myTestResult = Boolean.TRUE;
         } else {
-            Messages.showErrorDialog(myProject, assertNotNull(testResult.getError()), "Repository Test Failed");
+            Messages.showErrorDialog(myProject, Objects.requireNonNull(testResult.getError()), "Repository Test Failed");
             myTestResult = Boolean.FALSE;
         }
         updateButtons();
