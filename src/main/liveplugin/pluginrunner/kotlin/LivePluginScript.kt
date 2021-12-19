@@ -1,7 +1,9 @@
 package liveplugin.pluginrunner.kotlin
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Computable
 import liveplugin.LivePluginPaths
 import liveplugin.toFilePath
 import java.io.File
@@ -74,8 +76,12 @@ open class LivePluginScriptConfig(
 
 private fun createScriptConfig(context: ScriptConfigurationRefinementContext, classpath: (List<String>, String) -> List<File>) =
     ScriptCompilationConfiguration(context.compilationConfiguration, body = {
-        val scriptText = context.script.text.split('\n')
-        val scriptFolderPath = context.script.locationId?.let { File(it).parent } ?: ""
+        // Attempt to use runReadAction() for syntax highlighting to avoid errors because of accessing data on non-EDT thread.
+        // Run as normal function if there is no application which is the case when running an embedded compiler.
+        val computable = Computable { context.script.locationId to context.script.text.split('\n') }
+        val (scriptLocationId, scriptText) = ApplicationManager.getApplication()?.runReadAction(computable) ?: computable.compute()
+
+        val scriptFolderPath = scriptLocationId?.let { File(it).parent } ?: ""
         updateClasspath(classpath(scriptText, scriptFolderPath))
 
         // Disabled because it doesn't work and can only cause confusion
@@ -85,7 +91,7 @@ private fun createScriptConfig(context: ScriptConfigurationRefinementContext, cl
         if (false) {
             val filesInThePluginFolder = scriptFolderPath.toFilePath().allFiles()
                 .filter { it.extension == "kt" || it.extension == "kts" }
-                .filter { it.value != context.script.locationId }.map { it.toFile() }.toList()
+                .filter { it.value != scriptLocationId }.map { it.toFile() }.toList()
             // The `importScripts` seem to be used by org.jetbrains.kotlin.scripting.resolve.LazyScriptDescriptor.ImportedScriptDescriptorsFinder()
             // which only reads definitions from KtScript psi elements (.kts files) but it doesn't work even if all files are renamed to .kts 😠 The scripting API is endless WTF!!!!!
             // See also https://youtrack.jetbrains.com/issue/KT-28916
@@ -99,7 +105,7 @@ private fun highlightingClasspath(scriptText: List<String>, scriptFolderPath: St
     findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText, scriptFolderPath) +
     livePluginLibAndSrcFiles()
 
-// Similar to highlightingClasspath() but without depenencies on other plugins
+// Similar to highlightingClasspath() but without dependencies on other plugins
 // because PluginDescriptorLoader fails with "NoClassDefFoundError: Could not initialize class com.intellij.ide.plugins.PluginXmlFactory"
 // when running KotlinPluginCompiler which I guess somehow picks it up via @KotlinScript annotation.
 // All dependent plugins are directly added to the compiler classpath anyway in KotlinPluginCompiler.compile().
