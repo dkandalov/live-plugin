@@ -117,6 +117,7 @@ task validateLivePluginZip() { doLast {
 
 	def kotlinCompilerAndItsTransitiveDependencies = [
 		"LivePlugin/kotlin-compiler/annotations-13.0.jar",
+		"LivePlugin/kotlin-compiler/jna-5.6.0.jar",
 		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.6.10.jar",
 		"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper-0.7.jar",
 		"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.6.10.jar",
@@ -128,9 +129,6 @@ task validateLivePluginZip() { doLast {
 		"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.6.10.jar",
 		"LivePlugin/kotlin-compiler/kotlin-stdlib-1.6.10.jar",
 		"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/kotlin-stdlib-jdk7-1.5.0.jar",
-		"LivePlugin/kotlin-compiler/kotlin-stdlib-jdk8-1.5.0.jar",
-		"LivePlugin/kotlin-compiler/kotlinx-coroutines-core-jvm-1.5.0.jar",
 		"LivePlugin/kotlin-compiler/trove4j-1.0.20181211.jar"
 	]
 	def expectedLivePluginJars = [
