@@ -4,7 +4,7 @@
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
       <option name="externalSystemIdString" value="GRADLE" />
-      <option name="scriptParameters" value="" />
+      <option name="scriptParameters" value="--stacktrace" />
       <option name="taskDescriptions">
         <list />
       </option>
@@ -13,7 +13,7 @@
           <option value="runIde" />
         </list>
       </option>
-      <option name="vmOptions" />
+      <option name="vmOptions" value="" />
     </ExternalSystemSettings>
     <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>

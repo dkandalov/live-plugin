@@ -129,7 +129,7 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
                                   @NotNull ClassLoader coreLoader,
                                   @Nullable String packagePrefix,
                                   @Nullable ClassPath.ResourceFileFactory resourceFileFactory) {
-        super(builder, null, isParallelCapable, false);
+        super(builder, null, isParallelCapable);
 
         instanceId = instanceIdProducer.incrementAndGet();
 
@@ -227,7 +227,8 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
             for (ClassLoader classloader : getAllParents()) {
                 if (classloader instanceof UrlClassLoader) {
                     try {
-                        c = ((UrlClassLoader)classloader).loadClassInsideSelf(name, false);
+//                        c = ((PluginClassLoader_Fork)classloader).loadClassInsideSelf(name, false);
+                        c = ((UrlClassLoader)classloader).loadClassInsideSelf(name, name, 0, false);
                     }
                     catch (IOException e) {
                         throw new ClassNotFoundException(name, e);
@@ -308,7 +309,7 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
             KOTLIN_STDLIB_CLASSES_USED_IN_SIGNATURES.contains(className));
     }
 
-    @Override
+//    @Override
     public @Nullable Class<?> loadClassInsideSelf(@NotNull String name, boolean forceLoadFromSubPluginClassloader) throws IOException {
         if (packagePrefix != null && isDefinitelyAlienClass(name, packagePrefix)) {
             return null;
@@ -322,7 +323,7 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
 
             Writer logStream = PluginClassLoader_Fork.logStream;
             try {
-                c = classPath.findClass(name, classDataConsumer);
+                c = classPath.findClass(name, name, 0, classDataConsumer);
             }
             catch (LinkageError e) {
                 if (logStream != null) {
