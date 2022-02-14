@@ -56,7 +56,9 @@ private object GroovyDownloader {
             content = "Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~5Mb)",
             type = ERROR
         ).setListener { notification, _ ->
-            val groovyVersion = "2.5.14" // Version of Groovy jar in the latest IJ.
+//            val groovyVersion = "2.5.14" // Version of Groovy jar in the latest IJ.
+            val groovyVersion = "3.0.9" // Version of Groovy jar in the latest IJ.
+
             downloadFiles(
                 url = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy/$groovyVersion/",
                 fileName = "groovy-$groovyVersion.jar",

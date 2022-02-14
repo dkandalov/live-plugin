@@ -128,7 +128,10 @@ class PluginUtil {
 			// this is because Notification doesn't accept empty messages
 			if (message.trim().empty) message = "[empty message]"
 
-			def notification = new Notification(groupDisplayId, title, message, notificationType).setListener(notificationListener)
+			def notification = new Notification(groupDisplayId, title, message, notificationType)
+			if (notificationListener) {
+				notification.setListener(notificationListener)
+			}
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		}
 	}

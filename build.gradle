@@ -5,7 +5,7 @@ buildscript {
 	}
 }
 plugins {
-	id "org.jetbrains.intellij" version "1.3.0"
+	id "org.jetbrains.intellij" version "1.4.0"
 	id "org.jetbrains.kotlin.jvm" version "1.6.10"
 }
 apply plugin:"java"
@@ -18,20 +18,28 @@ repositories {
 }
 
 ext.kotlinVersion = "1.6.10"
+//ext.groovyVersion = "2.5.14"
+ext.groovyVersion = "3.0.9"
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
+}
 
 intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
 	// and https://www.jetbrains.com/intellij-repository/snapshots
 	version = System.getenv().getOrDefault("IJ_VERSION",
-		"212.4746.92" // Compatibility with IJ 2021.2 (which broke PluginClassLoader again, see https://github.com/dkandalov/live-plugin/issues/122)
-//		"LATEST-EAP-SNAPSHOT"
+//		"212.4746.92" // Compatibility with IJ 2021.2 (which broke PluginClassLoader again, see https://github.com/dkandalov/live-plugin/issues/122)
+		"LATEST-EAP-SNAPSHOT"
 	)
 	// The artifact name is deliberately not "live-plugin" because plugins are stored in the "live-plugins" directory.
 	// The "LivePlugin" directory is deleted on each plugin update so it's good make it distinct from "live-plugins".
+	
 	pluginName = "LivePlugin"
 	downloadSources = true
-	sameSinceUntilBuild = false
-	updateSinceUntilBuild = false
+	sameSinceUntilBuild = true
+	updateSinceUntilBuild = true
 	plugins = [
 		"java",
 		"Groovy",
@@ -57,8 +65,9 @@ dependencies {
 
 	// Explicit groovy dependency because even though groovy is bundled with IJ,
 	// it's not picked up by groovy compiler in the latest versions.
-	compileOnly "org.codehaus.groovy:groovy-all:2.5.14"
-	testCompileOnly "org.codehaus.groovy:groovy-all:2.5.14"
+	
+	compileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
+	testCompileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
 
 	testImplementation group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
 }
@@ -97,14 +106,31 @@ sourceSets {
 	}
 }
 
+tasks.withType( org.gradle.api.tasks.compile.JavaCompile).configureEach {
+	
+		sourceCompatibility = JavaVersion.VERSION_11
+		targetCompatibility = JavaVersion.VERSION_11
+	
+}
 // Configure kotlinOptions for all tasks for each of the sourcesets specified above.
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
+	
 	kotlinOptions {
 		jvmTarget = "11"
-		apiVersion = "1.5"
-		languageVersion = "1.5"
+		sourceCompatibility = JavaVersion.VERSION_11
+		targetCompatibility = JavaVersion.VERSION_11
+		apiVersion = "1.6"
+		languageVersion = "1.6"
 		freeCompilerArgs = ["-Xjvm-default=enable"] // Added for LivePluginKotlinScriptProvider
 	}
+}
+
+runIde {
+	jbrVersion = "11_0_14b1982.1"
+	jbrVariant = "jcef"
+	setJvmArgs(["-Xmx8g"])
 }
 
 jar {
