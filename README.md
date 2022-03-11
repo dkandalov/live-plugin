@@ -153,6 +153,7 @@ the version bundled with IDEs changes quite often and seems to be harder to rely
 ## Similar plugins
 The idea of running code inside IntelliJ is not original. 
 There are/were similar plugins:
+ - [Flora](http://plugins.intellij.net/plugin?id=17669) - a similar plugin from JetBrains Hackathon
  - [IDE Scripting Console](https://youtrack.jetbrains.com/issue/IDEA-138252) - experimental feature bundled since IntelliJ 14.1
  - [Script Monkey](http://plugins.intellij.net/plugin?pr=idea&pluginId=3674) (out-of-date)
  - [PMIP - Poor Mans IDE Plugin](http://plugins.intellij.net/plugin/?idea&pluginId=4571) (no longer available)
