@@ -30,7 +30,7 @@ registerAction(id = "Show Actions Popup", keyStroke = "ctrl alt shift P") { even
                 openInBrowser("https://github.com/dkandalov/live-plugin/blob/master/IntellijApiCheatSheet.md")
             },
             AnAction("Plugin SDK - Fundamentals") {
-                openInBrowser("https://www.jetbrains.org/intellij/sdk/docs/platform/fundamentals.html")
+                openInBrowser("https://plugins.jetbrains.com/docs/intellij/fundamentals.html")
             }
         )
     )
