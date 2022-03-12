@@ -50,6 +50,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
+import javax.swing.event.HyperlinkEvent
 import java.util.function.Function
 import java.util.regex.Pattern
 
@@ -129,7 +130,7 @@ class PluginUtil {
 			if (message.trim().empty) message = "[empty message]"
 
 			def notification = new Notification(groupDisplayId, title, message, notificationType)
-			if (notificationListener) {
+			if (notificationListener != null) {
 				notification.setListener(notificationListener)
 			}
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
