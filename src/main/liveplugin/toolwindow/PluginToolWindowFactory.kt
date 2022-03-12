@@ -130,7 +130,7 @@ class PluginToolWindow(project: Project) {
             val toolbar = ActionManager.getInstance().createActionToolbar(place, actionGroup, true)
             // Set target component to avoid this error:
             // 'EditorToolbar' toolbar by default uses any focused component to update its actions. Toolbar actions that need local UI context would be incorrectly disabled. Please call toolbar.setTargetComponent() explicitly. java.lang.Throwable: toolbar creation trace
-            toolbar.setTargetComponent(it)
+            toolbar.targetComponent = it
             it.add(toolbar.component)
         }
     }

@@ -18,7 +18,6 @@ repositories {
 }
 
 ext.kotlinVersion = "1.6.10"
-//ext.groovyVersion = "2.5.14"
 ext.groovyVersion = "3.0.9"
 
 java {
