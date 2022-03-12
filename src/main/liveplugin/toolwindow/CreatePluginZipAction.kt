@@ -1,7 +1,8 @@
 package liveplugin.toolwindow
 
 import com.intellij.ide.BrowserUtil.browse
-import com.intellij.notification.NotificationListener
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -106,7 +107,11 @@ class CreatePluginZipAction: AnAction(
                 val message = "You can upload it to <a href=\"https://plugins.jetbrains.com\">Plugins Marketplace</a> " +
                     "or share as a file and install with <b>Install Plugin from Disk</b> action."
                 livePluginNotificationGroup.createNotification("Packaged plugin into ${zipFile.name}", message, INFORMATION)
-                    .setListener { _, event -> browse(event.url) }
+                    .addAction(object : NotificationAction("Open plugins marketplace") {
+                        override fun actionPerformed(event: AnActionEvent, notification: Notification) {
+                            browse("https://plugins.jetbrains.com")
+                        }
+                    })
                     .notify(project)
             }
         })
@@ -124,9 +129,11 @@ class CreatePluginZipAction: AnAction(
         NewPluginXmlScript(fileContent).createNewFile(this, plugin.path.toVirtualFile() ?: error("Can't create virtual file for '${plugin.path.value}'"))
         val message = "Please review and <a href=\"\">edit its content</a> before publishing the plugin."
         livePluginNotificationGroup.createNotification("Created plugin.xml", message, INFORMATION)
-            .setListener(NotificationListener { _, _ ->
-                val virtualFile = filePath.toVirtualFile() ?: return@NotificationListener
-                FileEditorManager.getInstance(this).openFile(virtualFile, true, true)
+            .addAction(object : NotificationAction("Edit plugin.xml") {
+                override fun actionPerformed(event: AnActionEvent, notification: Notification) {
+                    val virtualFile = filePath.toVirtualFile() ?: return
+                    FileEditorManager.getInstance(this@createPluginXml).openFile(virtualFile, true, true)
+                }
             })
             .notify(this)
     }
