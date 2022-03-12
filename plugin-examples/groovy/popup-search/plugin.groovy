@@ -10,7 +10,7 @@ registerAction("GoogleSearchAction", "ctrl alt shift G") { AnActionEvent event -
 		googleSuggestionsFor(pattern)
 	}
 	showPopupSearch("Google quick search", event.project, itemProvider) { String item ->
-		BrowserUtil.open("http://www.google.com/search?q=${item}")
+		BrowserUtil.browse("http://www.google.com/search?q=${item}")
 	}
 }
 

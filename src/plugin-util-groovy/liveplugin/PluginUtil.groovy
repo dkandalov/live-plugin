@@ -50,7 +50,6 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
 import javax.swing.*
-import javax.swing.event.HyperlinkEvent
 import java.util.function.Function
 import java.util.regex.Pattern
 
@@ -1030,7 +1029,7 @@ class PluginUtil {
 	}
 
 	static String openInBrowser(@NotNull String url) {
-		BrowserUtil.open(url)
+		BrowserUtil.browse(url)
 		url
 	}
 

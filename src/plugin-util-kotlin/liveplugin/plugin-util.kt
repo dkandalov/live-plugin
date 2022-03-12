@@ -71,7 +71,7 @@ fun LivePluginScript.registerInspection(inspection: InspectionProfileEntry) {
 }
 
 fun openInBrowser(url: String) =
-    BrowserUtil.open(url)
+    BrowserUtil.browse(url)
 
 fun Project.openInIdeBrowser(url: String, title: String = "") =
     HTMLEditorProvider.openEditor(this, title, url, null)
