@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.psi.*
 
 registerInspection(HelloWorldInspectionKotlin())
 if (!isIdeStartup) {
-    show("Loaded hello world inspection<br/>It replaces \"hello\" string literal in Java code with \"Hello world\"")
+    show("Loaded hello world inspection<br/>It replaces \"hello\" string literal in Kotlin code with \"Hello world\"")
 }
 
 class HelloWorldInspectionKotlin : AbstractKotlinInspection() {

@@ -48,10 +48,8 @@ java {
 }
 
 tasks.withType( org.gradle.api.tasks.compile.JavaCompile).configureEach {
-    
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
-    
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {

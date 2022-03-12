@@ -33,7 +33,7 @@ fun addLibraryDependencyTo(project: Project, libraryName: String, paths: List<Pa
     runWriteAction {
         val modules = ModuleManager.getInstance(project).modules
         if (modules.isNotEmpty()) {
-            // Add dependency to the first module because this is enough for IntelliJ too see classes
+            // Add dependency to the first module because this is enough for IntelliJ to see classes
             // and adding dependency to all modules can be very slow for large projects
             // (~16 seconds with UI freeze for IntelliJ source code).
             addLibraryDependencyTo(modules[0], libraryName, paths)
