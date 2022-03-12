@@ -6,7 +6,7 @@
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<!-- https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html -->
     <!-- https://www.jetbrains.com/intellij-repository/releases -->
-	<idea-version since-build="0"/> <!-- Version is overwritten by IJ gradle plugin. -->
+	<idea-version since-build="221"/>
 	<category>Plugin Development</category>
     <description>
 		<![CDATA[
@@ -28,10 +28,9 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>Exclude android compiler plugin from Kotlin plugin (otherwise, live plugins cannot depend on Kotlin)</li>
-			<li>Fixed popup actions in the Plugins tool window</li>
-            <li>Kotlin 1.6.10 (compiling to 1.5)</li>
-			<li>misc fixes</li>
+            <li>compatibility with IJ 221 EAP</li>
+            <li>groovy 3.0.9</li>
+            <li>fixes</li>
         </ul></body></html>
         ]]>
     </change-notes>

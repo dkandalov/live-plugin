@@ -37,8 +37,8 @@ intellij {
 	// The "LivePlugin" directory is deleted on each plugin update so it's good make it distinct from "live-plugins".
 	pluginName = "LivePlugin"
 	downloadSources = true
-	sameSinceUntilBuild = true
-	updateSinceUntilBuild = true
+    // Disable patching plugin.xml because "until" version is too restrictive (it's better to keep it open-ended).
+	updateSinceUntilBuild = false
 	plugins = [
 		"java",
 		"Groovy",
