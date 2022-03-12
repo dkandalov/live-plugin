@@ -1,12 +1,12 @@
 <idea-plugin>
 	<id>LivePlugin</id>
     <name>LivePlugin</name>
-	<version>0.7.5 beta</version>
+	<version>0.7.6 beta eap</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<!-- https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html -->
     <!-- https://www.jetbrains.com/intellij-repository/releases -->
-	<idea-version since-build="212.4746.92"/>
+	<idea-version since-build="0"/> <!-- Version is overwritten by IJ gradle plugin. -->
 	<category>Plugin Development</category>
     <description>
 		<![CDATA[
