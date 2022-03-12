@@ -97,7 +97,7 @@ object IdeUtil {
         init {
             val toolbarPanel = JPanel(BorderLayout()).also {
                 val actionToolbar = ActionManager.getInstance().createActionToolbar(livePluginActionPlace, toolbarActions, false)
-                actionToolbar.setTargetComponent(this)
+                actionToolbar.targetComponent = this
                 it.add(actionToolbar.component)
             }
             add(toolbarPanel, BorderLayout.WEST)

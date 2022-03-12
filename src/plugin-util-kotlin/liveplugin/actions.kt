@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package liveplugin
 
 import com.intellij.openapi.Disposable
@@ -120,7 +122,7 @@ fun ActionGroup.createPopup(
     JBPopupFactory.getInstance().createActionGroupPopup(
         templatePresentation.text,
         this,
-        dataContext ?: defaultDataContext(), // Use deafult context so that IJ doesn't throw an exception.
+        dataContext ?: defaultDataContext(), // Use default context so that IJ doesn't throw an exception.
         showNumbers,
         showDisabledActions,
         selectionAidMethod == MNEMONICS,

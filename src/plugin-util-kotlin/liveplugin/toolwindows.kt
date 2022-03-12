@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package liveplugin
 
 import com.intellij.openapi.Disposable
