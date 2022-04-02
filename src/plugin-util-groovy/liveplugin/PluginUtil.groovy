@@ -8,7 +8,7 @@ import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.BrowserUtil
 import com.intellij.internal.psiView.PsiViewerDialog
 import com.intellij.notification.Notification
-import com.intellij.notification.NotificationListener
+import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.Disposable
@@ -44,6 +44,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.ProjectScope
+import liveplugin.MapDataContext
 import liveplugin.implementation.*
 import org.jetbrains.annotations.Contract
 import org.jetbrains.annotations.NotNull
@@ -122,15 +123,15 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	static show(@Nullable message, String title = "", NotificationType notificationType = INFORMATION,
-	            String groupDisplayId = "", @Nullable NotificationListener notificationListener = null) {
+	            String groupDisplayId = "", @Nullable NotificationAction notificationAction = null) {
 		invokeLaterOnEDT {
 			message = Misc.asString(message)
 			// this is because Notification doesn't accept empty messages
 			if (message.trim().empty) message = "[empty message]"
 
 			def notification = new Notification(groupDisplayId, title, message, notificationType)
-			if (notificationListener != null) {
-				notification.setListener(notificationListener)
+			if (notificationAction != null) {
+				notification.addAction(notificationAction)
 			}
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		}

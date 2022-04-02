@@ -7,7 +7,7 @@ import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.BrowserUtil
-import com.intellij.notification.NotificationListener
+import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -44,9 +44,9 @@ fun show(
     title: String = "",
     notificationType: NotificationType = INFORMATION,
     groupDisplayId: String = "Live Plugin",
-    notificationListener: NotificationListener? = null
+    notificationAction: NotificationAction? = null
 ) {
-    PluginUtil.show(message, title, notificationType, groupDisplayId, notificationListener)
+    PluginUtil.show(message, title, notificationType, groupDisplayId, notificationAction)
 }
 
 fun Project.showInConsole(
