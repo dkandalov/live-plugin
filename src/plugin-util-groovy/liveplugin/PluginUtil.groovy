@@ -44,7 +44,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.ProjectScope
-import liveplugin.MapDataContext
 import liveplugin.implementation.*
 import org.jetbrains.annotations.Contract
 import org.jetbrains.annotations.NotNull
@@ -943,7 +942,7 @@ class PluginUtil {
 	}
 
 	static showPopupMenu(Map menuDescription, String popupTitle = "", JComponent contextComponent) {
-		def map = [:]
+		def map = new HashMap<String, JComponent>()
 		map.put(PlatformDataKeys.CONTEXT_COMPONENT.name, contextComponent)
 		showPopupMenu(menuDescription, popupTitle, new MapDataContext(map))
 	}
