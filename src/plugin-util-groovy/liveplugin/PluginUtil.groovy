@@ -21,6 +21,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.extensions.LoadingOrder
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
@@ -35,7 +36,6 @@ import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import com.intellij.openapi.vcs.VcsRoot
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.WindowManager
@@ -56,6 +56,7 @@ import java.util.regex.Pattern
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.SPEEDSEARCH
+import static com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 import static liveplugin.implementation.Misc.registerDisposable
 import static liveplugin.implementation.Misc.unregisterDisposable
@@ -524,15 +525,16 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	static registerWidget(String widgetId, Disposable disposable,
-	                      String anchor = "before Position", StatusBarWidget.WidgetPresentation presentation) {
+	                      String anchor = "before Position", WidgetPresentation presentation) {
 		invokeOnEDT {
-			Widgets.registerWidget(widgetId, disposable, anchor, presentation)
+			Widgets.registerWidget(widgetId, disposable, new LoadingOrder(anchor), presentation)
 		}
 	}
 
 	@CanCallFromAnyThread
+    @Deprecated // Use registerWidget() without project
 	static registerWidget(String widgetId, Project project, Disposable disposable = project,
-	                      String anchor = "before Position", StatusBarWidget.WidgetPresentation presentation) {
+	                      String anchor = "before Position", WidgetPresentation presentation) {
 		invokeOnEDT {
 			Widgets.registerWidget(widgetId, project, disposable, anchor, presentation)
 		}
