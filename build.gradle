@@ -18,7 +18,7 @@ repositories {
 }
 
 ext.kotlinVersion = "1.6.10"
-ext.groovyVersion = "3.0.9"
+ext.groovyVersion = "3.0.9" // Matches the version of Groovy bundled with IntelliJ
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_11
