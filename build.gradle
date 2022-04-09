@@ -67,7 +67,7 @@ dependencies {
 	compileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
 	testCompileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
 
-	testImplementation group: "junit", name: "junit", version: "4.12" // includes hamcrest-core
+	testImplementation group: "junit", name: "junit", version: "4.13.1" // includes hamcrest-core
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
