@@ -24,11 +24,11 @@ class Widgets {
                 new StatusBarWidget() {
                     @Override String ID() { widgetId }
                     @Override WidgetPresentation getPresentation() { presentation }
-                    @Override def install(StatusBar statusBar) {}
-                    @Override def dispose() {}
+                    @Override void install(StatusBar statusBar) {}
+                    @Override void dispose() {}
                 }
             }
-            @Override def disposeWidget(StatusBarWidget widget) {}
+            @Override void disposeWidget(StatusBarWidget widget) {}
         }
         StatusBarWidgetFactory.EP_NAME.point.registerExtension(widgetFactory, loadingOrder, disposable)
 	}
