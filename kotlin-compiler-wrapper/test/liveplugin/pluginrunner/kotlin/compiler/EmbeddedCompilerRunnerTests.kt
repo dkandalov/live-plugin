@@ -1,6 +1,7 @@
 package liveplugin.pluginrunner.kotlin.compiler
 
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test
