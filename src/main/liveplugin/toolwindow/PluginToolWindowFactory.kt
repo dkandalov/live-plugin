@@ -177,7 +177,7 @@ class PluginToolWindow(project: Project) {
             EditSourceOnDoubleClickHandler.install(myTree) // This handler only seems to work before creating FileSystemTreeImpl.
 
             val fileSystemTree = FileSystemTreeImpl(project, createFileChooserDescriptor(), myTree, null, null, null)
-
+            Disposer.register(project, fileSystemTree)
             fileSystemTree.tree.let {
                 EditSourceOnEnterKeyHandler.install(it) // This handler only seems to work after creating FileSystemTreeImpl.
                 it.installPopupMenu()
