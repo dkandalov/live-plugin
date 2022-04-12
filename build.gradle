@@ -29,11 +29,11 @@ intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
 	// and https://www.jetbrains.com/intellij-repository/snapshots
 	version = System.getenv().getOrDefault("IJ_VERSION",
-//		"212.4746.92" // Compatibility with IJ 2021.2 (which broke PluginClassLoader again, see https://github.com/dkandalov/live-plugin/issues/122)
-		"LATEST-EAP-SNAPSHOT"
+        "221.5080.210" // Compatibility with IJ 2022.1 (groovy 3, changes in PluginClassLoader https://github.com/dkandalov/live-plugin/issues/123)
+//		"LATEST-EAP-SNAPSHOT"
 	)
 	// The artifact name is deliberately not "live-plugin" because plugins are stored in the "live-plugins" directory.
-	// The "LivePlugin" directory is deleted on each plugin update so it's good make it distinct from "live-plugins".
+	// The "LivePlugin" directory is deleted on each plugin update so it has to be different from "live-plugins".
 	pluginName = "LivePlugin"
 	downloadSources = true
     // Disable patching plugin.xml because "until" version is too restrictive (it's better to keep it open-ended).

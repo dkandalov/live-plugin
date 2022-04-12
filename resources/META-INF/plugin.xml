@@ -6,7 +6,7 @@
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<!-- https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html -->
     <!-- https://www.jetbrains.com/intellij-repository/releases -->
-	<idea-version since-build="221"/>
+	<idea-version since-build="221.5080.210"/>
 	<category>Plugin Development</category>
     <description>
 		<![CDATA[

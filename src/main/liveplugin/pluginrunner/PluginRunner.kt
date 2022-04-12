@@ -4,16 +4,17 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.plugins.PluginManagerCore.CORE_ID
+import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
+import com.intellij.util.io.exists
+import com.intellij.util.lang.ClassPath
 import com.intellij.util.lang.UrlClassLoader
-import groovy.lang.GroovyClassLoader
 import liveplugin.Result
 import liveplugin.asFailure
 import liveplugin.asSuccess
 import liveplugin.pluginrunner.AnError.LoadingError
-import liveplugin.toUrl
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
@@ -29,32 +30,28 @@ interface PluginRunner {
     fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError>
 
     object ClasspathAddition {
+        @Suppress("UnstableApiUsage")
         fun createClassLoaderWithDependencies(
             additionalClasspath: List<File>,
             pluginDescriptors: List<IdeaPluginDescriptor>,
             plugin: LivePlugin
         ): Result<ClassLoader, LoadingError> {
-            val classLoader = GroovyClassLoader(createParentClassLoader(pluginDescriptors, plugin))
-
-            additionalClasspath.forEach { file ->
-                if (!file.exists()) return LoadingError("Didn't find plugin dependency '${file.absolutePath}'.").asFailure()
+            val additionalPaths = additionalClasspath.map { file -> file.toPath() }.onEach { path ->
+                if (!path.exists()) return LoadingError("Didn't find plugin dependency '${path.toFile().absolutePath}'.").asFailure()
             }
-            additionalClasspath.forEach { file -> classLoader.addURL(file.toUrl()) }
 
-            return classLoader.asSuccess()
-        }
+            val livePluginDescriptor = PluginManagerCore.getPlugins().find { it.name == "LivePlugin" }
 
-        private fun createParentClassLoader(pluginDescriptors: List<IdeaPluginDescriptor>, plugin: LivePlugin): ClassLoader {
-            val parentLoaders = pluginDescriptors.mapNotNull { it.pluginClassLoader } + PluginRunner::class.java.classLoader
-            return PluginClassLoader_Fork(
-                UrlClassLoader.build().files(emptyList()).allowLock(true).useCache(),
-                parentLoaders.toTypedArray(),
+            return PluginClassLoader(
+                additionalPaths,
+                ClassPath(additionalPaths, UrlClassLoader.build(), null, false),
+                (pluginDescriptors.map { it as IdeaPluginDescriptorImpl } + (livePluginDescriptor as IdeaPluginDescriptorImpl)).toTypedArray(),
                 DefaultPluginDescriptor(plugin.id),
-                null,
                 PluginManagerCore::class.java.classLoader,
                 null,
-                null
-            )
+                null,
+                emptyList()
+            ).asSuccess()
         }
 
         fun findPluginDescriptorsOfDependencies(lines: List<String>, keyword: String): List<Result<IdeaPluginDescriptor, String>> {
