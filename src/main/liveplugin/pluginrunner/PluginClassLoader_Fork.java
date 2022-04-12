@@ -1,36 +1,51 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package liveplugin.pluginrunner;
 
-import com.intellij.diagnostic.*;
-import com.intellij.ide.plugins.*;
-import com.intellij.ide.plugins.cl.*;
-import com.intellij.openapi.diagnostic.*;
-import com.intellij.openapi.extensions.*;
-import com.intellij.openapi.util.*;
-import com.intellij.util.*;
-import com.intellij.util.lang.*;
-import com.intellij.util.ui.*;
+import com.intellij.diagnostic.PluginException;
+import com.intellij.diagnostic.StartUpMeasurer;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
+import com.intellij.ide.plugins.cl.PluginAwareClassLoader;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.extensions.PluginDescriptor;
+import com.intellij.openapi.extensions.PluginId;
+import com.intellij.openapi.util.ShutDownTracker;
+import com.intellij.util.lang.ClassPath;
+import com.intellij.util.lang.ClasspathCache;
+import com.intellij.util.lang.Resource;
+import com.intellij.util.lang.UrlClassLoader;
+import com.intellij.util.ui.EDT;
 import org.jetbrains.annotations.*;
 
 import java.io.*;
-import java.net.*;
-import java.nio.file.*;
-import java.security.*;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
 import java.util.*;
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
- * Fork of com.intellij.ide.plugins.cl.PluginClassLoader
+ * Fork of PluginClassLoader_Fork
  * because its an internal IJ API and it has been changing in IJ 2020.2 causing LivePlugin to break.
  * The assumption is that using fork will make LivePlugin forward-compatible with more IJ versions
  * given that PluginClassLoader_Fork implementation compatibility is more stable than PluginClassLoader API.
  */
 @SuppressWarnings("ALL")
-public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwareClassLoader {
+@ApiStatus.Internal
+public final class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwareClassLoader {
     public static final ClassLoader[] EMPTY_CLASS_LOADER_ARRAY = new ClassLoader[0];
 
-    private static final boolean isParallelCapable = registerAsParallelCapable();
+    static {
+        boolean parallelCapable = registerAsParallelCapable();
+        assert parallelCapable;
+    }
 
     private static final @Nullable Writer logStream;
     private static final AtomicInteger instanceIdProducer = new AtomicInteger();
@@ -44,28 +59,33 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
     static {
         @SuppressWarnings("SSBasedInspection")
         Set<String> kotlinStdlibClassesUsedInSignatures = new HashSet<>(Arrays.asList(
-            "kotlin.Function",
-            "kotlin.sequences.Sequence",
-            "kotlin.ranges.IntRange",
-            "kotlin.ranges.IntRange$Companion",
-            "kotlin.ranges.IntProgression",
-            "kotlin.ranges.ClosedRange",
-            "kotlin.ranges.IntProgressionIterator",
-            "kotlin.ranges.IntProgression$Companion",
-            "kotlin.ranges.IntProgression",
-            "kotlin.collections.IntIterator",
-            "kotlin.Lazy", "kotlin.Unit",
-            "kotlin.Pair", "kotlin.Triple",
-            "kotlin.jvm.internal.DefaultConstructorMarker",
-            "kotlin.jvm.internal.ClassBasedDeclarationContainer",
-            "kotlin.properties.ReadWriteProperty",
-            "kotlin.properties.ReadOnlyProperty",
-            "kotlin.coroutines.ContinuationInterceptor",
-            "kotlinx.coroutines.CoroutineDispatcher",
-            "kotlin.coroutines.Continuation",
-            "kotlin.coroutines.CoroutineContext",
-            "kotlin.coroutines.CoroutineContext$Element",
-            "kotlin.coroutines.CoroutineContext$Key"
+                "kotlin.Function",
+                "kotlin.sequences.Sequence",
+                "kotlin.ranges.IntRange",
+                "kotlin.ranges.IntRange$Companion",
+                "kotlin.ranges.IntProgression",
+                "kotlin.ranges.ClosedRange",
+                "kotlin.ranges.IntProgressionIterator",
+                "kotlin.ranges.IntProgression$Companion",
+                "kotlin.ranges.IntProgression",
+                "kotlin.collections.IntIterator",
+                "kotlin.Lazy", "kotlin.Unit",
+                "kotlin.Pair", "kotlin.Triple",
+                "kotlin.jvm.internal.DefaultConstructorMarker",
+                "kotlin.jvm.internal.ClassBasedDeclarationContainer",
+                "kotlin.properties.ReadWriteProperty",
+                "kotlin.properties.ReadOnlyProperty",
+                "kotlin.coroutines.ContinuationInterceptor",
+                "kotlinx.coroutines.CoroutineDispatcher",
+                "kotlin.coroutines.Continuation",
+                "kotlin.coroutines.CoroutineContext",
+                "kotlin.coroutines.CoroutineContext$Element",
+                "kotlin.coroutines.CoroutineContext$Key",
+                // Even though it's internal class, it can leak (and it does) into API surface because it's exposed by public
+                // `kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED` property
+                "kotlin.coroutines.intrinsics.CoroutineSingletons",
+                "kotlin.coroutines.AbstractCoroutineContextElement",
+                "kotlin.coroutines.AbstractCoroutineContextKey"
         ));
         String classes = System.getProperty("idea.kotlin.classes.used.in.signatures");
         if (classes != null) {
@@ -79,6 +99,10 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
         String debugFilePath = System.getProperty("plugin.classloader.debug", "");
         if (!debugFilePath.isEmpty()) {
             try {
+                if (debugFilePath.startsWith("~/") || debugFilePath.startsWith("~\\")) {
+                    debugFilePath = System.getProperty("user.home") + debugFilePath.substring(1);
+                }
+
                 logStreamCandidate = Files.newBufferedWriter(Paths.get(debugFilePath));
                 ShutDownTracker.getInstance().registerShutdownTask(new Runnable() {
                     @Override
@@ -102,7 +126,8 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
         logStream = logStreamCandidate;
     }
 
-    private ClassLoader[] parents;
+    private final IdeaPluginDescriptorImpl[] parents;
+
     // cache of computed list of all parents (not only direct)
     private volatile ClassLoader[] allParents;
     private volatile int allParentsLastCacheId;
@@ -122,80 +147,76 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
     private final int instanceId;
     private volatile int state = ACTIVE;
 
-    public PluginClassLoader_Fork(@NotNull UrlClassLoader.Builder builder,
-                                  @NotNull ClassLoader @NotNull [] parents,
-                                  @NotNull PluginDescriptor pluginDescriptor,
-                                  @Nullable Path pluginRoot,
-                                  @NotNull ClassLoader coreLoader,
-                                  @Nullable String packagePrefix,
-                                  @Nullable ClassPath.ResourceFileFactory resourceFileFactory) {
-        super(builder, null, isParallelCapable);
+    @SuppressWarnings("FieldNameHidesFieldInSuperclass")
+    private final PluginClassLoader_Fork.ResolveScopeManager resolveScopeManager;
+
+    public interface ResolveScopeManager {
+        String isDefinitelyAlienClass(String name, String packagePrefix, boolean force);
+    }
+
+    public PluginClassLoader_Fork(@NotNull List<Path> files,
+                             @NotNull ClassPath classPath,
+                             @NotNull IdeaPluginDescriptorImpl @NotNull [] dependencies,
+                             @NotNull PluginDescriptor pluginDescriptor,
+                             @NotNull ClassLoader coreLoader,
+                             @Nullable PluginClassLoader_Fork.ResolveScopeManager resolveScopeManager,
+                             @Nullable String packagePrefix,
+                             @NotNull List<String> libDirectories) {
+        super(files, classPath);
 
         instanceId = instanceIdProducer.incrementAndGet();
 
-        this.parents = parents;
+        this.resolveScopeManager = resolveScopeManager == null ? (p1, p2, p3) -> null : resolveScopeManager;
+        this.parents = dependencies;
         this.pluginDescriptor = pluginDescriptor;
         pluginId = pluginDescriptor.getPluginId();
         this.packagePrefix = (packagePrefix == null || packagePrefix.endsWith(".")) ? packagePrefix : (packagePrefix + '.');
         this.coreLoader = coreLoader;
+        this.libDirectories = libDirectories;
+    }
 
-        // Commented out because this error is thrown for plugins with: depends-on-plugin org.jetbrains.kotlin
-//        if (PluginClassLoader_Fork.class.desiredAssertionStatus()) {
-//            for (ClassLoader parent : this.parents) {
-//                if (parent == coreLoader) {
-//                    Logger.getInstance(PluginClassLoader_Fork.class).error("Core loader must be not specified in parents " +
-//                        "(parents=" + Arrays.toString(parents) + ", coreLoader=" + coreLoader + ")");
-//                }
-//            }
-//        }
-
-        libDirectories = new SmartList<>();
-        if (pluginRoot != null) {
-            Path libDir = pluginRoot.resolve("lib");
-            if (Files.exists(libDir)) {
-                libDirectories.add(libDir.toAbsolutePath().toString());
-            }
-        }
+    public @NotNull List<String> getLibDirectories() {
+        return libDirectories;
     }
 
     @Override
-    public final @Nullable String getPackagePrefix() {
+    public @Nullable String getPackagePrefix() {
         return packagePrefix;
     }
 
     @Override
     @ApiStatus.Internal
-    public final int getState() {
+    public int getState() {
         return state;
     }
 
     @ApiStatus.Internal
-    public final void setState(int state) {
+    public void setState(int state) {
         this.state = state;
     }
 
     @Override
-    public final int getInstanceId() {
+    public int getInstanceId() {
         return instanceId;
     }
 
     @Override
-    public final long getEdtTime() {
+    public long getEdtTime() {
         return edtTime.get();
     }
 
     @Override
-    public final long getBackgroundTime() {
+    public long getBackgroundTime() {
         return backgroundTime.get();
     }
 
     @Override
-    public final long getLoadedClassCount() {
+    public long getLoadedClassCount() {
         return loadedClassCounter.get();
     }
 
     @Override
-    public final Class<?> loadClass(@NotNull String name, boolean resolve) throws ClassNotFoundException {
+    public Class<?> loadClass(@NotNull String name, boolean resolve) throws ClassNotFoundException {
         Class<?> c = tryLoadingClass(name, false);
         if (c == null) {
             flushDebugLog();
@@ -208,16 +229,30 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
      * See https://stackoverflow.com/a/5428795 about resolve flag.
      */
     @Override
-    public final @Nullable Class<?> tryLoadingClass(@NotNull String name, boolean forceLoadFromSubPluginClassloader)
-        throws ClassNotFoundException {
+    public @Nullable Class<?> tryLoadingClass(@NotNull String name, boolean forceLoadFromSubPluginClassloader)
+            throws ClassNotFoundException {
         if (mustBeLoadedByPlatform(name)) {
             return coreLoader.loadClass(name);
         }
 
+        String fileNameWithoutExtension = name.replace('.', '/');
+        String fileName = fileNameWithoutExtension + ClasspathCache.CLASS_EXTENSION;
+        long packageNameHash = ClasspathCache.getPackageNameHash(fileNameWithoutExtension, fileNameWithoutExtension.lastIndexOf('/'));
+
         long startTime = StartUpMeasurer.measuringPluginStartupCosts ? StartUpMeasurer.getCurrentTime() : -1;
         Class<?> c;
+        PluginException error = null;
         try {
-            c = loadClassInsideSelf(name, forceLoadFromSubPluginClassloader);
+            String consistencyError = resolveScopeManager.isDefinitelyAlienClass(name, packagePrefix, forceLoadFromSubPluginClassloader);
+            if (consistencyError == null) {
+                c = loadClassInsideSelf(name, fileName, packageNameHash, forceLoadFromSubPluginClassloader);
+            }
+            else {
+                if (!consistencyError.isEmpty()) {
+                    error = new PluginException(consistencyError, pluginId);
+                }
+                c = null;
+            }
         }
         catch (IOException e) {
             throw new ClassNotFoundException(name, e);
@@ -225,9 +260,43 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
 
         if (c == null) {
             for (ClassLoader classloader : getAllParents()) {
-                if (classloader instanceof UrlClassLoader) {
+                if (classloader instanceof PluginClassLoader_Fork) {
                     try {
-                        c = ((UrlClassLoader)classloader).loadClassInsideSelf(name, name, 0, false);
+                        PluginClassLoader_Fork pluginClassLoader = (PluginClassLoader_Fork)classloader;
+                        String consistencyError = pluginClassLoader.resolveScopeManager.isDefinitelyAlienClass(name,
+                                pluginClassLoader.packagePrefix,
+                                forceLoadFromSubPluginClassloader);
+                        if (consistencyError != null) {
+                            if (!consistencyError.isEmpty() && error == null) {
+                                // yes, we blame requestor plugin
+                                error = new PluginException(consistencyError, pluginId);
+                            }
+                            continue;
+                        }
+                        c = pluginClassLoader.loadClassInsideSelf(name, fileName, packageNameHash, false);
+                    }
+                    catch (IOException e) {
+                        throw new ClassNotFoundException(name, e);
+                    }
+                    if (c != null) {
+                        break;
+                    }
+                }
+                else if (classloader instanceof UrlClassLoader) {
+                    try {
+                        UrlClassLoader urlClassLoader = (UrlClassLoader)classloader;
+                        BiFunction<String, Boolean, String> resolveScopeManager = urlClassLoader.resolveScopeManager;
+                        String consistencyError = resolveScopeManager == null
+                                ? null
+                                : resolveScopeManager.apply(name, forceLoadFromSubPluginClassloader);
+                        if (consistencyError != null) {
+                            if (!consistencyError.isEmpty() && error == null) {
+                                // yes, we blame requestor plugin
+                                error = new PluginException(consistencyError, pluginId);
+                            }
+                            continue;
+                        }
+                        c = urlClassLoader.loadClassInsideSelf(name, fileName, packageNameHash, false);
                     }
                     catch (IOException e) {
                         throw new ClassNotFoundException(name, e);
@@ -247,6 +316,10 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
                         // ignore and continue
                     }
                 }
+            }
+
+            if (error != null) {
+                throw error;
             }
         }
 
@@ -272,15 +345,15 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
 
         Set<ClassLoader> parentSet = new LinkedHashSet<>();
         Deque<ClassLoader> queue = new ArrayDeque<>();
-        Collections.addAll(queue, parents);
+        collectClassLoaders(queue);
         ClassLoader classLoader;
         while ((classLoader = queue.pollFirst()) != null) {
-            if (classLoader == coreLoader || !parentSet.add(classLoader)) {
+            if (!parentSet.add(classLoader)) {
                 continue;
             }
 
             if (classLoader instanceof PluginClassLoader_Fork) {
-                Collections.addAll(queue, ((PluginClassLoader_Fork)classLoader).parents);
+                ((PluginClassLoader_Fork)classLoader).collectClassLoaders(queue);
             }
         }
         parentSet.add(coreLoader);
@@ -290,7 +363,16 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
         return result;
     }
 
-    public final void clearParentListCache() {
+    private void collectClassLoaders(@NotNull Deque<ClassLoader> queue) {
+        for (IdeaPluginDescriptorImpl parent : parents) {
+            ClassLoader classLoader = parent.getPluginClassLoader();
+            if (classLoader != null && classLoader != coreLoader) {
+                queue.add(classLoader);
+            }
+        }
+    }
+
+    public void clearParentListCache() {
         allParents = null;
     }
 
@@ -299,20 +381,26 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
             return true;
         }
 
-        // some commonly used classes from kotlin-runtime must be loaded by the platform classloader. Otherwise if a plugin bundles its own version
+        // some commonly used classes from kotlin-runtime must be loaded by the platform classloader. Otherwise, if a plugin bundles its own version
         // of kotlin-runtime.jar it won't be possible to call platform's methods with these types in signatures from such a plugin.
-        // We assume that these classes don't change between Kotlin versions so it's safe to always load them from platform's kotlin-runtime.
+        // We assume that these classes don't change between Kotlin versions, so it's safe to always load them from platform's kotlin-runtime.
         return className.startsWith("kotlin.") && (className.startsWith("kotlin.jvm.functions.") ||
-            (className.startsWith("kotlin.reflect.") &&
-                className.indexOf('.', 15 /* "kotlin.reflect".length */) < 0) ||
-            KOTLIN_STDLIB_CLASSES_USED_IN_SIGNATURES.contains(className));
+                (className.startsWith("kotlin.reflect.") &&
+                        className.indexOf('.', 15 /* "kotlin.reflect".length */) < 0) ||
+                KOTLIN_STDLIB_CLASSES_USED_IN_SIGNATURES.contains(className));
     }
 
-    public @Nullable Class<?> loadClassInsideSelf(@NotNull String name, boolean forceLoadFromSubPluginClassloader) throws IOException {
-        if (packagePrefix != null && isDefinitelyAlienClass(name, packagePrefix)) {
-            return null;
-        }
+    @Override
+    public boolean hasLoadedClass(String name) {
+        String consistencyError = resolveScopeManager.isDefinitelyAlienClass(name, packagePrefix, false);
+        return consistencyError == null && super.hasLoadedClass(name);
+    }
 
+    @Override
+    public @Nullable Class<?> loadClassInsideSelf(String name,
+                                                  String fileName,
+                                                  long packageNameHash,
+                                                  boolean forceLoadFromSubPluginClassloader) throws IOException {
         synchronized (getClassLoadingLock(name)) {
             Class<?> c = findLoadedClass(name);
             if (c != null && c.getClassLoader() == this) {
@@ -321,7 +409,7 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
 
             Writer logStream = PluginClassLoader_Fork.logStream;
             try {
-                c = classPath.findClass(name, name, 0, classDataConsumer);
+                c = classPath.findClass(name, fileName, packageNameHash, classDataConsumer);
             }
             catch (LinkageError e) {
                 if (logStream != null) {
@@ -329,8 +417,8 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
                 }
                 flushDebugLog();
                 throw new PluginException("Cannot load class " + name + " (" +
-                    "\n  error: " + e.getMessage() +
-                    ",\n  classLoader=" + this + "\n)", e, pluginId);
+                        "\n  error: " + e.getMessage() +
+                        ",\n  classLoader=" + this + "\n)", e, pluginId);
             }
 
             if (c == null) {
@@ -348,45 +436,53 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
     private void logClass(@NotNull String name, @NotNull Writer logStream, @Nullable LinkageError exception) {
         try {
             // must be as one write call since write is performed from multiple threads
-            String specifier = getClass() == PluginClassLoader_Fork.class ? "m" : "s = " + ((IdeaPluginDescriptor)pluginDescriptor).getDescriptorPath();
-            logStream.write(name + " [" + specifier + "] " + pluginId.getIdString() + (packagePrefix == null ? "" : (':' + packagePrefix)) + '\n' + (exception == null ? "" : exception.getMessage()));
+            String descriptorPath = ((IdeaPluginDescriptor)pluginDescriptor).getDescriptorPath();
+            String specifier = descriptorPath == null ? "m" : "sub = " + descriptorPath;
+            logStream.write(name + " [" + specifier + "] " + pluginId.getIdString() + (packagePrefix == null ? "" : (':' + packagePrefix))
+                    + '\n' + (exception == null ? "" : exception.getMessage()));
         }
         catch (IOException ignored) {
         }
     }
 
-    protected boolean isDefinitelyAlienClass(@NotNull String name, @NotNull String packagePrefix) {
-        // packed into plugin jar
-        return !name.startsWith(packagePrefix) && !name.startsWith("com.intellij.ultimate.PluginVerifier");
+    @Override
+    public @Nullable URL findResource(@NotNull String name) {
+        return doFindResource(name, Resource::getURL, ClassLoader::getResource);
     }
 
     @Override
-    public final @Nullable URL findResource(@NotNull String name) {
-        String canonicalPath = toCanonicalPath(name);
-        Resource resource = classPath.findResource(canonicalPath);
-        if (resource != null) return resource.getURL();
-
-        URL result = doFindResource(canonicalPath);
-        if (result == null && canonicalPath.startsWith("/")) {
-            Logger.getInstance(PluginClassLoader_Fork.class).error(
-                "Do not request resource from classloader using path with leading slash", new IllegalArgumentException(name));
-            result = doFindResource(canonicalPath.substring(1));
+    public byte @Nullable [] getResourceAsBytes(@NotNull String name, boolean checkParents) throws IOException {
+        byte[] result = super.getResourceAsBytes(name, checkParents);
+        if (result != null) {
+            return result;
         }
-        return result;
-    }
 
-    private @Nullable URL doFindResource(String canonicalPath) {
+        if (!checkParents) {
+            return null;
+        }
+
         for (ClassLoader classloader : getAllParents()) {
-            if (classloader instanceof PluginClassLoader_Fork) {
-                Resource resource = ((PluginClassLoader_Fork)classloader).classPath.findResource(canonicalPath);
+            if (classloader instanceof UrlClassLoader) {
+                Resource resource = ((UrlClassLoader)classloader).getClassPath().findResource(name);
                 if (resource != null) {
-                    return resource.getURL();
+                    return resource.getBytes();
                 }
             }
             else {
-                URL resourceUrl = classloader.getResource(canonicalPath);
-                if (resourceUrl != null) {
-                    return resourceUrl;
+                InputStream input = classloader.getResourceAsStream(name);
+                if (input != null) {
+                    try {
+                        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                        int read;
+                        byte[] data = new byte[16384];
+                        while ((read = input.read(data, 0, data.length)) != -1) {
+                            buffer.write(data, 0, read);
+                        }
+                        return buffer.toByteArray();
+                    }
+                    finally {
+                        input.close();
+                    }
                 }
             }
         }
@@ -394,47 +490,63 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
     }
 
     @Override
-    public final @Nullable InputStream getResourceAsStream(@NotNull String name) {
-        String canonicalPath = toCanonicalPath(name);
-
-        Resource resource = classPath.findResource(canonicalPath);
-        if (resource != null) {
+    public @Nullable InputStream getResourceAsStream(@NotNull String name) {
+        java.util.function.Function<Resource, InputStream> f1 = resource -> {
             try {
                 return resource.getInputStream();
             }
             catch (IOException e) {
                 Logger.getInstance(PluginClassLoader_Fork.class).error(e);
+                return null;
             }
+        };
+        BiFunction<ClassLoader, String, InputStream> f2 = (cl, path) -> {
+            try {
+                return cl.getResourceAsStream(path);
+            }
+            catch (Exception e) {
+                Logger.getInstance(PluginClassLoader_Fork.class).error(e);
+                return null;
+            }
+        };
+        return doFindResource(name, f1, f2);
+    }
+
+    private <T> @Nullable T doFindResource(String name, Function<Resource, T> f1, BiFunction<ClassLoader, String, T> f2) {
+        String canonicalPath = toCanonicalPath(name);
+
+        Resource resource = classPath.findResource(canonicalPath);
+        if (resource != null) {
+            return f1.apply(resource);
         }
 
         for (ClassLoader classloader : getAllParents()) {
             if (classloader instanceof PluginClassLoader_Fork) {
                 resource = ((PluginClassLoader_Fork)classloader).classPath.findResource(canonicalPath);
                 if (resource != null) {
-                    try {
-                        return resource.getInputStream();
-                    }
-                    catch (IOException e) {
-                        Logger.getInstance(PluginClassLoader_Fork.class).error(e);
-                    }
+                    return f1.apply(resource);
                 }
             }
             else {
-                InputStream stream = classloader.getResourceAsStream(canonicalPath);
-                if (stream != null) {
-                    return stream;
+                T t = f2.apply(classloader, canonicalPath);
+                if (t != null) {
+                    return t;
                 }
             }
         }
 
-        if (name.startsWith("/")) {
-            throw new IllegalArgumentException("Do not request resource from classloader using path with leading slash (path=" + name + ")");
+        if (canonicalPath.startsWith("/") && classPath.findResource(canonicalPath.substring(1)) != null) {
+            // reporting malformed paths only when there's a resource at the right one - which is rarely the case
+            // (see also `UrlClassLoader#doFindResource`)
+            String message = "Calling `ClassLoader#getResource` with leading slash doesn't work; strip";
+            Logger.getInstance(PluginClassLoader_Fork.class).error(message, new PluginException(name, pluginId));
         }
+
         return null;
     }
 
     @Override
-    public final @NotNull Enumeration<URL> findResources(@NotNull String name) throws IOException {
+    public @NotNull Enumeration<URL> findResources(@NotNull String name) throws IOException {
         List<Enumeration<URL>> resources = new ArrayList<>();
         resources.add(classPath.getResources(name));
         for (ClassLoader classloader : getAllParents()) {
@@ -445,20 +557,19 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
                 try {
                     resources.add(classloader.getResources(name));
                 }
-                catch (IOException ignore) {
-                }
+                catch (IOException ignore) { }
             }
         }
-        return new DeepEnumeration(resources);
+        return new PluginClassLoader_Fork.DeepEnumeration(resources);
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public final void addLibDirectories(@NotNull Collection<String> libDirectories) {
+    public void addLibDirectories(@NotNull Collection<String> libDirectories) {
         this.libDirectories.addAll(libDirectories);
     }
 
     @Override
-    protected final String findLibrary(String libName) {
+    protected String findLibrary(String libName) {
         if (!libDirectories.isEmpty()) {
             String libFileName = System.mapLibraryName(libName);
             ListIterator<String> i = libDirectories.listIterator(libDirectories.size());
@@ -473,29 +584,29 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
     }
 
     @Override
-    public final @NotNull PluginId getPluginId() {
+    public @NotNull PluginId getPluginId() {
         return pluginId;
     }
 
     @Override
-    public final @NotNull PluginDescriptor getPluginDescriptor() {
+    public @NotNull PluginDescriptor getPluginDescriptor() {
         return pluginDescriptor;
     }
 
     @Override
-    public final String toString() {
+    public String toString() {
         return getClass().getSimpleName() + "(plugin=" + pluginDescriptor +
-            ", packagePrefix=" + packagePrefix +
-            ", instanceId=" + instanceId +
-            ", state=" + (state == ACTIVE ? "active" : "unload in progress") +
-            ")";
+                ", packagePrefix=" + packagePrefix +
+                ", instanceId=" + instanceId +
+                ", state=" + (state == ACTIVE ? "active" : "unload in progress") +
+                ")";
     }
 
     private static final class DeepEnumeration implements Enumeration<URL> {
-        private final @NotNull List<? extends Enumeration<URL>> list;
+        private final @NotNull List<Enumeration<URL>> list;
         private int myIndex;
 
-        DeepEnumeration(@NotNull List<? extends Enumeration<URL>> enumerations) {
+        DeepEnumeration(@NotNull List<Enumeration<URL>> enumerations) {
             list = enumerations;
         }
 
@@ -521,45 +632,13 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
     }
 
     @TestOnly
-    @ApiStatus.Internal
-    public final @NotNull List<ClassLoader> _getParents() {
+    public @NotNull List<IdeaPluginDescriptorImpl> _getParents() {
         //noinspection SSBasedInspection
         return Collections.unmodifiableList(Arrays.asList(parents));
     }
 
-    @ApiStatus.Internal
-    public final void attachParent(@NotNull ClassLoader classLoader) {
-        int length = parents.length;
-        ClassLoader[] result = new ClassLoader[length + 1];
-        System.arraycopy(parents, 0, result, 0, length);
-        result[length] = classLoader;
-        parents = result;
-        parentListCacheIdCounter.incrementAndGet();
-    }
-
-    /**
-     * You must clear allParents cache for all loaded plugins.
-     */
-    @ApiStatus.Internal
-    public final boolean detachParent(@NotNull ClassLoader classLoader) {
-        for (int i = 0; i < parents.length; i++) {
-            if (classLoader != parents[i]) {
-                continue;
-            }
-
-            int length = parents.length;
-            ClassLoader[] result = new ClassLoader[length - 1];
-            System.arraycopy(parents, 0, result, 0, i);
-            System.arraycopy(parents, i + 1, result, i, length - i - 1);
-            parents = result;
-            parentListCacheIdCounter.incrementAndGet();
-            return true;
-        }
-        return false;
-    }
-
     @Override
-    protected final ProtectionDomain getProtectionDomain() {
+    protected ProtectionDomain getProtectionDomain() {
         return PROTECTION_DOMAIN;
     }
 
@@ -568,8 +647,7 @@ public class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwar
             try {
                 logStream.flush();
             }
-            catch (IOException ignore) {
-            }
+            catch (IOException ignore) { }
         }
     }
 }

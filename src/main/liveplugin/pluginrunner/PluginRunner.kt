@@ -4,7 +4,6 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.plugins.PluginManagerCore.CORE_ID
-import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
@@ -42,7 +41,7 @@ interface PluginRunner {
 
             val livePluginDescriptor = PluginManagerCore.getPlugins().find { it.name == "LivePlugin" }
 
-            return PluginClassLoader(
+            return PluginClassLoader_Fork(
                 additionalPaths,
                 ClassPath(additionalPaths, UrlClassLoader.build(), null, false),
                 (pluginDescriptors.map { it as IdeaPluginDescriptorImpl } + (livePluginDescriptor as IdeaPluginDescriptorImpl)).toTypedArray(),
