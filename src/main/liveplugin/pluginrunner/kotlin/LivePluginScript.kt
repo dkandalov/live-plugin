@@ -78,8 +78,11 @@ private fun createScriptConfig(context: ScriptConfigurationRefinementContext, cl
     ScriptCompilationConfiguration(context.compilationConfiguration, body = {
         // Attempt to use runReadAction() for syntax highlighting to avoid errors because of accessing data on non-EDT thread.
         // Run as normal function if there is no application which is the case when running an embedded compiler.
-        val computable = Computable { context.script.locationId to context.script.text.split('\n') }
-        val (scriptLocationId, scriptText) = ApplicationManager.getApplication()?.runReadAction(computable) ?: computable.compute()
+        val computable = Computable { context.script.locationId  }
+        val scriptLocationId = ApplicationManager.getApplication()?.runReadAction(computable) ?: computable.compute()
+
+        // Can't do `context.script.text` in the Computable because it throws PsiInvalidElementAccessException from com.intellij.psi.impl.source.PsiFileImpl.getText 🙄
+        val scriptText = if (scriptLocationId == null) emptyList() else File(scriptLocationId).readText().split('\n')
 
         val scriptFolderPath = scriptLocationId?.let { File(it).parent } ?: ""
         updateClasspath(classpath(scriptText, scriptFolderPath))
