@@ -4,7 +4,6 @@ package liveplugin.pluginrunner;
 import com.intellij.diagnostic.PluginException;
 import com.intellij.diagnostic.StartUpMeasurer;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.cl.PluginAwareClassLoader;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginDescriptor;
@@ -126,7 +125,7 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
         logStream = logStreamCandidate;
     }
 
-    private final IdeaPluginDescriptorImpl[] parents;
+    private final ClassLoader[] parents;
 
     // cache of computed list of all parents (not only direct)
     private volatile ClassLoader[] allParents;
@@ -156,7 +155,7 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
 
     public PluginClassLoader_Fork(@NotNull List<Path> files,
                              @NotNull ClassPath classPath,
-                             @NotNull IdeaPluginDescriptorImpl @NotNull [] dependencies,
+                             @NotNull ClassLoader @NotNull [] dependencies,
                              @NotNull PluginDescriptor pluginDescriptor,
                              @NotNull ClassLoader coreLoader,
                              @Nullable PluginClassLoader_Fork.ResolveScopeManager resolveScopeManager,
@@ -364,8 +363,7 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
     }
 
     private void collectClassLoaders(@NotNull Deque<ClassLoader> queue) {
-        for (IdeaPluginDescriptorImpl parent : parents) {
-            ClassLoader classLoader = parent.getPluginClassLoader();
+        for (ClassLoader classLoader : parents) {
             if (classLoader != null && classLoader != coreLoader) {
                 queue.add(classLoader);
             }
@@ -629,12 +627,6 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
             }
             return list.get(myIndex).nextElement();
         }
-    }
-
-    @TestOnly
-    public @NotNull List<IdeaPluginDescriptorImpl> _getParents() {
-        //noinspection SSBasedInspection
-        return Collections.unmodifiableList(Arrays.asList(parents));
     }
 
     @Override

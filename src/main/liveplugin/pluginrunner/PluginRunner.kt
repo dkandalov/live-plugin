@@ -38,13 +38,12 @@ interface PluginRunner {
             val additionalPaths = additionalClasspath.map { file -> file.toPath() }.onEach { path ->
                 if (!path.exists()) return LoadingError("Didn't find plugin dependency '${path.toFile().absolutePath}'.").asFailure()
             }
-
-            val livePluginDescriptor = PluginManagerCore.getPlugins().find { it.name == "LivePlugin" }
+            val parentClassLoaders = pluginDescriptors.mapNotNull { it.pluginClassLoader } + PluginRunner::class.java.classLoader
 
             return PluginClassLoader_Fork(
                 additionalPaths,
                 ClassPath(additionalPaths, UrlClassLoader.build(), null, false),
-                (pluginDescriptors.map { it as IdeaPluginDescriptorImpl } + (livePluginDescriptor as IdeaPluginDescriptorImpl)).toTypedArray(),
+                parentClassLoaders.toTypedArray(),
                 DefaultPluginDescriptor(plugin.id),
                 PluginManagerCore::class.java.classLoader,
                 null,

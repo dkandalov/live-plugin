@@ -82,6 +82,7 @@ class GroovyPluginRunnerTest {
 
 	private Result<Unit, AnError> runPlugin() {
 		def result = pluginRunner.setup(new LivePlugin(new FilePath(rootFolder.absolutePath)), null)
+        assert result instanceof Success
 		pluginRunner.run(result.value, noBindings)
 	}
 
