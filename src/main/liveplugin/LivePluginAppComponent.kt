@@ -1,11 +1,13 @@
 package liveplugin
 
+import com.intellij.ide.scratch.RootType
 import com.intellij.lang.LanguageUtil
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
 import com.intellij.openapi.actionSystem.Presentation
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessExtension
 import com.intellij.openapi.fileTypes.FileType
@@ -92,6 +94,17 @@ class LivePluginAppComponent {
                 val pluginPaths = pluginIdToPathMap().keys.map { pluginIdToPathMap().getValue(it) }
                 runPlugins(pluginPaths, event)
             }
+        }
+    }
+}
+
+// For consistency with "IDE Consoles" it's good to have live plugins under "Scratches and Consoles"
+// but it's also used for enabling Kotlin intentions in live plugin, i.e. outside of project
+// (since change in IJ 2022.1: Anna Kozlova* 22/12/2021, 17:21 [kotlin] disable intentions which modifies code in libraries (KTIJ-20543))
+class ScratchLivePluginRootType : RootType("LivePlugin", "Live Plugins") {
+    companion object {
+        init {
+            System.setProperty(PathManager.PROPERTY_SCRATCH_PATH + "/LivePlugin", livePluginsPath.value)
         }
     }
 }

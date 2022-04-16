@@ -69,6 +69,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
 		<applicationService serviceImplementation="liveplugin.Settings"/>
+        <scratch.rootType implementation="liveplugin.ScratchLivePluginRootType"/>
 		<nonProjectFileWritingAccessExtension implementation="liveplugin.MakePluginFilesAlwaysEditable"/>
 		<syntaxHighlighter factoryClass="liveplugin.EnableSyntaxHighlighterInLivePlugins" order="first"/>
 		<indexedRootsProvider implementation="liveplugin.IndexSetContributor"/>
