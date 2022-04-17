@@ -4,13 +4,10 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import java.io.File
-import java.net.URL
 import java.nio.file.Path
 import java.util.Collections.emptyList
 
 fun File.toUrlString(): String = toURI().toURL().toString()
-
-fun File.toUrl(): URL = toURI().toURL()
 
 @Suppress("DEPRECATION")
 fun String.toFilePath() =

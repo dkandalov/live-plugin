@@ -3,10 +3,10 @@ package liveplugin.toolwindow.popup
 import com.intellij.openapi.fileChooser.actions.NewFolderAction
 import liveplugin.Icons
 import liveplugin.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
 import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.kotlinExamplesPath
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
+import liveplugin.toolwindow.util.readSampleScriptFile
 
 class NewDirectoryAction: NewFolderAction("Directory", "", Icons.newFolderIcon)
 

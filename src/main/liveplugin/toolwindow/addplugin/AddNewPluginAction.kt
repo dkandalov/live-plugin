@@ -10,7 +10,6 @@ import com.intellij.openapi.ui.Messages
 import liveplugin.Icons
 import liveplugin.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
-import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
 import liveplugin.LivePluginPaths
 import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.kotlinExamplesPath
@@ -18,6 +17,7 @@ import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.createFile
+import liveplugin.toolwindow.util.readSampleScriptFile
 import java.io.IOException
 
 class AddNewGroovyPluginAction: AddNewPluginAction(

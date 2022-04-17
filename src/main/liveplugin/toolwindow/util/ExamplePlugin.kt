@@ -1,7 +1,8 @@
 package liveplugin.toolwindow.util
 
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
-import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
+import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginPaths
 import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.kotlinExamplesPath
@@ -61,6 +62,15 @@ fun ExamplePlugin.installPlugin(handleError: (e: Exception, pluginPath: String) 
         }
     }
 }
+
+fun readSampleScriptFile(filePath: String): String =
+    try {
+        val inputStream = LivePluginAppComponent::class.java.classLoader.getResourceAsStream(filePath) ?: error("Couldn't find resource for '$filePath'.")
+        FileUtil.loadTextAndClose(inputStream)
+    } catch (e: IOException) {
+        LivePluginAppComponent.logger.error(e)
+        ""
+    }
 
 private fun splitIntoPathAndFileName(filePath: String): Pair<String, String> {
     val index = filePath.lastIndexOf("/")

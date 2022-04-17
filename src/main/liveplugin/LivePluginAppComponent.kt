@@ -3,10 +3,6 @@ package liveplugin
 import com.intellij.ide.scratch.RootType
 import com.intellij.lang.LanguageUtil
 import com.intellij.notification.NotificationGroupManager
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
-import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessExtension
@@ -29,14 +25,10 @@ import com.intellij.psi.util.PsiUtilCore
 import com.intellij.usages.impl.rules.UsageType
 import com.intellij.usages.impl.rules.UsageTypeProvider
 import com.intellij.util.indexing.IndexableSetContributor
-import liveplugin.IdeUtil.ideStartupActionPlace
-import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.LivePluginPaths.livePluginsProjectDirName
-import liveplugin.pluginrunner.RunPluginAction.Companion.runPlugins
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
-import java.io.IOException
 
 class LivePluginAppComponent {
     companion object {
@@ -48,9 +40,9 @@ class LivePluginAppComponent {
         }
 
         fun pluginIdToPathMap(): Map<String, FilePath> {
-            // TODO Use virtual file because the code below will access file system every time this function is called to update availability of actions
-            return livePluginsPath
-                .listFiles { file -> file.isDirectory && file.name != DIRECTORY_STORE_FOLDER }
+            return livePluginsPath.toVirtualFile()!!
+                .children.filter { file -> file.isDirectory && file.name != DIRECTORY_STORE_FOLDER }
+                .map { it.toFilePath() }
                 .associateBy { it.name }
         }
 
@@ -69,31 +61,6 @@ class LivePluginAppComponent {
             val parent = toFile().parent?.toFilePath() ?: return null
             return if (parent == livePluginsPath || parent.name == livePluginsProjectDirName) this
             else parent.findPluginFolder()
-        }
-
-        fun readSampleScriptFile(filePath: String): String =
-            try {
-                val inputStream = LivePluginAppComponent::class.java.classLoader.getResourceAsStream(filePath) ?: error("Couldn't find resource for '$filePath'.")
-                FileUtil.loadTextAndClose(inputStream)
-            } catch (e: IOException) {
-                logger.error(e)
-                ""
-            }
-
-        fun runAllPlugins() {
-            invokeLaterOnEDT {
-                val actionManager = ActionManager.getInstance()
-                val event = AnActionEvent(
-                    null,
-                    EMPTY_CONTEXT,
-                    ideStartupActionPlace,
-                    Presentation(),
-                    actionManager,
-                    0
-                )
-                val pluginPaths = pluginIdToPathMap().keys.map { pluginIdToPathMap().getValue(it) }
-                runPlugins(pluginPaths, event)
-            }
         }
     }
 }
@@ -158,4 +125,3 @@ class UseScopeExtension: UseScopeEnlarger() {
 }
 
 private fun VirtualFile.isUnderLivePluginsPath() = FileUtil.startsWith(path, livePluginsPath.value)
-

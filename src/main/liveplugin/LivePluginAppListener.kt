@@ -5,7 +5,10 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationType.ERROR
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.Messages.OK
@@ -15,6 +18,7 @@ import liveplugin.GroovyDownloader.isGroovyOnClasspath
 import liveplugin.IdeUtil.invokeLaterOnEDT
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.LivePluginPaths.livePluginLibPath
+import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.toolwindow.util.GroovyExamples
 import liveplugin.toolwindow.util.installPlugin
 import java.util.concurrent.CompletableFuture
@@ -31,7 +35,23 @@ class LivePluginAppListener: AppLifecycleListener {
             settings.justInstalled = false
         }
         if (settings.runAllPluginsOnIDEStartup) {
-            LivePluginAppComponent.runAllPlugins()
+            runAllPlugins()
+        }
+    }
+
+    private fun runAllPlugins() {
+        invokeLaterOnEDT {
+            val actionManager = ActionManager.getInstance()
+            val event = AnActionEvent(
+                null,
+                DataContext.EMPTY_CONTEXT,
+                IdeUtil.ideStartupActionPlace,
+                Presentation(),
+                actionManager,
+                0
+            )
+            val pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values
+            RunPluginAction.runPlugins(pluginPaths.toList(), event)
         }
     }
 
@@ -44,7 +64,6 @@ class LivePluginAppListener: AppLifecycleListener {
             }
         }
     }
-
 }
 
 private object GroovyDownloader {

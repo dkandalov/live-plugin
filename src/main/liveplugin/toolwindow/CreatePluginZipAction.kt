@@ -19,7 +19,6 @@ import com.intellij.util.io.zip.JBZipFile
 import liveplugin.FilePath
 import liveplugin.Icons
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
-import liveplugin.LivePluginAppComponent.Companion.readSampleScriptFile
 import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.LivePlugin
 import liveplugin.pluginrunner.canBeHandledBy
@@ -30,6 +29,7 @@ import liveplugin.pluginrunner.selectedFilePaths
 import liveplugin.pluginrunner.toLivePlugins
 import liveplugin.toFilePath
 import liveplugin.toolwindow.popup.NewPluginXmlScript
+import liveplugin.toolwindow.util.readSampleScriptFile
 import java.io.ByteArrayInputStream
 import java.util.*
 import java.util.jar.Manifest
