@@ -107,23 +107,12 @@ class Binding(
     val pluginPath: String,
     val pluginDisposable: Disposable
 ) {
-    fun toMap(): Map<String, Any?> = mapOf(
-        projectKey to project,
-        isIdeStartupKey to isIdeStartup,
-        pluginPathKey to pluginPath,
-        pluginDisposableKey to pluginDisposable
-    )
-
     internal fun dispose() {
         Disposer.dispose(pluginDisposable)
         bindingByPluginId.remove(LivePlugin(pluginPath.toFilePath()).id)
     }
 
     companion object {
-        private const val pluginDisposableKey = "pluginDisposable"
-        private const val pluginPathKey = "pluginPath"
-        private const val isIdeStartupKey = "isIdeStartup"
-        private const val projectKey = "project"
         private val bindingByPluginId = HashMap<String, Binding>()
 
         fun lookup(livePlugin: LivePlugin): Binding? =

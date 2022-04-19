@@ -71,7 +71,14 @@ class GroovyPluginRunner(
     override fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError> {
         val (scriptEngine, scriptUrl) = executablePlugin as ExecutableGroovyPlugin
         return try {
-            scriptEngine.run(scriptUrl, GroovyBinding(binding.toMap()))
+            scriptEngine.run(scriptUrl, GroovyBinding(
+                mapOf(
+                    "project" to binding.project,
+                    "isIdeStartup" to binding.isIdeStartup,
+                    "pluginPath" to binding.pluginPath,
+                    "pluginDisposable" to binding.pluginDisposable
+                )
+            ))
             Unit.asSuccess()
         } catch (e: Exception) {
             RunningError(e).asFailure()
