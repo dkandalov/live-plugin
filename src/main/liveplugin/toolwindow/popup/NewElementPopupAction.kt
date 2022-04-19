@@ -2,10 +2,16 @@ package liveplugin.toolwindow.popup
 
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.fileChooser.actions.NewFolderAction
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
+import liveplugin.Icons
+import liveplugin.IdeUtil
+import liveplugin.LivePluginPaths
+import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.toolwindow.addplugin.*
+import liveplugin.toolwindow.util.readSampleScriptFile
 
 class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
     override fun actionPerformed(event: AnActionEvent) {
@@ -47,4 +53,35 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
             ).also { it.isPopup = true }
         }
     }
+
+    private class NewGroovyFileAction: NewFileAction("Groovy File", IdeUtil.groovyFileType)
+
+    private class NewKotlinFileAction: NewFileAction("Kotlin File", IdeUtil.kotlinFileType)
+
+    private class NewTextFileAction: NewFileAction("Text File", IdeUtil.textFileType)
+
+    private class NewDirectoryAction: NewFolderAction("Directory", "", Icons.newFolderIcon)
+
+    private class NewGroovyMainScript: NewFileFromTemplateAction(
+        GroovyPluginRunner.mainScript,
+        GroovyPluginRunner.mainScript,
+        readSampleScriptFile("${LivePluginPaths.groovyExamplesPath}/default-plugin.groovy"),
+        IdeUtil.groovyFileType
+    )
+
+    private class NewGroovyTestScript: NewFileFromTemplateAction(
+        GroovyPluginRunner.testScript,
+        GroovyPluginRunner.testScript,
+        readSampleScriptFile("${LivePluginPaths.groovyExamplesPath}/default-plugin-test.groovy"),
+        IdeUtil.groovyFileType
+    )
 }
+
+class NewPluginXmlScript(
+    fileContent: String = readSampleScriptFile("${LivePluginPaths.kotlinExamplesPath}/plugin.xml")
+): NewFileFromTemplateAction(
+    "plugin.xml",
+    "plugin.xml",
+    fileContent,
+    IdeUtil.xmlFileType
+)
