@@ -10,6 +10,7 @@ import liveplugin.Icons
 import liveplugin.IdeUtil
 import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
+import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.toolwindow.addplugin.*
 import liveplugin.toolwindow.util.readSampleScriptFile
 
@@ -40,6 +41,7 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
                     NewTextFileAction(),
                     NewDirectoryAction(),
                     NewGroovyMainScript(),
+                    NewKotlinMainScript(),
                     NewGroovyTestScript(),
                     NewPluginXmlScript(),
                     Separator.getInstance(),
@@ -67,6 +69,13 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
         GroovyPluginRunner.mainScript,
         readSampleScriptFile("${LivePluginPaths.groovyExamplesPath}/default-plugin.groovy"),
         IdeUtil.groovyFileType
+    )
+
+    private class NewKotlinMainScript: NewFileFromTemplateAction(
+        KotlinPluginRunner.mainScript,
+        KotlinPluginRunner.mainScript,
+        readSampleScriptFile("${LivePluginPaths.kotlinExamplesPath}/default-plugin.kts"),
+        IdeUtil.kotlinFileType
     )
 
     private class NewGroovyTestScript: NewFileFromTemplateAction(
