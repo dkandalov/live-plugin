@@ -2,7 +2,7 @@ package liveplugin.pluginrunner.groovy
 
 import com.intellij.openapi.project.Project
 import groovy.util.GroovyScriptEngine
-import liveplugin.*
+import liveplugin.common.*
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError

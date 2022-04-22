@@ -1,4 +1,4 @@
-package liveplugin
+package liveplugin.common
 
 import com.intellij.icons.AllIcons.*
 

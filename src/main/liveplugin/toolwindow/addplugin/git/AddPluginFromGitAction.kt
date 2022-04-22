@@ -14,14 +14,14 @@ import com.intellij.openapi.vcs.CheckoutProvider
 import com.intellij.openapi.vcs.VcsKey
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.NewVirtualFile
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import git4idea.checkout.GitCheckoutProvider
 import git4idea.commands.Git
-import liveplugin.IdeUtil
+import liveplugin.common.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.isInvalidPluginFolder
 import liveplugin.LivePluginPaths
-import liveplugin.refreshAndFindFileByUrl
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.delete
 import java.io.File
@@ -53,6 +53,9 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
             dialog.parentDirectory
         )
     }
+
+    private fun String.refreshAndFindFileByUrl(): VirtualFile? =
+        VirtualFileManager.getInstance().refreshAndFindFileByUrl("file:///$this")
 
     private class MyCheckoutListener(
         private val project: Project?,

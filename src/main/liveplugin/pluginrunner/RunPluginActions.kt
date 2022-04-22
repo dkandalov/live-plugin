@@ -14,10 +14,10 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import liveplugin.*
-import liveplugin.IdeUtil.displayError
-import liveplugin.IdeUtil.ideStartupActionPlace
+import liveplugin.common.IdeUtil.displayError
+import liveplugin.common.IdeUtil.ideStartupActionPlace
 import liveplugin.LivePluginAppComponent.Companion.findPluginFolder
+import liveplugin.common.*
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
 import liveplugin.pluginrunner.RunPluginAction.Companion.runPluginsTests

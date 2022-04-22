@@ -3,15 +3,15 @@ package liveplugin.pluginrunner
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import kotlin.Unit
-import liveplugin.FilePath
-import liveplugin.Result
+import liveplugin.common.FilePath
+import liveplugin.common.Result
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-import static liveplugin.Result.Failure
-import static liveplugin.Result.Success
+import static liveplugin.common.Result.Failure
+import static liveplugin.common.Result.Success
 import static liveplugin.pluginrunner.AnError.RunningError
 import static liveplugin.pluginrunner.groovy.GroovyPluginRunner.mainScript
 

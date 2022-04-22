@@ -1,16 +1,18 @@
-package liveplugin
+package liveplugin.common
 
 import com.intellij.diagnostic.PluginException
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.ui.ConsoleViewContentType
-import com.intellij.execution.ui.ConsoleViewContentType.ERROR_OUTPUT
 import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.RunContentManager
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.impl.AsyncDataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
@@ -23,10 +25,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.ReflectionUtil
 import com.intellij.util.text.CharArrayUtil
-import liveplugin.LivePluginAppComponent.Companion.livePluginId
+import liveplugin.LivePluginAppComponent
 import org.jetbrains.annotations.NonNls
 import java.awt.BorderLayout
 import java.io.PrintWriter
@@ -52,9 +53,9 @@ object IdeUtil {
             // plugin id based on classes in stacktrace and might get it wrong,
             // e.g. if activity tracker plugin is installed, it will include LivePlugin classes as library
             // (see com.intellij.diagnostic.IdeErrorsDialog.findPluginId)
-            logger.error(consoleTitle, PluginException(text, PluginId.getId(livePluginId)))
+            logger.error(consoleTitle, PluginException(text, PluginId.getId(LivePluginAppComponent.livePluginId)))
         } else {
-            showInConsole(text, consoleTitle, project, ERROR_OUTPUT)
+            showInConsole(text, consoleTitle, project, ConsoleViewContentType.ERROR_OUTPUT)
         }
     }
 
@@ -201,5 +202,3 @@ object IdeUtil {
 class MapDataContext(val map: Map<String, Any?>) : DataContext, AsyncDataContext {
     override fun getData(dataId: String) = map[dataId]
 }
-
-fun String.refreshAndFindFileByUrl(): VirtualFile? = VirtualFileManager.getInstance().refreshAndFindFileByUrl("file:///$this")

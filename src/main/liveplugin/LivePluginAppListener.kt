@@ -15,9 +15,11 @@ import com.intellij.openapi.ui.Messages.OK
 import com.intellij.util.download.DownloadableFileService
 import liveplugin.GroovyDownloader.downloadGroovyJar
 import liveplugin.GroovyDownloader.isGroovyOnClasspath
-import liveplugin.IdeUtil.invokeLaterOnEDT
+import liveplugin.common.IdeUtil.invokeLaterOnEDT
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.LivePluginPaths.livePluginLibPath
+import liveplugin.common.FilePath
+import liveplugin.common.IdeUtil
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.toolwindow.util.GroovyExamples
 import liveplugin.toolwindow.util.installPlugin

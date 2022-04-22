@@ -27,6 +27,9 @@ import com.intellij.usages.impl.rules.UsageTypeProvider
 import com.intellij.util.indexing.IndexableSetContributor
 import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.LivePluginPaths.livePluginsProjectDirName
+import liveplugin.common.FilePath
+import liveplugin.common.findAll
+import liveplugin.common.toFilePath
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 

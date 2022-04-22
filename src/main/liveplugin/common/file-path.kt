@@ -1,4 +1,4 @@
-package liveplugin
+package liveplugin.common
 
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.VirtualFile

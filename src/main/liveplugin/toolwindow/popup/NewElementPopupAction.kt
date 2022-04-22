@@ -6,8 +6,8 @@ import com.intellij.openapi.fileChooser.actions.NewFolderAction
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
-import liveplugin.Icons
-import liveplugin.IdeUtil
+import liveplugin.common.Icons
+import liveplugin.common.IdeUtil
 import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner

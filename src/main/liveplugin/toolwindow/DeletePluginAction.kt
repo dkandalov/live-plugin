@@ -9,8 +9,8 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import liveplugin.Icons
-import liveplugin.IdeUtil
+import liveplugin.common.Icons
+import liveplugin.common.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.pluginFolder
 import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.LivePlugin

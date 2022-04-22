@@ -3,8 +3,8 @@ package liveplugin.pluginrunner
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
-import liveplugin.FilePath
-import liveplugin.Icons
+import liveplugin.common.FilePath
+import liveplugin.common.Icons
 import liveplugin.LivePluginAppComponent.Companion.findPluginFolder
 
 class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", Icons.unloadPluginIcon), DumbAware {

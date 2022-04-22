@@ -16,8 +16,8 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.Compressor
 import com.intellij.util.io.zip.JBZipFile
-import liveplugin.FilePath
-import liveplugin.Icons
+import liveplugin.common.FilePath
+import liveplugin.common.Icons
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.LivePlugin
@@ -27,7 +27,7 @@ import liveplugin.pluginrunner.kotlin.SrcHashCode
 import liveplugin.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
 import liveplugin.pluginrunner.selectedFilePaths
 import liveplugin.pluginrunner.toLivePlugins
-import liveplugin.toFilePath
+import liveplugin.common.toFilePath
 import liveplugin.toolwindow.popup.NewPluginXmlScript
 import liveplugin.toolwindow.util.readSampleScriptFile
 import java.io.ByteArrayInputStream

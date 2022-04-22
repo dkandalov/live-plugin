@@ -1,6 +1,7 @@
 package liveplugin
 
 import com.intellij.openapi.application.PathManager
+import liveplugin.common.toFilePath
 
 object LivePluginPaths {
     val ideJarsPath = PathManager.getHomePath().toFilePath() + "lib"

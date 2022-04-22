@@ -4,8 +4,9 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.*
-import liveplugin.IdeUtil.unscrambleThrowable
-import liveplugin.Result.Success
+import liveplugin.common.*
+import liveplugin.common.IdeUtil.unscrambleThrowable
+import liveplugin.common.Result.Success
 import liveplugin.pluginrunner.*
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError

@@ -10,9 +10,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.io.exists
 import com.intellij.util.lang.ClassPath
 import com.intellij.util.lang.UrlClassLoader
-import liveplugin.Result
-import liveplugin.asFailure
-import liveplugin.asSuccess
+import liveplugin.common.Result
+import liveplugin.common.asFailure
+import liveplugin.common.asSuccess
 import liveplugin.pluginrunner.AnError.LoadingError
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File

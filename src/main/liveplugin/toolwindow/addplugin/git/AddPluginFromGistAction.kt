@@ -11,8 +11,8 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
-import liveplugin.IdeUtil.invokeLaterOnEDT
-import liveplugin.IdeUtil.showErrorDialog
+import liveplugin.common.IdeUtil.invokeLaterOnEDT
+import liveplugin.common.IdeUtil.showErrorDialog
 import liveplugin.LivePluginPaths
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.addplugin.PluginIdValidator

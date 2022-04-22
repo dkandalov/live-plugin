@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
-import liveplugin.IdeUtil
+import liveplugin.common.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.toolwindow.RefreshPluginsPanelAction

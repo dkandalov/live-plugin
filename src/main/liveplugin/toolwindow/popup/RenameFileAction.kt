@@ -6,8 +6,8 @@ import com.intellij.openapi.fileChooser.FileSystemTree
 import com.intellij.openapi.fileChooser.actions.FileChooserAction
 import com.intellij.openapi.fileChooser.tree.FileNode
 import com.intellij.openapi.ui.Messages
-import liveplugin.IdeUtil
-import liveplugin.IdeUtil.invokeLaterOnEDT
+import liveplugin.common.IdeUtil
+import liveplugin.common.IdeUtil.invokeLaterOnEDT
 import java.io.IOException
 import java.util.*
 import kotlin.reflect.full.functions

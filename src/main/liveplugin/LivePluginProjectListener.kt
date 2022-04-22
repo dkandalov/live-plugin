@@ -9,6 +9,8 @@ import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
+import liveplugin.common.MapDataContext
+import liveplugin.common.toFilePath
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.UnloadPluginAction
 

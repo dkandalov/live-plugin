@@ -1,7 +1,7 @@
-package liveplugin
+package liveplugin.common
 
-import liveplugin.Result.Failure
-import liveplugin.Result.Success
+import liveplugin.common.Result.Failure
+import liveplugin.common.Result.Success
 
 // This is pretty much a copy of https://github.com/fork-handles/forkhandles/tree/trunk/result4k
 

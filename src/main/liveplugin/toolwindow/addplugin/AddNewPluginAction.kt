@@ -7,8 +7,8 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
-import liveplugin.Icons
-import liveplugin.IdeUtil
+import liveplugin.common.Icons
+import liveplugin.common.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.LivePluginPaths
 import liveplugin.LivePluginPaths.groovyExamplesPath

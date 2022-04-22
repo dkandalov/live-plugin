@@ -8,8 +8,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys.PROJECT
 import com.intellij.openapi.actionSystem.PlatformDataKeys.VIRTUAL_FILE_ARRAY
 import com.intellij.openapi.project.DumbAware
 import liveplugin.LivePluginAppComponent.Companion.pluginFolder
-import liveplugin.MapDataContext
-import liveplugin.toFilePath
+import liveplugin.common.MapDataContext
+import liveplugin.common.toFilePath
 
 class SharePluginAsGistAction: AnAction("Share as Gist", "Share as plugin files as ag Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
 
@@ -21,10 +21,12 @@ class SharePluginAsGistAction: AnAction("Share as Gist", "Share as plugin files 
         files.mapNotNullTo(HashSet()) { it.pluginFolder() }
             .forEach { pluginFolder ->
                 val allFiles = pluginFolder.toFilePath().allFiles().map { it.toVirtualFile() }.toList().toTypedArray()
-                delegate.actionPerformed(event.withDataContext(MapDataContext(mapOf(
+                delegate.actionPerformed(event.withDataContext(
+                    MapDataContext(mapOf(
                     VIRTUAL_FILE_ARRAY.name to allFiles,
                     PROJECT.name to project,
-                ))))
+                ))
+                ))
             }
     }
 

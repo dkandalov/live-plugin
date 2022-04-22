@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
-import liveplugin.Icons
+import liveplugin.common.Icons
 import liveplugin.LivePluginPaths
 
 class RefreshPluginsPanelAction: AnAction(

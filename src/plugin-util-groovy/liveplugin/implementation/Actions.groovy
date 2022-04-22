@@ -14,8 +14,8 @@ import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.wm.IdeFocusManager
-import liveplugin.FilePath
-import liveplugin.IdeUtil
+import liveplugin.common.FilePath
+import liveplugin.common.IdeUtil
 import liveplugin.PluginUtil
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.UnloadPluginAction
