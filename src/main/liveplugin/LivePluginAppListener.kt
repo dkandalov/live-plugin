@@ -21,8 +21,7 @@ import liveplugin.LivePluginPaths.livePluginLibPath
 import liveplugin.common.FilePath
 import liveplugin.common.IdeUtil
 import liveplugin.pluginrunner.RunPluginAction
-import liveplugin.toolwindow.util.GroovyExamples
-import liveplugin.toolwindow.util.installPlugin
+import liveplugin.toolwindow.addplugin.installLivepluginTutorialExamples
 import java.util.concurrent.CompletableFuture
 
 class LivePluginAppListener: AppLifecycleListener {
@@ -33,7 +32,7 @@ class LivePluginAppListener: AppLifecycleListener {
 
         val settings = Settings.instance
         if (settings.justInstalled) {
-            installHelloWorldPlugins()
+            installLivepluginTutorialExamples()
             settings.justInstalled = false
         }
         if (settings.runAllPluginsOnIDEStartup) {
@@ -44,26 +43,9 @@ class LivePluginAppListener: AppLifecycleListener {
     private fun runAllPlugins() {
         invokeLaterOnEDT {
             val actionManager = ActionManager.getInstance()
-            val event = AnActionEvent(
-                null,
-                DataContext.EMPTY_CONTEXT,
-                IdeUtil.ideStartupActionPlace,
-                Presentation(),
-                actionManager,
-                0
-            )
+            val event = AnActionEvent(null, DataContext.EMPTY_CONTEXT, IdeUtil.ideStartupActionPlace, Presentation(), actionManager, 0)
             val pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values
             RunPluginAction.runPlugins(pluginPaths.toList(), event)
-        }
-    }
-
-    private fun installHelloWorldPlugins() {
-        invokeLaterOnEDT {
-            listOf(GroovyExamples.helloWorld, GroovyExamples.ideActions, GroovyExamples.modifyDocument, GroovyExamples.popupMenu).forEach {
-                it.installPlugin(handleError = { e: Exception, pluginPath: String ->
-                    LivePluginAppComponent.logger.warn("Failed to install plugin: $pluginPath", e)
-                })
-            }
         }
     }
 }

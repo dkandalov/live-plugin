@@ -1,16 +1,12 @@
 package liveplugin.toolwindow.util
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
-import liveplugin.LivePluginAppComponent
 import liveplugin.LivePluginPaths
 import liveplugin.LivePluginPaths.groovyExamplesPath
 import liveplugin.LivePluginPaths.kotlinExamplesPath
 import java.io.IOException
-
-data class ExamplePlugin(val path: String, val pluginId: String, val filePaths: List<String>) {
-    constructor(path: String, pluginId: String, vararg filePaths: String): this(path, pluginId, filePaths.toList())
-}
 
 object GroovyExamples {
     val helloWorld = ExamplePlugin(groovyExamplesPath, "hello-world", "plugin.groovy")
@@ -50,25 +46,34 @@ object KotlinExamples {
     )
 }
 
-fun ExamplePlugin.installPlugin(handleError: (e: Exception, pluginPath: String) -> Unit, whenCreated: (VirtualFile) -> Unit = {}) {
-    filePaths.forEach { relativeFilePath ->
-        val resourceDirPath = "$path/$pluginId/"
-        try {
-            val text = readSampleScriptFile("$resourceDirPath/$relativeFilePath")
-            val (parentPath, fileName) = splitIntoPathAndFileName("${LivePluginPaths.livePluginsPath}/$pluginId/$relativeFilePath")
-            createFile(parentPath, fileName, text, whenCreated)
-        } catch (e: IOException) {
-            handleError(e, resourceDirPath)
+data class ExamplePlugin(val path: String, val pluginId: String, val filePaths: List<String>) {
+    constructor(path: String, pluginId: String, vararg filePaths: String): this(path, pluginId, filePaths.toList())
+
+    fun installPlugin(
+        handleError: (e: Exception, pluginPath: String) -> Unit = { e, pluginPath -> logger.warn("Failed to install plugin: $pluginPath", e) },
+        whenCreated: (VirtualFile) -> Unit = {}
+    ) {
+        filePaths.forEach { relativeFilePath ->
+            val resourceDirPath = "$path/$pluginId/"
+            try {
+                val text = readSampleScriptFile("$resourceDirPath/$relativeFilePath")
+                val (parentPath, fileName) = splitIntoPathAndFileName("${LivePluginPaths.livePluginsPath}/$pluginId/$relativeFilePath")
+                createFile(parentPath, fileName, text, whenCreated)
+            } catch (e: IOException) {
+                handleError(e, resourceDirPath)
+            }
         }
     }
 }
 
+val logger = Logger.getInstance(ExamplePlugin::class.java)
+
 fun readSampleScriptFile(filePath: String): String =
     try {
-        val inputStream = LivePluginAppComponent::class.java.classLoader.getResourceAsStream(filePath) ?: error("Couldn't find resource for '$filePath'.")
+        val inputStream = ExamplePlugin::class.java.classLoader.getResourceAsStream(filePath) ?: error("Couldn't find resource for '$filePath'.")
         FileUtil.loadTextAndClose(inputStream)
     } catch (e: IOException) {
-        LivePluginAppComponent.logger.error(e)
+        logger.error(e)
         ""
     }
 

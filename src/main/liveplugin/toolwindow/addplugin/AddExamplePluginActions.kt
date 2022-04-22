@@ -5,14 +5,14 @@ import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
-import liveplugin.common.IdeUtil
 import liveplugin.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.LivePluginPaths.livePluginsPath
+import liveplugin.common.IdeUtil
+import liveplugin.common.IdeUtil.invokeLaterOnEDT
 import liveplugin.toolwindow.RefreshPluginsPanelAction
 import liveplugin.toolwindow.util.ExamplePlugin
 import liveplugin.toolwindow.util.GroovyExamples
 import liveplugin.toolwindow.util.KotlinExamples
-import liveplugin.toolwindow.util.installPlugin
 
 class AddGroovyExamplesActionGroup: DefaultActionGroup("Groovy Examples", true) {
     init {
@@ -31,7 +31,6 @@ class AddKotlinExamplesActionGroup: DefaultActionGroup("Kotlin Examples", true) 
         }
         addSeparator()
         add(PerformAllGroupActions("Add All", "", this))
-
     }
 }
 
@@ -84,6 +83,14 @@ private class PerformAllGroupActions(
 
     private fun performAction(action: AnAction, place: String) {
         val event = AnActionEvent(null, EMPTY_CONTEXT, place, action.templatePresentation, ActionManager.getInstance(), 0)
-        IdeUtil.invokeLaterOnEDT { action.actionPerformed(event) }
+        invokeLaterOnEDT { action.actionPerformed(event) }
+    }
+}
+
+fun installLivepluginTutorialExamples() {
+    invokeLaterOnEDT {
+        listOf(GroovyExamples.helloWorld, GroovyExamples.ideActions, GroovyExamples.modifyDocument, GroovyExamples.popupMenu).forEach {
+            it.installPlugin()
+        }
     }
 }
