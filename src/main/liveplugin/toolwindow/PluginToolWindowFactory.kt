@@ -116,7 +116,6 @@ class PluginToolWindow(project: Project) {
 //                add(CreatePluginZipAction())
             }.with(sharePluginIcon))
             addSeparator()
-            add(RefreshPluginsPanelAction())
             add(CollapseAllAction().with(collapseAllIcon))
             addSeparator()
             add(createSettingsGroup().with(settingsIcon))
