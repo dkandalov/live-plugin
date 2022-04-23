@@ -20,12 +20,12 @@ import liveplugin.common.FilePath
 import liveplugin.common.Icons
 import liveplugin.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.LivePluginPaths
+import liveplugin.common.selectedFiles
 import liveplugin.pluginrunner.LivePlugin
 import liveplugin.pluginrunner.canBeHandledBy
 import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.pluginrunner.kotlin.SrcHashCode
 import liveplugin.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
-import liveplugin.pluginrunner.selectedFilePaths
 import liveplugin.pluginrunner.toLivePlugins
 import liveplugin.common.toFilePath
 import liveplugin.toolwindow.popup.NewPluginXmlScript
@@ -40,12 +40,12 @@ class CreatePluginZipAction: AnAction(
     Icons.packagePluginIcon
 ), DumbAware {
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFilePaths().canBeHandledBy(listOf(KotlinPluginRunner.main))
+        event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(listOf(KotlinPluginRunner.main))
     }
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        event.selectedFilePaths().toLivePlugins().forEach { packagePlugin(it, project) }
+        event.selectedFiles().toLivePlugins().forEach { packagePlugin(it, project) }
     }
 
     private fun packagePlugin(plugin: LivePlugin, project: Project) {

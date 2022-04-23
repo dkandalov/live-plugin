@@ -3,7 +3,6 @@ package liveplugin.pluginrunner
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState.NON_MODAL
 import com.intellij.openapi.application.runWriteAction
@@ -16,7 +15,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import liveplugin.common.IdeUtil.displayError
 import liveplugin.common.IdeUtil.ideStartupActionPlace
-import liveplugin.LivePluginAppComponent.Companion.findPluginFolder
+import liveplugin.LivePluginAppComponent.Companion.findParentPluginFolder
 import liveplugin.common.*
 import liveplugin.pluginrunner.AnError.LoadingError
 import liveplugin.pluginrunner.AnError.RunningError
@@ -31,11 +30,11 @@ private val pluginTestRunners = listOf(GroovyPluginRunner.test, KotlinPluginRunn
 class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
-        runPlugins(event.selectedFilePaths(), event)
+        runPlugins(event.selectedFiles(), event)
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFilePaths().canBeHandledBy(pluginRunners)
+        event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginRunners)
         val hasPluginsToUnload = event.hasPluginsToUnload()
         event.presentation.text = if (hasPluginsToUnload) "Rerun Plugin" else "Run Plugin"
         event.presentation.icon = if (hasPluginsToUnload) Icons.rerunPluginIcon else Icons.runPluginIcon
@@ -55,11 +54,11 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
 class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run plugin integration tests", Icons.testPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
-        runPluginsTests(event.selectedFilePaths(), event)
+        runPluginsTests(event.selectedFiles(), event)
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFilePaths().canBeHandledBy(pluginTestRunners)
+        event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginTestRunners)
     }
 }
 
@@ -145,7 +144,7 @@ class Binding(
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
 fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
-    mapNotNull { path -> path.findPluginFolder() }
+    mapNotNull { path -> path.findParentPluginFolder() }
         .any { folder ->
             pluginRunners.any { runner ->
                 folder.allFiles().any { it.name == runner.scriptName }
@@ -153,11 +152,7 @@ fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
         }
 
 fun List<FilePath>.toLivePlugins() =
-    mapNotNull { it.findPluginFolder() }.distinct().map { LivePlugin(it) }
-
-fun AnActionEvent.selectedFilePaths(): List<FilePath> =
-    (dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY) ?: emptyArray())
-        .map { it.toFilePath() }
+    mapNotNull { it.findParentPluginFolder() }.distinct().map { LivePlugin(it) }
 
 private fun displayError(pluginId: String, error: AnError, project: Project?) {
     val (title, message) = when (error) {

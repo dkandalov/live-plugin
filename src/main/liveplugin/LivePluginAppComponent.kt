@@ -46,18 +46,13 @@ class LivePluginAppComponent {
                 .map { it.toFilePath() }
                 .associateBy { it.name }
 
-        fun VirtualFile.findPluginFolder(): VirtualFile? =
-            if (parent == null) null
-            else if (isPluginFolder()) this
-            else parent.findPluginFolder()
-
         fun VirtualFile.isPluginFolder() = parent.toFilePath() == livePluginsPath || parent.name == livePluginsProjectDirName
 
         // TODO similar to VirtualFile.pluginFolder
-        fun FilePath.findPluginFolder(): FilePath? {
+        fun FilePath.findParentPluginFolder(): FilePath? {
             val parent = toFile().parent?.toFilePath() ?: return null
             return if (parent == livePluginsPath || parent.name == livePluginsProjectDirName) this
-            else parent.findPluginFolder()
+            else parent.findParentPluginFolder()
         }
     }
 }

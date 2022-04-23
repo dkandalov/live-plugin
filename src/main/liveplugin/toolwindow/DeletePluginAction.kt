@@ -3,19 +3,18 @@ package liveplugin.toolwindow
 import com.intellij.CommonBundle
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import liveplugin.LivePluginAppComponent.Companion.findParentPluginFolder
+import liveplugin.LivePluginPaths
 import liveplugin.common.Icons
 import liveplugin.common.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.findPluginFolder
-import liveplugin.LivePluginPaths
+import liveplugin.common.selectedFiles
 import liveplugin.pluginrunner.LivePlugin
 import liveplugin.pluginrunner.UnloadPluginAction.Companion.unloadPlugins
-import liveplugin.pluginrunner.selectedFilePaths
 import liveplugin.pluginrunner.toLivePlugins
 import liveplugin.toolwindow.util.delete
 import java.io.IOException
@@ -24,7 +23,7 @@ import java.io.IOException
 class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Icons.deletePluginIcon), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
-        val livePlugins = event.selectedFilePaths().toLivePlugins().ifEmpty { return }
+        val livePlugins = event.selectedFiles().toLivePlugins().ifEmpty { return }
         if (userDoesNotWantToRemovePlugins(livePlugins, event.project)) return
 
         unloadPlugins(livePlugins.map { it.path })
@@ -46,8 +45,7 @@ class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Icons.delet
     }
 
     override fun update(event: AnActionEvent) {
-        val files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.dataContext) ?: return
-        event.presentation.isEnabled = files.any { it.findPluginFolder() != null }
+        event.presentation.isEnabled = event.selectedFiles().any { it.findParentPluginFolder() != null }
     }
 
     companion object {

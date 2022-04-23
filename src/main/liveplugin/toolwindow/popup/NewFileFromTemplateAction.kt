@@ -13,7 +13,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.UIBundle
 import liveplugin.LivePluginAppComponent
-import liveplugin.LivePluginAppComponent.Companion.findPluginFolder
+import liveplugin.LivePluginAppComponent.Companion.findParentPluginFolder
 import liveplugin.common.toFilePath
 import java.io.IOException
 
@@ -29,7 +29,7 @@ open class NewFileFromTemplateAction(
 
         val enabled = parentFile != null &&
             parentFile.findChild(newFileName) == null &&
-            parentFile.toFilePath().findPluginFolder() in LivePluginAppComponent.pluginIdToPathMap().values
+            parentFile.toFilePath().findParentPluginFolder() in LivePluginAppComponent.pluginIdToPathMap().values
 
         event.presentation.apply {
             isEnabled = enabled

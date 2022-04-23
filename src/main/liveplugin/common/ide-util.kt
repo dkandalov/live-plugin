@@ -9,10 +9,7 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.RunContentManager
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.impl.AsyncDataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
@@ -198,6 +195,9 @@ object IdeUtil {
         }
     }
 }
+
+fun AnActionEvent.selectedFiles(): List<FilePath> =
+    dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)?.map { it.toFilePath() } ?: emptyList()
 
 class MapDataContext(val map: Map<String, Any?>) : DataContext, AsyncDataContext {
     override fun getData(dataId: String) = map[dataId]
