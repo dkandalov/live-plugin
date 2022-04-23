@@ -24,9 +24,11 @@ import com.intellij.psi.util.PsiUtilCore
 import com.intellij.usages.impl.rules.UsageType
 import com.intellij.usages.impl.rules.UsageTypeProvider
 import com.intellij.util.indexing.IndexableSetContributor
+import liveplugin.LivePluginAppComponent.Companion.isPluginFolder
 import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.common.FilePath
+import liveplugin.common.Icons.pluginIcon
 import liveplugin.common.toFilePath
 
 class LivePluginAppComponent {
@@ -64,6 +66,9 @@ class LivePluginAppComponent {
 // but it's also used for enabling Kotlin intentions in live plugin, i.e. outside of project
 // (since change in IJ 2022.1: Anna Kozlova* 22/12/2021, 17:21 [kotlin] disable intentions which modifies code in libraries (KTIJ-20543))
 class ScratchLivePluginRootType : RootType("LivePlugin", "Live Plugins") {
+    override fun substituteIcon(project: Project, file: VirtualFile) =
+        if (file.isPluginFolder()) pluginIcon else super.substituteIcon(project, file)
+
     companion object {
         init {
             System.setProperty(PathManager.PROPERTY_SCRATCH_PATH + "/LivePlugin", livePluginsPath.value)
