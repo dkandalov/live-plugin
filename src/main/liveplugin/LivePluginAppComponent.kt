@@ -46,10 +46,12 @@ class LivePluginAppComponent {
                 .map { it.toFilePath() }
                 .associateBy { it.name }
 
-        fun VirtualFile.isPluginFolder() = parent.toFilePath() == livePluginsPath || parent.name == livePluginsProjectDirName
+        fun FilePath.isPluginFolder(): Boolean {
+            val parent = toFile().parent?.toFilePath() ?: return false
+            return isDirectory && parent == livePluginsPath || parent.name == livePluginsProjectDirName
+        }
 
-        // TODO similar to VirtualFile.pluginFolder
-        fun FilePath.findParentPluginFolder(): FilePath? {
+        tailrec fun FilePath.findParentPluginFolder(): FilePath? {
             val parent = toFile().parent?.toFilePath() ?: return null
             return if (parent == livePluginsPath || parent.name == livePluginsProjectDirName) this
             else parent.findParentPluginFolder()
@@ -62,7 +64,7 @@ class LivePluginAppComponent {
 // (since change in IJ 2022.1: Anna Kozlova* 22/12/2021, 17:21 [kotlin] disable intentions which modifies code in libraries (KTIJ-20543))
 class ScratchLivePluginRootType : RootType("LivePlugin", "Live Plugins") {
     override fun substituteIcon(project: Project, file: VirtualFile) =
-        if (file.isPluginFolder()) pluginIcon else super.substituteIcon(project, file)
+        if (file.toFilePath().isPluginFolder()) pluginIcon else super.substituteIcon(project, file)
 
     companion object {
         init {

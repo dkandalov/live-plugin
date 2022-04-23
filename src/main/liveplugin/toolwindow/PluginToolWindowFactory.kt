@@ -41,6 +41,7 @@ import liveplugin.common.Icons.pluginIcon
 import liveplugin.common.Icons.settingsIcon
 import liveplugin.common.Icons.sharePluginIcon
 import liveplugin.common.IdeUtil
+import liveplugin.common.toFilePath
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
 import liveplugin.pluginrunner.UnloadPluginAction
@@ -187,7 +188,7 @@ class PluginToolWindow(project: Project) {
 
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
             val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
-                override fun getIcon(file: VirtualFile) = if (file.isDirectory && file.isPluginFolder()) pluginIcon else super.getIcon(file)
+                override fun getIcon(file: VirtualFile) = if (file.toFilePath().isPluginFolder()) pluginIcon else super.getIcon(file)
                 override fun getName(virtualFile: VirtualFile) = virtualFile.name
                 override fun getComment(virtualFile: VirtualFile?) = ""
             }.also {
