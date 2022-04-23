@@ -7,8 +7,6 @@ import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vcs.CheckoutProvider
 import com.intellij.openapi.vcs.VcsKey
@@ -19,11 +17,8 @@ import com.intellij.openapi.vfs.newvfs.NewVirtualFile
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import git4idea.checkout.GitCheckoutProvider
 import git4idea.commands.Git
-import liveplugin.common.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.isInvalidPluginFolder
 import liveplugin.LivePluginPaths
 import liveplugin.toolwindow.RefreshPluginsPanelAction
-import liveplugin.toolwindow.util.delete
 import java.io.File
 
 
@@ -46,7 +41,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
         GitCheckoutProvider.clone(
             project,
             gitService,
-            MyCheckoutListener(project, destinationFolder, dialog.directoryName),
+            MyCheckoutListener(destinationFolder, dialog.directoryName),
             destinationFolder,
             dialog.sourceRepositoryURL,
             dialog.directoryName,
@@ -58,7 +53,6 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
         VirtualFileManager.getInstance().refreshAndFindFileByUrl("file:///$this")
 
     private class MyCheckoutListener(
-        private val project: Project?,
         private val destinationFolder: VirtualFile,
         private val pluginName: String
     ): CheckoutProvider.Listener {
@@ -96,38 +90,14 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
                     return@Runnable
                 }
 
-                IdeUtil.invokeLaterOnEDT {
-                    try {
-                        if (isInvalidPluginFolder(clonedFolder) && userDoesNotWantToKeepIt()) {
-                            clonedFolder.delete()
-                        }
-                    } catch (e: Exception) {
-                        if (project != null) {
-                            IdeUtil.showErrorDialog(project, "Error deleting plugin \"${clonedFolder.path}\"", "Delete Plugin")
-                        }
-                        logger.error(e)
-                    }
-                }
-
                 RefreshPluginsPanelAction.refreshPluginTree()
             }
             val pluginsRoot = LivePluginPaths.livePluginsPath.toVirtualFile() ?: return
             RefreshQueue.getInstance().refresh(false, true, finishRunnable, pluginsRoot)
         }
-
-        private fun userDoesNotWantToKeepIt(): Boolean {
-            val answer = Messages.showYesNoDialog(
-                project,
-                "It looks like \"$pluginName\" is not a valid plugin because it does not contain plugin scripts.\n\nDo you want to add it anyway?",
-                dialogTitle,
-                Messages.getQuestionIcon()
-            )
-            return answer != Messages.YES
-        }
     }
 
     companion object {
         private val logger = Logger.getInstance(AddPluginFromGitAction::class.java)
-        private const val dialogTitle = "Clone Plugin From Git"
     }
 }
