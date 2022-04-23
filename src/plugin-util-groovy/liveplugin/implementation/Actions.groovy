@@ -14,11 +14,11 @@ import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.wm.IdeFocusManager
-import liveplugin.common.FilePath
-import liveplugin.common.IdeUtil
+import liveplugin.implementation.common.FilePath
+import liveplugin.implementation.common.IdeUtil
 import liveplugin.PluginUtil
+import liveplugin.implementation.pluginrunner.UnloadPluginAction
 import liveplugin.pluginrunner.RunPluginAction
-import liveplugin.pluginrunner.UnloadPluginAction
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 

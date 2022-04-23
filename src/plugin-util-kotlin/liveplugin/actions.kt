@@ -12,8 +12,8 @@ import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
 import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.util.NlsActions.ActionText
 import com.intellij.openapi.wm.WindowManager
-import liveplugin.common.MapDataContext
-import liveplugin.pluginrunner.kotlin.LivePluginScript
+import liveplugin.implementation.common.MapDataContext
+import liveplugin.implementation.pluginrunner.kotlin.LivePluginScript
 import javax.swing.KeyStroke
 
 /**

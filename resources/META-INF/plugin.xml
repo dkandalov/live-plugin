@@ -44,7 +44,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Plugins" anchor="right"
-                    factoryClass="liveplugin.toolwindow.LivePluginToolWindowFactory"
+                    factoryClass="liveplugin.implementation.toolwindow.LivePluginToolWindowFactory"
                     icon="/liveplugin/toolWindowPlugin.svg"/>
         <notificationGroup displayType="BALLOON" id="Live Plugin"/>
     </extensions>
@@ -57,38 +57,38 @@
 		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.RunPluginTestsAction" text="Run Plugin Tests">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
-        <action id="LivePlugin.UnloadPlugin" class="liveplugin.pluginrunner.UnloadPluginAction" text="Unload Current Plugin"/>
-        <action id="LivePlugin.CreatePluginZip" class="liveplugin.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>
-		<action id="LivePlugin.SharePluginAsGistAction" class="liveplugin.toolwindow.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
+        <action id="LivePlugin.UnloadPlugin" class="liveplugin.implementation.pluginrunner.UnloadPluginAction" text="Unload Current Plugin"/>
+        <action id="LivePlugin.CreatePluginZip" class="liveplugin.implementation.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>
+		<action id="LivePlugin.SharePluginAsGistAction" class="liveplugin.implementation.toolwindow.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
     </actions>
 
     <applicationListeners>
-        <listener class="liveplugin.LivePluginAppListener" topic="com.intellij.ide.AppLifecycleListener"/>
-        <listener class="liveplugin.LivePluginProjectListener" topic="com.intellij.openapi.project.ProjectManagerListener"/>
+        <listener class="liveplugin.implementation.LivePluginAppListener" topic="com.intellij.ide.AppLifecycleListener"/>
+        <listener class="liveplugin.implementation.LivePluginProjectListener" topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
-		<applicationService serviceImplementation="liveplugin.Settings"/>
-        <scratch.rootType implementation="liveplugin.ScratchLivePluginRootType"/>
-		<nonProjectFileWritingAccessExtension implementation="liveplugin.MakePluginFilesAlwaysEditable"/>
-		<syntaxHighlighter factoryClass="liveplugin.EnableSyntaxHighlighterInLivePlugins" order="first"/>
-		<indexedRootsProvider implementation="liveplugin.IndexSetContributor"/>
-		<usageTypeProvider implementation="liveplugin.UsageTypeExtension" order="last"/>
-		<useScopeEnlarger implementation="liveplugin.UseScopeExtension"/>
+		<applicationService serviceImplementation="liveplugin.implementation.Settings"/>
+        <scratch.rootType implementation="liveplugin.implementation.ScratchLivePluginRootType"/>
+		<nonProjectFileWritingAccessExtension implementation="liveplugin.implementation.MakePluginFilesAlwaysEditable"/>
+		<syntaxHighlighter factoryClass="liveplugin.implementation.EnableSyntaxHighlighterInLivePlugins" order="first"/>
+		<indexedRootsProvider implementation="liveplugin.implementation.IndexSetContributor"/>
+		<usageTypeProvider implementation="liveplugin.implementation.UsageTypeExtension" order="last"/>
+		<useScopeEnlarger implementation="liveplugin.implementation.UseScopeExtension"/>
 		<intentionAction>
-			<className>liveplugin.AddToClassPathGroovyIntention</className>
+			<className>liveplugin.implementation.AddToClassPathGroovyIntention</className>
 			<category>LivePlugin</category>
 		</intentionAction>
 		<intentionAction>
-			<className>liveplugin.AddPluginDependencyGroovyIntention</className>
+			<className>liveplugin.implementation.AddPluginDependencyGroovyIntention</className>
 			<category>LivePlugin</category>
 		</intentionAction>
 		<intentionAction>
-			<className>liveplugin.AddToClassPathKotlinIntention</className>
+			<className>liveplugin.implementation.AddToClassPathKotlinIntention</className>
 			<category>LivePlugin</category>
 		</intentionAction>
 		<intentionAction>
-			<className>liveplugin.AddPluginDependencyKotlinIntention</className>
+			<className>liveplugin.implementation.AddPluginDependencyKotlinIntention</className>
 			<category>LivePlugin</category>
 		</intentionAction>
 	</extensions>

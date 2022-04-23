@@ -29,7 +29,7 @@ import com.intellij.psi.PsiManager
 import liveplugin.PluginUtil.openUrlInEditor
 import liveplugin.implementation.Console
 import liveplugin.implementation.Editors
-import liveplugin.pluginrunner.kotlin.LivePluginScript
+import liveplugin.implementation.pluginrunner.kotlin.LivePluginScript
 import java.awt.Component
 
 /**

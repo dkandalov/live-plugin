@@ -12,12 +12,12 @@
     <depends>com.intellij.modules.platform</depends>
 
     <applicationListeners>
-        <listener class="liveplugin.pluginrunner.kotlin.PackagedKotlinPluginRunner"
+        <listener class="liveplugin.implementation.pluginrunner.kotlin.PackagedKotlinPluginRunner"
                   topic="com.intellij.ide.AppLifecycleListener"/>
-        <listener class="liveplugin.pluginrunner.kotlin.PackagedKotlinPluginRunner"
+        <listener class="liveplugin.implementation.pluginrunner.kotlin.PackagedKotlinPluginRunner"
                   topic="com.intellij.ide.plugins.DynamicPluginListener"/>
     </applicationListeners>
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="liveplugin.pluginrunner.kotlin.PackagedKotlinPluginRunner" preload="true"/>
+        <applicationService serviceImplementation="liveplugin.implementation.pluginrunner.kotlin.PackagedKotlinPluginRunner" preload="true"/>
     </extensions>
 </idea-plugin>

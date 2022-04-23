@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.Alarm
-import liveplugin.common.IdeUtil
+import liveplugin.implementation.common.IdeUtil
 import liveplugin.PluginUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable

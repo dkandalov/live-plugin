@@ -9,7 +9,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 import com.intellij.openapi.wm.ToolWindowManager
-import liveplugin.pluginrunner.kotlin.LivePluginScript
+import liveplugin.implementation.pluginrunner.kotlin.LivePluginScript
 import javax.swing.JComponent
 
 /**

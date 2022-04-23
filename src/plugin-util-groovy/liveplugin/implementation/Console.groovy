@@ -16,7 +16,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.LoadingOrder
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Pair
-import liveplugin.common.IdeUtil
+import liveplugin.implementation.common.IdeUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 

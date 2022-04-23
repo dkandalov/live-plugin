@@ -1,5 +1,5 @@
 <idea-plugin>
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
-        <scriptDefinitionsProvider implementation="liveplugin.pluginrunner.kotlin.LivePluginKotlinScriptProvider"/>
+        <scriptDefinitionsProvider implementation="liveplugin.implementation.pluginrunner.kotlin.LivePluginKotlinScriptProvider"/>
     </extensions>
 </idea-plugin>

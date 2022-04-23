@@ -27,7 +27,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.components.panels.NonOpaquePanel
-import liveplugin.common.IdeUtil
+import liveplugin.implementation.common.IdeUtil
 import org.jetbrains.annotations.NotNull
 
 import javax.swing.*
