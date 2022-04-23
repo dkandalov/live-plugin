@@ -37,6 +37,5 @@ private fun runIOAction(actionName: String, f: () -> Unit) {
             }
         }, actionName, livePluginId)
     }
-
-    if (exception != null) throw exception!!
+    exception?.let { throw it }
 }

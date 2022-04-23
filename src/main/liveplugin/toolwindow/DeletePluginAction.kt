@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import liveplugin.common.Icons
 import liveplugin.common.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.pluginFolder
+import liveplugin.LivePluginAppComponent.Companion.findPluginFolder
 import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.LivePlugin
 import liveplugin.pluginrunner.UnloadPluginAction.Companion.unloadPlugins
@@ -46,8 +46,8 @@ class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Icons.delet
     }
 
     override fun update(event: AnActionEvent) {
-        val files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.dataContext)
-        event.presentation.isEnabled = files != null && files.any { it.pluginFolder() != null }
+        val files = PlatformDataKeys.VIRTUAL_FILE_ARRAY.getData(event.dataContext) ?: return
+        event.presentation.isEnabled = files.any { it.findPluginFolder() != null }
     }
 
     companion object {

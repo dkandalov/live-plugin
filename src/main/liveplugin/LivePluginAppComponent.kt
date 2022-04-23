@@ -27,10 +27,7 @@ import com.intellij.util.indexing.IndexableSetContributor
 import liveplugin.LivePluginPaths.livePluginsPath
 import liveplugin.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.common.FilePath
-import liveplugin.common.findAll
 import liveplugin.common.toFilePath
-import liveplugin.pluginrunner.groovy.GroovyPluginRunner
-import liveplugin.pluginrunner.kotlin.KotlinPluginRunner
 
 class LivePluginAppComponent {
     companion object {
@@ -43,19 +40,16 @@ class LivePluginAppComponent {
 
         fun pluginIdToPathMap(): Map<String, FilePath> =
             livePluginsPath.toVirtualFile()!!
-            .children.filter { file -> file.isDirectory && file.name != DIRECTORY_STORE_FOLDER }
-            .map { it.toFilePath() }
-            .associateBy { it.name }
+                .children.filter { file -> file.isDirectory && file.name != DIRECTORY_STORE_FOLDER }
+                .map { it.toFilePath() }
+                .associateBy { it.name }
 
-        fun isInvalidPluginFolder(virtualFile: VirtualFile): Boolean =
-            virtualFile.toFilePath().findAll(GroovyPluginRunner.mainScript).isEmpty() &&
-            virtualFile.toFilePath().findAll(KotlinPluginRunner.mainScript).isEmpty()
+        fun VirtualFile.findPluginFolder(): VirtualFile? =
+            if (parent == null) null
+            else if (isPluginFolder()) this
+            else parent.findPluginFolder()
 
-        fun VirtualFile.pluginFolder(): VirtualFile? {
-            val parent = parent ?: return null
-            return if (parent.toFilePath() == livePluginsPath || parent.name == livePluginsProjectDirName) this
-            else parent.pluginFolder()
-        }
+        fun VirtualFile.isPluginFolder() = parent.toFilePath() == livePluginsPath || parent.name == livePluginsProjectDirName
 
         // TODO similar to VirtualFile.pluginFolder
         fun FilePath.findPluginFolder(): FilePath? {
@@ -77,11 +71,11 @@ class ScratchLivePluginRootType : RootType("LivePlugin", "Live Plugins") {
     }
 }
 
-class MakePluginFilesAlwaysEditable: NonProjectFileWritingAccessExtension {
+class MakePluginFilesAlwaysEditable : NonProjectFileWritingAccessExtension {
     override fun isWritable(file: VirtualFile) = file.isUnderLivePluginsPath()
 }
 
-class EnableSyntaxHighlighterInLivePlugins: SyntaxHighlighterProvider {
+class EnableSyntaxHighlighterInLivePlugins : SyntaxHighlighterProvider {
     override fun create(fileType: FileType, project: Project?, file: VirtualFile?): SyntaxHighlighter? {
         if (project == null || file == null || !file.isUnderLivePluginsPath()) return null
         val language = LanguageUtil.getLanguageForPsi(project, file) ?: return null
@@ -89,7 +83,7 @@ class EnableSyntaxHighlighterInLivePlugins: SyntaxHighlighterProvider {
     }
 }
 
-class UsageTypeExtension: UsageTypeProvider {
+class UsageTypeExtension : UsageTypeProvider {
     override fun getUsageType(element: PsiElement): UsageType? {
         val file = PsiUtilCore.getVirtualFile(element) ?: return null
         return if (!file.isUnderLivePluginsPath()) null
@@ -97,19 +91,19 @@ class UsageTypeExtension: UsageTypeProvider {
     }
 }
 
-class IndexSetContributor: IndexableSetContributor() {
+class IndexSetContributor : IndexableSetContributor() {
     override fun getAdditionalRootsToIndex(): Set<VirtualFile> {
         return mutableSetOf(livePluginsPath.toVirtualFile() ?: return HashSet())
     }
 }
 
-class UseScopeExtension: UseScopeEnlarger() {
+class UseScopeExtension : UseScopeEnlarger() {
     override fun getAdditionalUseScope(element: PsiElement): SearchScope? {
         val useScope = element.useScope
         return if (useScope is LocalSearchScope) null else LivePluginsSearchScope.getScopeInstance(element.project)
     }
 
-    private class LivePluginsSearchScope(project: Project): GlobalSearchScope(project) {
+    private class LivePluginsSearchScope(project: Project) : GlobalSearchScope(project) {
         override fun getDisplayName() = "LivePlugins"
         override fun contains(file: VirtualFile) = file.isUnderLivePluginsPath()
         override fun isSearchInModuleContent(aModule: Module) = false

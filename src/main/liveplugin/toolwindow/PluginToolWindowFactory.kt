@@ -32,21 +32,22 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.EditSourceOnDoubleClickHandler
 import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
-import liveplugin.common.Icons
+import liveplugin.LivePluginAppComponent.Companion.isPluginFolder
+import liveplugin.LivePluginPaths
 import liveplugin.common.Icons.addPluginIcon
 import liveplugin.common.Icons.collapseAllIcon
 import liveplugin.common.Icons.helpIcon
+import liveplugin.common.Icons.pluginIcon
 import liveplugin.common.Icons.settingsIcon
 import liveplugin.common.Icons.sharePluginIcon
 import liveplugin.common.IdeUtil
-import liveplugin.LivePluginAppComponent.Companion.isInvalidPluginFolder
-import liveplugin.LivePluginPaths
 import liveplugin.pluginrunner.RunPluginAction
 import liveplugin.pluginrunner.RunPluginTestsAction
 import liveplugin.pluginrunner.UnloadPluginAction
 import liveplugin.toolwindow.addplugin.*
-import liveplugin.toolwindow.popup.*
+import liveplugin.toolwindow.popup.NewElementPopupAction
 import liveplugin.toolwindow.popup.NewElementPopupAction.Companion.livePluginNewElementPopup
+import liveplugin.toolwindow.popup.RenameFileAction
 import liveplugin.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.toolwindow.settingsmenu.RunPluginsOnIDEStartAction
 import liveplugin.toolwindow.settingsmenu.RunProjectSpecificPluginsAction
@@ -186,7 +187,7 @@ class PluginToolWindow(project: Project) {
 
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
             val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
-                override fun getIcon(file: VirtualFile) = if (!file.isDirectory || isInvalidPluginFolder(file)) super.getIcon(file) else Icons.pluginIcon
+                override fun getIcon(file: VirtualFile) = if (file.isDirectory && file.isPluginFolder()) pluginIcon else super.getIcon(file)
                 override fun getName(virtualFile: VirtualFile) = virtualFile.name
                 override fun getComment(virtualFile: VirtualFile?) = ""
             }.also {
