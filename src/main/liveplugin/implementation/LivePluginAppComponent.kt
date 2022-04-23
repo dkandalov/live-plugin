@@ -33,13 +33,6 @@ import liveplugin.implementation.common.toFilePath
 
 class LivePluginAppComponent {
     companion object {
-        const val livePluginId = "LivePlugin"
-
-        // Lazy because it seems that it can be initialised before notification group is initialised in plugin.xml
-        val livePluginNotificationGroup by lazy {
-            NotificationGroupManager.getInstance().getNotificationGroup("Live Plugin")!!
-        }
-
         fun pluginIdToPathMap(): Map<String, FilePath> =
             livePluginsPath.toVirtualFile()!!
                 .children.filter { file -> file.isDirectory && file.name != DIRECTORY_STORE_FOLDER }

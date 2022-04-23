@@ -8,8 +8,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
-import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.implementation.common.MapDataContext
+import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.UnloadPluginAction
 import liveplugin.implementation.pluginrunner.RunPluginAction

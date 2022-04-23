@@ -9,6 +9,7 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.RunContentManager
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
+import com.intellij.notification.NotificationGroupManager
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.impl.AsyncDataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -24,13 +25,19 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.ReflectionUtil
 import com.intellij.util.text.CharArrayUtil
-import liveplugin.implementation.LivePluginAppComponent
 import org.jetbrains.annotations.NonNls
 import java.awt.BorderLayout
 import java.io.PrintWriter
 import java.io.StringWriter
 import javax.swing.Icon
 import javax.swing.JPanel
+
+const val livePluginId = "LivePlugin"
+
+// Lazy because it seems that it can be initialised before notification group is initialised in plugin.xml
+val livePluginNotificationGroup by lazy {
+    NotificationGroupManager.getInstance().getNotificationGroup("Live Plugin")!!
+}
 
 object IdeUtil {
     const val ideStartupActionPlace = "IDE_STARTUP"
@@ -50,7 +57,7 @@ object IdeUtil {
             // plugin id based on classes in stacktrace and might get it wrong,
             // e.g. if activity tracker plugin is installed, it will include LivePlugin classes as library
             // (see com.intellij.diagnostic.IdeErrorsDialog.findPluginId)
-            logger.error(consoleTitle, PluginException(text, PluginId.getId(LivePluginAppComponent.livePluginId)))
+            logger.error(consoleTitle, PluginException(text, PluginId.getId(livePluginId)))
         } else {
             showInConsole(text, consoleTitle, project, ConsoleViewContentType.ERROR_OUTPUT)
         }

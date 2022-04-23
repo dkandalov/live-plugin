@@ -4,7 +4,7 @@ import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
-import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginId
+import liveplugin.implementation.common.livePluginId
 import java.io.IOException
 
 private const val requestor = livePluginId

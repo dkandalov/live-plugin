@@ -16,10 +16,10 @@ import com.intellij.util.download.DownloadableFileService
 import liveplugin.implementation.GroovyDownloader.downloadGroovyJar
 import liveplugin.implementation.GroovyDownloader.isGroovyOnClasspath
 import liveplugin.implementation.common.IdeUtil.invokeLaterOnEDT
-import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.IdeUtil
+import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.pluginrunner.RunPluginAction
 import liveplugin.implementation.toolwindow.addplugin.installLivepluginTutorialExamples
 import java.util.concurrent.CompletableFuture

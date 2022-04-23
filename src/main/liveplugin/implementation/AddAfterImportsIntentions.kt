@@ -9,7 +9,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginId
+import liveplugin.implementation.common.livePluginId
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyAddToClasspathKeyword
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyDependsOnPluginKeyword
