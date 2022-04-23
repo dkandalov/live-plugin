@@ -2,7 +2,6 @@ package liveplugin.implementation
 
 import com.intellij.ide.scratch.RootType
 import com.intellij.lang.LanguageUtil
-import com.intellij.notification.NotificationGroupManager
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.fileEditor.impl.NonProjectFileWritingAccessExtension
 import com.intellij.openapi.fileTypes.FileType
@@ -40,15 +39,14 @@ class LivePluginAppComponent {
                 .associateBy { it.name }
 
         fun FilePath.isPluginFolder(): Boolean {
-            val parent = toFile().parent?.toFilePath() ?: return false
-            return isDirectory && parent == livePluginsPath || parent.name == livePluginsProjectDirName
+            if (!isDirectory) return false
+            val parentPath = toFile().parent?.toFilePath() ?: return false
+            return parentPath == livePluginsPath || parentPath.name == livePluginsProjectDirName
         }
 
-        tailrec fun FilePath.findParentPluginFolder(): FilePath? {
-            val parent = toFile().parent?.toFilePath() ?: return null
-            return if (parent == livePluginsPath || parent.name == livePluginsProjectDirName) this
-            else parent.findParentPluginFolder()
-        }
+        tailrec fun FilePath.findParentPluginFolder(): FilePath? =
+            if (isPluginFolder()) this
+            else toFile().parent?.toFilePath()?.findParentPluginFolder()
     }
 }
 
