@@ -1,4 +1,4 @@
-package liveplugin.implementation.pluginrunner.kotlin
+package liveplugin.implementation.kotlin
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -10,7 +10,7 @@ import java.nio.file.Files
 import kotlin.script.experimental.annotations.KotlinScript
 
 @Ignore // Run manually from current ContentRoot because KtsScriptFixture needs paths to stdlib and kotlin scripting jars
-class EmbeddedCompilerRunnerTests {
+class EmbeddedCompilerTests {
     @Test fun `compile an empty file`() = KtsScriptFixture().run {
         createFile("plugin.kts", text = "")
         assertThat(compileScript(), equalTo(emptyList()))
@@ -105,7 +105,7 @@ private class KtsScriptFixture {
 
     companion object {
         private val properties by lazy {
-            File("test/liveplugin/pluginrunner/kotlin/compiler/fixture.properties").readLines()
+            File("test/liveplugin/implementation/kotlin/fixture.properties").readLines()
                 .map { line -> line.split("=") }
                 .map { (key, value) -> key to value.replace("\$USER_HOME", System.getProperty("user.home")) }
                 .onEach { (_, value) -> if (!File(value).exists()) error("File doesn't exist: $value") }

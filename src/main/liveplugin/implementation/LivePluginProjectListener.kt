@@ -12,7 +12,7 @@ import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginNoti
 import liveplugin.implementation.common.MapDataContext
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.UnloadPluginAction
-import liveplugin.pluginrunner.RunPluginAction
+import liveplugin.implementation.pluginrunner.RunPluginAction
 
 class LivePluginProjectListener : ProjectManagerListener {
     override fun projectOpened(project: Project) {

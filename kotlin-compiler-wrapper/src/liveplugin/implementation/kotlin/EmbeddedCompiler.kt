@@ -1,4 +1,4 @@
-package liveplugin.implementation.pluginrunner.kotlin
+package liveplugin.implementation.kotlin
 
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys.CONTENT_ROOTS
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY

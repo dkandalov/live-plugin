@@ -50,8 +50,8 @@ import liveplugin.implementation.toolwindow.popup.RenameFileAction
 import liveplugin.implementation.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.implementation.toolwindow.settingsmenu.RunPluginsOnIDEStartAction
 import liveplugin.implementation.toolwindow.settingsmenu.RunProjectSpecificPluginsAction
-import liveplugin.pluginrunner.RunPluginAction
-import liveplugin.pluginrunner.RunPluginTestsAction
+import liveplugin.implementation.pluginrunner.RunPluginAction
+import liveplugin.implementation.pluginrunner.RunPluginTestsAction
 import org.jetbrains.annotations.NonNls
 import java.awt.GridLayout
 import java.awt.event.MouseListener

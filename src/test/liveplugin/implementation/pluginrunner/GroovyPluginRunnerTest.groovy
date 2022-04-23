@@ -6,8 +6,6 @@ import kotlin.Unit
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Result
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
-import liveplugin.pluginrunner.Binding
-import liveplugin.pluginrunner.LivePlugin
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

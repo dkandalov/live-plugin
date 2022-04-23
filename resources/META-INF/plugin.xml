@@ -50,11 +50,11 @@
     </extensions>
 
 	<actions>
-		<action id="LivePlugin.RunPlugin" class="liveplugin.pluginrunner.RunPluginAction" text="Run Current Plugin">
+		<action id="LivePlugin.RunPlugin" class="liveplugin.implementation.pluginrunner.RunPluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 			<keyboard-shortcut keymap="$default" first-keystroke="control shift l"/>
 		</action>
-		<action id="LivePlugin.TestPlugin" class="liveplugin.pluginrunner.RunPluginTestsAction" text="Run Plugin Tests">
+		<action id="LivePlugin.TestPlugin" class="liveplugin.implementation.pluginrunner.RunPluginTestsAction" text="Run Plugin Tests">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
         <action id="LivePlugin.UnloadPlugin" class="liveplugin.implementation.pluginrunner.UnloadPluginAction" text="Unload Current Plugin"/>

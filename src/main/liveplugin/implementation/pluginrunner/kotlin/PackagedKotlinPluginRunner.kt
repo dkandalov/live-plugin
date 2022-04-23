@@ -9,7 +9,7 @@ import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
-import liveplugin.pluginrunner.Binding
+import liveplugin.implementation.pluginrunner.Binding
 
 class PackagedKotlinPluginRunner: AppLifecycleListener, DynamicPluginListener {
     init {

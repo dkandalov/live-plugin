@@ -7,12 +7,9 @@ import liveplugin.implementation.LivePluginPaths
 import liveplugin.implementation.common.*
 import liveplugin.implementation.common.IdeUtil.unscrambleThrowable
 import liveplugin.implementation.common.Result.Success
-import liveplugin.implementation.pluginrunner.AnError
-import liveplugin.pluginrunner.*
+import liveplugin.implementation.pluginrunner.*
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
 import liveplugin.implementation.pluginrunner.AnError.RunningError
-import liveplugin.implementation.pluginrunner.ExecutablePlugin
-import liveplugin.implementation.pluginrunner.PluginRunner
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
@@ -133,7 +130,7 @@ private class KotlinPluginCompiler {
             additionalClasspath +
             File(pluginFolderPath)
 
-        val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.pluginrunner.kotlin.compiler.EmbeddedCompilerRunnerKt")
+        val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.implementation.kotlin.EmbeddedCompilerKt")
         val compilePluginMethod = compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!
         return try {
             // Note that arguments passed via reflection CANNOT use pure Kotlin types

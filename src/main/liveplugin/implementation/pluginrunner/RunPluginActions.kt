@@ -1,4 +1,4 @@
-package liveplugin.pluginrunner
+package liveplugin.implementation.pluginrunner
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnAction
@@ -17,12 +17,9 @@ import liveplugin.implementation.common.IdeUtil.displayError
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
 import liveplugin.implementation.LivePluginAppComponent.Companion.findParentPluginFolder
 import liveplugin.implementation.common.*
-import liveplugin.implementation.pluginrunner.AnError
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
 import liveplugin.implementation.pluginrunner.AnError.RunningError
-import liveplugin.implementation.pluginrunner.PluginRunner
-import liveplugin.implementation.pluginrunner.hasPluginsToUnload
-import liveplugin.pluginrunner.RunPluginAction.Companion.runPluginsTests
+import liveplugin.implementation.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import java.util.concurrent.atomic.AtomicReference

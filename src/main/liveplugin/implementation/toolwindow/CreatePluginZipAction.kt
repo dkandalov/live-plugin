@@ -21,11 +21,11 @@ import liveplugin.implementation.common.Icons
 import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginNotificationGroup
 import liveplugin.implementation.LivePluginPaths
 import liveplugin.implementation.common.selectedFiles
-import liveplugin.pluginrunner.LivePlugin
-import liveplugin.pluginrunner.canBeHandledBy
+import liveplugin.implementation.pluginrunner.LivePlugin
+import liveplugin.implementation.pluginrunner.canBeHandledBy
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
-import liveplugin.pluginrunner.toLivePlugins
+import liveplugin.implementation.pluginrunner.toLivePlugins
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.implementation.toolwindow.popup.NewPluginXmlScript

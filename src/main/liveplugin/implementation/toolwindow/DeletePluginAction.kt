@@ -14,8 +14,8 @@ import liveplugin.implementation.common.Icons
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.selectedFiles
 import liveplugin.implementation.pluginrunner.UnloadPluginAction.Companion.unloadPlugins
-import liveplugin.pluginrunner.LivePlugin
-import liveplugin.pluginrunner.toLivePlugins
+import liveplugin.implementation.pluginrunner.LivePlugin
+import liveplugin.implementation.pluginrunner.toLivePlugins
 import liveplugin.implementation.toolwindow.util.delete
 import java.io.IOException
 

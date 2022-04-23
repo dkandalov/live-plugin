@@ -20,7 +20,7 @@ import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginNoti
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.IdeUtil
-import liveplugin.pluginrunner.RunPluginAction
+import liveplugin.implementation.pluginrunner.RunPluginAction
 import liveplugin.implementation.toolwindow.addplugin.installLivepluginTutorialExamples
 import java.util.concurrent.CompletableFuture
 

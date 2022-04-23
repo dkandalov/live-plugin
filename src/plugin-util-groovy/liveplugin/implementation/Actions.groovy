@@ -18,7 +18,7 @@ import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.PluginUtil
 import liveplugin.implementation.pluginrunner.UnloadPluginAction
-import liveplugin.pluginrunner.RunPluginAction
+import liveplugin.implementation.pluginrunner.RunPluginAction
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 

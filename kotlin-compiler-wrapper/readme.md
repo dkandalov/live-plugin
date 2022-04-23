@@ -1,4 +1,4 @@
-This is a wrapper for kotlin compiler API to be used inside of LivePlugin (see `liveplugin.pluginrunner.kotlin.KotlinPluginRunner`).
+This is a wrapper for kotlin compiler API to be used inside LivePlugin (see `liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner`).
 The main reason for pulling this code out of LivePlugin was that Kotlin has some classes
 with **exactly the same fully qualified names** as classes in IntelliJ.
 
