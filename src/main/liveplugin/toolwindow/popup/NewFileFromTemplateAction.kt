@@ -31,7 +31,6 @@ open class NewFileFromTemplateAction(
             parentFile.findChild(newFileName) == null &&
             parentFile.toFilePath().findPluginFolder() in LivePluginAppComponent.pluginIdToPathMap().values
 
-
         event.presentation.apply {
             isEnabled = enabled
             isVisible = enabled
