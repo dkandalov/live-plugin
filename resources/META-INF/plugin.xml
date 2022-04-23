@@ -65,6 +65,7 @@
     <applicationListeners>
         <listener class="liveplugin.implementation.LivePluginAppListener" topic="com.intellij.ide.AppLifecycleListener"/>
         <listener class="liveplugin.implementation.LivePluginProjectListener" topic="com.intellij.openapi.project.ProjectManagerListener"/>
+        <listener class="liveplugin.implementation.LivePluginDeletedListener" topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
     </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">

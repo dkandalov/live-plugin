@@ -9,11 +9,9 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.LivePluginAppComponent.Companion.findParentPluginFolder
-import liveplugin.implementation.LivePluginPaths
 import liveplugin.implementation.common.Icons
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.selectedFiles
-import liveplugin.implementation.pluginrunner.UnloadPluginAction.Companion.unloadPlugins
 import liveplugin.implementation.pluginrunner.LivePlugin
 import liveplugin.implementation.pluginrunner.toLivePlugins
 import liveplugin.implementation.toolwindow.util.delete
@@ -26,16 +24,13 @@ class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Icons.delet
         val livePlugins = event.selectedFiles().toLivePlugins().ifEmpty { return }
         if (userDoesNotWantToRemovePlugins(livePlugins, event.project)) return
 
-        unloadPlugins(livePlugins.map { it.path })
-
         livePlugins.forEach { plugin ->
             try {
                 plugin.path.toVirtualFile()?.delete()
-                (LivePluginPaths.livePluginsCompiledPath + plugin.id).toVirtualFile()?.delete()
             } catch (e: IOException) {
                 val project = event.project
                 if (project != null) {
-                    IdeUtil.showErrorDialog(project, "Error deleting plugin \"" + plugin.path, "Delete Plugin")
+                    IdeUtil.showErrorDialog(project, "Error deleting plugin \"${plugin.path}\"", "Delete Plugin")
                 }
                 logger.error(e)
             }

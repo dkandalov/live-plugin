@@ -14,6 +14,9 @@ import com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER
 import com.intellij.openapi.util.NotNullLazyKey
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.newvfs.BulkFileListener
+import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.LocalSearchScope
@@ -28,7 +31,11 @@ import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Icons.pluginIcon
+import liveplugin.implementation.common.IdeUtil.invokeLaterOnEDT
 import liveplugin.implementation.common.toFilePath
+import liveplugin.implementation.pluginrunner.UnloadPluginAction
+import liveplugin.implementation.pluginrunner.toLivePlugins
+import liveplugin.implementation.toolwindow.util.delete
 
 class LivePluginAppComponent {
     companion object {
@@ -39,7 +46,7 @@ class LivePluginAppComponent {
                 .associateBy { it.name }
 
         fun FilePath.isPluginFolder(): Boolean {
-            if (!isDirectory) return false
+            if (!isDirectory && exists()) return false
             val parentPath = toFile().parent?.toFilePath() ?: return false
             return parentPath == livePluginsPath || parentPath.name == livePluginsProjectDirName
         }
@@ -60,6 +67,23 @@ class ScratchLivePluginRootType : RootType("LivePlugin", "Live Plugins") {
     companion object {
         init {
             System.setProperty(PathManager.PROPERTY_SCRATCH_PATH + "/LivePlugin", livePluginsPath.value)
+        }
+    }
+}
+
+class LivePluginDeletedListener : BulkFileListener {
+    override fun before(events: List<VFileEvent>) {
+        val livePlugins = events.filter { it is VFileDeleteEvent && it.file.toFilePath().isPluginFolder() }
+            .mapNotNull { event -> event.file?.toFilePath() }
+            .toLivePlugins()
+
+        if (livePlugins.isNotEmpty()) {
+            invokeLaterOnEDT {
+                UnloadPluginAction.unloadPlugins(livePlugins.map { it.path })
+                livePlugins.forEach { plugin ->
+                    (LivePluginPaths.livePluginsCompiledPath + plugin.id).toVirtualFile()?.delete()
+                }
+            }
         }
     }
 }
