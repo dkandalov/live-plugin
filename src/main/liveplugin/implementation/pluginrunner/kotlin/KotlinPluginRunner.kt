@@ -4,6 +4,7 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.implementation.LivePluginPaths
+import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.common.*
 import liveplugin.implementation.common.IdeUtil.unscrambleThrowable
 import liveplugin.implementation.common.Result.Success
@@ -59,14 +60,14 @@ class KotlinPluginRunner(
         val additionalClasspath = findClasspathAdditions(mainScript.readLines(), kotlinAddToClasspathKeyword, environment)
             .flatMap { it.onFailure { (path) -> return LoadingError("Couldn't find dependency '$path.'").asFailure() } }
 
-        val compilerOutput = File("${LivePluginPaths.livePluginsCompiledPath}/${plugin.id}")
+        val compilerOutput = livePluginsCompiledPath + plugin.id
 
-        val srcHashCode = SrcHashCode(plugin.path, compilerOutput.toFilePath())
+        val srcHashCode = SrcHashCode(plugin.path, compilerOutput)
         if (srcHashCode.needsUpdate()) {
-            compilerOutput.deleteRecursively()
+            compilerOutput.toFile().deleteRecursively()
 
             KotlinPluginCompiler()
-                .compile(plugin.path.value, pluginDescriptorsOfDependencies, additionalClasspath, compilerOutput)
+                .compile(plugin.path.value, pluginDescriptorsOfDependencies, additionalClasspath, compilerOutput.toFile())
                 .onFailure { (reason) -> return LoadingError(reason).asFailure() }
 
             srcHashCode.update()
@@ -74,7 +75,7 @@ class KotlinPluginRunner(
 
         val pluginClass = try {
             val runtimeClassPath =
-                listOf(compilerOutput) +
+                listOf(compilerOutput.toFile()) +
                 livePluginLibAndSrcFiles() +
                 additionalClasspath
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin)
