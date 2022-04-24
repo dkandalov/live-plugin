@@ -11,7 +11,7 @@ import liveplugin.implementation.LivePluginAppComponent.Companion.findParentPlug
 import liveplugin.implementation.common.MapDataContext
 import liveplugin.implementation.common.selectedFiles
 
-class SharePluginAsGistAction: AnAction("Share as Gist", "Share as plugin files as ag Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
+class SharePluginAsGistAction: AnAction("Share as Gist", "Share as plugin files as a Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
         // Lookup action at runtime because org.jetbrains.plugins.github.GithubCreateGistAction.GithubCreateGistAction() is protected.
