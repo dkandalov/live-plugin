@@ -10,7 +10,8 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 data class Settings(
     var justInstalled: Boolean = true,
     var runProjectSpecificPlugins: Boolean = true,
-    var runAllPluginsOnIDEStartup: Boolean = false
+    var runAllPluginsOnIDEStartup: Boolean = false,
+    var migratedLivePluginsToScratchesPath: Boolean = false
 ): PersistentStateComponent<Settings> {
 
     override fun getState() = this

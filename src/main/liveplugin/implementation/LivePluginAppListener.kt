@@ -12,11 +12,16 @@ import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.Messages.OK
+import com.intellij.openapi.util.io.FileUtil.moveDirWithContent
 import com.intellij.util.download.DownloadableFileService
 import liveplugin.implementation.GroovyDownloader.downloadGroovyJar
 import liveplugin.implementation.GroovyDownloader.isGroovyOnClasspath
 import liveplugin.implementation.common.IdeUtil.invokeLaterOnEDT
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
+import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
+import liveplugin.implementation.LivePluginPaths.livePluginsPath
+import liveplugin.implementation.LivePluginPaths.oldLivePluginsCompiledPath
+import liveplugin.implementation.LivePluginPaths.oldLivePluginsPath
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.livePluginNotificationGroup
@@ -35,8 +40,24 @@ class LivePluginAppListener: AppLifecycleListener {
             installLivepluginTutorialExamples()
             settings.justInstalled = false
         }
+        if (!settings.migratedLivePluginsToScratchesPath) {
+            migrateLivePluginsToScratchesPath()
+            settings.migratedLivePluginsToScratchesPath = true
+        }
         if (settings.runAllPluginsOnIDEStartup) {
             runAllPlugins()
+        }
+    }
+
+    private fun migrateLivePluginsToScratchesPath() {
+        livePluginsPath.toFile().mkdirs()
+        oldLivePluginsPath.listFiles().forEach {
+            moveDirWithContent(it.toFile(), (livePluginsPath + it.name).toFile())
+        }
+
+        livePluginsCompiledPath.toFile().mkdirs()
+        oldLivePluginsCompiledPath.listFiles().forEach {
+            moveDirWithContent(it.toFile(), (livePluginsCompiledPath + it.name).toFile())
         }
     }
 
@@ -59,7 +80,7 @@ private object GroovyDownloader {
     fun downloadGroovyJar() {
         livePluginNotificationGroup.createNotification(
             title = "LivePlugin didn't find Groovy libraries on classpath",
-            content = "Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~5Mb)",
+            content = "Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~8Mb)",
             type = ERROR
         ).addAction(object : NotificationAction("Download Groovy libraries") {
             override fun actionPerformed(e: AnActionEvent, notification: Notification) {
