@@ -2,6 +2,7 @@ package liveplugin.implementation.pluginrunner
 
 import com.intellij.openapi.util.io.FileUtil
 import kotlin.Unit
+import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import org.junit.After
 import org.junit.Before

@@ -16,14 +16,17 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.Compressor
 import com.intellij.util.io.zip.JBZipFile
+import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.LivePluginPaths
-import liveplugin.implementation.common.*
-import liveplugin.implementation.pluginrunner.LivePlugin
-import liveplugin.implementation.pluginrunner.canBeHandledBy
+import liveplugin.implementation.canBeHandledBy
+import liveplugin.implementation.common.FilePath
+import liveplugin.implementation.common.Icons
+import liveplugin.implementation.common.livePluginNotificationGroup
+import liveplugin.implementation.common.toFilePath
+import liveplugin.implementation.livePlugins
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
-import liveplugin.implementation.pluginrunner.toLivePlugins
-import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.implementation.toolwindow.popup.NewPluginXmlScript
 import liveplugin.implementation.toolwindow.util.readSampleScriptFile
 import java.io.ByteArrayInputStream
@@ -36,12 +39,12 @@ class CreatePluginZipAction: AnAction(
     Icons.packagePluginIcon
 ), DumbAware {
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFiles().toLivePlugins().canBeHandledBy(listOf(KotlinPluginRunner.main))
+        event.presentation.isEnabled = event.livePlugins().canBeHandledBy(listOf(KotlinPluginRunner.main))
     }
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        event.selectedFiles().toLivePlugins().forEach { packagePlugin(it, project) }
+        event.livePlugins().forEach { packagePlugin(it, project) }
     }
 
     private fun packagePlugin(plugin: LivePlugin, project: Project) {

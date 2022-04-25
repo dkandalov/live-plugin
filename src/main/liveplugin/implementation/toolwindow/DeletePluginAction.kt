@@ -8,12 +8,10 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import liveplugin.implementation.LivePluginAppComponent.Companion.findParentPluginFolder
+import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.Icons
 import liveplugin.implementation.common.IdeUtil
-import liveplugin.implementation.common.selectedFiles
-import liveplugin.implementation.pluginrunner.LivePlugin
-import liveplugin.implementation.pluginrunner.toLivePlugins
+import liveplugin.implementation.livePlugins
 import liveplugin.implementation.toolwindow.util.delete
 import java.io.IOException
 
@@ -21,7 +19,7 @@ import java.io.IOException
 class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Icons.deletePluginIcon), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
-        val livePlugins = event.selectedFiles().toLivePlugins().ifEmpty { return }
+        val livePlugins = event.livePlugins().ifEmpty { return }
         if (userDoesNotWantToRemovePlugins(livePlugins, event.project)) return
 
         livePlugins.forEach { plugin ->
@@ -40,7 +38,7 @@ class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Icons.delet
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFiles().any { it.findParentPluginFolder() != null }
+        event.presentation.isEnabled = event.livePlugins().isNotEmpty()
     }
 
     companion object {

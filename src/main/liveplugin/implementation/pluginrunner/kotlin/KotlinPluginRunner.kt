@@ -3,6 +3,7 @@ package liveplugin.implementation.pluginrunner.kotlin
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.util.lang.UrlClassLoader
+import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.LivePluginPaths
 import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.common.*

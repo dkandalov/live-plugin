@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.io.exists
 import com.intellij.util.lang.ClassPath
 import com.intellij.util.lang.UrlClassLoader
+import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.Result
 import liveplugin.implementation.common.asFailure
 import liveplugin.implementation.common.asSuccess

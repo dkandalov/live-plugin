@@ -34,7 +34,6 @@ import liveplugin.implementation.common.Icons.pluginIcon
 import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.UnloadPluginAction
-import liveplugin.implementation.pluginrunner.toLivePlugins
 import liveplugin.implementation.toolwindow.util.delete
 
 class LivePluginAppComponent {
