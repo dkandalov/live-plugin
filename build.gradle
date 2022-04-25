@@ -74,33 +74,32 @@ dependencies {
 'Move GDSL file into standardDsls folder'()
 
 sourceSets {
-	// Keep groovy and kotlin util source code in separate source sets, otherwise
+	// Keep groovy and kotlin API source code in separate source sets, otherwise
 	// compilation fails because of inter-dependencies between kotlin and groovy files which confuse compiler,
-	// even though overall dependencies are unidirectional:
-	// pluginUtilKotlin -> pluginUtilGroovy -> main
+	// even though overall dependencies are unidirectional: pluginApiKotlin -> pluginApiGroovy -> main
 
 	main {
 		java { srcDir "src/main" }
 		resources { srcDir "resources" }
 		resources { srcDir "plugin-examples" }
 	}
-	pluginUtilGroovy {
-		groovy { srcDir "src/plugin-util-groovy" }
+	pluginApiGroovy {
+		groovy { srcDir "src/plugin-api-groovy" }
 		compileClasspath = main.output +
 			configurations.compileClasspath + configurations.runtimeClasspath +
-			configurations.pluginUtilGroovyCompileClasspath + configurations.pluginUtilGroovyRuntimeClasspath
+			configurations.pluginApiGroovyCompileClasspath + configurations.pluginApiGroovyRuntimeClasspath
 	}
-	pluginUtilKotlin {
-		kotlin { srcDir "src/plugin-util-kotlin" }
-		compileClasspath = main.output + pluginUtilGroovy.output +
-			configurations.compileClasspath + configurations.pluginUtilKotlinCompileClasspath
+	pluginApiKotlin {
+		kotlin { srcDir "src/plugin-api-kotlin" }
+		compileClasspath = main.output + pluginApiGroovy.output +
+			configurations.compileClasspath + configurations.pluginApiKotlinCompileClasspath
 	}
 	test {
 		groovy { srcDir "src/test" }
-		compileClasspath = main.output + pluginUtilGroovy.output +
-			configurations.testCompileClasspath + configurations.pluginUtilGroovyCompileClasspath
-		runtimeClasspath = test.output + main.output + pluginUtilGroovy.output +
-			configurations.testRuntimeClasspath + configurations.pluginUtilGroovyRuntimeClasspath
+		compileClasspath = main.output + pluginApiGroovy.output +
+			configurations.testCompileClasspath + configurations.pluginApiGroovyCompileClasspath
+		runtimeClasspath = test.output + main.output + pluginApiGroovy.output +
+			configurations.testRuntimeClasspath + configurations.pluginApiGroovyRuntimeClasspath
 	}
 }
 
@@ -128,7 +127,7 @@ runIde {
 }
 
 jar {
-	from sourceSets.pluginUtilGroovy.output, sourceSets.pluginUtilKotlin.output
+	from sourceSets.pluginApiGroovy.output, sourceSets.pluginApiKotlin.output
 }
 
 task validateLivePluginZip() { doLast {
@@ -213,8 +212,8 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 	compileJava.doLast {
 		def classesFolder = project.tasks.findByName(JavaPlugin.COMPILE_JAVA_TASK_NAME).destinationDir
 		ant.copy(toDir: classesFolder.absolutePath, overwrite: true) {
-			ant.fileset(dir: "./src/plugin-util-groovy", includes: "**/*")
-			ant.fileset(dir: "./src/plugin-util-kotlin", includes: "**/*")
+			ant.fileset(dir: "./src/plugin-api-groovy", includes: "**/*")
+			ant.fileset(dir: "./src/plugin-api-kotlin", includes: "**/*")
 			ant.fileset(dir: "./src/main", includes: "**/LivePluginScript.kt")
 		}
 	}

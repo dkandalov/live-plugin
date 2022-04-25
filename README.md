@@ -75,8 +75,8 @@ by cloning it, browsing it on GitHub or in
 [Upsource](https://upsource.jetbrains.com/idea-ce/structure/idea-ce-ba0c8fc9ab9bf23a71a6a963cd84fc89b09b9fc8/).
   One useful strategy is to search for text you can see in IDE UI and then figure out 
   how it's connected to the code which does the actual work.
-- [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src/plugin-util-groovy/liveplugin/PluginUtil.groovy) class
-  and [liveplugin](https://github.com/dkandalov/live-plugin/tree/master/src/plugin-util-kotlin/liveplugin) package
+- [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src/plugin-api-groovy/liveplugin/PluginUtil.groovy) class
+  and [liveplugin](https://github.com/dkandalov/live-plugin/tree/master/src/plugin-api-kotlin/liveplugin) package
   might have some good starting points to explore IntelliJ API.
 
 Once your plugin has grown, you can move it to a proper plugin project 
