@@ -45,10 +45,14 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.livePlugins().canBeHandledBy(pluginRunners)
-        val hasPluginsToUnload = event.hasPluginsToUnload()
-        event.presentation.text = if (hasPluginsToUnload) "Rerun Plugin" else "Run Plugin"
-        event.presentation.icon = if (hasPluginsToUnload) Icons.rerunPluginIcon else Icons.runPluginIcon
+        val livePlugins = event.livePlugins()
+        event.presentation.isEnabled = livePlugins.canBeHandledBy(pluginRunners)
+        if (event.presentation.isEnabled) {
+            val hasPluginsToUnload = livePlugins.any { it.canBeUnloaded() }
+            val actionName = if (hasPluginsToUnload) "Rerun" else "Run"
+            event.presentation.text = "$actionName ${pluginNameInActionText(livePlugins)}"
+            event.presentation.icon = if (hasPluginsToUnload) Icons.rerunPluginIcon else Icons.runPluginIcon
+        }
     }
 
     companion object {
@@ -58,6 +62,15 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
 
         @JvmStatic fun runPluginsTests(pluginFilePaths: List<FilePath>, event: AnActionEvent) {
             pluginFilePaths.toLivePlugins().forEach { it.runWith(pluginTestRunners, event) }
+        }
+
+        fun pluginNameInActionText(livePlugins: List<LivePlugin>): String {
+            val pluginNameInActionText = when (livePlugins.size) {
+                0    -> "Plugin"
+                1    -> "'${livePlugins.first().id}' Plugin"
+                else -> "Selected Plugins"
+            }
+            return pluginNameInActionText
         }
     }
 }

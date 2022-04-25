@@ -3,10 +3,12 @@ package liveplugin.implementation.pluginrunner
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
+import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Icons
 import liveplugin.implementation.common.selectedFiles
 import liveplugin.implementation.livePlugins
+import liveplugin.implementation.pluginrunner.RunPluginAction.Companion.pluginNameInActionText
 import liveplugin.implementation.toLivePlugins
 
 class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", Icons.unloadPluginIcon), DumbAware {
@@ -15,7 +17,11 @@ class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", I
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.hasPluginsToUnload()
+        val livePlugins = event.livePlugins().filter { it.canBeUnloaded() }
+        event.presentation.isEnabled = livePlugins.isNotEmpty()
+        if (event.presentation.isEnabled) {
+            event.presentation.text = "Unload ${pluginNameInActionText(livePlugins)}"
+        }
     }
 
     companion object {
@@ -25,5 +31,4 @@ class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", I
     }
 }
 
-fun AnActionEvent.hasPluginsToUnload() =
-    livePlugins().any { Binding.lookup(it) != null }
+fun LivePlugin.canBeUnloaded() = Binding.lookup(this) != null
