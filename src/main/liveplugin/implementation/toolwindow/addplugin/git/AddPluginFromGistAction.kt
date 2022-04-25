@@ -11,7 +11,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
-import liveplugin.implementation.common.IdeUtil.invokeLaterOnEDT
+import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
 import liveplugin.implementation.common.IdeUtil.showErrorDialog
 import liveplugin.implementation.LivePluginPaths
 import liveplugin.implementation.toolwindow.RefreshPluginsPanelAction
@@ -100,11 +100,11 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
                     val gistId = extractGistIdFrom(gistUrl)!!
                     val request = GithubApiRequests.Gists.get(GithubServerPath.DEFAULT_SERVER, gistId)
                     val gist = SimpleExecutor().execute(request)
-                    invokeLaterOnEDT {
+                    runLaterOnEDT {
                         if (gist == null) onFailure(null) else onSuccess(gist)
                     }
                 } catch (e: IOException) {
-                    invokeLaterOnEDT { onFailure(e) }
+                    runLaterOnEDT { onFailure(e) }
                 }
             }
         }.queue()

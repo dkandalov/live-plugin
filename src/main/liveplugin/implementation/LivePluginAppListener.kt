@@ -16,7 +16,7 @@ import com.intellij.openapi.util.io.FileUtil.moveDirWithContent
 import com.intellij.util.download.DownloadableFileService
 import liveplugin.implementation.GroovyDownloader.downloadGroovyJar
 import liveplugin.implementation.GroovyDownloader.isGroovyOnClasspath
-import liveplugin.implementation.common.IdeUtil.invokeLaterOnEDT
+import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
@@ -62,7 +62,7 @@ class LivePluginAppListener: AppLifecycleListener {
     }
 
     private fun runAllPlugins() {
-        invokeLaterOnEDT {
+        runLaterOnEDT {
             val actionManager = ActionManager.getInstance()
             val event = AnActionEvent(null, DataContext.EMPTY_CONTEXT, IdeUtil.ideStartupActionPlace, Presentation(), actionManager, 0)
             val pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values

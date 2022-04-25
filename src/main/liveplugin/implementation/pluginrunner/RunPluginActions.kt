@@ -6,7 +6,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ModalityState.NON_MODAL
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProgressIndicator
@@ -15,16 +14,23 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import liveplugin.implementation.LivePluginAppComponent.Companion.findParentPluginFolder
+import liveplugin.implementation.common.FilePath
+import liveplugin.implementation.common.Icons
+import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.displayError
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
-import liveplugin.implementation.LivePluginAppComponent.Companion.findParentPluginFolder
-import liveplugin.implementation.common.*
+import liveplugin.implementation.common.IdeUtil.runOnEdt
+import liveplugin.implementation.common.find
+import liveplugin.implementation.common.flatMap
+import liveplugin.implementation.common.peekFailure
+import liveplugin.implementation.common.selectedFiles
+import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
 import liveplugin.implementation.pluginrunner.AnError.RunningError
 import liveplugin.implementation.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
-import java.util.concurrent.atomic.AtomicReference
 
 private val pluginRunners = listOf(GroovyPluginRunner.main, KotlinPluginRunner.main)
 private val pluginTestRunners = listOf(GroovyPluginRunner.test, KotlinPluginRunner.test)
@@ -36,7 +42,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginRunners)
+        event.presentation.isEnabled = event.selectedFiles().toLivePlugins().canBeHandledBy(pluginRunners)
         val hasPluginsToUnload = event.hasPluginsToUnload()
         event.presentation.text = if (hasPluginsToUnload) "Rerun Plugin" else "Run Plugin"
         event.presentation.icon = if (hasPluginsToUnload) Icons.rerunPluginIcon else Icons.runPluginIcon
@@ -60,7 +66,7 @@ class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run plugin integration
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginTestRunners)
+        event.presentation.isEnabled = event.selectedFiles().toLivePlugins().canBeHandledBy(pluginTestRunners)
     }
 }
 
@@ -106,12 +112,6 @@ private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActio
             .flatMap { runOnEdt { pluginRunner.run(it, binding) } }
             .peekFailure { displayError(id, it, project) }
     }
-}
-
-private fun <T> runOnEdt(f: () -> T): T {
-    val result = AtomicReference<T>()
-    ApplicationManager.getApplication().invokeAndWait({ result.set(f()) }, NON_MODAL)
-    return result.get()
 }
 
 private fun runInBackground(project: Project?, taskDescription: String, function: () -> Any) {
@@ -172,13 +172,12 @@ class Binding(
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
-fun List<FilePath>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
-    mapNotNull { path -> path.findParentPluginFolder() }
-        .any { folder ->
-            pluginRunners.any { runner ->
-                folder.allFiles().any { it.name == runner.scriptName }
-            }
+fun List<LivePlugin>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
+    any { livePlugin ->
+        pluginRunners.any { runner ->
+            livePlugin.path.allFiles().any { it.name == runner.scriptName }
         }
+    }
 
 fun List<FilePath>.toLivePlugins() =
     mapNotNull { it.findParentPluginFolder() }.distinct().map { LivePlugin(it) }

@@ -36,7 +36,7 @@ class CreatePluginZipAction: AnAction(
     Icons.packagePluginIcon
 ), DumbAware {
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(listOf(KotlinPluginRunner.main))
+        event.presentation.isEnabled = event.selectedFiles().toLivePlugins().canBeHandledBy(listOf(KotlinPluginRunner.main))
     }
 
     override fun actionPerformed(event: AnActionEvent) {

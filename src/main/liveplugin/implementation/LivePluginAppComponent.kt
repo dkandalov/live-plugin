@@ -31,7 +31,7 @@ import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Icons.pluginIcon
-import liveplugin.implementation.common.IdeUtil.invokeLaterOnEDT
+import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.UnloadPluginAction
 import liveplugin.implementation.pluginrunner.toLivePlugins
@@ -78,7 +78,7 @@ class LivePluginDeletedListener : BulkFileListener {
             .toLivePlugins()
 
         if (livePlugins.isNotEmpty()) {
-            invokeLaterOnEDT {
+            runLaterOnEDT {
                 UnloadPluginAction.unloadPlugins(livePlugins.map { it.path })
                 livePlugins.forEach { plugin ->
                     (LivePluginPaths.livePluginsCompiledPath + plugin.id).toVirtualFile()?.delete()

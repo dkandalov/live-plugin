@@ -17,17 +17,16 @@ import liveplugin.implementation.pluginrunner.RunPluginAction
 class LivePluginProjectListener : ProjectManagerListener {
     override fun projectOpened(project: Project) {
         if (!Settings.instance.runProjectSpecificPlugins) return
-
-        val projectPath = project.basePath?.toFilePath() ?: return
-        val pluginsPath = projectPath + LivePluginPaths.livePluginsProjectDirName
-        if (!pluginsPath.exists()) return
-
         @Suppress("UnstableApiUsage")
         if (!project.isTrusted()) {
             val message = "Skipped execution of project specific plugins because the project is not trusted."
             livePluginNotificationGroup.createNotification(title = "Live plugin", message, INFORMATION).notify(project)
             return
         }
+
+        val projectPath = project.basePath?.toFilePath() ?: return
+        val pluginsPath = projectPath + LivePluginPaths.livePluginsProjectDirName
+        if (!pluginsPath.exists()) return
 
         val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
         val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)

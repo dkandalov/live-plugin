@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NonNls
 import java.awt.BorderLayout
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.util.concurrent.atomic.AtomicReference
 import javax.swing.Icon
 import javax.swing.JPanel
 
@@ -67,8 +68,14 @@ object IdeUtil {
         Messages.showMessageDialog(project, message, title, Messages.getErrorIcon())
     }
 
-    fun invokeLaterOnEDT(f: () -> Any) {
+    fun runLaterOnEDT(f: () -> Any) {
         ApplicationManager.getApplication().invokeLater { f.invoke() }
+    }
+
+    fun <T> runOnEdt(f: () -> T): T {
+        val result = AtomicReference<T>()
+        ApplicationManager.getApplication().invokeAndWait({ result.set(f()) }, ModalityState.NON_MODAL)
+        return result.get()
     }
 
     @JvmStatic fun unscrambleThrowable(throwable: Throwable): String {

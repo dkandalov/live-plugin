@@ -8,7 +8,7 @@ import com.intellij.openapi.project.DumbAware
 import liveplugin.implementation.LivePluginAppComponent.Companion.pluginIdToPathMap
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.IdeUtil
-import liveplugin.implementation.common.IdeUtil.invokeLaterOnEDT
+import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
 import liveplugin.implementation.toolwindow.RefreshPluginsPanelAction
 import liveplugin.implementation.toolwindow.util.ExamplePlugin
 import liveplugin.implementation.toolwindow.util.GroovyExamples
@@ -83,12 +83,12 @@ private class PerformAllGroupActions(
 
     private fun performAction(action: AnAction, place: String) {
         val event = AnActionEvent(null, EMPTY_CONTEXT, place, action.templatePresentation, ActionManager.getInstance(), 0)
-        invokeLaterOnEDT { action.actionPerformed(event) }
+        runLaterOnEDT { action.actionPerformed(event) }
     }
 }
 
 fun installLivepluginTutorialExamples() {
-    invokeLaterOnEDT {
+    runLaterOnEDT {
         listOf(GroovyExamples.helloWorld, GroovyExamples.ideActions, GroovyExamples.modifyDocument, GroovyExamples.popupMenu).forEach {
             it.installPlugin()
         }

@@ -7,7 +7,7 @@ import com.intellij.openapi.fileChooser.actions.FileChooserAction
 import com.intellij.openapi.fileChooser.tree.FileNode
 import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.common.IdeUtil
-import liveplugin.implementation.common.IdeUtil.invokeLaterOnEDT
+import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
 import java.io.IOException
 import java.util.*
 import kotlin.reflect.full.functions
@@ -39,7 +39,7 @@ class RenameFileAction: FileChooserAction("Rename", "", null) {
 
                 val nodeContainsRenamedFile = file == node.file
                 if (nodeContainsRenamedFile) {
-                    invokeLaterOnEDT {
+                    runLaterOnEDT {
                         val kFunction = FileNode::class.functions.find { it.name == "updateName" }!!
                         kFunction.isAccessible = true
                         kFunction.call(node, file.name)
