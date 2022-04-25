@@ -3,6 +3,8 @@ package liveplugin.implementation.pluginrunner
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState.NON_MODAL
 import com.intellij.openapi.application.runWriteAction
@@ -59,6 +61,33 @@ class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run plugin integration
 
     override fun update(event: AnActionEvent) {
         event.presentation.isEnabled = event.selectedFiles().canBeHandledBy(pluginTestRunners)
+    }
+}
+
+class RunLivePluginsGroup : DefaultActionGroup(
+    RunPluginAction().hiddenWhenDisabled(),
+    UnloadPluginAction().hiddenWhenDisabled(),
+    Separator()
+) {
+    init {
+        isPopup = false
+    }
+
+    companion object {
+        fun AnAction.hiddenWhenDisabled() = HiddenWhenDisabledAction(this)
+    }
+
+    class HiddenWhenDisabledAction(private val delegate: AnAction): AnAction(), DumbAware {
+        override fun actionPerformed(event: AnActionEvent) = delegate.actionPerformed(event)
+        override fun update(event: AnActionEvent) {
+            val presentation = delegate.templatePresentation
+            event.presentation.text = presentation.text
+            event.presentation.description = presentation.description
+            event.presentation.icon = presentation.icon
+
+            delegate.update(event)
+            if (!event.presentation.isEnabled) event.presentation.isVisible = false
+        }
     }
 }
 

@@ -42,6 +42,7 @@ import liveplugin.implementation.common.Icons.settingsIcon
 import liveplugin.implementation.common.Icons.sharePluginIcon
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.toFilePath
+import liveplugin.implementation.pluginrunner.RunLivePluginsGroup
 import liveplugin.implementation.pluginrunner.UnloadPluginAction
 import liveplugin.implementation.toolwindow.addplugin.*
 import liveplugin.implementation.toolwindow.popup.NewElementPopupAction
@@ -210,8 +211,7 @@ class PluginToolWindow(project: Project) {
 
             val popupActionGroup = DefaultActionGroup(
                 livePluginNewElementPopup,
-                RunPluginAction(),
-                UnloadPluginAction(),
+                RunLivePluginsGroup(),
                 RenameFileAction().also { it.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("RenameElement")), this) },
                 FileDeleteAction().also { it.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("SafeDelete")), this) },
             ).also { it.isPopup = true }

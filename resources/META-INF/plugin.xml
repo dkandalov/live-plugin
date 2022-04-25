@@ -59,7 +59,10 @@
 		</action>
         <action id="LivePlugin.UnloadPlugin" class="liveplugin.implementation.pluginrunner.UnloadPluginAction" text="Unload Current Plugin"/>
         <action id="LivePlugin.CreatePluginZip" class="liveplugin.implementation.toolwindow.CreatePluginZipAction" text="Package Plugin as Zip"/>
-		<action id="LivePlugin.SharePluginAsGistAction" class="liveplugin.implementation.toolwindow.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
+		<action id="LivePlugin.SharePluginAsGist" class="liveplugin.implementation.toolwindow.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
+        <group id="LivePlugin.LivePluginActions" class="liveplugin.implementation.pluginrunner.RunLivePluginsGroup">
+            <add-to-group group-id="RunContextGroup"/>
+        </group>
     </actions>
 
     <applicationListeners>
