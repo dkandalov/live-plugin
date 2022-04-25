@@ -17,7 +17,7 @@ class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", I
         val livePlugins = event.livePlugins().filter { it.canBeUnloaded() }
         event.presentation.isEnabled = livePlugins.isNotEmpty()
         if (event.presentation.isEnabled) {
-            event.presentation.text = "Unload ${pluginNameInActionText(livePlugins)}"
+            event.presentation.setText("Unload ${pluginNameInActionText(livePlugins)}", false)
         }
     }
 

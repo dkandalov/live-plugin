@@ -15,15 +15,10 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.common.Icons
-import liveplugin.implementation.common.IdeUtil
+import liveplugin.implementation.common.*
 import liveplugin.implementation.common.IdeUtil.displayError
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
 import liveplugin.implementation.common.IdeUtil.runOnEdt
-import liveplugin.implementation.common.find
-import liveplugin.implementation.common.flatMap
-import liveplugin.implementation.common.peekFailure
-import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.livePlugins
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
 import liveplugin.implementation.pluginrunner.AnError.RunningError
@@ -46,7 +41,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
         if (event.presentation.isEnabled) {
             val hasPluginsToUnload = livePlugins.any { it.canBeUnloaded() }
             val actionName = if (hasPluginsToUnload) "Rerun" else "Run"
-            event.presentation.text = "$actionName ${pluginNameInActionText(livePlugins)}"
+            event.presentation.setText("$actionName ${pluginNameInActionText(livePlugins)}", false)
             event.presentation.icon = if (hasPluginsToUnload) Icons.rerunPluginIcon else Icons.runPluginIcon
         }
     }
