@@ -18,7 +18,7 @@ import com.intellij.util.io.Compressor
 import com.intellij.util.io.zip.JBZipFile
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.LivePluginPaths
-import liveplugin.implementation.canBeHandledBy
+import liveplugin.implementation.pluginrunner.canBeHandledBy
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Icons
 import liveplugin.implementation.common.livePluginNotificationGroup

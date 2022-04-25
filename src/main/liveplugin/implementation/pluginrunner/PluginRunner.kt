@@ -120,3 +120,10 @@ sealed class AnError {
     data class LoadingError(val message: String = "", val throwable: Throwable? = null) : AnError()
     data class RunningError(val throwable: Throwable) : AnError()
 }
+
+fun List<LivePlugin>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
+    any { livePlugin ->
+        pluginRunners.any { runner ->
+            livePlugin.path.allFiles().any { it.name == runner.scriptName }
+        }
+    }

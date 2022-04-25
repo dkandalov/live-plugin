@@ -15,8 +15,6 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.canBeHandledBy
-import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Icons
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.displayError
@@ -25,7 +23,6 @@ import liveplugin.implementation.common.IdeUtil.runOnEdt
 import liveplugin.implementation.common.find
 import liveplugin.implementation.common.flatMap
 import liveplugin.implementation.common.peekFailure
-import liveplugin.implementation.common.selectedFiles
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.livePlugins
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
@@ -33,7 +30,6 @@ import liveplugin.implementation.pluginrunner.AnError.RunningError
 import liveplugin.implementation.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
-import liveplugin.implementation.toLivePlugins
 
 private val pluginRunners = listOf(GroovyPluginRunner.main, KotlinPluginRunner.main)
 private val pluginTestRunners = listOf(GroovyPluginRunner.test, KotlinPluginRunner.test)
@@ -41,7 +37,7 @@ private val pluginTestRunners = listOf(GroovyPluginRunner.test, KotlinPluginRunn
 class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
-        runPlugins(event.selectedFiles(), event)
+        runPlugins(event.livePlugins(), event)
     }
 
     override fun update(event: AnActionEvent) {
@@ -56,12 +52,12 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 
     companion object {
-        @JvmStatic fun runPlugins(pluginFilePaths: List<FilePath>, event: AnActionEvent) {
-            pluginFilePaths.toLivePlugins().forEach { it.runWith(pluginRunners, event) }
+        @JvmStatic fun runPlugins(livePlugins: Collection<LivePlugin>, event: AnActionEvent) {
+            livePlugins.forEach { it.runWith(pluginRunners, event) }
         }
 
-        @JvmStatic fun runPluginsTests(pluginFilePaths: List<FilePath>, event: AnActionEvent) {
-            pluginFilePaths.toLivePlugins().forEach { it.runWith(pluginTestRunners, event) }
+        @JvmStatic fun runPluginsTests(livePlugins: Collection<LivePlugin>, event: AnActionEvent) {
+            livePlugins.forEach { it.runWith(pluginTestRunners, event) }
         }
 
         fun pluginNameInActionText(livePlugins: List<LivePlugin>): String {
@@ -78,7 +74,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
 class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run plugin integration tests", Icons.testPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
-        runPluginsTests(event.selectedFiles(), event)
+        runPluginsTests(event.livePlugins(), event)
     }
 
     override fun update(event: AnActionEvent) {

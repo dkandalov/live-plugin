@@ -7,12 +7,12 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
-import liveplugin.implementation.common.Icons
-import liveplugin.implementation.common.IdeUtil
-import liveplugin.implementation.LivePluginAppComponent.Companion.pluginIdToPathMap
+import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginsById
 import liveplugin.implementation.LivePluginPaths
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
+import liveplugin.implementation.common.Icons
+import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.implementation.toolwindow.RefreshPluginsPanelAction
@@ -69,7 +69,7 @@ class PluginIdValidator: InputValidatorEx {
     private var errorText: String? = null
 
     override fun checkInput(pluginId: String) =
-        if (pluginId in pluginIdToPathMap().keys) {
+        if (pluginId in livePluginsById().keys) {
             errorText = "There is already a plugin with this name"
             false
         } else {

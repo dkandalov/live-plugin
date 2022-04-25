@@ -14,11 +14,10 @@ import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.wm.IdeFocusManager
-import liveplugin.implementation.common.FilePath
-import liveplugin.implementation.common.IdeUtil
 import liveplugin.PluginUtil
-import liveplugin.implementation.pluginrunner.UnloadPluginAction
+import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.pluginrunner.RunPluginAction
+import liveplugin.implementation.pluginrunner.UnloadPluginAction
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -104,15 +103,15 @@ class Actions {
 	}
 
 	static runLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		RunPluginAction.runPlugins([new FilePath(pluginId)], dummyEvent(project))
+		RunPluginAction.runPlugins([LivePluginAppComponent.livePluginsById()[pluginId]], dummyEvent(project))
 	}
 
 	static unloadLivePlugin(@NotNull String pluginId) {
-		UnloadPluginAction.unloadPlugins([new FilePath(pluginId)])
+		UnloadPluginAction.unloadPlugins([LivePluginAppComponent.livePluginsById()[pluginId]])
 	}
 
 	static testLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		RunPluginAction.runPluginsTests([new FilePath(pluginId)], dummyEvent(project))
+		RunPluginAction.runPluginsTests([LivePluginAppComponent.livePluginsById()[pluginId]], dummyEvent(project))
 	}
 
 	private static AnActionEvent dummyEvent(Project project) {

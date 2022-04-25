@@ -1,11 +1,15 @@
 package liveplugin.implementation.toolwindow.addplugin
 
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
-import liveplugin.implementation.LivePluginAppComponent.Companion.pluginIdToPathMap
+import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginsById
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
@@ -51,8 +55,7 @@ private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): 
     }
 
     override fun update(event: AnActionEvent) {
-        val pluginPath = pluginIdToPathMap()[examplePlugin.pluginId] ?: return
-        val alreadyAdded = pluginPath.allFiles().map { it.value.removePrefix(pluginPath.value + "/") }.toList().containsAll(examplePlugin.filePaths)
+        val alreadyAdded = livePluginsById().containsKey(examplePlugin.pluginId)
         event.presentation.isEnabled = !alreadyAdded
     }
 

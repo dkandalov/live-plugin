@@ -38,21 +38,16 @@ import liveplugin.implementation.toolwindow.util.delete
 
 class LivePluginAppComponent {
     companion object {
-        fun pluginIdToPathMap(): Map<String, FilePath> =
-            livePluginsPath.toVirtualFile()!!
-                .children.filter { file -> file.isDirectory && file.name != DIRECTORY_STORE_FOLDER }
-                .map { it.toFilePath() }
-                .associateBy { it.name }
+        @JvmStatic fun livePluginsById(): Map<String, LivePlugin> =
+            livePluginsPath.listFiles { file -> file.isDirectory && file.name != DIRECTORY_STORE_FOLDER }
+                .map { LivePlugin(it) }
+                .associateBy { it.id }
 
         fun FilePath.isPluginFolder(): Boolean {
             if (!isDirectory && exists()) return false
             val parentPath = toFile().parent?.toFilePath() ?: return false
             return parentPath == livePluginsPath || parentPath.name == livePluginsProjectDirName
         }
-
-        tailrec fun FilePath.findParentPluginFolder(): FilePath? =
-            if (isPluginFolder()) this
-            else toFile().parent?.toFilePath()?.findParentPluginFolder()
     }
 }
 
@@ -78,7 +73,7 @@ class LivePluginDeletedListener : BulkFileListener {
 
         if (livePlugins.isNotEmpty()) {
             runLaterOnEDT {
-                UnloadPluginAction.unloadPlugins(livePlugins.map { it.path })
+                UnloadPluginAction.unloadPlugins(livePlugins)
                 livePlugins.forEach { plugin ->
                     (LivePluginPaths.livePluginsCompiledPath + plugin.id).toVirtualFile()?.delete()
                 }

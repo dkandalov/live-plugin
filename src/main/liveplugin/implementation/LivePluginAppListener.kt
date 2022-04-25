@@ -16,7 +16,6 @@ import com.intellij.openapi.util.io.FileUtil.moveDirWithContent
 import com.intellij.util.download.DownloadableFileService
 import liveplugin.implementation.GroovyDownloader.downloadGroovyJar
 import liveplugin.implementation.GroovyDownloader.isGroovyOnClasspath
-import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
@@ -24,6 +23,7 @@ import liveplugin.implementation.LivePluginPaths.oldLivePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.oldLivePluginsPath
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.IdeUtil
+import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.pluginrunner.RunPluginAction
 import liveplugin.implementation.toolwindow.addplugin.installLivepluginTutorialExamples
@@ -65,8 +65,7 @@ class LivePluginAppListener: AppLifecycleListener {
         runLaterOnEDT {
             val actionManager = ActionManager.getInstance()
             val event = AnActionEvent(null, DataContext.EMPTY_CONTEXT, IdeUtil.ideStartupActionPlace, Presentation(), actionManager, 0)
-            val pluginPaths = LivePluginAppComponent.pluginIdToPathMap().values
-            RunPluginAction.runPlugins(pluginPaths.toList(), event)
+            RunPluginAction.runPlugins(LivePluginAppComponent.livePluginsById().values, event)
         }
     }
 }
