@@ -61,7 +61,8 @@ class KotlinPluginRunner(
         val additionalClasspath = findClasspathAdditions(mainScript.readLines(), kotlinAddToClasspathKeyword, environment)
             .flatMap { it.onFailure { (path) -> return LoadingError("Couldn't find dependency '$path.'").asFailure() } }
 
-        val compilerOutput = livePluginsCompiledPath + plugin.id
+        // Add plugin path hashcode in case there are plugins with the same id in different locations.
+        val compilerOutput = livePluginsCompiledPath + "${plugin.id}-${plugin.path.value.hashCode()}"
 
         val srcHashCode = SrcHashCode(plugin.path, compilerOutput)
         if (srcHashCode.needsUpdate()) {
