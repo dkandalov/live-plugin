@@ -43,6 +43,8 @@ import liveplugin.implementation.common.Icons.sharePluginIcon
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.RunLivePluginsGroup
+import liveplugin.implementation.pluginrunner.RunPluginAction
+import liveplugin.implementation.pluginrunner.RunPluginTestsAction
 import liveplugin.implementation.pluginrunner.UnloadPluginAction
 import liveplugin.implementation.toolwindow.addplugin.*
 import liveplugin.implementation.toolwindow.popup.NewElementPopupAction
@@ -51,8 +53,6 @@ import liveplugin.implementation.toolwindow.popup.RenameFileAction
 import liveplugin.implementation.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.implementation.toolwindow.settingsmenu.RunPluginsOnIDEStartAction
 import liveplugin.implementation.toolwindow.settingsmenu.RunProjectSpecificPluginsAction
-import liveplugin.implementation.pluginrunner.RunPluginAction
-import liveplugin.implementation.pluginrunner.RunPluginTestsAction
 import org.jetbrains.annotations.NonNls
 import java.awt.GridLayout
 import java.awt.event.MouseListener
@@ -103,12 +103,12 @@ class PluginToolWindow(project: Project) {
 
         val actionGroup = DefaultActionGroup().apply {
             add(DefaultActionGroup("Add Plugin", true).apply {
-                add(AddNewGroovyPluginAction())
                 add(AddNewKotlinPluginAction())
+                add(AddNewGroovyPluginAction())
                 add(AddPluginFromGistDelegateAction())
                 add(AddPluginFromGitHubDelegateAction())
-                add(AddGroovyExamplesActionGroup())
                 add(AddKotlinExamplesActionGroup())
+                add(AddGroovyExamplesActionGroup())
             }.with(addPluginIcon))
             add(DeletePluginAction())
             add(RunPluginAction())
