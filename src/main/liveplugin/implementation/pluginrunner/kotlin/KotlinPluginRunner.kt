@@ -216,7 +216,7 @@ class SrcHashCode(srcDir: FilePath, compilerOutputDir: FilePath) {
     private val hashFilePath = compilerOutputDir + hashFileName
     private val hash = calculateSourceCodeHash(srcDir)
 
-    fun needsUpdate() = !hashFilePath.exists() || hashFilePath.toFile().readText().toLongOrNull() != hash
+    fun needsUpdate() = !hashFilePath.exists() || hashFilePath.readText().toLongOrNull() != hash
 
     fun update() = hashFilePath.toFile().writeText(hash.toString())
 

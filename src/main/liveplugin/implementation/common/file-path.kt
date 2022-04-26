@@ -34,6 +34,7 @@ data class FilePath @Deprecated("Use the extension functions declared above") co
     val name: String = file.name
     val isDirectory: Boolean = file.isDirectory
     val extension: String = file.extension
+    val parent: FilePath? get() = file.parent?.let { FilePath(it) }
 
     fun allFiles(): Sequence<FilePath> = file.walkTopDown().filter { it.isFile }.map { it.toFilePath() }
 

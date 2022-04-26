@@ -45,7 +45,7 @@ class LivePluginAppComponent {
 
         fun FilePath.isPluginFolder(): Boolean {
             if (!isDirectory && exists()) return false
-            val parentPath = toFile().parent?.toFilePath() ?: return false
+            val parentPath = parent ?: return false
             return parentPath == livePluginsPath || parentPath.name == livePluginsProjectDirName
         }
     }
