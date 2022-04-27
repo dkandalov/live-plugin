@@ -120,7 +120,7 @@ class CreatePluginZipAction: AnAction(
 
     private fun Project.createPluginXml(plugin: LivePlugin, filePath: FilePath) {
         val fileContent = readSampleScriptFile("$kotlinExamplesPath/plugin.xml")
-            .replaceFirst("com.your.company.unique.plugin.id", plugin.id)
+            .replaceFirst("com.my.company.unique.plugin.id", plugin.id)
             .replaceFirst(
                 "TODO Plugin Name",
                 plugin.id.replace('-', ' ').split(' ').filter { it.isNotEmpty() }
