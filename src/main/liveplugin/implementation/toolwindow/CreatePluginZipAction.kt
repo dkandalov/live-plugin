@@ -18,12 +18,12 @@ import com.intellij.util.io.Compressor
 import com.intellij.util.io.zip.JBZipFile
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.LivePluginPaths
-import liveplugin.implementation.pluginrunner.canBeHandledBy
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Icons
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.livePlugins
+import liveplugin.implementation.pluginrunner.canBeHandledBy
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
@@ -61,7 +61,7 @@ class CreatePluginZipAction: AnAction(
             override fun run(indicator: ProgressIndicator) {
                 if (!livePluginJar.exists()) error("Couldn't find '${livePluginJar.value}'")
 
-                val compilerOutput = LivePluginPaths.livePluginsCompiledPath + plugin.id
+                val compilerOutput = LivePluginPaths.livePluginsCompiledPath + "${plugin.id}-${plugin.path.value.hashCode()}"
                 if (SrcHashCode(plugin.path, compilerOutput).needsUpdate()) {
                     KotlinPluginRunner.main.setup(plugin, project)
                 }
