@@ -23,7 +23,7 @@ import liveplugin.implementation.LivePluginPaths.oldLivePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.oldLivePluginsPath
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
-import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
+import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.pluginrunner.RunPluginAction
 import liveplugin.implementation.toolwindow.addplugin.installLivepluginTutorialExamples
@@ -62,7 +62,7 @@ class LivePluginAppListener: AppLifecycleListener {
     }
 
     private fun runAllPlugins() {
-        runLaterOnEDT {
+        runLaterOnEdt {
             val actionManager = ActionManager.getInstance()
             val event = AnActionEvent(null, DataContext.EMPTY_CONTEXT, ideStartupActionPlace, Presentation(), actionManager, 0)
             RunPluginAction.runPlugins(LivePluginAppComponent.livePluginsById().values, event)

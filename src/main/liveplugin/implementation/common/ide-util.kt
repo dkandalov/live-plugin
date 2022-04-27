@@ -68,7 +68,7 @@ object IdeUtil {
         Messages.showMessageDialog(project, message, title, Messages.getErrorIcon())
     }
 
-    fun runLaterOnEDT(f: () -> Any) {
+    fun runLaterOnEdt(f: () -> Any) {
         ApplicationManager.getApplication().invokeLater { f.invoke() }
     }
 
