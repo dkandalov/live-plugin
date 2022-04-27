@@ -3,9 +3,9 @@ package liveplugin.implementation.toolwindow.util
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
-import liveplugin.implementation.LivePluginPaths
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
+import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import java.io.IOException
 
 object GroovyExamples {
@@ -57,7 +57,7 @@ data class ExamplePlugin(val path: String, val pluginId: String, val filePaths: 
             val resourceDirPath = "$path/$pluginId/"
             try {
                 val text = readSampleScriptFile("$resourceDirPath/$relativeFilePath")
-                val (parentPath, fileName) = splitIntoPathAndFileName("${LivePluginPaths.livePluginsPath}/$pluginId/$relativeFilePath")
+                val (parentPath, fileName) = splitIntoPathAndFileName("$livePluginsPath/$pluginId/$relativeFilePath")
                 createFile(parentPath, fileName, text, whenCreated)
             } catch (e: IOException) {
                 handleError(e, resourceDirPath)

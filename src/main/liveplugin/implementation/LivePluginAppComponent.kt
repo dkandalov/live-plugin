@@ -27,6 +27,7 @@ import com.intellij.usages.impl.rules.UsageType
 import com.intellij.usages.impl.rules.UsageTypeProvider
 import com.intellij.util.indexing.IndexableSetContributor
 import liveplugin.implementation.LivePluginAppComponent.Companion.isPluginFolder
+import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.implementation.common.FilePath
@@ -75,7 +76,7 @@ class LivePluginDeletedListener : BulkFileListener {
             runLaterOnEDT {
                 UnloadPluginAction.unloadPlugins(livePlugins)
                 livePlugins.forEach { plugin ->
-                    (LivePluginPaths.livePluginsCompiledPath + plugin.id).toVirtualFile()?.delete()
+                    (livePluginsCompiledPath + plugin.id).toVirtualFile()?.delete()
                 }
             }
         }

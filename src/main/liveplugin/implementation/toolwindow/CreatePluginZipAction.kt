@@ -17,14 +17,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.io.Compressor
 import com.intellij.util.io.zip.JBZipFile
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.LivePluginPaths
+import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
+import liveplugin.implementation.LivePluginPaths.livePluginLibPath
+import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.common.FilePath
-import liveplugin.implementation.common.Icons
+import liveplugin.implementation.common.Icons.packagePluginIcon
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.livePlugins
 import liveplugin.implementation.pluginrunner.canBeHandledBy
-import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.main
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
 import liveplugin.implementation.toolwindow.popup.NewPluginXmlScript
@@ -36,10 +38,10 @@ import java.util.jar.Manifest
 class CreatePluginZipAction: AnAction(
     "Create Plugin Zip",
     "Package selected live plugin into zip so that it can be uploaded to plugins marketplace",
-    Icons.packagePluginIcon
+    packagePluginIcon
 ), DumbAware {
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.livePlugins().canBeHandledBy(listOf(KotlinPluginRunner.main))
+        event.presentation.isEnabled = event.livePlugins().canBeHandledBy(listOf(main))
     }
 
     override fun actionPerformed(event: AnActionEvent) {
@@ -50,7 +52,7 @@ class CreatePluginZipAction: AnAction(
     private fun packagePlugin(plugin: LivePlugin, project: Project) {
         val pluginXml = plugin.path + "plugin.xml"
         val pluginJarFile = (plugin.path + "${plugin.id}.jar").toFile()
-        val livePluginJar = LivePluginPaths.livePluginLibPath + "LivePlugin.jar"
+        val livePluginJar = livePluginLibPath + "LivePlugin.jar"
         val livePluginTrimmedJar = plugin.path + "LivePlugin.jar"
         val zipFile = (plugin.path + "${plugin.id}.zip").toFile()
 
@@ -61,9 +63,9 @@ class CreatePluginZipAction: AnAction(
             override fun run(indicator: ProgressIndicator) {
                 if (!livePluginJar.exists()) error("Couldn't find '${livePluginJar.value}'")
 
-                val compilerOutput = LivePluginPaths.livePluginsCompiledPath + "${plugin.id}-${plugin.path.value.hashCode()}"
+                val compilerOutput = livePluginsCompiledPath + "${plugin.id}-${plugin.path.value.hashCode()}"
                 if (SrcHashCode(plugin.path, compilerOutput).needsUpdate()) {
-                    KotlinPluginRunner.main.setup(plugin, project)
+                    main.setup(plugin, project)
                 }
 
                 Compressor.Jar(pluginJarFile).use { jar ->
@@ -117,7 +119,7 @@ class CreatePluginZipAction: AnAction(
     }
 
     private fun Project.createPluginXml(plugin: LivePlugin, filePath: FilePath) {
-        val fileContent = readSampleScriptFile("${LivePluginPaths.kotlinExamplesPath}/plugin.xml")
+        val fileContent = readSampleScriptFile("$kotlinExamplesPath/plugin.xml")
             .replaceFirst("com.your.company.unique.plugin.id", plugin.id)
             .replaceFirst(
                 "TODO Plugin Name",

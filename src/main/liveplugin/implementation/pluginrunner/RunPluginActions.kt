@@ -16,6 +16,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.*
+import liveplugin.implementation.common.Icons.rerunPluginIcon
+import liveplugin.implementation.common.Icons.runPluginIcon
+import liveplugin.implementation.common.Icons.testPluginIcon
 import liveplugin.implementation.common.IdeUtil.displayError
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
 import liveplugin.implementation.common.IdeUtil.runOnEdt
@@ -29,7 +32,7 @@ import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 private val pluginRunners = listOf(GroovyPluginRunner.main, KotlinPluginRunner.main)
 private val pluginTestRunners = listOf(GroovyPluginRunner.test, KotlinPluginRunner.test)
 
-class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runPluginIcon), DumbAware {
+class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", runPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
         runPlugins(event.livePlugins(), event)
@@ -42,7 +45,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
             val hasPluginsToUnload = livePlugins.any { it.canBeUnloaded() }
             val actionName = if (hasPluginsToUnload) "Rerun" else "Run"
             event.presentation.setText("$actionName ${pluginNameInActionText(livePlugins)}", false)
-            event.presentation.icon = if (hasPluginsToUnload) Icons.rerunPluginIcon else Icons.runPluginIcon
+            event.presentation.icon = if (hasPluginsToUnload) rerunPluginIcon else runPluginIcon
         }
     }
 
@@ -66,7 +69,7 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", Icons.runP
     }
 }
 
-class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run plugin integration tests", Icons.testPluginIcon), DumbAware {
+class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run plugin integration tests", testPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
         runPluginsTests(event.livePlugins(), event)

@@ -6,9 +6,13 @@ import com.intellij.openapi.fileChooser.actions.NewFolderAction
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
-import liveplugin.implementation.LivePluginPaths
-import liveplugin.implementation.common.Icons
-import liveplugin.implementation.common.IdeUtil
+import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
+import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
+import liveplugin.implementation.common.Icons.newFolderIcon
+import liveplugin.implementation.common.IdeUtil.groovyFileType
+import liveplugin.implementation.common.IdeUtil.kotlinFileType
+import liveplugin.implementation.common.IdeUtil.textFileType
+import liveplugin.implementation.common.IdeUtil.xmlFileType
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.implementation.toolwindow.addplugin.*
@@ -56,41 +60,41 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
         }
     }
 
-    private class NewGroovyFileAction: NewFileAction("Groovy File", IdeUtil.groovyFileType)
+    private class NewGroovyFileAction: NewFileAction("Groovy File", groovyFileType)
 
-    private class NewKotlinFileAction: NewFileAction("Kotlin File", IdeUtil.kotlinFileType)
+    private class NewKotlinFileAction: NewFileAction("Kotlin File", kotlinFileType)
 
-    private class NewTextFileAction: NewFileAction("Text File", IdeUtil.textFileType)
+    private class NewTextFileAction: NewFileAction("Text File", textFileType)
 
-    private class NewDirectoryAction: NewFolderAction("Directory", "", Icons.newFolderIcon)
+    private class NewDirectoryAction: NewFolderAction("Directory", "", newFolderIcon)
 
     private class NewGroovyMainScript: NewFileFromTemplateAction(
         GroovyPluginRunner.mainScript,
         GroovyPluginRunner.mainScript,
-        readSampleScriptFile("${LivePluginPaths.groovyExamplesPath}/default-plugin.groovy"),
-        IdeUtil.groovyFileType
+        readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy"),
+        groovyFileType,
     )
 
     private class NewKotlinMainScript: NewFileFromTemplateAction(
         KotlinPluginRunner.mainScript,
         KotlinPluginRunner.mainScript,
-        readSampleScriptFile("${LivePluginPaths.kotlinExamplesPath}/default-plugin.kts"),
-        IdeUtil.kotlinFileType
+        readSampleScriptFile("$kotlinExamplesPath/default-plugin.kts"),
+        kotlinFileType
     )
 
     private class NewGroovyTestScript: NewFileFromTemplateAction(
         GroovyPluginRunner.testScript,
         GroovyPluginRunner.testScript,
-        readSampleScriptFile("${LivePluginPaths.groovyExamplesPath}/default-plugin-test.groovy"),
-        IdeUtil.groovyFileType
+        readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy"),
+        groovyFileType
     )
 }
 
 class NewPluginXmlScript(
-    fileContent: String = readSampleScriptFile("${LivePluginPaths.kotlinExamplesPath}/plugin.xml")
+    fileContent: String = readSampleScriptFile("$kotlinExamplesPath/plugin.xml")
 ): NewFileFromTemplateAction(
     "plugin.xml",
     "plugin.xml",
     fileContent,
-    IdeUtil.xmlFileType
+    xmlFileType
 )

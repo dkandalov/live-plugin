@@ -9,14 +9,14 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.common.Icons
+import liveplugin.implementation.common.Icons.deletePluginIcon
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.livePlugins
 import liveplugin.implementation.toolwindow.util.delete
 import java.io.IOException
 
 
-class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", Icons.deletePluginIcon), DumbAware {
+class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", deletePluginIcon), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
         val livePlugins = event.livePlugins().ifEmpty { return }

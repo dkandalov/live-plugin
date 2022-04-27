@@ -4,11 +4,11 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.common.Icons
+import liveplugin.implementation.common.Icons.unloadPluginIcon
 import liveplugin.implementation.livePlugins
 import liveplugin.implementation.pluginrunner.RunPluginAction.Companion.pluginNameInActionText
 
-class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", Icons.unloadPluginIcon), DumbAware {
+class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", unloadPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         unloadPlugins(event.livePlugins())
     }

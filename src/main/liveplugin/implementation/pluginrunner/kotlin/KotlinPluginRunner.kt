@@ -4,7 +4,9 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.LivePluginPaths
+import liveplugin.implementation.LivePluginPaths.ideJarsPath
+import liveplugin.implementation.LivePluginPaths.livePluginLibPath
+import liveplugin.implementation.LivePluginPaths.livePluginPath
 import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.common.*
 import liveplugin.implementation.common.IdeUtil.unscrambleThrowable
@@ -179,7 +181,7 @@ private class KotlinPluginCompiler {
     }
 }
 
-fun ideLibFiles() = LivePluginPaths.ideJarsPath
+fun ideLibFiles() = ideJarsPath
     .listFiles {
         // Filter because Kotlin compiler complains about non-zip files.
         it.isDirectory || it.extension == "jar" || it.extension == "zip"
@@ -198,10 +200,10 @@ fun findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText: List<Stri
         .flatMap { it.value }
 
 fun livePluginLibAndSrcFiles() =
-    LivePluginPaths.livePluginLibPath.listFiles().map { it.toFile() }
+    livePluginLibPath.listFiles().map { it.toFile() }
 
 private fun livePluginKotlinCompilerLibFiles() =
-    (LivePluginPaths.livePluginPath + "kotlin-compiler").listFiles().map { it.toFile() }
+    (livePluginPath + "kotlin-compiler").listFiles().map { it.toFile() }
 
 private fun IdeaPluginDescriptor.toLibFiles() =
     (pluginPath.toFilePath() + "lib").listFiles {

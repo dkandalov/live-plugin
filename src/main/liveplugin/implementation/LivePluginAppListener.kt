@@ -3,8 +3,8 @@ package liveplugin.implementation
 import com.intellij.ide.AppLifecycleListener
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
-import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationType.ERROR
+import com.intellij.notification.NotificationType.WARNING
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DataContext
@@ -22,7 +22,7 @@ import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.LivePluginPaths.oldLivePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.oldLivePluginsPath
 import liveplugin.implementation.common.FilePath
-import liveplugin.implementation.common.IdeUtil
+import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
 import liveplugin.implementation.common.IdeUtil.runLaterOnEDT
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.pluginrunner.RunPluginAction
@@ -64,7 +64,7 @@ class LivePluginAppListener: AppLifecycleListener {
     private fun runAllPlugins() {
         runLaterOnEDT {
             val actionManager = ActionManager.getInstance()
-            val event = AnActionEvent(null, DataContext.EMPTY_CONTEXT, IdeUtil.ideStartupActionPlace, Presentation(), actionManager, 0)
+            val event = AnActionEvent(null, DataContext.EMPTY_CONTEXT, ideStartupActionPlace, Presentation(), actionManager, 0)
             RunPluginAction.runPlugins(LivePluginAppComponent.livePluginsById().values, event)
         }
     }
@@ -104,7 +104,7 @@ private object GroovyDownloader {
                         }
                     } else {
                         livePluginNotificationGroup
-                            .createNotification("Failed to download Groovy libraries", NotificationType.WARNING)
+                            .createNotification("Failed to download Groovy libraries", WARNING)
                     }
                 }
             }

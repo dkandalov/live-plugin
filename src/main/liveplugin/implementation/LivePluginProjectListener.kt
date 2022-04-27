@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
+import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.implementation.common.MapDataContext
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.common.toFilePath
@@ -25,7 +26,7 @@ class LivePluginProjectListener : ProjectManagerListener {
         }
 
         val projectPath = project.basePath?.toFilePath() ?: return
-        val pluginsPath = projectPath + LivePluginPaths.livePluginsProjectDirName
+        val pluginsPath = projectPath + livePluginsProjectDirName
         if (!pluginsPath.exists()) return
 
         val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
@@ -36,7 +37,7 @@ class LivePluginProjectListener : ProjectManagerListener {
 
     override fun projectClosing(project: Project) {
         val projectPath = project.basePath?.toFilePath() ?: return
-        val pluginsPath = projectPath + LivePluginPaths.livePluginsProjectDirName
+        val pluginsPath = projectPath + livePluginsProjectDirName
         if (!pluginsPath.exists()) return
 
         UnloadPluginAction.unloadPlugins(pluginsPath.listFiles().toLivePlugins())

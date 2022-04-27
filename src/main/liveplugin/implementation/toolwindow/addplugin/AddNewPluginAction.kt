@@ -8,10 +8,10 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginsById
-import liveplugin.implementation.LivePluginPaths
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
-import liveplugin.implementation.common.Icons
+import liveplugin.implementation.LivePluginPaths.livePluginsPath
+import liveplugin.implementation.common.Icons.newPluginIcon
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
@@ -39,7 +39,7 @@ open class AddNewPluginAction(
     description: String,
     private val scriptFileName: String,
     private val scriptFileText: String
-): AnAction(text, description, Icons.newPluginIcon), DumbAware {
+): AnAction(text, description, newPluginIcon), DumbAware {
 
     private val log = Logger.getInstance(AddNewPluginAction::class.java)
     private val addNewPluginTitle = "Add $text"
@@ -54,11 +54,11 @@ open class AddNewPluginAction(
         ) ?: return
 
         try {
-            createFile("${LivePluginPaths.livePluginsPath}/$newPluginId", scriptFileName, scriptFileText, whenCreated = { virtualFile ->
+            createFile("$livePluginsPath/$newPluginId", scriptFileName, scriptFileText, whenCreated = { virtualFile ->
                 if (project != null) FileEditorManager.getInstance(project).openFile(virtualFile, true)
             })
         } catch (e: IOException) {
-            if (project != null) IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to ${LivePluginPaths.livePluginsPath}", addNewPluginTitle)
+            if (project != null) IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to $livePluginsPath", addNewPluginTitle)
             log.error(e)
         }
         RefreshPluginsPanelAction.refreshPluginTree()
