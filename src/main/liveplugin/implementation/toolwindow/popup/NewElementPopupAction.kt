@@ -6,12 +6,12 @@ import com.intellij.openapi.fileChooser.actions.NewFolderAction
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
+import liveplugin.implementation.LivePluginPaths
 import liveplugin.implementation.common.Icons
 import liveplugin.implementation.common.IdeUtil
-import liveplugin.implementation.LivePluginPaths
-import liveplugin.implementation.toolwindow.addplugin.*
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
+import liveplugin.implementation.toolwindow.addplugin.*
 import liveplugin.implementation.toolwindow.util.readSampleScriptFile
 
 class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
@@ -36,21 +36,21 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
             DefaultActionGroup(
                 { "New" },
                 listOf(
-                    NewGroovyFileAction(),
                     NewKotlinFileAction(),
+                    NewGroovyFileAction(),
                     NewTextFileAction(),
                     NewDirectoryAction(),
-                    NewGroovyMainScript(),
                     NewKotlinMainScript(),
+                    NewGroovyMainScript(),
                     NewGroovyTestScript(),
                     NewPluginXmlScript(),
                     Separator.getInstance(),
-                    AddNewGroovyPluginAction(),
                     AddNewKotlinPluginAction(),
+                    AddNewGroovyPluginAction(),
                     AddPluginFromGistDelegateAction(),
                     AddPluginFromGitHubDelegateAction(),
-                    AddGroovyExamplesActionGroup(),
                     AddKotlinExamplesActionGroup(),
+                    AddGroovyExamplesActionGroup(),
                 )
             ).also { it.isPopup = true }
         }
