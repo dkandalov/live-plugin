@@ -56,9 +56,8 @@ class LivePluginAppListener: AppLifecycleListener {
         }
 
         livePluginsCompiledPath.toFile().mkdirs()
-        oldLivePluginsCompiledPath.listFiles().forEach {
-            moveDirWithContent(it.toFile(), (livePluginsCompiledPath + it.name).toFile())
-        }
+        // Delete because class files because liveplugin classes were moved to "implementation" package.
+        oldLivePluginsCompiledPath.toFile().deleteRecursively()
     }
 
     private fun runAllPlugins() {
