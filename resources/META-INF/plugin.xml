@@ -79,6 +79,7 @@
 		<indexedRootsProvider implementation="liveplugin.implementation.IndexSetContributor"/>
 		<usageTypeProvider implementation="liveplugin.implementation.UsageTypeExtension" order="last"/>
 		<useScopeEnlarger implementation="liveplugin.implementation.UseScopeExtension"/>
+        <createDirectoryCompletionContributor implementation="liveplugin.implementation.LivePluginDirectoryCompletionContributor"/>
 		<intentionAction>
 			<className>liveplugin.implementation.AddToClassPathGroovyIntention</className>
 			<category>LivePlugin</category>

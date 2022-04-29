@@ -1,5 +1,7 @@
 package liveplugin.implementation
 
+import com.intellij.ide.actions.CreateDirectoryCompletionContributor
+import com.intellij.ide.actions.CreateDirectoryCompletionContributor.Variant
 import com.intellij.ide.scratch.RootType
 import com.intellij.lang.LanguageUtil
 import com.intellij.openapi.application.PathManager
@@ -17,6 +19,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
+import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.LocalSearchScope
@@ -36,6 +39,7 @@ import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.UnloadPluginAction
 import liveplugin.implementation.toolwindow.util.delete
+import org.jetbrains.jps.model.module.UnknownSourceRootType
 
 class LivePluginAppComponent {
     companion object {
@@ -81,6 +85,13 @@ class LivePluginDeletedListener : BulkFileListener {
             }
         }
     }
+}
+
+class LivePluginDirectoryCompletionContributor : CreateDirectoryCompletionContributor {
+    override fun getDescription() = "Project specific live plugins"
+    override fun getVariants(directory: PsiDirectory) =
+        if (directory.project.basePath != directory.virtualFile.path) emptyList()
+        else listOf(Variant(".live-plugins", UnknownSourceRootType.getInstance("LivePlugin")))
 }
 
 class MakePluginFilesAlwaysEditable : NonProjectFileWritingAccessExtension {
