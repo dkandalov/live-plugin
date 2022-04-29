@@ -14,12 +14,12 @@ import org.junit.Test
 import static liveplugin.implementation.common.Result.Failure
 import static liveplugin.implementation.common.Result.Success
 import static liveplugin.implementation.pluginrunner.AnError.RunningError
-import static liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.mainScript
+import static liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.groovyScriptFile
 
 class GroovyPluginRunnerTest {
 	static final Binding noBindings = new Binding(null, false, "", Disposer.newDisposable())
 	static final LinkedHashMap emptyEnvironment = [:]
-	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(mainScript, emptyEnvironment)
+	private final GroovyPluginRunner pluginRunner = new GroovyPluginRunner(groovyScriptFile, emptyEnvironment)
 	private File rootFolder
 	private File myPackageFolder
 

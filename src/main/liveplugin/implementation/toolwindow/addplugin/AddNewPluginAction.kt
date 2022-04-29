@@ -13,8 +13,8 @@ import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.Icons.newPluginIcon
 import liveplugin.implementation.common.IdeUtil
-import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
-import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
+import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
 import liveplugin.implementation.toolwindow.RefreshPluginsPanelAction
 import liveplugin.implementation.toolwindow.util.createFile
 import liveplugin.implementation.toolwindow.util.readSampleScriptFile
@@ -23,14 +23,14 @@ import java.io.IOException
 class AddNewGroovyPluginAction: AddNewPluginAction(
     text = "Groovy Plugin",
     description = "Create new Groovy plugin",
-    scriptFileName = GroovyPluginRunner.mainScript,
+    scriptFileName = groovyScriptFile,
     scriptFileText = readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy")
 )
 
 class AddNewKotlinPluginAction: AddNewPluginAction(
     text = "Kotlin Plugin",
     description = "Create new Kotlin plugin",
-    scriptFileName = KotlinPluginRunner.mainScript,
+    scriptFileName = kotlinScriptFile,
     scriptFileText = readSampleScriptFile("$kotlinExamplesPath/default-plugin.kts")
 )
 

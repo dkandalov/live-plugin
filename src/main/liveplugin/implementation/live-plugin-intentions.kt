@@ -2,7 +2,7 @@ package liveplugin.implementation
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.command.UndoConfirmationPolicy
+import com.intellij.openapi.command.UndoConfirmationPolicy.DEFAULT
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.DumbAware
@@ -10,12 +10,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import liveplugin.implementation.common.livePluginId
-import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyAddToClasspathKeyword
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyDependsOnPluginKeyword
-import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
+import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
+import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyTestScriptFile
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinAddToClasspathKeyword
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinDependsOnPluginKeyword
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinTestScriptFile
 
 class AddToClassPathGroovyIntention: AddAfterImportsIntention(
     stringToInsert = groovyAddToClasspathKeyword + "\n",
@@ -65,7 +67,7 @@ open class AddAfterImportsIntention(
             caretModel.moveToOffset(lineStartOffset + stringToInsert.length - 1)
         }
         CommandProcessor.getInstance()
-            .executeCommand(project, runnable, popupText, livePluginId, UndoConfirmationPolicy.DEFAULT, document)
+            .executeCommand(project, runnable, popupText, livePluginId, DEFAULT, document)
     }
 
     override fun startInWriteAction() = true
@@ -85,12 +87,12 @@ private val availableInKotlinLivePlugins = { editor: Editor, file: PsiFile ->
 
 private fun isGroovyPluginScript(file: PsiFile): Boolean {
     val virtualFile = file.virtualFile ?: return false
-    return virtualFile.name == GroovyPluginRunner.mainScript || virtualFile.name == GroovyPluginRunner.testScript
+    return virtualFile.name == groovyScriptFile || virtualFile.name == groovyTestScriptFile
 }
 
 private fun isKotlinPluginScript(file: PsiFile): Boolean {
     val virtualFile = file.virtualFile ?: return false
-    return virtualFile.name == KotlinPluginRunner.mainScript || virtualFile.name == KotlinPluginRunner.testScript
+    return virtualFile.name == kotlinScriptFile || virtualFile.name == kotlinTestScriptFile
 }
 
 private fun linesAboveCurrentAreImportOrPackage(editor: Editor): Boolean {

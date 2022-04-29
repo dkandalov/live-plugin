@@ -13,8 +13,9 @@ import liveplugin.implementation.common.IdeUtil.groovyFileType
 import liveplugin.implementation.common.IdeUtil.kotlinFileType
 import liveplugin.implementation.common.IdeUtil.textFileType
 import liveplugin.implementation.common.IdeUtil.xmlFileType
-import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
-import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
+import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
+import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyTestScriptFile
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
 import liveplugin.implementation.toolwindow.addplugin.*
 import liveplugin.implementation.toolwindow.util.readSampleScriptFile
 
@@ -69,24 +70,24 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
     private class NewDirectoryAction: NewFolderAction("Directory", "", newFolderIcon)
 
     private class NewGroovyMainScript: NewFileFromTemplateAction(
-        GroovyPluginRunner.mainScript,
-        GroovyPluginRunner.mainScript,
-        readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy"),
-        groovyFileType,
+        text = groovyScriptFile,
+        newFileName = groovyScriptFile,
+        fileContent = readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy"),
+        fileType = groovyFileType,
     )
 
     private class NewKotlinMainScript: NewFileFromTemplateAction(
-        KotlinPluginRunner.mainScript,
-        KotlinPluginRunner.mainScript,
-        readSampleScriptFile("$kotlinExamplesPath/default-plugin.kts"),
-        kotlinFileType
+        text = kotlinScriptFile,
+        newFileName = kotlinScriptFile,
+        fileContent = readSampleScriptFile("$kotlinExamplesPath/default-plugin.kts"),
+        fileType = kotlinFileType
     )
 
     private class NewGroovyTestScript: NewFileFromTemplateAction(
-        GroovyPluginRunner.testScript,
-        GroovyPluginRunner.testScript,
-        readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy"),
-        groovyFileType
+        text = groovyTestScriptFile,
+        newFileName = groovyTestScriptFile,
+        fileContent = readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy"),
+        fileType = groovyFileType
     )
 }
 
