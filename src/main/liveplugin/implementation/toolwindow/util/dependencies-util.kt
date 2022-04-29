@@ -4,7 +4,7 @@ import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.DependencyScope
+import com.intellij.openapi.roots.DependencyScope.PROVIDED
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.LibraryTable
@@ -53,7 +53,7 @@ private fun addLibraryDependencyTo(module: Module, libraryName: String, paths: L
     }
 
     val libraryOrderEntry = modifiableModel.findLibraryOrderEntry(library)
-    if (libraryOrderEntry != null) libraryOrderEntry.scope = DependencyScope.PROVIDED
+    if (libraryOrderEntry != null) libraryOrderEntry.scope = PROVIDED
     modifiableModel.commit()
 }
 

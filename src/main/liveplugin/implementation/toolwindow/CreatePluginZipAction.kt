@@ -26,7 +26,7 @@ import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.livePlugins
 import liveplugin.implementation.pluginrunner.canBeHandledBy
-import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.main
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
 import liveplugin.implementation.toolwindow.popup.NewPluginXmlScript
@@ -41,7 +41,7 @@ class CreatePluginZipAction: AnAction(
     packagePluginIcon
 ), DumbAware {
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.livePlugins().canBeHandledBy(listOf(main))
+        event.presentation.isEnabled = event.livePlugins().canBeHandledBy(listOf(mainKotlinPluginRunner))
     }
 
     override fun actionPerformed(event: AnActionEvent) {
@@ -65,7 +65,7 @@ class CreatePluginZipAction: AnAction(
 
                 val compilerOutput = livePluginsCompiledPath + "${plugin.id}-${plugin.path.value.hashCode()}"
                 if (SrcHashCode(plugin.path, compilerOutput).needsUpdate()) {
-                    main.setup(plugin, project)
+                    mainKotlinPluginRunner.setup(plugin, project)
                 }
 
                 Compressor.Jar(pluginJarFile).use { jar ->

@@ -14,7 +14,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.command.UndoConfirmationPolicy
+import com.intellij.openapi.command.UndoConfirmationPolicy.DEFAULT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
@@ -59,7 +59,7 @@ fun Project.showInConsole(
 fun Document.executeCommand(project: Project, description: String? = null, callback: Document.() -> Unit) {
     runOnEdtWithWriteLock {
         val command = { callback(this) }
-        CommandProcessor.getInstance().executeCommand(project, command, description, null, UndoConfirmationPolicy.DEFAULT, this)
+        CommandProcessor.getInstance().executeCommand(project, command, description, null, DEFAULT, this)
     }
 }
 

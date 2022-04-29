@@ -33,14 +33,15 @@ import com.intellij.util.EditSourceOnDoubleClickHandler
 import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
 import liveplugin.implementation.LivePluginAppComponent.Companion.isPluginFolder
-import liveplugin.implementation.LivePluginPaths
+import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.Icons.addPluginIcon
 import liveplugin.implementation.common.Icons.collapseAllIcon
 import liveplugin.implementation.common.Icons.helpIcon
 import liveplugin.implementation.common.Icons.pluginIcon
 import liveplugin.implementation.common.Icons.settingsIcon
 import liveplugin.implementation.common.Icons.sharePluginIcon
-import liveplugin.implementation.common.IdeUtil
+import liveplugin.implementation.common.IdeUtil.groovyFileType
+import liveplugin.implementation.common.IdeUtil.livePluginActionPlace
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.RunLivePluginsGroup
 import liveplugin.implementation.pluginrunner.RunPluginAction
@@ -164,7 +165,7 @@ class PluginToolWindow(project: Project) {
                     // (without it they will be disabled or won't work).
                     fileSystemTree
                 }
-                FileChooserKeys.NEW_FILE_TYPE.name           -> IdeUtil.groovyFileType
+                FileChooserKeys.NEW_FILE_TYPE.name           -> groovyFileType
                 FileChooserKeys.DELETE_ACTION_AVAILABLE.name -> true
                 PlatformDataKeys.VIRTUAL_FILE_ARRAY.name     -> fileSystemTree.selectedFiles
                 PlatformDataKeys.TREE_EXPANDER.name          -> DefaultTreeExpander(fileSystemTree.tree)
@@ -198,7 +199,7 @@ class PluginToolWindow(project: Project) {
             }
 
             runWriteAction {
-                descriptor.setRoots(VfsUtil.createDirectoryIfMissing(LivePluginPaths.livePluginsPath.value))
+                descriptor.setRoots(VfsUtil.createDirectoryIfMissing(livePluginsPath.value))
             }
 
             return descriptor
@@ -220,9 +221,8 @@ class PluginToolWindow(project: Project) {
         }
 
         private fun installPopupHandler(component: JComponent, actionGroup: ActionGroup): MouseListener {
-            val place = IdeUtil.livePluginActionPlace
-            val popupHandler = PopupHandler.installPopupMenu(component, actionGroup, place)
-            PopupMenuPreloader.install(component, place, popupHandler) { actionGroup }
+            val popupHandler = PopupHandler.installPopupMenu(component, actionGroup, livePluginActionPlace)
+            PopupMenuPreloader.install(component, livePluginActionPlace, popupHandler) { actionGroup }
             return popupHandler
         }
 

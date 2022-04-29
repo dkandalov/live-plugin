@@ -92,8 +92,8 @@ class GroovyPluginRunner(
         const val groovyAddToClasspathKeyword = "// add-to-classpath "
         const val groovyDependsOnPluginKeyword = "// depends-on-plugin "
 
-        val main = GroovyPluginRunner(groovyScriptFile)
-        val test = GroovyPluginRunner(groovyTestScriptFile)
+        val mainGroovyPluginRunner = GroovyPluginRunner(groovyScriptFile)
+        val testGroovyPluginRunner = GroovyPluginRunner(groovyTestScriptFile)
     }
 }
 

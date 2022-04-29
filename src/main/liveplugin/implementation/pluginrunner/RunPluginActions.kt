@@ -26,11 +26,13 @@ import liveplugin.implementation.livePlugins
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
 import liveplugin.implementation.pluginrunner.AnError.RunningError
 import liveplugin.implementation.pluginrunner.RunPluginAction.Companion.runPluginsTests
-import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
-import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
+import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.mainGroovyPluginRunner
+import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.testGroovyPluginRunner
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.testKotlinPluginRunner
 
-private val pluginRunners = listOf(GroovyPluginRunner.main, KotlinPluginRunner.main)
-private val pluginTestRunners = listOf(GroovyPluginRunner.test, KotlinPluginRunner.test)
+private val pluginRunners = listOf(mainGroovyPluginRunner, mainKotlinPluginRunner)
+private val pluginTestRunners = listOf(testGroovyPluginRunner, testKotlinPluginRunner)
 
 class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", runPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {

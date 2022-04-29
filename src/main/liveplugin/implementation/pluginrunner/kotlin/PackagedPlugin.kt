@@ -65,7 +65,7 @@ private fun loadPlugin() {
     )
     val pluginClass = PackagedPluginAppLifecycle::class.java.classLoader.loadClass("Plugin")
     val executable = ExecutableKotlinPlugin(pluginClass)
-    KotlinPluginRunner.main.run(executable, binding)
+    KotlinPluginRunner.mainKotlinPluginRunner.run(executable, binding)
 
     pluginDisposable = binding.pluginDisposable
 }

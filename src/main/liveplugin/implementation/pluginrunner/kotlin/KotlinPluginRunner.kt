@@ -109,8 +109,8 @@ class KotlinPluginRunner(
         const val kotlinAddToClasspathKeyword = "// add-to-classpath "
         const val kotlinDependsOnPluginKeyword = "// depends-on-plugin "
 
-        val main = KotlinPluginRunner(kotlinScriptFile)
-        val test = KotlinPluginRunner(kotlinTestScriptFile)
+        val mainKotlinPluginRunner = KotlinPluginRunner(kotlinScriptFile)
+        val testKotlinPluginRunner = KotlinPluginRunner(kotlinTestScriptFile)
     }
 }
 
