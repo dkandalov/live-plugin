@@ -4,25 +4,19 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import java.io.File
-import java.nio.file.Path
 import java.util.Collections.emptyList
-
-fun File.toUrlString(): String = toURI().toURL().toString()
 
 @Suppress("DEPRECATION")
 fun String.toFilePath() =
     FilePath(FileUtilRt.toSystemIndependentName(this))
 
 @Suppress("DEPRECATION")
-fun File.toFilePath() =
-    FilePath(FileUtilRt.toSystemIndependentName(this.absolutePath))
-
-fun Path.toFilePath() =
-    toFile().toFilePath()
-
-@Suppress("DEPRECATION")
 fun VirtualFile.toFilePath() =
     FilePath(this.path)
+
+@Suppress("DEPRECATION")
+private fun File.toFilePath() =
+    FilePath(FileUtilRt.toSystemIndependentName(absolutePath))
 
 /**
  * File path with system-independent separator '/' (as it's used in IJ API)
@@ -52,20 +46,22 @@ data class FilePath @Deprecated("Use the extension functions declared above") co
 
     fun toVirtualFile(): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl("file:///$this")
 
-    override fun toString() = value
-}
+    fun find(fileName: String): File? {
+        val targetFilePath = this + fileName
+        val filePaths =
+            if (targetFilePath.exists()) listOf(targetFilePath)
+            else allFiles().filter { fileName == it.name }.toList()
 
-fun FilePath.find(fileName: String): File? {
-    val result = findAll(fileName)
-    return when {
-        result.isEmpty() -> null
-        result.size == 1 -> result.first().toFile()
-        else             -> error("Found several scripts files under " + this + ":\n" + result.joinToString(";\n") { it.toFile().absolutePath })
+        return when {
+            filePaths.isEmpty() -> null
+            filePaths.size == 1 -> filePaths.first().toFile()
+            else                -> error("Found several scripts files under " + this + ":\n" + filePaths.joinToString(";\n") { it.toFile().absolutePath })
+        }
     }
-}
 
-fun FilePath.findAll(fileName: String): List<FilePath> {
-    val targetFilePath = this + fileName
-    return if (targetFilePath.exists()) listOf(targetFilePath)
-    else allFiles().filter { fileName == it.name }.toList()
+    fun delete() {
+        file.delete()
+    }
+
+    override fun toString() = value
 }

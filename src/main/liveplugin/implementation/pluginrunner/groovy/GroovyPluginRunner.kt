@@ -3,7 +3,10 @@ package liveplugin.implementation.pluginrunner.groovy
 import com.intellij.openapi.project.Project
 import groovy.util.GroovyScriptEngine
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.common.*
+import liveplugin.implementation.common.Result
+import liveplugin.implementation.common.asFailure
+import liveplugin.implementation.common.asSuccess
+import liveplugin.implementation.common.onFailure
 import liveplugin.implementation.pluginrunner.*
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
 import liveplugin.implementation.pluginrunner.AnError.RunningError
@@ -13,6 +16,7 @@ import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.fin
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.withTransitiveDependencies
 import org.codehaus.groovy.control.CompilationFailedException
 import org.jetbrains.plugins.groovy.dsl.GdslScriptProvider
+import java.io.File
 import java.io.IOException
 import groovy.lang.Binding as GroovyBinding
 
@@ -85,6 +89,8 @@ class GroovyPluginRunner(
             RunningError(e).asFailure()
         }
     }
+
+    private fun File.toUrlString(): String = toURI().toURL().toString()
 
     companion object {
         const val groovyScriptFile = "plugin.groovy"

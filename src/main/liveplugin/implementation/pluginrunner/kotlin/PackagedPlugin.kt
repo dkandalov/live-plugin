@@ -11,6 +11,7 @@ import com.intellij.openapi.wm.WindowManager
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.runOnEdt
 import liveplugin.implementation.pluginrunner.Binding
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.ExecutableKotlinPlugin
 
 class PackagedPluginAppLifecycle: AppLifecycleListener {
@@ -65,7 +66,7 @@ private fun loadPlugin() {
     )
     val pluginClass = PackagedPluginAppLifecycle::class.java.classLoader.loadClass("Plugin")
     val executable = ExecutableKotlinPlugin(pluginClass)
-    KotlinPluginRunner.mainKotlinPluginRunner.run(executable, binding)
+    mainKotlinPluginRunner.run(executable, binding)
 
     pluginDisposable = binding.pluginDisposable
 }

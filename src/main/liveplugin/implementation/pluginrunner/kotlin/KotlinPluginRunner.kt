@@ -24,6 +24,7 @@ import org.apache.commons.codec.digest.MurmurHash3
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
 import java.io.IOException
+import kotlin.io.path.absolutePathString
 
 /**
  * There are several reasons to run kotlin plugins the way it's currently done.
@@ -206,7 +207,7 @@ private fun livePluginKotlinCompilerLibFiles() =
     (livePluginPath + "kotlin-compiler").listFiles().map { it.toFile() }
 
 private fun IdeaPluginDescriptor.toLibFiles() =
-    (pluginPath.toFilePath() + "lib").listFiles {
+    (pluginPath.absolutePathString().toFilePath() + "lib").listFiles {
         // Exclusion specifically for Kotlin plugin which includes kotlin-compiler-plugins jars
         // which seem to be compiled with IJ API and are not compatible with actual Kotlin compilers.
         "compiler-plugin" !in it.name

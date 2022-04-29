@@ -13,7 +13,6 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NotNullLazyKey
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent
@@ -76,12 +75,12 @@ class LivePluginDirectoryCompletionContributor : CreateDirectoryCompletionContri
 }
 
 class MakePluginFilesAlwaysEditable : NonProjectFileWritingAccessExtension {
-    override fun isWritable(file: VirtualFile) = file.isUnderLivePluginsPath()
+    override fun isWritable(file: VirtualFile) = file.toFilePath().isPluginFolder()
 }
 
 class EnableSyntaxHighlighterInLivePlugins : SyntaxHighlighterProvider {
     override fun create(fileType: FileType, project: Project?, file: VirtualFile?): SyntaxHighlighter? {
-        if (project == null || file == null || !file.isUnderLivePluginsPath()) return null
+        if (project == null || file == null || !file.toFilePath().isPluginFolder()) return null
         val language = LanguageUtil.getLanguageForPsi(project, file) ?: return null
         return SyntaxHighlighterFactory.getSyntaxHighlighter(language, project, file)
     }
@@ -90,7 +89,7 @@ class EnableSyntaxHighlighterInLivePlugins : SyntaxHighlighterProvider {
 class UsageTypeExtension : UsageTypeProvider {
     override fun getUsageType(element: PsiElement): UsageType? {
         val file = PsiUtilCore.getVirtualFile(element) ?: return null
-        return if (!file.isUnderLivePluginsPath()) null
+        return if (!file.toFilePath().isPluginFolder()) null
         else UsageType { "Usage in liveplugin" }
     }
 }
@@ -109,7 +108,7 @@ class UseScopeExtension : UseScopeEnlarger() {
 
     private class LivePluginsSearchScope(project: Project) : GlobalSearchScope(project) {
         override fun getDisplayName() = "LivePlugins"
-        override fun contains(file: VirtualFile) = file.isUnderLivePluginsPath()
+        override fun contains(file: VirtualFile) = file.toFilePath().isPluginFolder()
         override fun isSearchInModuleContent(aModule: Module) = false
         override fun isSearchInLibraries() = false
 
@@ -122,5 +121,3 @@ class UseScopeExtension : UseScopeEnlarger() {
         }
     }
 }
-
-private fun VirtualFile.isUnderLivePluginsPath() = FileUtil.startsWith(path, livePluginsPath.value)

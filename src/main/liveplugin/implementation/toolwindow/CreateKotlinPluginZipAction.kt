@@ -23,7 +23,6 @@ import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Icons.packagePluginIcon
 import liveplugin.implementation.common.livePluginNotificationGroup
-import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.livePlugins
 import liveplugin.implementation.pluginrunner.canBeHandledBy
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
@@ -51,10 +50,10 @@ class CreateKotlinPluginZipAction: AnAction(
 
     private fun packagePlugin(plugin: LivePlugin, project: Project) {
         val pluginXml = plugin.path + "plugin.xml"
-        val pluginJarFile = (plugin.path + "${plugin.id}.jar").toFile()
+        val pluginJar = plugin.path + "${plugin.id}.jar"
         val livePluginJar = livePluginLibPath + "LivePlugin.jar"
         val livePluginTrimmedJar = plugin.path + "LivePlugin.jar"
-        val zipFile = (plugin.path + "${plugin.id}.zip").toFile()
+        val pluginZip = plugin.path + "${plugin.id}.zip"
 
         if (!pluginXml.exists()) project.createPluginXml(plugin, pluginXml)
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
@@ -68,7 +67,7 @@ class CreateKotlinPluginZipAction: AnAction(
                     mainKotlinPluginRunner.setup(plugin, project)
                 }
 
-                Compressor.Jar(pluginJarFile).use { jar ->
+                Compressor.Jar(pluginJar.toFile()).use { jar ->
                     jar.addManifest(Manifest(ByteArrayInputStream("Manifest-Version: 1.0\n".toByteArray())))
                     jar.addFile("META-INF/plugin.xml", pluginXml.toFile())
                     compilerOutput.allFiles()
@@ -78,7 +77,7 @@ class CreateKotlinPluginZipAction: AnAction(
                             jar.addFile(relativePath, filePath.toFile())
                         }
                     plugin.path.allFiles()
-                        .filterNot { it == pluginXml || it == pluginJarFile.toFilePath() || it == zipFile.toFilePath() }
+                        .filterNot { it == pluginXml || it == pluginJar || it == pluginZip }
                         .forEach { filePath ->
                             val relativePath = filePath.value.removePrefix(plugin.path.value + "/")
                             jar.addFile(relativePath, filePath.toFile())
@@ -95,19 +94,19 @@ class CreateKotlinPluginZipAction: AnAction(
                         }
                 }
 
-                Compressor.Zip(zipFile).use { zip ->
+                Compressor.Zip(pluginZip.toFile()).use { zip ->
                     val libDir = plugin.id + "/lib"
                     zip.addDirectory(libDir)
-                    zip.addFile("$libDir/${pluginJarFile.name}", pluginJarFile)
+                    zip.addFile("$libDir/${pluginJar.name}", pluginJar.toFile())
                     zip.addFile("$libDir/${livePluginTrimmedJar.name}", livePluginTrimmedJar.toFile())
                 }
 
-                livePluginTrimmedJar.toFile().delete()
-                pluginJarFile.delete()
+                livePluginTrimmedJar.delete()
+                pluginJar.delete()
 
                 val message = "You can upload it to <a href=\"https://plugins.jetbrains.com\">Plugins Marketplace</a> " +
                     "or share as a file and install with <b>Install Plugin from Disk</b> action."
-                livePluginNotificationGroup.createNotification("Packaged plugin into ${zipFile.name}", message, INFORMATION)
+                livePluginNotificationGroup.createNotification("Packaged plugin into ${pluginZip.name}", message, INFORMATION)
                     .addAction(object : NotificationAction("Open plugins marketplace") {
                         override fun actionPerformed(event: AnActionEvent, notification: Notification) {
                             browse("https://plugins.jetbrains.com")
