@@ -85,14 +85,16 @@ fun registerAction(
     val actionManager = ActionManager.getInstance()
     val keymapManager = KeymapManager.getInstance()
 
-    if ((actionManager.getAction(id) != null)) error("Action '$id' is already registered")
+    if ((actionManager.getAction(id) != null)) error("Action with id '$id' is already registered")
     action.templatePresentation.setText(id, true)
 
     val actionGroup =
         if (actionGroupId == null) null
         else (actionManager.getAction(actionGroupId) as? DefaultActionGroup) ?: error("Action group id is not found: '$actionGroupId'")
 
-    if (keyboardShortcut != null) keymapManager.activeKeymap.addShortcut(id, keyboardShortcut)
+    if (keyboardShortcut != null && keymapManager.activeKeymap.getShortcuts(id).isEmpty()) {
+        keymapManager.activeKeymap.addShortcut(id, keyboardShortcut)
+    }
     actionManager.registerAction(id, action)
     actionGroup?.add(action, positionInGroup, actionManager)
 
