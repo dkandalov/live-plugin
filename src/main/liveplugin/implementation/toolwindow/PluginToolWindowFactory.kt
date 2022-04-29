@@ -117,7 +117,7 @@ class PluginToolWindow(project: Project) {
             add(RunPluginTestsAction())
             add(DefaultActionGroup("Share Plugin", true).apply {
                 add(SharePluginAsGistDelegateAction())
-                add(CreatePluginZipAction())
+                add(CreateKotlinPluginZipAction())
             }.with(sharePluginIcon))
             addSeparator()
             add(CollapseAllAction().with(collapseAllIcon))

@@ -35,8 +35,8 @@ import java.io.ByteArrayInputStream
 import java.util.*
 import java.util.jar.Manifest
 
-class CreatePluginZipAction: AnAction(
-    "Create Plugin Zip",
+class CreateKotlinPluginZipAction: AnAction(
+    "Create Kotlin Plugin Zip",
     "Package selected live plugin into zip so that it can be uploaded to plugins marketplace",
     packagePluginIcon
 ), DumbAware {
