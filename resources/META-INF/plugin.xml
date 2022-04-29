@@ -28,9 +28,9 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>compatibility with IJ 221 EAP</li>
-            <li>groovy 3.0.9</li>
-            <li>fixes</li>
+            <li>"Create Kotlin Plugin Zip" action</li>
+            <li>live-plugins migration to scratches location on disk</li>
+            <li>"Run/Unload Plugin" actions in popup menus</li>
         </ul></body></html>
         ]]>
     </change-notes>
