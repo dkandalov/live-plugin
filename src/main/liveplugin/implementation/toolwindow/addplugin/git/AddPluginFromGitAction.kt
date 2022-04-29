@@ -17,7 +17,7 @@ import com.intellij.openapi.vfs.newvfs.NewVirtualFile
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import git4idea.checkout.GitCheckoutProvider
 import git4idea.commands.Git
-import liveplugin.implementation.LivePluginPaths
+import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.toolwindow.RefreshPluginsPanelAction
 import java.io.File
 
@@ -92,7 +92,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
 
                 RefreshPluginsPanelAction.refreshPluginTree()
             }
-            val pluginsRoot = LivePluginPaths.livePluginsPath.toVirtualFile() ?: return
+            val pluginsRoot = livePluginsPath.toVirtualFile() ?: return
             RefreshQueue.getInstance().refresh(false, true, finishRunnable, pluginsRoot)
         }
     }

@@ -58,7 +58,7 @@ open class AddNewPluginAction(
                 if (project != null) FileEditorManager.getInstance(project).openFile(virtualFile, true)
             })
         } catch (e: IOException) {
-            if (project != null) IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId' to $livePluginsPath", addNewPluginTitle)
+            if (project != null) IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId'", addNewPluginTitle)
             log.error(e)
         }
         RefreshPluginsPanelAction.refreshPluginTree()

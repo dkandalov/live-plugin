@@ -1,16 +1,11 @@
 package liveplugin.implementation.toolwindow.addplugin
 
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
-import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import liveplugin.implementation.LivePlugin.Companion.livePluginsById
-import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.toolwindow.RefreshPluginsPanelAction
@@ -61,13 +56,7 @@ private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): 
 
     private fun logException(e: Exception, event: AnActionEvent, pluginPath: String) {
         val project = event.project
-        if (project != null) {
-            IdeUtil.showErrorDialog(
-                project,
-                "Error adding plugin \"$pluginPath\" to $livePluginsPath",
-                "Add Plugin"
-            )
-        }
+        if (project != null) IdeUtil.showErrorDialog(project, "Error adding plugin \"$pluginPath\"", "Add Plugin")
         logger.error(e)
     }
 }
