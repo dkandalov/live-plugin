@@ -103,15 +103,15 @@ class Actions {
 	}
 
 	static runLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		RunPluginAction.runPlugins([LivePluginAppComponent.livePluginsById()[pluginId]], dummyEvent(project))
+		RunPluginAction.runPlugins([LivePlugin.livePluginsById()[pluginId]], dummyEvent(project))
 	}
 
 	static unloadLivePlugin(@NotNull String pluginId) {
-		UnloadPluginAction.unloadPlugins([LivePluginAppComponent.livePluginsById()[pluginId]])
+		UnloadPluginAction.unloadPlugins([LivePlugin.livePluginsById()[pluginId]])
 	}
 
 	static testLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		RunPluginAction.runPluginsTests([LivePluginAppComponent.livePluginsById()[pluginId]], dummyEvent(project))
+		RunPluginAction.runPluginsTests([LivePlugin.livePluginsById()[pluginId]], dummyEvent(project))
 	}
 
 	private static AnActionEvent dummyEvent(Project project) {

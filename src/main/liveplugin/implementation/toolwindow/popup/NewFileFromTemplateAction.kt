@@ -12,8 +12,8 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.UIBundle
-import liveplugin.implementation.LivePluginAppComponent.Companion.isPluginFolder
 import liveplugin.implementation.common.toFilePath
+import liveplugin.implementation.isPluginFolder
 import java.io.IOException
 
 open class NewFileFromTemplateAction(

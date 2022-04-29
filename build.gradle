@@ -159,7 +159,7 @@ task validateLivePluginZip() { doLast {
 	def livePluginJar = zipTree(pluginZip.files.find { it.name == "LivePlugin.jar" })
 	def livePluginJarFiles = livePluginJar.files.collect{ it.path.replaceFirst(".*[/\\\\]LivePlugin.jar.*?[/\\\\]", "").replace("\\","/") }.toSet()
 	expectToContain(livePluginJarFiles, [
-		"liveplugin/implementation/LivePluginAppComponent.class",
+		"liveplugin/implementation/LivePlugin.class",
 		"liveplugin/PluginUtil.class",
 		"liveplugin/PluginUtil.groovy",
 		"liveplugin/Plugin_utilKt.class",

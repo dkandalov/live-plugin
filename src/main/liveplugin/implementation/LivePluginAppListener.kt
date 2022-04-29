@@ -64,7 +64,7 @@ class LivePluginAppListener: AppLifecycleListener {
         runLaterOnEdt {
             val actionManager = ActionManager.getInstance()
             val event = AnActionEvent(null, DataContext.EMPTY_CONTEXT, ideStartupActionPlace, Presentation(), actionManager, 0)
-            RunPluginAction.runPlugins(LivePluginAppComponent.livePluginsById().values, event)
+            RunPluginAction.runPlugins(LivePlugin.livePluginsById().values, event)
         }
     }
 }

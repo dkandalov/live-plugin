@@ -1,12 +1,21 @@
 package liveplugin.implementation
 
 import com.intellij.openapi.actionSystem.AnActionEvent
-import liveplugin.implementation.LivePluginAppComponent.Companion.isPluginFolder
+import com.intellij.openapi.project.Project
+import liveplugin.implementation.LivePluginPaths.livePluginsPath
+import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.selectedFiles
 
 data class LivePlugin(val path: FilePath) {
     val id: String = path.toFile().name
+
+    companion object {
+        @JvmStatic fun livePluginsById(): Map<String, LivePlugin> =
+            livePluginsPath.listFiles { file -> file.isDirectory && file.name != Project.DIRECTORY_STORE_FOLDER }
+                .map { LivePlugin(it) }
+                .associateBy { it.id }
+    }
 }
 
 fun AnActionEvent.livePlugins(): List<LivePlugin> =
@@ -17,3 +26,9 @@ fun List<FilePath>.toLivePlugins() =
 
 private tailrec fun FilePath.findParentPluginFolder(): FilePath? =
     if (isPluginFolder()) this else parent?.findParentPluginFolder()
+
+fun FilePath.isPluginFolder(): Boolean {
+    if (!isDirectory && exists()) return false
+    val parentPath = parent ?: return false
+    return parentPath == livePluginsPath || parentPath.name == livePluginsProjectDirName
+}

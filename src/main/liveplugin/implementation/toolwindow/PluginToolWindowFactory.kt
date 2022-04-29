@@ -32,7 +32,6 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.EditSourceOnDoubleClickHandler
 import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
-import liveplugin.implementation.LivePluginAppComponent.Companion.isPluginFolder
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.Icons.addPluginIcon
 import liveplugin.implementation.common.Icons.collapseAllIcon
@@ -43,6 +42,7 @@ import liveplugin.implementation.common.Icons.sharePluginIcon
 import liveplugin.implementation.common.IdeUtil.groovyFileType
 import liveplugin.implementation.common.IdeUtil.livePluginActionPlace
 import liveplugin.implementation.common.toFilePath
+import liveplugin.implementation.isPluginFolder
 import liveplugin.implementation.pluginrunner.RunLivePluginsGroup
 import liveplugin.implementation.pluginrunner.RunPluginAction
 import liveplugin.implementation.pluginrunner.RunPluginTestsAction

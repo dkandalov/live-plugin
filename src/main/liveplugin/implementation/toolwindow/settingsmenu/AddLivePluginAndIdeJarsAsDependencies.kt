@@ -9,7 +9,7 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.OrderRootType.CLASSES
 import com.intellij.openapi.roots.OrderRootType.SOURCES
 import com.intellij.util.PathUtil
-import liveplugin.implementation.LivePluginAppComponent
+import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.LivePluginPaths.ideJarsPath
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.toolwindow.util.addLibraryDependencyTo
@@ -26,7 +26,7 @@ class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
         if (projectLibrariesNames.contains(project, livePluginAndIdeJarsLibrary)) {
             removeLibraryDependencyFrom(project, livePluginAndIdeJarsLibrary)
         } else {
-            val livePluginSrc = Pair("jar://" + PathUtil.getJarPathForClass(LivePluginAppComponent::class.java) + "!/", SOURCES)
+            val livePluginSrc = Pair("jar://" + PathUtil.getJarPathForClass(LivePlugin::class.java) + "!/", SOURCES)
 
             val livePluginJars = livePluginLibPath
                 .listFiles { it.name.endsWith(".jar") }

@@ -12,7 +12,6 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
 import com.intellij.openapi.fileTypes.SyntaxHighlighterProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.Project.DIRECTORY_STORE_FOLDER
 import com.intellij.openapi.util.NotNullLazyKey
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -29,32 +28,14 @@ import com.intellij.psi.util.PsiUtilCore
 import com.intellij.usages.impl.rules.UsageType
 import com.intellij.usages.impl.rules.UsageTypeProvider
 import com.intellij.util.indexing.IndexableSetContributor
-import liveplugin.implementation.LivePluginAppComponent.Companion.isPluginFolder
 import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
-import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Icons.pluginIcon
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.UnloadPluginAction
 import liveplugin.implementation.toolwindow.util.delete
 import org.jetbrains.jps.model.module.UnknownSourceRootType
-
-class LivePluginAppComponent {
-    companion object {
-        @JvmStatic fun livePluginsById(): Map<String, LivePlugin> =
-            livePluginsPath.listFiles { file -> file.isDirectory && file.name != DIRECTORY_STORE_FOLDER }
-                .map { LivePlugin(it) }
-                .associateBy { it.id }
-
-        fun FilePath.isPluginFolder(): Boolean {
-            if (!isDirectory && exists()) return false
-            val parentPath = parent ?: return false
-            return parentPath == livePluginsPath || parentPath.name == livePluginsProjectDirName
-        }
-    }
-}
 
 // For consistency with "IDE Consoles" it's good to have live plugins under "Scratches and Consoles"
 // but it's also used for enabling Kotlin intentions in live plugin, i.e. outside of project

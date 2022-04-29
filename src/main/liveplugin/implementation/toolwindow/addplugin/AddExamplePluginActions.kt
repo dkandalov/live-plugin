@@ -9,7 +9,7 @@ import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
-import liveplugin.implementation.LivePluginAppComponent.Companion.livePluginsById
+import liveplugin.implementation.LivePlugin.Companion.livePluginsById
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
