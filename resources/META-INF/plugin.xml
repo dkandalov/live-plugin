@@ -12,7 +12,7 @@
 		<![CDATA[
         <html lang="EN">
         <body>
-        Plugin for writing plugins at runtime without IDE restarts using Groovy and Kotlin.
+        Plugin for writing plugins at runtime without IDE restarts using Kotlin and Groovy.
         <br/><br/>
         <ul>
             <li><b>Minimal setup</b> — no need to set up a separate project for plugin development</li>
@@ -29,8 +29,8 @@
         <![CDATA[
         <html lang="EN"><body><ul>
             <li>"Create Kotlin Plugin Zip" action</li>
-            <li>live-plugins migration to scratches location on disk</li>
             <li>"Run/Unload Plugin" actions in popup menus</li>
+            <li>live-plugins migration to scratches location on disk</li>
         </ul></body></html>
         ]]>
     </change-notes>

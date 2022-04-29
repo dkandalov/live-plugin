@@ -2,7 +2,7 @@
 
 # LivePlugin
 Plugin for [IntelliJ](https://github.com/JetBrains/intellij-community)-based IDEs to create plugins at runtime
-using [Groovy](http://groovy.codehaus.org) and [Kotlin](http://kotlinlang.org).
+using [Kotlin](http://kotlinlang.org) and [Groovy](http://groovy.codehaus.org).
 To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Marketplace`
 or use the "Install" button on the [Plugin Marketplace website](http://plugins.jetbrains.com/plugin/7282).
 
@@ -55,9 +55,9 @@ Make sure "hello world" works fine:
   This means that you can, for example, copy the path to the plugin folder using the `Copy Path` action (`ctrl/cmd+alt+C` shortcut).
 
 Try bundled examples:
-- In the `Plugins` tool window click the "Plus" button (`Add Plugin` action) and add Groovy or Kotlin examples. 
-- It might be useful to install [Groovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) or 
-  [Kotlin](https://plugins.jetbrains.com/plugin/6954-kotlin) plugin if your IDE supports them. 
+- In the `Plugins` tool window click the "Plus" button (`Add Plugin` action) to add Kotlin or Groovy examples. 
+- It might be useful to install [Kotlin](https://plugins.jetbrains.com/plugin/6954-kotlin) or 
+[Groovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin if your IDE supports them. 
 
 Take a look at settings in the `Plugins` toowindow:
 - `Run Plugins on IDE Start` — run all plugins on IDE start.
