@@ -29,7 +29,7 @@ import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companio
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
 import liveplugin.implementation.toolwindow.popup.NewPluginXmlScript
-import liveplugin.implementation.toolwindow.util.readSampleScriptFile
+import liveplugin.implementation.readSampleScriptFile
 import java.io.ByteArrayInputStream
 import java.util.*
 import java.util.jar.Manifest

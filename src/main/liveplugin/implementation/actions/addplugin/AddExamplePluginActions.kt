@@ -9,9 +9,9 @@ import liveplugin.implementation.LivePlugin.Companion.livePluginsById
 import liveplugin.implementation.actions.RefreshPluginsPanelAction
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
-import liveplugin.implementation.toolwindow.util.ExamplePlugin
-import liveplugin.implementation.toolwindow.util.GroovyExamples
-import liveplugin.implementation.toolwindow.util.KotlinExamples
+import liveplugin.implementation.ExamplePlugin
+import liveplugin.implementation.GroovyExamples
+import liveplugin.implementation.KotlinExamples
 
 class AddGroovyExamplesActionGroup: DefaultActionGroup("Groovy Examples", true) {
     init {

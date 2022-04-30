@@ -22,7 +22,7 @@ import liveplugin.implementation.common.IdeUtil.xmlFileType
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyTestScriptFile
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
-import liveplugin.implementation.toolwindow.util.readSampleScriptFile
+import liveplugin.implementation.readSampleScriptFile
 
 class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
     override fun actionPerformed(event: AnActionEvent) {

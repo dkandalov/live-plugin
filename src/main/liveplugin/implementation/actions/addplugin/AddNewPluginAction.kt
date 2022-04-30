@@ -17,7 +17,7 @@ import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
 import liveplugin.implementation.toolwindow.util.createFile
-import liveplugin.implementation.toolwindow.util.readSampleScriptFile
+import liveplugin.implementation.readSampleScriptFile
 import java.io.IOException
 
 class AddNewGroovyPluginAction: AddNewPluginAction(
