@@ -1,5 +1,6 @@
 package liveplugin.implementation.toolwindow
 
+import com.intellij.ide.BrowserUtil
 import com.intellij.ide.DefaultTreeExpander
 import com.intellij.ide.DeleteProvider
 import com.intellij.ide.actions.CollapseAllAction
@@ -33,6 +34,11 @@ import com.intellij.util.EditSourceOnDoubleClickHandler
 import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
+import liveplugin.implementation.actions.*
+import liveplugin.implementation.actions.addplugin.*
+import liveplugin.implementation.actions.settings.AddLivePluginAndIdeJarsAsDependencies
+import liveplugin.implementation.actions.settings.RunPluginsOnIDEStartAction
+import liveplugin.implementation.actions.settings.RunProjectSpecificPluginsAction
 import liveplugin.implementation.common.Icons.addPluginIcon
 import liveplugin.implementation.common.Icons.collapseAllIcon
 import liveplugin.implementation.common.Icons.helpIcon
@@ -43,17 +49,9 @@ import liveplugin.implementation.common.IdeUtil.groovyFileType
 import liveplugin.implementation.common.IdeUtil.livePluginActionPlace
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.isPluginFolder
-import liveplugin.implementation.pluginrunner.RunLivePluginsGroup
-import liveplugin.implementation.pluginrunner.RunPluginAction
-import liveplugin.implementation.pluginrunner.RunPluginTestsAction
-import liveplugin.implementation.pluginrunner.UnloadPluginAction
-import liveplugin.implementation.toolwindow.addplugin.*
 import liveplugin.implementation.toolwindow.popup.NewElementPopupAction
 import liveplugin.implementation.toolwindow.popup.NewElementPopupAction.Companion.livePluginNewElementPopup
 import liveplugin.implementation.toolwindow.popup.RenameFileAction
-import liveplugin.implementation.toolwindow.settingsmenu.AddLivePluginAndIdeJarsAsDependencies
-import liveplugin.implementation.toolwindow.settingsmenu.RunPluginsOnIDEStartAction
-import liveplugin.implementation.toolwindow.settingsmenu.RunProjectSpecificPluginsAction
 import org.jetbrains.annotations.NonNls
 import java.awt.GridLayout
 import java.awt.event.MouseListener
@@ -171,6 +169,11 @@ class PluginToolWindow(project: Project) {
                 PlatformDataKeys.TREE_EXPANDER.name          -> DefaultTreeExpander(fileSystemTree.tree)
                 else                                         -> super.getData(dataId)
             }
+    }
+
+    private class ShowHelpAction: AnAction("Show Help on GitHub"), DumbAware {
+        override fun actionPerformed(e: AnActionEvent) =
+            BrowserUtil.browse("https://github.com/dkandalov/live-plugin#getting-started")
     }
 
     companion object {

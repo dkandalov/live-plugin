@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow
+package liveplugin.implementation.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -7,6 +7,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.Icons.refreshPluginsPanelIcon
+import liveplugin.implementation.toolwindow.LivePluginToolWindowFactory
 
 class RefreshPluginsPanelAction: AnAction(
     "Refresh Plugins Panel",

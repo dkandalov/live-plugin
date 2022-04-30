@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow.addplugin.git
+package liveplugin.implementation.actions.addplugin.git
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionManager

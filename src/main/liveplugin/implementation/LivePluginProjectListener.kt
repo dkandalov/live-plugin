@@ -12,8 +12,8 @@ import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.implementation.common.MapDataContext
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.common.toFilePath
-import liveplugin.implementation.pluginrunner.RunPluginAction
-import liveplugin.implementation.pluginrunner.UnloadPluginAction
+import liveplugin.implementation.actions.RunPluginAction
+import liveplugin.implementation.actions.UnloadPluginAction
 
 class LivePluginProjectListener : ProjectManagerListener {
     override fun projectOpened(project: Project) {

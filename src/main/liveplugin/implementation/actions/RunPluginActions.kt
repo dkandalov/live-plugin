@@ -1,4 +1,4 @@
-package liveplugin.implementation.pluginrunner
+package liveplugin.implementation.actions
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnAction
@@ -15,17 +15,21 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.common.*
+import liveplugin.implementation.actions.RunPluginAction.Companion.runPluginsTests
 import liveplugin.implementation.common.Icons.rerunPluginIcon
 import liveplugin.implementation.common.Icons.runPluginIcon
 import liveplugin.implementation.common.Icons.testPluginIcon
+import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.displayError
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
 import liveplugin.implementation.common.IdeUtil.runOnEdt
+import liveplugin.implementation.common.flatMap
+import liveplugin.implementation.common.peekFailure
+import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.livePlugins
+import liveplugin.implementation.pluginrunner.*
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
 import liveplugin.implementation.pluginrunner.AnError.RunningError
-import liveplugin.implementation.pluginrunner.RunPluginAction.Companion.runPluginsTests
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.mainGroovyPluginRunner
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.testGroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner

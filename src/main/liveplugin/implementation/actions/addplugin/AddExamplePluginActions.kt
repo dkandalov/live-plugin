@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow.addplugin
+package liveplugin.implementation.actions.addplugin
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
@@ -6,9 +6,9 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import liveplugin.implementation.LivePlugin.Companion.livePluginsById
+import liveplugin.implementation.actions.RefreshPluginsPanelAction
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
-import liveplugin.implementation.toolwindow.RefreshPluginsPanelAction
 import liveplugin.implementation.toolwindow.util.ExamplePlugin
 import liveplugin.implementation.toolwindow.util.GroovyExamples
 import liveplugin.implementation.toolwindow.util.KotlinExamples

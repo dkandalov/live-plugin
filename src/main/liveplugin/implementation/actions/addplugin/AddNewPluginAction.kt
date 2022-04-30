@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow.addplugin
+package liveplugin.implementation.actions.addplugin
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -11,11 +11,11 @@ import liveplugin.implementation.LivePlugin.Companion.livePluginsById
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
+import liveplugin.implementation.actions.RefreshPluginsPanelAction
 import liveplugin.implementation.common.Icons.newPluginIcon
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
-import liveplugin.implementation.toolwindow.RefreshPluginsPanelAction
 import liveplugin.implementation.toolwindow.util.createFile
 import liveplugin.implementation.toolwindow.util.readSampleScriptFile
 import java.io.IOException

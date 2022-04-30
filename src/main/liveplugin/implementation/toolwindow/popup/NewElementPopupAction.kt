@@ -8,6 +8,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
+import liveplugin.implementation.actions.addplugin.*
 import liveplugin.implementation.common.Icons.newFolderIcon
 import liveplugin.implementation.common.IdeUtil.groovyFileType
 import liveplugin.implementation.common.IdeUtil.kotlinFileType
@@ -16,7 +17,6 @@ import liveplugin.implementation.common.IdeUtil.xmlFileType
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyTestScriptFile
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
-import liveplugin.implementation.toolwindow.addplugin.*
 import liveplugin.implementation.toolwindow.util.readSampleScriptFile
 
 class NewElementPopupAction: AnAction(), DumbAware, PopupAction {

@@ -32,7 +32,7 @@ import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.Icons.pluginIcon
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.toFilePath
-import liveplugin.implementation.pluginrunner.UnloadPluginAction
+import liveplugin.implementation.actions.UnloadPluginAction
 import liveplugin.implementation.toolwindow.util.delete
 import org.jetbrains.jps.model.module.UnknownSourceRootType
 

@@ -25,8 +25,8 @@ import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.livePluginNotificationGroup
-import liveplugin.implementation.pluginrunner.RunPluginAction
-import liveplugin.implementation.toolwindow.addplugin.installLivepluginTutorialExamples
+import liveplugin.implementation.actions.RunPluginAction
+import liveplugin.implementation.actions.addplugin.installLivepluginTutorialExamples
 import java.util.concurrent.CompletableFuture
 
 class LivePluginAppListener: AppLifecycleListener {

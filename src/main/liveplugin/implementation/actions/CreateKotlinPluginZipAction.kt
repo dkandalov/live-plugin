@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow
+package liveplugin.implementation.actions
 
 import com.intellij.ide.BrowserUtil.browse
 import com.intellij.notification.Notification

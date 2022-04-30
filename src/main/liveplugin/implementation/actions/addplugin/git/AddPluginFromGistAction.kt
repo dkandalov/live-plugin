@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow.addplugin.git
+package liveplugin.implementation.actions.addplugin.git
 
 
 import com.intellij.icons.AllIcons
@@ -12,11 +12,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
+import liveplugin.implementation.actions.RefreshPluginsPanelAction
+import liveplugin.implementation.actions.addplugin.git.AddPluginFromGistAction.GistUrlValidator.Companion.extractGistIdFrom
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showErrorDialog
-import liveplugin.implementation.toolwindow.RefreshPluginsPanelAction
-import liveplugin.implementation.toolwindow.addplugin.PluginIdValidator
-import liveplugin.implementation.toolwindow.addplugin.git.AddPluginFromGistAction.GistUrlValidator.Companion.extractGistIdFrom
+import liveplugin.implementation.actions.addplugin.PluginIdValidator
 import liveplugin.implementation.toolwindow.util.createFile
 import org.jetbrains.plugins.github.api.GithubApiRequest
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor

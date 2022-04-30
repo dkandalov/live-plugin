@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow.settingsmenu
+package liveplugin.implementation.actions.settings
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent

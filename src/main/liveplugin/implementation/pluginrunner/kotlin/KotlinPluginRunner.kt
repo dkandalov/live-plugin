@@ -8,6 +8,8 @@ import liveplugin.implementation.LivePluginPaths.ideJarsPath
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.LivePluginPaths.livePluginPath
 import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
+import liveplugin.implementation.actions.Binding
+import liveplugin.implementation.actions.systemEnvironment
 import liveplugin.implementation.common.*
 import liveplugin.implementation.common.IdeUtil.unscrambleThrowable
 import liveplugin.implementation.common.Result.Success

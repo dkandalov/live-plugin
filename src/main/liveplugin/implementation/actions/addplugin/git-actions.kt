@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow.addplugin
+package liveplugin.implementation.actions.addplugin
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent

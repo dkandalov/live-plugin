@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow
+package liveplugin.implementation.actions
 
 import com.intellij.CommonBundle
 import com.intellij.openapi.actionSystem.AnAction

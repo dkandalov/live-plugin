@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow.addplugin.git
+package liveplugin.implementation.actions.addplugin.git
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
@@ -7,6 +7,7 @@ import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vcs.CheckoutProvider
 import com.intellij.openapi.vcs.VcsKey
@@ -15,10 +16,14 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.NewVirtualFile
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
+import git4idea.GitUtil
+import git4idea.GitVcs
 import git4idea.checkout.GitCheckoutProvider
 import git4idea.commands.Git
+import git4idea.remote.GitRememberedInputs
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.toolwindow.RefreshPluginsPanelAction
+import liveplugin.implementation.actions.RefreshPluginsPanelAction
+import liveplugin.implementation.actions.addplugin.git.com.intellij.dvcs.ui.CloneDvcsDialog
 import java.io.File
 
 
@@ -100,4 +105,20 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
     companion object {
         private val logger = Logger.getInstance(AddPluginFromGitAction::class.java)
     }
+}
+
+private class GitCloneDialog(project: Project): CloneDvcsDialog(project, GitVcs.NAME, GitUtil.DOT_GIT, null) {
+
+    private val myGit = service<Git>()
+
+    override fun test(url: String): TestResult {
+        val result = myGit.lsRemote(myProject, File("."), url)
+        return if (result.success()) TestResult.SUCCESS else TestResult(result.errorOutputAsJoinedString)
+    }
+
+    override fun getRememberedInputs() = GitRememberedInputs.getInstance()
+
+    override fun getDimensionServiceKey() = "GitCloneDialog"
+
+    override fun getHelpId() = "reference.VersionControl.Git.CloneRepository"
 }

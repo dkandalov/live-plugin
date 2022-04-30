@@ -50,17 +50,17 @@
     </extensions>
 
 	<actions>
-		<action id="LivePlugin.RunPlugin" class="liveplugin.implementation.pluginrunner.RunPluginAction" text="Run Current Plugin">
+		<action id="LivePlugin.RunPlugin" class="liveplugin.implementation.actions.RunPluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 			<keyboard-shortcut keymap="$default" first-keystroke="control shift l"/>
 		</action>
-		<action id="LivePlugin.TestPlugin" class="liveplugin.implementation.pluginrunner.RunPluginTestsAction" text="Run Plugin Tests">
+		<action id="LivePlugin.TestPlugin" class="liveplugin.implementation.actions.RunPluginTestsAction" text="Run Plugin Tests">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
 		</action>
-        <action id="LivePlugin.UnloadPlugin" class="liveplugin.implementation.pluginrunner.UnloadPluginAction" text="Unload Current Plugin"/>
-        <action id="LivePlugin.CreatePluginZip" class="liveplugin.implementation.toolwindow.CreateKotlinPluginZipAction" text="Package Plugin as Zip"/>
-		<action id="LivePlugin.SharePluginAsGist" class="liveplugin.implementation.toolwindow.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
-        <group id="LivePlugin.LivePluginActions" class="liveplugin.implementation.pluginrunner.RunLivePluginsGroup">
+        <action id="LivePlugin.UnloadPlugin" class="liveplugin.implementation.actions.UnloadPluginAction" text="Unload Current Plugin"/>
+        <action id="LivePlugin.CreatePluginZip" class="liveplugin.implementation.actions.CreateKotlinPluginZipAction" text="Package Plugin as Zip"/>
+		<action id="LivePlugin.SharePluginAsGist" class="liveplugin.implementation.actions.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
+        <group id="LivePlugin.LivePluginActions" class="liveplugin.implementation.actions.RunLivePluginsGroup">
             <add-to-group group-id="RunContextGroup"/>
         </group>
     </actions>
