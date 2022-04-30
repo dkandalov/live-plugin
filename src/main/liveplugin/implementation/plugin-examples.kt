@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.toolwindow.util.createFile
+import liveplugin.implementation.common.createFile
 import java.io.IOException
 
 object GroovyExamples {

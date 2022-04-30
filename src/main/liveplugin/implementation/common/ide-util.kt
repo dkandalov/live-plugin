@@ -14,6 +14,8 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.impl.AsyncDataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.application.runWriteAction
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileTypes.FileType
@@ -22,11 +24,13 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.IconLoader
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.ReflectionUtil
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.annotations.NonNls
 import java.awt.BorderLayout
+import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.concurrent.atomic.AtomicReference
@@ -215,4 +219,37 @@ fun AnActionEvent.selectedFiles(): List<FilePath> =
 
 class MapDataContext(val map: Map<String, Any?>) : DataContext, AsyncDataContext {
     override fun getData(dataId: String) = map[dataId]
+}
+
+private const val requestor = livePluginId
+
+fun createFile(parentPath: String, fileName: String, text: String, whenCreated: (VirtualFile) -> Unit = {}) {
+    runIOAction("createFile") {
+        val parentFolder = VfsUtil.createDirectoryIfMissing(parentPath) ?: throw IOException("Failed to create folder $parentPath")
+        if (parentFolder.findChild(fileName) == null) {
+            val virtualFile = parentFolder.createChildData(requestor, fileName)
+            VfsUtil.saveText(virtualFile, text)
+            whenCreated(virtualFile)
+        }
+    }
+}
+
+fun VirtualFile.delete() {
+    runIOAction("delete") {
+        this.delete(requestor)
+    }
+}
+
+private fun runIOAction(actionName: String, f: () -> Unit) {
+    var exception: IOException? = null
+    runWriteAction {
+        CommandProcessor.getInstance().executeCommand(null, {
+            try {
+                f()
+            } catch (e: IOException) {
+                exception = e
+            }
+        }, actionName, livePluginId)
+    }
+    exception?.let { throw it }
 }

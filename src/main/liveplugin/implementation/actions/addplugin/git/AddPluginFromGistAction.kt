@@ -13,11 +13,11 @@ import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.actions.RefreshPluginsPanelAction
+import liveplugin.implementation.actions.addplugin.PluginIdValidator
 import liveplugin.implementation.actions.addplugin.git.AddPluginFromGistAction.GistUrlValidator.Companion.extractGistIdFrom
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showErrorDialog
-import liveplugin.implementation.actions.addplugin.PluginIdValidator
-import liveplugin.implementation.toolwindow.util.createFile
+import liveplugin.implementation.common.createFile
 import org.jetbrains.plugins.github.api.GithubApiRequest
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.api.GithubApiRequests

@@ -14,9 +14,9 @@ import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.actions.RefreshPluginsPanelAction
 import liveplugin.implementation.common.Icons.newPluginIcon
 import liveplugin.implementation.common.IdeUtil
+import liveplugin.implementation.common.createFile
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
-import liveplugin.implementation.toolwindow.util.createFile
 import liveplugin.implementation.readSampleScriptFile
 import java.io.IOException
 
