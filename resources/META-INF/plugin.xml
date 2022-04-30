@@ -44,7 +44,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Plugins" anchor="right"
-                    factoryClass="liveplugin.implementation.toolwindow.LivePluginToolWindowFactory"
+                    factoryClass="liveplugin.implementation.LivePluginToolWindowFactory"
                     icon="/liveplugin/toolWindowPlugin.svg"/>
         <notificationGroup displayType="BALLOON" id="Live Plugin"/>
     </extensions>

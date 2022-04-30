@@ -28,7 +28,7 @@ import liveplugin.implementation.pluginrunner.canBeHandledBy
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
-import liveplugin.implementation.toolwindow.popup.NewPluginXmlScript
+import liveplugin.implementation.actions.toolwindow.NewPluginXmlScript
 import liveplugin.implementation.readSampleScriptFile
 import java.io.ByteArrayInputStream
 import java.util.*

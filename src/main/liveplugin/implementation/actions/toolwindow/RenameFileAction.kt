@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow.popup
+package liveplugin.implementation.actions.toolwindow
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.runWriteAction

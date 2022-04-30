@@ -1,4 +1,4 @@
-package liveplugin.implementation.toolwindow.popup
+package liveplugin.implementation.actions.toolwindow
 
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.actionSystem.*
