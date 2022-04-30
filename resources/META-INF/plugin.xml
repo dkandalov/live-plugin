@@ -59,7 +59,7 @@
 		</action>
         <action id="LivePlugin.UnloadPlugin" class="liveplugin.implementation.actions.UnloadPluginAction" text="Unload Current Plugin"/>
         <action id="LivePlugin.CreatePluginZip" class="liveplugin.implementation.actions.CreateKotlinPluginZipAction" text="Package Plugin as Zip"/>
-		<action id="LivePlugin.SharePluginAsGist" class="liveplugin.implementation.actions.addplugin.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
+		<action id="LivePlugin.SharePluginAsGist" class="liveplugin.implementation.actions.addplugin.git.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
         <group id="LivePlugin.LivePluginActions" class="liveplugin.implementation.actions.RunLivePluginsGroup">
             <add-to-group group-id="RunContextGroup"/>
         </group>

@@ -1,5 +1,6 @@
-package liveplugin.implementation.actions.addplugin
+package liveplugin.implementation.actions.addplugin.git
 
+import com.intellij.ide.AppLifecycleListener
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
@@ -13,6 +14,14 @@ class AddPluginFromGitHubDelegateAction: DelegateAction(::addFromGitHubAction)
 
 var shareAsGistAction: AnAction? = null
 class SharePluginAsGistDelegateAction: DelegateAction(::shareAsGistAction)
+
+class GitDependentAppComponent : AppLifecycleListener {
+    override fun appFrameCreated(commandLineArgs: MutableList<String>) {
+        addFromGistAction = AddPluginFromGistAction()
+        addFromGitHubAction = AddPluginFromGitAction()
+        shareAsGistAction = SharePluginAsGistAction()
+    }
+}
 
 open class DelegateAction(private val property: KMutableProperty0<AnAction?>): AnAction(), DumbAware {
 

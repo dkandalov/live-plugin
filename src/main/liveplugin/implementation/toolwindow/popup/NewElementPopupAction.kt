@@ -8,7 +8,12 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
-import liveplugin.implementation.actions.addplugin.*
+import liveplugin.implementation.actions.addplugin.AddGroovyExamplesActionGroup
+import liveplugin.implementation.actions.addplugin.AddKotlinExamplesActionGroup
+import liveplugin.implementation.actions.addplugin.AddNewGroovyPluginAction
+import liveplugin.implementation.actions.addplugin.AddNewKotlinPluginAction
+import liveplugin.implementation.actions.addplugin.git.AddPluginFromGistDelegateAction
+import liveplugin.implementation.actions.addplugin.git.AddPluginFromGitHubDelegateAction
 import liveplugin.implementation.common.Icons.newFolderIcon
 import liveplugin.implementation.common.IdeUtil.groovyFileType
 import liveplugin.implementation.common.IdeUtil.kotlinFileType
