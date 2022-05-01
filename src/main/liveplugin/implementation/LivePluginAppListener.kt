@@ -12,6 +12,7 @@ import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.Messages.OK
+import com.intellij.openapi.ui.Messages.showOkCancelDialog
 import com.intellij.openapi.util.io.FileUtil.moveDirWithContent
 import com.intellij.util.download.DownloadableFileService
 import liveplugin.implementation.GroovyDownloader.downloadGroovyJar
@@ -21,44 +22,52 @@ import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.LivePluginPaths.oldLivePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.oldLivePluginsPath
-import liveplugin.implementation.common.FilePath
-import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
-import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
-import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.actions.RunPluginAction
 import liveplugin.implementation.actions.addplugin.installLivepluginTutorialExamples
+import liveplugin.implementation.common.FilePath
+import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
+import liveplugin.implementation.common.IdeUtil.logger
+import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
+import liveplugin.implementation.common.livePluginNotificationGroup
 import java.util.concurrent.CompletableFuture
 
-class LivePluginAppListener: AppLifecycleListener {
+class LivePluginAppListener : AppLifecycleListener {
     @Suppress("UnstableApiUsage")
     override fun appStarted() {
         // Download Groovy in non-java IDEs because they don't have bundled Groovy libs.
         if (!isGroovyOnClasspath()) downloadGroovyJar()
 
         val settings = Settings.instance
+        if (!settings.migratedLivePluginsToScratchesPath) {
+            val migrated = migrateLivePluginsToScratchesPath()
+            if (migrated) settings.migratedLivePluginsToScratchesPath = true
+        }
         if (settings.justInstalled) {
             installLivepluginTutorialExamples()
             settings.justInstalled = false
-        }
-        if (!settings.migratedLivePluginsToScratchesPath) {
-            migrateLivePluginsToScratchesPath()
-            settings.migratedLivePluginsToScratchesPath = true
         }
         if (settings.runAllPluginsOnIDEStartup) {
             runAllPlugins()
         }
     }
 
-    private fun migrateLivePluginsToScratchesPath() {
-        livePluginsPath.toFile().mkdirs()
-        oldLivePluginsPath.listFiles().forEach {
-            moveDirWithContent(it.toFile(), (livePluginsPath + it.name).toFile())
-        }
+    private fun migrateLivePluginsToScratchesPath() =
+        try {
+            val wasMoved = moveDirWithContent(oldLivePluginsPath.toFile(), livePluginsPath.toFile())
 
-        livePluginsCompiledPath.toFile().mkdirs()
-        // Delete because class files because liveplugin classes were moved to "implementation" package.
-        oldLivePluginsCompiledPath.toFile().deleteRecursively()
-    }
+            livePluginsCompiledPath.toFile().mkdirs()
+            // Delete because class files because liveplugin classes were moved to "implementation" package.
+            oldLivePluginsCompiledPath.toFile().deleteRecursively()
+            wasMoved
+        } catch (e: Exception) {
+            logger.warn("Failed to migrate plugins", e)
+            livePluginNotificationGroup.createNotification(
+                title = "Live plugin",
+                "Failed to migrate plugins from '${oldLivePluginsPath.toFile().absolutePath} 'to '${livePluginsPath.toFile().absolutePath}'",
+                WARNING
+            ).notify(null)
+            false
+        }
 
     private fun runAllPlugins() {
         runLaterOnEdt {
@@ -91,7 +100,7 @@ private object GroovyDownloader {
                 ).whenComplete { downloaded, _ ->
                     if (downloaded) {
                         notification.expire()
-                        val answer = Messages.showOkCancelDialog(
+                        val answer = showOkCancelDialog(
                             "LivePlugin needs to restart IDE to load Groovy libraries. Restart now?",
                             "IDE Restart",
                             "Restart",

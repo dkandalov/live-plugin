@@ -53,7 +53,7 @@ object IdeUtil {
     val kotlinFileType = KotlinScriptFileType
     val xmlFileType = FileTypeManager.getInstance().getFileTypeByExtension("xml")
 
-    private val logger = Logger.getInstance(IdeUtil::class.java)
+    val logger = Logger.getInstance(livePluginId)
 
     fun displayError(consoleTitle: String, text: String, project: Project?) {
         if (project == null) {
