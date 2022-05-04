@@ -21,14 +21,13 @@ private fun File.toFilePath() =
 /**
  * File path with system-independent separator '/' (as it's used in IJ API)
  */
-@Suppress("DEPRECATION")
 data class FilePath @Deprecated("Use the extension functions declared above") constructor(val value: String) {
     private val file = File(value)
 
     val name: String = file.name
     val isDirectory: Boolean = file.isDirectory
     val extension: String = file.extension
-    val parent: FilePath? get() = file.parent?.let { FilePath(it) }
+    val parent: FilePath? get() = file.parent?.toFilePath()
 
     fun allFiles(): Sequence<FilePath> = file.walkTopDown().filter { it.isFile }.map { it.toFilePath() }
 
@@ -40,7 +39,7 @@ data class FilePath @Deprecated("Use the extension functions declared above") co
 
     fun readText() = file.readText()
 
-    operator fun plus(that: String): FilePath = FilePath("$value/$that")
+    operator fun plus(that: String) = "$value/$that".toFilePath()
 
     fun toFile() = file
 
