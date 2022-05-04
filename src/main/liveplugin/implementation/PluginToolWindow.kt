@@ -67,23 +67,7 @@ import javax.swing.JTree
 
 class LivePluginToolWindowFactory: ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val pluginToolWindow = PluginToolWindow(project)
-        toolWindow.contentManager.addContent(pluginToolWindow.createContent())
-        add(pluginToolWindow)
-
-        Disposer.register(toolWindow.disposable) {
-            remove(pluginToolWindow)
-        }
-    }
-
-    companion object {
-        private val toolWindows = HashSet<PluginToolWindow>()
-
-        private fun add(pluginToolWindow: PluginToolWindow) = toolWindows.add(pluginToolWindow)
-
-        private fun remove(pluginToolWindow: PluginToolWindow) = toolWindows.remove(pluginToolWindow)
-
-        fun reloadPluginTreesInAllProjects() = toolWindows.forEach { it.updateTree() }
+        toolWindow.contentManager.addContent(PluginToolWindow(project).createContent())
     }
 }
 
@@ -96,10 +80,6 @@ class PluginToolWindow(project: Project) {
             it.toolbar = createToolBar()
         }
         return ContentFactory.SERVICE.getInstance().createContent(panel, "", false)
-    }
-
-    fun updateTree() {
-        fileSystemTree.updateTree()
     }
 
     private fun createToolBar(): JComponent {
@@ -259,10 +239,8 @@ class PluginToolWindow(project: Project) {
             private object FileDeleteProviderWithRefresh: DeleteProvider {
                 private val fileDeleteProvider = VirtualFileDeleteProvider()
 
-                override fun deleteElement(dataContext: DataContext) {
+                override fun deleteElement(dataContext: DataContext) =
                     fileDeleteProvider.deleteElement(dataContext)
-                    RefreshPluginsPanelAction.refreshPluginTree()
-                }
 
                 override fun canDeleteElement(dataContext: DataContext) =
                     fileDeleteProvider.canDeleteElement(dataContext)

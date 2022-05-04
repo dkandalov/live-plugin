@@ -17,7 +17,6 @@ import java.io.IOException
 
 
 class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", deletePluginIcon), DumbAware {
-
     override fun actionPerformed(event: AnActionEvent) {
         val livePlugins = event.livePlugins().ifEmpty { return }
         if (userDoesNotWantToRemovePlugins(livePlugins, event.project)) return
@@ -33,8 +32,6 @@ class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", deletePlugi
                 logger.error(e)
             }
         }
-
-        RefreshPluginsPanelAction.refreshPluginTree()
     }
 
     override fun update(event: AnActionEvent) {

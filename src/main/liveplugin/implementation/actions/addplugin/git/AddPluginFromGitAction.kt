@@ -22,7 +22,6 @@ import git4idea.checkout.GitCheckoutProvider
 import git4idea.commands.Git
 import git4idea.remote.GitRememberedInputs
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.actions.RefreshPluginsPanelAction
 import liveplugin.implementation.actions.addplugin.git.com.intellij.dvcs.ui.CloneDvcsDialog
 import java.io.File
 
@@ -94,8 +93,6 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
                     logger.error("Couldn't find virtual file for checked out plugin: $pluginName")
                     return@Runnable
                 }
-
-                RefreshPluginsPanelAction.refreshPluginTree()
             }
             val pluginsRoot = livePluginsPath.toVirtualFile() ?: return
             RefreshQueue.getInstance().refresh(false, true, finishRunnable, pluginsRoot)

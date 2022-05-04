@@ -12,7 +12,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.actions.RefreshPluginsPanelAction
 import liveplugin.implementation.actions.addplugin.PluginIdValidator
 import liveplugin.implementation.actions.addplugin.git.AddPluginFromGistAction.GistUrlValidator.Companion.extractGistIdFrom
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
@@ -44,7 +43,6 @@ class AddPluginFromGistAction: AnAction("Copy from Gist", "Copy from Gist", AllI
                     } catch (e: IOException) {
                         showMessageThatCreatingPluginFailed(e, newPluginId, project)
                     }
-                    RefreshPluginsPanelAction.refreshPluginTree()
                 }
             },
             onFailure = {

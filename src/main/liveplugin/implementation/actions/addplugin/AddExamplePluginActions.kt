@@ -5,13 +5,12 @@ import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
-import liveplugin.implementation.LivePlugin.Companion.livePluginsById
-import liveplugin.implementation.actions.RefreshPluginsPanelAction
-import liveplugin.implementation.common.IdeUtil
-import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.ExamplePlugin
 import liveplugin.implementation.GroovyExamples
 import liveplugin.implementation.KotlinExamples
+import liveplugin.implementation.LivePlugin.Companion.livePluginsById
+import liveplugin.implementation.common.IdeUtil
+import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 
 class AddGroovyExamplesActionGroup: DefaultActionGroup("Groovy Examples", true) {
     init {
@@ -46,7 +45,6 @@ private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): 
             whenCreated = { if (project != null) FileEditorManager.getInstance(project).openFile(it, true) },
             handleError = { e, pluginPath -> logException(e, event, pluginPath) }
         )
-        RefreshPluginsPanelAction.refreshPluginTree()
     }
 
     override fun update(event: AnActionEvent) {

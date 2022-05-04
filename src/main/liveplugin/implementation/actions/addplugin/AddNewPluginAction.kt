@@ -11,7 +11,6 @@ import liveplugin.implementation.LivePlugin.Companion.livePluginsById
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.actions.RefreshPluginsPanelAction
 import liveplugin.implementation.common.Icons.newPluginIcon
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.createFile
@@ -61,7 +60,6 @@ open class AddNewPluginAction(
             if (project != null) IdeUtil.showErrorDialog(project, "Error adding plugin '$newPluginId'", addNewPluginTitle)
             log.error(e)
         }
-        RefreshPluginsPanelAction.refreshPluginTree()
     }
 }
 
