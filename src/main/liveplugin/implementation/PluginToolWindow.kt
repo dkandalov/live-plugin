@@ -2,7 +2,6 @@ package liveplugin.implementation
 
 import com.intellij.ide.BrowserUtil
 import com.intellij.ide.DefaultTreeExpander
-import com.intellij.ide.DeleteProvider
 import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.impl.PopupMenuPreloader
@@ -10,9 +9,7 @@ import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileSystemTree
 import com.intellij.openapi.fileChooser.actions.FileDeleteAction
-import com.intellij.openapi.fileChooser.actions.VirtualFileDeleteProvider
 import com.intellij.openapi.fileChooser.ex.FileChooserKeys
-import com.intellij.openapi.fileChooser.ex.FileNodeDescriptor
 import com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl
 import com.intellij.openapi.fileChooser.tree.FileNode
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
@@ -71,7 +68,7 @@ class LivePluginToolWindowFactory: ToolWindowFactory, DumbAware {
     }
 }
 
-class PluginToolWindow(project: Project) {
+private class PluginToolWindow(project: Project) {
     private val fileSystemTree = createFileSystemTree(project)
 
     fun createContent(): Content {
@@ -224,27 +221,15 @@ class PluginToolWindow(project: Project) {
                 when (dataId) {
                     // NAVIGATABLE_ARRAY is used to open files in tool window on double-click/enter.
                     PlatformDataKeys.NAVIGATABLE_ARRAY.name       -> {
-                        val files1 = TreeUtil.collectSelectedObjectsOfType(this, FileNodeDescriptor::class.java)
-                            .map { it.element.file } // This worked until 2020.3. Keeping it here for backward compatibility.
-                        val files2 = TreeUtil.collectSelectedObjectsOfType(this, FileNode::class.java).map { it.file }
-                        (files1 + files2)
-                            .filterNot { it.isDirectory } // Exclude directories so that they're not navigatable from the tree and EditSourceOnEnterKeyHandler expands/collapses tree nodes.
-                            .map { file -> OpenFileDescriptor(project, file) }
+                        TreeUtil.collectSelectedObjectsOfType(this, FileNode::class.java)
+                            .mapNotNull { node ->
+                                if (node.file.isDirectory) null // Exclude directories so that they're not navigatable from the tree and EditSourceOnEnterKeyHandler expands/collapses tree nodes.
+                                else OpenFileDescriptor(project, node.file)
+                            }
                             .toTypedArray()
                     }
-                    PlatformDataKeys.DELETE_ELEMENT_PROVIDER.name -> FileDeleteProviderWithRefresh
                     else                                          -> null
                 }
-
-            private object FileDeleteProviderWithRefresh: DeleteProvider {
-                private val fileDeleteProvider = VirtualFileDeleteProvider()
-
-                override fun deleteElement(dataContext: DataContext) =
-                    fileDeleteProvider.deleteElement(dataContext)
-
-                override fun canDeleteElement(dataContext: DataContext) =
-                    fileDeleteProvider.canDeleteElement(dataContext)
-            }
         }
     }
 }
