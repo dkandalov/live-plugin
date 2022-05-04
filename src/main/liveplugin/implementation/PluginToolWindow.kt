@@ -102,8 +102,12 @@ private class PluginToolWindow(project: Project) {
             addSeparator()
             add(CollapseAllAction().with(collapseAllIcon))
             addSeparator()
-            add(createSettingsGroup().with(settingsIcon))
-            add(ShowHelpAction().with(helpIcon))
+            add(DefaultActionGroup("Settings", true).apply {
+                add(RunPluginsOnIDEStartAction())
+                add(RunProjectSpecificPluginsAction())
+                add(AddLivePluginAndIdeJarsAsDependencies())
+            }.with(settingsIcon))
+            add(ShowHelpAction())
         }
 
         return JPanel(GridLayout()).also {
@@ -117,16 +121,6 @@ private class PluginToolWindow(project: Project) {
             it.add(toolbar.component)
         }
     }
-
-    private fun createSettingsGroup() =
-        object: DefaultActionGroup("Settings", true) {
-            // Without this IntelliJ calls update() on first action in the group even if the action group is collapsed
-            override fun disableIfNoVisibleChildren() = false
-        }.also {
-            it.add(RunPluginsOnIDEStartAction())
-            it.add(RunProjectSpecificPluginsAction())
-            it.add(AddLivePluginAndIdeJarsAsDependencies())
-        }
 
     private class MySimpleToolWindowPanel(vertical: Boolean, private val fileSystemTree: FileSystemTree): SimpleToolWindowPanel(vertical) {
         /**
@@ -153,7 +147,7 @@ private class PluginToolWindow(project: Project) {
             }
     }
 
-    private class ShowHelpAction: AnAction("Show Help on GitHub"), DumbAware {
+    private class ShowHelpAction: AnAction("Show Help on GitHub", "Open help page on GitHub", helpIcon), DumbAware {
         override fun actionPerformed(e: AnActionEvent) =
             BrowserUtil.browse("https://github.com/dkandalov/live-plugin#getting-started")
     }

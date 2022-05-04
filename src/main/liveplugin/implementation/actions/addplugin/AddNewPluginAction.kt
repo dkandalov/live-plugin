@@ -6,7 +6,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.InputValidatorEx
-import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.Messages.showInputDialog
 import liveplugin.implementation.LivePlugin.Companion.livePluginsById
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
@@ -19,14 +19,14 @@ import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companio
 import liveplugin.implementation.readSampleScriptFile
 import java.io.IOException
 
-class AddNewGroovyPluginAction: AddNewPluginAction(
+class AddNewGroovyPluginAction : AddNewPluginAction(
     text = "Groovy Plugin",
     description = "Create new Groovy plugin",
     scriptFileName = groovyScriptFile,
     scriptFileText = readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy")
 )
 
-class AddNewKotlinPluginAction: AddNewPluginAction(
+class AddNewKotlinPluginAction : AddNewPluginAction(
     text = "Kotlin Plugin",
     description = "Create new Kotlin plugin",
     scriptFileName = kotlinScriptFile,
@@ -38,20 +38,14 @@ open class AddNewPluginAction(
     description: String,
     private val scriptFileName: String,
     private val scriptFileText: String
-): AnAction(text, description, newPluginIcon), DumbAware {
+) : AnAction(text, description, newPluginIcon), DumbAware {
 
     private val log = Logger.getInstance(AddNewPluginAction::class.java)
     private val addNewPluginTitle = "Add $text"
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
-
-        val newPluginId = Messages.showInputDialog(
-            project,
-            "Enter new plugin name:",
-            addNewPluginTitle, null, "", PluginIdValidator()
-        ) ?: return
-
+        val newPluginId = showInputDialog(project, "Enter new plugin name:", addNewPluginTitle, null, "", PluginIdValidator()) ?: return
         try {
             createFile("$livePluginsPath/$newPluginId", scriptFileName, scriptFileText, whenCreated = { virtualFile ->
                 if (project != null) FileEditorManager.getInstance(project).openFile(virtualFile, true)
@@ -63,16 +57,12 @@ open class AddNewPluginAction(
     }
 }
 
-class PluginIdValidator: InputValidatorEx {
+class PluginIdValidator : InputValidatorEx {
     private var errorText: String? = null
 
     override fun checkInput(pluginId: String) =
-        if (pluginId in livePluginsById().keys) {
-            errorText = "There is already a plugin with this name"
-            false
-        } else {
-            errorText = null
-            true
+        (pluginId in livePluginsById().keys).also { exists ->
+            errorText = if (exists) "There is already a plugin with this name" else null
         }
 
     override fun getErrorText(pluginId: String) = errorText
