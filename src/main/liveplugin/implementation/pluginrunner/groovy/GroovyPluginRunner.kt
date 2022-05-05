@@ -3,8 +3,6 @@ package liveplugin.implementation.pluginrunner.groovy
 import com.intellij.openapi.project.Project
 import groovy.util.GroovyScriptEngine
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.actions.Binding
-import liveplugin.implementation.actions.systemEnvironment
 import liveplugin.implementation.common.Result
 import liveplugin.implementation.common.asFailure
 import liveplugin.implementation.common.asSuccess

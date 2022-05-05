@@ -4,6 +4,7 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.plugins.PluginManagerCore.CORE_ID
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
@@ -11,7 +12,6 @@ import com.intellij.util.io.exists
 import com.intellij.util.lang.ClassPath
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.actions.Binding
 import liveplugin.implementation.common.Result
 import liveplugin.implementation.common.asFailure
 import liveplugin.implementation.common.asSuccess
@@ -116,6 +116,17 @@ interface PluginRunner {
         }
     }
 }
+
+class Binding(
+    val project: Project?,
+    val isIdeStartup: Boolean,
+    val pluginPath: String,
+    val pluginDisposable: Disposable
+) {
+    companion object
+}
+
+fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
 sealed class AnError {
     data class LoadingError(val message: String = "", val throwable: Throwable? = null) : AnError()

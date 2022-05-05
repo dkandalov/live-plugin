@@ -4,7 +4,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import kotlin.Unit
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.actions.Binding
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Result
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
@@ -83,7 +82,7 @@ class GroovyPluginRunnerTest {
 	}
 
 	private Result<Unit, AnError> runPlugin() {
-		def result = pluginRunner.setup(new LivePlugin(new FilePath(rootFolder.absolutePath)), null)
+		def result = pluginRunner.setup(new LivePlugin(new FilePath(FileUtilRt.toSystemIndependentName(rootFolder.absolutePath))), null)
         assert result instanceof Success
 		pluginRunner.run(result.value, noBindings)
 	}

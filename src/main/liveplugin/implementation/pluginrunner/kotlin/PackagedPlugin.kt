@@ -10,7 +10,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.WindowManager
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.runOnEdt
-import liveplugin.implementation.actions.Binding
+import liveplugin.implementation.pluginrunner.Binding
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.ExecutableKotlinPlugin
 

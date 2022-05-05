@@ -27,9 +27,12 @@ import liveplugin.implementation.common.flatMap
 import liveplugin.implementation.common.peekFailure
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.livePlugins
-import liveplugin.implementation.pluginrunner.*
+import liveplugin.implementation.pluginrunner.AnError
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
 import liveplugin.implementation.pluginrunner.AnError.RunningError
+import liveplugin.implementation.pluginrunner.Binding
+import liveplugin.implementation.pluginrunner.PluginRunner
+import liveplugin.implementation.pluginrunner.canBeHandledBy
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.mainGroovyPluginRunner
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.testGroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
@@ -141,48 +144,37 @@ private fun runInBackground(project: Project?, taskDescription: String, function
     }
 }
 
-class Binding(
-    val project: Project?,
-    val isIdeStartup: Boolean,
-    val pluginPath: String,
-    val pluginDisposable: Disposable
-) {
-    internal fun dispose() {
-        Disposer.dispose(pluginDisposable)
-        bindingByPluginId.remove(LivePlugin(pluginPath.toFilePath()).id)
-    }
+private val bindingByPluginId = HashMap<String, Binding>()
 
-    companion object {
-        private val bindingByPluginId = HashMap<String, Binding>()
+fun Binding.Companion.lookup(livePlugin: LivePlugin): Binding? =
+    bindingByPluginId[livePlugin.id]
 
-        fun lookup(livePlugin: LivePlugin): Binding? =
-            bindingByPluginId[livePlugin.id]
-
-        fun create(livePlugin: LivePlugin, event: AnActionEvent): Binding {
-            val oldBinding = bindingByPluginId[livePlugin.id]
-            if (oldBinding != null) {
-                try {
-                    Disposer.dispose(oldBinding.pluginDisposable)
-                } catch (e: Exception) {
-                    displayError(livePlugin.id, RunningError(e), event.project)
-                }
-            }
-
-            val disposable = object: Disposable {
-                override fun dispose() {}
-                override fun toString() = "LivePlugin: $livePlugin"
-            }
-            Disposer.register(ApplicationManager.getApplication(), disposable)
-
-            val binding = Binding(event.project, event.place == ideStartupActionPlace, livePlugin.path.value, disposable)
-            bindingByPluginId[livePlugin.id] = binding
-
-            return binding
+fun Binding.Companion.create(livePlugin: LivePlugin, event: AnActionEvent): Binding {
+    val oldBinding = bindingByPluginId[livePlugin.id]
+    if (oldBinding != null) {
+        try {
+            Disposer.dispose(oldBinding.pluginDisposable)
+        } catch (e: Exception) {
+            displayError(livePlugin.id, RunningError(e), event.project)
         }
     }
+
+    val disposable = object: Disposable {
+        override fun dispose() {}
+        override fun toString() = "LivePlugin: $livePlugin"
+    }
+    Disposer.register(ApplicationManager.getApplication(), disposable)
+
+    val binding = Binding(event.project, event.place == ideStartupActionPlace, livePlugin.path.value, disposable)
+    bindingByPluginId[livePlugin.id] = binding
+
+    return binding
 }
 
-fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
+fun Binding.dispose() {
+    Disposer.dispose(pluginDisposable)
+    bindingByPluginId.remove(LivePlugin(pluginPath.toFilePath()).id)
+}
 
 private fun displayError(pluginId: String, error: AnError, project: Project?) {
     val (title, message) = when (error) {
