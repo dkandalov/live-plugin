@@ -61,8 +61,8 @@ class PluginIdValidator : InputValidatorEx {
     private var errorText: String? = null
 
     override fun checkInput(pluginId: String) =
-        (pluginId in livePluginsById().keys).also { exists ->
-            errorText = if (exists) "There is already a plugin with this name" else null
+        (pluginId !in livePluginsById().keys).also { doesNotExist ->
+            errorText = if (doesNotExist) null else "There is already a plugin with this name"
         }
 
     override fun getErrorText(pluginId: String) = errorText
