@@ -202,7 +202,7 @@ object IdeUtil {
         override fun getCharset(virtualFile: VirtualFile, bytes: ByteArray): String? = null
 
         private val kotlinScriptIcon by lazy {
-            findIconOrNull("/org/jetbrains/kotlin/idea/icons/kotlin_file.png") ?: AllIcons.FileTypes.Text
+            findIconOrNull("/org/jetbrains/kotlin/idea/icons/kotlin_file.svg") ?: AllIcons.FileTypes.Text
         }
 
         // The kotlin icon is missing in some IDEs like WebStorm, so it's important
