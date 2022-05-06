@@ -15,7 +15,7 @@ fun VirtualFile.toFilePath() =
     FilePath(this.path)
 
 @Suppress("DEPRECATION")
-private fun File.toFilePath() =
+fun File.toFilePath() =
     FilePath(FileUtilRt.toSystemIndependentName(absolutePath))
 
 /**
