@@ -1,4 +1,4 @@
-package liveplugin.implementation
+package liveplugin.implementation.pluginrunner
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.command.CommandProcessor
