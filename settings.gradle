@@ -4,4 +4,6 @@ pluginManagement {
         id 'org.jetbrains.kotlin.jvm' version kotlinVersion apply false
     }
 }
-include "kotlin-compiler-wrapper"
+include ":kotlin-compiler-wrapper"
+
+rootProject.name = "LivePlugin"
