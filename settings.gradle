@@ -4,4 +4,4 @@ pluginManagement {
         id 'org.jetbrains.kotlin.jvm' version kotlinVersion apply false
     }
 }
-include "tkotlin-compiler-wrapper"
+include "kotlin-compiler-wrapper"
