@@ -1,6 +1,10 @@
 .gradle
 .idea
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
 build
 out
 *.iml
+*.ipr
+*.iws
 kotlin-compiler-wrapper/build
