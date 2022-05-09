@@ -1,5 +1,0 @@
-<idea-plugin>
-    <applicationListeners>
-        <listener class="liveplugin.implementation.actions.addplugin.git.GitDependentAppComponent" topic="com.intellij.ide.AppLifecycleListener"/>
-    </applicationListeners>
-</idea-plugin>

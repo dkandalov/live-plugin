@@ -23,7 +23,6 @@ import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.LivePluginPaths.oldLivePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.oldLivePluginsPath
 import liveplugin.implementation.actions.RunPluginAction
-import liveplugin.implementation.actions.addplugin.installLivepluginTutorialExamples
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
 import liveplugin.implementation.common.IdeUtil.logger
@@ -43,7 +42,7 @@ class LivePluginAppListener : AppLifecycleListener {
             if (migrated) settings.migratedLivePluginsToScratchesPath = true
         }
         if (settings.justInstalled) {
-            installLivepluginTutorialExamples()
+            //installLivepluginTutorialExamples()
             settings.justInstalled = false
         }
         if (settings.runAllPluginsOnIDEStartup) {

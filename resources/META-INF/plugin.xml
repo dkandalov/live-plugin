@@ -37,15 +37,10 @@
 
     <!-- https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
 	<depends>com.intellij.modules.platform</depends>
-	<depends optional="true" config-file="github-integration.xml">org.jetbrains.plugins.github</depends>
-	<depends optional="true" config-file="junit-panel-integration.xml">JUnit</depends>
 	<depends optional="true" config-file="groovy-plugin-integration.xml">org.intellij.groovy</depends>
 	<depends optional="true" config-file="kotlin-plugin-integration.xml">org.jetbrains.kotlin</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Plugins" anchor="right"
-                    factoryClass="liveplugin.implementation.LivePluginToolWindowFactory"
-                    icon="/liveplugin/toolWindowPlugin.svg"/>
         <notificationGroup displayType="BALLOON" id="Live Plugin"/>
     </extensions>
 
@@ -54,12 +49,7 @@
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
 			<keyboard-shortcut keymap="$default" first-keystroke="control shift l"/>
 		</action>
-		<action id="LivePlugin.TestPlugin" class="liveplugin.implementation.actions.RunPluginTestsAction" text="Run Plugin Tests">
-			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt t"/>
-		</action>
         <action id="LivePlugin.UnloadPlugin" class="liveplugin.implementation.actions.UnloadPluginAction" text="Unload Current Plugin"/>
-        <action id="LivePlugin.CreatePluginZip" class="liveplugin.implementation.actions.CreateKotlinPluginZipAction" text="Package Plugin as Zip"/>
-		<action id="LivePlugin.SharePluginAsGist" class="liveplugin.implementation.actions.addplugin.git.SharePluginAsGistDelegateAction" text="Share Plugin as Gist"/>
         <group id="LivePlugin.LivePluginActions" class="liveplugin.implementation.actions.RunLivePluginsGroup">
             <add-to-group group-id="RunContextGroup"/>
         </group>
