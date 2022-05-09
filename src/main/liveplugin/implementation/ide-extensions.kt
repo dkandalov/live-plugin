@@ -71,7 +71,7 @@ class LivePluginDirectoryCompletionContributor : CreateDirectoryCompletionContri
     override fun getDescription() = "Project specific live plugins"
     override fun getVariants(directory: PsiDirectory) =
         if (directory.project.basePath != directory.virtualFile.path) emptyList()
-        else listOf(Variant(".live-plugins", UnknownSourceRootType.getInstance("LivePlugin")))
+        else listOf(Variant(".spp", UnknownSourceRootType.getInstance("LivePlugin")))
 }
 
 class MakePluginFilesAlwaysEditable : NonProjectFileWritingAccessExtension {

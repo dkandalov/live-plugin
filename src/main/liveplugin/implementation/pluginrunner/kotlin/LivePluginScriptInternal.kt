@@ -15,7 +15,7 @@ import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.updateClasspath
 
 @KotlinScript(
-    filePathPattern = ".*live-plugins.*\\.kts",
+    filePathPattern = ".*spp.*\\.kts",
     compilationConfiguration = LivePluginScriptCompilationConfig::class
 )
 abstract class LivePluginScriptForCompilation(
