@@ -21,35 +21,35 @@ class TestReporterOnEdt implements TestReporter {
 	}
 
 	@Override void startedAllTests(long time) {
-		onEdt{ testReport.startedAllTests(time) }
+		onEdt { testReport.startedAllTests(time) }
 	}
 
 	@Override void finishedAllTests(long time) {
-		onEdt{ testReport.finishedAllTests(time) }
+		onEdt { testReport.finishedAllTests(time) }
 	}
 
 	@Override void running(String className, String methodName, long time) {
-		onEdt{ testReport.running(className, methodName, time) }
+		onEdt { testReport.running(className, methodName, time) }
 	}
 
 	@Override void passed(String methodName, long time) {
-		onEdt{ testReport.passed(methodName, time) }
+		onEdt { testReport.passed(methodName, time) }
 	}
 
 	@Override void failed(String methodName, String error, long time) {
-		onEdt{ testReport.failed(methodName, error, time) }
+		onEdt { testReport.failed(methodName, error, time) }
 	}
 
 	@Override void error(String methodName, String error, long time) {
-		onEdt{ testReport.error(methodName, error, time) }
+		onEdt { testReport.error(methodName, error, time) }
 	}
 
 	@Override void ignored(String methodName) {
-		onEdt{ testReport.ignored(methodName) }
+		onEdt { testReport.ignored(methodName) }
 	}
 
 	@Override void finishedClass(String className, long time) {
-		onEdt{ testReport.finishedClass(className, time) }
+		onEdt { testReport.finishedClass(className, time) }
 	}
 
 	private static def onEdt(Closure closure) {

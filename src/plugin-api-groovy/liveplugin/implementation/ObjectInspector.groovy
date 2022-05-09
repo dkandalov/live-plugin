@@ -23,10 +23,10 @@ class FieldWithValue {
 
 class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 	static final Map defaultConfig = [
-			showStatic: false,
-			showModifiers: false,
-			showHashCode: false,
-			shortClassNames: true
+		showStatic     : false,
+		showModifiers  : false,
+		showHashCode   : false,
+		shortClassNames: true
 	]
 	private final FieldWithValue context
 	private final Map config
@@ -39,12 +39,12 @@ class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 		def component = TreeUI.createTree(new ObjectInspector(new FieldWithValue(object, null)))
 
 		JBPopupFactory.instance.createComponentPopupBuilder(component, null)
-				.setTitle("Object inspector")
-				.setResizable(true)
-				.setMovable(true)
-				.setCancelOnClickOutside(false)
-				.setCancelButton(new IconButton("Close", AllIcons.Actions.Close))
-				.createPopup()
+			.setTitle("Object inspector")
+			.setResizable(true)
+			.setMovable(true)
+			.setCancelOnClickOutside(false)
+			.setCancelButton(new IconButton("Close", AllIcons.Actions.Close))
+			.createPopup()
 	}
 
 	ObjectInspector(FieldWithValue fieldWithValue, Map config = defaultConfig) {
@@ -55,8 +55,8 @@ class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 	@Override Collection<ObjectInspector> children() {
 		if (context?.object?.class == null || context?.field?.type?.primitive) return []
 		sortByModifiersAndName(context.object.class.declaredFields.toList())
-				.findAll { config.showStatic ? it : !Modifier.isStatic(it.modifiers) }
-				.collect{ new ObjectInspector(new FieldWithValue(fieldValue(it, context.object), it)) }
+			.findAll { config.showStatic ? it : !Modifier.isStatic(it.modifiers) }
+			.collect { new ObjectInspector(new FieldWithValue(fieldValue(it, context.object), it)) }
 	}
 
 	@Override PresentationData presentation() {
@@ -115,12 +115,12 @@ class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 	}
 
 	private static int modifiersGroup(int modifiers) {
-		def _final = [{Modifier.isFinal(modifiers)}, -1]
-		def _public = [{Modifier.isPublic(modifiers)}, -30]
-		def _protected = [{Modifier.isProtected(modifiers)}, -10]
-		def _private = [{Modifier.isPrivate(modifiers)}, 0]
-		def _pack_private = [{!_public[0]() && !_protected[0]() && !_private[0]()}, -20]
-		def _static = [{Modifier.isStatic(modifiers)}, -100]
+		def _final = [{ Modifier.isFinal(modifiers) }, -1]
+		def _public = [{ Modifier.isPublic(modifiers) }, -30]
+		def _protected = [{ Modifier.isProtected(modifiers) }, -10]
+		def _private = [{ Modifier.isPrivate(modifiers) }, 0]
+		def _pack_private = [{ !_public[0]() && !_protected[0]() && !_private[0]() }, -20]
+		def _static = [{ Modifier.isStatic(modifiers) }, -100]
 
 		[_final, _public, _protected, _pack_private, _private, _static].inject(0) { result, entry ->
 			result + (entry[0]() ? entry[1] : 0)
@@ -143,7 +143,9 @@ class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 					sb.append("[]")
 				}
 				return sb.toString()
-			} catch (Throwable ignored) { /*FALLTHRU*/ }
+			} catch (Throwable ignored) {
+				/*FALLTHRU*/
+			}
 		}
 		return type.getName()
 	}

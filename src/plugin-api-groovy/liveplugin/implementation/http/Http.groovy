@@ -1,4 +1,5 @@
 package liveplugin.implementation.http
+
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.io.FileUtil
 import liveplugin.implementation.GlobalVar
@@ -20,7 +21,7 @@ class Http {
 	}
 
 	static SimpleHttpServer restartHttpServer(String serverId, String webRootPath,
-	                                          Closure handler = {null}, Closure errorListener = {}) {
+	                                          Closure handler = { null }, Closure errorListener = {}) {
 		new GlobalVar(serverId).set { previousServer ->
 			if (previousServer != null) previousServer.stop()
 

@@ -12,15 +12,15 @@ class ActionSearch {
 			action.templatePresentation?.text?.toLowerCase()?.contains(s)
 		}
 		allActionIds()
-			.collect{ String id ->
+			.collect { String id ->
 				def action = actionById(id)
 				id.toLowerCase().contains(s) || matches(action) ? action : null
 			}
-			.findAll{ it != null }
+			.findAll { it != null }
 	}
 
 	static Collection<AnAction> allActions() {
-		allActionIds().collect{ actionById(it) }
+		allActionIds().collect { actionById(it) }
 	}
 
 	static Collection<String> allActionIds() {

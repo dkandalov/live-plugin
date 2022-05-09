@@ -80,7 +80,7 @@ class Console {
 			Executor executor = DefaultRunExecutor.runExecutorInstance
 
 			toolbarActions.add(new CloseAction(executor, descriptor, project))
-			console.createConsoleActions().each{ toolbarActions.add(it) }
+			console.createConsoleActions().each { toolbarActions.add(it) }
 
 			RunContentManager.getInstance(project).showRunContent(executor, descriptor)
 			result.set(console)

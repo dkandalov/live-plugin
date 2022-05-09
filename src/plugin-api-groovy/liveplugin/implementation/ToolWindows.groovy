@@ -32,7 +32,7 @@ class ToolWindows {
 	}
 
 	static ToolWindow registerToolWindow(Project project, String toolWindowId, Disposable disposable = null, ToolWindowAnchor location = RIGHT,
-	                          ActionGroup toolbarActionGroup = null, Closure<JComponent> createComponent) {
+	                                     ActionGroup toolbarActionGroup = null, Closure<JComponent> createComponent) {
 		def disposableId = registerDisposable(toolWindowId)
 		disposable = (disposable == null ? disposableId : newDisposable([disposable, disposableId]))
 
@@ -57,7 +57,7 @@ class ToolWindows {
 	static Collection<ToolWindow> findToolWindows(String toolWindowId) {
 		ProjectManager.instance.openProjects.collect {
 			findToolWindow(toolWindowId, it)
-		}.findAll {it != null}
+		}.findAll { it != null }
 	}
 
 	@Nullable static ToolWindow findToolWindow(String toolWindowId, Project project) {

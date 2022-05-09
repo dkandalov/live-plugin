@@ -32,10 +32,10 @@ class Threads {
 	}
 
 	static <T> void doInBackground(String taskDescription = "A task", boolean canBeCancelledByUser = true,
-	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
-	                      Function<ProgressIndicator, T> task,
-                          Function<Void, Void> whenCancelled = {},
-                          Function<T, Void> whenDone = {}) {
+	                               PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
+	                               Function<ProgressIndicator, T> task,
+	                               Function<Void, Void> whenCancelled = {},
+	                               Function<T, Void> whenDone = {}) {
 		invokeOnEDT {
 			AtomicReference<T> result = new AtomicReference<>(null)
 			new Task.Backgroundable(null, taskDescription, canBeCancelledByUser, backgroundOption) {

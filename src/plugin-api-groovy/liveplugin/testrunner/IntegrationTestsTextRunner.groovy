@@ -1,4 +1,5 @@
 package liveplugin.testrunner
+
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
@@ -16,7 +17,7 @@ class IntegrationTestsTextRunner {
 		doInBackground("Running integration tests", false) {
 			def textReporter = new TextTestReporter()
 			textReporter.startedAllTests(now())
-			testClasses.collect{ runTestsInClass(it, context, textReporter, now) }
+			testClasses.collect { runTestsInClass(it, context, textReporter, now) }
 			textReporter.finishedAllTests(now())
 
 			showInConsole(textReporter.result, "Integration tests", project)

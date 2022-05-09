@@ -65,6 +65,7 @@ class UnitTests {
 
 	static class Listener {
 		void onUnitTestSucceeded() {}
+
 		void onUnitTestFailed() {}
 	}
 }

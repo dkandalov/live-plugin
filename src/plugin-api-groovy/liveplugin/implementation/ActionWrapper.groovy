@@ -1,4 +1,5 @@
 package liveplugin.implementation
+
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Caret
@@ -17,7 +18,6 @@ import static liveplugin.implementation.Misc.accessField
 
 class ActionWrapper {
 	private static final Logger log = Logger.getInstance(ActionWrapper.class)
-
 
 	static AnAction wrapAction(String actionId, List<String> actionGroups = [], Closure callback) {
 		AnAction action = ActionManager.instance.getAction(actionId)
@@ -145,7 +145,7 @@ class ActionWrapper {
 	private static interface DelegatesToAction {
 		static final methodName = "originalAction"
 
-		@SuppressWarnings([ "GroovyUnusedDeclaration" ]) // used via reflection
+		@SuppressWarnings(["GroovyUnusedDeclaration"]) // used via reflection
 		AnAction originalAction()
 	}
 
@@ -244,7 +244,7 @@ class ActionWrapper {
 		}
 
 		@Override protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
-		    originalAction.handler.isEnabled(editor, caret, dataContext)
+			originalAction.handler.isEnabled(editor, caret, dataContext)
 		}
 
 		@Override DocCommandGroupId getCommandGroupId(Editor editor) {

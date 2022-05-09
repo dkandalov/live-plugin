@@ -1,4 +1,5 @@
 package liveplugin.implementation
+
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.openapi.Disposable

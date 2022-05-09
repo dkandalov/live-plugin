@@ -1,4 +1,5 @@
 package liveplugin.implementation
+
 import com.intellij.ide.ClipboardSynchronizer
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.IdeActions
@@ -14,7 +15,7 @@ import java.awt.event.ActionEvent
 
 class TableUI {
 	static ListTableModel<List<String>> newTableModel(List<String> header, List<List<String>> items) {
-		def columnNames = header.collect{ new StringListColumnInfo(it, header.indexOf(it)) }.toArray(new ColumnInfo[0])
+		def columnNames = header.collect { new StringListColumnInfo(it, header.indexOf(it)) }.toArray(new ColumnInfo[0])
 		new ListTableModel<List<String>>(columnNames, items)
 	}
 
@@ -36,11 +37,12 @@ class TableUI {
 		def copyKeyStroke = KeymapUtil.getKeyStroke(ActionManager.instance.getAction(IdeActions.ACTION_COPY).shortcutSet)
 		table.registerKeyboardAction(new AbstractAction() {
 			@Override void actionPerformed(ActionEvent event) {
-				def selectedCells = table.selectedRows.collect{ row ->
-					(0..<tableModel.columnCount).collect{ column ->
-						tableModel.getValueAt(row, column).toString() }
+				def selectedCells = table.selectedRows.collect { row ->
+					(0..<tableModel.columnCount).collect { column ->
+						tableModel.getValueAt(row, column).toString()
+					}
 				}
-				def content = new StringSelection(selectedCells.collect{ it.join(",") }.join("\n"))
+				def content = new StringSelection(selectedCells.collect { it.join(",") }.join("\n"))
 				ClipboardSynchronizer.instance.setContent(content, content)
 			}
 		}, "Copy", copyKeyStroke, JComponent.WHEN_FOCUSED)

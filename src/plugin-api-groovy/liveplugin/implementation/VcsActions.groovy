@@ -62,6 +62,7 @@ class VcsActions {
 							listener.onVcsCommit()
 						}
 					}
+
 					@Override void checkinFailed(List<VcsException> exception) {
 						if (panel.project == project) {
 							listener.onVcsCommitFailed()
@@ -108,9 +109,9 @@ class VcsActions {
 
 	private static boolean isVcsNotification(Notification notification) {
 		notification.groupId == "Vcs Messages" ||
-		notification.groupId == "Vcs Important Messages" ||
-		notification.groupId == "Vcs Minor Notifications" ||
-		notification.groupId == "Vcs Silent Notifications"
+			notification.groupId == "Vcs Important Messages" ||
+			notification.groupId == "Vcs Minor Notifications" ||
+			notification.groupId == "Vcs Silent Notifications"
 	}
 
 	private static boolean matchTitleOf(Notification notification, String... expectedTitles) {
@@ -125,9 +126,13 @@ class VcsActions {
 	 */
 	static class Listener {
 		void onVcsCommit() {}
+
 		void onVcsCommitFailed() {}
+
 		void onVcsUpdate() {}
+
 		void onVcsPush() {}
+
 		void onVcsPushFailed() {}
 	}
 }
