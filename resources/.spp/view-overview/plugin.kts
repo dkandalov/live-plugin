@@ -1,3 +1,4 @@
+import liveplugin.*
 import com.intellij.openapi.project.Project
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext

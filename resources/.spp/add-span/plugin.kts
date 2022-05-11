@@ -1,6 +1,6 @@
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.project.Project
-import liveplugin.registerCommand
-import liveplugin.show
+import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 
@@ -14,10 +14,9 @@ class AddSpanCommand(project: Project) : LiveCommand(project) {
     override val unselectedIcon = "add-span/icons/live-span_unselected.svg"
 
     override fun trigger(context: LiveCommandContext) {
-        show("todo span")
-//        ApplicationManager.getApplication().runWriteAction {
-//            LiveStatusManager.showSpanStatusBar(editor, prevCommandBar.lineNumber)
-//        }
+        runWriteAction {
+            showSpanStatusBar(context.lineNumber)
+        }
     }
 }
 

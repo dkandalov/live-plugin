@@ -1,6 +1,6 @@
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.project.Project
-import liveplugin.registerCommand
-import liveplugin.show
+import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 
@@ -14,10 +14,9 @@ class AddLogCommand(project: Project) : LiveCommand(project) {
     override val unselectedIcon = "add-log/icons/live-log_unselected.svg"
 
     override fun trigger(context: LiveCommandContext) {
-        show("todo log")
-//        ApplicationManager.getApplication().runWriteAction {
-//            LiveStatusManager.showLogStatusBar(editor, prevCommandBar.lineNumber, false)
-//        }
+        runWriteAction {
+            showLogStatusBar(context.lineNumber)
+        }
     }
 }
 

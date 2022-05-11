@@ -1,5 +1,5 @@
 import com.intellij.openapi.project.Project
-import liveplugin.registerCommand
+import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 import spp.jetbrains.marker.jvm.psi.EndpointDetector

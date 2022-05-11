@@ -1,6 +1,6 @@
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.project.Project
-import liveplugin.registerCommand
-import liveplugin.show
+import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 
@@ -14,10 +14,9 @@ class AddBreakpointCommand(project: Project) : LiveCommand(project) {
     override val unselectedIcon = "add-breakpoint/icons/live-breakpoint_unselected.svg"
 
     override fun trigger(context: LiveCommandContext) {
-        show("todo breakpoint")
-//        ApplicationManager.getApplication().runWriteAction {
-//            LiveStatusManager.showBreakpointStatusBar(editor, prevCommandBar.lineNumber)
-//        }
+        runWriteAction {
+            showBreakpointStatusBar(context.lineNumber)
+        }
     }
 }
 

@@ -6,6 +6,11 @@ import com.intellij.openapi.util.Key
 import spp.jetbrains.marker.extend.LiveCommand
 import java.util.function.BiConsumer
 import java.util.function.Consumer
+import java.util.function.Function
+
+fun LiveCommand.registerCommand() {
+    registerCommand { this }
+}
 
 fun registerCommand(command: () -> LiveCommand) {
     val commandRegister = Key.findKeyByName("SPP_COMMAND_REGISTER")
@@ -31,3 +36,20 @@ private fun registerCommand(liveCommand: LiveCommand, commandRegister: Key<*>) {
     commandRegistry.accept(liveCommand.toJson(), liveCommand.triggerConsumer)
 }
 
+fun LiveCommand.message(message: String): String {
+    val pluginUIFunctions = Key.findKeyByName("PLUGIN_UI_FUNCTIONS")!!
+    val consumer = project.getUserData(pluginUIFunctions) as Function<Array<Any?>, String>
+    return consumer.apply(arrayOf("message", message))
+}
+
+fun LiveCommand.getCommandTypeColor(): String {
+    val pluginUIFunctions = Key.findKeyByName("PLUGIN_UI_FUNCTIONS")!!
+    val consumer = project.getUserData(pluginUIFunctions) as Function<Array<Any?>, String>
+    return consumer.apply(arrayOf("getCommandTypeColor"))
+}
+
+fun LiveCommand.getCommandHighlightColor(): String {
+    val pluginUIFunctions = Key.findKeyByName("PLUGIN_UI_FUNCTIONS")!!
+    val consumer = project.getUserData(pluginUIFunctions) as Function<Array<Any?>, String>
+    return consumer.apply(arrayOf("getCommandHighlightColor"))
+}
