@@ -54,10 +54,10 @@ tasks.buildSearchableOptions {
 dependencies {
 	if (findProject(":interfaces:jetbrains") != null) {
 		implementation project(":interfaces:jetbrains:commander:kotlin-compiler-wrapper")
-		//implementation project(":protocol")
-//		runtimeOnly(project(":interfaces:jetbrains:marker"))
+		implementation project(":interfaces:jetbrains:marker")
+	} else {
 	}
-	implementation(files("/home/brandon/IdeaProjects/live-platform/interfaces/jetbrains/marker/build/libs/marker.jar"))
+	compileOnly(files("../marker/build/libs/marker.jar"))
 
 	// Bundle kotlin compiler and stdlib with LivePlugin because they are not always included into IDEs
 	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
@@ -92,14 +92,12 @@ sourceSets {
 		groovy { srcDir "src/plugin-api-groovy" }
 		compileClasspath = main.output +
 			configurations.compileClasspath + configurations.runtimeClasspath +
-			configurations.pluginApiGroovyCompileClasspath + configurations.pluginApiGroovyRuntimeClasspath +
-				files("/home/brandon/IdeaProjects/live-platform/interfaces/jetbrains/marker/build/libs/marker.jar")
+			configurations.pluginApiGroovyCompileClasspath + configurations.pluginApiGroovyRuntimeClasspath
 	}
 	pluginApiKotlin {
 		kotlin { srcDir "src/plugin-api-kotlin" }
 		compileClasspath = main.output + pluginApiGroovy.output +
-			configurations.compileClasspath + configurations.pluginApiKotlinCompileClasspath +
-				files("/home/brandon/IdeaProjects/live-platform/interfaces/jetbrains/marker/build/libs/marker.jar")
+			configurations.compileClasspath + configurations.pluginApiKotlinCompileClasspath
 	}
 	test {
 		groovy { srcDir "src/test" }
@@ -248,3 +246,5 @@ def "Move GDSL file into standardDsls folder"() {
 		)
 	}
 }
+
+tasks.findByName("spotlessKotlin")?.enabled = false
