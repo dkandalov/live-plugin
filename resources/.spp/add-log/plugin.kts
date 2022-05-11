@@ -10,8 +10,8 @@ class AddLogCommand(project: Project) : LiveCommand(project) {
             message("live_instrument") + " ➛ " + message("add") + " ➛ " + message("location") +
             ": </span><span style=\"font-size: 80%; color: ${getCommandHighlightColor()}\">" + message("on_line") +
             " *lineNumber*</span></html>"
-    override val selectedIcon = ".spp/add-log/icons/live-log_selected.svg"
-    override val unselectedIcon = ".spp/add-log/icons/live-log_unselected.svg"
+    override val selectedIcon = "add-log/icons/live-log_selected.svg"
+    override val unselectedIcon = "add-log/icons/live-log_unselected.svg"
 
     override fun trigger(context: LiveCommandContext) {
         show("todo log")

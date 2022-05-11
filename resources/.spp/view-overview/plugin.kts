@@ -14,8 +14,8 @@ class ViewOverviewCommand(project: Project) : LiveCommand(project) {
             message("live_view") + " ➛ " + message("overview") + " ➛ " + message("scope") +
             ": </span><span style=\"font-size: 80%; color: ${getCommandHighlightColor()}\">" + message("class") +
             "</span></html>"
-    override val selectedIcon = ".spp/view-overview/icons/view-overview_selected.svg"
-    override val unselectedIcon = ".spp/view-overview/icons/view-overview_unselected.svg"
+    override val selectedIcon = "view-overview/icons/view-overview_selected.svg"
+    override val unselectedIcon = "view-overview/icons/view-overview_unselected.svg"
 
     override fun trigger(context: LiveCommandContext) {
         val endpointId = context.getUserData(EndpointDetector.ENDPOINT_ID.name) as String? ?: return

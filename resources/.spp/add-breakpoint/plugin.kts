@@ -10,8 +10,8 @@ class AddBreakpointCommand(project: Project) : LiveCommand(project) {
             message("live_instrument") + " ➛ " + message("add") + " ➛ " + message("location") +
             ": </span><span style=\"font-size: 80%; color: ${getCommandHighlightColor()}\">" + message("on_line") +
             " *lineNumber*</span></html>"
-    override val selectedIcon = ".spp/add-breakpoint/icons/live-breakpoint_selected.svg"
-    override val unselectedIcon = ".spp/add-breakpoint/icons/live-breakpoint_unselected.svg"
+    override val selectedIcon = "add-breakpoint/icons/live-breakpoint_selected.svg"
+    override val unselectedIcon = "add-breakpoint/icons/live-breakpoint_unselected.svg"
 
     override fun trigger(context: LiveCommandContext) {
         show("todo breakpoint")

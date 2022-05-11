@@ -10,8 +10,8 @@ class AddMeterCommand(project: Project) : LiveCommand(project) {
             message("live_instrument") + " ➛ " + message("add") + " ➛ " + message("location") +
             ": </span><span style=\"font-size: 80%; color: ${getCommandHighlightColor()}\">" + message("on_line") +
             " *lineNumber*</span></html>"
-    override val selectedIcon = ".spp/add-meter/icons/live-meter_selected.svg"
-    override val unselectedIcon = ".spp/add-meter/icons/live-meter_unselected.svg"
+    override val selectedIcon = "add-meter/icons/live-meter_selected.svg"
+    override val unselectedIcon = "add-meter/icons/live-meter_unselected.svg"
 
     override fun trigger(context: LiveCommandContext) {
         show("todo meter")

@@ -14,8 +14,8 @@ class ViewTracesCommand(project: Project) : LiveCommand(project) {
     override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" + message("live_view") + " ➛ " +
             message("traces") + " ➛ " + message("scope") + ": </span><span style=\"font-size: 80%; color: ${getCommandHighlightColor()}\">" +
             message("method") + "</span></html>"
-    override val selectedIcon = ".spp/view-traces/icons/view-traces_selected.svg"
-    override val unselectedIcon = ".spp/view-traces/icons/view-traces_unselected.svg"
+    override val selectedIcon = "view-traces/icons/view-traces_selected.svg"
+    override val unselectedIcon = "view-traces/icons/view-traces_unselected.svg"
 
     override fun trigger(context: LiveCommandContext) {
         val endpointId = context.getUserData(EndpointDetector.ENDPOINT_ID.name) as String? ?: return

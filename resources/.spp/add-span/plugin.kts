@@ -10,8 +10,8 @@ class AddSpanCommand(project: Project) : LiveCommand(project) {
             message("live_instrument") + " ➛ " + message("add") + " ➛ " + message("location") +
             ": </span><span style=\"font-size: 80%; color: ${getCommandHighlightColor()}\">" + message("on_method") +
             " *methodName*</span></html>"
-    override val selectedIcon = ".spp/add-span/icons/live-span_selected.svg"
-    override val unselectedIcon = ".spp/add-span/icons/live-span_unselected.svg"
+    override val selectedIcon = "add-span/icons/live-span_selected.svg"
+    override val unselectedIcon = "add-span/icons/live-span_unselected.svg"
 
     override fun trigger(context: LiveCommandContext) {
         show("todo span")
