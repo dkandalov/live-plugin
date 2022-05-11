@@ -173,7 +173,7 @@ private class KotlinPluginCompiler {
     companion object {
         private val compilerClassLoader by lazy {
             UrlClassLoader.build()
-                .files(ideJdkClassesRoots() + livePluginKotlinCompilerLibFiles().map(File::toPath))
+                .files(ideJdkClassesRoots().toList().map(File::toPath) + livePluginKotlinCompilerLibFiles().map(File::toPath))
                 .noPreload()
                 .allowBootstrapResources()
                 .useCache()
@@ -200,8 +200,10 @@ fun findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText: List<Stri
         .filterIsInstance<Success<List<File>>>() // Ignore unresolved dependencies because they will be checked before running plugin anyway.
         .flatMap { it.value }
 
-fun livePluginLibAndSrcFiles() =
-    livePluginLibPath.listFiles().map { it.toFile() }
+fun livePluginLibAndSrcFiles(): List<File> =
+    livePluginLibPath.listFiles().map { it.toFile() }.toMutableList().apply {
+        removeIf { it.name.startsWith("plugin-") }
+    }
 
 private fun livePluginKotlinCompilerLibFiles() =
     (livePluginPath + "kotlin-compiler").listFiles().map { it.toFile() }
@@ -213,7 +215,7 @@ private fun IdeaPluginDescriptor.toLibFiles() =
         "compiler-plugin" !in it.name
     }.map { it.toFile() }
 
-private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath(), true)
+private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath().toFile(), true)
 
 class SrcHashCode(srcDir: FilePath, compilerOutputDir: FilePath) {
     private val hashFilePath = compilerOutputDir + hashFileName

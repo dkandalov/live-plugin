@@ -1,5 +1,0 @@
-<idea-plugin>
-    <extensions defaultExtensionNs="org.intellij.groovy">
-        <gdslScriptProvider implementation="liveplugin.implementation.pluginrunner.groovy.LivePluginGdslScriptProvider"/>
-    </extensions>
-</idea-plugin>

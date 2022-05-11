@@ -92,7 +92,9 @@ private fun compilingClasspath(scriptText: List<String>, scriptFolderPath: Strin
 class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
     override val id = "LivePluginKotlinScriptProvider"
     override fun getDefinitionClasses() = listOf(LivePluginScript::class.java.canonicalName)
-    override fun getDefinitionsClassPath() = livePluginLibPath.listFiles().map { it.toFile() }
+    override fun getDefinitionsClassPath() = livePluginLibPath.listFiles().map { it.toFile() }.toMutableList().apply {
+        removeIf { it.name.startsWith("plugin-") }
+    }
     // + File(".../live-plugin/build/idea-sandbox/plugins/live-plugins/multiple-src-files/foo.kt") This doesn't work 😠
     override fun useDiscovery() = false
 }

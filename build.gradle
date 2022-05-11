@@ -13,6 +13,8 @@ apply plugin:"groovy"
 apply plugin:"idea"
 apply plugin:"org.jetbrains.intellij"
 
+archivesBaseName = "LivePlugin"
+
 repositories {
 	mavenCentral()
 }
@@ -50,7 +52,12 @@ tasks.buildSearchableOptions {
 }
 
 dependencies {
-	implementation project(":kotlin-compiler-wrapper")
+	if (findProject(":interfaces:jetbrains") != null) {
+		implementation project(":interfaces:jetbrains:commander:kotlin-compiler-wrapper")
+		//implementation project(":protocol")
+//		runtimeOnly(project(":interfaces:jetbrains:marker"))
+	}
+	implementation(files("/home/brandon/IdeaProjects/live-platform/interfaces/jetbrains/marker/build/libs/marker.jar"))
 
 	// Bundle kotlin compiler and stdlib with LivePlugin because they are not always included into IDEs
 	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
@@ -67,7 +74,7 @@ dependencies {
 
 	testImplementation group: "junit", name: "junit", version: "4.13.1" // includes hamcrest-core
 }
-"Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
+//"Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
 'Move GDSL file into standardDsls folder'()
 
@@ -85,12 +92,14 @@ sourceSets {
 		groovy { srcDir "src/plugin-api-groovy" }
 		compileClasspath = main.output +
 			configurations.compileClasspath + configurations.runtimeClasspath +
-			configurations.pluginApiGroovyCompileClasspath + configurations.pluginApiGroovyRuntimeClasspath
+			configurations.pluginApiGroovyCompileClasspath + configurations.pluginApiGroovyRuntimeClasspath +
+				files("/home/brandon/IdeaProjects/live-platform/interfaces/jetbrains/marker/build/libs/marker.jar")
 	}
 	pluginApiKotlin {
 		kotlin { srcDir "src/plugin-api-kotlin" }
 		compileClasspath = main.output + pluginApiGroovy.output +
-			configurations.compileClasspath + configurations.pluginApiKotlinCompileClasspath
+			configurations.compileClasspath + configurations.pluginApiKotlinCompileClasspath +
+				files("/home/brandon/IdeaProjects/live-platform/interfaces/jetbrains/marker/build/libs/marker.jar")
 	}
 	test {
 		groovy { srcDir "src/test" }
@@ -215,19 +224,19 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 	}
 }
 
-def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
-	prepareSandbox.doLast {
-		new File("build/idea-sandbox/plugins/LivePlugin/lib")
-			.listFiles().toList()
-			.findAll { it.name.endsWith(".jar") && it.name != "LivePlugin.jar" }
-			.each {
-				ant.move(
-					file: "build/idea-sandbox/plugins/LivePlugin/lib/${it.name}",
-					tofile: "build/idea-sandbox/plugins/LivePlugin/kotlin-compiler/${it.name}"
-				)
-			}
-	}
-}
+//def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
+//	prepareSandbox.doLast {
+//		new File("build/idea-sandbox/plugins/interface-jetbrains/lib")
+//			.listFiles().toList()
+//			.findAll { it.name.endsWith(".jar") && it.name != "LivePlugin.jar" }
+//			.each {
+//				ant.move(
+//					file: "build/idea-sandbox/plugins/interface-jetbrains/lib/${it.name}",
+//					tofile: "build/idea-sandbox/plugins/interface-jetbrains/kotlin-compiler/${it.name}"
+//				)
+//			}
+//	}
+//}
 
 def "Move GDSL file into standardDsls folder"() {
 	prepareSandbox.doLast {
