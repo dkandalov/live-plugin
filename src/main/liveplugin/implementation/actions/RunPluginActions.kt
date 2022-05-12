@@ -41,7 +41,7 @@ import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companio
 private val pluginRunners = listOf(mainGroovyPluginRunner, mainKotlinPluginRunner)
 private val pluginTestRunners = listOf(testGroovyPluginRunner, testKotlinPluginRunner)
 
-class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", runPluginIcon), DumbAware {
+class RunPluginAction: AnAction("Run Command", "Run developer command", runPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
         runPlugins(event.livePlugins(), event)
