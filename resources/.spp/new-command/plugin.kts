@@ -1,14 +1,12 @@
 import com.intellij.ide.util.DirectoryUtil
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.util.PsiNavigateUtil
-import liveplugin.getCommandTypeColor
 import liveplugin.implementation.common.IdeUtil
-import liveplugin.message
-import liveplugin.registerCommand
-import liveplugin.show
+import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 
@@ -22,16 +20,17 @@ class NewCommandCommand(project: Project) : LiveCommand(project) {
     override fun trigger(context: LiveCommandContext) {
         runWriteAction {
             if (context.args.isEmpty()) {
-                show("Please enter command name")
+                show("Missing command name", notificationType = NotificationType.ERROR)
                 return@runWriteAction
             }
 
-            val commandName = context.args[0]
+            val commandName = context.args.joinToString(" ")
+            val commandDir = commandName.replace(" ", "-")
             val psiFile = PsiFileFactory.getInstance(project).createFileFromText(
                     "plugin.kts", IdeUtil.kotlinFileType, getNewCommandScript(commandName)
             )
             val baseDirectory = PsiDirectoryFactory.getInstance(project).createDirectory(project.baseDir)
-            val psiDirectory = DirectoryUtil.createSubdirectories(".spp/$commandName", baseDirectory, "/")
+            val psiDirectory = DirectoryUtil.createSubdirectories(".spp/$commandDir", baseDirectory, "/")
 
             PsiNavigateUtil.navigate(psiDirectory.add(psiFile))
         }
