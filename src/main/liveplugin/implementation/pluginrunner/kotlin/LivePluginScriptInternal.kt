@@ -20,7 +20,7 @@ import kotlin.script.experimental.jvm.updateClasspath
 )
 abstract class LivePluginScriptForCompilation(
     override val isIdeStartup: Boolean,
-    override val project: Project?,
+    override val project: Project,
     override val pluginPath: String,
     override val pluginDisposable: Disposable
 ) : LivePluginScript(isIdeStartup, project, pluginPath, pluginDisposable)

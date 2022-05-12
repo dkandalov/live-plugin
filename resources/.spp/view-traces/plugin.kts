@@ -1,4 +1,3 @@
-import com.intellij.openapi.project.Project
 import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
@@ -9,7 +8,7 @@ import spp.jetbrains.marker.source.mark.api.event.SourceMarkEventCode.UPDATE_POR
 /**
  * Opens the 'Endpoint-Traces' dashboard via portal popup.
  */
-class ViewTracesCommand(project: Project) : LiveCommand(project) {
+class ViewTracesCommand : LiveCommand() {
     override val name = message("view_traces")
     override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" + message("live_view") + " ➛ " +
             message("traces") + " ➛ " + message("scope") + ": </span><span style=\"font-size: 80%; color: ${getCommandHighlightColor()}\">" +
@@ -29,4 +28,4 @@ class ViewTracesCommand(project: Project) : LiveCommand(project) {
     }
 }
 
-registerCommand { ViewTracesCommand(project!!) }
+registerCommand { ViewTracesCommand() }

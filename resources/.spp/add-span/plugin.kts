@@ -1,10 +1,9 @@
 import com.intellij.openapi.application.runWriteAction
-import com.intellij.openapi.project.Project
 import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 
-class AddSpanCommand(project: Project) : LiveCommand(project) {
+class AddSpanCommand : LiveCommand() {
     override val name = message("add_span")
     override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
             message("live_instrument") + " ➛ " + message("add") + " ➛ " + message("location") +
@@ -20,4 +19,4 @@ class AddSpanCommand(project: Project) : LiveCommand(project) {
     }
 }
 
-registerCommand { AddSpanCommand(project!!) }
+registerCommand { AddSpanCommand() }

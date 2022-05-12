@@ -1,5 +1,4 @@
 import liveplugin.*
-import com.intellij.openapi.project.Project
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 import spp.jetbrains.marker.jvm.psi.EndpointDetector
@@ -9,7 +8,7 @@ import spp.jetbrains.marker.source.mark.api.event.SourceMarkEventCode.UPDATE_POR
 /**
  * Opens the 'Endpoint-Overview' dashboard via portal popup.
  */
-class ViewOverviewCommand(project: Project) : LiveCommand(project) {
+class ViewOverviewCommand : LiveCommand() {
     override val name = message("view_overview")
     override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
             message("live_view") + " ➛ " + message("overview") + " ➛ " + message("scope") +
@@ -30,4 +29,4 @@ class ViewOverviewCommand(project: Project) : LiveCommand(project) {
     }
 }
 
-//registerCommand { ViewOverviewCommand(project!!) }
+//registerCommand { ViewOverviewCommand() }

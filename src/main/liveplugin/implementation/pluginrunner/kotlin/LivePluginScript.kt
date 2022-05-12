@@ -16,9 +16,9 @@ abstract class LivePluginScript(
     open val isIdeStartup: Boolean,
 
     /**
-     * Project in which plugin is executed, can be null on IDE start or if no projects are open.
+     * Project in which plugin is executed.
      */
-    open val project: Project?,
+    open val project: Project,
 
     /**
      * Absolute path to the current plugin folder.

@@ -1,10 +1,9 @@
 import com.intellij.openapi.application.runWriteAction
-import com.intellij.openapi.project.Project
 import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 
-class AddMeterCommand(project: Project) : LiveCommand(project) {
+class AddMeterCommand : LiveCommand() {
     override val name = message("add_meter")
     override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
             message("live_instrument") + " ➛ " + message("add") + " ➛ " + message("location") +
@@ -20,4 +19,4 @@ class AddMeterCommand(project: Project) : LiveCommand(project) {
     }
 }
 
-registerCommand { AddMeterCommand(project!!) }
+registerCommand { AddMeterCommand() }

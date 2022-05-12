@@ -1,10 +1,9 @@
 import com.intellij.openapi.application.runWriteAction
-import com.intellij.openapi.project.Project
 import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 
-class AddLogCommand(project: Project) : LiveCommand(project) {
+class AddLogCommand : LiveCommand() {
     override val name = message("add_log")
     override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
             message("live_instrument") + " ➛ " + message("add") + " ➛ " + message("location") +
@@ -20,4 +19,4 @@ class AddLogCommand(project: Project) : LiveCommand(project) {
     }
 }
 
-registerCommand { AddLogCommand(project!!) }
+registerCommand { AddLogCommand() }

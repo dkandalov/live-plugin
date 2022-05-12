@@ -1,10 +1,9 @@
 import com.intellij.openapi.application.runWriteAction
-import com.intellij.openapi.project.Project
 import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 
-class AddBreakpointCommand(project: Project) : LiveCommand(project) {
+class AddBreakpointCommand : LiveCommand() {
     override val name = message("add_breakpoint")
     override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
             message("live_instrument") + " ➛ " + message("add") + " ➛ " + message("location") +
@@ -20,4 +19,4 @@ class AddBreakpointCommand(project: Project) : LiveCommand(project) {
     }
 }
 
-registerCommand { AddBreakpointCommand(project!!) }
+registerCommand { AddBreakpointCommand() }

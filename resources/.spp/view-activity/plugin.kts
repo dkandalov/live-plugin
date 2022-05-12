@@ -1,4 +1,3 @@
-import com.intellij.openapi.project.Project
 import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
@@ -9,7 +8,7 @@ import spp.jetbrains.marker.source.mark.api.event.SourceMarkEventCode.UPDATE_POR
 /**
  * Opens the 'Endpoint-Activity' dashboard via portal popup.
  */
-class ViewActivityCommand(project: Project) : LiveCommand(project) {
+class ViewActivityCommand : LiveCommand() {
     override val name = message("view_activity")
     override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
             message("live_view") + " ➛ " + message("activity") + " ➛ " + message("scope") +
@@ -30,4 +29,4 @@ class ViewActivityCommand(project: Project) : LiveCommand(project) {
     }
 }
 
-registerCommand { ViewActivityCommand(project!!) }
+registerCommand { ViewActivityCommand() }

@@ -1,7 +1,6 @@
 import com.intellij.ide.util.DirectoryUtil
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.runWriteAction
-import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.util.PsiNavigateUtil
@@ -10,7 +9,7 @@ import liveplugin.*
 import spp.jetbrains.marker.extend.LiveCommand
 import spp.jetbrains.marker.extend.LiveCommandContext
 
-class NewCommandCommand(project: Project) : LiveCommand(project) {
+class NewCommandCommand : LiveCommand() {
     override val name = message("New Command")
     override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
             "Add new custom command" + "</span></html>"
@@ -39,13 +38,12 @@ class NewCommandCommand(project: Project) : LiveCommand(project) {
     private fun getNewCommandScript(commandName: String): String {
         val properCommandName = commandName.split(" ", "-").map { it.capitalize() }.joinToString("")
         return """
-            import com.intellij.openapi.project.Project
             import liveplugin.*
             import spp.jetbrains.marker.extend.*
 
-            class ${properCommandName}Command(project: Project) : LiveCommand(project) {
+            class ${properCommandName}Command : LiveCommand() {
                 override val name = "$commandName"
-                override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
+                override val description = "<html><span style=\"font-size: 80%; color: ${'$'}{getCommandTypeColor()}\">" +
                         "My custom command" + "</span></html>"
 
                 override fun trigger(context: LiveCommandContext) {
@@ -53,9 +51,9 @@ class NewCommandCommand(project: Project) : LiveCommand(project) {
                 }
             }
 
-            registerCommand { ${properCommandName}Command(project!!) }
+            registerCommand { ${properCommandName}Command() }
         """.trimIndent()
     }
 }
 
-registerCommand { NewCommandCommand(project!!) }
+registerCommand { NewCommandCommand() }
