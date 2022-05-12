@@ -26,6 +26,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.ReflectionUtil
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.annotations.NonNls
@@ -64,7 +65,9 @@ object IdeUtil {
             // (see com.intellij.diagnostic.IdeErrorsDialog.findPluginId)
             logger.error(consoleTitle, PluginException(text, PluginId.getId(livePluginId)))
         } else {
-            showInConsole(text, consoleTitle, project, ConsoleViewContentType.ERROR_OUTPUT)
+            ToolWindowManager.getInstance(project).invokeLater {
+                showInConsole(text, consoleTitle, project, ConsoleViewContentType.ERROR_OUTPUT)
+            }
         }
     }
 
