@@ -17,32 +17,12 @@
  */
 package liveplugin.implementation.command.impl
 
-import com.intellij.openapi.project.Project
-import io.vertx.core.json.Json
-import io.vertx.core.json.JsonObject
 import liveplugin.implementation.command.LiveCommandService
 import spp.command.LiveCommand
-import spp.command.LiveCommandContext
-import java.util.function.BiConsumer
-import java.util.function.Consumer
 
-class LiveCommandServiceImpl(override val project: Project) : LiveCommandService {
+class LiveCommandServiceImpl : LiveCommandService {
 
     private val commands = mutableSetOf<LiveCommand>()
-
-    override fun init() {
-        project.putUserData(
-            LiveCommandService.UNREGISTER,
-            Consumer<String> { commandName ->
-                unregisterLiveCommand(commandName)
-            })
-        project.putUserData(
-            LiveCommandService.REGISTER,
-            BiConsumer<String, BiConsumer<String, Consumer<Array<Any?>>>> { data, trigger ->
-                val command = JsonObject(data)
-                registerLiveCommand(DevLiveCommand(command, trigger))
-            })
-    }
 
     override fun registerLiveCommand(command: LiveCommand) {
         commands.add(command)
@@ -54,56 +34,5 @@ class LiveCommandServiceImpl(override val project: Project) : LiveCommandService
 
     override fun getRegisteredLiveCommands(): List<LiveCommand> {
         return commands.toList()
-    }
-
-    private inner class DevLiveCommand(
-        val command: JsonObject, val trigger: BiConsumer<String, Consumer<Array<Any?>>>
-    ) : LiveCommand() {
-        override val name: String
-            get() = command.getString("name")
-        override val description: String
-            get() = command.getString("description")
-        override val params: List<String>
-            get() = command.getJsonArray("params").map { it.toString() }
-        override val aliases: Set<String>
-            get() = command.getJsonArray("aliases")?.map { it.toString() }?.toSet() ?: emptySet()
-        override val selectedIcon: String?
-            get() = command.getString("selectedIcon")
-        override val unselectedIcon: String?
-            get() = command.getString("unselectedIcon")
-
-        override fun trigger(context: LiveCommandContext) {
-            val contextJson = JsonObject()
-            contextJson.put("args", context.args)
-            contextJson.put("sourceFile", context.sourceFile.absolutePath)
-            contextJson.put("lineNumber", context.lineNumber)
-            contextJson.put("artifactQualifiedName", context.artifactQualifiedName)
-            context.guideArtifactQualifiedName?.let { contextJson.put("guideArtifactQualifiedName", it) }
-
-            val userData = JsonObject()
-            context.getUserData().forEach {
-                try {
-                    Json.encode(it.value) // check if it is json serializable
-                    userData.put(it.key.toString(), it.value)
-                } catch (e: Exception) {
-                    println("Failed to encode user data: " + it.key + ": " + it.value)
-                }
-            }
-            contextJson.put("userData", userData)
-
-            trigger.accept(contextJson.toString(), context.eventConsumer)
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-            other as DevLiveCommand
-            if (name != other.name) return false
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return name.hashCode()
-        }
     }
 }

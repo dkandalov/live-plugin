@@ -17,40 +17,14 @@
  */
 package spp.command
 
-import spp.jetbrains.marker.source.mark.api.event.IEventCode
 import spp.jetbrains.marker.source.mark.guide.GuideMark
 import spp.protocol.artifact.ArtifactQualifiedName
 import java.io.File
-import java.util.function.Consumer
 
-class LiveCommandContext(
+data class LiveCommandContext(
     val args: List<String>,
     val sourceFile: File,
     val lineNumber: Int,
     val artifactQualifiedName: ArtifactQualifiedName,
-    val guideArtifactQualifiedName: ArtifactQualifiedName? = null,
-    internal val eventConsumer: Consumer<Array<Any?>>
-) {
-    private val userData: MutableMap<Any, Any> = mutableMapOf()
-
-    fun getUserData(): Map<Any, Any> = userData
-
-    fun getUserData(key: String): Any? {
-        return userData[key]
-    }
-
-    fun putUserData(key: String, value: Any?) {
-        if (value != null) {
-            userData.put(key, value)
-        } else {
-            userData.remove(key)
-        }
-    }
-
-    /**
-     * Trigger event on [GuideMark].
-     */
-    fun triggerEvent(eventCode: IEventCode, params: List<Any?>, listen: (() -> Unit)? = null) {
-        eventConsumer.accept(arrayOf(eventCode, params, listen))
-    }
-}
+    val guideMark: GuideMark? = null,
+)

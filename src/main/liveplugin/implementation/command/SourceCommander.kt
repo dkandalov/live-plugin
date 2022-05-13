@@ -17,6 +17,8 @@
  */
 package liveplugin.implementation.command
 
+import liveplugin.implementation.command.impl.LiveCommandServiceImpl
+
 object SourceCommander {
-    lateinit var commandService: LiveCommandService
+    val commandService: LiveCommandService =  LiveCommandServiceImpl()
 }

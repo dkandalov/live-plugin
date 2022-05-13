@@ -200,10 +200,7 @@ fun findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText: List<Stri
         .filterIsInstance<Success<List<File>>>() // Ignore unresolved dependencies because they will be checked before running plugin anyway.
         .flatMap { it.value }
 
-fun livePluginLibAndSrcFiles(): List<File> =
-    livePluginLibPath.listFiles().map { it.toFile() }.toMutableList().apply {
-        removeIf { it.name.startsWith("plugin-") }
-    }
+fun livePluginLibAndSrcFiles(): List<File> = listOf(livePluginLibPath.toFile())
 
 private fun livePluginKotlinCompilerLibFiles() =
     (livePluginPath + "kotlin-compiler").listFiles().map { it.toFile() }

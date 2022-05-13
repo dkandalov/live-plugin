@@ -1,6 +1,9 @@
 import com.intellij.openapi.application.runWriteAction
 import spp.plugin.*
 import spp.command.*
+import spp.jetbrains.sourcemarker.PluginUI.*
+import spp.jetbrains.sourcemarker.PluginBundle.message
+import spp.jetbrains.sourcemarker.status.LiveStatusManager
 
 class AddMeterCommand : LiveCommand() {
     override val name = message("add_meter")
@@ -13,9 +16,9 @@ class AddMeterCommand : LiveCommand() {
 
     override fun trigger(context: LiveCommandContext) {
         runWriteAction {
-            showMeterStatusBar(context.lineNumber)
+            LiveStatusManager.showMeterStatusBar(project.currentEditor!!, context.lineNumber)
         }
     }
 }
 
-registerCommand { AddMeterCommand() }
+registerCommand(AddMeterCommand())

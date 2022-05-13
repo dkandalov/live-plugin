@@ -1,6 +1,9 @@
 import com.intellij.openapi.application.runWriteAction
 import spp.plugin.*
 import spp.command.*
+import spp.jetbrains.sourcemarker.PluginUI.*
+import spp.jetbrains.sourcemarker.PluginBundle.message
+import spp.jetbrains.sourcemarker.status.LiveStatusManager
 
 class AddLogCommand : LiveCommand() {
     override val name = message("add_log")
@@ -13,9 +16,9 @@ class AddLogCommand : LiveCommand() {
 
     override fun trigger(context: LiveCommandContext) {
         runWriteAction {
-            showLogStatusBar(context.lineNumber)
+            LiveStatusManager.showLogStatusBar(project.currentEditor!!, context.lineNumber, false)
         }
     }
 }
 
-registerCommand { AddLogCommand() }
+registerCommand(AddLogCommand())

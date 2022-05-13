@@ -7,6 +7,8 @@ import com.intellij.util.PsiNavigateUtil
 import liveplugin.implementation.common.IdeUtil
 import spp.plugin.*
 import spp.command.*
+import spp.jetbrains.sourcemarker.PluginUI.*
+import spp.jetbrains.sourcemarker.PluginBundle.message
 
 class NewCommandCommand : LiveCommand() {
     override val name = message("New Command")
@@ -39,6 +41,7 @@ class NewCommandCommand : LiveCommand() {
         return """
             import spp.plugin.*
             import spp.command.*
+            import spp.jetbrains.sourcemarker.PluginUI.*
 
             class ${properCommandName}Command : LiveCommand() {
                 override val name = "$commandName"
@@ -50,9 +53,9 @@ class NewCommandCommand : LiveCommand() {
                 }
             }
 
-            registerCommand { ${properCommandName}Command() }
+            registerCommand(${properCommandName}Command())
         """.trimIndent()
     }
 }
 
-registerCommand { NewCommandCommand() }
+registerCommand(NewCommandCommand())

@@ -18,10 +18,6 @@
 package spp.command
 
 import io.vertx.core.json.JsonObject
-import spp.protocol.marshall.ProtocolMarshaller
-import java.io.File
-import java.util.function.BiConsumer
-import java.util.function.Consumer
 
 @Suppress("unused")
 abstract class LiveCommand {
@@ -31,28 +27,6 @@ abstract class LiveCommand {
     open val aliases: Set<String> = emptySet()
     open val selectedIcon: String? = null
     open val unselectedIcon: String? = null
-
-    val triggerConsumer: BiConsumer<String, Consumer<Array<Any?>>> =
-        BiConsumer<String, Consumer<Array<Any?>>> { context, eventConsumer ->
-            val contextMap = JsonObject(context)
-            val liveCommandContext = LiveCommandContext(
-                contextMap.getJsonArray("args")?.let {
-                    it.map { it.toString() }.toList()
-                } ?: emptyList(),
-                File(contextMap.getString("sourceFile")),
-                contextMap.getInteger("lineNumber"),
-                ProtocolMarshaller.deserializeArtifactQualifiedName(contextMap.getJsonObject("artifactQualifiedName")),
-                contextMap.getJsonObject("guideArtifactQualifiedName")?.let {
-                    ProtocolMarshaller.deserializeArtifactQualifiedName(it)
-                },
-                eventConsumer
-            )
-            contextMap.getJsonObject("userData")?.fieldNames()?.forEach {
-                val value = contextMap.getJsonObject("userData").getValue(it)
-                liveCommandContext.putUserData(it, value)
-            }
-            trigger(liveCommandContext)
-        }
 
     abstract fun trigger(context: LiveCommandContext)
 

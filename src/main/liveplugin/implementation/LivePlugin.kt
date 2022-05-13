@@ -39,7 +39,7 @@ object LivePluginPaths {
     val ideJarsPath = PathManager.getHomePath().toFilePath() + "lib"
 
     val livePluginPath = PathManager.getPluginsPath().toFilePath() + "interface-jetbrains"
-    val livePluginLibPath = PathManager.getPluginsPath().toFilePath() + "interface-jetbrains/lib"
+    val livePluginLibPath = PathManager.getPluginsPath().toFilePath() + "interface-jetbrains/lib/LivePlugin.jar"
 
     // Use scratches location because it's more standard for keeping scripts, e.g. from IDE console.
     val livePluginsCompiledPath = PathManager.getScratchPath().toFilePath() + "live-plugins-compiled"

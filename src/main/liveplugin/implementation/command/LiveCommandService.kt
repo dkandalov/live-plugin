@@ -17,23 +17,9 @@
  */
 package liveplugin.implementation.command
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import spp.command.LiveCommand
-import java.util.function.BiConsumer
-import java.util.function.Consumer
-import java.util.function.Function
 
 interface LiveCommandService {
-    companion object {
-        val LIVE_STATUS_MANAGER_FUNCTIONS = Key.create<Function<Array<Any?>, Any?>>("SPP_LIVE_STATUS_MANAGER_FUNCTIONS")
-        val PLUGIN_UI_FUNCTIONS = Key.create<Function<Array<Any?>, String>>("PLUGIN_UI_FUNCTIONS")
-        val REGISTER = Key.create<BiConsumer<String, BiConsumer<String, Consumer<Array<Any?>>>>>("SPP_COMMAND_REGISTER")
-        val UNREGISTER = Key.create<Consumer<String>>("SPP_COMMAND_UNREGISTER")
-    }
-
-    val project: Project
-    fun init()
     fun registerLiveCommand(command: LiveCommand)
     fun unregisterLiveCommand(commandName: String)
     fun getRegisteredLiveCommands(): List<LiveCommand>
