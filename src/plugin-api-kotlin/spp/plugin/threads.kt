@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package liveplugin
+package spp.plugin
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressIndicator

@@ -1,4 +1,4 @@
-package liveplugin
+package spp.plugin
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.extensions.LoadingOrder

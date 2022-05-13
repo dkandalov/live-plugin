@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package liveplugin
+package spp.plugin
 
 import com.intellij.openapi.util.Key
 import liveplugin.implementation.pluginrunner.kotlin.LivePluginScript

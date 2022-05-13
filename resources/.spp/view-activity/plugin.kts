@@ -1,6 +1,5 @@
-import liveplugin.*
-import spp.jetbrains.marker.extend.LiveCommand
-import spp.jetbrains.marker.extend.LiveCommandContext
+import spp.plugin.*
+import spp.command.*
 import spp.jetbrains.marker.jvm.psi.EndpointDetector
 import spp.jetbrains.marker.source.mark.api.event.SourceMarkEventCode.PORTAL_OPENING
 import spp.jetbrains.marker.source.mark.api.event.SourceMarkEventCode.UPDATE_PORTAL_CONFIG

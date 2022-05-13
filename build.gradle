@@ -55,9 +55,13 @@ dependencies {
 	if (findProject(":interfaces:jetbrains") != null) {
 		implementation project(":interfaces:jetbrains:commander:kotlin-compiler-wrapper")
 		implementation project(":interfaces:jetbrains:marker")
+		implementation project(":interfaces:jetbrains:monitor")
+		implementation project(":protocol")
 	} else {
+		implementation("com.github.sourceplusplus.protocol:protocol:05b144c6ba")
 	}
 	compileOnly(files("../marker/build/libs/marker.jar"))
+	implementation("io.vertx:vertx-core:$vertxVersion")
 
 	// Bundle kotlin compiler and stdlib with LivePlugin because they are not always included into IDEs
 	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,

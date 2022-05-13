@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package liveplugin
+package spp.plugin
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.InspectionProfileEntry
@@ -26,6 +26,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
+import liveplugin.PluginUtil
 import liveplugin.PluginUtil.openUrlInEditor
 import liveplugin.implementation.Console
 import liveplugin.implementation.Editors

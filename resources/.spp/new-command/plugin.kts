@@ -5,9 +5,8 @@ import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.util.PsiNavigateUtil
 import liveplugin.implementation.common.IdeUtil
-import liveplugin.*
-import spp.jetbrains.marker.extend.LiveCommand
-import spp.jetbrains.marker.extend.LiveCommandContext
+import spp.plugin.*
+import spp.command.*
 
 class NewCommandCommand : LiveCommand() {
     override val name = message("New Command")
@@ -38,8 +37,8 @@ class NewCommandCommand : LiveCommand() {
     private fun getNewCommandScript(commandName: String): String {
         val properCommandName = commandName.split(" ", "-").map { it.capitalize() }.joinToString("")
         return """
-            import liveplugin.*
-            import spp.jetbrains.marker.extend.*
+            import spp.plugin.*
+            import spp.command.*
 
             class ${properCommandName}Command : LiveCommand() {
                 override val name = "$commandName"

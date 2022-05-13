@@ -1,7 +1,6 @@
 import com.intellij.openapi.application.runWriteAction
-import liveplugin.*
-import spp.jetbrains.marker.extend.LiveCommand
-import spp.jetbrains.marker.extend.LiveCommandContext
+import spp.plugin.*
+import spp.command.*
 
 class AddLogCommand : LiveCommand() {
     override val name = message("add_log")

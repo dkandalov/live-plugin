@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package liveplugin
+package spp.plugin
 
 import java.io.File
 
