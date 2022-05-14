@@ -1,4 +1,5 @@
 import com.intellij.notification.NotificationType
+import kotlinx.coroutines.runBlocking
 import spp.command.LiveCommand
 import spp.command.LiveCommandContext
 import spp.jetbrains.sourcemarker.PluginUI.getCommandTypeColor
@@ -19,7 +20,7 @@ class BootTimeCommand : LiveCommand() {
     override val selectedIcon: String = "boot-time/icons/boot-time_selected.svg"
     override val unselectedIcon: String = "boot-time/icons/boot-time_unselected.svg"
 
-    override suspend fun trigger(context: LiveCommandContext) {
+    override fun trigger(context: LiveCommandContext) = runBlocking {
         val serverTimezone = skywalkingMonitorService.getTimeInfo().result?.timezone
         if (serverTimezone == null) {
             show("Unable to determine server timezone", notificationType = NotificationType.ERROR)

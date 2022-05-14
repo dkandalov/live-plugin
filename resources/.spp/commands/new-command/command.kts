@@ -17,7 +17,7 @@ class NewCommandCommand : LiveCommand() {
     override val selectedIcon = "new-command/icons/new-command_selected.svg"
     override val unselectedIcon = "new-command/icons/new-command_unselected.svg"
 
-    override suspend fun trigger(context: LiveCommandContext) {
+    override fun trigger(context: LiveCommandContext) {
         runWriteAction {
             if (context.args.isEmpty()) {
                 show("Missing command name", notificationType = NotificationType.ERROR)
@@ -45,10 +45,10 @@ class NewCommandCommand : LiveCommand() {
 
             class ${properCommandName}Command : LiveCommand() {
                 override val name = "$commandName"
-                override val description = "<html><span style=\"font-size: 80%; color: ${'$'}{getCommandTypeColor()}\">" +
+                override val description = "<html><span style=\"color: ${'$'}{getCommandTypeColor()}\">" +
                         "My custom command" + "</span></html>"
 
-                override suspend fun trigger(context: LiveCommandContext) {
+                override fun trigger(context: LiveCommandContext) {
                     show("Hello world")
                 }
             }

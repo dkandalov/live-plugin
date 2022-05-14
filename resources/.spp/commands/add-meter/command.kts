@@ -14,7 +14,7 @@ class AddMeterCommand : LiveCommand() {
     override val selectedIcon = "add-meter/icons/live-meter_selected.svg"
     override val unselectedIcon = "add-meter/icons/live-meter_unselected.svg"
 
-    override suspend fun trigger(context: LiveCommandContext) {
+    override fun trigger(context: LiveCommandContext) {
         runWriteAction {
             LiveStatusManager.showMeterStatusBar(project.currentEditor!!, context.lineNumber)
         }

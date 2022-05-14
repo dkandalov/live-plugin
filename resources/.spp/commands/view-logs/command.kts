@@ -18,7 +18,7 @@ class ViewLogsCommand : LiveCommand() {
     override val selectedIcon = "view-logs/icons/view-logs_selected.svg"
     override val unselectedIcon = "view-logs/icons/view-logs_unselected.svg"
 
-    override suspend fun trigger(context: LiveCommandContext) {
+    override fun trigger(context: LiveCommandContext) {
         val endpointId = context.guideMark?.getUserData(EndpointDetector.ENDPOINT_ID) ?: return
         val serviceId = endpointId.substringBefore("_")
         val pageType = "Logs"

@@ -28,7 +28,7 @@ abstract class LiveCommand {
     open val selectedIcon: String? = null
     open val unselectedIcon: String? = null
 
-    abstract suspend fun trigger(context: LiveCommandContext)
+    abstract fun trigger(context: LiveCommandContext)
 
     fun toJson(): String {
         return JsonObject().apply {

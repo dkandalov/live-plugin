@@ -14,7 +14,7 @@ class AddBreakpointCommand : LiveCommand() {
     override val selectedIcon = "add-breakpoint/icons/live-breakpoint_selected.svg"
     override val unselectedIcon = "add-breakpoint/icons/live-breakpoint_unselected.svg"
 
-    override suspend fun trigger(context: LiveCommandContext) {
+    override fun trigger(context: LiveCommandContext) {
         runWriteAction {
             LiveStatusManager.showBreakpointStatusBar(project.currentEditor!!, context.lineNumber)
         }
