@@ -17,7 +17,7 @@ class NewCommandCommand : LiveCommand() {
     override val selectedIcon = "new-command/icons/new-command_selected.svg"
     override val unselectedIcon = "new-command/icons/new-command_unselected.svg"
 
-    override fun trigger(context: LiveCommandContext) {
+    override suspend fun trigger(context: LiveCommandContext) {
         runWriteAction {
             if (context.args.isEmpty()) {
                 show("Missing command name", notificationType = NotificationType.ERROR)
@@ -27,7 +27,7 @@ class NewCommandCommand : LiveCommand() {
             val commandName = context.args.joinToString(" ")
             val commandDir = commandName.replace(" ", "-")
             val psiFile = PsiFileFactory.getInstance(project).createFileFromText(
-                    "plugin.kts", IdeUtil.kotlinFileType, getNewCommandScript(commandName)
+                    "command.kts", IdeUtil.kotlinFileType, getNewCommandScript(commandName)
             )
             val baseDirectory = PsiDirectoryFactory.getInstance(project).createDirectory(project.baseDir)
             val psiDirectory = DirectoryUtil.createSubdirectories(".spp/commands/$commandDir", baseDirectory, "/")
@@ -48,7 +48,7 @@ class NewCommandCommand : LiveCommand() {
                 override val description = "<html><span style=\"font-size: 80%; color: ${'$'}{getCommandTypeColor()}\">" +
                         "My custom command" + "</span></html>"
 
-                override fun trigger(context: LiveCommandContext) {
+                override suspend fun trigger(context: LiveCommandContext) {
                     show("Hello world")
                 }
             }

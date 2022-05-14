@@ -2,6 +2,10 @@ package liveplugin.implementation.pluginrunner.kotlin
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import liveplugin.implementation.command.LiveCommandService
+import spp.jetbrains.monitor.skywalking.SkywalkingMonitorService
+import spp.protocol.service.LiveInstrumentService
+import spp.protocol.service.LiveViewService
 import kotlin.script.experimental.annotations.KotlinScript
 
 @KotlinScript(
@@ -29,5 +33,10 @@ abstract class LivePluginScript(
      * Instance of `com.intellij.openapi.Disposable` which is disposed just before re-running plugin.
      * Can be useful for cleanup, e.g. un-registering IDE listeners.
      */
-    open val pluginDisposable: Disposable
+    open val pluginDisposable: Disposable,
+
+    open val liveInstrumentService: LiveInstrumentService? = null,
+    open val liveViewService: LiveViewService? = null,
+    open val liveCommandService: LiveCommandService,
+    open val skywalkingMonitorService: SkywalkingMonitorService
 )

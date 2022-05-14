@@ -61,6 +61,7 @@ dependencies {
 		implementation("com.github.sourceplusplus.protocol:protocol:05b144c6ba")
 	}
 	compileOnly(files("../marker/build/libs/marker.jar"))
+	compileOnly(files("../monitor/build/libs/monitor.jar"))
 	implementation("io.vertx:vertx-core:$vertxVersion")
 
 	// Bundle kotlin compiler and stdlib with LivePlugin because they are not always included into IDEs

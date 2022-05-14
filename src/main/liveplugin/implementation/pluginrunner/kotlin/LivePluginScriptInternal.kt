@@ -5,7 +5,9 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
+import liveplugin.implementation.command.LiveCommandService
 import liveplugin.implementation.common.toFilePath
+import spp.jetbrains.monitor.skywalking.SkywalkingMonitorService
 import java.io.File
 import kotlin.script.experimental.annotations.KotlinScript
 import kotlin.script.experimental.api.*
@@ -23,7 +25,12 @@ abstract class LivePluginScriptForCompilation(
     override val project: Project,
     override val pluginPath: String,
     override val pluginDisposable: Disposable
-) : LivePluginScript(isIdeStartup, project, pluginPath, pluginDisposable)
+) : LivePluginScript(
+    isIdeStartup, project, pluginPath, pluginDisposable,
+    null, null,
+    LiveCommandService.getInstance(project),
+    SkywalkingMonitorService.getInstance(project)
+)
 
 object LivePluginScriptHighlightingConfig: LivePluginScriptConfig({ createScriptConfig(it, ::highlightingClasspath) })
 object LivePluginScriptCompilationConfig: LivePluginScriptConfig({ createScriptConfig(it, ::compilingClasspath) })

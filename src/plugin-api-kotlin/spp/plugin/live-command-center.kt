@@ -2,14 +2,14 @@
 
 package spp.plugin
 
-import liveplugin.implementation.command.SourceCommander
+import liveplugin.implementation.command.LiveCommandService
 import liveplugin.implementation.pluginrunner.kotlin.LivePluginScript
 import spp.command.LiveCommand
 
 fun LivePluginScript.registerCommand(liveCommand: LiveCommand) {
-    SourceCommander.commandService.registerLiveCommand(liveCommand)
+    LiveCommandService.getInstance(project).registerLiveCommand(liveCommand)
 
     pluginDisposable.whenDisposed {
-        SourceCommander.commandService.unregisterLiveCommand(liveCommand.name)
+        LiveCommandService.getInstance(project).unregisterLiveCommand(liveCommand.name)
     }
 }

@@ -18,7 +18,7 @@ class ViewActivityCommand : LiveCommand() {
     override val selectedIcon = "view-activity/icons/view-activity_selected.svg"
     override val unselectedIcon = "view-activity/icons/view-activity_unselected.svg"
 
-    override fun trigger(context: LiveCommandContext) {
+    override suspend fun trigger(context: LiveCommandContext) {
         val endpointId = context.guideMark?.getUserData(EndpointDetector.ENDPOINT_ID) ?: return
         val serviceId = endpointId.substringBefore("_")
         val pageType = "Activity"

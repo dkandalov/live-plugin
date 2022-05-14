@@ -14,7 +14,7 @@ class AddSpanCommand : LiveCommand() {
     override val selectedIcon = "add-span/icons/live-span_selected.svg"
     override val unselectedIcon = "add-span/icons/live-span_unselected.svg"
 
-    override fun trigger(context: LiveCommandContext) {
+    override suspend fun trigger(context: LiveCommandContext) {
         runWriteAction {
             LiveStatusManager.showSpanStatusBar(project.currentEditor!!, context.lineNumber)
         }

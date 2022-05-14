@@ -13,6 +13,7 @@ import com.intellij.openapi.util.Key
 import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.implementation.actions.RunPluginAction
 import liveplugin.implementation.actions.UnloadPluginAction
+import liveplugin.implementation.command.LiveCommandService
 import liveplugin.implementation.common.MapDataContext
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.common.toFilePath
@@ -41,15 +42,17 @@ class LivePluginProjectListener : ProjectManagerListener {
         val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
         val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)
 
-        val sppCommandsLocation = extractSppCommands()
-        RunPluginAction.runPlugins(sppCommandsLocation.toFilePath().listFiles().toLivePlugins(), dummyEvent)
-        project.putUserData(SPP_COMMANDS_LOCATION, sppCommandsLocation)
+        project.putUserData(LiveCommandService.LIVE_COMMAND_LOADER) {
+            val sppCommandsLocation = extractSppCommands()
+            RunPluginAction.runPlugins(sppCommandsLocation.toFilePath().listFiles().toLivePlugins(), dummyEvent)
+            project.putUserData(SPP_COMMANDS_LOCATION, sppCommandsLocation)
 
-        val projectPath = project.basePath?.toFilePath() ?: return
-        val pluginsPath = projectPath + livePluginsProjectDirName
-        if (!pluginsPath.exists()) return
+            val projectPath = project.basePath?.toFilePath() ?: return@putUserData
+            val pluginsPath = projectPath + livePluginsProjectDirName
+            if (!pluginsPath.exists()) return@putUserData
 
-        RunPluginAction.runPlugins(pluginsPath.listFiles().toLivePlugins(), dummyEvent)
+            RunPluginAction.runPlugins(pluginsPath.listFiles().toLivePlugins(), dummyEvent)   
+        }
     }
 
     override fun projectClosing(project: Project) {

@@ -14,7 +14,7 @@ class AddLogCommand : LiveCommand() {
     override val selectedIcon = "add-log/icons/live-log_selected.svg"
     override val unselectedIcon = "add-log/icons/live-log_unselected.svg"
 
-    override fun trigger(context: LiveCommandContext) {
+    override suspend fun trigger(context: LiveCommandContext) {
         runWriteAction {
             LiveStatusManager.showLogStatusBar(project.currentEditor!!, context.lineNumber, false)
         }

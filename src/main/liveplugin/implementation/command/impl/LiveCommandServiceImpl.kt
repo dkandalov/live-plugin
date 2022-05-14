@@ -17,10 +17,11 @@
  */
 package liveplugin.implementation.command.impl
 
+import com.intellij.openapi.project.Project
 import liveplugin.implementation.command.LiveCommandService
 import spp.command.LiveCommand
 
-class LiveCommandServiceImpl : LiveCommandService {
+class LiveCommandServiceImpl(val project: Project) : LiveCommandService {
 
     private val commands = mutableSetOf<LiveCommand>()
 
