@@ -20,11 +20,11 @@ class BootTimeCommand : LiveCommand() {
     override val selectedIcon: String = "boot-time/icons/boot-time_selected.svg"
     override val unselectedIcon: String = "boot-time/icons/boot-time_unselected.svg"
 
-    override fun trigger(context: LiveCommandContext) = runBlocking {
+    override suspend fun triggerSuspend(context: LiveCommandContext) {
         val serverTimezone = skywalkingMonitorService.getTimeInfo().result?.timezone
         if (serverTimezone == null) {
             show("Unable to determine server timezone", notificationType = NotificationType.ERROR)
-            return@runBlocking
+            return
         }
         val timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneOffset.ofHours(serverTimezone.toInt()))

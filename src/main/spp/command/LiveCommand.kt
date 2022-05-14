@@ -17,7 +17,9 @@
  */
 package spp.command
 
+import com.intellij.openapi.application.ApplicationManager
 import io.vertx.core.json.JsonObject
+import kotlinx.coroutines.runBlocking
 
 @Suppress("unused")
 abstract class LiveCommand {
@@ -28,7 +30,15 @@ abstract class LiveCommand {
     open val selectedIcon: String? = null
     open val unselectedIcon: String? = null
 
-    abstract fun trigger(context: LiveCommandContext)
+    open fun trigger(context: LiveCommandContext) {
+        ApplicationManager.getApplication().runReadAction {
+            runBlocking {
+                triggerSuspend(context)
+            }
+        }
+    }
+
+    open suspend fun triggerSuspend(context: LiveCommandContext) = Unit
 
     fun toJson(): String {
         return JsonObject().apply {
