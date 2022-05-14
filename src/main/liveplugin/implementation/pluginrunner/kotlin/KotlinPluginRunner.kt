@@ -85,7 +85,7 @@ class KotlinPluginRunner(
                 additionalClasspath
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin)
                 .onFailure { return LoadingError(it.reason.message).asFailure() }
-            classLoader.loadClass("Plugin")
+            classLoader.loadClass("Command")
         } catch (e: Throwable) {
             return LoadingError("Error while loading plugin class.", e).asFailure()
         }
@@ -105,8 +105,8 @@ class KotlinPluginRunner(
     }
 
     companion object {
-        const val kotlinScriptFile = "plugin.kts"
-        const val kotlinTestScriptFile = "plugin-test.kts"
+        const val kotlinScriptFile = "command.kts"
+        const val kotlinTestScriptFile = "command-test.kts"
         const val kotlinAddToClasspathKeyword = "// add-to-classpath "
         const val kotlinDependsOnPluginKeyword = "// depends-on-plugin "
 
