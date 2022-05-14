@@ -38,16 +38,16 @@ class LivePluginProjectListener : ProjectManagerListener {
             return
         }
 
-        val projectPath = project.basePath?.toFilePath() ?: return
-        val pluginsPath = projectPath + livePluginsProjectDirName
-        if (!pluginsPath.exists()) return
-
         val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
         val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)
 
         val sppCommandsLocation = extractSppCommands()
         RunPluginAction.runPlugins(sppCommandsLocation.toFilePath().listFiles().toLivePlugins(), dummyEvent)
         project.putUserData(SPP_COMMANDS_LOCATION, sppCommandsLocation)
+
+        val projectPath = project.basePath?.toFilePath() ?: return
+        val pluginsPath = projectPath + livePluginsProjectDirName
+        if (!pluginsPath.exists()) return
 
         RunPluginAction.runPlugins(pluginsPath.listFiles().toLivePlugins(), dummyEvent)
     }
@@ -92,6 +92,6 @@ class LivePluginProjectListener : ProjectManagerListener {
         }
         jar.close()
 
-        return File(destDir, ".spp")
+        return File(destDir, ".spp/commands")
     }
 }
