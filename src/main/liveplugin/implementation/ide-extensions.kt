@@ -68,10 +68,10 @@ class LivePluginDeletedListener : BulkFileListener {
 }
 
 class LivePluginDirectoryCompletionContributor : CreateDirectoryCompletionContributor {
-    override fun getDescription() = "Project specific live plugins"
-    override fun getVariants(directory: PsiDirectory) =
+    override fun getDescription() = "Project specific live commands"
+    override fun getVariants(directory: PsiDirectory): List<Variant> =
         if (directory.project.basePath != directory.virtualFile.path) emptyList()
-        else listOf(Variant(".spp", UnknownSourceRootType.getInstance("LivePlugin")))
+        else listOf(Variant(".spp/commands", UnknownSourceRootType.getInstance("LivePlugin")))
 }
 
 class MakePluginFilesAlwaysEditable : NonProjectFileWritingAccessExtension {
