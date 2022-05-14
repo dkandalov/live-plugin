@@ -24,7 +24,7 @@ class BootTimeCommand : LiveCommand() {
         val serverTimezone = skywalkingMonitorService.getTimeInfo().result?.timezone
         if (serverTimezone == null) {
             show("Unable to determine server timezone", notificationType = NotificationType.ERROR)
-            return
+            return@runBlocking
         }
         val timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneOffset.ofHours(serverTimezone.toInt()))
