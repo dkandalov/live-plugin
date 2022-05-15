@@ -62,7 +62,7 @@ dependencies {
 	}
 	compileOnly(files("../marker/build/libs/marker.jar"))
 	compileOnly(files("../monitor/build/libs/monitor.jar"))
-	implementation("io.vertx:vertx-core:$vertxVersion")
+    compileOnly("io.vertx:vertx-core:$vertxVersion")
 
 	// Bundle kotlin compiler and stdlib with LivePlugin because they are not always included into IDEs
 	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
@@ -91,7 +91,6 @@ sourceSets {
 	main {
 		java { srcDir "src/main" }
 		resources { srcDir "resources" }
-		resources { srcDir "plugin-examples" }
 	}
 	pluginApiGroovy {
 		groovy { srcDir "src/plugin-api-groovy" }
@@ -252,4 +251,8 @@ def "Move GDSL file into standardDsls folder"() {
 	}
 }
 
+tasks.findByName("runIde")?.enabled = false
+tasks.findByName("prepareSandbox")?.enabled = false
+tasks.findByName("buildPlugin")?.enabled = false
+tasks.findByName("validateLivePluginZip")?.enabled = false
 tasks.findByName("spotlessKotlin")?.enabled = false

@@ -44,3 +44,5 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         languageVersion = "1.6"
     }
 }
+
+tasks.findByName("spotlessKotlinCheck")?.enabled = false
