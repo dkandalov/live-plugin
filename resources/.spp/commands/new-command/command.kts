@@ -54,7 +54,7 @@ class NewCommandCommand : LiveCommand() {
             }
 
             registerCommand(${properCommandName}Command())
-        """.trimIndent()
+        """.trimIndent() + "\n"
     }
 }
 
