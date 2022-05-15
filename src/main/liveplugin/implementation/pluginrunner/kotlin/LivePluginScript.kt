@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import liveplugin.implementation.command.LiveCommandService
 import spp.jetbrains.monitor.skywalking.SkywalkingMonitorService
 import spp.protocol.service.LiveInstrumentService
+import spp.protocol.service.LiveService
 import spp.protocol.service.LiveViewService
 import kotlin.script.experimental.annotations.KotlinScript
 
@@ -35,8 +36,9 @@ abstract class LivePluginScript(
      */
     open val pluginDisposable: Disposable,
 
+    open val liveService: LiveService,
+    open val liveViewService: LiveViewService,
     open val liveInstrumentService: LiveInstrumentService? = null,
-    open val liveViewService: LiveViewService? = null,
     open val liveCommandService: LiveCommandService,
     open val skywalkingMonitorService: SkywalkingMonitorService
 )

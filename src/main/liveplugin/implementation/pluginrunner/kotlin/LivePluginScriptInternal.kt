@@ -7,6 +7,7 @@ import com.intellij.openapi.util.Computable
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.command.LiveCommandService
 import liveplugin.implementation.common.toFilePath
+import spp.jetbrains.monitor.skywalking.SkywalkingMonitor
 import spp.jetbrains.monitor.skywalking.SkywalkingMonitorService
 import java.io.File
 import kotlin.script.experimental.annotations.KotlinScript
@@ -27,7 +28,9 @@ abstract class LivePluginScriptForCompilation(
     override val pluginDisposable: Disposable
 ) : LivePluginScript(
     isIdeStartup, project, pluginPath, pluginDisposable,
-    null, null,
+    project.getUserData(SkywalkingMonitor.LIVE_SERVICE)!!,
+    project.getUserData(SkywalkingMonitor.LIVE_VIEW_SERVICE)!!,
+    project.getUserData(SkywalkingMonitor.LIVE_INSTRUMENT_SERVICE),
     LiveCommandService.getInstance(project),
     SkywalkingMonitorService.getInstance(project)
 )

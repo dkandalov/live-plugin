@@ -18,12 +18,12 @@ class NewCommandCommand : LiveCommand() {
     override val unselectedIcon = "new-command/icons/new-command_unselected.svg"
 
     override fun trigger(context: LiveCommandContext) {
-        runWriteAction {
-            if (context.args.isEmpty()) {
-                show("Missing command name", notificationType = NotificationType.ERROR)
-                return@runWriteAction
-            }
+        if (context.args.isEmpty()) {
+            show("Missing command name", notificationType = NotificationType.ERROR)
+            return
+        }
 
+        runWriteAction {
             val commandName = context.args.joinToString(" ")
             val commandDir = commandName.replace(" ", "-")
             val psiFile = PsiFileFactory.getInstance(project).createFileFromText(
