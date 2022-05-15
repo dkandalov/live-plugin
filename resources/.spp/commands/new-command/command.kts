@@ -12,7 +12,7 @@ import spp.jetbrains.sourcemarker.PluginBundle.message
 
 class NewCommandCommand : LiveCommand() {
     override val name = message("New Command")
-    override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
+    override val description = "<html><span style=\"color: ${getCommandTypeColor()}\">" +
             "Add new custom command" + "</span></html>"
     override val selectedIcon = "new-command/icons/new-command_selected.svg"
     override val unselectedIcon = "new-command/icons/new-command_unselected.svg"

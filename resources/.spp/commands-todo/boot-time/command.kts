@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
 class BootTimeCommand : LiveCommand() {
 
     override val name = "boot-time"
-    override val description = "<html><span style=\"font-size: 90%; color: ${getCommandTypeColor()}\">" +
+    override val description = "<html><span style=\"color: ${getCommandTypeColor()}\">" +
             "Gets the earliest boot time for the current service" + "</span></html>"
     override val selectedIcon: String = "boot-time/icons/boot-time_selected.svg"
     override val unselectedIcon: String = "boot-time/icons/boot-time_unselected.svg"

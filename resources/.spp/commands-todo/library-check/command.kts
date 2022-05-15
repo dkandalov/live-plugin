@@ -7,7 +7,7 @@ import spp.plugin.*
 
 class LibraryCheckCommand : LiveCommand() {
     override val name = "library-check"
-    override val description = "<html><span style=\"font-size: 90%; color: ${getCommandTypeColor()}\">" +
+    override val description = "<html><span style=\"color: ${getCommandTypeColor()}\">" +
             "Find all jar libraries used the currently active services" + "</span></html>"
     override val selectedIcon: String = "library-check/icons/library-check_selected.svg"
     override val unselectedIcon: String = "library-check/icons/library-check_unselected.svg"

@@ -11,9 +11,10 @@ import spp.jetbrains.sourcemarker.PluginBundle.message
  */
 class ViewTracesCommand : LiveCommand() {
     override val name = message("view_traces")
-    override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" + message("live_view") + " ➛ " +
-            message("traces") + " ➛ " + message("scope") + ": </span><span style=\"font-size: 80%; color: ${getCommandHighlightColor()}\">" +
-            message("method") + "</span></html>"
+    override val description = "<html><span style=\"color: ${getCommandTypeColor()}\">" +
+            message("live_view") + " ➛ " + message("traces") + " ➛ " + message("scope") +
+            ": </span><span style=\"color: ${getCommandHighlightColor()}\">" + message("method") +
+            "</span></html>"
     override val selectedIcon = "view-traces/icons/view-traces_selected.svg"
     override val unselectedIcon = "view-traces/icons/view-traces_unselected.svg"
 

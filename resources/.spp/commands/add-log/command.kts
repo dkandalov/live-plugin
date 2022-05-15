@@ -7,9 +7,9 @@ import spp.jetbrains.sourcemarker.status.LiveStatusManager
 
 class AddLogCommand : LiveCommand() {
     override val name = message("add_log")
-    override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
+    override val description = "<html><span style=\"color: ${getCommandTypeColor()}\">" +
             message("live_instrument") + " ➛ " + message("add") + " ➛ " + message("location") +
-            ": </span><span style=\"font-size: 80%; color: ${getCommandHighlightColor()}\">" + message("on_line") +
+            ": </span><span style=\"color: ${getCommandHighlightColor()}\">" + message("on_line") +
             " *lineNumber*</span></html>"
     override val selectedIcon = "add-log/icons/live-log_selected.svg"
     override val unselectedIcon = "add-log/icons/live-log_unselected.svg"

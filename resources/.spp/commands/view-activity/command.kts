@@ -11,9 +11,9 @@ import spp.jetbrains.sourcemarker.PluginBundle.message
  */
 class ViewActivityCommand : LiveCommand() {
     override val name = message("view_activity")
-    override val description = "<html><span style=\"font-size: 80%; color: ${getCommandTypeColor()}\">" +
+    override val description = "<html><span style=\"color: ${getCommandTypeColor()}\">" +
             message("live_view") + " ➛ " + message("activity") + " ➛ " + message("scope") +
-            ": </span><span style=\"font-size: 80%; color: ${getCommandHighlightColor()}\">" + message("method") +
+            ": </span><span style=\"color: ${getCommandHighlightColor()}\">" + message("method") +
             "</span></html>"
     override val selectedIcon = "view-activity/icons/view-activity_selected.svg"
     override val unselectedIcon = "view-activity/icons/view-activity_unselected.svg"
