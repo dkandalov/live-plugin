@@ -1,5 +1,4 @@
 import com.intellij.notification.NotificationType
-import kotlinx.coroutines.runBlocking
 import spp.command.LiveCommand
 import spp.command.LiveCommandContext
 import spp.jetbrains.sourcemarker.PluginUI.getCommandTypeColor
