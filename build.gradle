@@ -251,6 +251,7 @@ def "Move GDSL file into standardDsls folder"() {
 	}
 }
 
+tasks.findByName("listProductsReleases")?.enabled = false
 tasks.findByName("runIde")?.enabled = false
 tasks.findByName("prepareSandbox")?.enabled = false
 tasks.findByName("buildPlugin")?.enabled = false
