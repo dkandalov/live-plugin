@@ -17,6 +17,8 @@
  */
 package spp.command
 
+import com.intellij.psi.PsiElement
+import spp.jetbrains.marker.source.SourceFileMarker
 import spp.jetbrains.marker.source.mark.guide.GuideMark
 import spp.protocol.artifact.ArtifactQualifiedName
 import java.io.File
@@ -26,5 +28,8 @@ data class LiveCommandContext(
     val sourceFile: File,
     val lineNumber: Int,
     val artifactQualifiedName: ArtifactQualifiedName,
+    val fileMarker: SourceFileMarker,
     val guideMark: GuideMark? = null,
+    val psiElement: PsiElement,
+    val variableName: String? = null
 )

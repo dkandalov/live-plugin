@@ -18,7 +18,6 @@
 package spp.command
 
 import com.intellij.openapi.application.ApplicationManager
-import io.vertx.core.json.JsonObject
 import kotlinx.coroutines.runBlocking
 
 @Suppress("unused")
@@ -39,15 +38,4 @@ abstract class LiveCommand {
     }
 
     open suspend fun triggerSuspend(context: LiveCommandContext) = Unit
-
-    fun toJson(): String {
-        return JsonObject().apply {
-            put("name", name)
-            put("description", description)
-            put("params", params)
-            put("aliases", aliases)
-            put("selectedIcon", selectedIcon)
-            put("unselectedIcon", unselectedIcon)
-        }.toString()
-    }
 }
