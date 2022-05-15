@@ -255,5 +255,6 @@ project(":commander").tasks.findByName("listProductsReleases").enabled = false
 project(":commander").tasks.findByName("runIde").enabled = false
 project(":commander").tasks.findByName("prepareSandbox").enabled = false
 project(":commander").tasks.findByName("buildPlugin").enabled = false
+project(":commander").tasks.findByName("verifyPlugin").enabled = false
 project(":commander").tasks.findByName("validateLivePluginZip").enabled = false
 tasks.findByName("spotlessKotlin")?.enabled = false
