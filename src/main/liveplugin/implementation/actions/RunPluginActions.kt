@@ -15,10 +15,8 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.actions.RunPluginAction.Companion.runPluginsTests
 import liveplugin.implementation.common.Icons.rerunPluginIcon
 import liveplugin.implementation.common.Icons.runPluginIcon
-import liveplugin.implementation.common.Icons.testPluginIcon
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.displayError
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
@@ -41,7 +39,7 @@ import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companio
 private val pluginRunners = listOf(mainGroovyPluginRunner, mainKotlinPluginRunner)
 private val pluginTestRunners = listOf(testGroovyPluginRunner, testKotlinPluginRunner)
 
-class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", runPluginIcon), DumbAware {
+class RunPluginAction: AnAction("Run Command", "Run developer command", runPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
         runPlugins(event.livePlugins(), event)
@@ -69,23 +67,12 @@ class RunPluginAction: AnAction("Run Plugin", "Run selected plugins", runPluginI
 
         fun pluginNameInActionText(livePlugins: List<LivePlugin>): String {
             val pluginNameInActionText = when (livePlugins.size) {
-                0    -> "Plugin"
-                1    -> "'${livePlugins.first().id}' Plugin"
-                else -> "Selected Plugins"
+                0    -> "Command"
+                1    -> "'${livePlugins.first().id}' Command"
+                else -> "Selected Commands"
             }
             return pluginNameInActionText
         }
-    }
-}
-
-class RunPluginTestsAction: AnAction("Run Plugin Tests", "Run plugin integration tests", testPluginIcon), DumbAware {
-    override fun actionPerformed(event: AnActionEvent) {
-        runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
-        runPluginsTests(event.livePlugins(), event)
-    }
-
-    override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.livePlugins().canBeHandledBy(pluginTestRunners)
     }
 }
 
@@ -122,7 +109,7 @@ private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActio
     val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
         ?: return displayError(id, LoadingError(message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
 
-    runInBackground(project, "Running live-plugin '$id'") {
+    runInBackground(project, "Running live-command '$id'") {
         pluginRunner.setup(this, project)
             .flatMap { runOnEdt { pluginRunner.run(it, binding) } }
             .peekFailure { displayError(id, it, project) }
@@ -161,7 +148,7 @@ fun Binding.Companion.create(livePlugin: LivePlugin, event: AnActionEvent): Bind
 
     val disposable = object: Disposable {
         override fun dispose() {}
-        override fun toString() = "LivePlugin: $livePlugin"
+        override fun toString() = "LiveCommand: $livePlugin"
     }
     Disposer.register(ApplicationManager.getApplication(), disposable)
 

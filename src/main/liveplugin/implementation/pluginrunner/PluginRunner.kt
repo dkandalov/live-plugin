@@ -55,9 +55,12 @@ interface PluginRunner {
         }
 
         fun findPluginDescriptorsOfDependencies(lines: List<String>, keyword: String): List<Result<IdeaPluginDescriptor, String>> {
-            return lines.filter { line -> line.startsWith(keyword) }
+            val userPlugins = lines.filter { line -> line.startsWith(keyword) }
                 .map { line -> line.replace(keyword, "").trim { it <= ' ' } }
                 .map { PluginManagerCore.getPlugin(PluginId.getId(it))?.asSuccess() ?: "Failed to find dependent plugin '$it'.".asFailure() }
+            return userPlugins.toMutableList().apply {
+                add(PluginManagerCore.getPlugin(PluginId.getId("com.sourceplusplus.plugin.intellij"))!!.asSuccess())
+            }
         }
 
         fun List<IdeaPluginDescriptor>.withTransitiveDependencies(): List<IdeaPluginDescriptor> {

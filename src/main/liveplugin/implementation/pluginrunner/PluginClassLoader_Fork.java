@@ -5,6 +5,7 @@ import com.intellij.diagnostic.PluginException;
 import com.intellij.diagnostic.StartUpMeasurer;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.cl.PluginAwareClassLoader;
+import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginDescriptor;
 import com.intellij.openapi.extensions.PluginId;
@@ -29,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Fork of PluginClassLoader_Fork
@@ -233,6 +235,13 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
         if (mustBeLoadedByPlatform(name)) {
             return coreLoader.loadClass(name);
         }
+        if (mustBeLoadedByPlugin(name)) {
+            return Arrays.stream(
+                    getAllParents())
+                    .filter(it -> it instanceof PluginClassLoader)
+                    .collect(Collectors.toList()).stream().findFirst().get()
+                    .loadClass(name);
+        }
 
         String fileNameWithoutExtension = name.replace('.', '/');
         String fileName = fileNameWithoutExtension + ClasspathCache.CLASS_EXTENSION;
@@ -328,6 +337,11 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
         }
 
         return c;
+    }
+
+    private boolean mustBeLoadedByPlugin(String name) {
+        return name.startsWith("liveplugin.implementation.command.")
+                || (name.startsWith("spp.") && !name.startsWith("spp.plugin."));
     }
 
     private @NotNull ClassLoader @NotNull[] getAllParents() {

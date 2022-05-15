@@ -32,22 +32,17 @@ private tailrec fun FilePath.findParentPluginFolder(): FilePath? =
 fun FilePath.isPluginFolder(): Boolean {
     if (!isDirectory && exists()) return false
     val parentPath = parent ?: return false
-    return parentPath == livePluginsPath || parentPath.name == livePluginsProjectDirName
+    return parentPath == livePluginsPath || (parentPath.value.endsWith("/.spp/commands"))
 }
 
 object LivePluginPaths {
     val ideJarsPath = PathManager.getHomePath().toFilePath() + "lib"
 
-    val livePluginPath = PathManager.getPluginsPath().toFilePath() + "LivePlugin"
-    val livePluginLibPath = PathManager.getPluginsPath().toFilePath() + "LivePlugin/lib"
+    val livePluginPath = PathManager.getPluginsPath().toFilePath() + "interface-jetbrains"
+    val livePluginLibPath = PathManager.getPluginsPath().toFilePath() + "interface-jetbrains/lib/LivePlugin.jar"
 
     // Use scratches location because it's more standard for keeping scripts, e.g. from IDE console.
     val livePluginsCompiledPath = PathManager.getScratchPath().toFilePath() + "live-plugins-compiled"
     @JvmField val livePluginsPath = PathManager.getScratchPath().toFilePath() + "live-plugins"
-    val oldLivePluginsCompiledPath = PathManager.getPluginsPath().toFilePath() + "live-plugins-compiled"
-    val oldLivePluginsPath = PathManager.getPluginsPath().toFilePath() + "live-plugins"
-    val livePluginsProjectDirName = ".live-plugins"
-
-    const val groovyExamplesPath = "groovy/"
-    const val kotlinExamplesPath = "kotlin/"
+    val livePluginsProjectDirName = ".spp/commands"
 }

@@ -85,7 +85,7 @@ class KotlinPluginRunner(
                 additionalClasspath
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin)
                 .onFailure { return LoadingError(it.reason.message).asFailure() }
-            classLoader.loadClass("Plugin")
+            classLoader.loadClass("Command")
         } catch (e: Throwable) {
             return LoadingError("Error while loading plugin class.", e).asFailure()
         }
@@ -105,8 +105,8 @@ class KotlinPluginRunner(
     }
 
     companion object {
-        const val kotlinScriptFile = "plugin.kts"
-        const val kotlinTestScriptFile = "plugin-test.kts"
+        const val kotlinScriptFile = "command.kts"
+        const val kotlinTestScriptFile = "command-test.kts"
         const val kotlinAddToClasspathKeyword = "// add-to-classpath "
         const val kotlinDependsOnPluginKeyword = "// depends-on-plugin "
 
@@ -173,7 +173,7 @@ private class KotlinPluginCompiler {
     companion object {
         private val compilerClassLoader by lazy {
             UrlClassLoader.build()
-                .files(ideJdkClassesRoots() + livePluginKotlinCompilerLibFiles().map(File::toPath))
+                .files(ideJdkClassesRoots().toList().map(File::toPath) + livePluginKotlinCompilerLibFiles().map(File::toPath))
                 .noPreload()
                 .allowBootstrapResources()
                 .useCache()
@@ -200,8 +200,7 @@ fun findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText: List<Stri
         .filterIsInstance<Success<List<File>>>() // Ignore unresolved dependencies because they will be checked before running plugin anyway.
         .flatMap { it.value }
 
-fun livePluginLibAndSrcFiles() =
-    livePluginLibPath.listFiles().map { it.toFile() }
+fun livePluginLibAndSrcFiles(): List<File> = listOf(livePluginLibPath.toFile())
 
 private fun livePluginKotlinCompilerLibFiles() =
     (livePluginPath + "kotlin-compiler").listFiles().map { it.toFile() }
@@ -213,7 +212,7 @@ private fun IdeaPluginDescriptor.toLibFiles() =
         "compiler-plugin" !in it.name
     }.map { it.toFile() }
 
-private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath(), true)
+private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath().toFile(), true)
 
 class SrcHashCode(srcDir: FilePath, compilerOutputDir: FilePath) {
     private val hashFilePath = compilerOutputDir + hashFileName

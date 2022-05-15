@@ -5,7 +5,10 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
+import liveplugin.implementation.command.LiveCommandService
 import liveplugin.implementation.common.toFilePath
+import spp.jetbrains.monitor.skywalking.SkywalkingMonitor
+import spp.jetbrains.monitor.skywalking.SkywalkingMonitorService
 import java.io.File
 import kotlin.script.experimental.annotations.KotlinScript
 import kotlin.script.experimental.api.*
@@ -15,15 +18,22 @@ import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.updateClasspath
 
 @KotlinScript(
-    filePathPattern = ".*live-plugins.*\\.kts",
+    filePathPattern = ".*spp.*\\.kts",
     compilationConfiguration = LivePluginScriptCompilationConfig::class
 )
 abstract class LivePluginScriptForCompilation(
     override val isIdeStartup: Boolean,
-    override val project: Project?,
+    override val project: Project,
     override val pluginPath: String,
     override val pluginDisposable: Disposable
-) : LivePluginScript(isIdeStartup, project, pluginPath, pluginDisposable)
+) : LivePluginScript(
+    isIdeStartup, project, pluginPath, pluginDisposable,
+    project.getUserData(SkywalkingMonitor.LIVE_SERVICE)!!,
+    project.getUserData(SkywalkingMonitor.LIVE_VIEW_SERVICE)!!,
+    project.getUserData(SkywalkingMonitor.LIVE_INSTRUMENT_SERVICE),
+    LiveCommandService.getInstance(project),
+    SkywalkingMonitorService.getInstance(project)
+)
 
 object LivePluginScriptHighlightingConfig: LivePluginScriptConfig({ createScriptConfig(it, ::highlightingClasspath) })
 object LivePluginScriptCompilationConfig: LivePluginScriptConfig({ createScriptConfig(it, ::compilingClasspath) })
@@ -92,7 +102,7 @@ private fun compilingClasspath(scriptText: List<String>, scriptFolderPath: Strin
 class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
     override val id = "LivePluginKotlinScriptProvider"
     override fun getDefinitionClasses() = listOf(LivePluginScript::class.java.canonicalName)
-    override fun getDefinitionsClassPath() = livePluginLibPath.listFiles().map { it.toFile() }
+    override fun getDefinitionsClassPath() = listOf(livePluginLibPath.toFile())
     // + File(".../live-plugin/build/idea-sandbox/plugins/live-plugins/multiple-src-files/foo.kt") This doesn't work 😠
     override fun useDiscovery() = false
 }

@@ -6,12 +6,14 @@ buildscript {
 }
 plugins {
 	id "org.jetbrains.intellij" version "1.5.2"
-	id "org.jetbrains.kotlin.jvm" version "1.6.10"
+	id "org.jetbrains.kotlin.jvm"
 }
 apply plugin:"java"
 apply plugin:"groovy"
 apply plugin:"idea"
 apply plugin:"org.jetbrains.intellij"
+
+archivesBaseName = "LivePlugin"
 
 repositories {
 	mavenCentral()
@@ -50,7 +52,17 @@ tasks.buildSearchableOptions {
 }
 
 dependencies {
-	implementation project(":kotlin-compiler-wrapper")
+	if (findProject(":interfaces:jetbrains") != null) {
+		implementation project(":interfaces:jetbrains:commander:kotlin-compiler-wrapper")
+		implementation project(":interfaces:jetbrains:marker")
+		implementation project(":interfaces:jetbrains:monitor")
+		implementation project(":protocol")
+	} else {
+		implementation("com.github.sourceplusplus.protocol:protocol:05b144c6ba")
+	}
+	compileOnly(files("../marker/build/libs/marker.jar"))
+	compileOnly(files("../monitor/build/libs/monitor.jar"))
+	implementation("io.vertx:vertx-core:$vertxVersion")
 
 	// Bundle kotlin compiler and stdlib with LivePlugin because they are not always included into IDEs
 	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
@@ -67,7 +79,7 @@ dependencies {
 
 	testImplementation group: "junit", name: "junit", version: "4.13.1" // includes hamcrest-core
 }
-"Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
+//"Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
 'Move GDSL file into standardDsls folder'()
 
@@ -109,7 +121,7 @@ tasks.withType(JavaCompile).configureEach {
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 	sourceCompatibility = JavaVersion.VERSION_11
 	targetCompatibility = JavaVersion.VERSION_11
-	
+
 	kotlinOptions {
 		jvmTarget = "11"
 		sourceCompatibility = JavaVersion.VERSION_11
@@ -162,8 +174,6 @@ task validateLivePluginZip() { doLast {
 		"liveplugin/PluginUtil.groovy",
 		"liveplugin/Plugin_utilKt.class",
 		"liveplugin/plugin-util.kt",
-		"groovy/default-plugin.groovy",
-		"kotlin/default-plugin.kts",
 		"META-INF/plugin.xml",
 	].toSet())
 } }
@@ -217,19 +227,19 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 	}
 }
 
-def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
-	prepareSandbox.doLast {
-		new File("build/idea-sandbox/plugins/LivePlugin/lib")
-			.listFiles().toList()
-			.findAll { it.name.endsWith(".jar") && it.name != "LivePlugin.jar" }
-			.each {
-				ant.move(
-					file: "build/idea-sandbox/plugins/LivePlugin/lib/${it.name}",
-					tofile: "build/idea-sandbox/plugins/LivePlugin/kotlin-compiler/${it.name}"
-				)
-			}
-	}
-}
+//def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
+//	prepareSandbox.doLast {
+//		new File("build/idea-sandbox/plugins/interface-jetbrains/lib")
+//			.listFiles().toList()
+//			.findAll { it.name.endsWith(".jar") && it.name != "LivePlugin.jar" }
+//			.each {
+//				ant.move(
+//					file: "build/idea-sandbox/plugins/interface-jetbrains/lib/${it.name}",
+//					tofile: "build/idea-sandbox/plugins/interface-jetbrains/kotlin-compiler/${it.name}"
+//				)
+//			}
+//	}
+//}
 
 def "Move GDSL file into standardDsls folder"() {
 	prepareSandbox.doLast {
@@ -241,3 +251,5 @@ def "Move GDSL file into standardDsls folder"() {
 		)
 	}
 }
+
+tasks.findByName("spotlessKotlin")?.enabled = false
