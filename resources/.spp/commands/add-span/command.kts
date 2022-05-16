@@ -21,4 +21,6 @@ class AddSpanCommand : LiveCommand() {
     }
 }
 
-registerCommand(AddSpanCommand())
+if (liveInstrumentService != null) {
+    registerCommand(AddSpanCommand())
+}

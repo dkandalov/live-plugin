@@ -21,4 +21,6 @@ class AddMeterCommand : LiveCommand() {
     }
 }
 
-registerCommand(AddMeterCommand())
+if (liveInstrumentService != null) {
+    registerCommand(AddMeterCommand())
+}

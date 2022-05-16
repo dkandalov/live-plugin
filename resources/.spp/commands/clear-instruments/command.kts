@@ -28,4 +28,6 @@ class ClearInstrumentsCommand : LiveCommand() {
     }
 }
 
-registerCommand(ClearInstrumentsCommand())
+if (liveInstrumentService != null) {
+    registerCommand(ClearInstrumentsCommand())
+}
