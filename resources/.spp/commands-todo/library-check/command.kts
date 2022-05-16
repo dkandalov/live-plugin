@@ -22,7 +22,7 @@ class LibraryCheckCommand : LiveCommand() {
             return
         }
         val activeServiceInstances = activeServices.flatMap { skywalkingMonitorService.getServiceInstances(it.id) }
-        if (activeServices.isEmpty()) {
+        if (activeServiceInstances.isEmpty()) {
             show("Unable to find active service instances", notificationType = ERROR)
             return
         }
