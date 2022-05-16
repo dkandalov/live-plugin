@@ -14,15 +14,11 @@ class ClearInstrumentsCommand : LiveCommand() {
     override val unselectedIcon: String = "clear-instruments/icons/clear-instruments_unselected.svg"
 
     override suspend fun triggerSuspend(context: LiveCommandContext) {
-        if (liveInstrumentService == null) {
-            show("Live instrument service unavailable", notificationType = ERROR)
-        } else {
-            liveInstrumentService.clearAllLiveInstruments(null).onComplete {
-                if (it.succeeded()) {
-                    show("Successfully cleared active live instrument(s)")
-                } else {
-                    show(it.cause().message, notificationType = ERROR)
-                }
+        liveInstrumentService!!.clearAllLiveInstruments(null).onComplete {
+            if (it.succeeded()) {
+                show("Successfully cleared active live instrument(s)")
+            } else {
+                show(it.cause().message, notificationType = ERROR)
             }
         }
     }
