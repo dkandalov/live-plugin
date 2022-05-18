@@ -14,6 +14,7 @@ class NewCommandCommand : LiveCommand() {
     override val name = message("New Command")
     override val description = "<html><span style=\"color: ${getCommandTypeColor()}\">" +
             "Add new custom live command" + "</span></html>"
+    override val params: List<String> = listOf("Command Name")
     override val selectedIcon = "new-command/icons/new-command_selected.svg"
     override val unselectedIcon = "new-command/icons/new-command_unselected.svg"
 
