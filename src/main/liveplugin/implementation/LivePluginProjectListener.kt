@@ -14,6 +14,7 @@ import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.implementation.actions.RunPluginAction
 import liveplugin.implementation.actions.UnloadPluginAction
 import liveplugin.implementation.command.LiveCommandService
+import liveplugin.implementation.command.impl.LiveCommandServiceImpl
 import liveplugin.implementation.common.MapDataContext
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.common.toFilePath
@@ -42,6 +43,7 @@ class LivePluginProjectListener : ProjectManagerListener {
         val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
         val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)
 
+        project.putUserData(LiveCommandService.KEY, LiveCommandServiceImpl(project))
         project.putUserData(LiveCommandService.LIVE_COMMAND_LOADER) {
             val sppCommandsLocation = extractSppCommands()
             RunPluginAction.runPlugins(sppCommandsLocation.toFilePath().listFiles().toLivePlugins(), dummyEvent)
@@ -51,7 +53,7 @@ class LivePluginProjectListener : ProjectManagerListener {
             val pluginsPath = projectPath + livePluginsProjectDirName
             if (!pluginsPath.exists()) return@putUserData
 
-            RunPluginAction.runPlugins(pluginsPath.listFiles().toLivePlugins(), dummyEvent)   
+            RunPluginAction.runPlugins(pluginsPath.listFiles().toLivePlugins(), dummyEvent)
         }
     }
 

@@ -19,7 +19,6 @@ package liveplugin.implementation.command
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import liveplugin.implementation.command.impl.LiveCommandServiceImpl
 import spp.command.LiveCommand
 
 interface LiveCommandService {
@@ -28,12 +27,11 @@ interface LiveCommandService {
     fun getRegisteredLiveCommands(): List<LiveCommand>
 
     companion object {
-        private val cache = mutableMapOf<Project, LiveCommandService>()
-        fun getInstance(project: Project): LiveCommandService {
-            return cache.getOrPut(project) { LiveCommandServiceImpl(project) }
-        }
-
         val KEY = Key.create<LiveCommandService>("SPP_LIVE_COMMAND_SERVICE")
         val LIVE_COMMAND_LOADER = Key.create<() -> Unit>("SPP_LIVE_COMMAND_LOADER")
+
+        fun getInstance(project: Project): LiveCommandService {
+            return project.getUserData(KEY)!!
+        }
     }
 }
