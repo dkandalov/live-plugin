@@ -39,7 +39,7 @@ import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companio
 private val pluginRunners = listOf(mainGroovyPluginRunner, mainKotlinPluginRunner)
 private val pluginTestRunners = listOf(testGroovyPluginRunner, testKotlinPluginRunner)
 
-class RunPluginAction: AnAction("Run Command", "Run developer command", runPluginIcon), DumbAware {
+class RunPluginAction: AnAction("Load Command", "Load live command", runPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
         runPlugins(event.livePlugins(), event)
@@ -50,7 +50,7 @@ class RunPluginAction: AnAction("Run Command", "Run developer command", runPlugi
         event.presentation.isEnabled = livePlugins.canBeHandledBy(pluginRunners)
         if (event.presentation.isEnabled) {
             val hasPluginsToUnload = livePlugins.any { it.canBeUnloaded() }
-            val actionName = if (hasPluginsToUnload) "Rerun" else "Run"
+            val actionName = if (hasPluginsToUnload) "Re-load" else "Load"
             event.presentation.setText("$actionName ${pluginNameInActionText(livePlugins)}", false)
             event.presentation.icon = if (hasPluginsToUnload) rerunPluginIcon else runPluginIcon
         }

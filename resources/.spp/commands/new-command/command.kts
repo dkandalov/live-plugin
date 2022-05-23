@@ -13,7 +13,8 @@ import spp.jetbrains.sourcemarker.PluginBundle.message
 class NewCommandCommand : LiveCommand() {
     override val name = message("New Command")
     override val description = "<html><span style=\"color: ${getCommandTypeColor()}\">" +
-            "Add new custom command" + "</span></html>"
+            "Add new custom live command" + "</span></html>"
+    override val params: List<String> = listOf("Command Name")
     override val selectedIcon = "new-command/icons/new-command_selected.svg"
     override val unselectedIcon = "new-command/icons/new-command_unselected.svg"
 
@@ -46,7 +47,7 @@ class NewCommandCommand : LiveCommand() {
             class ${properCommandName}Command : LiveCommand() {
                 override val name = "$commandName"
                 override val description = "<html><span style=\"color: ${'$'}{getCommandTypeColor()}\">" +
-                        "My custom command" + "</span></html>"
+                        "My custom live command" + "</span></html>"
 
                 override fun trigger(context: LiveCommandContext) {
                     show("Hello world")
@@ -54,7 +55,7 @@ class NewCommandCommand : LiveCommand() {
             }
 
             registerCommand(${properCommandName}Command())
-        """.trimIndent()
+        """.trimIndent() + "\n"
     }
 }
 

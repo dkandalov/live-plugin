@@ -21,4 +21,6 @@ class AddLogCommand : LiveCommand() {
     }
 }
 
-registerCommand(AddLogCommand())
+if (liveInstrumentService != null) {
+    registerCommand(AddLogCommand())
+}

@@ -21,4 +21,6 @@ class AddBreakpointCommand : LiveCommand() {
     }
 }
 
-registerCommand(AddBreakpointCommand())
+if (liveInstrumentService != null) {
+    registerCommand(AddBreakpointCommand())
+}

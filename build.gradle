@@ -60,7 +60,7 @@ dependencies {
 	} else {
 		compileOnly project(":marker")
 		compileOnly project(":monitor")
-		compileOnly("com.github.sourceplusplus.protocol:protocol:05b144c6ba")
+		compileOnly("com.github.sourceplusplus.protocol:protocol:$projectVersion")
 	}
     compileOnly("io.vertx:vertx-core:$vertxVersion")
 
@@ -251,10 +251,10 @@ def "Move GDSL file into standardDsls folder"() {
 	}
 }
 
-project(":commander").tasks.findByName("listProductsReleases").enabled = false
-project(":commander").tasks.findByName("runIde").enabled = false
-project(":commander").tasks.findByName("prepareSandbox").enabled = false
-project(":commander").tasks.findByName("buildPlugin").enabled = false
-project(":commander").tasks.findByName("verifyPlugin").enabled = false
-project(":commander").tasks.findByName("validateLivePluginZip").enabled = false
-tasks.findByName("spotlessKotlin")?.enabled = false
+project.tasks.findByName("listProductsReleases").enabled = false
+project.tasks.findByName("runIde").enabled = false
+project.tasks.findByName("prepareSandbox").enabled = false
+project.tasks.findByName("buildPlugin").enabled = false
+project.tasks.findByName("verifyPlugin").enabled = false
+project.tasks.findByName("validateLivePluginZip").enabled = false
+project.tasks.findByName("spotlessKotlin").enabled = false

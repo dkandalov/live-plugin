@@ -31,11 +31,6 @@ class WatchVariableCommand : LiveCommand() {
     override val unselectedIcon: String = "watch-variable/icons/watch-variable_unselected.svg"
 
     override suspend fun triggerSuspend(context: LiveCommandContext) {
-        val instrumentService = liveInstrumentService
-        if (instrumentService == null) {
-            show("Unable to find active services", notificationType = ERROR)
-            return
-        }
         val variableName = context.variableName
         if (variableName == null) {
             show("Unable to determine variable name", notificationType = ERROR)
@@ -43,7 +38,7 @@ class WatchVariableCommand : LiveCommand() {
         }
         val selfId = liveService.getSelf().await().developer.id
 
-        instrumentService.addLiveInstrument(LiveBreakpoint(
+        liveInstrumentService!!.addLiveInstrument(LiveBreakpoint(
                 LiveSourceLocation(
                         ArtifactNameUtils.getQualifiedClassName(context.artifactQualifiedName.identifier)!!,
                         context.lineNumber + 1
@@ -98,4 +93,6 @@ class WatchVariableCommand : LiveCommand() {
     }
 }
 
-registerCommand(WatchVariableCommand())
+if (liveInstrumentService != null) {
+    registerCommand(WatchVariableCommand())
+}
