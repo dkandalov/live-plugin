@@ -256,5 +256,6 @@ project.tasks.findByName("runIde").enabled = false
 project.tasks.findByName("prepareSandbox").enabled = false
 project.tasks.findByName("buildPlugin").enabled = false
 project.tasks.findByName("verifyPlugin").enabled = false
+project.tasks.findByName("publishPlugin").enabled = false
 project.tasks.findByName("validateLivePluginZip").enabled = false
 project.tasks.findByName("spotlessKotlin").enabled = false
