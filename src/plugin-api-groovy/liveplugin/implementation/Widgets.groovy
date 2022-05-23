@@ -14,31 +14,31 @@ import static com.intellij.openapi.wm.StatusBarWidget.*
 
 class Widgets {
 	static registerWidget(String widgetId, Disposable disposable,
-                          LoadingOrder loadingOrder = LoadingOrder.FIRST, WidgetPresentation presentation) {
-        def widgetFactory = new StatusBarWidgetFactory() {
-            @Override String getId() { widgetId }
-            @Override String getDisplayName() { widgetId }
-            @Override boolean isAvailable(Project project) { true }
-            @Override boolean canBeEnabledOn(StatusBar statusBar) { true }
-            @Override StatusBarWidget createWidget(Project project) {
-                new StatusBarWidget() {
-                    @Override String ID() { widgetId }
-                    @Override WidgetPresentation getPresentation() { presentation }
-                    @Override void install(StatusBar statusBar) {}
-                    @Override void dispose() {}
-                }
-            }
-            @Override void disposeWidget(StatusBarWidget widget) {}
-        }
-        StatusBarWidgetFactory.EP_NAME.point.registerExtension(widgetFactory, loadingOrder, disposable)
+	                      LoadingOrder loadingOrder = LoadingOrder.FIRST, WidgetPresentation presentation) {
+		def widgetFactory = new StatusBarWidgetFactory() {
+			@Override String getId() { widgetId }
+			@Override String getDisplayName() { widgetId }
+			@Override boolean isAvailable(Project project) { true }
+			@Override boolean canBeEnabledOn(StatusBar statusBar) { true }
+			@Override StatusBarWidget createWidget(Project project) {
+				new StatusBarWidget() {
+					@Override String ID() { widgetId }
+					@Override WidgetPresentation getPresentation() { presentation }
+					@Override void install(StatusBar statusBar) {}
+					@Override void dispose() {}
+				}
+			}
+			@Override void disposeWidget(StatusBarWidget widget) {}
+		}
+		StatusBarWidgetFactory.EP_NAME.point.registerExtension(widgetFactory, loadingOrder, disposable)
 	}
 
-    @Deprecated // Use registerWidget() without project
+	@Deprecated // Use registerWidget() without project
 	static registerWidget(String widgetId, Project project, Disposable disposable = project,
 	                      String anchor = "before Position", WidgetPresentation presentation) {
 		// TODO the line below is broken because on IDE start initial frame will not be mapped to project
 		// (at least not at the point when project manager listener callback is invoked)
-		def frame = WindowManager.instance.allProjectFrames.find{ it.project == project }
+		def frame = WindowManager.instance.allProjectFrames.find { it.project == project }
 		if (frame == null) return
 
 		def widget = new StatusBarWidget() {
@@ -60,7 +60,7 @@ class Widgets {
 	}
 
 	@Nullable static StatusBarWidget findWidget(String widgetId, Project project) {
-		def frame = WindowManager.instance.allProjectFrames.find{ it.project == project }
+		def frame = WindowManager.instance.allProjectFrames.find { it.project == project }
 		if (frame == null) return null
 		frame.statusBar.getWidget(widgetId)
 	}

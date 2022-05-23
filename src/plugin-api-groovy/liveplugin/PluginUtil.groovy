@@ -60,6 +60,7 @@ import static com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import static com.intellij.openapi.wm.ToolWindowAnchor.RIGHT
 import static liveplugin.implementation.Misc.registerDisposable
 import static liveplugin.implementation.Misc.unregisterDisposable
+
 /**
  * This class contains a bunch of utility methods on top of IntelliJ API.
  * Some of them are very simple and were added only for reference (to keep them in one place).
@@ -231,7 +232,7 @@ class PluginUtil {
 	 */
 	@CanCallFromAnyThread
 	@NotNull static AnActionEvent anActionEvent(DataContext dataContext = Actions.dataContextFromFocus(),
-	                              Presentation templatePresentation = new Presentation()) {
+	                                            Presentation templatePresentation = new Presentation()) {
 		Actions.anActionEvent(dataContext, templatePresentation)
 	}
 
@@ -292,6 +293,7 @@ class PluginUtil {
 			Intentions.registerIntention(disposable, intention)
 		}
 	}
+
 	@CanCallFromAnyThread
 	static IntentionAction registerIntention(String intentionId, String text = intentionId,
 	                                         String familyName = text, Closure callback) {
@@ -532,7 +534,7 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
-    @Deprecated // Use registerWidget() without project
+	@Deprecated // Use registerWidget() without project
 	static registerWidget(String widgetId, Project project, Disposable disposable = project,
 	                      String anchor = "before Position", WidgetPresentation presentation) {
 		invokeOnEDT {
@@ -734,8 +736,8 @@ class PluginUtil {
 
 	static List<VcsRoot> vcsRootsIn(@NotNull Project project) {
 		ProjectRootManager.getInstance(project).contentSourceRoots
-				.collect{ ProjectLevelVcsManager.getInstance(project).getVcsRootObjectFor(it) }
-				.findAll{ it.path != null }.unique()
+			.collect { ProjectLevelVcsManager.getInstance(project).getVcsRootObjectFor(it) }
+			.findAll { it.path != null }.unique()
 	}
 
 
@@ -844,7 +846,7 @@ class PluginUtil {
 	}
 
 	static replace(Document document, String regexp, String... replacement) {
-		def replacementAsClosures = replacement.collect{ String s ->
+		def replacementAsClosures = replacement.collect { String s ->
 			return { matchingString -> s }
 		}
 		replace(document, regexp, replacementAsClosures)
@@ -933,8 +935,8 @@ class PluginUtil {
 	                      PerformInBackgroundOption backgroundOption = ALWAYS_BACKGROUND,
 	                      Closure task, Closure whenCancelled = {}, Closure whenDone = {}) {
 		Threads.doInBackground(
-				taskDescription, canBeCancelledByUser, backgroundOption,
-				task as Function, whenCancelled as Function, whenDone as Function
+			taskDescription, canBeCancelledByUser, backgroundOption,
+			task as Function, whenCancelled as Function, whenDone as Function
 		)
 	}
 
@@ -961,7 +963,7 @@ class PluginUtil {
 	 * @param isPreselected closure which takes instance of {@link AnAction} and returns true is the action should be preselected.
 	 */
 	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null,
-	                     JBPopupFactory.ActionSelectionAid selectionAidMethod = SPEEDSEARCH, Closure isPreselected = {false}) {
+	                     JBPopupFactory.ActionSelectionAid selectionAidMethod = SPEEDSEARCH, Closure isPreselected = { false }) {
 		Popups.showPopupMenu(menuDescription, popupTitle, dataContext, selectionAidMethod, isPreselected)
 	}
 
@@ -984,7 +986,7 @@ class PluginUtil {
 	}
 
 	static showPopupSearch(String prompt, Project project, String initialText = "",
-	                         Closure<Collection> itemProvider, Closure onItemChosen) {
+	                       Closure<Collection> itemProvider, Closure onItemChosen) {
 		Popups.showPopupSearch(prompt, project, initialText, itemProvider, onItemChosen)
 	}
 
@@ -1102,4 +1104,5 @@ class PluginUtil {
 // Annotations to make it clear if method need to be invoked from a particular thread.
 // See also https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/general_threading_rules.html
 @interface CanCallFromAnyThread {}
+
 @interface CanCallWithReadLockOrFromEDT {}

@@ -45,7 +45,7 @@ class GlobalVar<T> implements Disposable {
 	}
 
 	T set(@Nullable T value) {
-		set{ value }
+		set { value }
 	}
 
 	T set(Closure closure) {
@@ -57,11 +57,11 @@ class GlobalVar<T> implements Disposable {
 	}
 
 	@Nullable static <T> T getGlobalVar(String varName, @Nullable initialValue = null, boolean isPersisted = false) {
-		changeGlobalVar(varName, initialValue, isPersisted, {it})
+		changeGlobalVar(varName, initialValue, isPersisted, { it })
 	}
 
 	@Nullable static <T> T setGlobalVar(String varName, @Nullable varValue, boolean isPersisted = false) {
-		changeGlobalVar(varName, null, isPersisted){ varValue }
+		changeGlobalVar(varName, null, isPersisted) { varValue }
 	}
 
 	@Nullable static <T> T changeGlobalVar(String varName, @Nullable initialValue = null, boolean isPersisted = false, Closure<T> callback) {

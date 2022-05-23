@@ -74,9 +74,9 @@ class Actions {
 	}
 
 	static AnActionListener registerActionListener(Disposable disposable, AnActionListener actionListener) {
-        ApplicationManager.getApplication()
-                .getMessageBus().connect(disposable)
-                .subscribe(AnActionListener.TOPIC, actionListener)
+		ApplicationManager.getApplication()
+			.getMessageBus().connect(disposable)
+			.subscribe(AnActionListener.TOPIC, actionListener)
 		actionListener
 	}
 
@@ -84,10 +84,10 @@ class Actions {
 		// there are no "Run" actions corresponding to "Run configurations", so the only way seems to be the API below
 		try {
 
-			def settings = RunManager.getInstance(project).allSettings.find{ it.name.contains(configurationName) }
+			def settings = RunManager.getInstance(project).allSettings.find { it.name.contains(configurationName) }
 			if (settings == null) {
 				return PluginUtil.show("There is no run configuration: <b>${configurationName}</b>.<br/>" +
-						"Please create one or change source code to use some other configuration.")
+					"Please create one or change source code to use some other configuration.")
 			}
 			def builder = ExecutionEnvironmentBuilder.create(DefaultRunExecutor.runExecutorInstance, settings)
 			def environment = builder.contentToReuse(null).dataContext(null).activeTarget().build()
@@ -124,7 +124,7 @@ class Actions {
 	 * https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/actionSystem/ex/CheckboxAction.java#L60
 	 */
 	static AnActionEvent anActionEvent(DataContext dataContext = dataContextFromFocus(),
-	                     Presentation templatePresentation = new Presentation()) {
+	                                   Presentation templatePresentation = new Presentation()) {
 		def actionManager = ActionManager.instance
 		new AnActionEvent(null, dataContext, IdeUtil.livePluginActionPlace, templatePresentation, actionManager, 0)
 	}

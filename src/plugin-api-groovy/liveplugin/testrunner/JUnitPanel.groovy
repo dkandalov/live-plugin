@@ -58,12 +58,13 @@ class JUnitPanel implements TestReporter {
 		}
 
 		def consoleView = SMTestRunnerConnectionUtil.createAndAttachConsole(
-				"Plugin integration tests", processHandler, consoleProperties
+			"Plugin integration tests", processHandler, consoleProperties
 		) as SMTRunnerConsoleView
 
 		def wrapper = new NonOpaquePanel(new BorderLayout(0, 0))
 		def descriptor = new RunContentDescriptor(consoleView.console, processHandler, wrapper, "Plugin integration tests") {
 			@Override Icon getIcon() { INTEGRATION_TEST_TAB_ICON }
+
 			@Override boolean isContentReuseProhibited() { false }
 		}
 		def toolbar = createActionToolbar(rerunCallback, descriptor, project, wrapper)
@@ -106,9 +107,10 @@ class JUnitPanel implements TestReporter {
 	}
 
 
-	@SuppressWarnings("GroovyUnusedDeclaration") // used through @Delegate annotation
+	// used through @Delegate annotation
+	@SuppressWarnings("GroovyUnusedDeclaration")
 	private static class TestProxyUpdater {
-		private final testProxyByClassName = new HashMap<String, SMTestProxy>().withDefault{ String className ->
+		private final testProxyByClassName = new HashMap<String, SMTestProxy>().withDefault { String className ->
 			int i = className.lastIndexOf(".")
 			if (i == -1 || i == className.size() - 1) {
 				new SMTestProxy(className, true, null)
@@ -118,12 +120,12 @@ class JUnitPanel implements TestReporter {
 				new SMTestProxy(simpleClassName, true, classPackage)
 			}
 		}
-		private final testProxyByMethodName = new HashMap<String, SMTestProxy>().withDefault{ methodName ->
+		private final testProxyByMethodName = new HashMap<String, SMTestProxy>().withDefault { methodName ->
 			new SMTestProxy(methodName, false, null)
 		}
 		private final testStartTimeByMethodName = new HashMap<String, Long>()
 
-        private final TestResultsViewer resultsViewer
+		private final TestResultsViewer resultsViewer
 		private final SMTRunnerEventsListener eventsListener
 		private final SMTestProxy.SMRootTestProxy rootTestProxy
 		private boolean isStarted = false
@@ -183,7 +185,7 @@ class JUnitPanel implements TestReporter {
 
 		void finishedClass(String className, long time = System.currentTimeMillis()) {
 			def testProxy = testProxyByClassName.get(className)
-			def hasChildWith = { state -> testProxy.children.any{ it.magnitude == state } }
+			def hasChildWith = { state -> testProxy.children.any { it.magnitude == state } }
 
 			if (hasChildWith(FAILED_INDEX.value)) testProxy.setTestFailed("", "", false)
 			else if (hasChildWith(ERROR_INDEX.value)) testProxy.setTestFailed("", "", true)
@@ -193,7 +195,7 @@ class JUnitPanel implements TestReporter {
 		}
 
 		void finished() {
-			def hasChildWith = { state -> rootTestProxy.children.any{ it.magnitude == state } }
+			def hasChildWith = { state -> rootTestProxy.children.any { it.magnitude == state } }
 
 			if (hasChildWith(FAILED_INDEX.value)) rootTestProxy.setTestFailed("", "", false)
 			else if (hasChildWith(ERROR_INDEX.value)) rootTestProxy.setTestFailed("", "", true)
@@ -212,13 +214,13 @@ class JUnitPanel implements TestReporter {
 		}
 
 		@NotNull protected GlobalSearchScope initScope() {
-			JUnitConfiguration.Data persistentData = ((JUnitConfiguration)this.getConfiguration()).getPersistentData()
+			JUnitConfiguration.Data persistentData = ((JUnitConfiguration) this.getConfiguration()).getPersistentData()
 			String testObject = persistentData.TEST_OBJECT
-			if("category" != testObject && "pattern" != testObject && "package" != testObject) {
+			if ("category" != testObject && "pattern" != testObject && "package" != testObject) {
 				return super.initScope()
 			} else {
 				SourceScope sourceScope = persistentData.getScope().getSourceScope(this.getConfiguration())
-				return sourceScope != null?sourceScope.getGlobalSearchScope():GlobalSearchScope.allScope(this.getProject())
+				return sourceScope != null ? sourceScope.getGlobalSearchScope() : GlobalSearchScope.allScope(this.getProject())
 			}
 		}
 

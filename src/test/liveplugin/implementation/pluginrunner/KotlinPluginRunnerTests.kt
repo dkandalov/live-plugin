@@ -7,58 +7,58 @@ import liveplugin.implementation.common.Result
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
 import org.junit.After
 import org.junit.Test
 import java.io.File
 
 class KotlinPluginRunnerTests {
-    private val pluginRunner = KotlinPluginRunner("plugin.kts", emptyMap())
-    private val rootFolder = FileUtil.createTempDirectory("", "")
-    private val libPackageFolder = File(rootFolder, "lib").also { it.mkdir() }
+    private val pluginRunner = KotlinPluginRunner(kotlinScriptFile, emptyMap())
+    private val pluginDir = FileUtil.createTempDirectory("", "")
 
     @After fun teardown() {
-        rootFolder.deleteRecursively()
+        pluginDir.deleteRecursively()
     }
 
     @Test fun `minimal kotlin script`() {
-        val scriptCode = "println(123)"
-        createFile("plugin.kts", scriptCode, rootFolder)
-        runPlugin().expectSuccess()
+        pluginDir.createFile("plugin.kts", text = "println(123)")
+        runPluginIn(pluginDir).expectSuccess()
     }
 
-    @Test fun `kotlin script which uses IJ API`() {
-        val scriptCode = "println(com.intellij.openapi.project.Project::class.java)"
-        createFile("plugin.kts", scriptCode, rootFolder)
-
-        runPlugin().expectSuccess()
+    @Test fun `kotlin script which uses IntelliJ API`() {
+        pluginDir.createFile("plugin.kts", text = "println(com.intellij.openapi.project.Project::class.java)")
+        runPluginIn(pluginDir).expectSuccess()
     }
 
     @Test fun `kotlin script which uses function from another file`() {
-        val scriptCode = """
-			import lib.libFunction
-			println(libFunction())
-		"""
-        val libScriptCode = """
-			package lib
-			fun libFunction(): Long = 42
-		"""
-        createFile("plugin.kts", scriptCode, rootFolder)
-        createFile("lib.kt", libScriptCode, libPackageFolder)
+        pluginDir.createFile(
+            "plugin.kts",
+            text = """
+                import lib.libFunction
+                println(libFunction())
+            """
+        )
+        pluginDir.createDir("lib").createFile(
+            "lib.kt",
+            text = """
+                package lib
+                fun libFunction(): Long = 42
+            """
+        )
 
-        runPlugin().expectSuccess()
+        runPluginIn(pluginDir).expectSuccess()
     }
 
     @Test fun `kotlin script with errors`() {
-        val scriptCode = "abc"
-        createFile("plugin.kts", scriptCode, rootFolder)
+        pluginDir.createFile("plugin.kts", text = "abc")
 
-        val reason = runPlugin().expectFailure() as LoadingError
+        val reason = runPluginIn(pluginDir).expectFailure() as LoadingError
 
         assert(reason.throwable.toString().contains("unresolved reference: abc"))
     }
 
-    private fun runPlugin(): Result<Unit, AnError> {
-        val plugin = pluginRunner.setup(LivePlugin(rootFolder.toFilePath()), null).expectSuccess()
+    private fun runPluginIn(dir: File): Result<Unit, AnError> {
+        val plugin = pluginRunner.setup(LivePlugin(dir.toFilePath()), null).expectSuccess()
         return pluginRunner.run(plugin, Binding(null, false, "", Disposer.newDisposable()))
     }
 }

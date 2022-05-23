@@ -1,4 +1,5 @@
 package liveplugin.implementation
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -22,9 +23,9 @@ class Editors {
 		((FileEditorManagerEx) FileEditorManagerEx.getInstance(project)).with {
 			if (selectedTextEditor == null) throw new IllegalStateException("There are no open editors in " + project.name)
 			def editors = selectedEditors
-					.findAll{it instanceof TextEditor}
-					.collect{(Editor) it.editor}
-					.findAll{it != selectedTextEditor}
+				.findAll { it instanceof TextEditor }
+				.collect { (Editor) it.editor }
+				.findAll { it != selectedTextEditor }
 			if (editors.size() == 0) throw new IllegalStateException("There is only one open editor in " + project.name)
 			if (editors.size() > 1) throw new IllegalStateException("There are more than two open editors in " + project.name)
 			editors.first()
@@ -47,7 +48,7 @@ class Editors {
 
 	static registerEditorListener(Project project, Disposable disposable, FileEditorManagerListener listener) {
 		project.messageBus
-				.connect(disposable)
-				.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, listener)
+			.connect(disposable)
+			.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, listener)
 	}
 }

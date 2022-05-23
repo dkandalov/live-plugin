@@ -22,7 +22,7 @@ class IntegrationTestsUIRunner {
 			def testReporter = new TestReporterOnEdt(jUnitPanel)
 			def now = { System.currentTimeMillis() }
 			testReporter.startedAllTests(now())
-			testClasses.collect{ runTestsInClass(it, context, testReporter, now) }
+			testClasses.collect { runTestsInClass(it, context, testReporter, now) }
 			testReporter.finishedAllTests(now())
 		}
 	}

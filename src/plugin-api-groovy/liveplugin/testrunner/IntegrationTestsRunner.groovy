@@ -11,7 +11,7 @@ import org.junit.Test
 import java.lang.reflect.Method
 
 class IntegrationTestsRunner implements AppLifecycleListener {
-    // by default use text runner because it will work in all IntelliJ IDEs
+	// by default use text runner because it will work in all IntelliJ IDEs
 	private static runTests = IntegrationTestsTextRunner.&runIntegrationTests
 
 	@Override void appFrameCreated(@NotNull List<String> commandLineArgs) {
@@ -26,7 +26,7 @@ class IntegrationTestsRunner implements AppLifecycleListener {
 	 * All tests are executed on the same non-EDT thread.
 	 *
 	 * @param testClasses classes with tests. Note that this is not standard JUnit runner and it only supports
-	 *                    {@link Test} and {@link Ignore} annotations.
+	 * {@link Test} and {@link Ignore} annotations.
 	 *                    (New class instance is created for each test method.)
 	 * @param project current project
 	 * @param pluginPath (optional)
@@ -37,10 +37,10 @@ class IntegrationTestsRunner implements AppLifecycleListener {
 	}
 
 	static runTestsInClass(Class testClass, Map context, TestReporter testReport, Closure<Long> now) {
-		def isTest = { Method method -> method.annotations.find{ it instanceof Test} }
-		def isIgnored = { Method method -> method.annotations.find{ it instanceof Ignore} }
+		def isTest = { Method method -> method.annotations.find { it instanceof Test } }
+		def isIgnored = { Method method -> method.annotations.find { it instanceof Ignore } }
 
-		testClass.declaredMethods.findAll{ isTest(it) }.each{ method ->
+		testClass.declaredMethods.findAll { isTest(it) }.each { method ->
 			if (isIgnored(method)) {
 				ignoreTest(testClass.name, method.name, testReport, now())
 			} else {
@@ -84,12 +84,12 @@ class IntegrationTestsRunner implements AppLifecycleListener {
 	}
 
 	private static Object createInstanceOf(Class testClass, Map context) {
-		def hasConstructorWithContext = testClass.constructors.any{
+		def hasConstructorWithContext = testClass.constructors.any {
 			it.parameterTypes.size() == 1 && it.parameterTypes.first() == Map
 		}
 		if (hasConstructorWithContext) return testClass.newInstance(context)
 
-		def hasDefaultConstructor = testClass.constructors.any{ it.parameterTypes.size() == 0 }
+		def hasDefaultConstructor = testClass.constructors.any { it.parameterTypes.size() == 0 }
 		if (hasDefaultConstructor) return testClass.getDeclaredConstructor().newInstance()
 
 		throw new IllegalStateException("Failed to create test class ${testClass}")

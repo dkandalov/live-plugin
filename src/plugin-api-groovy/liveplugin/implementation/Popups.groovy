@@ -25,7 +25,7 @@ import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid
 class Popups {
 
 	static showPopupMenu(Map menuDescription, String popupTitle = "", @Nullable DataContext dataContext = null,
-	                     ActionSelectionAid selectionAidMethod = SPEEDSEARCH, Closure isPreselected = {false}) {
+	                     ActionSelectionAid selectionAidMethod = SPEEDSEARCH, Closure isPreselected = { false }) {
 		def contextComponent = dataContext?.getData(PlatformDataKeys.CONTEXT_COMPONENT.name) as Component
 		if (contextComponent == null) {
 			// Create context so that IJ doesn't throw an exception.
@@ -34,19 +34,19 @@ class Popups {
 		}
 
 		def popup = JBPopupFactory.instance.createActionGroupPopup(
-				popupTitle,
-				createNestedActionGroup(menuDescription),
-				dataContext,
-				selectionAidMethod == NUMBERING || selectionAidMethod == ALPHA_NUMBERING,
-				false,
-				selectionAidMethod == MNEMONICS,
-				null,
-				-1,
-				new Condition<AnAction>() {
-					@Override boolean value(AnAction anAction) {
-						isPreselected(anAction)
-					}
+			popupTitle,
+			createNestedActionGroup(menuDescription),
+			dataContext,
+			selectionAidMethod == NUMBERING || selectionAidMethod == ALPHA_NUMBERING,
+			false,
+			selectionAidMethod == MNEMONICS,
+			null,
+			-1,
+			new Condition<AnAction>() {
+				@Override boolean value(AnAction anAction) {
+					isPreselected(anAction)
 				}
+			}
 		)
 
 		if (contextComponent != null) {
@@ -84,9 +84,9 @@ class Popups {
 				pattern = "*" + pattern.chars.toList().join("*")
 			}
 			def matcher = new NameUtil.MatcherBuilder(pattern)
-					.withCaseSensitivity(NameUtil.MatchingCaseSensitivity.NONE)
-					.build()
-			items.findAll{ matcher.matches(it.toString()) }
+				.withCaseSensitivity(NameUtil.MatchingCaseSensitivity.NONE)
+				.build()
+			items.findAll { matcher.matches(it.toString()) }
 		}
 		showPopupSearch(prompt, project, initialText, itemProvider, onItemChosen)
 	}
@@ -102,13 +102,16 @@ class Popups {
 					}
 				}
 			}
+
 			@Override String getElementName(Object element) {
 				element.toString()
 			}
+
 			@Override String[] getNames() {
 				// never called (can only be called from ChooseByNameBase)
 				[].toArray()
 			}
+
 			@Override protected Object[] getElementsByName(String name, String pattern) {
 				// never called (can only be called from ChooseByNameBase)
 				[].toArray()
@@ -122,6 +125,7 @@ class Popups {
 				items.each { consumer.process(it) }
 				!items.empty
 			}
+
 			@Override List<String> filterNames(@NotNull ChooseByNameViewModel base, @NotNull String[] names, @NotNull String pattern) {
 				// never called (can only be called from ChooseByNameBase)
 				names.toList()

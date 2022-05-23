@@ -1,4 +1,5 @@
 package liveplugin.implementation
+
 import com.intellij.concurrency.JobScheduler
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -78,8 +79,8 @@ class Misc {
 		def isDisposed = new AtomicBoolean(false)
 		def disposable = new Disposable() {
 			@Override void dispose() {
-                def wasUpdated = isDisposed.compareAndSet(false, true)
-                if (wasUpdated) closure()
+				def wasUpdated = isDisposed.compareAndSet(false, true)
+				if (wasUpdated) closure()
 			}
 		}
 		parents.each { parent ->
@@ -129,5 +130,4 @@ class Misc {
 	@NotNull static ScheduledExecutorService scheduler() {
 		JobScheduler.scheduler
 	}
-
 }

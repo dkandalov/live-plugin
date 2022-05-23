@@ -12,7 +12,7 @@ class SimpleHttpServer {
 	private HttpServer server
 
 	static SimpleHttpServer start(Range<Integer> portRange = (8100..9000), String webRootPath,
-	                              Closure handler = {null}, Closure errorListener = {}) {
+	                              Closure handler = { null }, Closure errorListener = {}) {
 		for (int port in portRange) {
 			try {
 				return new SimpleHttpServer(port, webRootPath, handler, errorListener).start()
@@ -22,7 +22,7 @@ class SimpleHttpServer {
 		null
 	}
 
-	SimpleHttpServer(int port = 8100, String webRootPath, Closure handler = {null}, Closure errorListener = {}) {
+	SimpleHttpServer(int port = 8100, String webRootPath, Closure handler = { null }, Closure errorListener = {}) {
 		this.port = port
 		this.handler = new MyHandler(webRootPath, handler, errorListener)
 	}

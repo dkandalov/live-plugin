@@ -11,14 +11,14 @@ class MiscTest {
 
 		assert accessField(o, "i") == 123
 		assert accessField(o, "i", Integer) == 123
-		assertException{ accessField(o, "i", String) }
-		assertException{ accessField(o, "j") == null }
+		assertException { accessField(o, "i", String) }
+		assertException { accessField(o, "j") == null }
 
 		assert accessField(o, ["i"]) == 123
 		assert accessField(o, ["a", "b", "i"]) == 123
 		assert accessField(o, ["a", "b", "i"], Integer) == 123
-		assertException{ accessField(o, ["a", "b", "i"], String) }
-		assertException{ accessField(o, ["a", "b"]) }
+		assertException { accessField(o, ["a", "b", "i"], String) }
+		assertException { accessField(o, ["a", "b"]) }
 	}
 
 	private static assertException(Closure closure) {
