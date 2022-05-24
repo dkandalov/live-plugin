@@ -51,7 +51,7 @@ inline fun <T> withWriteLockOnEdt(crossinline f: () -> T): T =
  * See also [com.intellij.openapi.progress.ProgressManager]
  */
 fun <T> runBackgroundTask(
-    taskTitle: String = "",
+    taskTitle: String = "Background task", // Empty title is logged as a warning by IJ
     canBeCancelledInUI: Boolean = true,
     task: (ProgressIndicator) -> T,
 ): CompletableFuture<T> {
