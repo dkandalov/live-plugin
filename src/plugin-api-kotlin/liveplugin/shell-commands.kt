@@ -2,7 +2,10 @@
 
 package liveplugin
 
+import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType.CONSOLE
 import java.io.File
+import java.util.concurrent.CompletableFuture
 
 fun runShellScript(script: String): CommandResult {
     val tempFile = File.createTempFile("LivePlugin-shell-script-", "").also {
@@ -16,12 +19,15 @@ fun runShellScript(script: String): CommandResult {
     }
 }
 
-fun runShellCommand(command: String, vararg arguments: String): CommandResult {
-    val process = ProcessBuilder(command, *arguments).start()
-    val stdout = process.inputStream.bufferedReader().readText()
-    val stderr = process.errorStream.bufferedReader().readText()
+fun runShellCommand(vararg command: String): CommandResult {
+    val process = GeneralCommandLine(command.toList())
+        .withWorkDirectory(System.getProperty("user.home"))
+        .withParentEnvironmentType(CONSOLE)
+        .createProcess()
+    val stdout = CompletableFuture.supplyAsync { process.inputStream.bufferedReader().readText() }
+    val stderr = CompletableFuture.supplyAsync { process.errorStream.bufferedReader().readText() }
     val exitCode = process.waitFor()
-    return CommandResult(exitCode, stdout, stderr)
+    return CommandResult(exitCode, stdout.get(), stderr.get())
 }
 
 data class CommandResult(
