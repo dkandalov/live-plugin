@@ -8,10 +8,10 @@ plugins {
 	id "org.jetbrains.intellij" version "1.5.2"
 	id "org.jetbrains.kotlin.jvm" version "1.6.10"
 }
-apply plugin:"java"
-apply plugin:"groovy"
-apply plugin:"idea"
-apply plugin:"org.jetbrains.intellij"
+apply plugin: "java"
+apply plugin: "groovy"
+apply plugin: "idea"
+apply plugin: "org.jetbrains.intellij"
 
 repositories {
 	mavenCentral()
@@ -29,12 +29,12 @@ intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
 	// and https://www.jetbrains.com/intellij-repository/snapshots
 	version = System.getenv().getOrDefault("IJ_VERSION",
-        "221.5080.210" // Compatibility with IJ 2022.1 (groovy 3, kotlin 1.6, changes in PluginClassLoader https://github.com/dkandalov/live-plugin/issues/123)
-        // "LATEST-EAP-SNAPSHOT"
+		"221.5080.210" // Compatibility with IJ 2022.1 (groovy 3, kotlin 1.6, changes in PluginClassLoader https://github.com/dkandalov/live-plugin/issues/123)
+		// "LATEST-EAP-SNAPSHOT"
 	)
 	pluginName = "LivePlugin"
 	downloadSources = true
-    // Disable patching plugin.xml because "until" version is too restrictive (it's better to keep it open-ended).
+	// Disable patching plugin.xml because "until" version is too restrictive (it's better to keep it open-ended).
 	updateSinceUntilBuild = false
 	plugins = [
 		"java",
@@ -109,7 +109,7 @@ tasks.withType(JavaCompile).configureEach {
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 	sourceCompatibility = JavaVersion.VERSION_11
 	targetCompatibility = JavaVersion.VERSION_11
-	
+
 	kotlinOptions {
 		jvmTarget = "11"
 		sourceCompatibility = JavaVersion.VERSION_11
@@ -128,45 +128,47 @@ jar {
 	from sourceSets.pluginApiGroovy.output, sourceSets.pluginApiKotlin.output
 }
 
-task validateLivePluginZip() { doLast {
-	def pluginZip = zipTree("build/distributions/LivePlugin.zip")
-	def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*[/\\\\]LivePlugin.zip.*?[/\\\\]", "").replace("\\","/") }
+task validateLivePluginZip() {
+	doLast {
+		def pluginZip = zipTree("build/distributions/LivePlugin.zip")
+		def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*[/\\\\]LivePlugin.zip.*?[/\\\\]", "").replace("\\", "/") }
 
-	def kotlinCompilerAndItsTransitiveDependencies = [
-		"LivePlugin/kotlin-compiler/annotations-13.0.jar",
-		"LivePlugin/kotlin-compiler/jna-5.6.0.jar",
-		"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper-0.8.jar",
-		"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/kotlin-reflect-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-common-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-embeddable-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/kotlin-stdlib-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.6.10.jar",
-		"LivePlugin/kotlin-compiler/trove4j-1.0.20181211.jar"
-	]
-	def expectedLivePluginJars = [
-		"LivePlugin/lib/LivePlugin.jar",
-		"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
-	]
-	expectToBeEqual(pluginZipFiles.toSorted(), (expectedLivePluginJars + kotlinCompilerAndItsTransitiveDependencies).toSorted())
+		def kotlinCompilerAndItsTransitiveDependencies = [
+			"LivePlugin/kotlin-compiler/annotations-13.0.jar",
+			"LivePlugin/kotlin-compiler/jna-5.6.0.jar",
+			"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper-0.8.jar",
+			"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-reflect-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-common-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-embeddable-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-stdlib-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/trove4j-1.0.20181211.jar"
+		]
+		def expectedLivePluginJars = [
+			"LivePlugin/lib/LivePlugin.jar",
+			"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
+		]
+		expectToBeEqual(pluginZipFiles.toSorted(), (expectedLivePluginJars + kotlinCompilerAndItsTransitiveDependencies).toSorted())
 
-	def livePluginJar = zipTree(pluginZip.files.find { it.name == "LivePlugin.jar" })
-	def livePluginJarFiles = livePluginJar.files.collect{ it.path.replaceFirst(".*[/\\\\]LivePlugin.jar.*?[/\\\\]", "").replace("\\","/") }.toSet()
-	expectToContain(livePluginJarFiles, [
-		"liveplugin/implementation/LivePlugin.class",
-		"liveplugin/PluginUtil.class",
-		"liveplugin/PluginUtil.groovy",
-		"liveplugin/Plugin_utilKt.class",
-		"liveplugin/plugin-util.kt",
-		"groovy/default-plugin.groovy",
-		"kotlin/default-plugin.kts",
-		"META-INF/plugin.xml",
-	].toSet())
-} }
+		def livePluginJar = zipTree(pluginZip.files.find { it.name == "LivePlugin.jar" })
+		def livePluginJarFiles = livePluginJar.files.collect { it.path.replaceFirst(".*[/\\\\]LivePlugin.jar.*?[/\\\\]", "").replace("\\", "/") }.toSet()
+		expectToContain(livePluginJarFiles, [
+			"liveplugin/implementation/LivePlugin.class",
+			"liveplugin/PluginUtil.class",
+			"liveplugin/PluginUtil.groovy",
+			"liveplugin/Plugin_utilKt.class",
+			"liveplugin/plugin-util.kt",
+			"groovy/default-plugin.groovy",
+			"kotlin/default-plugin.kts",
+			"META-INF/plugin.xml",
+		].toSet())
+	}
+}
 buildPlugin.finalizedBy(validateLivePluginZip)
 
 static expectToContain(Set actual, Set expected) {
@@ -188,23 +190,6 @@ static expectToBeEqual(Collection actual, Collection expected) {
 		)
 	}
 }
-
-task installLivePlugin() { doLast {
-	def version = new File("resources/META-INF/plugin.xml").readLines()
-			.find { it.contains("<version>") }
-			.replaceFirst(".*<version>", "")
-			.replaceFirst("</version>.*", "")
-	def localMavenPath = repositories.mavenLocal().url.path + "/liveplugin/live-plugin/"
-	def toFile = "${localMavenPath}/${version}/live-plugin-${version}.jar"
-
-	ant.copy(
-		file: "LivePlugin.jar",
-		toFile: toFile
-	)
-
-	println("Installed to local maven liveplugin version " + version)
-	println("Path: ${toFile}")
-} }
 
 def "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"() {
 	compileJava.doLast {
