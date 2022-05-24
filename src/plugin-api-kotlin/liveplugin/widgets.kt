@@ -45,7 +45,7 @@ fun registerWidget(
     anchor: String = "before Position",
     presentation: WidgetPresentation
 ) {
-    // TODO the line below is broken because on IDE start initial frame will not be mapped to project
+    // The line below is broken because on IDE start initial frame will not be mapped to project
     // (at least not at the point when project manager listener callback is invoked)
     val frame = WindowManager.getInstance().allProjectFrames.find { it.project == project } ?: return
 
