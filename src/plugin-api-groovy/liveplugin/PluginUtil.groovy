@@ -6,7 +6,7 @@ import com.intellij.execution.filters.InputFilter
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.BrowserUtil
-import com.intellij.internal.psiView.PsiViewerDialog
+//import com.intellij.internal.psiView.PsiViewerDialog
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
@@ -570,12 +570,12 @@ class PluginUtil {
 		}
 	}
 
-	@CanCallFromAnyThread
-	static showPsiDialog(@NotNull Project project, @Nullable Editor editor = null) {
-		invokeOnEDT {
-			new PsiViewerDialog(project, editor).show()
-		}
-	}
+//	@CanCallFromAnyThread
+//	static showPsiDialog(@NotNull Project project, @Nullable Editor editor = null) {
+//		invokeOnEDT {
+//			new PsiViewerDialog(project, editor).show()
+//		}
+//	}
 
 	/**
 	 * This method exists for reference only.
