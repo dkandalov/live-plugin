@@ -60,7 +60,7 @@ dependencies {
 	} else {
 		compileOnly project(":marker")
 		compileOnly project(":monitor")
-		compileOnly("com.github.sourceplusplus.protocol:protocol:$projectVersion")
+		compileOnly("plus.sourceplus:protocol:$projectVersion")
 	}
     compileOnly("io.vertx:vertx-core:$vertxVersion")
 
