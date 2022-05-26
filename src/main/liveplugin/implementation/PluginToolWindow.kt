@@ -5,6 +5,7 @@ import com.intellij.ide.DefaultTreeExpander
 import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.impl.PopupMenuPreloader
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileSystemTree
@@ -76,7 +77,8 @@ private class PluginToolWindow(project: Project) {
             it.add(ScrollPaneFactory.createScrollPane(fileSystemTree.tree))
             it.toolbar = createToolBar()
         }
-        return ContentFactory.SERVICE.getInstance().createContent(panel, "", false)
+        return ApplicationManager.getApplication().getService(ContentFactory::class.java)
+            .createContent(panel, "", false)
     }
 
     private fun createToolBar(): JComponent {

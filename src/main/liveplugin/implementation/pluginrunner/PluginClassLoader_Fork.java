@@ -629,7 +629,6 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
         }
     }
 
-    @Override
     protected ProtectionDomain getProtectionDomain() {
         return PROTECTION_DOMAIN;
     }
