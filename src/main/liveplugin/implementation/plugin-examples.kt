@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
+import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.createFile
 import java.io.IOException
 
@@ -81,4 +82,12 @@ fun readSampleScriptFile(filePath: String): String =
 private fun splitIntoPathAndFileName(filePath: String): Pair<String, String> {
     val index = filePath.lastIndexOf("/")
     return Pair(filePath.substring(0, index), filePath.substring(index + 1))
+}
+
+fun installLivepluginTutorialExamples() {
+    IdeUtil.runLaterOnEdt {
+        listOf(GroovyExamples.helloWorld, GroovyExamples.ideActions, GroovyExamples.modifyDocument, GroovyExamples.popupMenu).forEach {
+            it.installPlugin()
+        }
+    }
 }

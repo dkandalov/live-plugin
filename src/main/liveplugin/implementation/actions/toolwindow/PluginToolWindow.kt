@@ -1,4 +1,4 @@
-package liveplugin.implementation
+package liveplugin.implementation.actions.toolwindow
 
 import com.intellij.ide.BrowserUtil
 import com.intellij.ide.DefaultTreeExpander
@@ -43,9 +43,7 @@ import liveplugin.implementation.actions.addplugin.git.SharePluginAsGistDelegate
 import liveplugin.implementation.actions.settings.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.implementation.actions.settings.RunPluginsOnIDEStartAction
 import liveplugin.implementation.actions.settings.RunProjectSpecificPluginsAction
-import liveplugin.implementation.actions.toolwindow.NewElementPopupAction
 import liveplugin.implementation.actions.toolwindow.NewElementPopupAction.Companion.livePluginNewElementPopup
-import liveplugin.implementation.actions.toolwindow.RenameFileAction
 import liveplugin.implementation.common.Icons.addPluginIcon
 import liveplugin.implementation.common.Icons.collapseAllIcon
 import liveplugin.implementation.common.Icons.helpIcon
@@ -55,6 +53,7 @@ import liveplugin.implementation.common.Icons.sharePluginIcon
 import liveplugin.implementation.common.IdeUtil.groovyFileType
 import liveplugin.implementation.common.IdeUtil.livePluginActionPlace
 import liveplugin.implementation.common.toFilePath
+import liveplugin.implementation.isPluginFolder
 import org.jetbrains.annotations.NonNls
 import java.awt.GridLayout
 import java.awt.event.MouseListener

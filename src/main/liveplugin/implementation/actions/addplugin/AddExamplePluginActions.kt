@@ -76,11 +76,3 @@ private class PerformAllGroupActions(
         runLaterOnEdt { action.actionPerformed(event) }
     }
 }
-
-fun installLivepluginTutorialExamples() {
-    runLaterOnEdt {
-        listOf(GroovyExamples.helloWorld, GroovyExamples.ideActions, GroovyExamples.modifyDocument, GroovyExamples.popupMenu).forEach {
-            it.installPlugin()
-        }
-    }
-}
