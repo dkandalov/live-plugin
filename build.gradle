@@ -34,15 +34,15 @@ intellij {
 	)
 	pluginName = "LivePlugin"
 	downloadSources = true
-	// Disable patching plugin.xml because "until" version is too restrictive (it's better to keep it open-ended).
-	updateSinceUntilBuild = false
+	updateSinceUntilBuild = false // Disable patching plugin.xml because "until" version is too restrictive (it's better to keep it open-ended).
 	plugins = [
 		"java",
 		"Groovy",
 		"Kotlin",
 		"git4idea",
 		"github",
-		"junit"
+		"junit",
+//		"com.intellij.dev"
 	]
 }
 tasks.buildSearchableOptions {

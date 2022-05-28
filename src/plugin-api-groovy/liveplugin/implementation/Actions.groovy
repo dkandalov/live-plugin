@@ -16,8 +16,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.wm.IdeFocusManager
 import liveplugin.PluginUtil
 import liveplugin.implementation.common.IdeUtil
-import liveplugin.implementation.actions.RunPluginAction
-import liveplugin.implementation.actions.UnloadPluginAction
+import liveplugin.implementation.pluginrunner.PluginRunner
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 
@@ -103,15 +102,15 @@ class Actions {
 	}
 
 	static runLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		RunPluginAction.runPlugins([LivePlugin.livePluginsById()[pluginId]], dummyEvent(project))
+		PluginRunner.runPlugins([LivePlugin.livePluginsById()[pluginId]], dummyEvent(project))
 	}
 
 	static unloadLivePlugin(@NotNull String pluginId) {
-		UnloadPluginAction.unloadPlugins([LivePlugin.livePluginsById()[pluginId]])
+		PluginRunner.unloadPlugins([LivePlugin.livePluginsById()[pluginId]])
 	}
 
 	static testLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		RunPluginAction.runPluginsTests([LivePlugin.livePluginsById()[pluginId]], dummyEvent(project))
+		PluginRunner.runPluginsTests([LivePlugin.livePluginsById()[pluginId]], dummyEvent(project))
 	}
 
 	private static AnActionEvent dummyEvent(Project project) {

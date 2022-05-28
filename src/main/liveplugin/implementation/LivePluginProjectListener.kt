@@ -12,8 +12,8 @@ import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.implementation.common.MapDataContext
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.common.toFilePath
-import liveplugin.implementation.actions.RunPluginAction
-import liveplugin.implementation.actions.UnloadPluginAction
+import liveplugin.implementation.pluginrunner.PluginRunner.Companion.runPlugins
+import liveplugin.implementation.pluginrunner.PluginRunner.Companion.unloadPlugins
 
 class LivePluginProjectListener : ProjectManagerListener {
     override fun projectOpened(project: Project) {
@@ -32,7 +32,7 @@ class LivePluginProjectListener : ProjectManagerListener {
         val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
         val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)
 
-        RunPluginAction.runPlugins(pluginsPath.listFiles().toLivePlugins(), dummyEvent)
+        runPlugins(pluginsPath.listFiles().toLivePlugins(), dummyEvent)
     }
 
     override fun projectClosing(project: Project) {
@@ -40,6 +40,6 @@ class LivePluginProjectListener : ProjectManagerListener {
         val pluginsPath = projectPath + livePluginsProjectDirName
         if (!pluginsPath.exists()) return
 
-        UnloadPluginAction.unloadPlugins(pluginsPath.listFiles().toLivePlugins())
+        unloadPlugins(pluginsPath.listFiles().toLivePlugins())
     }
 }

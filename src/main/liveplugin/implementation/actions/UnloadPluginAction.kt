@@ -8,6 +8,7 @@ import liveplugin.implementation.actions.RunPluginAction.Companion.pluginNameInA
 import liveplugin.implementation.common.Icons.unloadPluginIcon
 import liveplugin.implementation.livePlugins
 import liveplugin.implementation.pluginrunner.Binding
+import liveplugin.implementation.pluginrunner.PluginRunner.Companion.unloadPlugins
 
 class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", unloadPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
@@ -19,12 +20,6 @@ class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", u
         event.presentation.isEnabled = livePlugins.isNotEmpty()
         if (event.presentation.isEnabled) {
             event.presentation.setText("Unload ${pluginNameInActionText(livePlugins)}", false)
-        }
-    }
-
-    companion object {
-        @JvmStatic fun unloadPlugins(livePlugins: Collection<LivePlugin>) {
-            livePlugins.forEach { Binding.lookup(it)?.dispose() }
         }
     }
 }

@@ -22,12 +22,12 @@ import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.LivePluginPaths.oldLivePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.oldLivePluginsPath
-import liveplugin.implementation.actions.RunPluginAction.Companion.runPlugins
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
 import liveplugin.implementation.common.IdeUtil.logger
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.livePluginNotificationGroup
+import liveplugin.implementation.pluginrunner.PluginRunner.Companion.runPlugins
 import java.util.concurrent.CompletableFuture
 
 class LivePluginAppListener : AppLifecycleListener {

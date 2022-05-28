@@ -4,18 +4,25 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.plugins.PluginManagerCore.CORE_ID
-import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.exists
 import com.intellij.util.lang.ClassPath
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.common.Result
-import liveplugin.implementation.common.asFailure
-import liveplugin.implementation.common.asSuccess
+import liveplugin.implementation.common.*
 import liveplugin.implementation.pluginrunner.AnError.LoadingError
+import liveplugin.implementation.pluginrunner.AnError.RunningError
+import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.mainGroovyPluginRunner
+import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.testGroovyPluginRunner
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
+import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.testKotlinPluginRunner
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
@@ -29,6 +36,20 @@ interface PluginRunner {
     fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, AnError>
 
     fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError>
+
+    companion object {
+        @JvmStatic fun runPlugins(livePlugins: Collection<LivePlugin>, event: AnActionEvent) {
+            livePlugins.forEach { it.runWith(pluginRunners, event) }
+        }
+
+        @JvmStatic fun runPluginsTests(livePlugins: Collection<LivePlugin>, event: AnActionEvent) {
+            livePlugins.forEach { it.runWith(pluginTestRunners, event) }
+        }
+
+        @JvmStatic fun unloadPlugins(livePlugins: Collection<LivePlugin>) {
+            livePlugins.forEach { Binding.lookup(it)?.dispose() }
+        }
+    }
 
     object ClasspathAddition {
         @Suppress("UnstableApiUsage")
@@ -117,14 +138,8 @@ interface PluginRunner {
     }
 }
 
-class Binding(
-    val project: Project?,
-    val isIdeStartup: Boolean,
-    val pluginPath: String,
-    val pluginDisposable: Disposable
-) {
-    companion object
-}
+val pluginRunners = listOf(mainGroovyPluginRunner, mainKotlinPluginRunner)
+val pluginTestRunners = listOf(testGroovyPluginRunner, testKotlinPluginRunner)
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
@@ -139,3 +154,39 @@ fun List<LivePlugin>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean 
             livePlugin.path.allFiles().any { it.name == runner.scriptName }
         }
     }
+
+fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
+    val project = event.project
+    val binding = Binding.create(this, event)
+    val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
+        ?: return displayError(id, LoadingError(message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
+
+    runInBackground(project, "Running live-plugin '$id'") {
+        pluginRunner.setup(this, project)
+            .flatMap { IdeUtil.runOnEdt { pluginRunner.run(it, binding) } }
+            .peekFailure { displayError(id, it, project) }
+    }
+}
+
+private fun runInBackground(project: Project?, taskDescription: String, function: () -> Any) {
+    if (project == null) {
+        // Can't use ProgressManager here because it will show with modal dialogs on IDE startup when there is no project
+        ApplicationManager.getApplication().executeOnPooledThread {
+            function()
+        }
+    } else {
+        ProgressManager.getInstance().run(object: Task.Backgroundable(project, taskDescription, false, ALWAYS_BACKGROUND) {
+            override fun run(indicator: ProgressIndicator) {
+                function()
+            }
+        })
+    }
+}
+
+fun displayError(pluginId: String, error: AnError, project: Project?) {
+    val (title, message) = when (error) {
+        is LoadingError         -> Pair("Loading error: $pluginId", error.message + if (error.throwable != null) "\n" + IdeUtil.unscrambleThrowable(error.throwable) else "")
+        is RunningError -> Pair("Running error: $pluginId", IdeUtil.unscrambleThrowable(error.throwable))
+    }
+    IdeUtil.displayError(title, message, project)
+}
