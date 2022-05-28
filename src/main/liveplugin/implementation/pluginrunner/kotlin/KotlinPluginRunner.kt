@@ -12,7 +12,7 @@ import liveplugin.implementation.common.*
 import liveplugin.implementation.common.IdeUtil.unscrambleThrowable
 import liveplugin.implementation.common.Result.Success
 import liveplugin.implementation.pluginrunner.*
-import liveplugin.implementation.pluginrunner.PluginError.LoadingError
+import liveplugin.implementation.pluginrunner.PluginError.SetupError
 import liveplugin.implementation.pluginrunner.PluginError.RunningError
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
@@ -53,16 +53,16 @@ class KotlinPluginRunner(
 
     override fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, PluginError> {
         val mainScript = plugin.path.find(scriptName)
-            ?: return LoadingError(message = "Startup script $scriptName was not found.").asFailure()
+            ?: return SetupError(message = "Startup script $scriptName was not found.").asFailure()
 
         val pluginDescriptorsOfDependencies = findPluginDescriptorsOfDependencies(mainScript.readLines(), kotlinDependsOnPluginKeyword)
-            .map { it.onFailure { (message) -> return LoadingError(message).asFailure() } }
-            .onEach { if (!it.isEnabled) return LoadingError("Dependent plugin '${it.pluginId}' is disabled").asFailure() }
+            .map { it.onFailure { (message) -> return SetupError(message).asFailure() } }
+            .onEach { if (!it.isEnabled) return SetupError("Dependent plugin '${it.pluginId}' is disabled").asFailure() }
             .withTransitiveDependencies()
 
         val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value) + Pair("PROJECT_PATH", project?.basePath ?: "PROJECT_PATH")
         val additionalClasspath = findClasspathAdditions(mainScript.readLines(), kotlinAddToClasspathKeyword, environment)
-            .flatMap { it.onFailure { (path) -> return LoadingError("Couldn't find dependency '$path.'").asFailure() } }
+            .flatMap { it.onFailure { (path) -> return SetupError("Couldn't find dependency '$path.'").asFailure() } }
 
         // Add plugin path hashcode in case there are plugins with the same id in different locations.
         val compilerOutput = livePluginsCompiledPath + "${plugin.id}-${plugin.path.value.hashCode()}"
@@ -73,7 +73,7 @@ class KotlinPluginRunner(
 
             KotlinPluginCompiler()
                 .compile(plugin.path.value, pluginDescriptorsOfDependencies, additionalClasspath, compilerOutput.toFile())
-                .onFailure { (reason) -> return LoadingError(reason).asFailure() }
+                .onFailure { (reason) -> return SetupError(reason).asFailure() }
 
             srcHashCode.update()
         }
@@ -84,10 +84,10 @@ class KotlinPluginRunner(
                 livePluginLibAndSrcFiles() +
                 additionalClasspath
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin)
-                .onFailure { return LoadingError(it.reason.message).asFailure() }
+                .onFailure { return SetupError(it.reason.message).asFailure() }
             classLoader.loadClass("Plugin")
         } catch (e: Throwable) {
-            return LoadingError("Error while loading plugin class.", e).asFailure()
+            return SetupError("Error while loading plugin class.", e).asFailure()
         }
         return ExecutableKotlinPlugin(pluginClass).asSuccess()
     }

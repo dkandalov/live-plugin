@@ -5,7 +5,7 @@ import com.intellij.openapi.util.io.FileUtil
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.Result
 import liveplugin.implementation.common.toFilePath
-import liveplugin.implementation.pluginrunner.PluginError.LoadingError
+import liveplugin.implementation.pluginrunner.PluginError.SetupError
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
 import org.junit.After
@@ -52,7 +52,7 @@ class KotlinPluginRunnerTests {
     @Test fun `kotlin script with errors`() {
         pluginDir.createFile("plugin.kts", text = "abc")
 
-        val reason = runPluginIn(pluginDir).expectFailure() as LoadingError
+        val reason = runPluginIn(pluginDir).expectFailure() as SetupError
 
         assert(reason.throwable.toString().contains("unresolved reference: abc"))
     }

@@ -17,7 +17,7 @@ import com.intellij.util.lang.ClassPath
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.*
-import liveplugin.implementation.pluginrunner.PluginError.LoadingError
+import liveplugin.implementation.pluginrunner.PluginError.SetupError
 import liveplugin.implementation.pluginrunner.PluginError.RunningError
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.mainGroovyPluginRunner
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.testGroovyPluginRunner
@@ -62,9 +62,9 @@ interface PluginRunner {
             additionalClasspath: List<File>,
             pluginDescriptors: List<IdeaPluginDescriptor>,
             plugin: LivePlugin
-        ): Result<ClassLoader, LoadingError> {
+        ): Result<ClassLoader, SetupError> {
             val additionalPaths = additionalClasspath.map { file -> file.toPath() }.onEach { path ->
-                if (!path.exists()) return LoadingError("Didn't find plugin dependency '${path.toFile().absolutePath}'.").asFailure()
+                if (!path.exists()) return SetupError("Didn't find plugin dependency '${path.toFile().absolutePath}'.").asFailure()
             }
             val parentClassLoaders = pluginDescriptors.mapNotNull { it.pluginClassLoader } + PluginRunner::class.java.classLoader
 
@@ -151,7 +151,7 @@ val pluginTestRunners = listOf(testGroovyPluginRunner, testKotlinPluginRunner)
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
 sealed class PluginError {
-    data class LoadingError(val message: String = "", val throwable: Throwable? = null) : PluginError()
+    data class SetupError(val message: String = "", val throwable: Throwable? = null) : PluginError()
     data class RunningError(val throwable: Throwable) : PluginError()
 }
 
@@ -159,7 +159,7 @@ private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActio
     val project = event.project
     val binding = Binding.create(this, event)
     val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
-        ?: return displayError(id, LoadingError(message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
+        ?: return displayError(id, SetupError(message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}"), project)
 
     runInBackground(project, "Running live-plugin '$id'") {
         pluginRunner.setup(this, project)
@@ -185,7 +185,7 @@ private fun runInBackground(project: Project?, taskDescription: String, function
 
 fun displayError(pluginId: String, error: PluginError, project: Project?) {
     val (title, message) = when (error) {
-        is LoadingError         -> Pair("Loading error: $pluginId", error.message + if (error.throwable != null) "\n" + IdeUtil.unscrambleThrowable(error.throwable) else "")
+        is SetupError   -> Pair("Loading error: $pluginId", error.message + if (error.throwable != null) "\n" + IdeUtil.unscrambleThrowable(error.throwable) else "")
         is RunningError -> Pair("Running error: $pluginId", IdeUtil.unscrambleThrowable(error.throwable))
     }
     IdeUtil.displayError(title, message, project)
