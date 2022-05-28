@@ -8,7 +8,7 @@ import com.intellij.openapi.util.Disposer
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.toFilePath
-import liveplugin.implementation.pluginrunner.AnError.RunningError
+import liveplugin.implementation.pluginrunner.PluginError.RunningError
 
 class Binding(
     val project: Project?,

@@ -17,8 +17,8 @@ import com.intellij.util.lang.ClassPath
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.*
-import liveplugin.implementation.pluginrunner.AnError.LoadingError
-import liveplugin.implementation.pluginrunner.AnError.RunningError
+import liveplugin.implementation.pluginrunner.PluginError.LoadingError
+import liveplugin.implementation.pluginrunner.PluginError.RunningError
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.mainGroovyPluginRunner
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.testGroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
@@ -31,9 +31,9 @@ import java.util.*
 interface PluginRunner {
     val scriptName: String
 
-    fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, AnError>
+    fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, PluginError>
 
-    fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, AnError>
+    fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, PluginError>
 
     companion object {
         @JvmStatic fun runPlugins(livePlugins: Collection<LivePlugin>, event: AnActionEvent) {
@@ -150,9 +150,9 @@ val pluginTestRunners = listOf(testGroovyPluginRunner, testKotlinPluginRunner)
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
-sealed class AnError {
-    data class LoadingError(val message: String = "", val throwable: Throwable? = null) : AnError()
-    data class RunningError(val throwable: Throwable) : AnError()
+sealed class PluginError {
+    data class LoadingError(val message: String = "", val throwable: Throwable? = null) : PluginError()
+    data class RunningError(val throwable: Throwable) : PluginError()
 }
 
 private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
@@ -183,7 +183,7 @@ private fun runInBackground(project: Project?, taskDescription: String, function
     }
 }
 
-fun displayError(pluginId: String, error: AnError, project: Project?) {
+fun displayError(pluginId: String, error: PluginError, project: Project?) {
     val (title, message) = when (error) {
         is LoadingError         -> Pair("Loading error: $pluginId", error.message + if (error.throwable != null) "\n" + IdeUtil.unscrambleThrowable(error.throwable) else "")
         is RunningError -> Pair("Running error: $pluginId", IdeUtil.unscrambleThrowable(error.throwable))
