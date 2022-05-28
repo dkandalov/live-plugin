@@ -28,8 +28,6 @@ import java.io.File
 import java.io.FileFilter
 import java.util.*
 
-interface ExecutablePlugin
-
 interface PluginRunner {
     val scriptName: String
 
@@ -49,6 +47,13 @@ interface PluginRunner {
         @JvmStatic fun unloadPlugins(livePlugins: Collection<LivePlugin>) {
             livePlugins.forEach { Binding.lookup(it)?.dispose() }
         }
+
+        fun List<LivePlugin>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
+            any { livePlugin ->
+                pluginRunners.any { runner ->
+                    livePlugin.path.allFiles().any { it.name == runner.scriptName }
+                }
+            }
     }
 
     object ClasspathAddition {
@@ -138,6 +143,8 @@ interface PluginRunner {
     }
 }
 
+interface ExecutablePlugin
+
 val pluginRunners = listOf(mainGroovyPluginRunner, mainKotlinPluginRunner)
 val pluginTestRunners = listOf(testGroovyPluginRunner, testKotlinPluginRunner)
 
@@ -148,14 +155,7 @@ sealed class AnError {
     data class RunningError(val throwable: Throwable) : AnError()
 }
 
-fun List<LivePlugin>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
-    any { livePlugin ->
-        pluginRunners.any { runner ->
-            livePlugin.path.allFiles().any { it.name == runner.scriptName }
-        }
-    }
-
-fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
+private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
     val project = event.project
     val binding = Binding.create(this, event)
     val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }

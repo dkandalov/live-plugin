@@ -20,15 +20,15 @@ import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
+import liveplugin.implementation.actions.toolwindow.NewPluginXmlScript
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.Icons.packagePluginIcon
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.livePlugins
-import liveplugin.implementation.pluginrunner.canBeHandledBy
+import liveplugin.implementation.pluginrunner.PluginRunner.Companion.canBeHandledBy
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode
 import liveplugin.implementation.pluginrunner.kotlin.SrcHashCode.Companion.hashFileName
-import liveplugin.implementation.actions.toolwindow.NewPluginXmlScript
 import liveplugin.implementation.readSampleScriptFile
 import java.io.ByteArrayInputStream
 import java.util.*

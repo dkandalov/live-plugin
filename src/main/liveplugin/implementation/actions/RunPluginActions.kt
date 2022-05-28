@@ -12,9 +12,9 @@ import liveplugin.implementation.common.Icons.rerunPluginIcon
 import liveplugin.implementation.common.Icons.runPluginIcon
 import liveplugin.implementation.common.Icons.testPluginIcon
 import liveplugin.implementation.livePlugins
+import liveplugin.implementation.pluginrunner.PluginRunner.Companion.canBeHandledBy
 import liveplugin.implementation.pluginrunner.PluginRunner.Companion.runPlugins
 import liveplugin.implementation.pluginrunner.PluginRunner.Companion.runPluginsTests
-import liveplugin.implementation.pluginrunner.canBeHandledBy
 import liveplugin.implementation.pluginrunner.pluginRunners
 import liveplugin.implementation.pluginrunner.pluginTestRunners
 
