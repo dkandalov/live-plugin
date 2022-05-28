@@ -5,7 +5,6 @@ import com.intellij.openapi.util.io.FileUtil
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.Result
 import liveplugin.implementation.common.toFilePath
-import liveplugin.implementation.pluginrunner.PluginError.SetupError
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
 import org.junit.After
@@ -57,7 +56,7 @@ class KotlinPluginRunnerTests {
         assert(reason.throwable.toString().contains("unresolved reference: abc"))
     }
 
-    private fun runPluginIn(dir: File): Result<Unit, PluginError> {
+    private fun runPluginIn(dir: File): Result<Unit, RunningError> {
         val plugin = pluginRunner.setup(LivePlugin(dir.toFilePath()), null).expectSuccess()
         return pluginRunner.run(plugin, Binding(null, false, "", Disposer.newDisposable()))
     }

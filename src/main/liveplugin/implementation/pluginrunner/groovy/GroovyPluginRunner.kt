@@ -8,8 +8,6 @@ import liveplugin.implementation.common.asFailure
 import liveplugin.implementation.common.asSuccess
 import liveplugin.implementation.common.onFailure
 import liveplugin.implementation.pluginrunner.*
-import liveplugin.implementation.pluginrunner.PluginError.RunningError
-import liveplugin.implementation.pluginrunner.PluginError.SetupError
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
@@ -30,7 +28,7 @@ class GroovyPluginRunner(
         val scriptUrl: String
     ) : ExecutablePlugin
 
-    override fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, PluginError> {
+    override fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, SetupError> {
         try {
             val mainScript = plugin.path.find(scriptName)
                 ?: return SetupError(message = "Startup script $scriptName was not found.").asFailure()
@@ -73,7 +71,7 @@ class GroovyPluginRunner(
         }
     }
 
-    override fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, PluginError> {
+    override fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, RunningError> {
         val (scriptEngine, scriptUrl) = executablePlugin as ExecutableGroovyPlugin
         return try {
             scriptEngine.run(scriptUrl, GroovyBinding(

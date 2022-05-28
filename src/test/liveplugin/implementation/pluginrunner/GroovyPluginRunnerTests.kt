@@ -7,7 +7,6 @@ import liveplugin.implementation.common.Result
 import liveplugin.implementation.common.Result.Failure
 import liveplugin.implementation.common.Result.Success
 import liveplugin.implementation.common.toFilePath
-import liveplugin.implementation.pluginrunner.PluginError.RunningError
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
 import org.junit.After
@@ -62,12 +61,12 @@ class GroovyPluginRunnerTests {
     @Test fun `groovy script with errors`() {
         val scriptCode = "invalid code + 1"
         pluginDir.createFile("plugin.groovy", scriptCode)
-        val failureReason = runPluginIn(pluginDir).expectFailure() as RunningError
+        val failureReason = runPluginIn(pluginDir).expectFailure()
 
         assert(failureReason.throwable.toString().startsWith("groovy.lang.MissingPropertyException"))
     }
 
-    private fun runPluginIn(dir: File): Result<Unit, PluginError> {
+    private fun runPluginIn(dir: File): Result<Unit, RunningError> {
         val plugin = pluginRunner.setup(LivePlugin(dir.toFilePath()), null).expectSuccess()
         return pluginRunner.run(plugin, Binding(null, false, "", Disposer.newDisposable()))
     }

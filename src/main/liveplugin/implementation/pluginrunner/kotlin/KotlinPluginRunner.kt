@@ -12,8 +12,6 @@ import liveplugin.implementation.common.*
 import liveplugin.implementation.common.IdeUtil.unscrambleThrowable
 import liveplugin.implementation.common.Result.Success
 import liveplugin.implementation.pluginrunner.*
-import liveplugin.implementation.pluginrunner.PluginError.SetupError
-import liveplugin.implementation.pluginrunner.PluginError.RunningError
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
 import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
@@ -51,7 +49,7 @@ class KotlinPluginRunner(
 ): PluginRunner {
     data class ExecutableKotlinPlugin(val pluginClass: Class<*>) : ExecutablePlugin
 
-    override fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, PluginError> {
+    override fun setup(plugin: LivePlugin, project: Project?): Result<ExecutablePlugin, SetupError> {
         val mainScript = plugin.path.find(scriptName)
             ?: return SetupError(message = "Startup script $scriptName was not found.").asFailure()
 
@@ -92,7 +90,7 @@ class KotlinPluginRunner(
         return ExecutableKotlinPlugin(pluginClass).asSuccess()
     }
 
-    override fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, PluginError> {
+    override fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, RunningError> {
         val pluginClass = (executablePlugin as ExecutableKotlinPlugin).pluginClass
         return try {
             // Arguments below must match constructor of LivePluginScript class.
