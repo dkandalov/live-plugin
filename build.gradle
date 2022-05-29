@@ -16,7 +16,7 @@ intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
 	// and https://www.jetbrains.com/intellij-repository/snapshots
 	version = System.getenv().getOrDefault("IJ_VERSION",
-		"221.5080.210" // Compatibility with IJ 2022.1 (groovy 3, kotlin 1.6, changes in PluginClassLoader https://github.com/dkandalov/live-plugin/issues/123)
+		"221.5080.210" // Compatibility with IJ 2022.1 (Groovy 3, Kotlin 1.6, changes in PluginClassLoader https://github.com/dkandalov/live-plugin/issues/123)
 		// "LATEST-EAP-SNAPSHOT"
 	)
 	pluginName = "LivePlugin"
@@ -33,34 +33,34 @@ intellij {
 	]
 }
 buildSearchableOptions.enabled = false // Disable because LivePlugin doesn't need it, it takes a long time and it was failing at some point https://youtrack.jetbrains.com/issue/KTIJ-782.
-runIde.jbrVariant = "jcef"
+runIde.jbrVariant = "jcef" // JVM with Java Chromium Embedded Framework because why not (see also https://github.com/JetBrains/gradle-intellij-plugin#running-dsl)
 
 dependencies {
 	implementation project(":kotlin-compiler-wrapper")
 
-	// Bundle kotlin compiler and stdlib with LivePlugin because they are not always included into IDEs
-	// and because kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
-	// so it should be more reliable to have a particular version of kotlin jars inside LivePlugin.
+	// Bundle Kotlin compiler and stdlib with LivePlugin because they are not always included into IDEs
+	// and because Kotlin jars in IDE are likely to be updated, potentially breaking liveplugins,
+	// so it should be more reliable to have a particular version of Kotlin jars inside LivePlugin.
 	runtimeOnly "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
 	runtimeOnly "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion"
 	runtimeOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 	runtimeOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 
-	// Explicit groovy dependency because even though groovy is bundled with IJ,
-	// it's not picked up by groovy compiler in the latest versions.
+	// Explicit Groovy dependency because even though Groovy is bundled with IJ,
+	// it's not picked up by Groovy compiler in the latest versions.
 	compileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
 	testCompileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
 
-	testImplementation "junit:junit:4.13.2" // includes hamcrest-core
+	testImplementation "junit:junit:4.13.2" // Includes hamcrest-core
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
 'Copy GDSL file into standardDsls folder'()
 
 sourceSets {
-	// Keep groovy and kotlin API source code in separate source sets, otherwise
-	// compilation fails because of inter-dependencies between kotlin and groovy files which confuse compiler,
-	// even though overall dependencies are unidirectional: pluginApiKotlin -> pluginApiGroovy -> main
+	// Keep Groovy and Kotlin API source code in separate source sets, otherwise
+	// compilation fails because of inter-dependencies between Kotlin and Groovy files which confuse compiler,
+	// even though overall dependencies are unidirectional: pluginApiKotlin -> pluginApiGroovy -> main.
 
 	main {
 		java { srcDir "src/main" }
