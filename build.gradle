@@ -17,13 +17,8 @@ repositories {
 	mavenCentral()
 }
 
-ext.kotlinVersion = "1.6.10"
-ext.groovyVersion = "3.0.9" // Matches the version of Groovy bundled with IntelliJ
-
-java {
-	sourceCompatibility = JavaVersion.VERSION_11
-	targetCompatibility = JavaVersion.VERSION_11
-}
+ext.kotlinVersion = "1.6.10" // The version of Kotlin bundled with IntelliJ.
+ext.groovyVersion = "3.0.9" // The version of Groovy bundled with IntelliJ.
 
 intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
@@ -65,7 +60,7 @@ dependencies {
 	compileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
 	testCompileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
 
-	testImplementation group: "junit", name: "junit", version: "4.13.1" // includes hamcrest-core
+	testImplementation "junit:junit:4.13.2" // includes hamcrest-core
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
@@ -101,19 +96,20 @@ sourceSets {
 	}
 }
 
-tasks.withType(JavaCompile).configureEach {
-	sourceCompatibility = JavaVersion.VERSION_11
-	targetCompatibility = JavaVersion.VERSION_11
+tasks.withType(JavaCompile).all {
+	sourceCompatibility = "11"
+	targetCompatibility = "11"
 }
-// Configure kotlinOptions for all tasks for each of the sourcesets specified above.
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-	sourceCompatibility = JavaVersion.VERSION_11
-	targetCompatibility = JavaVersion.VERSION_11
+
+// Not using KotlinCompile import because of https://youtrack.jetbrains.com/issue/IDEA-201732
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+	sourceCompatibility = "11"
+	targetCompatibility = "11"
 
 	kotlinOptions {
+		sourceCompatibility = "11"
+		targetCompatibility = "11"
 		jvmTarget = "11"
-		sourceCompatibility = JavaVersion.VERSION_11
-		targetCompatibility = JavaVersion.VERSION_11
 		apiVersion = "1.6"
 		languageVersion = "1.6"
 		freeCompilerArgs = ["-Xjvm-default=all"] // Added for LivePluginKotlinScriptProvider

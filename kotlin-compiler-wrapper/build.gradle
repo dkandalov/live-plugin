@@ -4,14 +4,6 @@ plugins {
 	id "maven-publish"
 }
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "11"
-        apiVersion = "1.6"
-        languageVersion = "1.6"
-    }
-}
-
 repositories {
     mavenCentral()
 }
@@ -19,16 +11,17 @@ repositories {
 group "live-plugin"
 version "0.8"
 
-ext.kotlinVersion = "1.6.10"
+ext.kotlinVersion = "1.6.10" // The version of Kotlin bundled with IntelliJ.
+
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-jvm:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-common:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:$kotlinVersion")
-	testImplementation("junit:junit:4.13.2")
+    implementation "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-scripting-jvm:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-scripting-common:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:$kotlinVersion"
+	testImplementation "junit:junit:4.13.2"
 }
 
 sourceSets {
@@ -36,7 +29,8 @@ sourceSets {
     test.kotlin.srcDirs += "test"
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+// Not using KotlinCompile import because of https://youtrack.jetbrains.com/issue/IDEA-201732
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions {
         jvmTarget = "11"
         apiVersion = "1.6"
