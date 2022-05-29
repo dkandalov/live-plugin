@@ -8,10 +8,10 @@ import liveplugin.implementation.common.asFailure
 import liveplugin.implementation.common.asSuccess
 import liveplugin.implementation.common.onFailure
 import liveplugin.implementation.pluginrunner.*
-import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.createClassLoaderWithDependencies
-import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.findClasspathAdditions
-import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.findPluginDescriptorsOfDependencies
-import liveplugin.implementation.pluginrunner.PluginRunner.ClasspathAddition.withTransitiveDependencies
+import liveplugin.implementation.pluginrunner.PluginDependencies.createClassLoaderWithDependencies
+import liveplugin.implementation.pluginrunner.PluginDependencies.findClasspathAdditions
+import liveplugin.implementation.pluginrunner.PluginDependencies.findPluginDescriptorsOfDependencies
+import liveplugin.implementation.pluginrunner.PluginDependencies.withTransitiveDependencies
 import org.codehaus.groovy.control.CompilationFailedException
 import org.jetbrains.plugins.groovy.dsl.GdslScriptProvider
 import java.io.File
@@ -33,7 +33,7 @@ class GroovyPluginRunner(
             val mainScript = plugin.path.find(scriptName)
                 ?: return SetupError(message = "Startup script $scriptName was not found.").asFailure()
 
-            val pluginDescriptors = findPluginDescriptorsOfDependencies(mainScript.readLines(), groovyDependsOnPluginKeyword)
+            val pluginDescriptorsOfDependencies = findPluginDescriptorsOfDependencies(mainScript.readLines(), groovyDependsOnPluginKeyword)
                 .map { it.onFailure { (message) -> return SetupError(message).asFailure() } }
                 .onEach { if (!it.isEnabled) return SetupError("Dependent plugin '${it.pluginId}' is disabled").asFailure() }
                 .withTransitiveDependencies()
@@ -42,7 +42,7 @@ class GroovyPluginRunner(
             val additionalClasspath = findClasspathAdditions(mainScript.readLines(), groovyAddToClasspathKeyword, environment)
                 .flatMap { it.onFailure { (path) -> return SetupError("Couldn't find dependency '$path'").asFailure() } }
 
-            val classLoader = createClassLoaderWithDependencies(additionalClasspath + plugin.path.toFile(), pluginDescriptors, plugin)
+            val classLoader = createClassLoaderWithDependencies(additionalClasspath + plugin.path.toFile(), pluginDescriptorsOfDependencies, plugin)
                 .onFailure { return SetupError(it.reason.message).asFailure() }
 
             val pluginFolderUrl = "file:///${plugin.path}/" // Prefix with "file:///" so that unix-like path works on Windows.
