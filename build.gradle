@@ -32,9 +32,8 @@ intellij {
 //		"com.intellij.dev"
 	]
 }
-tasks.buildSearchableOptions {
-	enabled = false
-}
+buildSearchableOptions.enabled = false // Disable because LivePlugin doesn't need it, it takes a long time and it was failing at some point https://youtrack.jetbrains.com/issue/KTIJ-782.
+runIde.jbrVariant = "jcef"
 
 dependencies {
 	implementation project(":kotlin-compiler-wrapper")
