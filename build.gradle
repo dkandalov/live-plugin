@@ -107,10 +107,6 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 	}
 }
 
-runIde {
-	jbrVariant = "jcef"
-}
-
 jar {
 	from sourceSets.pluginApiGroovy.output, sourceSets.pluginApiKotlin.output
 }
