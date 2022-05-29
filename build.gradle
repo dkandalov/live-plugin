@@ -1,9 +1,3 @@
-buildscript {
-	repositories {
-		mavenCentral()
-		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-	}
-}
 plugins {
 	id "org.jetbrains.intellij" version "1.5.2"
 	id "org.jetbrains.kotlin.jvm" version "1.6.10"

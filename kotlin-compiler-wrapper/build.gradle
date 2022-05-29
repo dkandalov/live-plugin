@@ -1,15 +1,10 @@
 plugins {
     id "org.jetbrains.kotlin.jvm"
-	id "java"
-	id "maven-publish"
 }
 
 repositories {
     mavenCentral()
 }
-
-group "live-plugin"
-version "0.8"
 
 ext.kotlinVersion = "1.6.10" // The version of Kotlin bundled with IntelliJ.
 
