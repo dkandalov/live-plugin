@@ -127,7 +127,7 @@ task validateLivePluginZip() {
 			"LivePlugin/kotlin-compiler/annotations-13.0.jar",
 			"LivePlugin/kotlin-compiler/jna-5.6.0.jar",
 			"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.6.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper-0.8.jar",
+			"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper.jar",
 			"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.6.10.jar",
 			"LivePlugin/kotlin-compiler/kotlin-reflect-1.6.10.jar",
 			"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.6.10.jar",
