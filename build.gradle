@@ -56,7 +56,7 @@ dependencies {
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
-'Move GDSL file into standardDsls folder'()
+'Copy GDSL file into standardDsls folder'()
 
 sourceSets {
 	// Keep groovy and kotlin API source code in separate source sets, otherwise
@@ -204,10 +204,10 @@ def "Move kotlin compiler jars from plugin classpath into a separate folder so t
 	}
 }
 
-def "Move GDSL file into standardDsls folder"() {
+def 'Copy GDSL file into standardDsls folder'() {
 	prepareSandbox.doLast {
 		def resourcesFolder = project.tasks.findByName(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).destinationDir
-		ant.move(
+		ant.copy(
 			file: resourcesFolder.absolutePath + "/liveplugin/livePluginCompletions.gdsl",
 			tofile: "build/idea-sandbox/plugins/LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
 			quiet: true
