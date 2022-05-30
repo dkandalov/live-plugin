@@ -32,7 +32,9 @@ private tailrec fun FilePath.findParentPluginFolder(): FilePath? =
 fun FilePath.isPluginFolder(): Boolean {
     if (!isDirectory && exists()) return false
     val parentPath = parent ?: return false
-    return parentPath == livePluginsPath || parentPath.name == livePluginsProjectDirName
+    return parentPath == livePluginsPath ||
+        parentPath.name == livePluginsProjectDirName ||
+        name == livePluginsProjectDirName
 }
 
 object LivePluginPaths {
