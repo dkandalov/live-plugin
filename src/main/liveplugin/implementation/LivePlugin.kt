@@ -14,7 +14,7 @@ data class LivePlugin(val path: FilePath) {
 
     companion object {
         @JvmStatic fun livePluginsById(): Map<String, LivePlugin> =
-            livePluginsPath.listFiles { file -> file.isDirectory && file.name != Project.DIRECTORY_STORE_FOLDER }
+            livePluginsPath.listFiles { it.isDirectory && it.name != Project.DIRECTORY_STORE_FOLDER }
                 .map { LivePlugin(it) }
                 .associateBy { it.id }
     }
