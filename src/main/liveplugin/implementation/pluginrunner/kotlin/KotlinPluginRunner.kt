@@ -21,7 +21,6 @@ import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companio
 import org.apache.commons.codec.digest.MurmurHash3
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
-import java.io.IOException
 import kotlin.io.path.absolutePathString
 
 /**
@@ -119,7 +118,7 @@ private class KotlinPluginCompiler {
         pluginDescriptorsOfDependencies: List<IdeaPluginDescriptor>,
         additionalClasspath: List<File>,
         compilerOutput: File
-    ): Result<Unit, String> {
+    ): Result<Unit, String> = try {
         // Ideally, the compilerClasspath could be replaced by LivePluginScriptConfig
         // (which implicitly sets up the compiler classpath via kotlin scripting) but
         // this approach doesn't seem to work e.g. for ideLibFiles() and resolving dependent plugins.
@@ -127,7 +126,7 @@ private class KotlinPluginCompiler {
             ideLibFiles() +
             livePluginLibAndSrcFiles() +
             pluginDescriptorsOfDependencies.flatMap { descriptor -> descriptor.toLibFiles() } +
-            // Put kotlin compiler libs after plugin dependencies because if there is Kotlin plugin in plugin dependencies,
+            // Put Kotlin compiler libs after plugin dependencies because if there is Kotlin plugin in plugin dependencies,
             // it somehow picks up wrong PSI classes from kotlin-compiler-embeddable.jar.
             // E.g. "type mismatch: inferred type is KtVisitor<Void, Void> but PsiElementVisitor was expected".
             livePluginKotlinCompilerLibFiles() +
@@ -136,36 +135,34 @@ private class KotlinPluginCompiler {
 
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.implementation.kotlin.EmbeddedCompilerKt")
         val compilePluginMethod = compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!
-        return try {
-            // Note that arguments passed via reflection CANNOT use pure Kotlin types
-            // because compiler uses different classloader to load Kotlin so classes won't be compatible
-            // (it's ok though to use types like kotlin.String which becomes java.lang.String at runtime).
-            @Suppress("UNCHECKED_CAST")
-            val compilationErrors = compilePluginMethod.invoke(
-                null,
-                pluginFolderPath,
-                compilerClasspath,
-                compilerOutput,
-                LivePluginScriptForCompilation::class.java
-            ) as List<String>
+        // Note that arguments passed via reflection CANNOT use pure Kotlin types
+        // because compiler uses different classloader to load Kotlin so classes won't be compatible
+        // (it's ok though to use types like kotlin.String which becomes java.lang.String at runtime).
+        @Suppress("UNCHECKED_CAST")
+        val compilationErrors = compilePluginMethod.invoke(
+            null,
+            pluginFolderPath,
+            compilerClasspath,
+            compilerOutput,
+            LivePluginScriptForCompilation::class.java
+        ) as List<String>
 
-            if (compilationErrors.isNotEmpty()) {
-                return "Error compiling script.\n${compilationErrors.joinToString("\n")}".asFailure()
-            } else {
-                Unit.asSuccess()
-            }
-        } catch (e: IOException) {
-            return "Error creating scripting engine.\n${unscrambleThrowable(e)}".asFailure()
-        } catch (e: Throwable) {
-            // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
-            // and LivePlugin should be able to run kotlin scripts without it
-            val reason = if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
-                "Error compiling script.\n${unscrambleThrowable(e)}"
-            } else {
-                "LivePlugin error while compiling script.\n${unscrambleThrowable(e)}"
-            }
-            return reason.asFailure()
+        if (compilationErrors.isNotEmpty()) {
+            "Error compiling script.\n${compilationErrors.joinToString("\n")}".asFailure()
+        } else {
+            Unit.asSuccess()
         }
+    } catch (e: Exception) {
+        // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
+        // and LivePlugin should be able to run kotlin scripts without it
+        val reason = if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
+            "Error compiling script.\n${unscrambleThrowable(e)}"
+        } else {
+            "LivePlugin error while compiling script.\n${unscrambleThrowable(e)}"
+        }
+        reason.asFailure()
+    } catch (e: Error) {
+        "LivePlugin error while compiling script.\n${unscrambleThrowable(e)}".asFailure()
     }
 
     companion object {
@@ -177,6 +174,8 @@ private class KotlinPluginCompiler {
                 .useCache()
                 .get()
         }
+
+        private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath(), true)
     }
 }
 
@@ -210,8 +209,6 @@ private fun IdeaPluginDescriptor.toLibFiles() =
         // which seem to be compiled with IJ API and are not compatible with actual Kotlin compilers.
         "compiler-plugin" !in it.name
     }.map { it.toFile() }
-
-private fun ideJdkClassesRoots() = JavaSdkUtil.getJdkClassesRoots(File(System.getProperty("java.home")).toPath(), true)
 
 class SrcHashCode(srcDir: FilePath, compilerOutputDir: FilePath) {
     private val hashFilePath = compilerOutputDir + hashFileName
