@@ -25,21 +25,17 @@ class LivePluginProjectListener : ProjectManagerListener {
             return
         }
 
-        val projectPath = project.basePath?.toFilePath() ?: return
-        val pluginsPath = projectPath + livePluginsProjectDirName
-        if (!pluginsPath.exists()) return
-
         val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
         val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)
-
-        runPlugins(pluginsPath.listFiles().toLivePlugins(), dummyEvent)
+        runPlugins(livePluginsIn(project), dummyEvent)
     }
 
     override fun projectClosing(project: Project) {
-        val projectPath = project.basePath?.toFilePath() ?: return
-        val pluginsPath = projectPath + livePluginsProjectDirName
-        if (!pluginsPath.exists()) return
+        unloadPlugins(livePluginsIn(project))
+    }
 
-        unloadPlugins(pluginsPath.listFiles().toLivePlugins())
+    private fun livePluginsIn(project: Project): List<LivePlugin> {
+        val projectPath = project.basePath?.toFilePath() ?: return emptyList()
+        return (projectPath + livePluginsProjectDirName).listFiles().toLivePlugins()
     }
 }
