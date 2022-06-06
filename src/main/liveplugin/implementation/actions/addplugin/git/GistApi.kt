@@ -47,6 +47,8 @@ interface GistApi {
     data class GistFile(val content: String)
     data class GistCommit(val version: String)
 
+    class FailedRequest(message: String) : Exception(message)
+
     companion object {
         val gistClient = OkHttp().with(SetBaseUriFrom(Uri.of("https://api.github.com/gists")))
 
@@ -83,8 +85,8 @@ interface GistApi {
                 client(Request(GET, "$gistId/$sha")).expectStatus(OK).parse()
 
             private fun Response.expectStatus(status: Status): Response {
-                if (this.status != status) error(body)
-                return this
+                if (this.status == status) return this
+                else throw(FailedRequest("Expected status ${status.code} but was ${this.status.code}. Response body: $body"))
             }
 
             private inline fun <reified T> Response.parseList(): List<T> =
