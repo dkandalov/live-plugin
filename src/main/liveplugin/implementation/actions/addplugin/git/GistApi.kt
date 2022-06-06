@@ -48,10 +48,10 @@ interface GistApi {
     data class GistCommit(val version: String)
 
     companion object {
-        val gistClient = WithAcceptHeader().then(SetBaseUriFrom(Uri.of("https://api.github.com/gists")).then(OkHttp()))
+        val gistClient = OkHttp().with(SetBaseUriFrom(Uri.of("https://api.github.com/gists")))
 
         operator fun invoke(httpHandler: HttpHandler = gistClient) = object : GistApi {
-            private val client = WithAcceptHeader().then(httpHandler)
+            private val client = httpHandler.with(AcceptGithubJsonHeader())
 
             override fun create(gist: Gist, authToken: String): Gist {
                 val request = Request(POST, "")
@@ -100,7 +100,7 @@ interface GistApi {
                 )
         }
 
-        private class WithAcceptHeader : Filter {
+        private class AcceptGithubJsonHeader : Filter {
             override fun invoke(handler: HttpHandler) = { request: Request ->
                 handler(request.header("Accept", "application/vnd.github.v3+json"))
             }
@@ -124,5 +124,7 @@ interface GistApi {
                     /* field = */ Visibility.ANY
                 )
             )
+
+        private fun HttpHandler.with(filter: Filter) = filter.then(this)
     }
 }

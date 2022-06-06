@@ -4,6 +4,7 @@ import liveplugin.implementation.actions.addplugin.git.GistApi
 import liveplugin.implementation.actions.addplugin.git.GistApi.*
 import liveplugin.implementation.actions.addplugin.git.GistApi.Companion.gistClient
 import org.hamcrest.core.IsEqual.equalTo
+import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.then
@@ -17,21 +18,23 @@ import org.junit.jupiter.api.assertThrows
 
 @Ignore
 class GistApiExternalServerTests : GistApiTests(
-    GistApi(RecordTo(storage).then(gistClient)),
+    httpClient = RecordTo(storage).then(gistClient),
     authToken = System.getenv("GIST_API_TOKEN") ?: ""
 )
 
 class GistApiReplayingServerTests : GistApiTests(
-    GistApi(ServeCachedFrom(storage).then { request: Request -> error("no recorded response for request:\n$request") }),
+    httpClient = ServeCachedFrom(storage).then { request: Request -> error("no recorded response for request:\n$request") },
     authToken = "dummy-token"
 )
 
 private val storage = ReadWriteCache.Disk("src/test/liveplugin/implementation/actions/git/recorded_traffic").sanitized()
 
 abstract class GistApiTests(
-    private val gistApi: GistApi,
+    httpClient: HttpHandler,
     private val authToken: String
 ) {
+    private val gistApi = GistApi(httpClient)
+
     @Test fun `create and delete gist`() {
         val gist = Gist(description = "test", files = mapOf("test.txt" to GistFile("some file content")), public = false)
         val createdGist = gistApi.create(gist, authToken)
@@ -133,6 +136,7 @@ private fun ReadWriteCache.sanitized() = object : ReadWriteCache {
     private fun Response.sanitised() = removeHeader("date")
         .removeHeader("etag")
         .removeHeader("last-modified")
+        .removeHeaders("github-")
         .removeHeaders("x-")
 
     private fun Request.sanitized() = replaceHeaderIfExists("Authorization", "Bearer dummy-token")
