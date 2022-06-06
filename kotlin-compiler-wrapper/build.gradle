@@ -6,7 +6,7 @@ repositories {
     mavenCentral()
 }
 
-ext.kotlinVersion = "1.6.10" // The version of Kotlin bundled with IntelliJ.
+ext.kotlinVersion = "1.6.21" // Should match the major version of Kotlin bundled with IntelliJ.
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"

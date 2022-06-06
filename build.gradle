@@ -1,6 +1,6 @@
 plugins {
 	id "org.jetbrains.intellij" version "1.6.0"
-	id "org.jetbrains.kotlin.jvm" version "1.6.10"
+	id "org.jetbrains.kotlin.jvm" version "1.6.21"
 	id "java"
 	id "groovy"
 }
@@ -9,8 +9,8 @@ repositories {
 	mavenCentral()
 }
 
-ext.kotlinVersion = "1.6.10" // The version of Kotlin bundled with IntelliJ.
-ext.groovyVersion = "3.0.9" // The version of Groovy bundled with IntelliJ.
+ext.kotlinVersion = "1.6.21" // Should match the major version of Kotlin bundled with IntelliJ.
+ext.groovyVersion = "3.0.9" // Should match the version of Groovy bundled with IntelliJ.
 
 intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
@@ -120,17 +120,17 @@ task validateLivePluginZip() {
 		def kotlinCompilerAndItsTransitiveDependencies = [
 			"LivePlugin/kotlin-compiler/annotations-13.0.jar",
 			"LivePlugin/kotlin-compiler/jna-5.6.0.jar",
-			"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.6.21.jar",
 			"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper.jar",
-			"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.6.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-reflect-1.6.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.6.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-scripting-common-1.6.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-embeddable-1.6.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-1.6.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.6.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-stdlib-1.6.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.6.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.6.21.jar",
+			"LivePlugin/kotlin-compiler/kotlin-reflect-1.6.21.jar",
+			"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.6.21.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-common-1.6.21.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-embeddable-1.6.21.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-1.6.21.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.6.21.jar",
+			"LivePlugin/kotlin-compiler/kotlin-stdlib-1.6.21.jar",
+			"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.6.21.jar",
 			"LivePlugin/kotlin-compiler/trove4j-1.0.20181211.jar"
 		]
 		def expectedLivePluginJars = [
