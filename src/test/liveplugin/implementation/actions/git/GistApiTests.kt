@@ -53,9 +53,8 @@ abstract class GistApiTests(
 
             val gistCommits = gistApi.listCommits(gist.id)
             assertThat(gistCommits.size, equalTo(2))
-            val gists = gistCommits.map {
-                gistApi.getGistRevision(gist.id, sha = it.version)
-            }
+
+            val gists = gistCommits.map { gistApi.getGistRevision(gist.id, sha = it.version) }
             assertThat(gists[0], equalTo(updatedGist))
             assertThat(gists[1], equalTo(gist))
         } finally {
@@ -63,7 +62,7 @@ abstract class GistApiTests(
         }
     }
 
-    @Test fun `get existing gist without authentication`() {
+    @Test fun `get public gist without authentication`() {
         assertThat(
             gistApi.getGist(gistId = "d51de2311dfd92dfa56feb3e3f9f96a6"),
             equalTo(
@@ -89,7 +88,7 @@ abstract class GistApiTests(
         )
     }
 
-    @Test fun `list commits of existing gist without authentication`() {
+    @Test fun `list commits of public gist without authentication`() {
         assertThat(
             gistApi.listCommits(gistId = "d51de2311dfd92dfa56feb3e3f9f96a6"),
             equalTo(

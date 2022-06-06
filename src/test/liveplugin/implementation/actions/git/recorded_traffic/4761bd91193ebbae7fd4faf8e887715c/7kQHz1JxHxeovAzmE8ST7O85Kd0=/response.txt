@@ -2,7 +2,6 @@ HTTP/1.1 204
 access-control-allow-origin: *
 access-control-expose-headers: ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO, X-GitHub-Request-Id, Deprecation, Sunset
 content-security-policy: default-src 'none'
-github-authentication-token-expiration: 2022-06-29 23:00:00 UTC
 referrer-policy: origin-when-cross-origin, strict-origin-when-cross-origin
 server: GitHub.com
 strict-transport-security: max-age=31536000; includeSubdomains; preload
