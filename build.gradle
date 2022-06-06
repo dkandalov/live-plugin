@@ -50,6 +50,9 @@ dependencies {
 	// it's not picked up by Groovy compiler in the latest versions.
 	compileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
 	testCompileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
+
+	implementation "org.http4k:http4k-core:4.25.16.2"
+	implementation "org.http4k:http4k-client-okhttp:4.25.16.2"
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()

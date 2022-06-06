@@ -1,0 +1,5 @@
+PATCH 516ef829e0990bde0c6422600c869139 HTTP/1.1
+Accept: application/vnd.github.v3+json
+Authorization: Bearer dummy-token
+
+{"id":"516ef829e0990bde0c6422600c869139","description":"test","files":{"test.txt":{"content":"updated file content"}},"public":false}

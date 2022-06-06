@@ -1,0 +1,11 @@
+HTTP/1.1 404 
+access-control-allow-origin: *
+access-control-expose-headers: ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO, X-GitHub-Request-Id, Deprecation, Sunset
+content-security-policy: default-src 'none'
+content-type: application/json; charset=utf-8
+referrer-policy: origin-when-cross-origin, strict-origin-when-cross-origin
+server: GitHub.com
+strict-transport-security: max-age=31536000; includeSubdomains; preload
+vary: Accept-Encoding, Accept, X-Requested-With
+
+{"message":"Not Found","documentation_url":"https://docs.github.com/rest/reference/gists#list-gist-commits"}
