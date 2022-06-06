@@ -51,8 +51,10 @@ dependencies {
 	compileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
 	testCompileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
 
-	implementation "org.http4k:http4k-core:4.25.16.2"
-	implementation "org.http4k:http4k-client-okhttp:4.25.16.2"
+	implementation "org.http4k:http4k-core:4.26.0.0"
+	implementation("org.http4k:http4k-client-okhttp:4.26.0.0") {
+		exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
+	}
 }
 "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"()
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
@@ -131,7 +133,12 @@ task validateLivePluginZip() {
 			"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.6.21.jar",
 			"LivePlugin/kotlin-compiler/kotlin-stdlib-1.6.21.jar",
 			"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.6.21.jar",
-			"LivePlugin/kotlin-compiler/trove4j-1.0.20181211.jar"
+			"LivePlugin/kotlin-compiler/trove4j-1.0.20200330.jar",
+			// TODO http4k is not related to compiler
+			"LivePlugin/kotlin-compiler/http4k-client-okhttp-4.26.0.0.jar",
+			"LivePlugin/kotlin-compiler/http4k-core-4.26.0.0.jar",
+			"LivePlugin/kotlin-compiler/okhttp-4.9.3.jar",
+			"LivePlugin/kotlin-compiler/okio-jvm-2.8.0.jar"
 		]
 		def expectedLivePluginJars = [
 			"LivePlugin/lib/LivePlugin.jar",
