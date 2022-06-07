@@ -134,11 +134,10 @@ task validateLivePluginZip() {
 			"LivePlugin/kotlin-compiler/kotlin-stdlib-1.6.21.jar",
 			"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.6.21.jar",
 			"LivePlugin/kotlin-compiler/trove4j-1.0.20200330.jar",
-			// TODO http4k is not related to compiler
-			"LivePlugin/kotlin-compiler/http4k-client-okhttp-4.26.0.0.jar",
-			"LivePlugin/kotlin-compiler/http4k-core-4.26.0.0.jar",
-			"LivePlugin/kotlin-compiler/okhttp-4.9.3.jar",
-			"LivePlugin/kotlin-compiler/okio-jvm-2.8.0.jar"
+			"LivePlugin/lib/http4k-client-okhttp-4.26.0.0.jar",
+			"LivePlugin/lib/http4k-core-4.26.0.0.jar",
+			"LivePlugin/lib/okhttp-4.9.3.jar",
+			"LivePlugin/lib/okio-jvm-2.8.0.jar"
 		]
 		def expectedLivePluginJars = [
 			"LivePlugin/lib/LivePlugin.jar",
@@ -197,7 +196,10 @@ def "Move kotlin compiler jars from plugin classpath into a separate folder so t
 	prepareSandbox.doLast {
 		new File("build/idea-sandbox/plugins/LivePlugin/lib")
 			.listFiles().toList()
-			.findAll { it.name.endsWith(".jar") && it.name != "LivePlugin.jar" }
+			.findAll {
+				(it.name.startsWith("kotlin-") || it.name.startsWith("jna-") || it.name.startsWith("annotations-") || it.name.startsWith("trove4j-")) &&
+					it.name.endsWith(".jar") && it.name != "LivePlugin.jar"
+			}
 			.each {
 				ant.move(
 					file: "build/idea-sandbox/plugins/LivePlugin/lib/${it.name}",
