@@ -38,7 +38,7 @@ abstract class GistApiTests(
     @Test fun `create and delete gist`() {
         val gist = Gist(description = "test", files = mapOf("test.txt" to GistFile("some file content")), public = false)
         val createdGist = gistApi.create(gist, authToken)
-        assertThat(gist.copy(id = createdGist.id), equalTo(createdGist))
+        assertThat(gist.copy(id = createdGist.id, htmlUrl = createdGist.htmlUrl), equalTo(createdGist))
 
         gistApi.delete(createdGist.id, authToken)
     }
@@ -82,7 +82,8 @@ abstract class GistApiTests(
                                 
                             """.trimIndent()
                         )
-                    )
+                    ),
+                    htmlUrl = "https://gist.github.com/d51de2311dfd92dfa56feb3e3f9f96a6"
                 )
             )
         )

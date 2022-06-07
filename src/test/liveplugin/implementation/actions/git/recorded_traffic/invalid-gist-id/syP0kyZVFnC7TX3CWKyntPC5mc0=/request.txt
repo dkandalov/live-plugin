@@ -2,4 +2,4 @@ PATCH invalid-gist-id HTTP/1.1
 Accept: application/vnd.github.v3+json
 Authorization: Bearer dummy-token
 
-{"id":"invalid-gist-id","description":"","files":{},"public":true}
+{"id":"invalid-gist-id","public":true}

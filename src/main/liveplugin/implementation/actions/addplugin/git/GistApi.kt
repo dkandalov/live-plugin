@@ -1,7 +1,7 @@
 package liveplugin.implementation.actions.addplugin.git
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility
-import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE
@@ -41,7 +41,8 @@ interface GistApi {
         val id: String = "",
         val description: String = "",
         val files: Map<String, GistFile>,
-        val public: Boolean = true
+        val public: Boolean = true,
+        val htmlUrl: String = ""
     )
 
     data class GistFile(val content: String)
@@ -115,7 +116,7 @@ interface GistApi {
             .build()
             .setDateFormat(SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX"))
             .setTimeZone(TimeZone.getDefault())
-            .setSerializationInclusion(NON_NULL)
+            .setSerializationInclusion(NON_EMPTY)
             .setPropertyNamingStrategy(SNAKE_CASE)
             .setVisibility(
                 VisibilityChecker.Std(

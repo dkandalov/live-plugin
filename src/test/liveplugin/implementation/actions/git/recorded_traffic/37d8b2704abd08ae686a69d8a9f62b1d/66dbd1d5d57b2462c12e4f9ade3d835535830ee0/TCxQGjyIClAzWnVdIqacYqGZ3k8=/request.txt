@@ -1,3 +1,0 @@
-GET 37d8b2704abd08ae686a69d8a9f62b1d/66dbd1d5d57b2462c12e4f9ade3d835535830ee0 HTTP/1.1
-Accept: application/vnd.github.v3+json
-
