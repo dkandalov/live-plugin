@@ -73,6 +73,9 @@ object IdeUtil {
         Messages.showMessageDialog(this, message, title, Messages.getErrorIcon())
     }
 
+    fun Project?.showInputDialog(message: String, title: String, inputValidator: InputValidatorEx? = null, initialValue: String? = null) =
+        Messages.showInputDialog(this, message, title, null, initialValue, inputValidator)
+
     fun runLaterOnEdt(f: () -> Any) {
         ApplicationManager.getApplication().invokeLater { f.invoke() }
     }

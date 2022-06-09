@@ -5,9 +5,9 @@ import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileChooser.FileSystemTree
 import com.intellij.openapi.fileChooser.actions.FileChooserAction
 import com.intellij.openapi.fileChooser.tree.FileNode
-import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showErrorDialog
+import liveplugin.implementation.common.IdeUtil.showInputDialog
 import java.io.IOException
 import java.util.*
 import kotlin.reflect.full.functions
@@ -19,7 +19,7 @@ class RenameFileAction: FileChooserAction("Rename", "", null) {
         val file = fileSystemTree.selectedFile ?: return
 
         val defaultName = file.name
-        val newFileName = Messages.showInputDialog("Rename file to:", "Rename", null, defaultName, null)
+        val newFileName = event.project.showInputDialog(message = "Rename file to:", title = "Rename", initialValue = defaultName)
         if (newFileName == null || newFileName == file.name) return
 
         /**

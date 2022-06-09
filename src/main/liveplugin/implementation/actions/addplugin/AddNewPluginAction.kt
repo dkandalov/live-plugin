@@ -5,13 +5,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.ui.Messages.showInputDialog
 import liveplugin.implementation.LivePlugin.Companion.livePluginsById
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.Icons.newPluginIcon
 import liveplugin.implementation.common.IdeUtil.showErrorDialog
+import liveplugin.implementation.common.IdeUtil.showInputDialog
 import liveplugin.implementation.common.createFile
 import liveplugin.implementation.common.inputValidator
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
@@ -41,17 +41,17 @@ open class AddNewPluginAction(
 ) : AnAction(text, description, newPluginIcon), DumbAware {
 
     private val log = Logger.getInstance(AddNewPluginAction::class.java)
-    private val addNewPluginTitle = "Add $text"
+    private val dialogTitle = "Add $text"
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
-        val newPluginId = showInputDialog(project, "Enter new plugin name:", addNewPluginTitle, null, "", isNewPluginNameValidator) ?: return
+        val newPluginId = project.showInputDialog(message = "Enter new plugin name:", dialogTitle, isNewPluginNameValidator) ?: return
         try {
             createFile("$livePluginsPath/$newPluginId", scriptFileName, scriptFileText, whenCreated = { virtualFile ->
                 if (project != null) FileEditorManager.getInstance(project).openFile(virtualFile, true)
             })
         } catch (e: IOException) {
-            project.showErrorDialog("Error adding plugin '$newPluginId'", addNewPluginTitle)
+            project.showErrorDialog("Error adding plugin '$newPluginId'", dialogTitle)
             log.error(e)
         }
     }

@@ -8,83 +8,53 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.actions.addplugin.git.GistApi.FailedRequest
 import liveplugin.implementation.actions.addplugin.git.GistApi.Gist
 import liveplugin.implementation.actions.addplugin.isNewPluginNameValidator
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showErrorDialog
+import liveplugin.implementation.common.IdeUtil.showInputDialog
 import liveplugin.implementation.common.createFile
 import liveplugin.implementation.common.inputValidator
 import java.io.IOException
-import javax.swing.Icon
 
 class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
 
     override fun actionPerformed(event: AnActionEvent) {
-        val project = event.project ?: return
-        val gistUrl = askUserForGistUrl(project) ?: return
+        val project = event.project
+        val gistUrl = project.showInputDialog(
+            message = "Enter gist URL:",
+            dialogTitle,
+            inputValidator { if (extractGistIdFrom(it) == null) "Couldn't parse gist URL" else null }
+        ) ?: return
 
         fetchGist(
             gistUrl,
             project,
             onSuccess = { gist ->
-                val newPluginId = askUserForNewPluginName(project, gist)
+                val newPluginId = project.showInputDialog(message = "Enter new plugin name:", dialogTitle, isNewPluginNameValidator, gist.description)
                 if (newPluginId != null) {
                     try {
-                        createPluginFrom(gist, newPluginId)
+                        gist.files.forEach { (filename, file) ->
+                            createFile("$livePluginsPath/$newPluginId", filename, file.content)
+                        }
                     } catch (e: IOException) {
-                        showMessageThatCreatingPluginFailed(e, newPluginId, project)
+                        project.showErrorDialog("Error adding plugin \"$newPluginId\"", dialogTitle)
+                        log.info(e)
                     }
                 }
             },
             onFailure = {
-                showMessageThatFetchingGistFailed(it, project)
+                project.showErrorDialog("Failed to fetch gist", dialogTitle)
+                if (it != null) log.info(it)
             }
         )
-    }
-
-    private fun askUserForGistUrl(project: Project): String? =
-        Messages.showInputDialog(
-            project,
-            "Enter gist URL:",
-            dialogTitle,
-            defaultIcon,
-            "",
-            inputValidator {
-                if (extractGistIdFrom(it) == null) "Couldn't parse gist URL" else null
-            }
-        )
-
-    private fun askUserForNewPluginName(project: Project, gist: Gist): String? =
-        Messages.showInputDialog(
-            project,
-            "Enter new plugin name:",
-            dialogTitle,
-            defaultIcon,
-            gist.description,
-            isNewPluginNameValidator
-        )
-
-    private fun createPluginFrom(gist: Gist, pluginId: String) =
-        gist.files.forEach { (filename, file) ->
-            createFile("$livePluginsPath/$pluginId", filename, file.content)
-        }
-
-    private fun showMessageThatFetchingGistFailed(e: FailedRequest?, project: Project) {
-        project.showErrorDialog("Failed to fetch gist", dialogTitle)
-        if (e != null) log.info(e)
-    }
-
-    private fun showMessageThatCreatingPluginFailed(e: IOException, newPluginId: String?, project: Project) {
-        project.showErrorDialog("Error adding plugin \"$newPluginId\"", dialogTitle)
-        log.info(e)
     }
 
     private fun fetchGist(
         gistUrl: String,
-        project: Project,
+        project: Project?,
         onSuccess: (Gist) -> Unit,
         onFailure: (FailedRequest?) -> Unit
     ) {
@@ -103,7 +73,6 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
     private companion object {
         private val log = Logger.getInstance(AddPluginFromGistAction::class.java)
         private const val dialogTitle = "Copy Plugin From Gist"
-        private val defaultIcon: Icon? = null
 
         private fun extractGistIdFrom(gistUrl: String): String? {
             val i = gistUrl.lastIndexOf('/')
