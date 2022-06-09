@@ -9,8 +9,8 @@ import liveplugin.implementation.ExamplePlugin
 import liveplugin.implementation.GroovyExamples
 import liveplugin.implementation.KotlinExamples
 import liveplugin.implementation.LivePlugin.Companion.livePluginsById
-import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
+import liveplugin.implementation.common.IdeUtil.showErrorDialog
 
 class AddGroovyExamplesActionGroup: DefaultActionGroup("Groovy Examples", true) {
     init {
@@ -53,8 +53,7 @@ private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): 
     }
 
     private fun logException(e: Exception, event: AnActionEvent, pluginPath: String) {
-        val project = event.project
-        if (project != null) IdeUtil.showErrorDialog(project, "Error adding plugin \"$pluginPath\"", "Add Plugin")
+        event.project.showErrorDialog("Error adding plugin \"$pluginPath\"", "Add Plugin")
         logger.error(e)
     }
 }

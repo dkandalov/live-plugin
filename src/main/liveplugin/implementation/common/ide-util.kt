@@ -68,8 +68,8 @@ object IdeUtil {
         }
     }
 
-    fun showErrorDialog(project: Project?, message: String, title: String) {
-        Messages.showMessageDialog(project, message, title, Messages.getErrorIcon())
+    fun Project?.showErrorDialog(message: String, title: String) {
+        Messages.showMessageDialog(this, message, title, Messages.getErrorIcon())
     }
 
     fun runLaterOnEdt(f: () -> Any) {

@@ -71,12 +71,12 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
         }
 
     private fun showMessageThatFetchingGistFailed(e: FailedRequest?, project: Project) {
-        showErrorDialog(project, "Failed to fetch gist", dialogTitle)
+        project.showErrorDialog("Failed to fetch gist", dialogTitle)
         if (e != null) log.info(e)
     }
 
     private fun showMessageThatCreatingPluginFailed(e: IOException, newPluginId: String?, project: Project) {
-        showErrorDialog(project, "Error adding plugin \"$newPluginId\"", dialogTitle)
+        project.showErrorDialog("Error adding plugin \"$newPluginId\"", dialogTitle)
         log.info(e)
     }
 

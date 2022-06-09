@@ -6,8 +6,8 @@ import com.intellij.openapi.fileChooser.FileSystemTree
 import com.intellij.openapi.fileChooser.actions.FileChooserAction
 import com.intellij.openapi.fileChooser.tree.FileNode
 import com.intellij.openapi.ui.Messages
-import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
+import liveplugin.implementation.common.IdeUtil.showErrorDialog
 import java.io.IOException
 import java.util.*
 import kotlin.reflect.full.functions
@@ -60,11 +60,7 @@ class RenameFileAction: FileChooserAction("Rename", "", null) {
                 file.rename(null, newFileName)
                 updateTreeModel_HACK()
             } catch (e: IOException) {
-                IdeUtil.showErrorDialog(
-                    event.project,
-                    "Couldn't rename ${file.name} to $newFileName",
-                    "Error"
-                )
+                event.project.showErrorDialog("Couldn't rename ${file.name} to $newFileName", "Error")
             }
         }
     }

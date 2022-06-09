@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.Icons.deletePluginIcon
-import liveplugin.implementation.common.IdeUtil
+import liveplugin.implementation.common.IdeUtil.showErrorDialog
 import liveplugin.implementation.common.delete
 import liveplugin.implementation.livePlugins
 import java.io.IOException
@@ -25,10 +25,7 @@ class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", deletePlugi
             try {
                 plugin.path.toVirtualFile()?.delete()
             } catch (e: IOException) {
-                val project = event.project
-                if (project != null) {
-                    IdeUtil.showErrorDialog(project, "Error deleting plugin \"${plugin.path}\"", "Delete Plugin")
-                }
+                event.project.showErrorDialog("Error deleting plugin \"${plugin.path}\"", "Delete Plugin")
                 logger.error(e)
             }
         }
