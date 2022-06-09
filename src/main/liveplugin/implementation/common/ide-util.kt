@@ -22,6 +22,7 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VfsUtil
@@ -213,6 +214,9 @@ object IdeUtil {
         }
     }
 }
+
+fun inputValidator(f: (String) -> String?) =
+    InputValidatorEx { inputString -> f(inputString) }
 
 fun AnActionEvent.selectedFiles(): List<FilePath> =
     dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)?.map { it.toFilePath() } ?: emptyList()

@@ -8,15 +8,15 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.actions.addplugin.PluginIdValidator
 import liveplugin.implementation.actions.addplugin.git.GistApi.FailedRequest
 import liveplugin.implementation.actions.addplugin.git.GistApi.Gist
+import liveplugin.implementation.actions.addplugin.isNewPluginNameValidator
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showErrorDialog
 import liveplugin.implementation.common.createFile
+import liveplugin.implementation.common.inputValidator
 import java.io.IOException
 import javax.swing.Icon
 
@@ -52,7 +52,9 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
             dialogTitle,
             defaultIcon,
             "",
-            GistUrlValidator()
+            inputValidator {
+                if (extractGistIdFrom(it) == null) "Couldn't parse gist URL" else null
+            }
         )
 
     private fun askUserForNewPluginName(project: Project, gist: Gist): String? =
@@ -62,7 +64,7 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
             dialogTitle,
             defaultIcon,
             gist.description,
-            PluginIdValidator()
+            isNewPluginNameValidator
         )
 
     private fun createPluginFrom(gist: Gist, pluginId: String) =
@@ -96,20 +98,6 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
                 }
             }
         }.queue()
-    }
-
-    private class GistUrlValidator : InputValidatorEx {
-        private var isValid = true
-
-        override fun checkInput(inputString: String): Boolean {
-            isValid = extractGistIdFrom(inputString) != null
-            return isValid
-        }
-
-        override fun getErrorText(inputString: String) =
-            if (isValid) null else "Couldn't parse gist URL"
-
-        override fun canClose(inputString: String) = true
     }
 
     private companion object {

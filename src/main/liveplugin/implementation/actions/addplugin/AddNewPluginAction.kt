@@ -5,7 +5,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages.showInputDialog
 import liveplugin.implementation.LivePlugin.Companion.livePluginsById
 import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
@@ -14,6 +13,7 @@ import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.Icons.newPluginIcon
 import liveplugin.implementation.common.IdeUtil.showErrorDialog
 import liveplugin.implementation.common.createFile
+import liveplugin.implementation.common.inputValidator
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
 import liveplugin.implementation.readSampleScriptFile
@@ -45,7 +45,7 @@ open class AddNewPluginAction(
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
-        val newPluginId = showInputDialog(project, "Enter new plugin name:", addNewPluginTitle, null, "", PluginIdValidator()) ?: return
+        val newPluginId = showInputDialog(project, "Enter new plugin name:", addNewPluginTitle, null, "", isNewPluginNameValidator) ?: return
         try {
             createFile("$livePluginsPath/$newPluginId", scriptFileName, scriptFileText, whenCreated = { virtualFile ->
                 if (project != null) FileEditorManager.getInstance(project).openFile(virtualFile, true)
@@ -57,15 +57,6 @@ open class AddNewPluginAction(
     }
 }
 
-class PluginIdValidator : InputValidatorEx {
-    private var errorText: String? = null
-
-    override fun checkInput(pluginId: String) =
-        (pluginId !in livePluginsById().keys).also { doesNotExist ->
-            errorText = if (doesNotExist) null else "There is already a plugin with this name"
-        }
-
-    override fun getErrorText(pluginId: String) = errorText
-
-    override fun canClose(pluginId: String) = true
+val isNewPluginNameValidator = inputValidator { pluginId ->
+    if (pluginId in livePluginsById().keys) "There is already a plugin with this name" else null
 }
