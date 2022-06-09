@@ -4,13 +4,12 @@ import com.intellij.CommonBundle
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationBundle
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.Icons.deletePluginIcon
-import liveplugin.implementation.common.IdeUtil.showErrorDialog
+import liveplugin.implementation.common.IdeUtil.showError
 import liveplugin.implementation.common.delete
 import liveplugin.implementation.livePlugins
 import java.io.IOException
@@ -25,8 +24,7 @@ class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", deletePlugi
             try {
                 plugin.path.toVirtualFile()?.delete()
             } catch (e: IOException) {
-                event.project.showErrorDialog("Error deleting plugin \"${plugin.path}\"", "Delete Plugin")
-                logger.error(e)
+                event.project.showError("Error deleting plugin \"${plugin.path}\": ${e.message}", e)
             }
         }
     }
@@ -36,8 +34,6 @@ class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", deletePlugi
     }
 
     companion object {
-        private val logger = Logger.getInstance(DeletePluginAction::class.java)
-
         private fun userDoesNotWantToRemovePlugins(plugins: List<LivePlugin>, project: Project?): Boolean {
             val pluginIds = plugins.map { it.id }
             val message = when (pluginIds.size) {

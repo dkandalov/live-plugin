@@ -10,7 +10,7 @@ import liveplugin.implementation.LivePluginPaths.groovyExamplesPath
 import liveplugin.implementation.LivePluginPaths.kotlinExamplesPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.common.Icons.newPluginIcon
-import liveplugin.implementation.common.IdeUtil.showErrorDialog
+import liveplugin.implementation.common.IdeUtil.showError
 import liveplugin.implementation.common.IdeUtil.showInputDialog
 import liveplugin.implementation.common.createFile
 import liveplugin.implementation.common.inputValidator
@@ -51,8 +51,7 @@ open class AddNewPluginAction(
                 if (project != null) FileEditorManager.getInstance(project).openFile(virtualFile, true)
             })
         } catch (e: IOException) {
-            project.showErrorDialog("Error adding plugin '$newPluginId'", dialogTitle)
-            log.error(e)
+            project.showError("Error adding plugin \"$newPluginId\": ${e.message}", e)
         }
     }
 }

@@ -10,6 +10,7 @@ import com.intellij.execution.ui.RunContentManager
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.impl.AsyncDataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -69,8 +70,9 @@ object IdeUtil {
         }
     }
 
-    fun Project?.showErrorDialog(message: String, title: String) {
-        Messages.showMessageDialog(this, message, title, Messages.getErrorIcon())
+    fun Project?.showError(message: String, e: Exception? = null) {
+        livePluginNotificationGroup.createNotification(title = "Live plugin", message, NotificationType.ERROR).notify(this)
+        logger.info(message, e) // Don't log it as an error because then IJ will show an additional window with stacktrace.
     }
 
     fun Project?.showInputDialog(message: String, title: String, inputValidator: InputValidatorEx? = null, initialValue: String? = null) =

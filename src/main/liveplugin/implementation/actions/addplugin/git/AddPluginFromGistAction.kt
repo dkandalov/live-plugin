@@ -3,7 +3,6 @@ package liveplugin.implementation.actions.addplugin.git
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
@@ -13,7 +12,7 @@ import liveplugin.implementation.actions.addplugin.git.GistApi.FailedRequest
 import liveplugin.implementation.actions.addplugin.git.GistApi.Gist
 import liveplugin.implementation.actions.addplugin.isNewPluginNameValidator
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
-import liveplugin.implementation.common.IdeUtil.showErrorDialog
+import liveplugin.implementation.common.IdeUtil.showError
 import liveplugin.implementation.common.IdeUtil.showInputDialog
 import liveplugin.implementation.common.createFile
 import liveplugin.implementation.common.inputValidator
@@ -40,14 +39,12 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
                             createFile("$livePluginsPath/$newPluginId", filename, file.content)
                         }
                     } catch (e: IOException) {
-                        project.showErrorDialog("Error adding plugin \"$newPluginId\"", dialogTitle)
-                        log.info(e)
+                        project.showError("Error adding plugin \"$newPluginId\": ${e.message}", e)
                     }
                 }
             },
-            onFailure = {
-                project.showErrorDialog("Failed to fetch gist", dialogTitle)
-                if (it != null) log.info(it)
+            onFailure = { e ->
+                project.showError("Failed to fetch gist: ${e.message}", e)
             }
         )
     }
@@ -56,7 +53,7 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
         gistUrl: String,
         project: Project?,
         onSuccess: (Gist) -> Unit,
-        onFailure: (FailedRequest?) -> Unit
+        onFailure: (FailedRequest) -> Unit
     ) {
         object : Task.Backgroundable(project, "Fetching gist…", true, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
@@ -71,7 +68,6 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
     }
 
     private companion object {
-        private val log = Logger.getInstance(AddPluginFromGistAction::class.java)
         private const val dialogTitle = "Copy Plugin From Gist"
 
         private fun extractGistIdFrom(gistUrl: String): String? {

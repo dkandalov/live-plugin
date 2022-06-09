@@ -2,7 +2,6 @@ package liveplugin.implementation.actions.addplugin
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import liveplugin.implementation.ExamplePlugin
@@ -10,7 +9,7 @@ import liveplugin.implementation.GroovyExamples
 import liveplugin.implementation.KotlinExamples
 import liveplugin.implementation.LivePlugin.Companion.livePluginsById
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
-import liveplugin.implementation.common.IdeUtil.showErrorDialog
+import liveplugin.implementation.common.IdeUtil.showError
 
 class AddGroovyExamplesActionGroup: DefaultActionGroup("Groovy Examples", true) {
     init {
@@ -33,8 +32,6 @@ class AddKotlinExamplesActionGroup: DefaultActionGroup("Kotlin Examples", true) 
 }
 
 private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): AnAction(), DumbAware {
-    private val logger = Logger.getInstance(AddExamplePluginAction::class.java)
-
     init {
         templatePresentation.text = examplePlugin.pluginId
     }
@@ -43,18 +40,15 @@ private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): 
         val project = event.project
         examplePlugin.installPlugin(
             whenCreated = { if (project != null) FileEditorManager.getInstance(project).openFile(it, true) },
-            handleError = { e, pluginPath -> logException(e, event, pluginPath) }
+            handleError = { e, pluginPath ->
+                event.project.showError("Error adding plugin \"$pluginPath\": ${e.message}", e)
+            }
         )
     }
 
     override fun update(event: AnActionEvent) {
         val alreadyAdded = livePluginsById().containsKey(examplePlugin.pluginId)
         event.presentation.isEnabled = !alreadyAdded
-    }
-
-    private fun logException(e: Exception, event: AnActionEvent, pluginPath: String) {
-        event.project.showErrorDialog("Error adding plugin \"$pluginPath\"", "Add Plugin")
-        logger.error(e)
     }
 }
 
