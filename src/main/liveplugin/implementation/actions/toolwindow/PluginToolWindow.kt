@@ -137,7 +137,7 @@ private class PluginToolWindow(project: Project) {
             when (dataId) {
                 FileSystemTree.DATA_KEY.name                 -> {
                     // This is used by "create directory/file" actions to get execution context
-                    // (without it they will be disabled or won't work).
+                    // (without it, they will be disabled or won't work).
                     fileSystemTree
                 }
                 FileChooserKeys.NEW_FILE_TYPE.name           -> groovyFileType

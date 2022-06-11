@@ -2,7 +2,6 @@ package liveplugin.implementation.actions.addplugin
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import liveplugin.implementation.LivePlugin.Companion.livePluginsById
@@ -34,18 +33,15 @@ class AddNewKotlinPluginAction : AddNewPluginAction(
 )
 
 open class AddNewPluginAction(
-    text: String,
+    private val text: String,
     description: String,
     private val scriptFileName: String,
     private val scriptFileText: String
 ) : AnAction(text, description, newPluginIcon), DumbAware {
 
-    private val log = Logger.getInstance(AddNewPluginAction::class.java)
-    private val dialogTitle = "Add $text"
-
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
-        val newPluginId = project.showInputDialog(message = "Enter new plugin name:", dialogTitle, isNewPluginNameValidator) ?: return
+        val newPluginId = project.showInputDialog(message = "Enter new plugin name:", "Add $text", isNewPluginNameValidator) ?: return
         try {
             createFile("$livePluginsPath/$newPluginId", scriptFileName, scriptFileText, whenCreated = { virtualFile ->
                 if (project != null) FileEditorManager.getInstance(project).openFile(virtualFile, true)
