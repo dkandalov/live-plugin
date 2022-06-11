@@ -6,9 +6,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
 import kotlin.reflect.KMutableProperty0
 
-var addFromGistAction: AnAction? = null
-class AddPluginFromGistDelegateAction: DelegateAction(::addFromGistAction)
-
 var addFromGitHubAction: AnAction? = null
 class AddPluginFromGitHubDelegateAction: DelegateAction(::addFromGitHubAction)
 
@@ -17,7 +14,6 @@ class SharePluginAsGistDelegateAction: DelegateAction(::shareAsGistAction)
 
 class GitDependentAppComponent : AppLifecycleListener {
     override fun appFrameCreated(commandLineArgs: MutableList<String>) {
-        addFromGistAction = AddPluginFromGistAction()
         addFromGitHubAction = AddPluginFromGitAction()
         shareAsGistAction = SharePluginAsGistAction()
     }

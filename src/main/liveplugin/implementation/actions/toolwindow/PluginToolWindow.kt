@@ -37,7 +37,7 @@ import liveplugin.implementation.actions.addplugin.AddGroovyExamplesActionGroup
 import liveplugin.implementation.actions.addplugin.AddKotlinExamplesActionGroup
 import liveplugin.implementation.actions.addplugin.AddNewGroovyPluginAction
 import liveplugin.implementation.actions.addplugin.AddNewKotlinPluginAction
-import liveplugin.implementation.actions.addplugin.git.AddPluginFromGistDelegateAction
+import liveplugin.implementation.actions.addplugin.git.AddPluginFromGistAction
 import liveplugin.implementation.actions.addplugin.git.AddPluginFromGitHubDelegateAction
 import liveplugin.implementation.actions.addplugin.git.SharePluginAsGistDelegateAction
 import liveplugin.implementation.actions.settings.AddLivePluginAndIdeJarsAsDependencies
@@ -87,7 +87,7 @@ private class PluginToolWindow(project: Project) {
             add(DefaultActionGroup("Add Plugin", true).apply {
                 add(AddNewKotlinPluginAction())
                 add(AddNewGroovyPluginAction())
-                add(AddPluginFromGistDelegateAction())
+                add(AddPluginFromGistAction())
                 add(AddPluginFromGitHubDelegateAction())
                 add(AddKotlinExamplesActionGroup())
                 add(AddGroovyExamplesActionGroup())

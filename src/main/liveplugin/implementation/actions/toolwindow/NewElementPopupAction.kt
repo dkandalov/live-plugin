@@ -12,7 +12,7 @@ import liveplugin.implementation.actions.addplugin.AddGroovyExamplesActionGroup
 import liveplugin.implementation.actions.addplugin.AddKotlinExamplesActionGroup
 import liveplugin.implementation.actions.addplugin.AddNewGroovyPluginAction
 import liveplugin.implementation.actions.addplugin.AddNewKotlinPluginAction
-import liveplugin.implementation.actions.addplugin.git.AddPluginFromGistDelegateAction
+import liveplugin.implementation.actions.addplugin.git.AddPluginFromGistAction
 import liveplugin.implementation.actions.addplugin.git.AddPluginFromGitHubDelegateAction
 import liveplugin.implementation.common.Icons.newFolderIcon
 import liveplugin.implementation.common.IdeUtil.groovyFileType
@@ -57,7 +57,7 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
                     Separator.getInstance(),
                     AddNewKotlinPluginAction(),
                     AddNewGroovyPluginAction(),
-                    AddPluginFromGistDelegateAction(),
+                    AddPluginFromGistAction(),
                     AddPluginFromGitHubDelegateAction(),
                     AddKotlinExamplesActionGroup(),
                     AddGroovyExamplesActionGroup(),
