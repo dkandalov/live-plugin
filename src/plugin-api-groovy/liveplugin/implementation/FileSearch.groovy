@@ -1,8 +1,8 @@
 package liveplugin.implementation
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiFileSystemItem
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.ProjectScope
 import liveplugin.PluginUtil
@@ -28,15 +28,14 @@ class FileSearch {
 			def reversePath = (pathAndName.size() > 1 ? pathAndName.reverse().tail() : [])
 			def name = pathAndName.last()
 			FilenameIndex
-				.getFilesByName(project, name, scope)
-				.toList()
+				.getVirtualFilesByName(name, scope)
 				.findAll { file -> matches(reversePath, file) }
 		}
 	}
 
-	private static boolean matches(List<String> reversePath, PsiFileSystemItem fileSystemItem) {
+	private static boolean matches(List<String> reversePath, VirtualFile virtualFile) {
 		if (reversePath.empty) true
-		else if (fileSystemItem.parent.name != reversePath.first()) false
-		else matches(reversePath.tail(), fileSystemItem.parent)
+		else if (virtualFile.parent.name != reversePath.first()) false
+		else matches(reversePath.tail(), virtualFile.parent)
 	}
 }

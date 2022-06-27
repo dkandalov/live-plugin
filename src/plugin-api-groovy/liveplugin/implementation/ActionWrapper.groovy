@@ -244,7 +244,7 @@ class ActionWrapper {
 		}
 
 		@Override protected boolean isEnabledForCaret(@NotNull Editor editor, @NotNull Caret caret, DataContext dataContext) {
-			originalAction.handler.isEnabled(editor, caret, dataContext)
+			originalAction.handler.isEnabledForCaret(editor, caret, dataContext)
 		}
 
 		@Override DocCommandGroupId getCommandGroupId(Editor editor) {
