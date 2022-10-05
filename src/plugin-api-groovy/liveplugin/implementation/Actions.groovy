@@ -13,7 +13,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.openapi.wm.IdeFocusManager
 import liveplugin.PluginUtil
 import liveplugin.implementation.common.IdeUtil
 import liveplugin.implementation.pluginrunner.PluginRunner
@@ -23,6 +22,7 @@ import org.jetbrains.annotations.Nullable
 import javax.swing.*
 import java.util.function.Function
 
+import static java.util.concurrent.TimeUnit.SECONDS
 import static liveplugin.implementation.Misc.newDisposable
 
 class Actions {
@@ -129,7 +129,7 @@ class Actions {
 	}
 
 	static DataContext dataContextFromFocus() {
-		DataManager.instance.getDataContext(IdeFocusManager.globalInstance.focusOwner)
+		DataManager.instance.getDataContextFromFocusAsync().blockingGet(2, SECONDS)
 	}
 
 	private static DefaultActionGroup findActionGroup(String actionGroupId) {

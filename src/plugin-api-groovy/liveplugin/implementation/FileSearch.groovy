@@ -28,7 +28,7 @@ class FileSearch {
 			def reversePath = (pathAndName.size() > 1 ? pathAndName.reverse().tail() : [])
 			def name = pathAndName.last()
 			FilenameIndex
-				.getVirtualFilesByName(name, scope)
+				.getVirtualFilesByName(name, false, scope)
 				.findAll { file -> matches(reversePath, file) }
 		}
 	}
