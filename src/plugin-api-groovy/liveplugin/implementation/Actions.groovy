@@ -89,12 +89,12 @@ class Actions {
 					"Please create one or change source code to use some other configuration.")
 			}
 			def builder = ExecutionEnvironmentBuilder.create(DefaultRunExecutor.runExecutorInstance, settings)
-			def environment = builder.contentToReuse(null).dataContext(null).activeTarget().build()
+			def executionEnv = builder.contentToReuse(null).dataContext(null).activeTarget().build()
 
 			// Execute runner directly instead of using ProgramRunnerUtil.executeConfiguration()
 			// because it doesn't allow running multiple instances of the same configuration
-			environment.assignNewExecutionId()
-			environment.runner.execute(environment)
+			executionEnv.assignNewExecutionId()
+			executionEnv.runner.execute(executionEnv)
 
 		} catch (ExecutionException e) {
 			return PluginUtil.show(e)
