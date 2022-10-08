@@ -5,6 +5,10 @@ package liveplugin
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
+import com.intellij.openapi.editor.Caret
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.actionSystem.EditorAction
+import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid
@@ -72,6 +76,23 @@ fun registerAction(
     action: AnAction
 ): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
     registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, positionInGroup, disposable, action)
+}
+
+fun LivePluginScript.registerEditorAction(
+    @ActionText id: String,
+    keyStroke: String? = null,
+    actionGroupId: String? = null,
+    positionInGroup: Constraints = Constraints.LAST,
+    function: (editor: Editor, caret: Caret, dataContext: DataContext) -> Unit
+): AnAction = noNeedForEdtOrWriteActionWhenUsingActionManager {
+    val actionHandler = object : EditorWriteActionHandler.ForEachCaret() {
+        override fun executeWriteAction(editor: Editor, caret: Caret?, dataContext: DataContext) {
+            if (caret == null) return
+            function(editor, caret, dataContext)
+        }
+    }
+    val editorAction = object : EditorAction(actionHandler) {}
+    registerAction(id, keyStroke?.toKeyboardShortcut(), actionGroupId, positionInGroup, pluginDisposable, editorAction)
 }
 
 fun registerAction(
