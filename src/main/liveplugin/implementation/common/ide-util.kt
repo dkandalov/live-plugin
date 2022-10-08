@@ -10,7 +10,7 @@ import com.intellij.execution.ui.RunContentManager
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationGroupManager
-import com.intellij.notification.NotificationType
+import com.intellij.notification.NotificationType.ERROR
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.impl.AsyncDataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -28,6 +28,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.ReflectionUtil
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.annotations.NonNls
@@ -66,12 +67,12 @@ object IdeUtil {
             // (see com.intellij.diagnostic.IdeErrorsDialog.findPluginId)
             logger.error(consoleTitle, PluginException(text, PluginId.getId(livePluginId)))
         } else {
-            showInConsole(text, consoleTitle, project, ConsoleViewContentType.ERROR_OUTPUT)
+            project.showInConsole(text, consoleTitle, ConsoleViewContentType.ERROR_OUTPUT)
         }
     }
 
     fun Project?.showError(message: String, e: Exception? = null) {
-        livePluginNotificationGroup.createNotification(title = "Live plugin", message, NotificationType.ERROR).notify(this)
+        livePluginNotificationGroup.createNotification(title = "Live plugin", message, ERROR).notify(this)
         if (e != null) logger.info(e) // Don't log it as an error because then IJ will show an additional window with stacktrace.
     }
 
@@ -94,25 +95,23 @@ object IdeUtil {
         return Unscramble.normalizeText(writer.buffer.toString())
     }
 
-    private fun showInConsole(message: String, consoleTitle: String, project: Project, contentType: ConsoleViewContentType) {
-        val runnable = {
-            val console = TextConsoleBuilderFactory.getInstance().createBuilder(project).console
-            console.print(message, contentType)
+    private fun Project.showInConsole(message: String, consoleTitle: String, contentType: ConsoleViewContentType) {
+        ToolWindowManager.getInstance(this).invokeLater {
+            val consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(this).console
+            consoleView.print(message, contentType)
 
             val toolbarActions = DefaultActionGroup()
-            val consoleComponent = MyConsolePanel(console, toolbarActions)
-            val descriptor = object: RunContentDescriptor(console, null, consoleComponent, consoleTitle) {
+            val consoleComponent = MyConsolePanel(consoleView, toolbarActions)
+            val descriptor = object : RunContentDescriptor(consoleView, null, consoleComponent, consoleTitle) {
                 override fun isContentReuseProhibited() = true
                 override fun getIcon() = AllIcons.Nodes.Plugin
             }
             val executor = DefaultRunExecutor.getRunExecutorInstance()
+            toolbarActions.add(CloseAction(executor, descriptor, this))
+            toolbarActions.addAll(*consoleView.createConsoleActions())
 
-            toolbarActions.add(CloseAction(executor, descriptor, project))
-            toolbarActions.addAll(*console.createConsoleActions())
-
-            RunContentManager.getInstance(project).showRunContent(executor, descriptor)
+            RunContentManager.getInstance(this).showRunContent(executor, descriptor)
         }
-        ApplicationManager.getApplication().invokeAndWait(runnable, ModalityState.NON_MODAL)
     }
 
     private class MyConsolePanel(consoleView: ExecutionConsole, toolbarActions: ActionGroup): JPanel(BorderLayout()) {
