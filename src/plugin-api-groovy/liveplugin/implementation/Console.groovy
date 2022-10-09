@@ -67,23 +67,23 @@ class Console {
 		AtomicReference<String> titleRef = new AtomicReference(consoleTitle)
 
 		invokeOnEDT {
-			ConsoleView console = TextConsoleBuilderFactory.instance.createBuilder(project).console
-			console.print(Misc.asString(message), contentType)
+			def consoleView = TextConsoleBuilderFactory.instance.createBuilder(project).console
+			consoleView.print(Misc.asString(message), contentType)
 
 			DefaultActionGroup toolbarActions = new DefaultActionGroup()
 			//noinspection GroovyUnusedAssignment (IntelliJ is wrong and has been wrong for years now :()
-			def consoleComponent = new MyConsolePanel(console, toolbarActions)
-			RunContentDescriptor descriptor = new RunContentDescriptor(console, null, consoleComponent, titleRef.get()) {
+			def consoleComponent = new MyConsolePanel(consoleView, toolbarActions)
+			RunContentDescriptor descriptor = new RunContentDescriptor(consoleView, null, consoleComponent, titleRef.get()) {
 				@Override boolean isContentReuseProhibited() { true }
 				@Override Icon getIcon() { AllIcons.Nodes.Plugin }
 			}
 			Executor executor = DefaultRunExecutor.runExecutorInstance
 
 			toolbarActions.add(new CloseAction(executor, descriptor, project))
-			console.createConsoleActions().each { toolbarActions.add(it) }
+			consoleView.createConsoleActions().each { toolbarActions.add(it) }
 
 			RunContentManager.getInstance(project).showRunContent(executor, descriptor)
-			result.set(console)
+			result.set(consoleView)
 		}
 		result.get()
 	}
