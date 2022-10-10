@@ -8,9 +8,11 @@ import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 
+@Ignore
 class KotlinPluginRunnerTests {
     private val pluginRunner = KotlinPluginRunner(kotlinScriptFile, emptyMap())
     private val pluginDir = FileUtil.createTempDirectory("", "")
