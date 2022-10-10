@@ -27,7 +27,7 @@ class GistApiReplayingServerTests : GistApiTests(
     authToken = "dummy-token"
 )
 
-private val storage = ReadWriteCache.Disk("src/test/liveplugin/implementation/actions/git/recorded_traffic").sanitized()
+private val storage = diskReadWriteCache("src/test/liveplugin/implementation/actions/git/recorded_traffic").sanitized()
 
 abstract class GistApiTests(
     httpClient: HttpHandler,
