@@ -17,12 +17,12 @@ import org.junit.jupiter.api.assertThrows
 
 @Ignore
 class GistApiExternalServerTests : GistApiTests(
-    httpClient = RecordTo(storage).then(GistApiHttp.defaultHandler),
+    httpClient = RecordTo(storage).then(GistApiHttp.defaultHandler()),
     authToken = System.getenv("GIST_API_TOKEN") ?: ""
 )
 
 class GistApiReplayingServerTests : GistApiTests(
-    httpClient = ServeCachedFrom(storage).then { request: Request -> error("no recorded response for request:\n$request") },
+    httpClient = ServeCachedFrom(storage).then { request -> error("no recorded response for request:\n$request") },
     authToken = "dummy-token"
 )
 

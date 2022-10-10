@@ -21,6 +21,7 @@ import com.intellij.ui.dsl.builder.RowLayout.LABEL_ALIGNED
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.dsl.gridLayout.VerticalAlign
+import com.intellij.util.proxy.CommonProxy
 import liveplugin.implementation.actions.addplugin.git.GistApi.*
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showError
@@ -30,6 +31,7 @@ import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import java.awt.datatransfer.StringSelection
 import java.io.IOException
+import java.net.URL
 import javax.swing.JTextArea
 
 class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files as a Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
@@ -51,7 +53,8 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
                         public = !dialog.isSecret,
                         files = livePlugin.path.allFiles().associate { it.name to GistFile(it.readText()) }
                     )
-                    val newGist = GistApiHttp().create(gist, authToken)
+                    val proxy = CommonProxy.getInstance().select(URL("https://api.github.com/gists")).firstOrNull()
+                    val newGist = GistApiHttp(proxy).create(gist, authToken)
                     runLaterOnEdt {
                         if (dialog.isCopyURL) {
                             val stringSelection = StringSelection(newGist.htmlUrl)

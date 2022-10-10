@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import liveplugin.implementation.actions.addplugin.git.GistApi.*
+import okhttp3.OkHttpClient
 import org.http4k.client.OkHttp
 import org.http4k.core.*
 import org.http4k.core.Method.*
@@ -16,6 +17,7 @@ import org.http4k.core.Status.Companion.CREATED
 import org.http4k.core.Status.Companion.NO_CONTENT
 import org.http4k.core.Status.Companion.OK
 import org.http4k.filter.ClientFilters.SetBaseUriFrom
+import java.net.Proxy
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -52,7 +54,9 @@ interface GistApi {
     class FailedRequest(message: String) : Exception(message)
 }
 
-class GistApiHttp(httpHandler: HttpHandler = defaultHandler) : GistApi {
+class GistApiHttp(httpHandler: HttpHandler = defaultHandler()) : GistApi {
+    constructor(proxy: Proxy?) : this(defaultHandler(proxy))
+
     private val client = httpHandler.with(AcceptGithubJsonHeader())
 
     override fun create(gist: Gist, authToken: String): Gist {
@@ -102,7 +106,13 @@ class GistApiHttp(httpHandler: HttpHandler = defaultHandler) : GistApi {
         )
 
     companion object {
-        val defaultHandler = OkHttp().with(SetBaseUriFrom(Uri.of("https://api.github.com/gists")))
+        fun defaultHandler(proxy: Proxy? = null): HttpHandler {
+            val okHttpClient = OkHttpClient.Builder()
+                .proxy(proxy)
+                .followRedirects(true)
+                .build()
+            return OkHttp(okHttpClient).with(SetBaseUriFrom(Uri.of("https://api.github.com/gists")))
+        }
 
         private class AcceptGithubJsonHeader : Filter {
             override fun invoke(handler: HttpHandler) = { request: Request ->
