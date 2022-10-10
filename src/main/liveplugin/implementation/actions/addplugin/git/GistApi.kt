@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import liveplugin.implementation.actions.addplugin.git.GistApi.*
 import org.http4k.client.OkHttp
 import org.http4k.core.*
 import org.http4k.core.Method.*
@@ -49,59 +50,59 @@ interface GistApi {
     data class GistCommit(val version: String)
 
     class FailedRequest(message: String) : Exception(message)
+}
+
+class GistApiHttp(httpHandler: HttpHandler = defaultHandler) : GistApi {
+    private val client = httpHandler.with(AcceptGithubJsonHeader())
+
+    override fun create(gist: Gist, authToken: String): Gist {
+        val request = Request(POST, "")
+            .header("Authorization", "Bearer $authToken")
+            .body(objectMapper.writeValueAsString(gist))
+        return client(request).expectStatus(CREATED).parse()
+    }
+
+    override fun update(gist: Gist, authToken: String): Gist {
+        val request = Request(PATCH, gist.id)
+            .header("Authorization", "Bearer $authToken")
+            .body(objectMapper.writeValueAsString(gist))
+        return client(request).expectStatus(OK).parse()
+    }
+
+    override fun delete(gistId: String, authToken: String) {
+        val request = Request(DELETE, gistId)
+            .header("Authorization", "Bearer $authToken")
+        client(request).expectStatus(NO_CONTENT)
+    }
+
+    override fun getGist(gistId: String): Gist =
+        client(Request(GET, gistId)).expectStatus(OK).parse()
+
+    override fun listCommits(gistId: String): List<GistCommit> =
+        client(Request(GET, "$gistId/commits")).expectStatus(OK).parseList()
+
+    override fun getGistRevision(gistId: String, sha: String): Gist =
+        client(Request(GET, "$gistId/$sha")).expectStatus(OK).parse()
+
+    private fun Response.expectStatus(status: Status): Response {
+        if (this.status == status) return this
+        else throw FailedRequest("Expected status ${status.code} but was ${this.status.code}")
+    }
+
+    private inline fun <reified T> Response.parseList(): List<T> =
+        objectMapper.readValue(
+            body.stream,
+            objectMapper.typeFactory.constructCollectionType(List::class.java, T::class.java)
+        )
+
+    private inline fun <reified T> Response.parse(): T =
+        objectMapper.readValue(
+            body.stream,
+            objectMapper.typeFactory.constructType(T::class.java)
+        )
 
     companion object {
-        val gistClient = OkHttp().with(SetBaseUriFrom(Uri.of("https://api.github.com/gists")))
-
-        operator fun invoke(httpHandler: HttpHandler = gistClient) = object : GistApi {
-            private val client = httpHandler.with(AcceptGithubJsonHeader())
-
-            override fun create(gist: Gist, authToken: String): Gist {
-                val request = Request(POST, "")
-                    .header("Authorization", "Bearer $authToken")
-                    .body(objectMapper.writeValueAsString(gist))
-                return client(request).expectStatus(CREATED).parse()
-            }
-
-            override fun update(gist: Gist, authToken: String): Gist {
-                val request = Request(PATCH, gist.id)
-                    .header("Authorization", "Bearer $authToken")
-                    .body(objectMapper.writeValueAsString(gist))
-                return client(request).expectStatus(OK).parse()
-            }
-
-            override fun delete(gistId: String, authToken: String) {
-                val request = Request(DELETE, gistId)
-                    .header("Authorization", "Bearer $authToken")
-                client(request).expectStatus(NO_CONTENT)
-            }
-
-            override fun getGist(gistId: String): Gist =
-                client(Request(GET, gistId)).expectStatus(OK).parse()
-
-            override fun listCommits(gistId: String): List<GistCommit> =
-                client(Request(GET, "$gistId/commits")).expectStatus(OK).parseList()
-
-            override fun getGistRevision(gistId: String, sha: String): Gist =
-                client(Request(GET, "$gistId/$sha")).expectStatus(OK).parse()
-
-            private fun Response.expectStatus(status: Status): Response {
-                if (this.status == status) return this
-                else throw(FailedRequest("Expected status ${status.code} but was ${this.status.code}"))
-            }
-
-            private inline fun <reified T> Response.parseList(): List<T> =
-                objectMapper.readValue(
-                    body.stream,
-                    objectMapper.typeFactory.constructCollectionType(List::class.java, T::class.java)
-                )
-
-            private inline fun <reified T> Response.parse(): T =
-                objectMapper.readValue(
-                    body.stream,
-                    objectMapper.typeFactory.constructType(T::class.java)
-                )
-        }
+        val defaultHandler = OkHttp().with(SetBaseUriFrom(Uri.of("https://api.github.com/gists")))
 
         private class AcceptGithubJsonHeader : Filter {
             override fun invoke(handler: HttpHandler) = { request: Request ->

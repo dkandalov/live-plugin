@@ -1,8 +1,7 @@
 package liveplugin.implementation.actions.git
 
-import liveplugin.implementation.actions.addplugin.git.GistApi
 import liveplugin.implementation.actions.addplugin.git.GistApi.*
-import liveplugin.implementation.actions.addplugin.git.GistApi.Companion.gistClient
+import liveplugin.implementation.actions.addplugin.git.GistApiHttp
 import org.hamcrest.core.IsEqual.equalTo
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
@@ -18,7 +17,7 @@ import org.junit.jupiter.api.assertThrows
 
 @Ignore
 class GistApiExternalServerTests : GistApiTests(
-    httpClient = RecordTo(storage).then(gistClient),
+    httpClient = RecordTo(storage).then(GistApiHttp.defaultHandler),
     authToken = System.getenv("GIST_API_TOKEN") ?: ""
 )
 
@@ -33,7 +32,7 @@ abstract class GistApiTests(
     httpClient: HttpHandler,
     private val authToken: String
 ) {
-    private val gistApi = GistApi(httpClient)
+    private val gistApi = GistApiHttp(httpClient)
 
     @Test fun `create and delete gist`() {
         val gist = Gist(description = "test", files = mapOf("test.txt" to GistFile("some file content")), public = false)

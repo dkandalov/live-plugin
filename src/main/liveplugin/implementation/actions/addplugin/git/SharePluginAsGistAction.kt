@@ -51,7 +51,7 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
                         public = !dialog.isSecret,
                         files = livePlugin.path.allFiles().associate { it.name to GistFile(it.readText()) }
                     )
-                    val newGist = GistApi().create(gist, authToken)
+                    val newGist = GistApiHttp().create(gist, authToken)
                     runLaterOnEdt {
                         if (dialog.isCopyURL) {
                             val stringSelection = StringSelection(newGist.htmlUrl)

@@ -58,7 +58,7 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
         object : Task.Backgroundable(project, "Fetching gist…", true, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
                 try {
-                    val gist = GistApi().getGist(extractGistIdFrom(gistUrl)!!)
+                    val gist = GistApiHttp().getGist(extractGistIdFrom(gistUrl)!!)
                     runLaterOnEdt { onSuccess(gist) }
                 } catch (e: FailedRequest) {
                     runLaterOnEdt { onFailure(e) }
