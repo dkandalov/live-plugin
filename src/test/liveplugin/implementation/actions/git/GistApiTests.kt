@@ -107,19 +107,9 @@ abstract class GistApiTests(
         }
     }
 
-    @Test fun `fail to update non-existing gist`() {
-        assertThrows<FailedRequest> {
-            gistApi.update(Gist(id = "invalid-gist-id", files = emptyMap()), authToken)
-        }
-    }
-
-    @Test fun `fail to delete non-existing gist`() {
-        assertThrows<FailedRequest> {
-            gistApi.delete("invalid-gist-id", authToken)
-        }
-    }
-
     @Test fun `fail to access non-existing gist`() {
+        assertThrows<FailedRequest> { gistApi.update(Gist(id = "invalid-gist-id", files = emptyMap()), authToken) }
+        assertThrows<FailedRequest> { gistApi.delete("invalid-gist-id", authToken) }
         assertThrows<FailedRequest> { gistApi.getGist("invalid-gist-id") }
         assertThrows<FailedRequest> { gistApi.listCommits("invalid-gist-id") }
         assertThrows<FailedRequest> { gistApi.getGistRevision("invalid-gist-id", "abc") }
