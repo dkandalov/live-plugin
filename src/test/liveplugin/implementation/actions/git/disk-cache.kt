@@ -21,7 +21,7 @@ private fun diskSink(baseDir: String = ".", shouldStore: (HttpMessage) -> Boolea
         if (shouldStore(response)) response.writeTo(requestFolder)
     }
 
-private fun diskSource(baseDir: String = ".") = Source { request ->
+private fun diskSource(baseDir: String) = Source { request ->
     val file = File(request.toFolder(File(baseDir)), "response.txt")
     if (!file.exists()) null else {
         val responseString = String(file.readBytes()).replace("\r\n", "\n")
@@ -31,8 +31,8 @@ private fun diskSource(baseDir: String = ".") = Source { request ->
 
 private fun Request.toFolder(baseDir: File): File {
     val parentFile = File(baseDir, uri.path)
-    val child = String(Base64.getEncoder().encode(MessageDigest.getInstance("SHA1").digest(toString().toByteArray())))
-        .replace(File.separatorChar, '_')
+    val digest = String(Base64.getEncoder().encode(MessageDigest.getInstance("SHA1").digest(toString().toByteArray())))
+    val child = (method.name.lowercase() + "-" + digest).replace(File.separatorChar, '_')
     return File(parentFile, child)
 }
 

@@ -1,5 +1,0 @@
-PATCH c303e86fe7942048a7590748ef7934b6 HTTP/1.1
-Accept: application/vnd.github.v3+json
-Authorization: Bearer dummy-token
-
-{"id":"c303e86fe7942048a7590748ef7934b6","description":"test","files":{"test.txt":{"content":"updated file content"}},"public":false,"html_url":"https://gist.github.com/c303e86fe7942048a7590748ef7934b6"}

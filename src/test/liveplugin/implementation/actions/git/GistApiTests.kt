@@ -36,10 +36,18 @@ abstract class GistApiTests(
     private val someGist = Gist(description = "test", files = mapOf("test.txt" to GistFile("some file content")), public = false)
 
     @Test fun `create and delete gist`() {
-        val gist = gistApi.create(someGist, authToken)
-        assertThat(someGist.copy(id = gist.id, htmlUrl = gist.htmlUrl), equalTo(gist))
+        val createGist = gistApi.create(someGist, authToken)
+        assertThat(someGist.copy(id = createGist.id, htmlUrl = createGist.htmlUrl), equalTo(createGist))
 
-        gistApi.delete(gist.id, authToken)
+        gistApi.delete(createGist.id, authToken)
+    }
+
+    @Test fun `create and delete public gist without description`() {
+        val gist = someGist.copy(description = "", public = true)
+        val createGist = gistApi.create(gist, authToken)
+        assertThat(createGist.copy(id = createGist.id, htmlUrl = createGist.htmlUrl), equalTo(createGist))
+
+        gistApi.delete(createGist.id, authToken)
     }
 
     @Test fun `update gist and list its revisions`() {
@@ -104,11 +112,11 @@ abstract class GistApiTests(
     }
 
     @Test fun `fail to access non-existing gist`() {
-        assertThrows<FailedRequest> { gistApi.update(Gist(id = "invalid-gist-id", files = emptyMap()), authToken) }
-        assertThrows<FailedRequest> { gistApi.delete(gistId = "invalid-gist-id", authToken) }
-        assertThrows<FailedRequest> { gistApi.getGist(gistId = "invalid-gist-id") }
-        assertThrows<FailedRequest> { gistApi.listCommits(gistId = "invalid-gist-id") }
-        assertThrows<FailedRequest> { gistApi.getGistRevision(gistId = "invalid-gist-id", sha = "abc") }
+        assertThrows<FailedRequest> { gistApi.update(Gist(id = "non-existing-id", files = emptyMap()), authToken) }
+        assertThrows<FailedRequest> { gistApi.delete(gistId = "non-existing-id", authToken) }
+        assertThrows<FailedRequest> { gistApi.getGist(gistId = "non-existing-id") }
+        assertThrows<FailedRequest> { gistApi.listCommits(gistId = "non-existing-id") }
+        assertThrows<FailedRequest> { gistApi.getGistRevision(gistId = "non-existing-id", sha = "some-sha") }
     }
 }
 

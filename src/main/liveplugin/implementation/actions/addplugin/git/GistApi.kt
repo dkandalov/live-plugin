@@ -42,7 +42,7 @@ interface GistApi {
 
     data class Gist(
         val id: String = "",
-        val description: String = "",
+        val description: String? = "",
         val files: Map<String, GistFile>,
         val public: Boolean = true,
         val htmlUrl: String = ""

@@ -1,0 +1,5 @@
+PATCH 13e3b8e54d393994b795cd78d06c71a6 HTTP/1.1
+Accept: application/vnd.github.v3+json
+Authorization: Bearer dummy-token
+
+{"id":"13e3b8e54d393994b795cd78d06c71a6","description":"test","files":{"test.txt":{"content":"updated file content"}},"public":false,"html_url":"https://gist.github.com/13e3b8e54d393994b795cd78d06c71a6"}
