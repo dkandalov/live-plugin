@@ -33,20 +33,17 @@ abstract class GistApiTests(
     private val authToken: String
 ) {
     private val gistApi = GistApiHttp(httpClient)
+    private val someGist = Gist(description = "test", files = mapOf("test.txt" to GistFile("some file content")), public = false)
 
     @Test fun `create and delete gist`() {
-        val gist = Gist(description = "test", files = mapOf("test.txt" to GistFile("some file content")), public = false)
-        val createdGist = gistApi.create(gist, authToken)
-        assertThat(gist.copy(id = createdGist.id, htmlUrl = createdGist.htmlUrl), equalTo(createdGist))
+        val gist = gistApi.create(someGist, authToken)
+        assertThat(someGist.copy(id = gist.id, htmlUrl = gist.htmlUrl), equalTo(gist))
 
-        gistApi.delete(createdGist.id, authToken)
+        gistApi.delete(gist.id, authToken)
     }
 
     @Test fun `update gist and list its revisions`() {
-        val gist = gistApi.create(
-            Gist(description = "test", files = mapOf("test.txt" to GistFile("some file content")), public = false),
-            authToken
-        )
+        val gist = gistApi.create(someGist, authToken)
         try {
             val updatedGist = gistApi.update(gist.copy(files = mapOf("test.txt" to GistFile("updated file content"))), authToken)
 
@@ -100,18 +97,18 @@ abstract class GistApiTests(
         )
     }
 
-    @Test fun `fail to create invalid gist`() {
+    @Test fun `fail to create invalid gist with no files`() {
         assertThrows<FailedRequest> {
-            gistApi.create(Gist(description = "test", files = emptyMap(), public = false), authToken)
+            gistApi.create(someGist.copy(files = emptyMap()), authToken)
         }
     }
 
     @Test fun `fail to access non-existing gist`() {
         assertThrows<FailedRequest> { gistApi.update(Gist(id = "invalid-gist-id", files = emptyMap()), authToken) }
-        assertThrows<FailedRequest> { gistApi.delete("invalid-gist-id", authToken) }
-        assertThrows<FailedRequest> { gistApi.getGist("invalid-gist-id") }
-        assertThrows<FailedRequest> { gistApi.listCommits("invalid-gist-id") }
-        assertThrows<FailedRequest> { gistApi.getGistRevision("invalid-gist-id", "abc") }
+        assertThrows<FailedRequest> { gistApi.delete(gistId = "invalid-gist-id", authToken) }
+        assertThrows<FailedRequest> { gistApi.getGist(gistId = "invalid-gist-id") }
+        assertThrows<FailedRequest> { gistApi.listCommits(gistId = "invalid-gist-id") }
+        assertThrows<FailedRequest> { gistApi.getGistRevision(gistId = "invalid-gist-id", sha = "abc") }
     }
 }
 
