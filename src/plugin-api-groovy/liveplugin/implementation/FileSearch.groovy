@@ -21,7 +21,7 @@ class FileSearch {
 		files.first()
 	}
 
-	static List<PsiFile> findAllFilesByName(String filePath, @NotNull Project project, boolean searchInLibraries = false) {
+	static Set<PsiFile> findAllFilesByName(String filePath, @NotNull Project project, boolean searchInLibraries = false) {
 		PluginUtil.runReadAction {
 			def scope = searchInLibraries ? ProjectScope.getAllScope(project) : ProjectScope.getProjectScope(project)
 			def pathAndName = filePath.split("[/\\\\]").toList().findAll { !it.empty }

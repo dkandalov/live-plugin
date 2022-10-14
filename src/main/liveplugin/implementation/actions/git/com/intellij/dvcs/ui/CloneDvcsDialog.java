@@ -1,4 +1,4 @@
-package liveplugin.implementation.actions.addplugin.git.com.intellij.dvcs.ui;
+package liveplugin.implementation.actions.git.com.intellij.dvcs.ui;
 
 import com.intellij.dvcs.DvcsRememberedInputs;
 import com.intellij.dvcs.ui.DvcsBundle;

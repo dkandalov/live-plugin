@@ -27,7 +27,9 @@ class ToolWindows {
 		disposable = (disposable == null ? disposableId : newDisposable([disposable, disposableId]))
 
 		Projects.registerProjectListener(disposable) { Project project ->
-			registerToolWindowIn(project, toolWindowId, newDisposable([project, disposable]), location, toolbarActionGroup, createComponent)
+			ToolWindowManager.getInstance(project).invokeLater {
+				registerToolWindowIn(project, toolWindowId, newDisposable([project, disposable]), location, toolbarActionGroup, createComponent)
+			}
 		}
 	}
 

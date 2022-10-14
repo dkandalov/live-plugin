@@ -1,4 +1,4 @@
-package liveplugin.implementation.actions.addplugin.git
+package liveplugin.implementation.actions.gist
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
@@ -9,9 +9,9 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.util.proxy.CommonProxy
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.actions.addplugin.git.GistApi.FailedRequest
-import liveplugin.implementation.actions.addplugin.git.GistApi.Gist
-import liveplugin.implementation.actions.addplugin.isNewPluginNameValidator
+import liveplugin.implementation.actions.gist.GistApi.FailedRequest
+import liveplugin.implementation.actions.gist.GistApi.Gist
+import liveplugin.implementation.actions.isNewPluginNameValidator
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showError
 import liveplugin.implementation.common.IdeUtil.showInputDialog

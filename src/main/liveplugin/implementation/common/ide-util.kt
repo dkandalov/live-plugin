@@ -97,24 +97,30 @@ object IdeUtil {
 
     private fun Project.showInConsole(message: String, consoleTitle: String, contentType: ConsoleViewContentType) {
         ToolWindowManager.getInstance(this).invokeLater {
-            val consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(this).console
-            consoleView.print(message, contentType)
+            val runContentManager = RunContentManager.getInstance(this)
+            val executor = DefaultRunExecutor.getRunExecutorInstance()
 
             val toolbarActions = DefaultActionGroup()
+            val consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(this).console.also {
+                it.print(message, contentType)
+            }
             val consoleComponent = MyConsolePanel(consoleView, toolbarActions)
+
+            val contentDescriptor = runContentManager.allDescriptors.find { it.displayName == consoleTitle }
+            if (contentDescriptor != null) runContentManager.removeRunContent(executor, contentDescriptor)
+
             val descriptor = object : RunContentDescriptor(consoleView, null, consoleComponent, consoleTitle) {
                 override fun isContentReuseProhibited() = true
                 override fun getIcon() = AllIcons.Nodes.Plugin
             }
-            val executor = DefaultRunExecutor.getRunExecutorInstance()
             toolbarActions.add(CloseAction(executor, descriptor, this))
             toolbarActions.addAll(*consoleView.createConsoleActions())
 
-            RunContentManager.getInstance(this).showRunContent(executor, descriptor)
+            runContentManager.showRunContent(executor, descriptor)
         }
     }
 
-    private class MyConsolePanel(consoleView: ExecutionConsole, toolbarActions: ActionGroup): JPanel(BorderLayout()) {
+    private class MyConsolePanel(consoleView: ExecutionConsole, toolbarActions: ActionGroup) : JPanel(BorderLayout()) {
         init {
             val toolbarPanel = JPanel(BorderLayout()).also {
                 val actionToolbar = ActionManager.getInstance().createActionToolbar(livePluginActionPlace, toolbarActions, false)
@@ -197,7 +203,7 @@ object IdeUtil {
      * Can't use `FileTypeManager.getInstance().getFileTypeByExtension("kts");` here
      * because it will return FileType for .kt files and this will cause creating files with wrong extension.
      */
-    object KotlinScriptFileType: FileType {
+    object KotlinScriptFileType : FileType {
         override fun getName() = "Kotlin"
         override fun getDescription() = this.name
         override fun getDefaultExtension() = "kts"
@@ -212,7 +218,7 @@ object IdeUtil {
 
         // The kotlin icon is missing in some IDEs like WebStorm, so it's important
         // to set `strict` to false in findIcon, so an exception won't be thrown.
-        private fun findIconOrNull(path: String) : Icon? {
+        private fun findIconOrNull(path: String): Icon? {
             val callerClass = ReflectionUtil.getGrandCallerClass() ?: return null
             return IconLoader.findIcon(path, callerClass, false, false)
         }

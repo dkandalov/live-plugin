@@ -1,4 +1,4 @@
-package liveplugin.implementation.actions.addplugin
+package liveplugin.implementation.actions
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT

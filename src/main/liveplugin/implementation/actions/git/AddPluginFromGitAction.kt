@@ -1,4 +1,4 @@
-package liveplugin.implementation.actions.addplugin.git
+package liveplugin.implementation.actions.git
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
@@ -21,10 +21,9 @@ import git4idea.GitVcs
 import git4idea.checkout.GitCheckoutProvider
 import git4idea.commands.Git
 import git4idea.remote.GitRememberedInputs
-import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.actions.addplugin.git.com.intellij.dvcs.ui.CloneDvcsDialog
+import liveplugin.implementation.LivePluginPaths
+import liveplugin.implementation.actions.git.com.intellij.dvcs.ui.CloneDvcsDialog
 import java.io.File
-
 
 /**
  * Partially copied from org.jetbrains.plugins.github.GithubCheckoutProvider (became com.intellij.dvcs.ui.CloneDvcsDialog in IJ13)
@@ -94,7 +93,7 @@ class AddPluginFromGitAction: AnAction("Clone from Git", "Clone from Git", AllIc
                     return@Runnable
                 }
             }
-            val pluginsRoot = livePluginsPath.toVirtualFile() ?: return
+            val pluginsRoot = LivePluginPaths.livePluginsPath.toVirtualFile() ?: return
             RefreshQueue.getInstance().refresh(false, true, finishRunnable, pluginsRoot)
         }
     }

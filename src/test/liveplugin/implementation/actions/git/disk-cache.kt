@@ -14,7 +14,7 @@ import java.util.*
 fun diskReadWriteCache(baseDir: String = ".", shouldStore: (HttpMessage) -> Boolean = { true }): ReadWriteCache =
     object : ReadWriteCache, Source by diskSource(baseDir), Sink by diskSink(baseDir, shouldStore) {}
 
-private fun diskSink(baseDir: String = ".", shouldStore: (HttpMessage) -> Boolean = { true }) =
+private fun diskSink(baseDir: String, shouldStore: (HttpMessage) -> Boolean = { true }) =
     Sink { request, response ->
         val requestFolder = request.toFolder(File(baseDir))
         if (shouldStore(request)) request.writeTo(requestFolder)

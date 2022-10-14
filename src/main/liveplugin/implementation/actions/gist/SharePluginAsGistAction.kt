@@ -1,4 +1,4 @@
-package liveplugin.implementation.actions.addplugin.git
+package liveplugin.implementation.actions.gist
 
 import com.intellij.collaboration.auth.AccountManagerBase
 import com.intellij.icons.AllIcons
@@ -22,7 +22,7 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.dsl.gridLayout.VerticalAlign
 import com.intellij.util.proxy.CommonProxy
-import liveplugin.implementation.actions.addplugin.git.GistApi.*
+import liveplugin.implementation.actions.gist.GistApi.*
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showError
 import liveplugin.implementation.common.livePluginNotificationGroup
