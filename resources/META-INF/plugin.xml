@@ -28,9 +28,9 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>"Create Kotlin Plugin Zip" action</li>
-            <li>"Run/Unload Plugin" actions in popup menus</li>
-            <li>live-plugins migration to scratches location on disk</li>
+            <li>consider ".live-plugins" folder in the project a plugin itself</li>
+            <li>use GeneralCommandLine in runShellCommand()</li>
+            <li>misc fixes, removed deprecated APIs, kotlin 1.6.21</li>
         </ul></body></html>
         ]]>
     </change-notes>
