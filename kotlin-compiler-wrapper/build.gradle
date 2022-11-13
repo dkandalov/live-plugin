@@ -26,8 +26,11 @@ sourceSets {
 
 // Not using KotlinCompile import because of https://youtrack.jetbrains.com/issue/IDEA-201732
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-    kotlinOptions {
-        jvmTarget = "11"
+	sourceCompatibility = "17"
+	targetCompatibility = "17"
+
+	kotlinOptions {
+        jvmTarget = "17"
         apiVersion = "1.6"
         languageVersion = "1.6"
     }
