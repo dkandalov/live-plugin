@@ -22,6 +22,7 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.dsl.gridLayout.VerticalAlign
 import com.intellij.util.proxy.CommonProxy
+import kotlinx.coroutines.runBlocking
 import liveplugin.implementation.actions.gist.GistApi.*
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showError
@@ -40,7 +41,7 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
         val project = event.project ?: return
         val livePlugin = event.livePlugins().firstOrNull() ?: return
         val account = GithubAuthenticationManager.getInstance().getSingleOrDefaultAccount(project) ?: return project.showError("Please configure Github account to share gists.")
-        val authToken = githubAccountManager().findCredentials(account) ?: return project.showError("Couldn't get authentication for ${account.name}")
+        val authToken = runBlocking { githubAccountManager().findCredentials(account) } ?: return project.showError("Couldn't get authentication for ${account.name}")
 
         val dialog = GithubCreateGistDialog(project)
         if (!dialog.showAndGet()) return

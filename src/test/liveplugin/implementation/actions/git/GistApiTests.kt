@@ -2,6 +2,7 @@ package liveplugin.implementation.actions.git
 
 import liveplugin.implementation.actions.gist.GistApi.*
 import liveplugin.implementation.actions.gist.GistApiHttp
+import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
@@ -10,7 +11,6 @@ import org.http4k.core.then
 import org.http4k.filter.TrafficFilters.RecordTo
 import org.http4k.filter.TrafficFilters.ServeCachedFrom
 import org.http4k.traffic.ReadWriteCache
-import org.junit.Assert.assertThat
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.jupiter.api.assertThrows

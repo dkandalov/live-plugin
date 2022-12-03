@@ -10,14 +10,14 @@ repositories {
 }
 
 ext.kotlinVersion = "1.6.21" // Should match the major version of Kotlin bundled with IntelliJ.
-ext.groovyVersion = "3.0.9" // Should match the version of Groovy bundled with IntelliJ.
+ext.groovyVersion = "3.0.13" // Must match the version of Groovy bundled with IntelliJ (see IJ/Contents/lib/groovy.jar/META-INF/org.codehaus.groovy.runtime.ExtensionModule).
 
 intellij {
 	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
 	// and https://www.jetbrains.com/intellij-repository/snapshots
 	version = System.getenv().getOrDefault("IJ_VERSION",
 //		"221.5080.210" // Compatibility with IJ 2022.1 (Groovy 3, Kotlin 1.6, changes in PluginClassLoader https://github.com/dkandalov/live-plugin/issues/123)
-		 "222.4459-EAP-CANDIDATE-SNAPSHOT"
+		 "223.7571.182"
 	)
 	pluginName = "LivePlugin"
 	downloadSources = true
