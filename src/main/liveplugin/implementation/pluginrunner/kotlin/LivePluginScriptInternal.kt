@@ -36,7 +36,7 @@ open class LivePluginScriptConfig(
         beforeCompiling { context -> ResultWithDiagnostics.Success(createConfig(context), reports = emptyList()) }
     }
     ide {
-        compilerOptions("-jvm-target", "11")
+        compilerOptions("-jvm-target", "17")
         acceptedLocations(ScriptAcceptedLocation.Everywhere)
         dependenciesSources(JvmDependency(livePluginLibAndSrcFiles()))
 //        dependenciesSources(JvmDependency(listOf( // This doesn't work 😠

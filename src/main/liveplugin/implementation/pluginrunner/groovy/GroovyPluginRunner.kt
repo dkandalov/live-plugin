@@ -49,7 +49,7 @@ class GroovyPluginRunner(
             // Assume that GroovyScriptEngine is thread-safe
             // (according to this http://groovy.329449.n5.nabble.com/Is-the-GroovyScriptEngine-thread-safe-td331407.html)
             val scriptEngine = GroovyScriptEngine(pluginFolderUrl, classLoader)
-            scriptEngine.config.targetBytecode = "11"
+            scriptEngine.config.targetBytecode = "17"
             try {
                 scriptEngine.loadScriptByName(mainScript.toUrlString())
             } catch (e: Exception) {
