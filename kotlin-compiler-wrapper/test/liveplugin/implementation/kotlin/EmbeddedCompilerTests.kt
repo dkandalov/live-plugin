@@ -93,6 +93,7 @@ private class KtsScriptFixture {
             File("out/test/classes"), // For running via IntelliJ
             File("build/classes/kotlin/test"), // For running via gradle
         ),
+        jrePath = File(System.getProperty("java.home")),
         outputDirectory = outputDir,
         livePluginScriptClass = templateClass
     )
@@ -106,7 +107,7 @@ private class KtsScriptFixture {
         private val kotlinScriptCompilerImplEmbeddable = findInGradleCache("kotlin-scripting-compiler-impl-embeddable")
 
         private fun findInGradleCache(libName: String): File {
-            val kotlinVersion = "1.6.21"
+            val kotlinVersion = "1.7.0"
             val dir = File(System.getProperty("user.home") + "/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin")
             val libDir = dir.listFiles()?.find { it.name == libName } ?: error("Couldn't find $libName in $dir")
             val libVersionDir = libDir.listFiles()?.find { it.name == kotlinVersion } ?: error("Couldn't find $kotlinVersion in $libDir")

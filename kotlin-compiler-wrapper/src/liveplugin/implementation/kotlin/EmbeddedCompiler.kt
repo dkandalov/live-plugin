@@ -41,13 +41,14 @@ import kotlin.script.experimental.jvm.JvmGetScriptingClass
 fun compile(
     sourceRoot: String,
     classpath: List<File>,
+    jrePath: File,
     outputDirectory: File,
     livePluginScriptClass: Class<*>
 ): List<String> {
     val rootDisposable = Disposer.newDisposable()
     try {
         val messageCollector = ErrorMessageCollector()
-        val configuration = createCompilerConfiguration(sourceRoot, classpath, outputDirectory, messageCollector, livePluginScriptClass.kotlin)
+        val configuration = createCompilerConfiguration(sourceRoot, classpath, jrePath, outputDirectory, messageCollector, livePluginScriptClass.kotlin)
         val kotlinEnvironment = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, JVM_CONFIG_FILES)
         val state = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(kotlinEnvironment)
 
@@ -72,10 +73,10 @@ private class ErrorMessageCollector : MessageCollector {
     override fun hasErrors() = errors.isNotEmpty()
 }
 
-
 private fun createCompilerConfiguration(
     sourceRoot: String,
     classpath: List<File>,
+    jrePath: File,
     outputDirectory: File,
     messageCollector: MessageCollector,
     livePluginScriptClass: KClass<*>
@@ -108,10 +109,11 @@ private fun createCompilerConfiguration(
             }
     )
 
+    put(JDK_HOME, jrePath)
     put(JVM_TARGET, JVM_17)
     put(RETAIN_OUTPUT_IN_MEMORY, false)
     put(OUTPUT_DIRECTORY, outputDirectory)
-    put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_1_5, ApiVersion.KOTLIN_1_5))
+    put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_1_7, ApiVersion.KOTLIN_1_7))
 }
 
 // Based on refactored org.jetbrains.kotlin.cli.jvm.plugins.PluginCliParser.loadPluginsSafe

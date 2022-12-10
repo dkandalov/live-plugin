@@ -143,6 +143,7 @@ private class KotlinPluginCompiler {
             null,
             pluginFolderPath,
             compilerClasspath,
+            File(System.getProperty("java.home")),
             compilerOutput,
             LivePluginScriptForCompilation::class.java
         ) as List<String>
