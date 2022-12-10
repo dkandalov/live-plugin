@@ -14,16 +14,16 @@ import com.intellij.util.lang.ClasspathCache;
 import com.intellij.util.lang.Resource;
 import com.intellij.util.lang.UrlClassLoader;
 import com.intellij.util.ui.EDT;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
-import java.security.cert.Certificate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -31,7 +31,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
- * Fork of PluginClassLoader_Fork
+ * Fork of com.intellij.ide.plugins.cl.PluginClassLoader
  * because its an internal IJ API and it has been changing in IJ 2020.2 causing LivePlugin to break.
  * The assumption is that using fork will make LivePlugin forward-compatible with more IJ versions
  * given that PluginClassLoader_Fork implementation compatibility is more stable than PluginClassLoader API.
@@ -51,9 +51,6 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
     private static final AtomicInteger parentListCacheIdCounter = new AtomicInteger();
 
     private static final Set<String> KOTLIN_STDLIB_CLASSES_USED_IN_SIGNATURES;
-
-    // avoid capturing reference to classloader in AccessControlContext
-    private static final ProtectionDomain PROTECTION_DOMAIN = new ProtectionDomain(new CodeSource(null, (Certificate[]) null), null);
 
     static {
         @SuppressWarnings("SSBasedInspection")
@@ -80,11 +77,17 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
                 "kotlin.coroutines.CoroutineContext",
                 "kotlin.coroutines.CoroutineContext$Element",
                 "kotlin.coroutines.CoroutineContext$Key",
+                "kotlin.Result",
+                "kotlin.Result$Failure",
+                "kotlin.Result$Companion",
                 // Even though it's internal class, it can leak (and it does) into API surface because it's exposed by public
                 // `kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED` property
                 "kotlin.coroutines.intrinsics.CoroutineSingletons",
                 "kotlin.coroutines.AbstractCoroutineContextElement",
-                "kotlin.coroutines.AbstractCoroutineContextKey"
+                "kotlin.coroutines.AbstractCoroutineContextKey",
+                "kotlin.coroutines.jvm.internal.ContinuationImpl", // IDEA-295189
+                "kotlin.coroutines.jvm.internal.BaseContinuationImpl", // IDEA-295189
+                "kotlin.coroutines.jvm.internal.CoroutineStackFrame" // IDEA-295189
         ));
         String classes = System.getProperty("idea.kotlin.classes.used.in.signatures");
         if (classes != null) {
@@ -225,7 +228,7 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
     }
 
     /**
-     * See https://stackoverflow.com/a/5428795 about resolve flag.
+     * See <a href="https://stackoverflow.com/a/5428795">https://stackoverflow.com/a/5428795</a> about resolve flag.
      */
     @Override
     public @Nullable Class<?> tryLoadingClass(@NotNull String name, boolean forceLoadFromSubPluginClassloader)
@@ -382,9 +385,23 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
         // some commonly used classes from kotlin-runtime must be loaded by the platform classloader. Otherwise, if a plugin bundles its own version
         // of kotlin-runtime.jar it won't be possible to call platform's methods with these types in signatures from such a plugin.
         // We assume that these classes don't change between Kotlin versions, so it's safe to always load them from platform's kotlin-runtime.
-        return className.startsWith("kotlin.") && (className.startsWith("kotlin.jvm.functions.") ||
-                (className.startsWith("kotlin.reflect.") &&
-                        className.indexOf('.', 15 /* "kotlin.reflect".length */) < 0) ||
+        return className.startsWith("kotlin.") &&
+                (className.startsWith("kotlin.jvm.functions.") ||
+                // Those are kotlin-reflect related classes but unfortunately, they are placed in kotlin-stdlib. Since we always
+                // want to load reflect from platform, we should force those classes with platform classloader as well
+                className.startsWith("kotlin.reflect.") ||
+                className.startsWith("kotlin.jvm.internal.CallableReference") ||
+                className.startsWith("kotlin.jvm.internal.ClassReference") ||
+                className.startsWith("kotlin.jvm.internal.FunInterfaceConstructorReference") ||
+                className.startsWith("kotlin.jvm.internal.FunctionReference") ||
+                className.startsWith("kotlin.jvm.internal.MutablePropertyReference") ||
+                className.startsWith("kotlin.jvm.internal.PropertyReference") ||
+                className.startsWith("kotlin.jvm.internal.TypeReference") ||
+                className.equals("kotlin.jvm.internal.Lambda") ||
+                className.startsWith("kotlin.jvm.internal.LocalVariableReference") ||
+                className.startsWith("kotlin.jvm.internal.MutableLocalVariableReference") ||
+                className.equals("kotlin.jvm.internal.ReflectionFactory") ||
+                className.equals("kotlin.jvm.internal.Reflection") ||
                 KOTLIN_STDLIB_CLASSES_USED_IN_SIGNATURES.contains(className));
     }
 
@@ -510,7 +527,7 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
         return doFindResource(name, f1, f2);
     }
 
-    private <T> @Nullable T doFindResource(String name, Function<Resource, T> f1, BiFunction<ClassLoader, String, T> f2) {
+  private <T> @Nullable T doFindResource(String name, Function<? super Resource, ? extends T> f1, BiFunction<? super ClassLoader, ? super String, ? extends T> f2) {
         String canonicalPath = toCanonicalPath(name);
 
         Resource resource = classPath.findResource(canonicalPath);
@@ -601,10 +618,10 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
     }
 
     private static final class DeepEnumeration implements Enumeration<URL> {
-        private final @NotNull List<Enumeration<URL>> list;
+    private final @NotNull List<? extends Enumeration<URL>> list;
         private int myIndex;
 
-        DeepEnumeration(@NotNull List<Enumeration<URL>> enumerations) {
+    private DeepEnumeration(@NotNull List<? extends Enumeration<URL>> enumerations) {
             list = enumerations;
         }
 
@@ -627,10 +644,6 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
             }
             return list.get(myIndex).nextElement();
         }
-    }
-
-    protected ProtectionDomain getProtectionDomain() {
-        return PROTECTION_DOMAIN;
     }
 
     private static void flushDebugLog() {
