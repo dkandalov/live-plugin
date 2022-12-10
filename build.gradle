@@ -36,7 +36,7 @@ intellij {
 	]
 }
 buildSearchableOptions.enabled = false // Disable because LivePlugin doesn't need it, it takes a long time and it was failing at some point https://youtrack.jetbrains.com/issue/KTIJ-782.
-runIde.jbrVariant = "jcef" // JVM with Java Chromium Embedded Framework because why not (see also https://github.com/JetBrains/gradle-intellij-plugin#running-dsl)
+runIde.jbrVariant.set("jcef") // JVM with Java Chromium Embedded Framework because why not (see also https://github.com/JetBrains/gradle-intellij-plugin#running-dsl)
 
 dependencies {
 	implementation project(":kotlin-compiler-wrapper")
@@ -96,16 +96,16 @@ sourceSets {
 	}
 }
 
-tasks.withType(JavaCompile).all {
+tasks.withType(JavaCompile).configureEach {
 	sourceCompatibility = "17"
 	targetCompatibility = "17"
 }
 
 // Not using KotlinCompile import because of https://youtrack.jetbrains.com/issue/IDEA-201732
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+//noinspection UnnecessaryQualifiedReference
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 	sourceCompatibility = "17"
 	targetCompatibility = "17"
-
 	kotlinOptions {
 		sourceCompatibility = "17"
 		targetCompatibility = "17"
@@ -120,7 +120,7 @@ jar {
 	from sourceSets.pluginApiGroovy.output, sourceSets.pluginApiKotlin.output
 }
 
-task validateLivePluginZip() {
+tasks.register('validateLivePluginZip') {
 	doLast {
 		def pluginZip = zipTree("build/distributions/LivePlugin.zip")
 		def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*[/\\\\]LivePlugin.zip.*?[/\\\\]", "").replace("\\", "/") }
@@ -189,7 +189,7 @@ static expectToBeEqual(Collection actual, Collection expected) {
 
 def "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"() {
 	compileJava.doLast {
-		def classesFolder = project.tasks.findByName(JavaPlugin.COMPILE_JAVA_TASK_NAME).destinationDir
+		def classesFolder = project.tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME).get().destinationDir
 		ant.copy(toDir: classesFolder.absolutePath, overwrite: true) {
 			ant.fileset(dir: "./src/plugin-api-groovy", includes: "**/*")
 			ant.fileset(dir: "./src/plugin-api-kotlin", includes: "**/*")
@@ -217,7 +217,7 @@ def "Move kotlin compiler jars from plugin classpath into a separate folder so t
 
 def 'Copy GDSL file into standardDsls folder'() {
 	prepareSandbox.doLast {
-		def resourcesFolder = project.tasks.findByName(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).destinationDir
+		def resourcesFolder = project.tasks.named(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).get().destinationDir
 		ant.copy(
 			file: resourcesFolder.absolutePath + "/liveplugin/livePluginCompletions.gdsl",
 			tofile: "build/idea-sandbox/plugins/LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
