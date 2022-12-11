@@ -33,10 +33,6 @@ import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.actions.*
-import liveplugin.implementation.actions.AddGroovyExamplesActionGroup
-import liveplugin.implementation.actions.AddKotlinExamplesActionGroup
-import liveplugin.implementation.actions.AddNewGroovyPluginAction
-import liveplugin.implementation.actions.AddNewKotlinPluginAction
 import liveplugin.implementation.actions.gist.AddPluginFromGistAction
 import liveplugin.implementation.actions.git.AddPluginFromGitHubDelegateAction
 import liveplugin.implementation.actions.git.SharePluginAsGistDelegateAction
@@ -194,7 +190,10 @@ private class PluginToolWindow(project: Project) {
                 livePluginNewElementPopup,
                 RunLivePluginsGroup(),
                 RenameFileAction().also { it.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("RenameElement")), this) },
-                FileDeleteAction().also { it.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("SafeDelete")), this) },
+                FileDeleteAction().also {
+                    it.templatePresentation.text = "Delete"
+                    it.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("SafeDelete")), this)
+                },
             ).also { it.isPopup = true }
 
             installPopupHandler(this, popupActionGroup)
