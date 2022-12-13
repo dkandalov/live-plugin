@@ -28,9 +28,8 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>consider ".live-plugins" folder in the project a plugin itself</li>
-            <li>use GeneralCommandLine in runShellCommand()</li>
-            <li>misc fixes, removed deprecated APIs, kotlin 1.6.21</li>
+            <li>jdk17, kotlin 1.7</li>
+            <li>fixes so that plugins work in IJ 2022.3</li>
         </ul></body></html>
         ]]>
     </change-notes>
