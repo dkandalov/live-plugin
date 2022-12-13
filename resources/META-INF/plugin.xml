@@ -80,19 +80,23 @@
 		<useScopeEnlarger implementation="liveplugin.implementation.UseScopeExtension"/>
         <createDirectoryCompletionContributor implementation="liveplugin.implementation.LivePluginDirectoryCompletionContributor"/>
 		<intentionAction>
-			<className>liveplugin.implementation.pluginrunner.AddToClassPathGroovyIntention</className>
-			<category>LivePlugin</category>
+            <className>liveplugin.implementation.pluginrunner.AddToClassPathGroovyIntention</className>
+            <language>Groovy</language>
+            <category>LivePlugin</category>
+        </intentionAction>
+		<intentionAction>
+            <className>liveplugin.implementation.pluginrunner.AddPluginDependencyGroovyIntention</className>
+            <language>Groovy</language>
+            <category>LivePlugin</category>
 		</intentionAction>
 		<intentionAction>
-			<className>liveplugin.implementation.pluginrunner.AddPluginDependencyGroovyIntention</className>
-			<category>LivePlugin</category>
-		</intentionAction>
-		<intentionAction>
-			<className>liveplugin.implementation.pluginrunner.AddToClassPathKotlinIntention</className>
-			<category>LivePlugin</category>
+            <className>liveplugin.implementation.pluginrunner.AddToClassPathKotlinIntention</className>
+            <language>kotlin</language>
+            <category>LivePlugin</category>
 		</intentionAction>
 		<intentionAction>
 			<className>liveplugin.implementation.pluginrunner.AddPluginDependencyKotlinIntention</className>
+            <language>kotlin</language>
 			<category>LivePlugin</category>
 		</intentionAction>
 	</extensions>
