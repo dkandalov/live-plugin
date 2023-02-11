@@ -89,9 +89,9 @@ sourceSets {
 	test {
 		groovy { srcDir "src/test" }
 		kotlin { srcDir "src/test" }
-		compileClasspath = main.output + pluginApiGroovy.output +
+		compileClasspath = main.output + pluginApiGroovy.output + pluginApiKotlin.output +
 			configurations.testCompileClasspath + configurations.pluginApiGroovyCompileClasspath
-		runtimeClasspath = test.output + main.output + pluginApiGroovy.output +
+		runtimeClasspath = test.output + main.output + pluginApiGroovy.output + pluginApiKotlin.output +
 			configurations.testRuntimeClasspath + configurations.pluginApiGroovyRuntimeClasspath
 	}
 }
