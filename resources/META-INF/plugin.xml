@@ -42,7 +42,7 @@
 	<depends optional="true" config-file="kotlin-plugin-integration.xml">org.jetbrains.kotlin</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Plugins" anchor="right"
+        <toolWindow id="Live Plugins" anchor="right"
                     factoryClass="liveplugin.implementation.actions.toolwindow.LivePluginToolWindowFactory"
                     icon="/liveplugin/toolWindowPlugin.svg"/>
         <notificationGroup displayType="BALLOON" id="Live Plugin"/>
