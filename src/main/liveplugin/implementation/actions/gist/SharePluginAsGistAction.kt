@@ -16,11 +16,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.dsl.builder.EMPTY_LABEL
+import com.intellij.ui.dsl.builder.Align
+import com.intellij.ui.dsl.builder.AlignY
 import com.intellij.ui.dsl.builder.RowLayout.LABEL_ALIGNED
 import com.intellij.ui.dsl.builder.panel
-import com.intellij.ui.dsl.gridLayout.HorizontalAlign
-import com.intellij.ui.dsl.gridLayout.VerticalAlign
 import com.intellij.util.proxy.CommonProxy
 import kotlinx.coroutines.runBlocking
 import liveplugin.implementation.actions.gist.GistApi.*
@@ -112,11 +111,11 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
 
         override fun createCenterPanel() = panel {
             row {
-                label("Description:").verticalAlign(VerticalAlign.TOP)
-                scrollCell(descriptionField).horizontalAlign(HorizontalAlign.FILL).verticalAlign(VerticalAlign.FILL)
+                label("Description:").align(AlignY.FILL)
+                scrollCell(descriptionField).align(Align.FILL)
             }.layout(LABEL_ALIGNED).resizableRow()
 
-            row(EMPTY_LABEL) {
+            row {
                 cell(secretCheckBox)
                 cell(browserCheckBox)
                 cell(copyLinkCheckBox)
