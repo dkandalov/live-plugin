@@ -107,7 +107,7 @@ val Project.currentEditor: Editor?
     get() = Editors.currentEditorIn(this)
 
 val Project.currentFile: VirtualFile?
-    get() = (FileEditorManagerEx.getInstance(this) as FileEditorManagerEx).currentFile
+    get() = FileEditorManagerEx.getInstanceEx(this).currentFile
 
 val Project.currentPsiFile: PsiFile?
     get() = currentFile?.let { PsiManager.getInstance(this).findFile(it) }
