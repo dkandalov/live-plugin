@@ -1,6 +1,7 @@
 package liveplugin.implementation.actions.git
 
 import com.intellij.ide.AppLifecycleListener
+import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
@@ -43,4 +44,6 @@ open class DelegateAction(private val property: KMutableProperty0<AnAction?>): A
             }
         }
     }
+
+    override fun getActionUpdateThread() = BGT
 }

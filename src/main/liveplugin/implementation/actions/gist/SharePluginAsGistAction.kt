@@ -5,6 +5,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification.NotificationListener.URL_OPENING_LISTENER
 import com.intellij.notification.NotificationType.INFORMATION
+import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
@@ -35,7 +36,6 @@ import java.net.URL
 import javax.swing.JTextArea
 
 class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files as a Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
-
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val livePlugin = event.livePlugins().firstOrNull() ?: return
@@ -92,6 +92,8 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
     override fun update(event: AnActionEvent) {
         event.presentation.isEnabled = event.livePlugins().isNotEmpty()
     }
+
+    override fun getActionUpdateThread() = BGT
 
     private class GithubCreateGistDialog(project: Project) : DialogWrapper(project, true) {
         private val descriptionField = JTextArea()

@@ -1,5 +1,6 @@
 package liveplugin.implementation.actions.settings
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.runWriteAction
@@ -55,6 +56,8 @@ class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
                 "This will enable auto-complete and other IDE features for Groovy live-plugins."
         }
     }
+
+    override fun getActionUpdateThread() = BGT
 
     private class ProjectLibrariesNames {
         private var modificationCount = -1L

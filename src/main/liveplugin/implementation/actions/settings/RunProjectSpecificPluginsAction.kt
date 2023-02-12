@@ -1,5 +1,6 @@
 package liveplugin.implementation.actions.settings
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.project.DumbAware
@@ -16,4 +17,6 @@ class RunProjectSpecificPluginsAction: ToggleAction(
     override fun setSelected(event: AnActionEvent, state: Boolean) {
         Settings.instance.runProjectSpecificPlugins = state
     }
+
+    override fun getActionUpdateThread() = BGT
 }

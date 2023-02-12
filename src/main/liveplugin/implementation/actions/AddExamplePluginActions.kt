@@ -1,6 +1,7 @@
 package liveplugin.implementation.actions
 
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
@@ -50,6 +51,8 @@ private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): 
         val alreadyAdded = livePluginsById().containsKey(examplePlugin.pluginId)
         event.presentation.isEnabled = !alreadyAdded
     }
+
+    override fun getActionUpdateThread() = BGT
 }
 
 private class PerformAllGroupActions(

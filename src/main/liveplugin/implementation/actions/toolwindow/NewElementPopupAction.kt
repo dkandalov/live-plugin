@@ -2,6 +2,7 @@ package liveplugin.implementation.actions.toolwindow
 
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.fileChooser.actions.NewFolderAction
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.popup.JBPopupFactory
@@ -40,6 +41,8 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
     override fun update(event: AnActionEvent) {
         event.presentation.isEnabled = true
     }
+
+    override fun getActionUpdateThread() = BGT
 
     companion object {
         val livePluginNewElementPopup by lazy {

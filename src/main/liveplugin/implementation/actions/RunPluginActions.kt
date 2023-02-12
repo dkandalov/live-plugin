@@ -1,5 +1,6 @@
 package liveplugin.implementation.actions
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
@@ -35,6 +36,8 @@ class RunPluginAction : AnAction("Run Plugin", "Run selected plugins", runPlugin
         }
     }
 
+    override fun getActionUpdateThread() = BGT
+
     companion object {
         fun pluginNameInActionText(livePlugins: List<LivePlugin>): String =
             when (livePlugins.size) {
@@ -54,6 +57,8 @@ class RunPluginTestsAction : AnAction("Run Plugin Tests", "Run plugin integratio
     override fun update(event: AnActionEvent) {
         event.presentation.isEnabled = event.livePlugins().canBeHandledBy(pluginTestRunners)
     }
+
+    override fun getActionUpdateThread() = BGT
 }
 
 class RunLivePluginsGroup : DefaultActionGroup(
@@ -70,6 +75,7 @@ class RunLivePluginsGroup : DefaultActionGroup(
 
         private class HiddenWhenDisabledAction(private val delegate: AnAction) : AnAction(), DumbAware {
             override fun actionPerformed(event: AnActionEvent) = delegate.actionPerformed(event)
+
             override fun update(event: AnActionEvent) {
                 val presentation = delegate.templatePresentation
                 event.presentation.text = presentation.text
@@ -79,6 +85,8 @@ class RunLivePluginsGroup : DefaultActionGroup(
                 delegate.update(event)
                 if (!event.presentation.isEnabled) event.presentation.isVisible = false
             }
+
+            override fun getActionUpdateThread() = BGT
         }
     }
 }

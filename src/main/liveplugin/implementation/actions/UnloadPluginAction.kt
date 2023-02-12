@@ -1,5 +1,6 @@
 package liveplugin.implementation.actions
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
@@ -22,6 +23,8 @@ class UnloadPluginAction: AnAction("Unload Plugin", "Unload selected plugins", u
             event.presentation.setText("Unload ${pluginNameInActionText(livePlugins)}", false)
         }
     }
+
+    override fun getActionUpdateThread() = BGT
 }
 
 fun LivePlugin.canBeUnloaded() = Binding.lookup(this) != null

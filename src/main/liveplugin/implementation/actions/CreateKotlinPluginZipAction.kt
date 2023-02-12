@@ -4,6 +4,7 @@ import com.intellij.ide.BrowserUtil.browse
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType.INFORMATION
+import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.runWriteAction
@@ -47,6 +48,8 @@ class CreateKotlinPluginZipAction: AnAction(
         val project = event.project ?: return
         event.livePlugins().forEach { packagePlugin(it, project) }
     }
+
+    override fun getActionUpdateThread() = BGT
 
     private fun packagePlugin(plugin: LivePlugin, project: Project) {
         val pluginXml = plugin.path + "plugin.xml"
