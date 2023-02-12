@@ -6,7 +6,7 @@ repositories {
     mavenCentral()
 }
 
-ext.kotlinVersion = "1.7.0"
+ext.kotlinVersion = "1.8.10"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
@@ -31,7 +31,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 	targetCompatibility = "17"
 	kotlinOptions {
         jvmTarget = "17"
-        apiVersion = "1.7"
-        languageVersion = "1.7"
+        apiVersion = "1.8"
+        languageVersion = "1.8"
     }
 }

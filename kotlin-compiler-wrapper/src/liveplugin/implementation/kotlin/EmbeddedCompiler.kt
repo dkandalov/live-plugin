@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCompilerApi::class)
+
 package liveplugin.implementation.kotlin
 
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys.CONTENT_ROOTS
@@ -14,10 +16,10 @@ import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles.JVM_CONFIG_F
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinToJVMBytecodeCompiler
 import org.jetbrains.kotlin.cli.jvm.config.JvmClasspathRoot
-import org.jetbrains.kotlin.cli.jvm.plugins.ServiceLoaderLite
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar.Companion.PLUGIN_COMPONENT_REGISTRARS
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.ApiVersion
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.LANGUAGE_VERSION_SETTINGS
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.MODULE_NAME
@@ -28,6 +30,7 @@ import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
 import org.jetbrains.kotlin.scripting.configuration.ScriptingConfigurationKeys.SCRIPT_DEFINITIONS
 import org.jetbrains.kotlin.scripting.definitions.ScriptDefinition
+import org.jetbrains.kotlin.util.ServiceLoaderLite
 import java.io.File
 import java.net.URL
 import java.net.URLClassLoader
@@ -113,7 +116,7 @@ private fun createCompilerConfiguration(
     put(JVM_TARGET, JVM_17)
     put(RETAIN_OUTPUT_IN_MEMORY, false)
     put(OUTPUT_DIRECTORY, outputDirectory)
-    put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_1_7, ApiVersion.KOTLIN_1_7))
+    put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_1_8, ApiVersion.KOTLIN_1_8))
 }
 
 // Based on refactored org.jetbrains.kotlin.cli.jvm.plugins.PluginCliParser.loadPluginsSafe
