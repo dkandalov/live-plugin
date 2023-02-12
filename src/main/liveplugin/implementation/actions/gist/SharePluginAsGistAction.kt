@@ -27,7 +27,7 @@ import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showError
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.livePlugins
-import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager
+import org.jetbrains.plugins.github.authentication.GHAccountsUtil
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import java.awt.datatransfer.StringSelection
 import java.io.IOException
@@ -39,7 +39,7 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val livePlugin = event.livePlugins().firstOrNull() ?: return
-        val account = GithubAuthenticationManager.getInstance().getSingleOrDefaultAccount(project) ?: return project.showError("Please configure Github account to share gists.")
+        val account = GHAccountsUtil.getSingleOrDefaultAccount(project) ?: return project.showError("Please configure Github account to share gists.")
         val authToken = runBlocking { githubAccountManager().findCredentials(account) } ?: return project.showError("Couldn't get authentication for ${account.name}")
 
         val dialog = GithubCreateGistDialog(project)
