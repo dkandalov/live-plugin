@@ -75,9 +75,9 @@
         <scratch.rootType implementation="liveplugin.implementation.ScratchLivePluginRootType"/>
 		<nonProjectFileWritingAccessExtension implementation="liveplugin.implementation.MakePluginFilesAlwaysEditable"/>
 		<syntaxHighlighter factoryClass="liveplugin.implementation.EnableSyntaxHighlighterInLivePlugins" order="first"/>
-		<indexedRootsProvider implementation="liveplugin.implementation.IndexSetContributor"/>
-		<usageTypeProvider implementation="liveplugin.implementation.UsageTypeExtension" order="last"/>
-		<useScopeEnlarger implementation="liveplugin.implementation.UseScopeExtension"/>
+		<indexedRootsProvider implementation="liveplugin.implementation.FindUsageInLivePlugin$IndexSetContributor"/>
+		<usageTypeProvider implementation="liveplugin.implementation.FindUsageInLivePlugin$UsageTypeExtension" order="last"/>
+		<useScopeEnlarger implementation="liveplugin.implementation.FindUsageInLivePlugin$UseScopeExtension"/>
         <createDirectoryCompletionContributor implementation="liveplugin.implementation.LivePluginDirectoryCompletionContributor"/>
 		<intentionAction>
             <className>liveplugin.implementation.pluginrunner.AddToClassPathGroovyIntention</className>

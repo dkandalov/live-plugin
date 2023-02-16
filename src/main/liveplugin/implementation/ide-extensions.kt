@@ -29,6 +29,7 @@ import com.intellij.usages.impl.rules.UsageTypeProvider
 import com.intellij.util.indexing.IndexableSetContributor
 import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
+import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
 import liveplugin.implementation.common.Icons.pluginIcon
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.delete
@@ -67,13 +68,15 @@ class LivePluginDeletedListener : BulkFileListener {
     }
 }
 
+// Show '.live-plugins' when creating dir in the project root.
 class LivePluginDirectoryCompletionContributor : CreateDirectoryCompletionContributor {
     override fun getDescription() = "Project specific live plugins"
     override fun getVariants(directory: PsiDirectory) =
         if (directory.project.basePath != directory.virtualFile.path) emptyList()
-        else listOf(Variant(".live-plugins", UnknownSourceRootType.getInstance("LivePlugin")))
+        else listOf(Variant(livePluginsProjectDirName, UnknownSourceRootType.getInstance("LivePlugin")))
 }
 
+// Workaround for https://youtrack.jetbrains.com/issue/IDEA-125379
 class MakePluginFilesAlwaysEditable : NonProjectFileWritingAccessExtension {
     override fun isWritable(file: VirtualFile) = file.toFilePath().isPluginFolder()
 }
@@ -86,38 +89,37 @@ class EnableSyntaxHighlighterInLivePlugins : SyntaxHighlighterProvider {
     }
 }
 
-class UsageTypeExtension : UsageTypeProvider {
-    override fun getUsageType(element: PsiElement): UsageType? {
-        val file = PsiUtilCore.getVirtualFile(element) ?: return null
-        return if (!file.toFilePath().isPluginFolder()) null
-        else UsageType { "Usage in liveplugin" }
-    }
-}
-
-class IndexSetContributor : IndexableSetContributor() {
-    override fun getAdditionalRootsToIndex(): Set<VirtualFile> {
-        return mutableSetOf(livePluginsPath.toVirtualFile() ?: return HashSet())
-    }
-}
-
-class UseScopeExtension : UseScopeEnlarger() {
-    override fun getAdditionalUseScope(element: PsiElement): SearchScope? {
-        val useScope = element.useScope
-        return if (useScope is LocalSearchScope) null else LivePluginsSearchScope.getScopeInstance(element.project)
+// See https://github.com/dkandalov/live-plugin/issues/94
+object FindUsageInLivePlugin {
+    class UsageTypeExtension : UsageTypeProvider {
+        override fun getUsageType(element: PsiElement): UsageType? {
+            val file = PsiUtilCore.getVirtualFile(element)
+            return if (file == null || !file.toFilePath().isPluginFolder()) null
+            else UsageType { "Usage in liveplugin" }
+        }
     }
 
-    private class LivePluginsSearchScope(project: Project) : GlobalSearchScope(project) {
-        override fun getDisplayName() = "LivePlugins"
-        override fun contains(file: VirtualFile) = file.toFilePath().isPluginFolder()
-        override fun isSearchInModuleContent(aModule: Module) = false
-        override fun isSearchInLibraries() = false
+    class IndexSetContributor : IndexableSetContributor() {
+        override fun getAdditionalRootsToIndex(): Set<VirtualFile> {
+            return mutableSetOf(livePluginsPath.toVirtualFile() ?: return HashSet())
+        }
+    }
+
+    class UseScopeExtension : UseScopeEnlarger() {
+        override fun getAdditionalUseScope(element: PsiElement): SearchScope? =
+            if (element.useScope is LocalSearchScope) null else SCOPE_KEY.getValue(element.project)
+
+        private class LivePluginsSearchScope(project: Project) : GlobalSearchScope(project) {
+            override fun getDisplayName() = "LivePlugins"
+            override fun contains(file: VirtualFile) = file.toFilePath().isPluginFolder()
+            override fun isSearchInModuleContent(aModule: Module) = false
+            override fun isSearchInLibraries() = false
+        }
 
         companion object {
-            private val SCOPE_KEY = NotNullLazyKey.create<LivePluginsSearchScope, Project>("LIVEPLUGIN_SEARCH_SCOPE_KEY") { project ->
+            private val SCOPE_KEY = NotNullLazyKey.createLazyKey<LivePluginsSearchScope, Project>("LIVEPLUGIN_SEARCH_SCOPE_KEY") { project ->
                 LivePluginsSearchScope(project)
             }
-
-            fun getScopeInstance(project: Project): GlobalSearchScope = SCOPE_KEY.getValue(project)
         }
     }
 }

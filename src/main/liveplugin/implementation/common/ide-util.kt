@@ -220,7 +220,7 @@ object IdeUtil {
         // to set `strict` to false in findIcon, so an exception won't be thrown.
         private fun findIconOrNull(path: String): Icon? {
             val callerClass = ReflectionUtil.getGrandCallerClass() ?: return null
-            return IconLoader.findIcon(path, callerClass, false, false)
+            return IconLoader.findIcon(path, callerClass, deferUrlResolve = false, strict = false)
         }
     }
 }
@@ -231,6 +231,7 @@ fun inputValidator(f: (String) -> String?) =
 fun AnActionEvent.selectedFiles(): List<FilePath> =
     dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)?.map { it.toFilePath() } ?: emptyList()
 
+@Suppress("UnstableApiUsage")
 class MapDataContext(val map: Map<String, Any?>) : DataContext, AsyncDataContext {
     override fun getData(dataId: String) = map[dataId]
 }
