@@ -29,6 +29,9 @@ fun List<FilePath>.toLivePlugins() =
 private tailrec fun FilePath.findParentPluginFolder(): FilePath? =
     if (isPluginFolder()) this else parent?.findParentPluginFolder()
 
+fun FilePath.isPartOfPlugin(): Boolean =
+    findParentPluginFolder() != null
+
 fun FilePath.isPluginFolder(): Boolean {
     if (!isDirectory && exists()) return false
     val parentPath = parent ?: return false

@@ -78,12 +78,12 @@ class LivePluginDirectoryCompletionContributor : CreateDirectoryCompletionContri
 
 // Workaround for https://youtrack.jetbrains.com/issue/IDEA-125379
 class MakePluginFilesAlwaysEditable : NonProjectFileWritingAccessExtension {
-    override fun isWritable(file: VirtualFile) = file.toFilePath().isPluginFolder()
+    override fun isWritable(file: VirtualFile) = file.toFilePath().isPartOfPlugin()
 }
 
 class EnableSyntaxHighlighterInLivePlugins : SyntaxHighlighterProvider {
     override fun create(fileType: FileType, project: Project?, file: VirtualFile?): SyntaxHighlighter? {
-        if (project == null || file == null || !file.toFilePath().isPluginFolder()) return null
+        if (project == null || file == null || !file.toFilePath().isPartOfPlugin()) return null
         val language = LanguageUtil.getLanguageForPsi(project, file) ?: return null
         return SyntaxHighlighterFactory.getSyntaxHighlighter(language, project, file)
     }
@@ -94,7 +94,7 @@ object FindUsageInLivePlugin {
     class UsageTypeExtension : UsageTypeProvider {
         override fun getUsageType(element: PsiElement): UsageType? {
             val file = PsiUtilCore.getVirtualFile(element)
-            return if (file == null || !file.toFilePath().isPluginFolder()) null
+            return if (file == null || !file.toFilePath().isPartOfPlugin()) null
             else UsageType { "Usage in liveplugin" }
         }
     }
