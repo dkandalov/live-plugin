@@ -10,7 +10,7 @@ import liveplugin.show
 // If there is no balloon, it might be disabled in "IDE Settings - Notifications".
 show("Hello Kotlin world")
 
-// There are several implicit variables available in plugin.groovy files.
+// There are several implicit variables available in plugin.kts files.
 //  - "isIdeStartup" which is true on IDE start, otherwise false. Plugins are executed on IDE start
 //    if "Plugins tool window -> Settings -> Run Plugins on IDE Start" option is enabled.
 //  - "project" in which the plugin is executed, it can be null on IDE start or if there are no open projects.
