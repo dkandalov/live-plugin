@@ -4,11 +4,11 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.util.io.FileUtil
 import com.thoughtworks.xstream.XStream
-import com.thoughtworks.xstream.io.xml.Xpp3Driver
+import com.thoughtworks.xstream.io.xml.MXParserDriver
 
 class Persistence {
 	static save(String id, value) {
-		def xStream = new XStream(new Xpp3Driver())
+		def xStream = new XStream(new MXParserDriver())
 		def state = value
 		if (value instanceof PersistentStateComponent) {
 			state = value.state
@@ -22,7 +22,7 @@ class Persistence {
 		if (!file.exists()) return null
 
 		def xml = FileUtil.loadFile(file)
-		def xStream = new XStream(new Xpp3Driver())
+		def xStream = new XStream(new MXParserDriver())
 		def state = xStream.fromXML(xml)
 		if (stateComponent != null && stateComponent instanceof PersistentStateComponent) {
 			stateComponent.loadState(state)
