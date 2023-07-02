@@ -25,6 +25,7 @@ intellij {
 	pluginName = "LivePlugin"
 	downloadSources = true
 	updateSinceUntilBuild = false // Disable patching plugin.xml because "until" version is too restrictive (it's better to keep it open-ended).
+	instrumentCode = false // Not needed for LivePlugin (true by default in gradle plugin which is a bad idea)
 	plugins = [
 		"java",
 		"Groovy",
@@ -123,7 +124,7 @@ jar {
 tasks.register('validateLivePluginZip') {
 	doLast {
 		def pluginZip = zipTree("build/distributions/LivePlugin.zip")
-		def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*[/\\\\]LivePlugin.zip.*?[/\\\\]", "").replace("\\", "/") }
+		def pluginZipFiles = pluginZip.files.collect { it.path.replaceFirst(".*[/\\\\]zip_.*?[/\\\\]", "").replace("\\", "/") }
 
 		def kotlinCompilerAndItsTransitiveDependencies = [
 			"LivePlugin/kotlin-compiler/annotations-13.0.jar",
@@ -152,7 +153,7 @@ tasks.register('validateLivePluginZip') {
 		expectToBeEqual(pluginZipFiles.toSorted(), (expectedLivePluginJars + kotlinCompilerAndItsTransitiveDependencies).toSorted())
 
 		def livePluginJar = zipTree(pluginZip.files.find { it.name == "LivePlugin.jar" })
-		def livePluginJarFiles = livePluginJar.files.collect { it.path.replaceFirst(".*[/\\\\]LivePlugin.jar.*?[/\\\\]", "").replace("\\", "/") }.toSet()
+		def livePluginJarFiles = livePluginJar.files.collect { it.path.replaceFirst(".*[/\\\\]zip_.*?[/\\\\]", "").replace("\\", "/") }.toSet()
 		expectToContain(livePluginJarFiles, [
 			"liveplugin/implementation/LivePlugin.class",
 			"liveplugin/PluginUtil.class",
