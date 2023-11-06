@@ -147,12 +147,12 @@ tasks.register('validateLivePluginZip') {
 			"LivePlugin/lib/okio-jvm-2.8.0.jar"
 		]
 		def expectedLivePluginJars = [
-			"LivePlugin/lib/LivePlugin.jar",
+			"LivePlugin/lib/live-plugin.jar",
 			"LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
 		]
 		expectToBeEqual(pluginZipFiles.toSorted(), (expectedLivePluginJars + kotlinCompilerAndItsTransitiveDependencies).toSorted())
 
-		def livePluginJar = zipTree(pluginZip.files.find { it.name == "LivePlugin.jar" })
+		def livePluginJar = zipTree(pluginZip.files.find { it.name == "live-plugin.jar" })
 		def livePluginJarFiles = livePluginJar.files.collect { it.path.replaceFirst(".*[/\\\\]zip_.*?[/\\\\]", "").replace("\\", "/") }.toSet()
 		expectToContain(livePluginJarFiles, [
 			"liveplugin/implementation/LivePlugin.class",
