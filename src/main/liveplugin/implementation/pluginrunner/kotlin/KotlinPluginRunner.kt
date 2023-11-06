@@ -76,10 +76,9 @@ class KotlinPluginRunner(
         }
 
         val pluginClass = try {
-            val runtimeClassPath =
-                listOf(compilerOutput.toFile()) +
-                livePluginLibAndSrcFiles() +
-                additionalClasspath
+            // Deliberately don't add livePluginLibAndSrcFiles() to the runtimeClassPath so that its classes are lookup up
+            // via parent classloader and not loaded "namespaced" and initialised again.
+            val runtimeClassPath = listOf(compilerOutput.toFile()) + additionalClasspath
             val classLoader = createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin)
                 .onFailure { return SetupError(it.reason.message).asFailure() }
             classLoader.loadClass("Plugin")
