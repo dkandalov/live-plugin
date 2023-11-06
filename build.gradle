@@ -1,3 +1,6 @@
+//file:noinspection GrMethodMayBeStatic // Disable because it has false positives
+//file:noinspection GroovyAssignabilityCheck // Disable because it has false positives
+
 plugins {
 	id 'org.jetbrains.intellij' version '1.16.0'
 	id 'org.jetbrains.kotlin.jvm' version '1.8.10'
@@ -52,11 +55,11 @@ dependencies {
 
 	// Explicit Groovy dependency because even though Groovy is bundled with IJ,
 	// it's not picked up by Groovy compiler in the latest versions.
-	compileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
-	testCompileOnly "org.codehaus.groovy:groovy-all:${groovyVersion}"
+	compileOnly "org.codehaus.groovy:groovy-all:$groovyVersion"
+	testCompileOnly "org.codehaus.groovy:groovy-all:$groovyVersion"
 
-	implementation "org.http4k:http4k-core:4.26.0.0"
-	implementation("org.http4k:http4k-client-okhttp:4.26.0.0") {
+	implementation "org.http4k:http4k-core:4.40.2.0"
+	implementation("org.http4k:http4k-client-okhttp:4.40.2.0") {
 		exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
 	}
 	testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
@@ -141,10 +144,11 @@ tasks.register('validateLivePluginZip') {
 			"LivePlugin/kotlin-compiler/kotlin-stdlib-1.8.10.jar",
 			"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.8.10.jar",
 			"LivePlugin/kotlin-compiler/trove4j-1.0.20200330.jar",
-			"LivePlugin/lib/http4k-client-okhttp-4.26.0.0.jar",
-			"LivePlugin/lib/http4k-core-4.26.0.0.jar",
-			"LivePlugin/lib/okhttp-4.9.3.jar",
-			"LivePlugin/lib/okio-jvm-2.8.0.jar"
+			"LivePlugin/lib/http4k-client-okhttp-4.40.2.0.jar",
+			"LivePlugin/lib/http4k-core-4.40.2.0.jar",
+			"LivePlugin/lib/http4k-realtime-core-4.40.2.0.jar",
+			"LivePlugin/lib/okhttp-4.10.0.jar",
+			"LivePlugin/lib/okio-jvm-3.0.0.jar",
 		]
 		def expectedLivePluginJars = [
 			"LivePlugin/lib/live-plugin.jar",
