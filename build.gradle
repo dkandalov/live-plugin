@@ -21,8 +21,7 @@ ext.kotlinVersion = "1.8.10"
 ext.groovyVersion = "3.0.13"
 
 intellij {
-	// To find available IDE versions see https://www.jetbrains.com/intellij-repository/releases
-	// and https://www.jetbrains.com/intellij-repository/snapshots
+	// Available IDE versions: https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
 	version = System.getenv().getOrDefault("IJ_VERSION",
 //		"221.5080.210" // Compatibility with IJ 2022.1 (Groovy 3, Kotlin 1.6, changes in PluginClassLoader https://github.com/dkandalov/live-plugin/issues/123)
 		 "231.9161.38" // Compatibility with IJ 2023.1 (Kotlin 1.8, changes in PluginClassLoader https://github.com/dkandalov/live-plugin/issues/155)
@@ -41,7 +40,7 @@ intellij {
 //		"com.intellij.dev"
 	]
 }
-buildSearchableOptions.enabled = false // Disable because LivePlugin doesn't need it, it takes a long time and it was failing at some point https://youtrack.jetbrains.com/issue/KTIJ-782.
+buildSearchableOptions.enabled = false // Disable because it takes a long time and the plugin doesn't need it
 runIde.jbrVariant.set("jcef") // JVM with Java Chromium Embedded Framework because why not (see also https://github.com/JetBrains/gradle-intellij-plugin#running-dsl)
 
 dependencies {
@@ -102,7 +101,7 @@ sourceSets {
 	}
 }
 
-tasks.withType(JavaCompile).configureEach {
+compileJava {
 	sourceCompatibility = "17"
 	targetCompatibility = "17"
 }
