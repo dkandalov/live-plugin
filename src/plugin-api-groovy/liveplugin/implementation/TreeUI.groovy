@@ -1,19 +1,38 @@
 package liveplugin.implementation
 
 import com.intellij.ide.projectView.PresentationData
+import com.intellij.openapi.Disposable
 import com.intellij.ui.ScrollPaneFactory
+import com.intellij.ui.TreeUIHelper
+import com.intellij.ui.tree.AsyncTreeModel
+import com.intellij.ui.tree.StructureTreeModel
 import com.intellij.ui.treeStructure.SimpleNode
 import com.intellij.ui.treeStructure.SimpleTree
-import com.intellij.ui.treeStructure.SimpleTreeBuilder
 import com.intellij.ui.treeStructure.SimpleTreeStructure
+import com.intellij.util.ui.tree.TreeUtil
 
 import javax.swing.*
-import javax.swing.tree.DefaultTreeModel
 
 class TreeUI {
 	interface TreeNode<T> {
 		Collection<TreeNode<T>> children()
 		PresentationData presentation()
+	}
+
+	static JComponent createTree(TreeNode root, Disposable disposable) {
+		def rootNode = new DelegatingNode(root)
+		def treeStructure = new SimpleTreeStructure() {
+			@Override Object getRootElement() {
+				rootNode
+			}
+		}
+		def treeModel = new StructureTreeModel(treeStructure, disposable)
+		def asyncTreeModel = new AsyncTreeModel(treeModel, disposable)
+		def tree = new SimpleTree(asyncTreeModel)
+
+		TreeUtil.installActions(tree)
+		TreeUIHelper.getInstance().installTreeSpeedSearch(tree)
+		ScrollPaneFactory.createScrollPane(tree)
 	}
 
 	private static class DelegatingNode extends SimpleNode {
@@ -28,20 +47,5 @@ class TreeUI {
 		@Override SimpleNode[] getChildren() {
 			delegate.children().collect { new DelegatingNode(it, this) }
 		}
-	}
-
-	static JComponent createTree(TreeNode root) {
-		def rootNode = new DelegatingNode(root)
-		def tree = new SimpleTree()
-		def treeStructure = new SimpleTreeStructure() {
-			@Override Object getRootElement() {
-				rootNode
-			}
-		}
-		def treeBuilder = new SimpleTreeBuilder(tree, tree.getModel() as DefaultTreeModel, treeStructure, null)
-		treeBuilder.initRoot()
-		treeBuilder.expand(rootNode, null)
-
-		ScrollPaneFactory.createScrollPane(tree)
 	}
 }

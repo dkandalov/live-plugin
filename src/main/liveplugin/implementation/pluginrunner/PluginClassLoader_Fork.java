@@ -4,6 +4,7 @@ package liveplugin.implementation.pluginrunner;
 import com.intellij.diagnostic.PluginException;
 import com.intellij.diagnostic.StartUpMeasurer;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.cl.PluginAwareClassLoader;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginDescriptor;
@@ -206,11 +207,6 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
     @ApiStatus.Internal
     public void setState(int state) {
         this.state = state;
-    }
-
-    @Override
-    public int getInstanceId() {
-        return instanceId;
     }
 
     @Override
@@ -612,6 +608,11 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
     @Override
     public @NotNull PluginId getPluginId() {
         return pluginId;
+    }
+
+    @Override
+    public @Nullable String getModuleId() {
+        return ((IdeaPluginDescriptorImpl)pluginDescriptor).moduleName;
     }
 
     @Override

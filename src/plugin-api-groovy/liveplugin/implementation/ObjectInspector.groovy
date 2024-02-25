@@ -5,6 +5,7 @@ import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.ui.popup.IconButton
 import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.util.Disposer
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -36,15 +37,23 @@ class ObjectInspector implements TreeUI.TreeNode<FieldWithValue> {
 	}
 
 	static JBPopup popup(Object object) {
-		def component = TreeUI.createTree(new ObjectInspector(new FieldWithValue(object, null)))
+		def objectInspector = new ObjectInspector(new FieldWithValue(object, null))
+		def disposable = Disposer.newDisposable()
 
-		JBPopupFactory.instance.createComponentPopupBuilder(component, null)
+		def tree = TreeUI.createTree(objectInspector, disposable)
+		JBPopupFactory.instance
+			.createComponentPopupBuilder(tree, null)
 			.setTitle("Object inspector")
 			.setResizable(true)
 			.setMovable(true)
+			.setRequestFocus(true)
 			.setCancelOnClickOutside(false)
 			.setCancelButton(new IconButton("Close", AllIcons.Actions.Close))
 			.createPopup()
+			.with {
+				Disposer.register(it, disposable)
+				it
+			}
 	}
 
 	ObjectInspector(FieldWithValue fieldWithValue, Map config = defaultConfig) {
