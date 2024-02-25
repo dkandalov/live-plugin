@@ -190,7 +190,7 @@ private class PluginToolWindow(project: Project) {
                 livePluginNewElementPopup,
                 RunLivePluginsGroup(),
                 RenameFileAction().also { it.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("RenameElement")), this) },
-                FileDeleteAction().also {
+                FileDeleteAction("Delete", "", null).also {
                     it.templatePresentation.text = "Delete"
                     it.registerCustomShortcutSet(CustomShortcutSet(*shortcutsOf("SafeDelete")), this)
                 },
@@ -201,6 +201,7 @@ private class PluginToolWindow(project: Project) {
 
         private fun installPopupHandler(component: JComponent, actionGroup: ActionGroup): MouseListener {
             val popupHandler = PopupHandler.installPopupMenu(component, actionGroup, livePluginActionPlace)
+            @Suppress("UnstableApiUsage")
             PopupMenuPreloader.install(component, livePluginActionPlace, popupHandler) { actionGroup }
             return popupHandler
         }

@@ -85,7 +85,7 @@ object IdeUtil {
 
     fun <T> runOnEdt(f: () -> T): T {
         val result = AtomicReference<T>()
-        ApplicationManager.getApplication().invokeAndWait({ result.set(f()) }, ModalityState.NON_MODAL)
+        ApplicationManager.getApplication().invokeAndWait({ result.set(f()) }, ModalityState.nonModal())
         return result.get()
     }
 
