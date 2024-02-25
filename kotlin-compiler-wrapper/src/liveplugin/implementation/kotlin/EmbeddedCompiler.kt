@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalCompilerApi::class)
+@file:Suppress("DEPRECATION")
 
 package liveplugin.implementation.kotlin
 
@@ -17,6 +17,8 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinToJVMBytecodeCompiler
 import org.jetbrains.kotlin.cli.jvm.config.JvmClasspathRoot
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
+import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
+import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar.Companion.COMPILER_PLUGIN_REGISTRARS
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar.Companion.PLUGIN_COMPONENT_REGISTRARS
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -76,6 +78,7 @@ private class ErrorMessageCollector : MessageCollector {
     override fun hasErrors() = errors.isNotEmpty()
 }
 
+@OptIn(ExperimentalCompilerApi::class)
 private fun createCompilerConfiguration(
     sourceRoot: String,
     classpath: List<File>,
@@ -105,11 +108,13 @@ private fun createCompilerConfiguration(
     // Based on org.jetbrains.kotlin.script.ScriptTestUtilKt#loadScriptingPlugin
     addAll(
         PLUGIN_COMPONENT_REGISTRARS,
-        loadPluginsSafe(classpath.map { it.path }, messageCollector)
-            .filter {
-                // Exclude AndroidComponentRegistrar because its API is not compatible with kotlin-compiler-embedded (see https://youtrack.jetbrains.com/issue/KT-43086)
-                "AndroidComponentRegistrar" !in it.javaClass.name
-            }
+        loadComponentRegistrars(classpath.map { it.path }, messageCollector)
+            // Exclude AndroidComponentRegistrar because its API is not compatible with kotlin-compiler-embedded (see https://youtrack.jetbrains.com/issue/KT-43086)
+            .filter { "AndroidComponentRegistrar" !in it.javaClass.name }
+    )
+    addAll(
+        COMPILER_PLUGIN_REGISTRARS,
+        loadCompilerPluginRegistrars(classpath.map { it.path }, messageCollector)
     )
 
     put(JDK_HOME, jrePath)
@@ -119,17 +124,28 @@ private fun createCompilerConfiguration(
     put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_1_8, ApiVersion.KOTLIN_1_8))
 }
 
-// Based on refactored org.jetbrains.kotlin.cli.jvm.plugins.PluginCliParser.loadPluginsSafe
-private fun loadPluginsSafe(
-    pluginClasspaths: Iterable<String>,
-    messageCollector: MessageCollector
-): List<ComponentRegistrar> =
+// Based on modified version of org.jetbrains.kotlin.cli.jvm.plugins.PluginCliParser.loadPluginsSafe
+@OptIn(ExperimentalCompilerApi::class)
+private fun loadComponentRegistrars(pluginClasspaths: Iterable<String>, messageCollector: MessageCollector): List<ComponentRegistrar> =
     try {
         val classLoader = URLClassLoader(
             pluginClasspaths.map { File(it).toURI().toURL() }.toTypedArray<URL?>(),
             ErrorMessageCollector::class.java.classLoader
         )
         ServiceLoaderLite.loadImplementations(ComponentRegistrar::class.java, classLoader)
+    } catch (t: Throwable) {
+        MessageCollectorUtil.reportException(messageCollector, t)
+        emptyList()
+    }
+
+@OptIn(ExperimentalCompilerApi::class)
+private fun loadCompilerPluginRegistrars(pluginClasspaths: Iterable<String>, messageCollector: MessageCollector): List<CompilerPluginRegistrar> =
+    try {
+        val classLoader = URLClassLoader(
+            pluginClasspaths.map { File(it).toURI().toURL() }.toTypedArray<URL?>(),
+            ErrorMessageCollector::class.java.classLoader
+        )
+        ServiceLoaderLite.loadImplementations(CompilerPluginRegistrar::class.java, classLoader)
     } catch (t: Throwable) {
         MessageCollectorUtil.reportException(messageCollector, t)
         emptyList()
