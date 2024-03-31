@@ -84,7 +84,7 @@ Once your plugin has grown, you can move it to a proper plugin project
 and maybe then convert it to become a [dynamic plugin](https://plugins.jetbrains.com/docs/intellij/dynamic-plugins.html).
 
 If something doesn't work or doesn't make sense, please feel free to ask
-in `#live-plugin` channel on [Jetbrains platform slack](https://plugins.jetbrains.com/slack)
+in `#plugin-live-plugin` channel on [Jetbrains platform slack](https://plugins.jetbrains.com/slack)
 or [report an issue](https://github.com/dkandalov/live-plugin/issues) 
 (it's ok to report an issue even if it's just a question).
 
