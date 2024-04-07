@@ -20,7 +20,7 @@ val pluginRunner = createScope("pluginrunner") { it.startsWith("liveplugin.imple
 val validationManager = DependencyValidationManager.getInstance(project!!)
 fun NamedScope.nothingDependsOnIt() = validationManager.denyUsages(of = this, `in` = all - this)
 fun NamedScope.doesNotDependOnAnything() = validationManager.denyUsages(of = all - this, `in` = this)
-fun NamedScope.dependsOnlyOn(vararg scopes: NamedScope) = validationManager.denyUsages(of = all - this - scopes.union(), `in` = scopes.union())
+fun NamedScope.dependsOnlyOn(vararg scopes: NamedScope) = validationManager.denyUsages(of = all - this - scopes.union(), `in` = this)
 
 validationManager.removeAllRules()
 actions.nothingDependsOnIt()
