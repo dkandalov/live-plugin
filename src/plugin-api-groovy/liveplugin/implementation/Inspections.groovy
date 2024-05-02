@@ -2,6 +2,7 @@ package liveplugin.implementation
 
 import com.intellij.codeInspection.InspectionProfile
 import com.intellij.codeInspection.InspectionProfileEntry
+import com.intellij.codeInspection.InspectionWrapperUtil
 import com.intellij.codeInspection.ex.InspectionProfileImpl
 import com.intellij.codeInspection.ex.InspectionToolRegistrar
 import com.intellij.openapi.Disposable
@@ -34,8 +35,8 @@ class Inspections {
 		def projectProfile = inspectionsProfileOf(project)
 		inspections.each {
 			// remove using different instance of inspection should work because inspection is looked up by shortName
-			projectProfile.removeTool(InspectionToolRegistrar.wrapTool(it))
-			projectProfile.addTool(project, InspectionToolRegistrar.wrapTool(it), [:])
+			projectProfile.removeTool(InspectionWrapperUtil.wrapTool(it))
+			projectProfile.addTool(project, InspectionWrapperUtil.wrapTool(it), [:])
 		}
 		inspections.each { projectProfile.enableTool(it.shortName, project) }
 

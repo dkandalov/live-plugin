@@ -21,11 +21,13 @@ ext.kotlinVersion = "1.8.10"
 ext.groovyVersion = "3.0.19"
 
 intellij {
-	// Available IDE versions: https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
+	// For available IDE versions see "com.jetbrains.intellij.idea" in
+	// https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
 	version = System.getenv().getOrDefault("IJ_VERSION",
 //		"221.5080.210" // Compatibility with IJ 2022.1 (Groovy 3, Kotlin 1.6, changes in PluginClassLoader https://github.com/dkandalov/live-plugin/issues/123)
 //		 "231.9161.38" // Compatibility with IJ 2023.1 (Kotlin 1.8, changes in PluginClassLoader https://github.com/dkandalov/live-plugin/issues/155)
-		 "241.13688.18-EAP-SNAPSHOT" // Compatibility with IJ 2024.1 (Groovy 3.0.19, changes in PluginClassLoader)
+//		 "241.13688.18-EAP-SNAPSHOT", // Compatibility with IJ 2024.1 (Groovy 3.0.19, changes in PluginClassLoader)
+		 "2024.1.1" // Compatibility with IJ 2024.1.1
 	)
 	pluginName = "LivePlugin"
 	downloadSources = true
