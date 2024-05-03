@@ -33,24 +33,6 @@ class Widgets {
 		StatusBarWidgetFactory.EP_NAME.point.registerExtension(widgetFactory, loadingOrder, disposable)
 	}
 
-	@Deprecated // Use registerWidget() without project
-	static registerWidget(String widgetId, Project project, Disposable disposable = project,
-	                      String anchor = "before Position", WidgetPresentation presentation) {
-		// TODO the line below is broken because on IDE start initial frame will not be mapped to project
-		// (at least not at the point when project manager listener callback is invoked)
-		def frame = WindowManager.instance.allProjectFrames.find { it.project == project }
-		if (frame == null) return
-
-		def widget = new StatusBarWidget() {
-			@Override String ID() { widgetId }
-			@Override WidgetPresentation getPresentation() { presentation }
-			@Override void install(@NotNull StatusBar statusBar) {}
-			@Override void dispose() {}
-		}
-		frame.statusBar.addWidget(widget, anchor, disposable)
-		frame.statusBar.updateWidget(widgetId)
-	}
-
 	static updateWidget(String widgetId) {
 		WindowManager.instance.allProjectFrames*.statusBar*.updateWidget(widgetId)
 	}

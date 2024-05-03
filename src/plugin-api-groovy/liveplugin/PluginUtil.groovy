@@ -533,15 +533,6 @@ class PluginUtil {
 	}
 
 	@CanCallFromAnyThread
-	@Deprecated // Use registerWidget() without project
-	static registerWidget(String widgetId, Project project, Disposable disposable = project,
-	                      String anchor = "before Position", WidgetPresentation presentation) {
-		invokeOnEDT {
-			Widgets.registerWidget(widgetId, project, disposable, anchor, presentation)
-		}
-	}
-
-	@CanCallFromAnyThread
 	static unregisterWidget(String widgetId) {
 		invokeOnEDT {
 			Widgets.unregisterWidget(widgetId)
