@@ -37,14 +37,6 @@ class VcsActions {
 		vcsActions.start()
 	}
 
-	static registerVcsListener(String id, Project project, Listener listener) {
-		registerVcsListener(registerDisposable(id), project, listener)
-	}
-
-	static unregisterVcsListener(String id) {
-		unregisterDisposable(id)
-	}
-
 	VcsActions(Project project, Listener listener) {
 		this.busConnection = project.messageBus.connect()
 
