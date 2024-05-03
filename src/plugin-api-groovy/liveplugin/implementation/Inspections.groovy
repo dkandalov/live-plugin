@@ -64,7 +64,7 @@ class Inspections {
 
 		def projectProfile = inspectionsProfileOf(project)
 		inspectionsToDelete.each {
-			projectProfile.removeTool(InspectionToolRegistrar.wrapTool(it))
+			projectProfile.removeTool(InspectionWrapperUtil.wrapTool(it))
 		}
 	}
 
