@@ -43,10 +43,6 @@ inline fun <T> runOnEdtWithWriteLock(crossinline f: () -> T): T =
         ApplicationManager.getApplication().runWriteAction(Computable { f() })
     }
 
-@Deprecated(message = "Replace with runOnEdtWithWriteLock", replaceWith = ReplaceWith("runOnEdtWithWriteLock"))
-inline fun <T> withWriteLockOnEdt(crossinline f: () -> T): T =
-    runOnEdtWithWriteLock(f)
-
 /**
  * See also [com.intellij.openapi.progress.ProgressManager]
  */
