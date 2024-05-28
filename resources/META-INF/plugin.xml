@@ -79,6 +79,7 @@
 		<usageTypeProvider implementation="liveplugin.implementation.FindUsageInLivePlugin$UsageTypeExtension" order="last"/>
 		<useScopeEnlarger implementation="liveplugin.implementation.FindUsageInLivePlugin$UseScopeExtension"/>
         <createDirectoryCompletionContributor implementation="liveplugin.implementation.LivePluginDirectoryCompletionContributor"/>
+		<postStartupActivity implementation="liveplugin.implementation.LivePluginProjectPostStartupActivity"/>
 		<intentionAction>
             <className>liveplugin.implementation.pluginrunner.AddToClassPathGroovyIntention</className>
             <language>Groovy</language>
