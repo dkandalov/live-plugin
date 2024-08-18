@@ -6,13 +6,13 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.Presentation
-import com.intellij.openapi.application.readAction
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.project.modules
 import com.intellij.openapi.project.rootManager
 import com.intellij.openapi.startup.ProjectActivity
+import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.findFileOrDirectory
 import kotlinx.coroutines.runBlocking
 import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
@@ -34,26 +34,22 @@ class LivePluginProjectPostStartupActivity : ProjectActivity {
 
         val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
         val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)
-        runPlugins(readLivePlugins(project), dummyEvent)
+        runPlugins(findLivePluginsIn(project), dummyEvent)
     }
 }
 
 class LivePluginProjectListener : ProjectManagerListener {
     override fun projectClosing(project: Project) = runBlocking {
-        unloadPlugins(readLivePlugins(project))
+        unloadPlugins(findLivePluginsIn(project))
     }
 }
 
-private suspend fun readLivePlugins(project: Project) =
-    project.modules.flatMap { readLivePlugins(it) }
-
-private suspend fun readLivePlugins(module: Module) =
-    module.rootManager.contentRoots
-        .mapNotNull { root ->
-            readAction {
-                root.findFileOrDirectory(livePluginsProjectDirName)?.takeIf { it.isDirectory }
-            }
-        }
-        .flatMap {
-            it.toFilePath().listFiles().toLivePlugins()
+private fun findLivePluginsIn(project: Project) =
+    project.modules
+        .flatMap { it.rootManager.contentRoots.toList() }
+        .flatMap { root ->
+            ApplicationManager.getApplication().runReadAction(Computable {
+                root.findFileOrDirectory(livePluginsProjectDirName)
+                    ?.toFilePath()?.listFiles()?.toLivePlugins() ?: emptyList()
+            })
         }
