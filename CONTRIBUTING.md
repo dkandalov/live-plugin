@@ -5,4 +5,4 @@ and `buildPlugin` is provided by [gradle plugin for building IJ plugins](https:/
 ### Running the plugin
 Use gradle `runIde` task provided by [gradle IJ plugin](https://github.com/JetBrains/gradle-intellij-plugin).
 It will download IDE jars for the specified version and will start a new instance of IDE with the plugin.
-To specify IDE version use `IJ_VERSION` env variable or modify `build.gradle` file.
+To specify IDE version modify `build.gradle` file.
