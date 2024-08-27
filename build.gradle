@@ -107,11 +107,6 @@ sourceSets {
 	}
 }
 
-compileJava {
-	sourceCompatibility = "21"
-	targetCompatibility = "21"
-}
-
 kotlin {
 	jvmToolchain(21)
 }
