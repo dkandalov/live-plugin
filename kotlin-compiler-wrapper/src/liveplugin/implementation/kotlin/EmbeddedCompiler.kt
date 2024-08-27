@@ -23,13 +23,16 @@ import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar.Companion.PLUGIN_COMPONENT_REGISTRARS
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.ApiVersion
+import org.jetbrains.kotlin.config.CommonConfigurationKeys.ALLOW_ANY_SCRIPTS_IN_SOURCE_ROOTS
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.LANGUAGE_VERSION_SETTINGS
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.MODULE_NAME
+import org.jetbrains.kotlin.config.CommonConfigurationKeys.REPORT_OUTPUT_FILES
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.*
-import org.jetbrains.kotlin.config.JvmTarget.JVM_17
+import org.jetbrains.kotlin.config.JvmTarget.JVM_21
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
+import org.jetbrains.kotlin.scripting.configuration.ScriptingConfigurationKeys.DISABLE_SCRIPTING_PLUGIN_OPTION
 import org.jetbrains.kotlin.scripting.configuration.ScriptingConfigurationKeys.SCRIPT_DEFINITIONS
 import org.jetbrains.kotlin.scripting.definitions.ScriptDefinition
 import org.jetbrains.kotlin.util.ServiceLoaderLite
@@ -55,7 +58,7 @@ fun compile(
         val messageCollector = ErrorMessageCollector()
         val configuration = createCompilerConfiguration(sourceRoot, classpath, jrePath, outputDirectory, messageCollector, livePluginScriptClass.kotlin)
         val kotlinEnvironment = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, JVM_CONFIG_FILES)
-        val state = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(kotlinEnvironment)
+        val state = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(kotlinEnvironment).also { it?.destroy() }
 
         return when {
             messageCollector.hasErrors() -> messageCollector.errors
@@ -99,8 +102,11 @@ private fun createCompilerConfiguration(
             livePluginScriptClass
         )
     )
+    put(DISABLE_SCRIPTING_PLUGIN_OPTION, false)
+    put(DISABLE_STANDARD_SCRIPT_DEFINITION, true)
+    put(ALLOW_ANY_SCRIPTS_IN_SOURCE_ROOTS, true)
 
-    add(CONTENT_ROOTS, KotlinSourceRoot(path = sourceRoot, isCommon = false))
+    add(CONTENT_ROOTS, KotlinSourceRoot(path = sourceRoot, isCommon = false, hmppModuleName = null))
     classpath.forEach { file ->
         add(CONTENT_ROOTS, JvmClasspathRoot(file))
     }
@@ -118,10 +124,11 @@ private fun createCompilerConfiguration(
     )
 
     put(JDK_HOME, jrePath)
-    put(JVM_TARGET, JVM_17)
+    put(JVM_TARGET, JVM_21)
     put(RETAIN_OUTPUT_IN_MEMORY, false)
     put(OUTPUT_DIRECTORY, outputDirectory)
-    put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_1_8, ApiVersion.KOTLIN_1_8))
+    put(REPORT_OUTPUT_FILES, true)
+    put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_1_9, ApiVersion.KOTLIN_1_9))
 }
 
 // Based on modified version of org.jetbrains.kotlin.cli.jvm.plugins.PluginCliParser.loadPluginsSafe

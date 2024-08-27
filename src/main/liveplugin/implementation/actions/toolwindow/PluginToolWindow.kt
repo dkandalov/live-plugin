@@ -4,7 +4,6 @@ import com.intellij.ide.BrowserUtil
 import com.intellij.ide.DefaultTreeExpander
 import com.intellij.ide.actions.CollapseAllAction
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.impl.PopupMenuPreloader
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
@@ -199,12 +198,8 @@ private class PluginToolWindow(project: Project) {
             installPopupHandler(this, popupActionGroup)
         }
 
-        private fun installPopupHandler(component: JComponent, actionGroup: ActionGroup): MouseListener {
-            val popupHandler = PopupHandler.installPopupMenu(component, actionGroup, livePluginActionPlace)
-            @Suppress("UnstableApiUsage")
-            PopupMenuPreloader.install(component, livePluginActionPlace, popupHandler) { actionGroup }
-            return popupHandler
-        }
+        private fun installPopupHandler(component: JComponent, actionGroup: ActionGroup): MouseListener =
+            PopupHandler.installPopupMenu(component, actionGroup, livePluginActionPlace)
 
         private class MyTree(private val project: Project): Tree(), DataProvider {
             init {

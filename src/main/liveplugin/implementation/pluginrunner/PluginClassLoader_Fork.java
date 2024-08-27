@@ -340,6 +340,11 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
         return c;
     }
 
+    @Override
+    public @Nullable Class<?> loadClassInsideSelf(@NotNull String name) throws ClassNotFoundException {
+        return loadClass(name, false);
+    }
+
     private @NotNull ClassLoader @NotNull[] getAllParents() {
         ClassLoader[] result = allParents;
         if (result != null && allParentsLastCacheId == parentListCacheIdCounter.get()) {

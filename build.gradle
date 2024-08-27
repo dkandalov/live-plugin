@@ -1,11 +1,11 @@
-import static org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_8
+import static org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
 
 //file:noinspection GrMethodMayBeStatic // Disable because it has false positives
 //file:noinspection GroovyAssignabilityCheck // Disable because it has false positives
 
 plugins {
 	id 'org.jetbrains.intellij.platform' version '2.0.1'
-	id 'org.jetbrains.kotlin.jvm' version '1.8.10'
+	id 'org.jetbrains.kotlin.jvm' version '1.9.24'
 	id 'java'
 	id 'groovy'
 }
@@ -19,7 +19,7 @@ repositories {
 
 // Should match Kotlin version bundled with IntelliJ (see https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library)
 // If the version is older, it will still work in IJ but is likely to be incompatible with Kotlin plugin which is often one version ahead.
-ext.kotlinVersion = "1.8.10"
+ext.kotlinVersion = "1.9.24"
 // Must match Groovy version bundled with IntelliJ (see IJ/Contents/lib/groovy.jar/META-INF/org.codehaus.groovy.runtime.ExtensionModule)
 ext.groovyVersion = "3.0.19"
 
@@ -34,13 +34,13 @@ intellijPlatform {
 		}
 	}
 }
-
 dependencies {
 	intellijPlatform {
 		// For available IDE versions see "com.jetbrains.intellij.idea" in
 		// https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
 		intellijIdeaCommunity(
-		    "2024.1.1" // Compatibility with IJ 2024.1.1
+//		    "2024.1.1" // Compatibility with IJ 2024.1.1
+		    "2024.2.0.1" // Compatibility with IJ 2024.2.0.1
 		)
 		bundledPlugin "com.intellij.java"
 		bundledPlugin "org.intellij.groovy"
@@ -108,17 +108,17 @@ sourceSets {
 }
 
 compileJava {
-	sourceCompatibility = "17"
-	targetCompatibility = "17"
+	sourceCompatibility = "21"
+	targetCompatibility = "21"
 }
 
 kotlin {
-	jvmToolchain(17)
+	jvmToolchain(21)
 }
 compileKotlin {
 	compilerOptions {
-		apiVersion.set(KOTLIN_1_8)
-		languageVersion.set(KOTLIN_1_8)
+		apiVersion.set(KOTLIN_1_9)
+		languageVersion.set(KOTLIN_1_9)
 		freeCompilerArgs = ["-Xjvm-default=all"] // Added for LivePluginKotlinScriptProvider
 	}
 }
@@ -135,18 +135,16 @@ tasks.register('validateLivePluginZip') {
 
 		def kotlinCompilerAndItsTransitiveDependencies = [
 			"LivePlugin/kotlin-compiler/annotations-13.0.jar",
-			"LivePlugin/kotlin-compiler/jna-5.6.0.jar",
-			"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.8.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-compiler-embeddable-1.9.24.jar",
 			"LivePlugin/kotlin-compiler/kotlin-compiler-wrapper.jar",
-			"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.8.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-reflect-1.8.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.8.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-scripting-common-1.8.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-embeddable-1.8.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-1.8.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.8.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-stdlib-1.8.10.jar",
-			"LivePlugin/kotlin-compiler/kotlin-stdlib-common-1.8.10.jar",
+			"LivePlugin/kotlin-compiler/kotlin-daemon-embeddable-1.9.24.jar",
+			"LivePlugin/kotlin-compiler/kotlin-reflect-1.9.24.jar",
+			"LivePlugin/kotlin-compiler/kotlin-script-runtime-1.9.24.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-common-1.9.24.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-embeddable-1.9.24.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-1.9.24.jar",
+			"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-1.9.24.jar",
+			"LivePlugin/kotlin-compiler/kotlin-stdlib-1.9.24.jar",
 			"LivePlugin/kotlin-compiler/trove4j-1.0.20200330.jar",
 			"LivePlugin/lib/http4k-client-okhttp-4.40.2.0.jar",
 			"LivePlugin/lib/http4k-core-4.40.2.0.jar",
@@ -209,17 +207,16 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 
 def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
 	prepareSandbox.doLast {
-		new File("build/idea-sandbox/IC-2024.1.1/plugins/LivePlugin/lib")
+		new File("build/idea-sandbox/IC-2024.2.0.1/plugins/LivePlugin/lib")
 			.listFiles().toList()
 			.findAll {
 				(it.name.startsWith("kotlin-") || it.name.startsWith("jna-") || it.name.startsWith("annotations-") || it.name.startsWith("trove4j-")) &&
 					it.name.endsWith(".jar") && it.name != "LivePlugin.jar"
 			}
 			.each {
-				println(it.name)
 				ant.move(
-					file: "build/idea-sandbox/IC-2024.1.1/plugins/LivePlugin/lib/${it.name}",
-					tofile: "build/idea-sandbox/IC-2024.1.1/plugins/LivePlugin/kotlin-compiler/${it.name}"
+					file: "build/idea-sandbox/IC-2024.2.0.1/plugins/LivePlugin/lib/${it.name}",
+					tofile: "build/idea-sandbox/IC-2024.2.0.1/plugins/LivePlugin/kotlin-compiler/${it.name}"
 				)
 			}
 	}
@@ -230,7 +227,7 @@ def 'Copy GDSL file into standardDsls folder'() {
 		def resourcesFolder = project.tasks.named(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).get().destinationDir
 		ant.copy(
 			file: resourcesFolder.absolutePath + "/liveplugin/livePluginCompletions.gdsl",
-			tofile: "build/idea-sandbox/IC-2024.1.1/plugins/LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
+			tofile: "build/idea-sandbox/IC-2024.2.0.1/plugins/LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
 			quiet: true
 		)
 	}
