@@ -45,7 +45,7 @@ class PluginUtilTest {
 
 		asString(new IllegalStateException("message")).split(/\n/).toList().with {
 			assert get(0) == "java.lang.IllegalStateException: message"
-			assert get(1) == "\tat java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)"
+			assert get(1).startsWith("\tat java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance")
 		}
 	}
 }

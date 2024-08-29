@@ -3,33 +3,39 @@
 package liveplugin
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.IntentionManager
 import com.intellij.codeInspection.InspectionProfileEntry
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import com.intellij.ide.BrowserUtil
+import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationType.INFORMATION
+import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.UndoConfirmationPolicy.DEFAULT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.fileEditor.impl.HTMLEditorProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
-import liveplugin.PluginUtil.openUrlInEditor
-import liveplugin.implementation.Console
-import liveplugin.implementation.Editors
 import liveplugin.implementation.pluginrunner.kotlin.LivePluginScript
+import liveplugin.implementation.registerInspectionIn
+import liveplugin.implementation.showInConsole
 import java.awt.Component
 
 /**
@@ -46,15 +52,21 @@ fun show(
     groupDisplayId: String = "Live Plugin",
     notificationAction: NotificationAction? = null
 ) {
-    PluginUtil.show(message, title, notificationType, groupDisplayId, notificationAction)
+    runLaterOnEdt {
+        val notification = Notification(groupDisplayId, title, message.toString().ifBlank { "[empty message]" }, notificationType)
+        if (notificationAction != null) {
+            notification.addAction(notificationAction)
+        }
+        ApplicationManager.getApplication().messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
+    }
 }
 
 fun Project.showInConsole(
-    message: Any?,
+    message: String,
     consoleTitle: String = "",
-    contentType: ConsoleViewContentType = Console.guessContentTypeOf(message)
+    contentType: ConsoleViewContentType = NORMAL_OUTPUT
 ): ConsoleView =
-    Console.showInConsole(message, consoleTitle, this, contentType)
+    showInConsole(message, consoleTitle, this, contentType)
 
 fun Document.executeCommand(project: Project, description: String? = null, callback: Document.() -> Unit) {
     runOnEdtWithWriteLock {
@@ -63,11 +75,22 @@ fun Document.executeCommand(project: Project, description: String? = null, callb
     }
 }
 
-fun LivePluginScript.registerIntention(intention: IntentionAction): IntentionAction =
-    PluginUtil.registerIntention(pluginDisposable, intention)
+fun LivePluginScript.registerIntention(intention: IntentionAction): IntentionAction {
+    runOnEdtWithWriteLock {
+        IntentionManager.getInstance().addAction(intention)
+        pluginDisposable.whenDisposed {
+            IntentionManager.getInstance().unregisterIntention(intention)
+        }
+    }
+    return intention
+}
 
 fun LivePluginScript.registerInspection(inspection: InspectionProfileEntry) {
-    PluginUtil.registerInspection(pluginDisposable, inspection)
+    runOnEdtWithWriteLock {
+        registerProjectOpenListener(pluginDisposable) { project ->
+            registerInspectionIn(project, pluginDisposable.registerParent(project), inspection)
+        }
+    }
 }
 
 fun openInBrowser(url: String) =
@@ -77,7 +100,8 @@ fun Project.openInIdeBrowser(url: String, title: String = "") =
     HTMLEditorProvider.openEditor(this, title, url, null)
 
 fun Project.openInEditor(filePath: String) {
-    openUrlInEditor("file://${filePath}", this)
+    val virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl("file://${filePath}") ?: return
+    FileEditorManager.getInstance(this).openFile(virtualFile, true, true)
 }
 
 val logger: Logger = Logger.getInstance("LivePlugin")
@@ -104,7 +128,7 @@ val VirtualFile.document: Document?
     get() = FileDocumentManager.getInstance().getDocument(this)
 
 val Project.currentEditor: Editor?
-    get() = Editors.currentEditorIn(this)
+    get() = FileEditorManagerEx.getInstanceEx(this).selectedTextEditor
 
 val Project.currentFile: VirtualFile?
     get() = FileEditorManagerEx.getInstanceEx(this).currentFile

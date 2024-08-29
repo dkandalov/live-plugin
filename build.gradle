@@ -77,34 +77,23 @@ dependencies {
 'Copy GDSL file into standardDsls folder'()
 
 sourceSets {
-	// Keep Groovy and Kotlin API source code in separate source sets, otherwise
-	// compilation fails because of inter-dependencies between Kotlin and Groovy files which confuse compiler,
-	// even though overall dependencies are unidirectional: pluginApiKotlin -> pluginApiGroovy -> main.
-
 	main {
+		// Keep Kotlin and Groovy API source code in separate folders for clarity.
 		java { srcDir "src/main" }
+		groovy { srcDir "src/plugin-api-groovy" }
+		kotlin { srcDir "src/plugin-api-kotlin" }
 		resources { srcDir "resources" }
 		resources { srcDir "plugin-examples" }
-	}
-	pluginApiGroovy {
-		groovy { srcDir "src/plugin-api-groovy" }
-		compileClasspath = main.output +
-			configurations.compileClasspath + configurations.runtimeClasspath +
-			configurations.pluginApiGroovyCompileClasspath + configurations.pluginApiGroovyRuntimeClasspath
-	}
-	pluginApiKotlin {
-		kotlin { srcDir "src/plugin-api-kotlin" }
-		compileClasspath = main.output + pluginApiGroovy.output +
-			configurations.compileClasspath + configurations.pluginApiKotlinCompileClasspath
 	}
 	test {
 		groovy { srcDir "src/test" }
 		kotlin { srcDir "src/test" }
-		compileClasspath = main.output + pluginApiGroovy.output + pluginApiKotlin.output +
-			configurations.testCompileClasspath + configurations.pluginApiGroovyCompileClasspath
-		runtimeClasspath = test.output + main.output + pluginApiGroovy.output + pluginApiKotlin.output +
-			configurations.testRuntimeClasspath + configurations.pluginApiGroovyRuntimeClasspath
 	}
+}
+// Make Groovy compilation depend on Kotlin as described here
+// https://docs.gradle.org/current/userguide/building_java_projects.html#sub:compile_deps_jvm_lang
+tasks.named('compileGroovy') {
+	classpath += files(sourceSets.main.kotlin.classesDirectory)
 }
 
 kotlin {
@@ -119,7 +108,6 @@ compileKotlin {
 }
 
 jar {
-	from sourceSets.pluginApiGroovy.output, sourceSets.pluginApiKotlin.output
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
