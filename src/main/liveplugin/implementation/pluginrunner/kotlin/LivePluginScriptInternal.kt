@@ -9,6 +9,7 @@ import liveplugin.implementation.common.toFilePath
 import java.io.File
 import kotlin.script.experimental.annotations.KotlinScript
 import kotlin.script.experimental.api.*
+import kotlin.script.experimental.api.ScriptAcceptedLocation.Everywhere
 import kotlin.script.experimental.host.FileScriptSource
 import kotlin.script.experimental.intellij.ScriptDefinitionsProvider
 import kotlin.script.experimental.jvm.JvmDependency
@@ -36,8 +37,8 @@ open class LivePluginScriptConfig(
         beforeCompiling { context -> ResultWithDiagnostics.Success(createConfig(context), reports = emptyList()) }
     }
     ide {
-        compilerOptions("-jvm-target", "17")
-        acceptedLocations(ScriptAcceptedLocation.Everywhere)
+        compilerOptions("-jvm-target", "21")
+        acceptedLocations(Everywhere)
         dependenciesSources(JvmDependency(livePluginLibAndSrcFiles()))
 //        dependenciesSources(JvmDependency(listOf( // This doesn't work 😠
 //            File(".../Application Support/JetBrains/IntelliJIdea2021.1/plugins/live-plugins/multiple-src-files/foo.kt"),
