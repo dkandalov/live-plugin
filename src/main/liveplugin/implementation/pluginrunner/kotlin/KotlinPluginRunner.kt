@@ -133,7 +133,7 @@ private class KotlinPluginCompiler {
             File(pluginFolderPath)
 
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.implementation.kotlin.EmbeddedCompilerKt")
-        val compilePluginMethod = compilerRunnerClass.declaredMethods.find { it.name == "compile" }!!
+        val compilePluginMethod = compilerRunnerClass.declaredMethods.single { it.name == "compile" }
         // Note that arguments passed via reflection CANNOT use pure Kotlin types
         // because compiler uses different classloader to load Kotlin so classes won't be compatible
         // (it's ok though to use types like kotlin.String which becomes java.lang.String at runtime).
@@ -144,7 +144,7 @@ private class KotlinPluginCompiler {
             compilerClasspath,
             File(System.getProperty("java.home")),
             compilerOutput,
-            LivePluginScriptForCompilation::class.java
+            LivePluginScript::class.java
         ) as List<String>
 
         if (compilationErrors.isNotEmpty()) {
@@ -221,7 +221,8 @@ class SrcHashCode(srcDir: FilePath, compilerOutputDir: FilePath) {
     private fun calculateSourceCodeHash(srcDirPath: FilePath) =
         srcDirPath.allFiles()
             .filter { it.extension == "kt" || it.extension == "kts" }
-            .fold(0L) { hash, file ->
+            // Update the initial value below whenever LivePlugin internals change so that user's code is recompiled
+            .fold(initial = 1L) { hash, file ->
                 MurmurHash3.hash32(hash, (file.name + file.readText()).hashCode().toLong()).toLong()
             }
 

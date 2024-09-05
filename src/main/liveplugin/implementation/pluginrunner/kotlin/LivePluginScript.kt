@@ -5,8 +5,7 @@ import com.intellij.openapi.project.Project
 import kotlin.script.experimental.annotations.KotlinScript
 
 @KotlinScript(
-    // Ideally, matching should be on the "live-plugins" folder, but it seems that in Kotlin 1.9.24 this matches only on file name.
-    filePathPattern = "plugin\\.kts",
+    filePathPattern = ".*plugin.kts", // Use this regex, because otherwise LivePluginScript makes highlighting red in Kotlin worksheets
     compilationConfiguration = LivePluginScriptHighlightingConfig::class
 )
 abstract class LivePluginScript(

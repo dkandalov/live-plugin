@@ -1,43 +1,41 @@
 package liveplugin.implementation.pluginrunner.kotlin
 
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.common.toFilePath
 import java.io.File
-import kotlin.script.experimental.annotations.KotlinScript
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.api.ScriptAcceptedLocation.Everywhere
 import kotlin.script.experimental.host.FileScriptSource
 import kotlin.script.experimental.intellij.ScriptDefinitionsProvider
 import kotlin.script.experimental.jvm.JvmDependency
+import kotlin.script.experimental.jvm.jdkHome
+import kotlin.script.experimental.jvm.jvm
 import kotlin.script.experimental.jvm.updateClasspath
 
-@KotlinScript(
-    filePathPattern = "plugin\\.kts",
-    compilationConfiguration = LivePluginScriptCompilationConfig::class
-)
-abstract class LivePluginScriptForCompilation(
-    override val isIdeStartup: Boolean,
-    override val project: Project?,
-    override val pluginPath: String,
-    override val pluginDisposable: Disposable
-) : LivePluginScript(isIdeStartup, project, pluginPath, pluginDisposable)
+class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
+    override val id = "LivePluginKotlinScriptProvider"
+    override fun getDefinitionClasses() = listOf(LivePluginScript::class.java.canonicalName)
+    override fun getDefinitionsClassPath() = livePluginLibPath.listFiles().map { it.toFile() }
+    // + File(".../live-plugin/build/idea-sandbox/plugins/live-plugins/multiple-src-files/foo.kt") This doesn't work 😠
+    override fun useDiscovery() = false
+}
 
 object LivePluginScriptHighlightingConfig: LivePluginScriptConfig({ createScriptConfig(it, ::highlightingClasspath) })
-object LivePluginScriptCompilationConfig: LivePluginScriptConfig({ createScriptConfig(it, ::compilingClasspath) })
 
 open class LivePluginScriptConfig(
     createConfig: (ScriptConfigurationRefinementContext) -> ScriptCompilationConfiguration
 ): ScriptCompilationConfiguration(body = {
     refineConfiguration {
-        beforeParsing { context -> ResultWithDiagnostics.Success(createConfig(context), reports = emptyList()) }
-        beforeCompiling { context -> ResultWithDiagnostics.Success(createConfig(context), reports = emptyList()) }
+        beforeParsing { context -> ResultWithDiagnostics.Success(createConfig(context)) }
+        beforeCompiling { context -> ResultWithDiagnostics.Success(createConfig(context)) }
+    }
+    compilerOptions("-jvm-target", "21")
+    jvm {
+       jdkHome(File(System.getProperty("java.home")))
     }
     ide {
-        compilerOptions("-jvm-target", "21")
         acceptedLocations(Everywhere)
         dependenciesSources(JvmDependency(livePluginLibAndSrcFiles()))
 //        dependenciesSources(JvmDependency(listOf( // This doesn't work 😠
@@ -80,20 +78,3 @@ private fun highlightingClasspath(scriptText: List<String>, scriptFolderPath: St
         dependenciesOnOtherPluginsForHighlighting(scriptText) +
         findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText, scriptFolderPath) +
         livePluginLibAndSrcFiles()
-
-// Similar to highlightingClasspath() but without dependencies on other plugins
-// because PluginDescriptorLoader fails with "NoClassDefFoundError: Could not initialize class com.intellij.ide.plugins.PluginXmlFactory"
-// when running KotlinPluginCompiler which I guess somehow picks it up via @KotlinScript annotation.
-// All dependent plugins are directly added to the compiler classpath anyway in KotlinPluginCompiler.compile().
-private fun compilingClasspath(scriptText: List<String>, scriptFolderPath: String) =
-    ideLibFiles() +
-        findClasspathAdditionsForHighlightingAndScriptTemplate(scriptText, scriptFolderPath) +
-        livePluginLibAndSrcFiles()
-
-class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
-    override val id = "LivePluginKotlinScriptProvider"
-    override fun getDefinitionClasses() = listOf(LivePluginScript::class.java.canonicalName)
-    override fun getDefinitionsClassPath() = livePluginLibPath.listFiles().map { it.toFile() }
-    // + File(".../live-plugin/build/idea-sandbox/plugins/live-plugins/multiple-src-files/foo.kt") This doesn't work 😠
-    override fun useDiscovery() = false
-}
