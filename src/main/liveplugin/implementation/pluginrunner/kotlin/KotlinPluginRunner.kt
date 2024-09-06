@@ -180,11 +180,13 @@ private class KotlinPluginCompiler {
 }
 
 fun ideLibFiles() = ideJarsPath
-    .listFiles {
+    .allFiles()
+    .filter {
         // Filter because Kotlin compiler complains about non-zip files.
-        it.isDirectory || it.extension == "jar" || it.extension == "zip"
+        !it.isDirectory && (it.extension == "jar" || it.extension == "zip")
     }
     .map { it.toFile() }
+    .toList()
 
 fun dependenciesOnOtherPluginsForHighlighting(scriptText: List<String>): List<File> =
     findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
