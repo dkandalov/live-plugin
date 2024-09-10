@@ -232,7 +232,7 @@ fun AnActionEvent.selectedFiles(): List<FilePath> =
     dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)?.map { it.toFilePath() } ?: emptyList()
 
 @Suppress("UnstableApiUsage")
-class MapDataContext(val map: Map<String, Any?>) : DataContext, AsyncDataContext {
+class MapDataContext(val map: Map<String, Any?>) : AsyncDataContext {
     override fun getData(dataId: String) = map[dataId]
 }
 

@@ -41,14 +41,12 @@ import org.jetbrains.jps.model.module.UnknownSourceRootType
 // but it's also used for enabling Kotlin intentions in live plugin, i.e. outside of project
 // (since change in IJ 2022.1: Anna Kozlova* 22/12/2021, 17:21 [kotlin] disable intentions which modifies code in libraries (KTIJ-20543))
 class ScratchLivePluginRootType : RootType("LivePlugin", "Live Plugins") {
+    init {
+        System.setProperty(PathManager.PROPERTY_SCRATCH_PATH + "/LivePlugin", livePluginsPath.value)
+    }
+
     override fun substituteIcon(project: Project, file: VirtualFile) =
         if (file.toFilePath().isPluginFolder()) pluginIcon else super.substituteIcon(project, file)
-
-    companion object {
-        init {
-            System.setProperty(PathManager.PROPERTY_SCRATCH_PATH + "/LivePlugin", livePluginsPath.value)
-        }
-    }
 }
 
 class LivePluginDeletedListener : BulkFileListener {
@@ -107,19 +105,16 @@ object FindUsageInLivePlugin {
 
     class UseScopeExtension : UseScopeEnlarger() {
         override fun getAdditionalUseScope(element: PsiElement): SearchScope? =
-            if (element.useScope is LocalSearchScope) null else SCOPE_KEY.getValue(element.project)
+            if (element.useScope is LocalSearchScope) null else scopeKey.getValue(element.project)
+
+        private val scopeKey: NotNullLazyKey<LivePluginsSearchScope, Project> =
+            NotNullLazyKey.createLazyKey("LIVEPLUGIN_SEARCH_SCOPE_KEY") { project -> LivePluginsSearchScope(project) }
 
         private class LivePluginsSearchScope(project: Project) : GlobalSearchScope(project) {
             override fun getDisplayName() = "LivePlugins"
             override fun contains(file: VirtualFile) = file.toFilePath().isPluginFolder()
             override fun isSearchInModuleContent(aModule: Module) = false
             override fun isSearchInLibraries() = false
-        }
-
-        companion object {
-            private val SCOPE_KEY = NotNullLazyKey.createLazyKey<LivePluginsSearchScope, Project>("LIVEPLUGIN_SEARCH_SCOPE_KEY") { project ->
-                LivePluginsSearchScope(project)
-            }
         }
     }
 }
