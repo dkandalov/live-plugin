@@ -1,7 +1,7 @@
 package liveplugin.implementation.actions
 
 import com.intellij.CommonBundle
-import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationBundle
@@ -34,7 +34,7 @@ class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", deletePlugi
         event.presentation.isEnabled = event.livePlugins().isNotEmpty()
     }
 
-    override fun getActionUpdateThread() = ActionUpdateThread.BGT
+    override fun getActionUpdateThread() = BGT
 
     companion object {
         private fun userDoesNotWantToRemovePlugins(plugins: List<LivePlugin>, project: Project?): Boolean {

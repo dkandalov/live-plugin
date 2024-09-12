@@ -36,13 +36,18 @@ class Binding(
                 }
             }
 
-            val disposable = object: Disposable {
+            val disposable = object : Disposable {
                 override fun dispose() {}
                 override fun toString() = "LivePlugin: $livePlugin"
             }
             Disposer.register(ApplicationManager.getApplication(), disposable)
 
-            val binding = Binding(event.project, event.place == IdeUtil.ideStartupActionPlace, livePlugin.path.value, disposable)
+            val binding = Binding(
+                project = event.project,
+                isIdeStartup = event.place == IdeUtil.ideStartupActionPlace,
+                pluginPath = livePlugin.path.value,
+                pluginDisposable = disposable
+            )
             bindingByPluginId[livePlugin.id] = binding
 
             return binding

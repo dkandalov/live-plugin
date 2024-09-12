@@ -24,7 +24,7 @@ import javax.swing.*;
 import java.io.IOException;
 
 /**
- * Originally forked from {@link com.intellij.openapi.fileChooser.actions.NewFileAction}
+ * Originally forked from com.intellij.openapi.fileChooser.actions.NewFileAction
  */
 public class NewFileAction extends FileChooserAction {
     @Nullable private final Icon icon;
@@ -69,7 +69,7 @@ public class NewFileAction extends FileChooserAction {
             if (newFileName == null) {
                 return;
             }
-            if ("".equals(newFileName.trim())) {
+            if (newFileName.trim().isEmpty()) {
                 Messages.showMessageDialog(UIBundle.message("create.new.file.file.name.cannot.be.empty.error.message"),
                     UIBundle.message("error.dialog.title"), Messages.getErrorIcon());
                 continue;

@@ -88,10 +88,9 @@ class GistApiHttp(httpHandler: HttpHandler = defaultHandler()) : GistApi {
     override fun getGistRevision(gistId: String, sha: String): Gist =
         client(Request(GET, "$gistId/$sha")).expectStatus(OK).parse()
 
-    private fun Response.expectStatus(status: Status): Response {
-        if (this.status == status) return this
+    private fun Response.expectStatus(status: Status) =
+        if (this.status == status) this
         else throw FailedRequest("Expected status ${status.code} but was ${this.status.code}")
-    }
 
     private inline fun <reified T> Response.parseList(): List<T> =
         objectMapper.readValue(

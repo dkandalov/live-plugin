@@ -8,7 +8,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.DependencyScope
+import com.intellij.openapi.roots.DependencyScope.PROVIDED
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.OrderRootType.CLASSES
@@ -125,7 +125,7 @@ private fun Module.addDependencyOn(libraryName: String, paths: List<Pair<String,
     }
 
     val libraryOrderEntry = modifiableModel.findLibraryOrderEntry(library)
-    if (libraryOrderEntry != null) libraryOrderEntry.scope = DependencyScope.PROVIDED
+    if (libraryOrderEntry != null) libraryOrderEntry.scope = PROVIDED
     modifiableModel.commit()
 }
 

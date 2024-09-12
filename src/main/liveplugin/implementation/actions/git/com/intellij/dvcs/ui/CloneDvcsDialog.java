@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 /**
  * TODO check if existing clone dialog can be reused or fork the code again
  * <p>
- * This is a fork of {@link com.intellij.dvcs.ui.CloneDvcsDialog}.
+ * This is a fork of com.intellij.dvcs.ui.CloneDvcsDialog.
  * The reason for fork is to disable "parent directory" and "directory name" text fields.
  */
 public abstract class CloneDvcsDialog extends DialogWrapper {
@@ -197,7 +197,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
      * @return true if destination components are OK.
      */
     private boolean checkDestination() {
-        if (myParentDirectory.getText().length() == 0 || myDirectoryName.getText().length() == 0) {
+        if (myParentDirectory.getText().isEmpty() || myDirectoryName.getText().isEmpty()) {
             setErrorText(null);
             setOKActionEnabled(false);
             return false;
@@ -218,7 +218,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
      */
     private boolean checkRepositoryURL() {
         String repository = getCurrentUrlText();
-        if (repository.length() == 0) {
+        if (repository.isEmpty()) {
             setErrorText(null);
             setOKActionEnabled(false);
             return false;
@@ -270,7 +270,7 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
         final DvcsRememberedInputs rememberedInputs = getRememberedInputs();
         List<String> urls = new ArrayList<>(rememberedInputs.getVisitedUrls());
         if (myDefaultRepoUrl != null) {
-            urls.add(0, myDefaultRepoUrl);
+            urls.addFirst(myDefaultRepoUrl);
         }
         myRepositoryURL.setHistory(ArrayUtil.toObjectArray(urls, String.class));
         myRepositoryURL.addDocumentListener(new com.intellij.openapi.editor.event.DocumentListener() {
@@ -278,8 +278,8 @@ public abstract class CloneDvcsDialog extends DialogWrapper {
             public void documentChanged(@NotNull com.intellij.openapi.editor.event.DocumentEvent e) {
                 // enable test button only if something is entered in repository URL
                 final String url = getCurrentUrlText();
-                myTestButton.setEnabled(url.length() != 0);
-                if (myDefaultDirectoryName.equals(myDirectoryName.getText()) || myDirectoryName.getText().length() == 0) {
+                myTestButton.setEnabled(!url.isEmpty());
+                if (myDefaultDirectoryName.equals(myDirectoryName.getText()) || myDirectoryName.getText().isEmpty()) {
                     // modify field if it was unmodified or blank
                     myDefaultDirectoryName = defaultDirectoryName(url, myVcsDirectoryName);
                     myDirectoryName.setText(myDefaultDirectoryName);
