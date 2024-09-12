@@ -54,14 +54,13 @@ class LivePluginDeletedListener : BulkFileListener {
         val livePlugins = events.filter { it is VFileDeleteEvent && it.file.toFilePath().isPluginFolder() }
             .mapNotNull { event -> event.file?.toFilePath() }
             .toLivePlugins()
+        if (livePlugins.isEmpty()) return
 
-        if (livePlugins.isNotEmpty()) {
-            runLaterOnEdt {
-                unloadPlugins(livePlugins)
-                livePlugins.forEach { plugin ->
-                    (livePluginsCompiledPath + plugin.id).toVirtualFile()?.delete()
-                }
-            }
+        // Load virtual files outside of EDT
+        val virtualFiles = livePlugins.mapNotNull { plugin -> (livePluginsCompiledPath + plugin.id).toVirtualFile() }
+        runLaterOnEdt {
+            unloadPlugins(livePlugins)
+            virtualFiles.forEach { it.delete() }
         }
     }
 }
