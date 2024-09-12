@@ -1,6 +1,5 @@
 package liveplugin.implementation.actions.gist
 
-import com.intellij.collaboration.auth.AccountManagerBase
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification.NotificationListener.URL_OPENING_LISTENER
@@ -21,7 +20,7 @@ import com.intellij.ui.dsl.builder.Align
 import com.intellij.ui.dsl.builder.AlignY
 import com.intellij.ui.dsl.builder.RowLayout.LABEL_ALIGNED
 import com.intellij.ui.dsl.builder.panel
-import com.intellij.util.proxy.CommonProxy
+import com.intellij.util.net.JdkProxyProvider
 import kotlinx.coroutines.runBlocking
 import liveplugin.implementation.actions.gist.GistApi.*
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
@@ -29,10 +28,10 @@ import liveplugin.implementation.common.IdeUtil.showError
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.livePlugins
 import org.jetbrains.plugins.github.authentication.GHAccountsUtil
-import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
+import org.jetbrains.plugins.github.authentication.accounts.GHAccountManager
 import java.awt.datatransfer.StringSelection
 import java.io.IOException
-import java.net.URL
+import java.net.URI
 import javax.swing.JTextArea
 
 class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files as a Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
@@ -53,7 +52,7 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
                         public = !dialog.isSecret,
                         files = livePlugin.path.allFiles().associate { it.name to GistFile(it.readText()) }
                     )
-                    val proxy = CommonProxy.getInstance().select(URL("https://api.github.com/gists")).firstOrNull()
+                    val proxy = JdkProxyProvider.getInstance().proxySelector.select(URI("https://api.github.com/gists")).firstOrNull()
                     val newGist = GistApiHttp(proxy).create(gist, authToken)
                     runLaterOnEdt {
                         if (dialog.isCopyURL) {
@@ -84,10 +83,8 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
         }.queue()
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun githubAccountManager() =
-        ApplicationManager.getApplication().getService(Class.forName("org.jetbrains.plugins.github.authentication.accounts.GHAccountManager"))
-            as AccountManagerBase<GithubAccount, String>
+        ApplicationManager.getApplication().getService(GHAccountManager::class.java)
 
     override fun update(event: AnActionEvent) {
         event.presentation.isEnabled = event.livePlugins().isNotEmpty()

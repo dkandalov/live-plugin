@@ -7,7 +7,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
-import com.intellij.util.proxy.CommonProxy
+import com.intellij.util.net.JdkProxyProvider
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.actions.gist.GistApi.FailedRequest
 import liveplugin.implementation.actions.gist.GistApi.Gist
@@ -18,7 +18,7 @@ import liveplugin.implementation.common.IdeUtil.showInputDialog
 import liveplugin.implementation.common.createFile
 import liveplugin.implementation.common.inputValidator
 import java.io.IOException
-import java.net.URL
+import java.net.URI
 
 class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", AllIcons.Vcs.Vendors.Github), DumbAware {
 
@@ -60,7 +60,7 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
         object : Task.Backgroundable(project, "Fetching gist…", true, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
                 try {
-                    val proxy = CommonProxy.getInstance().select(URL("https://api.github.com/gists")).firstOrNull()
+                    val proxy = JdkProxyProvider.getInstance().proxySelector.select(URI("https://api.github.com/gists")).firstOrNull()
                     val gist = GistApiHttp(proxy).getGist(extractGistIdFrom(gistUrl)!!)
                     runLaterOnEdt { onSuccess(gist) }
                 } catch (e: FailedRequest) {
