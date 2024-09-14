@@ -57,7 +57,7 @@ import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JTree
 
-class LivePluginToolWindowFactory: ToolWindowFactory, DumbAware {
+class LivePluginToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         toolWindow.contentManager.addContent(PluginToolWindow(project).createContent())
     }
@@ -118,7 +118,7 @@ private class PluginToolWindow(project: Project) {
         }
     }
 
-    private class MySimpleToolWindowPanel(vertical: Boolean, private val fileSystemTree: FileSystemTree): SimpleToolWindowPanel(vertical) {
+    private class MySimpleToolWindowPanel(vertical: Boolean, private val fileSystemTree: FileSystemTree) : SimpleToolWindowPanel(vertical) {
         /**
          * Provides context for actions in plugin tree popup menu.
          * Without it the actions will be disabled or won't work.
@@ -128,22 +128,19 @@ private class PluginToolWindow(project: Project) {
          * [com.intellij.openapi.fileChooser.actions.NewFolderAction],
          * [com.intellij.openapi.fileChooser.actions.FileDeleteAction]
          */
-        override fun getData(@NonNls dataId: String): Any? =
-            when (dataId) {
-                FileSystemTree.DATA_KEY.name                 -> {
-                    // This is used by "create directory/file" actions to get execution context
-                    // (without it, they will be disabled or won't work).
-                    fileSystemTree
-                }
-                FileChooserKeys.NEW_FILE_TYPE.name           -> groovyFileType
-                FileChooserKeys.DELETE_ACTION_AVAILABLE.name -> true
-                PlatformDataKeys.VIRTUAL_FILE_ARRAY.name     -> fileSystemTree.selectedFiles
-                PlatformDataKeys.TREE_EXPANDER.name          -> DefaultTreeExpander(fileSystemTree.tree)
-                else                                         -> super.getData(dataId)
-            }
+        override fun uiDataSnapshot(sink: DataSink) {
+            super.uiDataSnapshot(sink)
+            // This is used by "create directory/file" actions to get execution context
+            // (without it, they will be disabled or won't work).
+            sink[FileSystemTree.DATA_KEY] = fileSystemTree
+            sink[FileChooserKeys.NEW_FILE_TYPE] = groovyFileType
+            sink[FileChooserKeys.DELETE_ACTION_AVAILABLE] = true
+            sink[PlatformDataKeys.VIRTUAL_FILE_ARRAY] = fileSystemTree.selectedFiles
+            sink[PlatformDataKeys.TREE_EXPANDER] = DefaultTreeExpander(fileSystemTree.tree)
+        }
     }
 
-    private class ShowHelpAction: AnAction("Show Help on GitHub", "Open help page on GitHub", helpIcon), DumbAware {
+    private class ShowHelpAction : AnAction("Show Help on GitHub", "Open help page on GitHub", helpIcon), DumbAware {
         override fun actionPerformed(e: AnActionEvent) =
             BrowserUtil.browse("https://github.com/dkandalov/live-plugin#getting-started")
     }
@@ -164,7 +161,7 @@ private class PluginToolWindow(project: Project) {
         }
 
         private fun createFileChooserDescriptor(): FileChooserDescriptor {
-            val descriptor = object: FileChooserDescriptor(true, true, true, false, true, true) {
+            val descriptor = object : FileChooserDescriptor(true, true, true, false, true, true) {
                 override fun getIcon(file: VirtualFile) = if (file.toFilePath().isPluginFolder()) pluginIcon else super.getIcon(file)
                 override fun getName(virtualFile: VirtualFile) = virtualFile.name
                 override fun getComment(virtualFile: VirtualFile?) = ""
@@ -201,7 +198,7 @@ private class PluginToolWindow(project: Project) {
         private fun installPopupHandler(component: JComponent, actionGroup: ActionGroup): MouseListener =
             PopupHandler.installPopupMenu(component, actionGroup, livePluginActionPlace)
 
-        private class MyTree(private val project: Project): Tree(), DataProvider {
+        private class MyTree(private val project: Project) : Tree(), DataProvider {
             init {
                 emptyText.text = "No plugins to show"
                 isRootVisible = false
