@@ -72,11 +72,11 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
                     }
                 } catch (e: IOException) {
                     runLaterOnEdt {
-                        project.showError("Failed to share gist: ${e.message}", e)
+                        project.showError("Failed to share Gist: ${e.message}", e)
                     }
                 } catch (e: FailedRequest) {
                     runLaterOnEdt {
-                        project.showError("Failed to share gist: ${e.message}", e)
+                        project.showError("Failed to share Gist: ${e.message}", e)
                     }
                 }
             }
