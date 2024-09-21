@@ -32,7 +32,7 @@ import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.actions.*
-import liveplugin.implementation.actions.gist.AddPluginFromGistOrGitAction
+import liveplugin.implementation.actions.git.AddPluginFromGistOrGitAction
 import liveplugin.implementation.actions.git.SharePluginAsGistDelegateAction
 import liveplugin.implementation.actions.settings.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.implementation.actions.settings.RunPluginsOnIDEStartAction

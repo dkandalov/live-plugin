@@ -1,4 +1,4 @@
-package liveplugin.implementation.actions.gist
+package liveplugin.implementation.actions.git
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
@@ -17,9 +17,8 @@ import com.intellij.util.net.JdkProxyProvider
 import git4idea.checkout.GitCheckoutProvider
 import git4idea.commands.Git
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.actions.gist.GistApi.FailedRequest
-import liveplugin.implementation.actions.gist.GistApi.Gist
-import liveplugin.implementation.actions.git.isGitHubPluginAvailable
+import liveplugin.implementation.actions.git.GistApi.FailedRequest
+import liveplugin.implementation.actions.git.GistApi.Gist
 import liveplugin.implementation.actions.isNewPluginNameValidator
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showError

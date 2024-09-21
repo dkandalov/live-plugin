@@ -1,7 +1,6 @@
 package liveplugin.implementation.actions.git
 
-import liveplugin.implementation.actions.gist.GistApi.*
-import liveplugin.implementation.actions.gist.GistApiHttp
+import liveplugin.implementation.actions.git.GistApi.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
 import org.http4k.core.HttpHandler

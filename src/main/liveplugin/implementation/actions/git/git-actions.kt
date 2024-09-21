@@ -5,7 +5,6 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
-import liveplugin.implementation.actions.gist.SharePluginAsGistAction
 import kotlin.reflect.KMutableProperty0
 
 var shareAsGistAction: AnAction? = null

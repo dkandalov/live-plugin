@@ -13,7 +13,7 @@ import liveplugin.implementation.actions.AddGroovyExamplesActionGroup
 import liveplugin.implementation.actions.AddKotlinExamplesActionGroup
 import liveplugin.implementation.actions.AddNewGroovyPluginAction
 import liveplugin.implementation.actions.AddNewKotlinPluginAction
-import liveplugin.implementation.actions.gist.AddPluginFromGistOrGitAction
+import liveplugin.implementation.actions.git.AddPluginFromGistOrGitAction
 import liveplugin.implementation.common.Icons.newFolderIcon
 import liveplugin.implementation.common.IdeUtil.groovyFileType
 import liveplugin.implementation.common.IdeUtil.kotlinFileType

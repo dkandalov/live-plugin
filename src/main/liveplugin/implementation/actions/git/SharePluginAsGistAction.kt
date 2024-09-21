@@ -1,4 +1,4 @@
-package liveplugin.implementation.actions.gist
+package liveplugin.implementation.actions.git
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
@@ -22,7 +22,7 @@ import com.intellij.ui.dsl.builder.RowLayout.LABEL_ALIGNED
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.util.net.JdkProxyProvider
 import kotlinx.coroutines.runBlocking
-import liveplugin.implementation.actions.gist.GistApi.*
+import liveplugin.implementation.actions.git.GistApi.*
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showError
 import liveplugin.implementation.common.livePluginNotificationGroup

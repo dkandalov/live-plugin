@@ -1,4 +1,4 @@
-package liveplugin.implementation.actions.gist
+package liveplugin.implementation.actions.git
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SNAKE_CASE
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
-import liveplugin.implementation.actions.gist.GistApi.*
+import liveplugin.implementation.actions.git.GistApi.*
 import okhttp3.OkHttpClient
 import org.http4k.client.OkHttp
 import org.http4k.core.*
