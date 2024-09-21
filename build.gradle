@@ -22,6 +22,9 @@ repositories {
 ext.kotlinVersion = "1.9.24"
 // Must match Groovy version bundled with IntelliJ (see IJ/Contents/lib/groovy.jar/META-INF/org.codehaus.groovy.runtime.ExtensionModule)
 ext.groovyVersion = "3.0.19"
+// For available IDE versions see "com.jetbrains.intellij.idea" in
+// https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
+ext.ideVersion = "2024.2.1"
 
 intellijPlatform {
 	projectName = "LivePlugin"
@@ -35,12 +38,7 @@ intellijPlatform {
 }
 dependencies {
 	intellijPlatform {
-		// For available IDE versions see "com.jetbrains.intellij.idea" in
-		// https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
-		intellijIdeaCommunity(
-//		    "2024.1.1" // Compatibility with IJ 2024.1.1
-		    "2024.2.1" // Compatibility with IJ 2024.2.1
-		)
+		intellijIdeaCommunity(ideVersion)
 		bundledPlugin "com.intellij.java"
 		bundledPlugin "org.intellij.groovy"
 		bundledPlugin "org.jetbrains.kotlin"
@@ -189,7 +187,7 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 
 def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"() {
 	prepareSandbox.doLast {
-		new File("build/idea-sandbox/IC-2024.2.1/plugins/LivePlugin/lib")
+		new File("build/idea-sandbox/IC-$ideVersion/plugins/LivePlugin/lib")
 			.listFiles().toList()
 			.findAll {
 				(it.name.startsWith("kotlin-") || it.name.startsWith("jna-") || it.name.startsWith("annotations-") || it.name.startsWith("trove4j-")) &&
@@ -197,8 +195,8 @@ def "Move kotlin compiler jars from plugin classpath into a separate folder so t
 			}
 			.each {
 				ant.move(
-					file: "build/idea-sandbox/IC-2024.2.1/plugins/LivePlugin/lib/${it.name}",
-					tofile: "build/idea-sandbox/IC-2024.2.1/plugins/LivePlugin/kotlin-compiler/${it.name}"
+					file: "build/idea-sandbox/IC-$ideVersion/plugins/LivePlugin/lib/${it.name}",
+					tofile: "build/idea-sandbox/IC-$ideVersion/plugins/LivePlugin/kotlin-compiler/${it.name}"
 				)
 			}
 	}
@@ -209,7 +207,7 @@ def 'Copy GDSL file into standardDsls folder'() {
 		def resourcesFolder = project.tasks.named(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).get().destinationDir
 		ant.copy(
 			file: resourcesFolder.absolutePath + "/liveplugin/livePluginCompletions.gdsl",
-			tofile: "build/idea-sandbox/IC-2024.2.1/plugins/LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
+			tofile: "build/idea-sandbox/IC-$ideVersion/plugins/LivePlugin/lib/standardDsls/livePluginCompletions.gdsl",
 			quiet: true
 		)
 	}

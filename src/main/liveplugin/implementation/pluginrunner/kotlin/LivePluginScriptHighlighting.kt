@@ -14,7 +14,7 @@ import kotlin.script.experimental.jvm.jdkHome
 import kotlin.script.experimental.jvm.jvm
 import kotlin.script.experimental.jvm.updateClasspath
 
-class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
+class LivePluginKotlinScriptProvider : ScriptDefinitionsProvider {
     override val id = "LivePluginKotlinScriptProvider"
     override fun getDefinitionClasses() = listOf(LivePluginScript::class.java.canonicalName)
     override fun getDefinitionsClassPath() = livePluginLibPath.listFiles().map { it.toFile() }
@@ -22,18 +22,17 @@ class LivePluginKotlinScriptProvider: ScriptDefinitionsProvider {
     override fun useDiscovery() = false
 }
 
-object LivePluginScriptHighlightingConfig: LivePluginScriptConfig({ createScriptConfig(it, ::highlightingClasspath) })
+class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body = {
+    fun createConfig(context: ScriptConfigurationRefinementContext) =
+        createScriptConfig(context, ::highlightingClasspath)
 
-open class LivePluginScriptConfig(
-    createConfig: (ScriptConfigurationRefinementContext) -> ScriptCompilationConfiguration
-): ScriptCompilationConfiguration(body = {
     refineConfiguration {
         beforeParsing { context -> ResultWithDiagnostics.Success(createConfig(context)) }
         beforeCompiling { context -> ResultWithDiagnostics.Success(createConfig(context)) }
     }
     compilerOptions("-jvm-target", "21")
     jvm {
-       jdkHome(File(System.getProperty("java.home")))
+        jdkHome(File(System.getProperty("java.home")))
     }
     ide {
         acceptedLocations(Everywhere)
@@ -49,7 +48,7 @@ private fun createScriptConfig(context: ScriptConfigurationRefinementContext, cl
     ScriptCompilationConfiguration(context.compilationConfiguration, body = {
         // Attempt to use runReadAction() for syntax highlighting to avoid errors because of accessing data on non-EDT thread.
         // Run as normal function if there is no application which is the case when running an embedded compiler.
-        val computable = Computable { context.script.locationId  }
+        val computable = Computable { context.script.locationId }
         val scriptLocationId = ApplicationManager.getApplication()?.runReadAction(computable) ?: computable.compute()
 
         // Can't do `context.script.text` in the Computable because it throws PsiInvalidElementAccessException from com.intellij.psi.impl.source.PsiFileImpl.getText 🙄
