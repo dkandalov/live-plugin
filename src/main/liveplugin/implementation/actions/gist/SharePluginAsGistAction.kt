@@ -38,7 +38,7 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val livePlugin = event.livePlugins().firstOrNull() ?: return
-        val account = GHAccountsUtil.getSingleOrDefaultAccount(project) ?: return project.showError("Please configure Github account to share gists.")
+        val account = GHAccountsUtil.getSingleOrDefaultAccount(project) ?: return project.showError("Please configure GitHub account to share gists.")
         val authToken = runBlocking { githubAccountManager().findCredentials(account) } ?: return project.showError("Couldn't get authentication for ${account.name}")
 
         val dialog = GithubCreateGistDialog(project)
@@ -65,7 +65,7 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
                             @Suppress("DEPRECATION")
                             livePluginNotificationGroup.createNotification(
                                 "Gist created successfully",
-                                HtmlChunk.link(newGist.htmlUrl, "Your gist url").toString(),
+                                HtmlChunk.link(newGist.htmlUrl, "Your Gist URL").toString(),
                                 INFORMATION
                             ).setListener(URL_OPENING_LISTENER).notify(project)
                         }

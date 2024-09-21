@@ -2,5 +2,5 @@ import static liveplugin.PluginUtil.*
 
 // depends-on-plugin Git4Idea
 
-// Prints a class defined in the Github plugin.
+// Prints a class defined in the GitHub plugin.
 show(git4idea.GitUtil::class)

@@ -25,9 +25,9 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
         val gistUrl = project.showInputDialog(
-            message = "Enter gist URL:",
+            message = "Enter Gist URL:",
             dialogTitle,
-            inputValidator { if (extractGistIdFrom(it) == null) "Couldn't parse gist URL" else null }
+            inputValidator { if (extractGistIdFrom(it) == null) "Couldn't parse Gist URL" else null }
         ) ?: return
 
         fetchGist(
@@ -46,7 +46,7 @@ class AddPluginFromGistAction : AnAction("Copy from Gist", "Copy from Gist", All
                 }
             },
             onFailure = { e ->
-                project.showError("Failed to fetch gist: ${e.message}", e)
+                project.showError("Failed to fetch Gist: ${e.message}", e)
             }
         )
     }
