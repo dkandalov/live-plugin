@@ -8,16 +8,14 @@ import com.intellij.openapi.project.DumbAware
 import liveplugin.implementation.actions.gist.SharePluginAsGistAction
 import kotlin.reflect.KMutableProperty0
 
-var addFromGitHubAction: AnAction? = null
-class AddPluginFromGitHubDelegateAction: DelegateAction(::addFromGitHubAction)
-
 var shareAsGistAction: AnAction? = null
 class SharePluginAsGistDelegateAction: DelegateAction(::shareAsGistAction)
+var isGitHubPluginAvailable = false
 
-class GitDependentAppComponent : AppLifecycleListener {
+class GitHubPluginDependencyAppComponent : AppLifecycleListener {
     override fun appFrameCreated(commandLineArgs: MutableList<String>) {
-        addFromGitHubAction = AddPluginFromGitAction()
         shareAsGistAction = SharePluginAsGistAction()
+        isGitHubPluginAvailable = true
     }
 }
 

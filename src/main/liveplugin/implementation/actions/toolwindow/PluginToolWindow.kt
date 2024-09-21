@@ -32,8 +32,7 @@ import com.intellij.util.EditSourceOnEnterKeyHandler
 import com.intellij.util.ui.tree.TreeUtil
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.actions.*
-import liveplugin.implementation.actions.gist.AddPluginFromGistAction
-import liveplugin.implementation.actions.git.AddPluginFromGitHubDelegateAction
+import liveplugin.implementation.actions.gist.AddPluginFromGistOrGitAction
 import liveplugin.implementation.actions.git.SharePluginAsGistDelegateAction
 import liveplugin.implementation.actions.settings.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.implementation.actions.settings.RunPluginsOnIDEStartAction
@@ -82,8 +81,7 @@ private class PluginToolWindow(project: Project) {
             add(DefaultActionGroup("Add Plugin", true).apply {
                 add(AddNewKotlinPluginAction())
                 add(AddNewGroovyPluginAction())
-                add(AddPluginFromGistAction())
-                add(AddPluginFromGitHubDelegateAction())
+                add(AddPluginFromGistOrGitAction())
                 add(AddKotlinExamplesActionGroup())
                 add(AddGroovyExamplesActionGroup())
             }.with(addPluginIcon))
