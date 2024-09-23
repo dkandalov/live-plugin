@@ -111,7 +111,7 @@ object FindUsageInLivePlugin {
 
         private class LivePluginsSearchScope(project: Project) : GlobalSearchScope(project) {
             override fun getDisplayName() = "LivePlugins"
-            override fun contains(file: VirtualFile) = file.toFilePath().isPluginFolder()
+            override fun contains(file: VirtualFile) = file.isPluginFolder()
             override fun isSearchInModuleContent(aModule: Module) = false
             override fun isSearchInLibraries() = false
         }
