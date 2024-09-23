@@ -97,9 +97,8 @@ object FindUsageInLivePlugin {
     }
 
     class IndexSetContributor : IndexableSetContributor() {
-        override fun getAdditionalRootsToIndex(): Set<VirtualFile> {
-            return mutableSetOf(livePluginsPath.toVirtualFile() ?: return HashSet())
-        }
+        override fun getAdditionalRootsToIndex() =
+            setOfNotNull(livePluginsPath.toVirtualFile())
     }
 
     class UseScopeExtension : UseScopeEnlarger() {
