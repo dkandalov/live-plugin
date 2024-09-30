@@ -94,7 +94,7 @@ tasks.named('compileGroovy') {
 }
 
 kotlin {
-	jvmToolchain(21)
+	jvmToolchain(17)
 }
 compileKotlin {
 	compilerOptions {
