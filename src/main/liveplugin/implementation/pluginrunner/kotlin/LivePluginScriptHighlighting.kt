@@ -30,7 +30,7 @@ class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body =
         beforeParsing { context -> ResultWithDiagnostics.Success(createConfig(context)) }
         beforeCompiling { context -> ResultWithDiagnostics.Success(createConfig(context)) }
     }
-    compilerOptions("-jvm-target", "21")
+    compilerOptions("-jvm-target", "17")
     jvm {
         jdkHome(File(System.getProperty("java.home")))
     }

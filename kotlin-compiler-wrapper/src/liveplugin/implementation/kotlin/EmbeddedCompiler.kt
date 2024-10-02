@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.config.CommonConfigurationKeys.MODULE_NAME
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.REPORT_OUTPUT_FILES
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.*
-import org.jetbrains.kotlin.config.JvmTarget.JVM_21
+import org.jetbrains.kotlin.config.JvmTarget.JVM_17
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
 import org.jetbrains.kotlin.scripting.configuration.ScriptingConfigurationKeys.DISABLE_SCRIPTING_PLUGIN_OPTION
@@ -124,7 +124,7 @@ private fun createCompilerConfiguration(
     )
 
     put(JDK_HOME, jrePath)
-    put(JVM_TARGET, JVM_21)
+    put(JVM_TARGET, JVM_17)
     put(RETAIN_OUTPUT_IN_MEMORY, false)
     put(OUTPUT_DIRECTORY, outputDirectory)
     put(REPORT_OUTPUT_FILES, true)
