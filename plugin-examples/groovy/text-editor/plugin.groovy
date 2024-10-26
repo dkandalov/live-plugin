@@ -29,7 +29,7 @@ registerAction("Insert Hello World", "ctrl shift W") { AnActionEvent event ->
 	// Note that IntelliJ documentation is talking about read/write "actions" which is
 	// an overloaded term and is not directly related to AnAction class.
 }
-if (!isIdeStartup) show("Loaded 'Insert Hello World' action<br/>Use 'Ctrl+Shift+W' to run it")
+if (!isIdeStartup) show("Loaded 'Insert Hello World' action<br/>Use 'ctrl+shift+W' to run it")
 
 //
 // See next popup-menu example.

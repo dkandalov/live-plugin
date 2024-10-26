@@ -1,5 +1,8 @@
 import com.intellij.openapi.actionSystem.AnActionEvent
-import liveplugin.*
+import liveplugin.editor
+import liveplugin.executeCommand
+import liveplugin.registerAction
+import liveplugin.show
 
 // One of the most fundamental things you can do in an Action is to modify text
 // in the current editor using `com.intellij.openapi.editor.Document` API.
@@ -26,7 +29,7 @@ registerAction(id = "Insert Hello World", keyStroke = "ctrl shift W") { event: A
     // Note that IntelliJ documentation is talking about read/write "actions" which is
     // an overloaded term and is not directly related to AnAction class.
 }
-if (!isIdeStartup) show("Loaded 'Insert Hello World' action<br/>Use 'Ctrl+Shift+W' to run it")
+if (!isIdeStartup) show("Loaded 'Insert Hello World' action<br/>Use 'ctrl+shift+W' to run it")
 
 // See next popup-menu example.
 //          ^^^^^^^^^^

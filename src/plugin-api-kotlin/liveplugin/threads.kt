@@ -35,7 +35,7 @@ inline fun <T> runWithReadLock(crossinline f: () -> T): T =
 
 /**
  * See also [com.intellij.openapi.application.runWriteAction],
- * [com.intellij.openapi.application.runWriteActionAndWait] and [com.intellij.openapi.application.WriteAction]
+ * [com.intellij.openapi.application.invokeAndWaitIfNeeded] and [com.intellij.openapi.application.WriteAction]
  * which have more confusing names because this is not related to IDE actions, i.e. AnAction class.
  */
 inline fun <T> runOnEdtWithWriteLock(crossinline f: () -> T): T =
