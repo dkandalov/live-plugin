@@ -4,7 +4,7 @@
 	<version>0.9.3 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
-	<idea-version since-build="242.20224"/>
+	<idea-version since-build="243.21155"/>
 	<category>Plugin Development</category>
     <description>
 		<![CDATA[

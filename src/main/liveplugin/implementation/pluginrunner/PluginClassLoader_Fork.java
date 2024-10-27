@@ -291,29 +291,29 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
                         break;
                     }
                 }
-                else if (classloader instanceof UrlClassLoader) {
-                    try {
-                        UrlClassLoader urlClassLoader = (UrlClassLoader)classloader;
-                        BiFunction<String, Boolean, String> resolveScopeManager = urlClassLoader.resolveScopeManager;
-                        String consistencyError = resolveScopeManager == null
-                                ? null
-                                : resolveScopeManager.apply(name, forceLoadFromSubPluginClassloader);
-                        if (consistencyError != null) {
-                            if (!consistencyError.isEmpty() && error == null) {
-                                // yes, we blame requestor plugin
-                                error = new PluginException(consistencyError, pluginId);
-                            }
-                            continue;
-                        }
-                        c = urlClassLoader.loadClassInsideSelf(name, fileName, packageNameHash, false);
-                    }
-                    catch (IOException e) {
-                        throw new ClassNotFoundException(name, e);
-                    }
-                    if (c != null) {
-                        break;
-                    }
-                }
+//                else if (classloader instanceof UrlClassLoader) {
+//                    try {
+//                        UrlClassLoader urlClassLoader = (UrlClassLoader)classloader;
+//                        BiFunction<String, Boolean, String> resolveScopeManager = urlClassLoader.resolveScopeManager;
+//                        String consistencyError = resolveScopeManager == null
+//                                ? null
+//                                : resolveScopeManager.apply(name, forceLoadFromSubPluginClassloader);
+//                        if (consistencyError != null) {
+//                            if (!consistencyError.isEmpty() && error == null) {
+//                                // yes, we blame requestor plugin
+//                                error = new PluginException(consistencyError, pluginId);
+//                            }
+//                            continue;
+//                        }
+//                        c = urlClassLoader.loadClassInsideSelf(name, fileName, packageNameHash, false);
+//                    }
+//                    catch (IOException e) {
+//                        throw new ClassNotFoundException(name, e);
+//                    }
+//                    if (c != null) {
+//                        break;
+//                    }
+//                }
                 else {
                     try {
                         c = classloader.loadClass(name);
@@ -423,7 +423,6 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
         return consistencyError == null && super.hasLoadedClass(name);
     }
 
-    @Override
     public @Nullable Class<?> loadClassInsideSelf(String name,
                                                   String fileName,
                                                   long packageNameHash,

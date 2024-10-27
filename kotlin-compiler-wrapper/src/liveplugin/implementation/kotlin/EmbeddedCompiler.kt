@@ -128,7 +128,7 @@ private fun createCompilerConfiguration(
     put(RETAIN_OUTPUT_IN_MEMORY, false)
     put(OUTPUT_DIRECTORY, outputDirectory)
     put(REPORT_OUTPUT_FILES, true)
-    put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_1_9, ApiVersion.KOTLIN_1_9))
+    put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_2_0, ApiVersion.KOTLIN_2_0))
 }
 
 // Based on modified version of org.jetbrains.kotlin.cli.jvm.plugins.PluginCliParser.loadPluginsSafe
