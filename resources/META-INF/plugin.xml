@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>LivePlugin</id>
     <name>LivePlugin</name>
-	<version>0.9.3 beta</version>
+	<version>0.9.4 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin"
             email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
 	<idea-version since-build="243.21155"/>
@@ -26,9 +26,8 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>added combined "Copy from Gist/Git" action</li>
-            <li>Kotlin plugin runner to recursively include all jars from IDE lib folder</li>
-            <li>optimised LivePluginsSearchScope (issue #184)</li>
+            <li>compatibility with IntelliJ 2024.3</li>
+            <li>Kotlin 2.0.10</li>
         </ul></body></html>
         ]]>
     </change-notes>
