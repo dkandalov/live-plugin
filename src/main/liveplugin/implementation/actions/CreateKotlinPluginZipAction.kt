@@ -35,7 +35,7 @@ import java.io.ByteArrayInputStream
 import java.util.*
 import java.util.jar.Manifest
 
-class CreateKotlinPluginZipAction: AnAction(
+class CreateKotlinPluginZipAction : AnAction(
     "Create Kotlin Plugin Zip",
     "Package selected live plugin into zip so that it can be uploaded to plugins marketplace",
     packagePluginIcon
@@ -54,14 +54,14 @@ class CreateKotlinPluginZipAction: AnAction(
     private fun packagePlugin(plugin: LivePlugin, project: Project) {
         val pluginXml = plugin.path + "plugin.xml"
         val pluginJar = plugin.path + "${plugin.id}.jar"
-        val livePluginJar = livePluginLibPath + "LivePlugin.jar"
-        val livePluginTrimmedJar = plugin.path + "LivePlugin.jar"
+        val livePluginJar = livePluginLibPath + "live-plugin.jar"
+        val livePluginTrimmedJar = plugin.path + "live-plugin.jar"
         val pluginZip = plugin.path + "${plugin.id}.zip"
 
         if (!pluginXml.exists()) project.createPluginXml(plugin, pluginXml)
         runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
 
-        ProgressManager.getInstance().run(object: Task.Backgroundable(project, "Packaging ${plugin.id}", false, ALWAYS_BACKGROUND) {
+        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Packaging ${plugin.id}", false, ALWAYS_BACKGROUND) {
             override fun run(indicator: ProgressIndicator) {
                 if (!livePluginJar.exists()) error("Couldn't find '${livePluginJar.value}'")
 
