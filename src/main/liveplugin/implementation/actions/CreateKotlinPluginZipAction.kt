@@ -1,8 +1,8 @@
 package liveplugin.implementation.actions
 
-import com.intellij.ide.BrowserUtil.browse
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
+import com.intellij.notification.NotificationListener.URL_OPENING_LISTENER
 import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
@@ -107,15 +107,13 @@ class CreateKotlinPluginZipAction : AnAction(
                 livePluginTrimmedJar.delete()
                 pluginJar.delete()
 
-                val message = "You can upload it to <a href=\"https://plugins.jetbrains.com\">Plugins Marketplace</a> " +
-                    "or share as a file and install with <b>Install Plugin from Disk</b> action."
-                livePluginNotificationGroup.createNotification("Packaged plugin into ${pluginZip.name}", message, INFORMATION)
-                    .addAction(object : NotificationAction("Open plugins marketplace") {
-                        override fun actionPerformed(event: AnActionEvent, notification: Notification) {
-                            browse("https://plugins.jetbrains.com")
-                        }
-                    })
-                    .notify(project)
+                @Suppress("DEPRECATION") // There is no non-deprecated alternative to URL_OPENING_LISTENER
+                livePluginNotificationGroup.createNotification(
+                    title = "Packaged plugin into ${pluginZip.name}",
+                    content = "You can upload it to <a href=\"https://plugins.jetbrains.com\">Plugins Marketplace</a> " +
+                        "or share as a file and install with <b>Install Plugin from Disk</b> action.",
+                    type = INFORMATION
+                ).setListener(URL_OPENING_LISTENER).notify(project)
             }
         })
     }

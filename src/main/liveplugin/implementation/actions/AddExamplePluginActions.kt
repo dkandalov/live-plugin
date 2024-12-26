@@ -64,11 +64,9 @@ private class PerformAllGroupActions(
     override fun actionPerformed(e: AnActionEvent) {
         actionGroup.childActionsOrStubs
             .filter { it != this && it !is Separator }
-            .forEach { performAction(it) }
-    }
-
-    private fun performAction(action: AnAction) {
-        val event = AnActionEvent.createEvent(EMPTY_CONTEXT, null, "", ActionUiKind.NONE, null)
-        runLaterOnEdt { action.actionPerformed(event) }
+            .forEach { action ->
+                val event = AnActionEvent.createEvent(EMPTY_CONTEXT, null, "", ActionUiKind.NONE, null)
+                runLaterOnEdt { action.actionPerformed(event) }
+            }
     }
 }

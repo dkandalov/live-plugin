@@ -62,11 +62,11 @@ class SharePluginAsGistAction : AnAction("Share as Gist", "Share as plugin files
                         if (dialog.isOpenInBrowser) {
                             BrowserUtil.browse(newGist.htmlUrl)
                         } else {
-                            @Suppress("DEPRECATION")
+                            @Suppress("DEPRECATION") // There is no non-deprecated alternative to URL_OPENING_LISTENER
                             livePluginNotificationGroup.createNotification(
-                                "Gist created successfully",
-                                HtmlChunk.link(newGist.htmlUrl, "Your Gist URL").toString(),
-                                INFORMATION
+                                title = "Gist created successfully",
+                                content = HtmlChunk.link(newGist.htmlUrl, "Your Gist URL").toString(),
+                                type = INFORMATION
                             ).setListener(URL_OPENING_LISTENER).notify(project)
                         }
                     }
