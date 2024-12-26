@@ -5,9 +5,9 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType.ERROR
 import com.intellij.notification.NotificationType.WARNING
-import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.DataContext.EMPTY_CONTEXT
 import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.ui.Messages
@@ -70,8 +70,7 @@ class LivePluginAppListener : AppLifecycleListener {
 
     private fun runAllPlugins() {
         runLaterOnEdt {
-            val actionManager = ActionManager.getInstance()
-            val event = AnActionEvent(null, DataContext.EMPTY_CONTEXT, ideStartupActionPlace, Presentation(), actionManager, 0)
+            val event = AnActionEvent.createEvent(EMPTY_CONTEXT, Presentation(), ideStartupActionPlace, ActionUiKind.NONE, null)
             runPlugins(LivePlugin.livePluginsById().values, event)
         }
     }

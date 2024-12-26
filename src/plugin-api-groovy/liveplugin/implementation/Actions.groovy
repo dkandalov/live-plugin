@@ -115,7 +115,7 @@ class Actions {
 
 	private static AnActionEvent dummyEvent(Project project) {
 		def dataContext = new MapDataContext().put(CommonDataKeys.PROJECT.name, project)
-		new AnActionEvent(null, dataContext, "", new Presentation(), ActionManager.instance, 0)
+		AnActionEvent.createEvent(dataContext, new Presentation(), "", ActionUiKind.NONE, null)
 	}
 
 	/**
@@ -124,8 +124,7 @@ class Actions {
 	 */
 	static AnActionEvent anActionEvent(DataContext dataContext = dataContextFromFocus(),
 	                                   Presentation templatePresentation = new Presentation()) {
-		def actionManager = ActionManager.instance
-		new AnActionEvent(null, dataContext, IdeUtil.livePluginActionPlace, templatePresentation, actionManager, 0)
+		AnActionEvent.createEvent(dataContext, templatePresentation, "", ActionUiKind.NONE, null)
 	}
 
 	static DataContext dataContextFromFocus() {
