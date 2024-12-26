@@ -2,10 +2,9 @@ package liveplugin.implementation
 
 import com.intellij.ide.impl.isTrusted
 import com.intellij.notification.NotificationType.INFORMATION
-import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
@@ -33,7 +32,7 @@ class LivePluginProjectPostStartupActivity : ProjectActivity {
         }
 
         val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
-        val dummyEvent = AnActionEvent(null, dataContext, "", Presentation(), ActionManager.getInstance(), 0)
+        val dummyEvent = AnActionEvent.createEvent(dataContext, null, "", ActionUiKind.NONE, null)
         runPlugins(findLivePluginsIn(project), dummyEvent)
     }
 }

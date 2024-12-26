@@ -12,27 +12,27 @@ import liveplugin.implementation.LivePlugin.Companion.livePluginsById
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.IdeUtil.showError
 
-class AddGroovyExamplesActionGroup: DefaultActionGroup("Groovy Examples", true) {
+class AddGroovyExamplesActionGroup : DefaultActionGroup("Groovy Examples", true) {
     init {
         GroovyExamples.all.forEach {
             add(AddExamplePluginAction(it))
         }
         addSeparator()
-        add(PerformAllGroupActions("Add All", "", this))
+        add(PerformAllGroupActions(name = "Add All", description = "", actionGroup = this))
     }
 }
 
-class AddKotlinExamplesActionGroup: DefaultActionGroup("Kotlin Examples", true) {
+class AddKotlinExamplesActionGroup : DefaultActionGroup("Kotlin Examples", true) {
     init {
         KotlinExamples.all.forEach {
             add(AddExamplePluginAction(it))
         }
         addSeparator()
-        add(PerformAllGroupActions("Add All", "", this))
+        add(PerformAllGroupActions(name = "Add All", description = "", actionGroup = this))
     }
 }
 
-private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): AnAction(), DumbAware {
+private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin) : AnAction(), DumbAware {
     init {
         templatePresentation.text = examplePlugin.pluginId
     }
@@ -58,17 +58,17 @@ private class AddExamplePluginAction(private val examplePlugin: ExamplePlugin): 
 private class PerformAllGroupActions(
     name: String,
     description: String,
-    private val actionGroup: DefaultActionGroup,
-    private val place: String = ""
-): AnAction(name, description, null), DumbAware {
+    private val actionGroup: DefaultActionGroup
+) : AnAction(name, description, null), DumbAware {
+
     override fun actionPerformed(e: AnActionEvent) {
         actionGroup.childActionsOrStubs
             .filter { it != this && it !is Separator }
-            .forEach { performAction(it, place) }
+            .forEach { performAction(it) }
     }
 
-    private fun performAction(action: AnAction, place: String) {
-        val event = AnActionEvent(null, EMPTY_CONTEXT, place, action.templatePresentation, ActionManager.getInstance(), 0)
+    private fun performAction(action: AnAction) {
+        val event = AnActionEvent.createEvent(EMPTY_CONTEXT, null, "", ActionUiKind.NONE, null)
         runLaterOnEdt { action.actionPerformed(event) }
     }
 }
