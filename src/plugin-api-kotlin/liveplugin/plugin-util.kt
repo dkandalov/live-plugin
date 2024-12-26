@@ -11,6 +11,7 @@ import com.intellij.execution.ui.ConsoleViewContentType.NORMAL_OUTPUT
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
+import com.intellij.notification.NotificationListener.URL_OPENING_LISTENER
 import com.intellij.notification.NotificationType
 import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.notification.Notifications
@@ -57,6 +58,8 @@ fun show(
         if (notificationAction != null) {
             notification.addAction(notificationAction)
         }
+        @Suppress("DEPRECATION") // Because there are no non-deprecated alternatives
+        notification.setListener(URL_OPENING_LISTENER)
         ApplicationManager.getApplication().messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
     }
 }
