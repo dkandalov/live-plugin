@@ -19,7 +19,7 @@ class Threads {
 				//noinspection GrReassignedInClosureLocalVar
 				result = function.apply(null)
 			}
-		}, ModalityState.NON_MODAL)
+		}, ModalityState.nonModal())
 		(T) result
 	}
 

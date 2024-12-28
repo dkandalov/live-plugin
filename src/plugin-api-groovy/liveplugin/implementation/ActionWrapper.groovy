@@ -173,6 +173,10 @@ class ActionWrapper {
 		@Override AnAction originalAction() {
 			originalAction
 		}
+
+		@Override ActionUpdateThread getActionUpdateThread() {
+			ActionUpdateThread.EDT
+		}
 	}
 
 

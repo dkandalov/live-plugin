@@ -1,6 +1,5 @@
 package liveplugin.testrunner
 
-import com.intellij.execution.ExecutionManager
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.junit.JUnitConfiguration
@@ -17,6 +16,7 @@ import com.intellij.execution.testframework.sm.runner.SMTestProxy
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.testframework.sm.runner.ui.TestResultsViewer
 import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.ui.RunContentManager
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionManager
@@ -76,7 +76,7 @@ class JUnitPanel implements TestReporter {
 		Disposer.register(consoleView, descriptor)
 
 		// the line below was picked up from com.intellij.execution.impl.ExecutionManagerImpl.startRunProfile
-		ExecutionManager.getInstance(project).contentManager.showRunContent(executor, descriptor, descriptorToReuse)
+		RunContentManager.getInstance(project).showRunContent(executor, descriptor, descriptorToReuse)
 
 		testProxyUpdater = new TestProxyUpdater(consoleView.resultsViewer, consoleView.resultsViewer)
 		this

@@ -231,9 +231,12 @@ fun inputValidator(f: (String) -> String?) =
 fun AnActionEvent.selectedFiles(): List<FilePath> =
     dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)?.map { it.toFilePath() } ?: emptyList()
 
+// com.intellij.openapi.actionSystem.impl.SimpleDataContext is recommended, but it's not very usable with String keys
 @Suppress("UnstableApiUsage")
 class MapDataContext(val map: Map<String, Any?>) : AsyncDataContext {
     override fun getData(dataId: String) = map[dataId]
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any?> getData(key: DataKey<T>): T? = map[key.name] as T?
 }
 
 private const val requestor = livePluginId

@@ -528,7 +528,7 @@ class PluginUtil {
 	static registerWidget(String widgetId, Disposable disposable,
 	                      String anchor = "before Position", WidgetPresentation presentation) {
 		invokeOnEDT {
-			Widgets.registerWidget(widgetId, disposable, new LoadingOrder(anchor), presentation)
+			Widgets.registerWidget(widgetId, disposable, LoadingOrder.before(anchor), presentation)
 		}
 	}
 

@@ -1,6 +1,7 @@
 package liveplugin.implementation
 
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.openapi.actionSystem.impl.AsyncDataContext
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.NotNull
@@ -13,6 +14,10 @@ class MapDataContext implements DataContext, AsyncDataContext {
 	}
 
 	@Override Object getData(@NonNls String dataId) {
+		map.get(dataId)
+	}
+
+	@Override <T> T getData(@NotNull DataKey<T> key) {
 		map.get(dataId)
 	}
 
