@@ -36,8 +36,8 @@ class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
                 .listFiles { it.name.endsWith(".jar") }
                 .map { Pair("jar://${it.value}!/", CLASSES) }
 
-            val ideJars = ideJarsPath
-                .listFiles { it.name.endsWith(".jar") }
+            val ideJars = ideJarsPath.allFiles()
+                .filter { !it.isDirectory && (it.extension == "jar" || it.extension == "zip") }
                 .map { Pair("jar://${it.value}!/", CLASSES) }
 
             addLibraryDependencyTo(project, livePluginAndIdeJarsLibrary, livePluginJars + livePluginSrc + ideJars)
