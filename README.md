@@ -45,28 +45,28 @@ show("Loaded 'Insert New Line Above' action<br/>Use 'ctrl+alt+shift+Enter' to ru
 
 ## Getting started
 Make sure "hello world" works fine:
-- In the `Plugins` tool window select "hello-world" plugin and click "Run" button to execute the plugin (`Run Plugin`
-  action with `ctrl+shift+L` or `alt+C, alt+E` shortcut). It should display a message.
+- In the `Live Plugins` tool window select "hello-world" plugin and click "Run" button to execute the plugin 
+  (`Run Plugin` action with `ctrl+shift+L` or `alt+C, alt+E` shortcut). It should display a message.
 - Make a small modification in `plugin.groovy`/`plugin.kts` and rerun the plugin. 
   On the second run, the previous version of the plugin will be unloaded before the code is evaluated again.
-- Modify `plugin.groovy`/`plugin.kts` file again so that it fails to compile/run.
+- Modify `plugin.groovy`/`plugin.kts` file so that it fails to compile/run.
   You should see an error message in the `Run` tool window.
 - Note that plugins are just folders with `plugin.groovy` or `plugin.kts` scripts as entry points. 
   This means that you can, for example, copy the path to the plugin folder using the `Copy Path` action (`ctrl/cmd+alt+C` shortcut).
 
 Try bundled examples:
-- In the `Plugins` tool window click the "Plus" button (`Add Plugin` action) to add Kotlin or Groovy examples. 
+- In the `Live Plugins` tool window click the "Plus" button (`Add Plugin` action) to add Kotlin or Groovy examples. 
 - It might be useful to install [Kotlin](https://plugins.jetbrains.com/plugin/6954-kotlin) or 
 [Groovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin if your IDE supports them. 
 
-Take a look at settings in the `Plugins` toowindow:
+Take a look at settings in the `Live Plugins` tool window:
 - `Run Plugins on IDE Start` — run all plugins on IDE start.
 - `Run Project Specific Plugins` — run all plugins in `.live-plugins` project directory when 
 the project is opened and unload them when the project is closed.
-- `Add LivePlugin and IDE Jars to Project` — useful for Groovy plugins
-to get auto-completion and code navigation in plugin code.
-(Adding jars unrelated to your project is a bit of a hack but there seems to be no major problems with it.)
-Note that Kotlin plugins should have auto-completion and code navigation without it.
+- `Add LivePlugin and IDE Jars to Project` — add jars from LivePlugin and IDE to the current project as a library (see `Project Settings -> Modules`).
+Adding unrelated jars to your project is a bit of a hack, but it can be useful for Groovy plugins to get auto-completion and code navigation in the plugin code.
+Kotlin plugins with a single `plugin.kts` should have auto-completion and code navigation without it.
+Multiple Kotlin files are not highlighted at the moment (see [this YouTrack issue](https://github.com/dkandalov/live-plugin/issues/105)) but should compile and run.
 
 Learn more about IntelliJ API:
 - Read (or at least skim) [plugin development fundamentals](https://plugins.jetbrains.com/docs/intellij/fundamentals.html).
@@ -114,7 +114,7 @@ the version bundled with IDEs changes quite often and seems to be harder to rely
 ## More examples
  - [intellij-emacs](https://github.com/kenfox/intellij-emacs) - macros for making IntelliJ more friendly to emacs users (see also [blog post](http://spin.atomicobject.com/2014/08/07/intellij-emacs/))
  - [Simplistic "compile and run haskell" action](https://gist.github.com/dkandalov/11051113) - this can also be done for other languages/environments
- - [Google quick search popup](https://gist.github.com/dkandalov/277800d12ecbfc533fcd) - prototype of google popup search mini-plugin
+ - [Google quick search popup](https://gist.github.com/dkandalov/277800d12ecbfc533fcd) - prototype of Google popup search mini-plugin
  - [Scripting a macros](https://github.com/dkandalov/live-plugin/wiki/Scripting-a-macros) - example of finding and invoking built-in actions
  - [Console filter/transform example](https://github.com/dkandalov/live-plugin/wiki/Console-filtering) - example of filtering and changing console output
  - [VCS update listener example](https://gist.github.com/dkandalov/8840509) - example of adding callback on VCS update

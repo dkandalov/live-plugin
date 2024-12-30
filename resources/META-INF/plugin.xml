@@ -2,14 +2,11 @@
 	<id>LivePlugin</id>
     <name>LivePlugin</name>
 	<version>0.9.5 beta</version>
-	<vendor url="https://github.com/dkandalov/live-plugin"
-            email="dmitry.kandalov [at] gmail.com">Dmitry Kandalov</vendor>
+	<vendor url="https://github.com/dkandalov/live-plugin" email="dmitry.kandalov@gmail.com">Dmitry Kandalov</vendor>
 	<idea-version since-build="243.21155"/>
 	<category>Plugin Development</category>
     <description>
 		<![CDATA[
-        <html lang="EN">
-        <body>
         Plugin for writing plugins at runtime without IDE restarts using Kotlin and Groovy.
         <br/><br/>
         <ul>
@@ -18,16 +15,18 @@
             <li><b>Usable IDE API</b> — LivePlugin has a small API with entry points for common IDE APIs</li>
         </ul>
         <br/><br/>
-        For documentation and more details see <a href="https://github.com/dkandalov/live-plugin">readme on GitHub</a>.
-        </body>
-        </html>
+        To get started open "Live Plugins" tool window or "Live Plugins" in the Project view "Scratches and Consoles".
+        For more detailed documentation see <a href="https://github.com/dkandalov/live-plugin">readme on GitHub</a>.
         ]]>
 	</description>
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>compatibility with IntelliJ 2024.3</li>
-            <li>Kotlin 2.0.10</li>
+            <li>use correct LivePlugin jar name in "Create Kotlin Plugin Zip" action</li>
+            <li>"Add LivePlugin and IDE Jars to Project" now includes all IDE jars</li>
+            <li>Kotlin plugins can lookup any plugin files via classloader resources</li>
+            <li>added URL_OPENING_LISTENER to notification from liveplugin.show() function</li>
+            <li>fixed deprecated APIs</li>
         </ul></body></html>
         ]]>
     </change-notes>
