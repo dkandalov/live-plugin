@@ -7,6 +7,7 @@ import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -119,7 +120,7 @@ class CreateKotlinPluginZipAction : AnAction(
     }
 
     private fun Project.createPluginXml(plugin: LivePlugin, filePath: FilePath) {
-        val fileContent = readSampleScriptFile("$kotlinExamplesPath/plugin.xml")
+        val pluginXmlText = readSampleScriptFile("$kotlinExamplesPath/plugin.xml")
             .replaceFirst("com.my.company.unique.plugin.id", plugin.id)
             .replaceFirst(
                 "TODO Plugin Name",
@@ -127,7 +128,11 @@ class CreateKotlinPluginZipAction : AnAction(
                     .joinToString(" ") { word -> word.replaceFirstChar { it.titlecase(Locale.getDefault()) } }
             )
             .replaceFirst("Your name", System.getProperty("user.name"))
-        NewPluginXmlScript(fileContent).createNewFile(this, plugin.path.toVirtualFile() ?: error("Can't create virtual file for '${plugin.path.value}'"))
+            .replaceFirst("since-build=\"221.0\"", "since-build=\"${ApplicationInfo.getInstance().build.baselineVersion}.0\"")
+
+        NewPluginXmlScript(pluginXmlText)
+            .createNewFile(this, plugin.path.toVirtualFile() ?: error("Can't create virtual file for '${plugin.path.value}'"))
+
         val message = "Please review and <a href=\"\">edit its content</a> before publishing the plugin."
         livePluginNotificationGroup.createNotification("Created plugin.xml", message, INFORMATION)
             .addAction(object : NotificationAction("Edit plugin.xml") {
