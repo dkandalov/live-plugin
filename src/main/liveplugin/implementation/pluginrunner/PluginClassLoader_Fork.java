@@ -37,9 +37,9 @@ import static kotlinx.coroutines.SupervisorKt.SupervisorJob;
 
 /**
  * Fork of com.intellij.ide.plugins.cl.PluginClassLoader
- * because its an internal IJ API and it has been changing in IJ 2020.2 causing LivePlugin to break.
+ * because it is an internal API and it has been changing in IJ 2020.2 causing LivePlugin to break.
  * The assumption is that using fork will make LivePlugin forward-compatible with more IJ versions
- * given that PluginClassLoader_Fork implementation compatibility is more stable than PluginClassLoader API.
+ * because fork won't change as often but will be good enough for LivePlugin to work.
  */
 @SuppressWarnings("ALL")
 @ApiStatus.Internal

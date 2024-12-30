@@ -57,16 +57,17 @@ private fun createScriptConfig(context: ScriptConfigurationRefinementContext, cl
         val scriptFolderPath = scriptLocationId?.let { File(it).parent } ?: ""
         updateClasspath(classpath(scriptText, scriptFolderPath))
 
-        // Disabled because it doesn't work and can only cause confusion
-        // because multiple .kts files will be compiled referencing each other in constructor arguments.
-        // E.g. "class Plugin(..., `$$importedScriptSome`: Some)" which will not work the code creating object from script class.
+        // Disabled because it doesn't work and trying to do it again can cause confusion.
+        // TODO maybe extend org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension for LivePlugin?
         @Suppress("ConstantConditionIf")
         if (false) {
             val filesInThePluginFolder = scriptFolderPath.toFilePath().allFiles()
                 .filter { it.extension == "kt" || it.extension == "kts" }
                 .filter { it.value != scriptLocationId }.map { it.toFile() }.toList()
             // The `importScripts` seem to be used by org.jetbrains.kotlin.scripting.resolve.LazyScriptDescriptor.ImportedScriptDescriptorsFinder()
-            // which only reads definitions from KtScript psi elements (.kts files) but it doesn't work even if all files are renamed to .kts 😠 The scripting API is endless WTF!!!!!
+            // which only reads definitions from KtScript PSI elements (.kts files) but doesn't work even if all files are renamed to .kts 😠
+            // because multiple .kts files will be compiled referencing each other in constructor arguments.
+            // E.g. "class Plugin(..., `$$importedScriptSome`: Some)" which will not work the code creating object from script class.
             // See also https://youtrack.jetbrains.com/issue/KT-28916
             importScripts.append(filesInThePluginFolder.map { file -> FileScriptSource(file) })
         }
