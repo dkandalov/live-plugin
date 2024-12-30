@@ -52,6 +52,7 @@ import javax.swing.*
 import java.util.function.Function
 import java.util.regex.Pattern
 
+import static com.intellij.notification.NotificationListener.URL_OPENING_LISTENER
 import static com.intellij.notification.NotificationType.*
 import static com.intellij.openapi.progress.PerformInBackgroundOption.ALWAYS_BACKGROUND
 import static com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.SPEEDSEARCH
@@ -133,6 +134,9 @@ class PluginUtil {
 			if (notificationAction != null) {
 				notification.addAction(notificationAction)
 			}
+			//noinspection GrDeprecatedAPIUsage // Because there are no non-deprecated alternatives
+			notification.setListener(URL_OPENING_LISTENER)
+
 			ApplicationManager.application.messageBus.syncPublisher(Notifications.TOPIC).notify(notification)
 		}
 	}
