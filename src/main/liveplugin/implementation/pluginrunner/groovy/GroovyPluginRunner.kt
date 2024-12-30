@@ -42,7 +42,7 @@ class GroovyPluginRunner(
             val additionalClasspath = findClasspathAdditions(mainScript.readLines(), groovyAddToClasspathKeyword, environment)
                 .flatMap { it.onFailure { (path) -> return SetupError("Couldn't find dependency '$path'").asFailure() } }
 
-            val classLoader = createClassLoaderWithDependencies(additionalClasspath + plugin.path.toFile(), pluginDescriptorsOfDependencies, plugin)
+            val classLoader = createClassLoaderWithDependencies(listOf(plugin.path.toFile()) + additionalClasspath, pluginDescriptorsOfDependencies, plugin)
                 .onFailure { return SetupError(it.reason.message).asFailure() }
 
             val pluginFolderUrl = "file:///${plugin.path}/" // Prefix with "file:///" so that unix-like path works on Windows.
