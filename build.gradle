@@ -116,6 +116,13 @@ jar {
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
+tasks {
+	publishPlugin {
+		token.set(System.getenv("PUBLISH_TOKEN"))
+		hidden.set(true)
+	}
+}
+
 tasks.register('validateLivePluginZip') {
 	doLast {
 		def pluginZip = zipTree("build/distributions/LivePlugin.zip")
