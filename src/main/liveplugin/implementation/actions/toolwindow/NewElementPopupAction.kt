@@ -24,7 +24,7 @@ import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companio
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
 import liveplugin.implementation.readSampleScriptFile
 
-class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
+class NewElementPopupAction : AnAction(), DumbAware, PopupAction {
     override fun actionPerformed(event: AnActionEvent) {
         createPopup(event.dataContext).showInBestPositionFor(event.dataContext)
     }
@@ -67,29 +67,29 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
         }
     }
 
-    private class NewGroovyFileAction: NewFileAction("Groovy File", groovyFileType)
+    private class NewGroovyFileAction : NewFileAction("Groovy File", groovyFileType)
 
-    private class NewKotlinFileAction: NewFileAction("Kotlin File", kotlinFileType)
+    private class NewKotlinFileAction : NewFileAction("Kotlin File", kotlinFileType)
 
-    private class NewTextFileAction: NewFileAction("Text File", textFileType)
+    private class NewTextFileAction : NewFileAction("Text File", textFileType)
 
-    private class NewDirectoryAction: NewFolderAction("Directory", "", newFolderIcon)
+    private class NewDirectoryAction : NewFolderAction("Directory", "", newFolderIcon)
 
-    private class NewGroovyMainScript: NewFileFromTemplateAction(
+    private class NewGroovyMainScript : NewFileFromTemplateAction(
         text = groovyScriptFile,
         newFileName = groovyScriptFile,
         fileContent = readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy"),
         fileType = groovyFileType,
     )
 
-    private class NewKotlinMainScript: NewFileFromTemplateAction(
+    private class NewKotlinMainScript : NewFileFromTemplateAction(
         text = kotlinScriptFile,
         newFileName = kotlinScriptFile,
         fileContent = readSampleScriptFile("$kotlinExamplesPath/default-plugin.kts"),
         fileType = kotlinFileType
     )
 
-    private class NewGroovyTestScript: NewFileFromTemplateAction(
+    private class NewGroovyTestScript : NewFileFromTemplateAction(
         text = groovyTestScriptFile,
         newFileName = groovyTestScriptFile,
         fileContent = readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy"),
@@ -99,9 +99,9 @@ class NewElementPopupAction: AnAction(), DumbAware, PopupAction {
 
 class NewPluginXmlScript(
     fileContent: String = readSampleScriptFile("$kotlinExamplesPath/plugin.xml")
-): NewFileFromTemplateAction(
-    "plugin.xml",
-    "plugin.xml",
-    fileContent,
-    xmlFileType
+) : NewFileFromTemplateAction(
+    text = "plugin.xml",
+    newFileName = "plugin.xml",
+    fileContent = fileContent,
+    fileType = xmlFileType
 )
