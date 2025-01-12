@@ -19,18 +19,15 @@ import liveplugin.implementation.LivePluginPaths
 import java.io.IOException
 
 /**
- * Originally forked from com.intellij.openapi.fileChooser.actions.NewFileAction
+ * Originally based on com.intellij.openapi.fileChooser.actions.NewFileAction
  */
 open class NewFileAction(text: String, private val fileType: FileType) : FileChooserAction(text, text, fileType.icon) {
 
     override fun update(fileSystemTree: FileSystemTree, e: AnActionEvent) {
-        e.presentation.let {
-            val selectedFile = fileSystemTree.newFileParent
-            it.isEnabled =
-                selectedFile != null &&
-                    selectedFile != LocalFileSystem.getInstance().findFileByPath(LivePluginPaths.livePluginsPath.value)
-            it.isVisible = true
-        }
+        val selectedFile = fileSystemTree.newFileParent
+        e.presentation.isEnabled =
+            selectedFile != null && selectedFile != LocalFileSystem.getInstance().findFileByPath(LivePluginPaths.livePluginsPath.value)
+        e.presentation.isVisible = true
     }
 
     override fun actionPerformed(fileSystemTree: FileSystemTree, e: AnActionEvent) {
@@ -38,7 +35,7 @@ open class NewFileAction(text: String, private val fileType: FileType) : FileCho
         createNewFile(fileSystemTree, e.project, fileType, initialContent)
     }
 
-    private fun createNewFile(fileSystemTree: FileSystemTree, project: Project?, fileType: FileType?, initialContent: String) {
+    private fun createNewFile(fileSystemTree: FileSystemTree, project: Project?, fileType: FileType, fileContent: String) {
         var file = fileSystemTree.newFileParent ?: return
         if (!file.isDirectory) file = file.parent
 
@@ -57,7 +54,8 @@ open class NewFileAction(text: String, private val fileType: FileType) : FileCho
                 continue
             }
 
-            val failReason = createNewFile(project, fileSystemTree as FileSystemTreeImpl, file, newFileName, fileType, initialContent)
+            val failReason =
+                createNewFile(project, fileSystemTree as FileSystemTreeImpl, file, newFileName, fileType, fileContent)
             if (failReason != null) {
                 Messages.showMessageDialog(
                     UIBundle.message("create.new.file.could.not.create.file.error.message", newFileName),
@@ -70,36 +68,33 @@ open class NewFileAction(text: String, private val fileType: FileType) : FileCho
     }
 
     companion object {
-        // modified copy of com.intellij.openapi.fileChooser.ex.FileSystemTreeImpl.createNewFile()
-        fun createNewFile(
+        private fun createNewFile(
             project: Project?,
-            fileSystemTree: FileSystemTreeImpl,
-            parentDirectory: VirtualFile,
+            fileSystemTree: FileSystemTree,
+            directory: VirtualFile,
             newFileName: String,
-            fileType: FileType?,
-            initialContent: String?
+            fileType: FileType,
+            fileContent: String
         ): Exception? {
-            val failReason = arrayOf<Exception?>(null)
+            val newFileNameWithExtension =
+                if (fileType is UnknownFileType || newFileName.endsWith("." + fileType.defaultExtension)) newFileName
+                else newFileName + "." + fileType.defaultExtension
+
+            var failReason: Exception? = null
             val command = {
-                ApplicationManager.getApplication().runWriteAction(object : Runnable {
-                    override fun run() {
-                        try {
-                            var newFileNameWithExtension = newFileName
-                            if (fileType != null && fileType !is UnknownFileType) {
-                                newFileNameWithExtension = if (newFileName.endsWith('.'.toString() + fileType.defaultExtension)) newFileName else newFileName + '.' + fileType.defaultExtension
-                            }
-                            val file = parentDirectory.createChildData(this, newFileNameWithExtension)
-                            VfsUtil.saveText(file, initialContent ?: "")
-                            fileSystemTree.updateTree()
-                            fileSystemTree.select(file, null)
-                        } catch (e: IOException) {
-                            failReason[0] = e
-                        }
+                ApplicationManager.getApplication().runWriteAction {
+                    try {
+                        val file = directory.createChildData(this, newFileNameWithExtension)
+                        VfsUtil.saveText(file, fileContent)
+                        fileSystemTree.updateTree()
+                        fileSystemTree.select(file, null)
+                    } catch (e: IOException) {
+                        failReason = e
                     }
-                })
+                }
             }
-            CommandProcessor.getInstance().executeCommand(project, command, UIBundle.message("file.chooser.create.new.file.command.name"), null)
-            return failReason[0]
+            CommandProcessor.getInstance().executeCommand(project, command, "Create $newFileNameWithExtension", null)
+            return failReason
         }
     }
 }
