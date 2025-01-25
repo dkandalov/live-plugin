@@ -242,7 +242,7 @@ class MapDataContext(val map: Map<String, Any?>) : AsyncDataContext {
 private const val requestor = livePluginId
 
 fun createFile(parentPath: String, fileName: String, text: String, whenCreated: (VirtualFile) -> Unit = {}) {
-    runIOAction("createFile") {
+    runIOAction("Create $fileName") {
         val parentFolder = VfsUtil.createDirectoryIfMissing(parentPath) ?: throw IOException("Failed to create folder $parentPath")
         if (parentFolder.findChild(fileName) == null) {
             val virtualFile = parentFolder.createChildData(requestor, fileName)
@@ -253,7 +253,7 @@ fun createFile(parentPath: String, fileName: String, text: String, whenCreated: 
 }
 
 fun VirtualFile.delete() {
-    runIOAction("delete") {
+    runIOAction("Delete $name") {
         this.delete(requestor)
     }
 }
