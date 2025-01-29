@@ -1,5 +1,7 @@
 package liveplugin.implementation.actions.settings
 
+import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.ide.plugins.PluginManagerCore.JAVA_PLUGIN_ID
 import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -46,6 +48,11 @@ class AddLivePluginAndIdeJarsAsDependencies: AnAction(), DumbAware {
 
     override fun update(event: AnActionEvent) {
         val project = event.project ?: return
+
+        if (PluginManagerCore.getPlugin(JAVA_PLUGIN_ID) == null) {
+            event.presentation.isEnabledAndVisible = false
+            return
+        }
 
         if (projectLibrariesNames.contains(project, livePluginAndIdeJarsLibrary)) {
             event.presentation.text = "Remove LivePlugin and IDE Jars from Project"
