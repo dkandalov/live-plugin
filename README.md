@@ -9,6 +9,17 @@ or use the "Install" button on the [Plugin Marketplace website](http://plugins.j
 <img src="https://raw.github.com/dkandalov/live-plugin/master/screenshots/live-plugin-demo.gif" alt="demo" title="demo" align="middle"/>
 
 
+## Table of Contents
+- [Why?](#why)
+- [Examples](#examples)
+- [Getting started](#getting-started)
+- [How does LivePlugin work?](#how-does-liveplugin-work)
+- [Some practical use cases](#some-practical-use-cases)
+- [More examples](#more-examples)
+- [Similar plugins](#similar-plugins)
+- [Contributing](#contributing)
+
+
 ## Why?
  - **Minimal setup** — no need to set up a separate project for plugin development
  - **Fast feedback loop** — plugins are (re)loaded in the same JVM instance as IDE without restart
@@ -29,7 +40,7 @@ import liveplugin.*
 // Action to insert a new line above the current line.
 // Based on this post https://martinfowler.com/bliki/InternalReprogrammability.html
 // Note that there is also built-in "Start New Line Before Current" action (ctrl+alt+enter).
-registerAction(id = "Insert New Line Above", keyStroke = "ctrl alt shift ENTER") { event ->
+registerAction(id = "Insert New Line Above", keyStroke = "ctrl alt shift ENTER") { event: AnActionEvent ->
     val project = event.project ?: return@registerAction
     val editor = event.editor ?: return@registerAction
     executeCommand(editor.document, project) { document ->
