@@ -47,7 +47,7 @@ class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body =
 private fun createScriptConfig(context: ScriptConfigurationRefinementContext, classpath: (List<String>, String) -> List<File>) =
     ScriptCompilationConfiguration(context.compilationConfiguration, body = {
         // Attempt to use runReadAction() for syntax highlighting to avoid errors because of accessing data on non-EDT thread.
-        // Run as normal function if there is no application which is the case when running an embedded compiler.
+        // Run as a normal function if there is no application, which is the case when running an embedded compiler.
         val computable = Computable { context.script.locationId }
         val scriptLocationId = ApplicationManager.getApplication()?.runReadAction(computable) ?: computable.compute()
 
@@ -67,7 +67,7 @@ private fun createScriptConfig(context: ScriptConfigurationRefinementContext, cl
             // The `importScripts` seem to be used by org.jetbrains.kotlin.scripting.resolve.LazyScriptDescriptor.ImportedScriptDescriptorsFinder()
             // which only reads definitions from KtScript PSI elements (.kts files) but doesn't work even if all files are renamed to .kts 😠
             // because multiple .kts files will be compiled referencing each other in constructor arguments.
-            // E.g. "class Plugin(..., `$$importedScriptSome`: Some)" which will not work the code creating object from script class.
+            // E.g. "class Plugin(..., `$$importedScriptSome`: Some)" which will not work the code creating object from the script class.
             // See also https://youtrack.jetbrains.com/issue/KT-28916
             importScripts.append(filesInThePluginFolder.map { file -> FileScriptSource(file) })
         }

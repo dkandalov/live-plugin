@@ -23,7 +23,7 @@ class PackagedPluginAppLifecycle: AppLifecycleListener {
 
     override fun appWillBeClosed(isRestart: Boolean) {
         logger.info("PackagedPluginAppLifecycle.appWillBeClosed")
-        // Not running "later" so that it happens before IDE shutdown.
+        // Not running "later" so that it happens before the IDE shutdown.
         runOnEdt { unloadPlugin() }
     }
 }
@@ -38,7 +38,7 @@ class PackagedPluginDynamicLifecycle: DynamicPluginListener {
         }
     }
 
-    // Invoked when plugin is disabled in IDE settings.
+    // Invoked when the plugin is disabled in IDE settings.
     override fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
         logger.info("PackagedPluginDynamicLifecycle.beforePluginUnload")
         if (pluginDescriptor.pluginId == packagedPluginId) {

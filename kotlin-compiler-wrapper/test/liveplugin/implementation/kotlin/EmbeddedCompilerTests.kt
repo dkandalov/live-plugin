@@ -91,7 +91,7 @@ private class KtsScriptFixture {
             kotlinScriptCompilerEmbeddable,
             kotlinScriptCompilerImplEmbeddable,
             File("out/test/classes"), // For running via IntelliJ
-            File("build/classes/kotlin/test"), // For running via gradle
+            File("build/classes/kotlin/test"), // For running via Gradle
         ),
         jrePath = File(System.getProperty("java.home")),
         outputDirectory = outputDir,

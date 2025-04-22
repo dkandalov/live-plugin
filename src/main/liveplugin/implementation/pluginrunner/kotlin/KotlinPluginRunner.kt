@@ -26,8 +26,8 @@ import kotlin.io.path.absolutePathString
 /**
  * There are several reasons to run kotlin plugins the way it's currently done.
  *
- * Use standalone compiler (i.e. `kotlin-compiler-embeddable.jar`, etc.) because
- *  - kotlin script seems to have few problems, so using normal compiler should be more stable
+ * Use standalone compiler (i.e. `kotlin-compiler-embeddable.jar`, etc.) because:
+ *  - Kotlin script seems to have few problems, so using normal compiler should be more stable
  *  - each version of liveplugin will have the same version of kotlin compiler
  *  - size of LivePlugin.zip shouldn't be an issue
  *
@@ -77,7 +77,7 @@ class KotlinPluginRunner(
 
         val pluginClass = try {
             // Deliberately don't add livePluginLibAndSrcFiles() to the runtimeClassPath so that its classes are lookup up
-            // via parent classloader and not loaded "namespaced" and initialised again.
+            // via the parent classloader and not loaded "namespaced" and initialised again.
             val runtimeClassPath = listOf(compilerOutput.toFile()) + plugin.path.toFile() + additionalClasspath
             createClassLoaderWithDependencies(runtimeClassPath, pluginDescriptorsOfDependencies, plugin)
                 .onFailure { return SetupError(it.reason.message).asFailure() }
@@ -91,7 +91,7 @@ class KotlinPluginRunner(
     override fun run(executablePlugin: ExecutablePlugin, binding: Binding): Result<Unit, RunningError> {
         val pluginClass = (executablePlugin as ExecutableKotlinPlugin).pluginClass
         return try {
-            // Arguments below must match constructor of LivePluginScript class.
+            // The arguments below must match constructor of LivePluginScript class.
             // There doesn't seem to be a way to add binding as Map, therefore, hardcoding them.
             pluginClass.constructors[0].newInstance(binding.isIdeStartup, binding.project, binding.pluginPath, binding.pluginDisposable)
             Unit.asSuccess()
@@ -120,12 +120,12 @@ private class KotlinPluginCompiler {
     ): Result<Unit, String> = try {
         // Ideally, the compilerClasspath could be replaced by LivePluginScriptConfig
         // (which implicitly sets up the compiler classpath via kotlin scripting) but
-        // this approach doesn't seem to work e.g. for ideLibFiles() and resolving dependent plugins.
+        // this approach doesn't seem to work, e.g. for ideLibFiles() and resolving dependent plugins.
         val compilerClasspath: List<File> =
             ideLibFiles() +
             livePluginLibAndSrcFiles() +
             pluginDescriptorsOfDependencies.flatMap { descriptor -> descriptor.toLibFiles() } +
-            // Put Kotlin compiler libs after plugin dependencies because if there is Kotlin plugin in plugin dependencies,
+            // Put Kotlin compiler libs after plugin dependencies because if there is a Kotlin plugin in plugin dependencies,
             // it somehow picks up wrong PSI classes from kotlin-compiler-embeddable.jar.
             // E.g. "type mismatch: inferred type is KtVisitor<Void, Void> but PsiElementVisitor was expected".
             livePluginKotlinCompilerLibFiles() +
@@ -135,7 +135,7 @@ private class KotlinPluginCompiler {
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.implementation.kotlin.EmbeddedCompilerKt")
         val compilePluginMethod = compilerRunnerClass.declaredMethods.single { it.name == "compile" }
         // Note that arguments passed via reflection CANNOT use pure Kotlin types
-        // because compiler uses different classloader to load Kotlin so classes won't be compatible
+        // because the compiler uses different classloader to load Kotlin, so classes won't be compatible
         // (it's ok though to use types like kotlin.String which becomes java.lang.String at runtime).
         @Suppress("UNCHECKED_CAST")
         val compilationErrors = compilePluginMethod.invoke(
@@ -153,7 +153,7 @@ private class KotlinPluginCompiler {
             Unit.asSuccess()
         }
     } catch (e: Exception) {
-        // Don't depend directly on `CompilationException` because it's part of Kotlin plugin
+        // Don't depend directly on `CompilationException` because it's part of the Kotlin plugin
         // and LivePlugin should be able to run kotlin scripts without it
         val reason = if (e.javaClass.canonicalName == "org.jetbrains.kotlin.codegen.CompilationException") {
             "Error compiling script.\n${unscrambleThrowable(e)}"
@@ -182,7 +182,7 @@ private class KotlinPluginCompiler {
 fun ideLibFiles() = ideJarsPath
     .allFiles()
     .filter {
-        // Filter because Kotlin compiler complains about non-zip files.
+        // Filter because the Kotlin compiler complains about non-zip files.
         !it.isDirectory && (it.extension == "jar" || it.extension == "zip")
     }
     .map { it.toFile() }

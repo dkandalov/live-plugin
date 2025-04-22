@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import kotlin.script.experimental.annotations.KotlinScript
 
 @KotlinScript(
-    filePathPattern = ".*plugin.kts", // Use this regex, because otherwise LivePluginScript makes highlighting red in Kotlin worksheets
+    filePathPattern = ".*plugin.kts", // Use this regex, otherwise LivePluginScript makes highlighting red in Kotlin worksheets
     compilationConfiguration = LivePluginScriptHighlightingConfig::class
 )
 abstract class LivePluginScript(
@@ -16,7 +16,7 @@ abstract class LivePluginScript(
     open val isIdeStartup: Boolean,
 
     /**
-     * Project in which plugin is executed, can be null on IDE start or if no projects are open.
+     * Project in which a plugin is executed can be null on IDE start or if no projects are open.
      */
     open val project: Project?,
 
@@ -27,7 +27,7 @@ abstract class LivePluginScript(
 
     /**
      * Instance of `com.intellij.openapi.Disposable` which is disposed just before re-running plugin.
-     * Can be useful for cleanup, e.g. un-registering IDE listeners.
+     * Can be useful for clean-up, e.g. unregistering IDE listeners.
      */
     open val pluginDisposable: Disposable
 )
