@@ -29,7 +29,9 @@ ext.groovyVersion = "3.0.19"
 // For available IDE versions see "com.jetbrains.intellij.idea" in
 // https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
 // (👇version with Kotlin 2.1 and changes in PluginClassLoader)
-ext.ideVersion = "243.21155.17-EAP-SNAPSHOT"
+ext.ideVersion = "243.26053.27"
+ext.ideSandbox = "build/idea-sandbox/IC-2024.3.5"
+
 
 intellijPlatform {
 	projectName = "LivePlugin"
@@ -74,9 +76,9 @@ dependencies {
 	testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
 	testImplementation "org.junit.platform:junit-platform-engine:1.9.0"
 }
-"Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"("build/idea-sandbox/IC-2024.3")
+"Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"(ext.ideSandbox)
 "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"()
-'Copy GDSL file into standardDsls folder'("build/idea-sandbox/IC-2024.3")
+'Copy GDSL file into standardDsls folder'(ext.ideSandbox)
 
 sourceSets {
 	main {
