@@ -65,8 +65,8 @@ dependencies {
 	compileOnly "org.codehaus.groovy:groovy-all:$groovyVersion"
 	testCompileOnly "org.codehaus.groovy:groovy-all:$groovyVersion"
 
-	implementation "org.http4k:http4k-core:5.28.1.0"
-	implementation("org.http4k:http4k-client-okhttp:5.28.1.0") {
+	implementation "org.http4k:http4k-core:5.47.0.0"
+	implementation("org.http4k:http4k-client-okhttp:5.47.0.0") {
 		exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
 	}
 	testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
@@ -140,9 +140,9 @@ tasks.register('validateLivePluginZip') {
 			"LivePlugin/kotlin-compiler/kotlin-stdlib-2.0.21.jar",
 			"LivePlugin/kotlin-compiler/kotlinx-coroutines-core-jvm-1.6.4.jar",
 			"LivePlugin/kotlin-compiler/trove4j-1.0.20200330.jar",
-			"LivePlugin/lib/http4k-client-okhttp-5.28.1.0.jar",
-			"LivePlugin/lib/http4k-core-5.28.1.0.jar",
-			"LivePlugin/lib/http4k-realtime-core-5.28.1.0.jar",
+			"LivePlugin/lib/http4k-client-okhttp-5.47.0.0.jar",
+			"LivePlugin/lib/http4k-core-5.47.0.0.jar",
+			"LivePlugin/lib/http4k-realtime-core-5.47.0.0.jar",
 			"LivePlugin/lib/okhttp-4.12.0.jar",
 			"LivePlugin/lib/okio-jvm-3.6.0.jar",
 		]
