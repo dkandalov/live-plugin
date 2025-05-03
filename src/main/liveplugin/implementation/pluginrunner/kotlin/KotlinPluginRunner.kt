@@ -18,9 +18,11 @@ import liveplugin.implementation.pluginrunner.PluginDependencies.findPluginDescr
 import liveplugin.implementation.pluginrunner.PluginDependencies.withTransitiveDependencies
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinAddToClasspathKeyword
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinDependsOnPluginKeyword
+import liveplugin.invoke
 import org.apache.commons.codec.digest.MurmurHash3
 import org.jetbrains.jps.model.java.impl.JavaSdkUtil
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.absolutePathString
 
 /**
@@ -131,6 +133,15 @@ private class KotlinPluginCompiler {
             livePluginKotlinCompilerLibFiles() +
             additionalClasspath +
             File(pluginFolderPath)
+
+        // Workaround to fix "java.lang.RuntimeException: Could not find installation home path. Please reinstall the software."
+        // until I can figure out why there is "idea.plugins.compatible.build" with an empty value instead of "999.SNAPSHOT"
+        // as set in org.jetbrains.kotlin.cli.jvm.compiler.CompatKt.setupIdeaStandaloneExecution()
+        compilerClassLoader.loadClass("org.jetbrains.kotlin.com.intellij.openapi.util.registry.EarlyAccessRegistryManagerKt")
+            .declaredFields.find { it.name == "lazyMap" }
+            ?.also { it.isAccessible = true }?.get(null)
+            ?.invoke<ConcurrentHashMap<*, *>>("getValue")
+            ?.remove("idea.plugins.compatible.build")
 
         val compilerRunnerClass = compilerClassLoader.loadClass("liveplugin.implementation.kotlin.EmbeddedCompilerKt")
         val compilePluginMethod = compilerRunnerClass.declaredMethods.single { it.name == "compile" }
