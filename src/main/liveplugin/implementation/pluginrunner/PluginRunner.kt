@@ -1,7 +1,6 @@
 package liveplugin.implementation.pluginrunner
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
-import com.intellij.ide.plugins.IdeaPluginDescriptorImpl
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
@@ -103,17 +102,12 @@ object PluginDependencies {
             if (descriptor !in result) {
                 result.add(descriptor)
 
-                val dependenciesDescriptors1 = descriptor.dependencies.mapNotNullTo(HashSet()) {
-                    if (it.isOptional) null else PluginManagerCore.getPlugin(it.pluginId)
-                }
+                val dependenciesDescriptors1 = descriptor.dependencies
+                    .mapNotNullTo(HashSet()) { if (it.isOptional) null else PluginManagerCore.getPlugin(it.pluginId) }
 
-                @Suppress("UnstableApiUsage") // This is a "temporary" hack for https://youtrack.jetbrains.com/issue/IDEA-206274
-                val dependenciesDescriptors2 =
-                    if (descriptor !is IdeaPluginDescriptorImpl) emptyList()
-                    else descriptor.dependencies.plugins.mapNotNullTo(HashSet()) { PluginManagerCore.getPlugin(it.id) }
-
-                val descriptors = (dependenciesDescriptors1 + dependenciesDescriptors2)
-                    .filter { it.pluginId != PluginManagerCore.CORE_ID }.distinctBy { it.pluginId }
+                val descriptors = dependenciesDescriptors1
+                    .filter { it.pluginId != PluginManagerCore.CORE_ID }
+                    .distinctBy { it.pluginId }
 
                 queue.addAll(descriptors)
             }
