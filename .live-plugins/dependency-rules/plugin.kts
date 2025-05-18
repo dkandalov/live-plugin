@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.psi.KtFile
 
 // depends-on-plugin org.jetbrains.kotlin
+// depends-on-plugin com.intellij.java.ide
 
 // Use "Validate Dependencies" action to check the dependencies below.
 
