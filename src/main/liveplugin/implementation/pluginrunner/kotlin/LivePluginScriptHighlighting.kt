@@ -4,22 +4,35 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.common.toFilePath
+import org.jetbrains.kotlin.idea.core.script.loadDefinitionsFromTemplates
+import org.jetbrains.kotlin.scripting.definitions.ScriptDefinition
+import org.jetbrains.kotlin.scripting.definitions.ScriptDefinitionsSource
 import java.io.File
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.api.ScriptAcceptedLocation.Everywhere
 import kotlin.script.experimental.host.FileScriptSource
-import kotlin.script.experimental.intellij.ScriptDefinitionsProvider
-import kotlin.script.experimental.jvm.JvmDependency
-import kotlin.script.experimental.jvm.jdkHome
-import kotlin.script.experimental.jvm.jvm
-import kotlin.script.experimental.jvm.updateClasspath
+import kotlin.script.experimental.jvm.*
 
-class LivePluginKotlinScriptProvider : ScriptDefinitionsProvider {
-    override val id = "LivePluginKotlinScriptProvider"
-    override fun getDefinitionClasses() = listOf(LivePluginScript::class.java.canonicalName)
-    override fun getDefinitionsClassPath() = livePluginLibPath.listFiles().map { it.toFile() }
-    // + File(".../live-plugin/build/idea-sandbox/plugins/live-plugins/multiple-src-files/foo.kt") This doesn't work 😠
-    override fun useDiscovery() = false
+class LivePluginScriptSource : ScriptDefinitionsSource {
+    override val definitions: Sequence<ScriptDefinition>
+        get() {
+            val scriptDefinitions = loadDefinitionsFromTemplates(
+                templateClassNames = listOf(LivePluginScript::class.java.canonicalName),
+                templateClasspath = livePluginLibPath.listFiles().map { it.toFile() },
+                baseHostConfiguration = defaultJvmScriptingHostConfiguration
+            )
+            val loadedDefinitions = scriptDefinitions.map {
+                kotlin.script.experimental.host.ScriptDefinition(
+                    it.compilationConfiguration,
+                    it.evaluationConfiguration ?: ScriptEvaluationConfiguration.Default,
+                )
+            }.toList()
+
+            return loadedDefinitions.map {
+                ScriptDefinition.FromNewDefinition(defaultJvmScriptingHostConfiguration, it.copy())
+                    .apply { order = Int.MIN_VALUE }
+            }.asSequence()
+        }
 }
 
 class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body = {
@@ -27,8 +40,12 @@ class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body =
         createScriptConfig(context, ::highlightingClasspath)
 
     refineConfiguration {
-        beforeParsing { context -> ResultWithDiagnostics.Success(createConfig(context)) }
-        beforeCompiling { context -> ResultWithDiagnostics.Success(createConfig(context)) }
+        beforeParsing { context ->
+            ResultWithDiagnostics.Success(createConfig(context))
+        }
+        beforeCompiling { context ->
+            ResultWithDiagnostics.Success(createConfig(context))
+        }
     }
     compilerOptions("-jvm-target", "17")
     jvm {
