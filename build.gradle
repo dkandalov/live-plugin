@@ -25,8 +25,8 @@ ext.groovyVersion = "3.0.19"
 // For available IDE versions see "com.jetbrains.intellij.idea" in
 // https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
 // (👇version with Kotlin 2.1 and changes in PluginClassLoader)
-ext.ideVersion = "251-EAP-SNAPSHOT"
-ext.ideSandbox = "build/idea-sandbox/IC-2025.1.1"
+ext.ideVersion = "2025.1.1.1"
+ext.ideSandbox = "build/idea-sandbox/IC-2025.1.1.1"
 
 
 intellijPlatform {
