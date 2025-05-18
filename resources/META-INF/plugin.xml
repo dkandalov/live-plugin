@@ -3,7 +3,7 @@
     <name>LivePlugin</name>
 	<version>0.9.5 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin" email="dmitry.kandalov@gmail.com">Dmitry Kandalov</vendor>
-	<idea-version since-build="243.26053"/>
+	<idea-version since-build="2025.1"/>
 	<category>Plugin Development</category>
     <description>
 		<![CDATA[
