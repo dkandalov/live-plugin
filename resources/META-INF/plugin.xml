@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>LivePlugin</id>
     <name>LivePlugin</name>
-	<version>0.9.5 beta</version>
+	<version>0.9.6 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin" email="dmitry.kandalov@gmail.com">Dmitry Kandalov</vendor>
 	<idea-version since-build="2025.1"/>
 	<category>Plugin Development</category>
@@ -22,11 +22,8 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>use correct LivePlugin jar name in "Create Kotlin Plugin Zip" action</li>
-            <li>"Add LivePlugin and IDE Jars to Project" now includes all IDE jars</li>
-            <li>Kotlin plugins can lookup any plugin files via classloader resources</li>
-            <li>added URL_OPENING_LISTENER to notification from liveplugin.show() function</li>
-            <li>fixed deprecated APIs</li>
+            <li>Kotlin 2.1.10</li>
+            <li>Compatibility with IntelliJ 2025.1</li>
         </ul></body></html>
         ]]>
     </change-notes>
@@ -38,7 +35,7 @@
 	<depends optional="true" config-file="groovy-plugin-integration.xml">org.intellij.groovy</depends>
 	<depends optional="true" config-file="kotlin-plugin-integration.xml">org.jetbrains.kotlin</depends>
 
-    <extensions defaultExtensionNs="com.intellij">
+	<extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Live Plugins" anchor="right"
                     factoryClass="liveplugin.implementation.actions.toolwindow.LivePluginToolWindowFactory"
                     icon="/liveplugin/toolWindowPlugin.svg"/>
