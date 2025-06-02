@@ -15,24 +15,19 @@ import kotlin.script.experimental.jvm.*
 
 class LivePluginScriptSource : ScriptDefinitionsSource {
     override val definitions: Sequence<ScriptDefinition>
-        get() {
-            val scriptDefinitions = loadDefinitionsFromTemplates(
-                templateClassNames = listOf(LivePluginScript::class.java.canonicalName),
-                templateClasspath = livePluginLibPath.listFiles().map { it.toFile() },
-                baseHostConfiguration = defaultJvmScriptingHostConfiguration
+        get() = loadDefinitionsFromTemplates(
+            templateClassNames = listOf(LivePluginScript::class.java.canonicalName),
+            templateClasspath = livePluginLibPath.listFiles().map { it.toFile() },
+            baseHostConfiguration = defaultJvmScriptingHostConfiguration
+        ).map {
+            kotlin.script.experimental.host.ScriptDefinition(
+                it.compilationConfiguration,
+                it.evaluationConfiguration ?: ScriptEvaluationConfiguration.Default,
             )
-            val loadedDefinitions = scriptDefinitions.map {
-                kotlin.script.experimental.host.ScriptDefinition(
-                    it.compilationConfiguration,
-                    it.evaluationConfiguration ?: ScriptEvaluationConfiguration.Default,
-                )
-            }.toList()
-
-            return loadedDefinitions.map {
-                ScriptDefinition.FromNewDefinition(defaultJvmScriptingHostConfiguration, it.copy())
-                    .apply { order = Int.MIN_VALUE }
-            }.asSequence()
-        }
+        }.map {
+            ScriptDefinition.FromNewDefinition(defaultJvmScriptingHostConfiguration, it)
+                .apply { order = Int.MIN_VALUE }
+        }.asSequence()
 }
 
 class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body = {
