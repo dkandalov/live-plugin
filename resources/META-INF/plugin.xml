@@ -3,7 +3,7 @@
     <name>LivePlugin</name>
 	<version>0.9.6 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin" email="dmitry.kandalov@gmail.com">Dmitry Kandalov</vendor>
-	<idea-version since-build="2025.1"/>
+	<idea-version since-build="2025.2"/>
 	<category>Plugin Development</category>
     <description>
 		<![CDATA[
@@ -22,8 +22,8 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>Kotlin 2.1.10</li>
-            <li>Compatibility with IntelliJ 2025.1</li>
+            <li>Compatibility with IntelliJ 2025.2</li>
+			<li>Kotlin 2.1.20</li>
         </ul></body></html>
         ]]>
     </change-notes>

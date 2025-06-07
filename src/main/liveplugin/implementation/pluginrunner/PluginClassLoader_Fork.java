@@ -3,8 +3,8 @@ package liveplugin.implementation.pluginrunner;
 
 import com.intellij.diagnostic.PluginException;
 import com.intellij.diagnostic.StartUpMeasurer;
+import com.intellij.ide.plugins.ContentModuleDescriptor;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.cl.PluginAwareClassLoader;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginDescriptor;
@@ -163,7 +163,7 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
 
     public PluginClassLoader_Fork(@NotNull List<Path> files,
                              @NotNull ClassPath classPath,
-                             @NotNull ClassLoader @NotNull [] dependencies,
+                             @NotNull ClassLoader[] dependencies,
                              @NotNull PluginDescriptor pluginDescriptor,
                              @NotNull ClassLoader coreLoader,
                              @Nullable PluginClassLoader_Fork.ResolveScopeManager resolveScopeManager,
@@ -345,7 +345,7 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
         return loadClass(name, false);
     }
 
-    private @NotNull ClassLoader @NotNull[] getAllParents() {
+    private @NotNull ClassLoader[] getAllParents() {
         ClassLoader[] result = allParents;
         if (result != null && allParentsLastCacheId == parentListCacheIdCounter.get()) {
             return result;
@@ -477,7 +477,7 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
     }
 
     @Override
-    public byte @Nullable [] getResourceAsBytes(@NotNull String name, boolean checkParents) throws IOException {
+    public byte[] getResourceAsBytes(@NotNull String name, boolean checkParents) throws IOException {
         byte[] result = super.getResourceAsBytes(name, checkParents);
         if (result != null) {
             return result;
@@ -616,7 +616,7 @@ public final class PluginClassLoader_Fork extends UrlClassLoader implements Plug
 
     @Override
     public @Nullable String getModuleId() {
-        return ((IdeaPluginDescriptorImpl)pluginDescriptor).moduleName;
+        return ((ContentModuleDescriptor)pluginDescriptor).getModuleName();
     }
 
     @Override

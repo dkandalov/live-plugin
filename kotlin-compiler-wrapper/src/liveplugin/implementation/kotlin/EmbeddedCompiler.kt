@@ -28,7 +28,11 @@ import org.jetbrains.kotlin.config.CommonConfigurationKeys.LANGUAGE_VERSION_SETT
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.MODULE_NAME
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.REPORT_OUTPUT_FILES
 import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.config.JVMConfigurationKeys.*
+import org.jetbrains.kotlin.config.JVMConfigurationKeys.DISABLE_STANDARD_SCRIPT_DEFINITION
+import org.jetbrains.kotlin.config.JVMConfigurationKeys.JDK_HOME
+import org.jetbrains.kotlin.config.JVMConfigurationKeys.JVM_TARGET
+import org.jetbrains.kotlin.config.JVMConfigurationKeys.OUTPUT_DIRECTORY
+import org.jetbrains.kotlin.config.JVMConfigurationKeys.RETAIN_OUTPUT_IN_MEMORY
 import org.jetbrains.kotlin.config.JvmTarget.JVM_17
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
@@ -53,12 +57,12 @@ fun compile(
     outputDirectory: File,
     livePluginScriptClass: Class<*>
 ): List<String> {
-    val rootDisposable = Disposer.newDisposable()
+    val disposable = Disposer.newDisposable()
     try {
         val messageCollector = ErrorMessageCollector()
         val configuration = createCompilerConfiguration(sourceRoot, classpath, jrePath, outputDirectory, messageCollector, livePluginScriptClass.kotlin)
-        val kotlinEnvironment = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, JVM_CONFIG_FILES)
-        val state = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(kotlinEnvironment).also { it?.destroy() }
+        val kotlinEnvironment = KotlinCoreEnvironment.createForProduction(disposable, configuration, JVM_CONFIG_FILES)
+        val state = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(kotlinEnvironment)
 
         return when {
             messageCollector.hasErrors() -> messageCollector.errors
@@ -66,7 +70,7 @@ fun compile(
             else                         -> emptyList()
         }
     } finally {
-        rootDisposable.dispose()
+        disposable.dispose()
     }
 }
 
