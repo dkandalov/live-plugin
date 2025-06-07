@@ -138,7 +138,7 @@ tasks.register('validateLivePluginZip') {
 			"LivePlugin/kotlin-compiler/kotlin-scripting-compiler-impl-embeddable-2.1.20.jar",
 			"LivePlugin/kotlin-compiler/kotlin-scripting-jvm-2.1.20.jar",
 			"LivePlugin/kotlin-compiler/kotlin-stdlib-2.1.20.jar",
-			"LivePlugin/kotlin-compiler/kotlinx-coroutines-core-jvm-1.6.4.jar",
+			"LivePlugin/kotlin-compiler/kotlinx-coroutines-core-jvm-1.8.0.jar",
 			"LivePlugin/kotlin-compiler/trove4j-1.0.20200330.jar",
 			"LivePlugin/lib/http4k-client-okhttp-5.47.0.0.jar",
 			"LivePlugin/lib/http4k-core-5.47.0.0.jar",
