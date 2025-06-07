@@ -2,9 +2,7 @@ package liveplugin.implementation.pluginrunner.kotlin
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
-import liveplugin.implementation.LivePluginPaths.livePluginLibPath
 import liveplugin.implementation.common.toFilePath
-import org.jetbrains.kotlin.idea.core.script.loadDefinitionsFromTemplates
 import org.jetbrains.kotlin.scripting.definitions.ScriptDefinition
 import org.jetbrains.kotlin.scripting.definitions.ScriptDefinitionsSource
 import java.io.File
@@ -14,32 +12,23 @@ import kotlin.script.experimental.host.FileScriptSource
 import kotlin.script.experimental.jvm.*
 
 class LivePluginScriptSource : ScriptDefinitionsSource {
-    override val definitions: Sequence<ScriptDefinition>
-        get() = loadDefinitionsFromTemplates(
-            templateClassNames = listOf(LivePluginScript::class.java.canonicalName),
-            templateClasspath = livePluginLibPath.listFiles().map { it.toFile() },
-            baseHostConfiguration = defaultJvmScriptingHostConfiguration
-        ).map {
-            kotlin.script.experimental.host.ScriptDefinition(
-                it.compilationConfiguration,
-                it.evaluationConfiguration ?: ScriptEvaluationConfiguration.Default,
-            )
-        }.map {
-            ScriptDefinition.FromNewDefinition(defaultJvmScriptingHostConfiguration, it)
-                .apply { order = Int.MIN_VALUE }
-        }.asSequence()
+    override val definitions: Sequence<ScriptDefinition> =
+        ScriptDefinition.FromTemplate(
+            baseHostConfiguration = defaultJvmScriptingHostConfiguration,
+            template = LivePluginScript::class,
+            contextClass = LivePluginScript::class,
+            defaultCompilerOptions = emptyList()
+        ).apply { order = Int.MIN_VALUE }
+            .let { sequenceOf(it) }
 }
 
 class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body = {
-    fun createConfig(context: ScriptConfigurationRefinementContext) =
-        createScriptConfig(context, ::highlightingClasspath)
-
     refineConfiguration {
         beforeParsing { context ->
-            ResultWithDiagnostics.Success(createConfig(context))
+            ResultWithDiagnostics.Success(createScriptConfig(context))
         }
         beforeCompiling { context ->
-            ResultWithDiagnostics.Success(createConfig(context))
+            ResultWithDiagnostics.Success(createScriptConfig(context))
         }
     }
     compilerOptions("-jvm-target", "17")
@@ -56,7 +45,7 @@ class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body =
     }
 })
 
-private fun createScriptConfig(context: ScriptConfigurationRefinementContext, classpath: (List<String>, String) -> List<File>) =
+private fun createScriptConfig(context: ScriptConfigurationRefinementContext) =
     ScriptCompilationConfiguration(context.compilationConfiguration, body = {
         // Attempt to use runReadAction() for syntax highlighting to avoid errors because of accessing data on non-EDT thread.
         // Run as a normal function if there is no application, which is the case when running an embedded compiler.
@@ -67,7 +56,7 @@ private fun createScriptConfig(context: ScriptConfigurationRefinementContext, cl
         val scriptText = if (scriptLocationId == null) emptyList() else File(scriptLocationId).readText().split('\n')
 
         val scriptFolderPath = scriptLocationId?.let { File(it).parent } ?: ""
-        updateClasspath(classpath(scriptText, scriptFolderPath))
+        updateClasspath(highlightingClasspath(scriptText, scriptFolderPath))
 
         // Disabled because it doesn't work and trying to do it again can cause confusion.
         // TODO maybe extend org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension for LivePlugin?
