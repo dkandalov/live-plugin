@@ -29,7 +29,6 @@ object GroovyExamples {
         ExamplePlugin(groovyExamplesPath, "project-files-stats", "plugin.groovy"),
         ExamplePlugin(groovyExamplesPath, "misc-util", "util/AClass.groovy", "plugin.groovy"),
         ExamplePlugin(groovyExamplesPath, "additional-classpath", "plugin.groovy"),
-        ExamplePlugin(groovyExamplesPath, "integration-test", "plugin-test.groovy", "plugin.groovy"),
     )
 }
 

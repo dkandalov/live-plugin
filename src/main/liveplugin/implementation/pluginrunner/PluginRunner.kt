@@ -36,6 +36,7 @@ interface PluginRunner {
             livePlugins.forEach { it.runWith(pluginRunners, event) }
         }
 
+        @Deprecated
         @JvmStatic fun runPluginsTests(livePlugins: Collection<LivePlugin>, event: AnActionEvent) {
             livePlugins.forEach { it.runWith(pluginTestRunners, event) }
         }

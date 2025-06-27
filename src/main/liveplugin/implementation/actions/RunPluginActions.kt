@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.util.registry.Registry
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.Icons.rerunPluginIcon
 import liveplugin.implementation.common.Icons.runPluginIcon
@@ -55,10 +56,16 @@ class RunPluginTestsAction : AnAction("Run Plugin Tests", "Run plugin integratio
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = event.livePlugins().canBeHandledBy(pluginTestRunners)
+        val isApplicable = event.livePlugins().canBeHandledBy(pluginTestRunners)
+        event.presentation.isEnabled = isApplicable
+        event.presentation.isVisible = isApplicable || enabledInRegistry
     }
 
     override fun getActionUpdateThread() = BGT
+
+    companion object {
+        val enabledInRegistry = Registry.`is`("liveplugin.enable.run.plugin.tests")
+    }
 }
 
 class RunLivePluginsGroup : DefaultActionGroup(

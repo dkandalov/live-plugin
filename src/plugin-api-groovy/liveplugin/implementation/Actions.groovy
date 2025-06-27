@@ -108,10 +108,6 @@ class Actions {
 		PluginRunner.unloadPlugins([LivePlugin.livePluginsById()[pluginId]])
 	}
 
-	static testLivePlugin(@NotNull String pluginId, @NotNull Project project) {
-		PluginRunner.runPluginsTests([LivePlugin.livePluginsById()[pluginId]], dummyEvent(project))
-	}
-
 	private static AnActionEvent dummyEvent(Project project) {
 		def dataContext = new MapDataContext().put(CommonDataKeys.PROJECT.name, project)
 		AnActionEvent.createEvent(dataContext, new Presentation(), "", ActionUiKind.NONE, null)
