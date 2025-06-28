@@ -65,8 +65,9 @@ dependencies {
 	compileOnly "org.codehaus.groovy:groovy-all:$groovyVersion"
 	testImplementation "org.codehaus.groovy:groovy-all:$groovyVersion"
 
-	implementation "org.http4k:http4k-core:5.47.0.0"
-	implementation("org.http4k:http4k-client-okhttp:5.47.0.0") {
+	implementation "org.http4k:http4k-core:6.15.0.1"
+	implementation "org.http4k:http4k-tools-traffic-capture:6.15.0.1"
+	implementation("org.http4k:http4k-client-okhttp:6.15.0.1") {
 		exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
 	}
 	implementation "junit:junit:4.13.2"
@@ -142,9 +143,10 @@ tasks.register('validateLivePluginZip') {
 			"LivePlugin/kotlin-compiler/kotlinx-coroutines-core-jvm-1.8.0.jar",
 			"LivePlugin/kotlin-compiler/trove4j-1.0.20200330.jar",
 			"LivePlugin/lib/hamcrest-core-1.3.jar",
-			"LivePlugin/lib/http4k-client-okhttp-5.47.0.0.jar",
-			"LivePlugin/lib/http4k-core-5.47.0.0.jar",
-			"LivePlugin/lib/http4k-realtime-core-5.47.0.0.jar",
+			"LivePlugin/lib/http4k-client-okhttp-6.15.0.1.jar",
+			"LivePlugin/lib/http4k-core-6.15.0.1.jar",
+			"LivePlugin/lib/http4k-tools-traffic-capture-6.15.0.1.jar",
+			"LivePlugin/lib/http4k-realtime-core-6.15.0.1.jar",
 			"LivePlugin/lib/junit-4.13.2.jar",
 			"LivePlugin/lib/okhttp-4.12.0.jar",
 			"LivePlugin/lib/okio-jvm-3.6.0.jar",
