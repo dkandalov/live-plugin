@@ -64,7 +64,7 @@
         <listener class="liveplugin.implementation.LivePluginDeletedListener" topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
     </applicationListeners>
 
-    <extensions defaultExtensionNs="com.intellij">
+   	<extensions defaultExtensionNs="com.intellij">
 		<applicationService serviceImplementation="liveplugin.implementation.Settings"/>
         <scratch.rootType implementation="liveplugin.implementation.ScratchLivePluginRootType"/>
 		<nonProjectFileWritingAccessExtension implementation="liveplugin.implementation.MakePluginFilesAlwaysEditable"/>
@@ -74,6 +74,7 @@
 		<useScopeEnlarger implementation="liveplugin.implementation.FindUsageInLivePlugin$UseScopeExtension"/>
         <createDirectoryCompletionContributor implementation="liveplugin.implementation.LivePluginDirectoryCompletionContributor"/>
 		<postStartupActivity implementation="liveplugin.implementation.LivePluginProjectPostStartupActivity"/>
+		<registryKey key="liveplugin.enable.run.plugin.tests" defaultValue="false" description="Enable LivePlugin integration tests"/>
 		<intentionAction>
             <className>liveplugin.implementation.pluginrunner.AddToClassPathGroovyIntention</className>
             <language>Groovy</language>
