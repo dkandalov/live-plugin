@@ -69,6 +69,7 @@ dependencies {
 	implementation("org.http4k:http4k-client-okhttp:5.47.0.0") {
 		exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
 	}
+	implementation "junit:junit:4.13.2"
 	testImplementation "org.junit.jupiter:junit-jupiter-api:5.12.2"
 	testImplementation "org.junit.platform:junit-platform-engine:1.12.2"
 }
