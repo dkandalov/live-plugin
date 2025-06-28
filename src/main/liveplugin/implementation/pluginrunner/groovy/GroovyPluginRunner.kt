@@ -1,5 +1,6 @@
 package liveplugin.implementation.pluginrunner.groovy
 
+import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.project.Project
 import groovy.util.GroovyScriptEngine
 import liveplugin.implementation.LivePlugin
@@ -35,7 +36,7 @@ class GroovyPluginRunner(
 
             val pluginDescriptorsOfDependencies = findPluginDescriptorsOfDependencies(mainScript.readLines(), groovyDependsOnPluginKeyword)
                 .map { it.onFailure { (message) -> return SetupError(message).asFailure() } }
-                .onEach { if (!it.isEnabled) return SetupError("Dependent plugin '${it.pluginId}' is disabled").asFailure() }
+                .onEach { if (PluginManagerCore.isDisabled(it.pluginId)) return SetupError("Dependent plugin '${it.pluginId}' is disabled").asFailure() }
                 .withTransitiveDependencies()
 
             val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value) + Pair("PROJECT_PATH", project?.basePath ?: "PROJECT_PATH")

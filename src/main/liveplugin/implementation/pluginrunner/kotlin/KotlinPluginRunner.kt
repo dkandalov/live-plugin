@@ -1,6 +1,7 @@
 package liveplugin.implementation.pluginrunner.kotlin
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
+import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.project.Project
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.implementation.LivePlugin
@@ -56,7 +57,7 @@ class KotlinPluginRunner(
 
         val pluginDescriptorsOfDependencies = findPluginDescriptorsOfDependencies(mainScript.readLines(), kotlinDependsOnPluginKeyword)
             .map { it.onFailure { (message) -> return SetupError(message).asFailure() } }
-            .onEach { if (!it.isEnabled) return SetupError("Dependent plugin '${it.pluginId}' is disabled").asFailure() }
+            .onEach { if (PluginManagerCore.isDisabled(it.pluginId)) return SetupError("Dependent plugin '${it.pluginId}' is disabled").asFailure() }
             .withTransitiveDependencies()
 
         val environment = systemEnvironment + Pair("PLUGIN_PATH", plugin.path.value) + Pair("PROJECT_PATH", project?.basePath ?: "PROJECT_PATH")
