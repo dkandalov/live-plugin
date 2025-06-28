@@ -1,6 +1,6 @@
 package liveplugin.implementation
 
-import com.intellij.ide.impl.isTrusted
+import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -24,8 +24,7 @@ import liveplugin.implementation.pluginrunner.PluginRunner.Companion.unloadPlugi
 class LivePluginProjectPostStartupActivity : ProjectActivity {
     override suspend fun execute(project: Project) {
         if (!Settings.instance.runProjectSpecificPlugins) return
-        @Suppress("UnstableApiUsage")
-        if (!project.isTrusted()) {
+        if (!TrustedProjects.isProjectTrusted(project)) {
             val message = "Skipped execution of project specific plugins because the project is not trusted."
             livePluginNotificationGroup.createNotification(title = "Live plugin", message, INFORMATION).notify(project)
             return
