@@ -105,10 +105,7 @@ compileKotlin {
 	compilerOptions {
 		apiVersion.set(KOTLIN_2_1)
 		languageVersion.set(KOTLIN_2_1)
-		freeCompilerArgs = [
-			"-Xjvm-default=all", // Added for LivePluginKotlinScriptProvider
-			"-Xskip-prerelease-check"
-		]
+		freeCompilerArgs = ["-Xskip-prerelease-check"]
 	}
 }
 
