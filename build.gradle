@@ -194,9 +194,8 @@ static expectToBeEqual(Collection actual, Collection expected) {
 }
 
 def "Add source files to compiler output so that LivePlugin source code is available for navigation at runtime"() {
-	compileJava.doLast {
-		def classesFolder = project.tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME).get().destinationDir
-		ant.copy(toDir: classesFolder.absolutePath, overwrite: true) {
+	compileKotlin.doLast {
+		ant.copy(toDir: sourceSets.main.kotlin.classesDirectory.get(), overwrite: true) {
 			ant.fileset(dir: "./src/plugin-api-groovy", includes: "**/*")
 			ant.fileset(dir: "./src/plugin-api-kotlin", includes: "**/*")
 			ant.fileset(dir: "./src/main", includes: "**/LivePluginScript.kt")
