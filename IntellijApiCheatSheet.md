@@ -1,5 +1,5 @@
 ### IntelliJ API mini cheat sheet
-You can explore source code on GitHub, [Upsourse] or clone it:
+You can explore IntelliJ source code on GitHub or clone it:
 ```
 git clone https://github.com/JetBrains/intellij-community.git
 ```
@@ -77,7 +77,6 @@ Classes and interfaces might also have implementation with "Ex" postfix meaning 
 - com.intellij.psi.util.PsiUtilCore
 
 
-[Upsourse]: https://upsource.jetbrains.com/idea-ce/structure/HEAD
 [Application]: https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/application/Application.java
 [MessageBus]: https://github.com/JetBrains/intellij-community/blob/master/platform/extensions/src/com/intellij/util/messages/MessageBus.java
 [Project]: https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/project/Project.java
