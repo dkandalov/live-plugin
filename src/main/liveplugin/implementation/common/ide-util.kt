@@ -42,7 +42,7 @@ import javax.swing.JPanel
 
 const val livePluginId = "LivePlugin"
 
-// Lazy because it seems that it can be initialised before notification group is initialised in plugin.xml
+// Lazy because it seems that it can be initialised before the notification group is initialised in plugin.xml
 val livePluginNotificationGroup by lazy {
     NotificationGroupManager.getInstance().getNotificationGroup("Live Plugin")!!
 }
@@ -60,7 +60,7 @@ object IdeUtil {
 
     fun displayError(consoleTitle: String, text: String, project: Project?) {
         if (project == null) {
-            // "project" can be null when there are no open projects or while IDE is loading.
+            // Project can be null when there are no open projects or while the IDE is loading.
             // It is important to log error specifying plugin id, otherwise IDE will try to guess
             // plugin id based on classes in stacktrace and might get it wrong,
             // e.g. if activity tracker plugin is installed, it will include LivePlugin classes as library
