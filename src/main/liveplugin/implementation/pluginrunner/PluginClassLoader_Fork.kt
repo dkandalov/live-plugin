@@ -1,673 +1,584 @@
-// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package liveplugin.implementation.pluginrunner;
+// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+@file:Suppress("ReplaceGetOrSet", "UnstableApiUsage", "NonExtendableApiUsage")
 
-import com.intellij.diagnostic.PluginException;
-import com.intellij.diagnostic.StartUpMeasurer;
-import com.intellij.ide.plugins.ContentModuleDescriptor;
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.cl.PluginAwareClassLoader;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.extensions.PluginDescriptor;
-import com.intellij.openapi.extensions.PluginId;
-import com.intellij.openapi.util.ShutDownTracker;
-import com.intellij.util.lang.ClassPath;
-import com.intellij.util.lang.ClasspathCache;
-import com.intellij.util.lang.Resource;
-import com.intellij.util.lang.UrlClassLoader;
-import com.intellij.util.ui.EDT;
-import kotlinx.coroutines.CoroutineScope;
-import kotlinx.coroutines.CoroutineScopeKt;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+package liveplugin.implementation.pluginrunner
 
-import java.io.*;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import static kotlinx.coroutines.SupervisorKt.SupervisorJob;
+import com.intellij.diagnostic.PluginException
+import com.intellij.diagnostic.StartUpMeasurer
+import com.intellij.ide.plugins.IdeaPluginDescriptor
+import com.intellij.ide.plugins.IdeaPluginDescriptorImpl
+import com.intellij.ide.plugins.cl.PluginAwareClassLoader
+import com.intellij.ide.plugins.cl.PluginAwareClassLoader.ACTIVE
+import com.intellij.ide.plugins.cl.PluginAwareClassLoader.UNLOAD_IN_PROGRESS
+import com.intellij.ide.plugins.contentModuleName
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.extensions.PluginDescriptor
+import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.util.ShutDownTracker
+import com.intellij.util.Java11Shim
+import com.intellij.util.lang.ClassPath
+import com.intellij.util.lang.ClasspathCache
+import com.intellij.util.lang.Resource
+import com.intellij.util.lang.UrlClassLoader
+import com.intellij.util.ui.EDT
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.job
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.TestOnly
+import java.io.IOException
+import java.io.InputStream
+import java.io.Writer
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Fork of com.intellij.ide.plugins.cl.PluginClassLoader
- * because it is an internal API and it has been changing in IJ 2020.2 causing LivePlugin to break.
+ * because it is an internal API, and it has been changing in IJ 2020.2 causing LivePlugin to break.
  * The assumption is that using fork will make LivePlugin forward-compatible with more IJ versions
  * because fork won't change as often but will be good enough for LivePlugin to work.
  */
-@SuppressWarnings("ALL")
 @ApiStatus.Internal
-public final class PluginClassLoader_Fork extends UrlClassLoader implements PluginAwareClassLoader {
-    public static final ClassLoader[] EMPTY_CLASS_LOADER_ARRAY = new ClassLoader[0];
+class PluginClassLoader_Fork(
+    classPath: ClassPath,
+    private val parents: Array<ClassLoader>,
+    private val pluginDescriptor: PluginDescriptor,
+    private val coreLoader: ClassLoader,
+    resolveScopeManager: ResolveScopeManager?,
+    packagePrefix: String?,
+    private val libDirectories: List<Path>,
+) : UrlClassLoader(classPath), PluginAwareClassLoader {
+    // cache of a computed list of all parents (not only direct)
+    @Volatile
+    private var allParents: Array<ClassLoader>? = null
 
-    static {
-        boolean parallelCapable = registerAsParallelCapable();
-        assert parallelCapable;
-    }
+    @Volatile
+    private var allParentsLastCacheId = 0
 
-    private static final @Nullable Writer logStream;
-    private static final AtomicInteger instanceIdProducer = new AtomicInteger();
-    private static final AtomicInteger parentListCacheIdCounter = new AtomicInteger();
+    // to simplify analyzing of heap dump (dynamic plugin reloading)
+    private val pluginId: PluginId = pluginDescriptor.pluginId
+    private val packagePrefix: String? = if (packagePrefix == null || packagePrefix.endsWith('.')) packagePrefix else "$packagePrefix."
+    private val edtTime = AtomicLong()
+    private val backgroundTime = AtomicLong()
+    private val loadedClassCounter = AtomicInteger()
 
-    private static final Set<String> KOTLIN_STDLIB_CLASSES_USED_IN_SIGNATURES;
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + CoroutineName(pluginId.idString))
+    private val _resolveScopeManager = resolveScopeManager ?: defaultResolveScopeManager
 
-    static {
-        @SuppressWarnings("SSBasedInspection")
-        Set<String> kotlinStdlibClassesUsedInSignatures = new HashSet<>(Arrays.asList(
-                "kotlin.Function",
-                "kotlin.sequences.Sequence",
-                "kotlin.ranges.IntRange",
-                "kotlin.ranges.IntRange$Companion",
-                "kotlin.ranges.IntProgression",
-                "kotlin.ranges.ClosedRange",
-                "kotlin.ranges.IntProgressionIterator",
-                "kotlin.ranges.IntProgression$Companion",
-                "kotlin.ranges.IntProgression",
-                "kotlin.collections.IntIterator",
-                "kotlin.Lazy", "kotlin.Unit",
-                "kotlin.Pair", "kotlin.Triple",
-                "kotlin.jvm.internal.DefaultConstructorMarker",
-                "kotlin.jvm.internal.ClassBasedDeclarationContainer",
-                "kotlin.properties.ReadWriteProperty",
-                "kotlin.properties.ReadOnlyProperty",
-                "kotlin.coroutines.ContinuationInterceptor",
-                "kotlinx.coroutines.CoroutineDispatcher",
-                "kotlin.coroutines.Continuation",
-                "kotlin.coroutines.CoroutineContext",
-                "kotlin.coroutines.CoroutineContext$Element",
-                "kotlin.coroutines.CoroutineContext$Key",
-                "kotlin.Result",
-                "kotlin.Result$Failure",
-                "kotlin.Result$Companion",
-                // Even though it's internal class, it can leak (and it does) into API surface because it's exposed by public
-                // `kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED` property
-                "kotlin.coroutines.intrinsics.CoroutineSingletons",
-                "kotlin.coroutines.AbstractCoroutineContextElement",
-                "kotlin.coroutines.AbstractCoroutineContextKey",
-                "kotlin.coroutines.jvm.internal.ContinuationImpl", // IDEA-295189
-                "kotlin.coroutines.jvm.internal.BaseContinuationImpl", // IDEA-295189
-                "kotlin.coroutines.jvm.internal.CoroutineStackFrame" // IDEA-295189
-        ));
-        String classes = System.getProperty("idea.kotlin.classes.used.in.signatures");
-        if (classes != null) {
-            for (StringTokenizer t = new StringTokenizer(classes, ","); t.hasMoreTokens(); ) {
-                kotlinStdlibClassesUsedInSignatures.add(t.nextToken());
-            }
+    companion object {
+        init {
+            val isParallelCapable = registerAsParallelCapable()
+            assert(isParallelCapable)
         }
-        KOTLIN_STDLIB_CLASSES_USED_IN_SIGNATURES = kotlinStdlibClassesUsedInSignatures;
 
-        Writer logStreamCandidate = null;
-        String debugFilePath = System.getProperty("plugin.classloader.debug", "");
-        if (!debugFilePath.isEmpty()) {
-            try {
-                if (debugFilePath.startsWith("~/") || debugFilePath.startsWith("~\\")) {
-                    debugFilePath = System.getProperty("user.home") + debugFilePath.substring(1);
-                }
-
-                logStreamCandidate = Files.newBufferedWriter(Paths.get(debugFilePath));
-                ShutDownTracker.getInstance().registerShutdownTask(new Runnable() {
-                    @Override
-                    public void run() {
+        init {
+            var logStreamCandidate: Writer? = null
+            var debugFilePath = System.getProperty("plugin.classloader.debug", "")
+            if (!debugFilePath.isEmpty()) {
+                try {
+                    if (debugFilePath.startsWith("~/") || debugFilePath.startsWith("~\\")) {
+                        debugFilePath = System.getProperty("user.home") + debugFilePath.substring(1)
+                    }
+                    logStreamCandidate = Files.newBufferedWriter(Paths.get(debugFilePath))
+                    ShutDownTracker.getInstance().registerShutdownTask {
                         try {
-                            if (logStream != null) {
-                                logStream.close();
-                            }
-                        }
-                        catch (IOException e) {
-                            Logger.getInstance(PluginClassLoader_Fork.class).error(e);
+                            logStream?.close()
+                        } catch (e: IOException) {
+                            logger<PluginClassLoader_Fork>().error(e)
                         }
                     }
-                });
+                } catch (e: IOException) {
+                    logger<PluginClassLoader_Fork>().error(e)
+                }
             }
-            catch (IOException e) {
-                Logger.getInstance(PluginClassLoader_Fork.class).error(e);
-            }
+            logStream = logStreamCandidate
         }
-
-        logStream = logStreamCandidate;
     }
 
-    private final ClassLoader[] parents;
+    fun getLibDirectories(): List<Path> = libDirectories
 
-    // cache of computed list of all parents (not only direct)
-    private volatile ClassLoader[] allParents;
-    private volatile int allParentsLastCacheId;
+    override fun getPackagePrefix(): String? = packagePrefix
 
-    private final PluginDescriptor pluginDescriptor;
-    // to simplify analyzing of heap dump (dynamic plugin reloading)
-    private final PluginId pluginId;
-    private final String packagePrefix;
-    private final List<String> libDirectories;
+    override fun getPluginCoroutineScope(): CoroutineScope = scope
 
-    private final AtomicLong edtTime = new AtomicLong();
-    private final AtomicLong backgroundTime = new AtomicLong();
-
-    private final AtomicInteger loadedClassCounter = new AtomicInteger();
-    private final @NotNull ClassLoader coreLoader;
-
-    private final int instanceId;
-    private volatile int state = ACTIVE;
-
-    @SuppressWarnings("FieldNameHidesFieldInSuperclass")
-    private final PluginClassLoader_Fork.ResolveScopeManager resolveScopeManager;
-
-    public interface ResolveScopeManager {
-        String isDefinitelyAlienClass(String name, String packagePrefix, boolean force);
-    }
-
-    public PluginClassLoader_Fork(@NotNull List<Path> files,
-                             @NotNull ClassPath classPath,
-                             @NotNull ClassLoader[] dependencies,
-                             @NotNull PluginDescriptor pluginDescriptor,
-                             @NotNull ClassLoader coreLoader,
-                             @Nullable PluginClassLoader_Fork.ResolveScopeManager resolveScopeManager,
-                             @Nullable String packagePrefix,
-                             @NotNull List<String> libDirectories) {
-        super(classPath);
-
-        instanceId = instanceIdProducer.incrementAndGet();
-
-        this.resolveScopeManager = resolveScopeManager == null ? (p1, p2, p3) -> null : resolveScopeManager;
-        this.parents = dependencies;
-        this.pluginDescriptor = pluginDescriptor;
-        pluginId = pluginDescriptor.getPluginId();
-        this.packagePrefix = (packagePrefix == null || packagePrefix.endsWith(".")) ? packagePrefix : (packagePrefix + '.');
-        this.coreLoader = coreLoader;
-        this.libDirectories = libDirectories;
-    }
-
-    public @NotNull List<String> getLibDirectories() {
-        return libDirectories;
-    }
-
-    @Override
-    public @Nullable String getPackagePrefix() {
-        return packagePrefix;
-    }
-
-    private CoroutineScope scope = CoroutineScopeKt.CoroutineScope(SupervisorJob(null));
-
-    @Override
-    public @NotNull CoroutineScope getPluginCoroutineScope() {
-        return scope;
-    }
-
-    @Override
     @ApiStatus.Internal
-    public int getState() {
-        return state;
+    override fun getState(): Int {
+        val job = scope.coroutineContext.job
+        return if (job.isActive) ACTIVE else UNLOAD_IN_PROGRESS
     }
 
     @ApiStatus.Internal
-    public void setState(int state) {
-        this.state = state;
-    }
-
-    @Override
-    public long getEdtTime() {
-        return edtTime.get();
-    }
-
-    @Override
-    public long getBackgroundTime() {
-        return backgroundTime.get();
-    }
-
-    @Override
-    public long getLoadedClassCount() {
-        return loadedClassCounter.get();
-    }
-
-    @Override
-    public Class<?> loadClass(@NotNull String name, boolean resolve) throws ClassNotFoundException {
-        Class<?> c = tryLoadingClass(name, false);
-        if (c == null) {
-            flushDebugLog();
-            throw new ClassNotFoundException(name + " " + this);
+    fun setState(state: Int) {
+        if (state == UNLOAD_IN_PROGRESS) {
+            // job.isActive returns `false` after this call
+            scope.coroutineContext.job.cancel(null)
+            return
         }
-        return c;
+
+        throw IllegalStateException("Unexpected state: $state")
+    }
+
+    override fun getEdtTime(): Long = edtTime.get()
+
+    override fun getBackgroundTime(): Long = backgroundTime.get()
+
+    override fun getLoadedClassCount(): Long = loadedClassCounter.get().toLong()
+
+    public override fun loadClass(name: String, resolve: Boolean): Class<*> {
+        tryLoadingClass(name = name, forceLoadFromSubPluginClassloader = false)?.let {
+            return it
+        }
+
+        flushDebugLog()
+        throw ClassNotFoundException("$name $this")
     }
 
     /**
-     * See <a href="https://stackoverflow.com/a/5428795">https://stackoverflow.com/a/5428795</a> about resolve flag.
+     * See [https://stackoverflow.com/a/5428795](https://stackoverflow.com/a/5428795) about resolve flag.
      */
-    @Override
-    public @Nullable Class<?> tryLoadingClass(@NotNull String name, boolean forceLoadFromSubPluginClassloader)
-            throws ClassNotFoundException {
+    override fun tryLoadingClass(name: String, forceLoadFromSubPluginClassloader: Boolean): Class<*>? {
         if (mustBeLoadedByPlatform(name)) {
-            return coreLoader.loadClass(name);
+            return coreLoader.loadClass(name)
         }
 
-        String fileNameWithoutExtension = name.replace('.', '/');
-        String fileName = fileNameWithoutExtension + ClasspathCache.CLASS_EXTENSION;
-        long packageNameHash = ClasspathCache.getPackageNameHash(fileNameWithoutExtension, fileNameWithoutExtension.lastIndexOf('/'));
-
-        long startTime = StartUpMeasurer.measuringPluginStartupCosts ? StartUpMeasurer.getCurrentTime() : -1;
-        Class<?> c;
-        PluginException error = null;
+        val fileNameWithoutExtension = name.replace('.', '/')
+        val fileName = fileNameWithoutExtension + ClasspathCache.CLASS_EXTENSION
+        val packageNameHash = ClasspathCache.getPackageNameHash(fileNameWithoutExtension, fileNameWithoutExtension.lastIndexOf('/'))
+        val startTime = if (StartUpMeasurer.measuringPluginStartupCosts) System.nanoTime() else -1
+        var c: Class<*>?
+        var error: PluginException? = null
         try {
-            String consistencyError = resolveScopeManager.isDefinitelyAlienClass(name, packagePrefix, forceLoadFromSubPluginClassloader);
+            val consistencyError = packagePrefix?.let {
+                _resolveScopeManager.isDefinitelyAlienClass(name = name, packagePrefix = it, force = forceLoadFromSubPluginClassloader)
+            }
             if (consistencyError == null) {
-                c = loadClassInsideSelf(name, fileName, packageNameHash, forceLoadFromSubPluginClassloader);
-            }
-            else {
+                c = loadClassInsideSelf(name = name, fileName = fileName, packageNameHash = packageNameHash, forceLoadFromSubPluginClassloader = forceLoadFromSubPluginClassloader)
+            } else {
                 if (!consistencyError.isEmpty()) {
-                    error = new PluginException(consistencyError, pluginId);
+                    error = PluginException(consistencyError, pluginId)
                 }
-                c = null;
+                c = null
             }
-        }
-        catch (IOException e) {
-            throw new ClassNotFoundException(name, e);
+        } catch (e: IOException) {
+            throw ClassNotFoundException(name, e)
         }
 
         if (c == null) {
-            for (ClassLoader classloader : getAllParents()) {
-                if (classloader instanceof PluginClassLoader_Fork) {
+            @Suppress("TestOnlyProblems")
+            for (classloader in getAllParentsClassLoaders()) {
+                if (classloader is PluginClassLoader_Fork) {
                     try {
-                        PluginClassLoader_Fork pluginClassLoader = (PluginClassLoader_Fork)classloader;
-                        String consistencyError = pluginClassLoader.resolveScopeManager.isDefinitelyAlienClass(name,
-                                pluginClassLoader.packagePrefix,
-                                forceLoadFromSubPluginClassloader);
+                        val consistencyError = classloader.packagePrefix?.let {
+                            classloader._resolveScopeManager.isDefinitelyAlienClass(name = name, packagePrefix = it, force = forceLoadFromSubPluginClassloader)
+                        }
                         if (consistencyError != null) {
                             if (!consistencyError.isEmpty() && error == null) {
                                 // yes, we blame requestor plugin
-                                error = new PluginException(consistencyError, pluginId);
+                                error = PluginException(consistencyError, pluginId)
                             }
-                            continue;
+                            continue
                         }
-                        c = pluginClassLoader.loadClassInsideSelf(name, fileName, packageNameHash, false);
-                    }
-                    catch (IOException e) {
-                        throw new ClassNotFoundException(name, e);
+                        c = classloader.loadClassInsideSelf(name = name, fileName = fileName, packageNameHash = packageNameHash, forceLoadFromSubPluginClassloader = false)
+                    } catch (e: IOException) {
+                        throw ClassNotFoundException(name, e)
                     }
                     if (c != null) {
-                        break;
+                        break
                     }
-                }
-//                else if (classloader instanceof UrlClassLoader) {
-//                    try {
-//                        UrlClassLoader urlClassLoader = (UrlClassLoader)classloader;
-//                        BiFunction<String, Boolean, String> resolveScopeManager = urlClassLoader.resolveScopeManager;
-//                        String consistencyError = resolveScopeManager == null
-//                                ? null
-//                                : resolveScopeManager.apply(name, forceLoadFromSubPluginClassloader);
-//                        if (consistencyError != null) {
-//                            if (!consistencyError.isEmpty() && error == null) {
-//                                // yes, we blame requestor plugin
-//                                error = new PluginException(consistencyError, pluginId);
-//                            }
-//                            continue;
-//                        }
-//                        c = urlClassLoader.loadClassInsideSelf(name, fileName, packageNameHash, false);
-//                    }
-//                    catch (IOException e) {
-//                        throw new ClassNotFoundException(name, e);
-//                    }
-//                    if (c != null) {
-//                        break;
-//                    }
-//                }
-                else {
+                } else if (classloader is UrlClassLoader) {
                     try {
-                        c = classloader.loadClass(name);
-                        if (c != null) {
-                            break;
+                        val resolveScopeManager = classloader.resolveScopeManager
+                        val consistencyError = resolveScopeManager?.apply(name, forceLoadFromSubPluginClassloader)
+                        if (consistencyError != null) {
+                            if (!consistencyError.isEmpty() && error == null) {
+                                // yes, we blame requestor plugin
+                                error = PluginException(consistencyError, pluginId)
+                            }
+                            continue
                         }
+                        c = classloader.loadClassWithPrecomputedMeta(name, fileName, fileNameWithoutExtension, packageNameHash)
+                    } catch (e: IOException) {
+                        throw ClassNotFoundException(name, e)
                     }
-                    catch (ClassNotFoundException ignoreAndContinue) {
+                    if (c != null) {
+                        break
+                    }
+                } else {
+                    try {
+                        c = classloader.loadClass(name)
+                        if (c != null) {
+                            break
+                        }
+                    } catch (_: ClassNotFoundException) {
                         // ignore and continue
                     }
                 }
             }
-
             if (error != null) {
-                throw error;
+                throw error
             }
         }
 
-        if (startTime != -1) {
+        if (startTime != -1L) {
             // EventQueue.isDispatchThread() is expensive
-            (EDT.isCurrentThreadEdt() ? edtTime : backgroundTime).addAndGet(StartUpMeasurer.getCurrentTime() - startTime);
+            (if (EDT.isCurrentThreadEdt()) edtTime else backgroundTime).addAndGet(System.nanoTime() - startTime)
         }
-
-        return c;
+        return c
     }
 
-    @Override
-    public @Nullable Class<?> loadClassInsideSelf(@NotNull String name) throws ClassNotFoundException {
-        return loadClass(name, false);
-    }
-
-    private @NotNull ClassLoader[] getAllParents() {
-        ClassLoader[] result = allParents;
+    @TestOnly
+    @ApiStatus.Internal
+    fun getAllParentsClassLoaders(): Array<ClassLoader> {
+        var result = allParents
         if (result != null && allParentsLastCacheId == parentListCacheIdCounter.get()) {
-            return result;
+            return result
         }
 
-        if (parents.length == 0) {
-            result = new ClassLoader[]{coreLoader};
-            allParents = result;
-            return result;
+        if (parents.isEmpty()) {
+            result = arrayOf(coreLoader)
+            allParents = result
+            return result
         }
 
-        Set<ClassLoader> parentSet = new LinkedHashSet<>();
-        Deque<ClassLoader> queue = new ArrayDeque<>();
-        collectClassLoaders(queue);
-        ClassLoader classLoader;
-        while ((classLoader = queue.pollFirst()) != null) {
+        val parentSet = LinkedHashSet<ClassLoader>()
+        val queue = ArrayDeque<ClassLoader>()
+        collectClassLoaders(queue)
+        while (true) {
+            val classLoader = queue.pollFirst() ?: break
             if (!parentSet.add(classLoader)) {
-                continue;
+                continue
             }
-
-            if (classLoader instanceof PluginClassLoader_Fork) {
-                ((PluginClassLoader_Fork)classLoader).collectClassLoaders(queue);
-            }
-        }
-        parentSet.add(coreLoader);
-        result = parentSet.toArray(EMPTY_CLASS_LOADER_ARRAY);
-        allParents = result;
-        allParentsLastCacheId = parentListCacheIdCounter.get();
-        return result;
-    }
-
-    private void collectClassLoaders(@NotNull Deque<ClassLoader> queue) {
-        for (ClassLoader classLoader : parents) {
-            if (classLoader != null && classLoader != coreLoader) {
-                queue.add(classLoader);
+            if (classLoader is PluginClassLoader_Fork) {
+                classLoader.collectClassLoaders(queue)
             }
         }
+        parentSet.add(coreLoader)
+        result = parentSet.toArray(EMPTY_CLASS_LOADER_ARRAY)
+        allParents = result
+        allParentsLastCacheId = parentListCacheIdCounter.get()
+        return result
     }
 
-    public void clearParentListCache() {
-        allParents = null;
-    }
-
-    private static boolean mustBeLoadedByPlatform(@NonNls String className) {
-        if (className.startsWith("java.")) {
-            return true;
+    private fun collectClassLoaders(queue: Deque<ClassLoader>) {
+        for (parent in parents) {
+            val classLoader = parent
+            if (classLoader !== coreLoader) {
+                queue.add(classLoader)
+            }
         }
-
-        // some commonly used classes from kotlin-runtime must be loaded by the platform classloader. Otherwise, if a plugin bundles its own version
-        // of kotlin-runtime.jar it won't be possible to call platform's methods with these types in signatures from such a plugin.
-        // We assume that these classes don't change between Kotlin versions, so it's safe to always load them from platform's kotlin-runtime.
-        return className.startsWith("kotlin.") &&
-                (className.startsWith("kotlin.jvm.functions.") ||
-                // Those are kotlin-reflect related classes but unfortunately, they are placed in kotlin-stdlib. Since we always
-                // want to load reflect from platform, we should force those classes with platform classloader as well
-                className.startsWith("kotlin.reflect.") ||
-                className.startsWith("kotlin.jvm.internal.CallableReference") ||
-                className.startsWith("kotlin.jvm.internal.ClassReference") ||
-                className.startsWith("kotlin.jvm.internal.FunInterfaceConstructorReference") ||
-                className.startsWith("kotlin.jvm.internal.FunctionReference") ||
-                className.startsWith("kotlin.jvm.internal.MutablePropertyReference") ||
-                className.startsWith("kotlin.jvm.internal.PropertyReference") ||
-                className.startsWith("kotlin.jvm.internal.TypeReference") ||
-                className.equals("kotlin.jvm.internal.Lambda") ||
-                className.startsWith("kotlin.jvm.internal.LocalVariableReference") ||
-                className.startsWith("kotlin.jvm.internal.MutableLocalVariableReference") ||
-                className.equals("kotlin.jvm.internal.ReflectionFactory") ||
-                className.equals("kotlin.jvm.internal.Reflection") ||
-                KOTLIN_STDLIB_CLASSES_USED_IN_SIGNATURES.contains(className));
     }
 
-    @Override
-    public boolean hasLoadedClass(String name) {
-        String consistencyError = resolveScopeManager.isDefinitelyAlienClass(name, packagePrefix, false);
-        return consistencyError == null && super.hasLoadedClass(name);
+    fun clearParentListCache() {
+        allParents = null
     }
 
-    public @Nullable Class<?> loadClassInsideSelf(String name,
-                                                  String fileName,
-                                                  long packageNameHash,
-                                                  boolean forceLoadFromSubPluginClassloader) throws IOException {
-        synchronized (getClassLoadingLock(name)) {
-            Class<?> c = findLoadedClass(name);
-            if (c != null && c.getClassLoader() == this) {
-                return c;
+    override fun hasLoadedClass(name: String): Boolean {
+        val consistencyError = packagePrefix?.let {
+            _resolveScopeManager.isDefinitelyAlienClass(name = name, packagePrefix = it, force = false)
+        }
+        return consistencyError == null && super.hasLoadedClass(name)
+    }
+
+    override fun loadClassInsideSelf(name: String): Class<*>? {
+        val fileNameWithoutExtension = name.replace('.', '/')
+        val fileName = fileNameWithoutExtension + ClasspathCache.CLASS_EXTENSION
+        val packageNameHash = ClasspathCache.getPackageNameHash(fileNameWithoutExtension, fileNameWithoutExtension.lastIndexOf('/'))
+        return loadClassInsideSelf(name, fileName, packageNameHash, false)
+    }
+
+    private fun loadClassInsideSelf(name: String, fileName: String, packageNameHash: Long, forceLoadFromSubPluginClassloader: Boolean): Class<*>? {
+        synchronized(getClassLoadingLock(name)) {
+            var c = findLoadedClass(name)
+            if (c?.classLoader === this) {
+                return c
             }
 
-            Writer logStream = PluginClassLoader_Fork.logStream;
-            try {
-                c = classPath.findClass(name, fileName, packageNameHash, classDataConsumer);
+            c = try {
+                classPath.findClass(name, fileName, packageNameHash, classDataConsumer)
+            } catch (e: LinkageError) {
+                logStream?.let { logClass(name = name, logStream = it, exception = e) }
+                flushDebugLog()
+                throw PluginException("Cannot load class $name (\n  error: ${e.message},\n  classLoader=$this\n)", e, pluginId)
             }
-            catch (LinkageError e) {
-                if (logStream != null) {
-                    logClass(name, logStream, e);
-                }
-                flushDebugLog();
-                throw new PluginException("Cannot load class " + name + " (" +
-                        "\n  error: " + e.getMessage() +
-                        ",\n  classLoader=" + this + "\n)", e, pluginId);
-            }
-
             if (c == null) {
-                return null;
+                return null
             }
 
-            loadedClassCounter.incrementAndGet();
-            if (logStream != null) {
-                logClass(name, logStream, null);
-            }
-            return c;
+            loadedClassCounter.incrementAndGet()
+            logStream?.let { logClass(name = name, logStream = it, exception = null) }
+            return c
         }
     }
 
-    private void logClass(@NotNull String name, @NotNull Writer logStream, @Nullable LinkageError exception) {
+    private fun logClass(name: String, logStream: Writer, exception: LinkageError?) {
         try {
             // must be as one write call since write is performed from multiple threads
-            String descriptorPath = ((IdeaPluginDescriptor)pluginDescriptor).getDescriptorPath();
-            String specifier = descriptorPath == null ? "m" : "sub = " + descriptorPath;
-            logStream.write(name + " [" + specifier + "] " + pluginId.getIdString() + (packagePrefix == null ? "" : (':' + packagePrefix))
-                    + '\n' + (exception == null ? "" : exception.getMessage()));
-        }
-        catch (IOException ignored) {
+            val descriptorPath = (pluginDescriptor as IdeaPluginDescriptor).descriptorPath
+            val specifier = if (descriptorPath == null) "m" else "sub = $descriptorPath"
+            logStream.write(
+                """$name [$specifier] ${pluginId.idString}${if (packagePrefix == null) "" else ":$packagePrefix"}
+${if (exception == null) "" else exception.message}"""
+            )
+        } catch (_: IOException) {
         }
     }
 
-    @Override
-    public @Nullable URL findResource(@NotNull String name) {
-        return doFindResource(name, Resource::getURL, ClassLoader::getResource);
+    override fun findResource(name: String): URL? {
+        return doFindResource(name = name, f1 = { it.url }, f2 = ClassLoader::getResource)
     }
 
-    @Override
-    public byte[] getResourceAsBytes(@NotNull String name, boolean checkParents) throws IOException {
-        byte[] result = super.getResourceAsBytes(name, checkParents);
-        if (result != null) {
-            return result;
+    override fun getResourceAsBytes(name: String, checkParents: Boolean): ByteArray? {
+        super.getResourceAsBytes(name, checkParents)?.let {
+            return it
         }
 
         if (!checkParents) {
-            return null;
+            return null
         }
 
-        for (ClassLoader classloader : getAllParents()) {
-            if (classloader instanceof UrlClassLoader) {
-                Resource resource = ((UrlClassLoader)classloader).getClassPath().findResource(name);
-                if (resource != null) {
-                    return resource.getBytes();
+        @Suppress("TestOnlyProblems")
+        for (classloader in getAllParentsClassLoaders()) {
+            if (classloader is UrlClassLoader) {
+                classloader.classPath.findResource(name)?.let {
+                    return it.bytes
                 }
-            }
-            else {
-                InputStream input = classloader.getResourceAsStream(name);
-                if (input != null) {
-                    try {
-                        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                        int read;
-                        byte[] data = new byte[16384];
-                        while ((read = input.read(data, 0, data.length)) != -1) {
-                            buffer.write(data, 0, read);
-                        }
-                        return buffer.toByteArray();
-                    }
-                    finally {
-                        input.close();
-                    }
+            } else {
+                classloader.getResourceAsStream(name)?.use { input ->
+                    return input.readBytes()
                 }
             }
         }
-        return null;
+        return null
     }
 
-    @Override
-    public @Nullable InputStream getResourceAsStream(@NotNull String name) {
-        java.util.function.Function<Resource, InputStream> f1 = resource -> {
-            try {
-                return resource.getInputStream();
-            }
-            catch (IOException e) {
-                Logger.getInstance(PluginClassLoader_Fork.class).error(e);
-                return null;
-            }
-        };
-        BiFunction<ClassLoader, String, InputStream> f2 = (cl, path) -> {
-            try {
-                return cl.getResourceAsStream(path);
-            }
-            catch (Exception e) {
-                Logger.getInstance(PluginClassLoader_Fork.class).error(e);
-                return null;
-            }
-        };
-        return doFindResource(name, f1, f2);
+    override fun getResourceAsStream(name: String): InputStream? {
+        return doFindResource(
+            name = name,
+            f1 = { resource ->
+                try {
+                    resource.inputStream
+                } catch (e: IOException) {
+                    logger<PluginClassLoader_Fork>().error(e)
+                    null
+                }
+            },
+            f2 = { cl, path ->
+                try {
+                    cl.getResourceAsStream(path)
+                } catch (e: Exception) {
+                    logger<PluginClassLoader_Fork>().error(e)
+                    null
+                }
+            },
+        )
     }
 
-  private <T> @Nullable T doFindResource(String name, Function<? super Resource, ? extends T> f1, BiFunction<? super ClassLoader, ? super String, ? extends T> f2) {
-        String canonicalPath = toCanonicalPath(name);
-
-        Resource resource = classPath.findResource(canonicalPath);
-        if (resource != null) {
-            return f1.apply(resource);
+    private inline fun <T : Any> doFindResource(name: String, f1: (Resource) -> T?, f2: (ClassLoader, String) -> T?): T? {
+        val canonicalPath = toCanonicalPath(name)
+        classPath.findResource(canonicalPath)?.let {
+            return f1(it)
         }
 
-        for (ClassLoader classloader : getAllParents()) {
-            if (classloader instanceof PluginClassLoader_Fork) {
-                resource = ((PluginClassLoader_Fork)classloader).classPath.findResource(canonicalPath);
-                if (resource != null) {
-                    return f1.apply(resource);
+        @Suppress("TestOnlyProblems")
+        for (classloader in getAllParentsClassLoaders()) {
+            if (classloader is PluginClassLoader_Fork) {
+                classloader.classPath.findResource(canonicalPath)?.let {
+                    return f1(it)
                 }
-            }
-            else {
-                T t = f2.apply(classloader, canonicalPath);
-                if (t != null) {
-                    return t;
-                }
+            } else {
+                f2(classloader, canonicalPath)?.let { return it }
             }
         }
 
-        if (canonicalPath.startsWith("/") && classPath.findResource(canonicalPath.substring(1)) != null) {
+        if (canonicalPath.startsWith('/') && classPath.findResource(canonicalPath.substring(1)) != null) {
             // reporting malformed paths only when there's a resource at the right one - which is rarely the case
             // (see also `UrlClassLoader#doFindResource`)
-            String message = "Calling `ClassLoader#getResource` with leading slash doesn't work; strip";
-            Logger.getInstance(PluginClassLoader_Fork.class).error(message, new PluginException(name, pluginId));
+            val message = "Calling `ClassLoader#getResource` with leading slash doesn't work; strip"
+            logger<PluginClassLoader_Fork>().error(message, PluginException(name, pluginId))
         }
-
-        return null;
+        return null
     }
 
-    @Override
-    public @NotNull Enumeration<URL> findResources(@NotNull String name) {
-        List<Enumeration<URL>> resources = new ArrayList<>();
-        resources.add(classPath.getResources(name));
-        for (ClassLoader classloader : getAllParents()) {
-            if (classloader instanceof PluginClassLoader_Fork) {
-                resources.add(((PluginClassLoader_Fork)classloader).classPath.getResources(name));
-            }
-            else {
+    override fun findResources(name: String): Enumeration<URL> {
+        val resources = ArrayList<Enumeration<URL>>()
+        resources.add(classPath.getResources(name))
+        @Suppress("TestOnlyProblems")
+        for (classloader in getAllParentsClassLoaders()) {
+            if (classloader is PluginClassLoader_Fork) {
+                resources.add(classloader.classPath.getResources(name))
+            } else {
                 try {
-                    resources.add(classloader.getResources(name));
+                    resources.add(classloader.getResources(name))
+                } catch (_: IOException) {
                 }
-                catch (IOException ignore) { }
             }
         }
-        return new PluginClassLoader_Fork.DeepEnumeration(resources);
+        return DeepEnumeration(resources)
     }
 
-    @SuppressWarnings("UnusedDeclaration")
-    public void addLibDirectories(@NotNull Collection<String> libDirectories) {
-        this.libDirectories.addAll(libDirectories);
-    }
-
-    @Override
-    protected String findLibrary(String libName) {
+    override fun findLibrary(libName: String): String? {
         if (!libDirectories.isEmpty()) {
-            String libFileName = System.mapLibraryName(libName);
-            ListIterator<String> i = libDirectories.listIterator(libDirectories.size());
-            while (i.hasPrevious()) {
-                File libFile = new File(i.previous(), libFileName);
-                if (libFile.exists()) {
-                    return libFile.getAbsolutePath();
+            val libFileName = System.mapLibraryName(libName)
+            val iterator = libDirectories.listIterator(libDirectories.size)
+            while (iterator.hasPrevious()) {
+                val libFile = iterator.previous().resolve(libFileName)
+                if (Files.exists(libFile)) {
+                    return libFile.toString()
                 }
             }
         }
-        return null;
+        return null
     }
 
-    @Override
-    public @NotNull PluginId getPluginId() {
-        return pluginId;
-    }
+    override fun getPluginId(): PluginId = pluginId
 
-    @Override
-    public @Nullable String getModuleId() {
-        return ((ContentModuleDescriptor)pluginDescriptor).getModuleName();
-    }
+    override fun getModuleId(): String? = (pluginDescriptor as IdeaPluginDescriptorImpl).contentModuleName
 
-    @Override
-    public @NotNull PluginDescriptor getPluginDescriptor() {
-        return pluginDescriptor;
-    }
+    override fun getPluginDescriptor(): PluginDescriptor = pluginDescriptor
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "(plugin=" + pluginDescriptor +
-                ", packagePrefix=" + packagePrefix +
-                ", instanceId=" + instanceId +
-                ", state=" + (state == ACTIVE ? "active" : "unload in progress") +
-                ")";
-    }
-
-    private static final class DeepEnumeration implements Enumeration<URL> {
-    private final @NotNull List<? extends Enumeration<URL>> list;
-        private int myIndex;
-
-    private DeepEnumeration(@NotNull List<? extends Enumeration<URL>> enumerations) {
-            list = enumerations;
-        }
-
-        @Override
-        public boolean hasMoreElements() {
-            while (myIndex < list.size()) {
-                Enumeration<URL> e = list.get(myIndex);
-                if (e != null && e.hasMoreElements()) {
-                    return true;
-                }
-                myIndex++;
-            }
-            return false;
-        }
-
-        @Override
-        public URL nextElement() {
-            if (!hasMoreElements()) {
-                throw new NoSuchElementException();
-            }
-            return list.get(myIndex).nextElement();
-        }
-    }
-
-    private static void flushDebugLog() {
-        if (logStream != null) {
-            try {
-                logStream.flush();
-            }
-            catch (IOException ignore) { }
-        }
+    override fun toString(): String {
+        return "${javaClass.simpleName}(" +
+            "plugin=$pluginDescriptor, " +
+            "packagePrefix=$packagePrefix, " +
+            "state=${if (state == ACTIVE) "active" else "unload in progress"}, " +
+            "parents=${parents.joinToString()}, " +
+            ")"
     }
 }
+
+private class DeepEnumeration(private val list: List<Enumeration<URL>>) : Enumeration<URL> {
+    private var index = 0
+
+    override fun hasMoreElements(): Boolean {
+        while (index < list.size) {
+            val e = list.get(index)
+            if (e.hasMoreElements()) {
+                return true
+            }
+            index++
+        }
+        return false
+    }
+
+    override fun nextElement(): URL {
+        if (!hasMoreElements()) {
+            throw NoSuchElementException()
+        }
+        return list.get(index).nextElement()
+    }
+}
+
+// only `kotlin.` and not `kotlinx.` classes here (see mustBeLoadedByPlatform - name.startsWith("kotlin."))
+private fun computeKotlinStdlibClassesUsedInSignatures(): Set<String> {
+    val result = mutableListOf(
+        "kotlin.Function",
+        "kotlin.sequences.Sequence",
+        "kotlin.ranges.IntRange",
+        "kotlin.ranges.IntRange\$Companion",
+        "kotlin.ranges.IntProgression",
+        "kotlin.ranges.ClosedRange",
+        "kotlin.ranges.IntProgressionIterator",
+        "kotlin.ranges.IntProgression\$Companion",
+        "kotlin.ranges.IntProgression",
+        "kotlin.collections.IntIterator",
+        "kotlin.Lazy", "kotlin.Unit",
+        "kotlin.Pair", "kotlin.Triple",
+        "kotlin.jvm.internal.DefaultConstructorMarker",
+        "kotlin.jvm.internal.ClassBasedDeclarationContainer",
+        "kotlin.properties.ReadWriteProperty",
+        "kotlin.properties.ReadOnlyProperty",
+        "kotlin.coroutines.ContinuationInterceptor",
+        "kotlin.coroutines.Continuation",
+
+        "kotlin.coroutines.CoroutineContext",
+        "kotlin.coroutines.CoroutineContext\$Element",
+        "kotlin.coroutines.CoroutineContext\$Key",
+        "kotlin.coroutines.EmptyCoroutineContext",
+
+        "kotlin.Result",
+        "kotlin.Result\$Failure",
+        "kotlin.Result\$Companion",  // even though it's an internal class, it can leak (and it does) into API surface because it's exposed by public
+        // `kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED` property
+        "kotlin.coroutines.intrinsics.CoroutineSingletons",
+        "kotlin.coroutines.AbstractCoroutineContextElement",
+        "kotlin.coroutines.AbstractCoroutineContextKey",
+        "kotlin.coroutines.jvm.internal.ContinuationImpl", // IDEA-295189
+        "kotlin.coroutines.jvm.internal.BaseContinuationImpl", // IDEA-295189
+        "kotlin.coroutines.jvm.internal.CoroutineStackFrame", // IDEA-295189
+        "kotlin.time.Duration",
+        "kotlin.time.Duration\$Companion",
+        "kotlin.jvm.internal.ReflectionFactory",
+        "kotlin.jvm.internal.Reflection",
+        "kotlin.jvm.internal.Lambda",
+    )
+    System.getProperty("idea.kotlin.classes.used.in.signatures")?.let {
+        result.addAll(it.splitToSequence(',').map(String::trim))
+    }
+    return Java11Shim.INSTANCE.copyOf(result)
+}
+
+private fun mustBeLoadedByPlatform(name: String): Boolean {
+    if (name.startsWith("java.")) {
+        return true
+    }
+
+    // Some commonly used classes from kotlin-runtime must be loaded by the platform classloader.
+    // Otherwise, if a plugin bundles its own version
+    // of kotlin-runtime.jar, it won't be possible to call the platform's methods with these types in a signatures from such a plugin.
+    // We assume that these classes don't change between Kotlin versions, so it's safe to always load them from the platform's kotlin-runtime.
+    return name.startsWith("kotlin.") &&
+        (name.startsWith("kotlin.jvm.functions.") ||
+            // Those are kotlin-reflect related classes, but unfortunately, they are placed in kotlin-stdlib.
+            // Since we always want to load reflect from platform, we should force those classes with platform classloader as well.
+            name.startsWith("kotlin.reflect.") ||
+            name.startsWith("kotlin.jvm.internal.CallableReference") ||
+            name.startsWith("kotlin.jvm.internal.ClassReference") ||
+            name.startsWith("kotlin.jvm.internal.FunInterfaceConstructorReference") ||
+            name.startsWith("kotlin.jvm.internal.FunctionReference") ||
+            name.startsWith("kotlin.jvm.internal.MutablePropertyReference") ||
+            name.startsWith("kotlin.jvm.internal.PropertyReference") ||
+            name.startsWith("kotlin.jvm.internal.TypeReference") ||
+            name.startsWith("kotlin.jvm.internal.LocalVariableReference") ||
+            name.startsWith("kotlin.jvm.internal.MutableLocalVariableReference") ||
+            KOTLIN_STDLIB_CLASSES_USED_IN_SIGNATURES.contains(name))
+}
+
+private fun flushDebugLog() {
+    val logStream = logStream ?: return
+    try {
+        logStream.flush()
+    } catch (_: IOException) {
+    }
+}
+
+/**
+ * Implements filtering for a plugin class loader.
+ * This is necessary to distinguish classes from different modules when they are packed to a single JAR file.
+ */
+@SuppressWarnings("ALL")
+@ApiStatus.Internal
+interface ResolveScopeManager {
+    /**
+     * Returns
+     * * `null` if the class loader should try loading the class from its own classpath first;
+     * * `""` if the class loader should skip searching for `name` in its own classpath and try loading it from the parent classloaders;
+     * * non-empty string describing an error if the class must not be requested from this class loader; an error will be thrown.
+     */
+    fun isDefinitelyAlienClass(name: String, packagePrefix: String, force: Boolean): String?
+}
+
+private val defaultResolveScopeManager = object : ResolveScopeManager {
+    override fun isDefinitelyAlienClass(name: String, packagePrefix: String, force: Boolean): String? = null
+}
+
+private val EMPTY_CLASS_LOADER_ARRAY = arrayOfNulls<ClassLoader>(0)
+private val KOTLIN_STDLIB_CLASSES_USED_IN_SIGNATURES = computeKotlinStdlibClassesUsedInSignatures()
+
+private var logStream: Writer? = null
+private val parentListCacheIdCounter = AtomicInteger()

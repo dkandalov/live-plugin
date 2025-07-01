@@ -78,14 +78,13 @@ object PluginDependencies {
         val parentClassLoaders = pluginDescriptors.mapNotNull { it.pluginClassLoader } + PluginRunner::class.java.classLoader
 
         return PluginClassLoader_Fork(
-            additionalPaths,
-            ClassPath(additionalPaths, UrlClassLoader.build(), null, false),
-            parentClassLoaders.toTypedArray(),
-            DefaultPluginDescriptor(plugin.id),
-            PluginManagerCore::class.java.classLoader,
-            null,
-            null,
-            emptyList()
+            classPath = ClassPath(additionalPaths, UrlClassLoader.build(), null, false),
+            parents = parentClassLoaders.toTypedArray(),
+            pluginDescriptor = DefaultPluginDescriptor(plugin.id),
+            coreLoader = PluginManagerCore::class.java.classLoader,
+            resolveScopeManager = null,
+            packagePrefix = null,
+            libDirectories = emptyList()
         ).asSuccess()
     }
 
