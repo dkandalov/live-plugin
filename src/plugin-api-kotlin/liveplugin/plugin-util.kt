@@ -133,6 +133,7 @@ val VirtualFile.document: Document?
 val Project.currentEditor: Editor?
     get() = FileEditorManagerEx.getInstanceEx(this).selectedTextEditor
 
+@Suppress("UnstableApiUsage")
 val Project.currentFile: VirtualFile?
     get() = FileEditorManagerEx.getInstanceEx(this).currentFile
 

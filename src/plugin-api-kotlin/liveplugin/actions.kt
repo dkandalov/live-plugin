@@ -197,7 +197,7 @@ object ActionGroupIds {
         val Help = "HelpMenu"
     }
 
-    // Action groups in the toolbar (to enable check "Main Menu -> View -> Appearance -> Toolbar")
+    // Action groups in the toolbar (to enable the toolbar, check "Main Menu -> View -> Appearance -> Toolbar")
     object Toolbar {
         val Main = "MainToolBar"
         val Run = "ToolbarRunGroup"
