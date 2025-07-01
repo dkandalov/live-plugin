@@ -19,7 +19,7 @@ registerIntention(RenameKotlinFunctionToUseSpacesIntention())
 registerIntention(RenameKotlinFunctionToUseCamelCaseIntention())
 if (!isIdeStartup) show("Reloaded Kotlin intentions")
 
-inner class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAction() {
+class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAction() {
     override fun isAvailable(project: Project, editor: Editor?, element: PsiElement) =
         element.isInKotlinFile() && element.findKtNamedFunction()?.name?.contains(' ') == false
 
@@ -39,7 +39,7 @@ inner class RenameKotlinFunctionToUseSpacesIntention: PsiElementBaseIntentionAct
     override fun getFamilyName() = "RenameKotlinFunctionIntention"
 }
 
-inner class RenameKotlinFunctionToUseCamelCaseIntention: PsiElementBaseIntentionAction() {
+class RenameKotlinFunctionToUseCamelCaseIntention: PsiElementBaseIntentionAction() {
     override fun isAvailable(project: Project, editor: Editor?, element: PsiElement) =
         element.isInKotlinFile() && element.findKtNamedFunction()?.name?.contains(' ') == true
 
