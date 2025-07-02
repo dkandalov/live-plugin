@@ -6,8 +6,6 @@ using [Kotlin](http://kotlinlang.org) and [Groovy](http://groovy.codehaus.org).
 To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Marketplace`
 or use the "Install" button on the [Plugin Marketplace website](http://plugins.jetbrains.com/plugin/7282).
 
-<img src="https://raw.github.com/dkandalov/live-plugin/master/screenshots/live-plugin-demo.gif" alt="demo" title="demo" align="middle"/>
-
 
 ## Table of Contents
 - [Why?](#why)
