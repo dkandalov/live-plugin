@@ -15,7 +15,7 @@ show("Hello world")
 //    if "Plugins tool window -> Settings -> Run Plugins on IDE Start" option is enabled.
 //  - "project" in which the plugin is executed, it can be null on IDE start or if there are no open projects.
 //    It is an instance of com.intellij.openapi.project.Project, see
-//    https://upsource.jetbrains.com/idea-ce/file/idea-ce-ba0c8fc9ab9bf23a71a6a963cd84fc89b09b9fc8/platform/core-api/src/com/intellij/openapi/project/Project.java
+//    https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/project/Project.java
 //  - "pluginDisposable" instance of com.intellij.openapi.Disposable which will be disposed
 //    when you press the "Unload Plugin" button in the "Plugins" tool window or just before the same plugin is run again.
 //    It can be useful, for example, to pass into listeners so that when you re-evaluate plugin code, the old listeners are removed.

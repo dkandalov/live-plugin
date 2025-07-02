@@ -24,8 +24,8 @@ registerAction(id = "Insert Hello World", keyStroke = "ctrl shift W") { event: A
     // In practice, it's not very complicated because actions run on EDT and can read any data.
     // So the only thing to remember is to use commands for modifications.
 
-    // See also https://plugins.jetbrains.com/docs/intellij/general-threading-rules.html
-    // and javadoc for the Application class https://upsource.jetbrains.com/idea-ce/file/idea-ce-73bd72cb4bb9b64d0b1f44c3f6f22246e2850921/platform/core-api/src/com/intellij/openapi/application/Application.java
+    // See also https://plugins.jetbrains.com/docs/intellij/threading-model.html
+    // and javadoc for the Application class https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/application/Application.java
     // Note that IntelliJ documentation is talking about read/write "actions" which is
     // an overloaded term and is not directly related to AnAction class.
 }

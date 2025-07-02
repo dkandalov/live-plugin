@@ -32,7 +32,7 @@ if (!isIdeStartup) show("Loaded 'Show Project Path'<br/>Use alt+shift+P to run i
 
 // Option 3.
 // Use ActionManager directly to add, remove or find actions.
-// See https://upsource.jetbrains.com/idea-ce/file/idea-ce-d60a9e652f1458d4e67e0bb6e8215fb125f5a478/platform/editor-ui-api/src/com/intellij/openapi/actionSystem/ActionManager.java
+// See https://github.com/JetBrains/intellij-community/blob/master/platform/editor-ui-api/src/com/intellij/openapi/actionSystem/ActionManager.java
 
 // In the code examples above "registerAction" and "show" are functions imported from LivePlugin libraries.
 // They wrap IntelliJ API to hide boilerplate code needed for registering an action.

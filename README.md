@@ -2,8 +2,8 @@
 
 # LivePlugin
 Plugin for [IntelliJ](https://github.com/JetBrains/intellij-community)-based IDEs to create plugins at runtime
-using [Kotlin](http://kotlinlang.org) and [Groovy](http://groovy.codehaus.org).
-To install search for "LivePlugin" in `IDE Preferences -> Plugins -> Marketplace`
+using [Kotlin](http://kotlinlang.org) and [Groovy](https://groovy-lang.org).
+To install search for "LivePlugin" in `IDE Settings -> Plugins -> Marketplace`
 or use the "Install" button on the [Plugin Marketplace website](http://plugins.jetbrains.com/plugin/7282).
 
 
@@ -25,12 +25,12 @@ or use the "Install" button on the [Plugin Marketplace website](http://plugins.j
 
 
 ## Examples
-Hello world (Groovy):
+Hello world in Groovy:
 ```groovy
 import static liveplugin.PluginUtil.show
 show("Hello world") // Shows balloon notification popup with "Hello world" text
 ```
-Insert New Line Above action (Kotlin):
+Insert New Line Above action in Kotlin:
 ```kotlin
 import com.intellij.openapi.actionSystem.AnActionEvent
 import liveplugin.*
@@ -79,9 +79,7 @@ Multiple Kotlin files are not highlighted at the moment (see [this YouTrack issu
 
 Learn more about IntelliJ API:
 - Read (or at least skim) [plugin development fundamentals](https://plugins.jetbrains.com/docs/intellij/fundamentals.html).
-- Explore [IntelliJ source code](https://github.com/JetBrains/intellij-community)
-by cloning it, browsing it on GitHub or in 
-[Upsource](https://upsource.jetbrains.com/idea-ce/structure/idea-ce-ba0c8fc9ab9bf23a71a6a963cd84fc89b09b9fc8/).
+- Explore [IntelliJ source code](https://github.com/JetBrains/intellij-community) by cloning or browsing it on GitHub.
   One useful strategy is to search for text you can see in IDE UI and then figure out 
   how it's connected to the code which does the actual work.
 - [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src/plugin-api-groovy/liveplugin/PluginUtil.groovy) class
@@ -92,9 +90,8 @@ Once your plugin has grown, you can move it to a proper plugin project
 [still using live plugin for reloading](https://github.com/dkandalov/live-plugin/wiki/Liveplugin-as-an-entry-point-for-standard-plugins)
 and maybe then convert it to become a [dynamic plugin](https://plugins.jetbrains.com/docs/intellij/dynamic-plugins.html).
 
-If something doesn't work or doesn't make sense, please feel free to ask
-in `#plugin-live-plugin` channel on [Jetbrains platform slack](https://plugins.jetbrains.com/slack)
-or [report an issue](https://github.com/dkandalov/live-plugin/issues) 
+If something doesn't work or doesn't make sense, 
+please feel free to [report an issue](https://github.com/dkandalov/live-plugin/issues) 
 (it's ok to report an issue even if it's just a question).
 
 
