@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>LivePlugin</id>
     <name>LivePlugin</name>
-	<version>0.9.6 beta</version>
+	<version>0.9.7 beta</version>
 	<vendor url="https://github.com/dkandalov/live-plugin" email="dmitry.kandalov@gmail.com">Dmitry Kandalov</vendor>
 	<idea-version since-build="2025.2"/>
 	<category>Plugin Development</category>
@@ -24,6 +24,7 @@
         <html lang="EN"><body><ul>
             <li>Compatibility with IntelliJ 2025.2</li>
 			<li>Kotlin 2.1.20</li>
+			<li>Deprecated plugin tests</li>
         </ul></body></html>
         ]]>
     </change-notes>
