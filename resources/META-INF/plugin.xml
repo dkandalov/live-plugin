@@ -43,6 +43,10 @@
         <notificationGroup displayType="BALLOON" id="Live Plugin"/>
     </extensions>
 
+	<extensions defaultExtensionNs="org.jetbrains.kotlin">
+		<supportsKotlinPluginMode supportsK2="true"/>
+	</extensions>
+
 	<actions>
 		<action id="LivePlugin.RunPlugin" class="liveplugin.implementation.actions.RunPluginAction" text="Run Current Plugin">
 			<keyboard-shortcut keymap="$default" first-keystroke="alt c" second-keystroke="alt e"/>
