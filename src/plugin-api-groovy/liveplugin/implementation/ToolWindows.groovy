@@ -100,7 +100,7 @@ class ToolWindows {
 		}
 
 		def toolWindow = manager.registerToolWindow(RegisterToolWindowTask.notClosable(toolWindowId, location))
-		def content = ContentFactory.SERVICE.instance.createContent(component, "", false)
+		def content = ContentFactory.getInstance().instance.createContent(component, "", false)
 		toolWindow.contentManager.addContent(content)
 		toolWindow
 	}
