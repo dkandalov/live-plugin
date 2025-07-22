@@ -17,7 +17,7 @@ repositories {
 	}
 }
 
-// Should match Kotlin version bundled with IntelliJ (see https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library)
+// Should match Kotlin version bundled with IntelliJ (see https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#bundled-stdlib-versions)
 // If the version is older, it will still work in IJ but is likely to be incompatible with Kotlin plugin which is often one version ahead.
 ext.kotlinVersion = "2.1.20"
 // Must match Groovy version bundled with IntelliJ (see IJ/Contents/lib/groovy.jar/META-INF/org.codehaus.groovy.runtime.ExtensionModule)
