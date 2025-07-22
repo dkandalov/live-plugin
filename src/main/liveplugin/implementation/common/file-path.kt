@@ -4,6 +4,7 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import java.io.File
+import java.nio.file.Path
 import java.util.Collections.emptyList
 
 @Suppress("DEPRECATION")
@@ -42,6 +43,8 @@ data class FilePath @Deprecated("Use the extension functions declared above") co
     operator fun plus(that: String) = "$value/$that".toFilePath()
 
     fun toFile() = file
+
+    fun toPath(): Path = file.toPath()
 
     fun toVirtualFile(): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl("file:///$this")
 

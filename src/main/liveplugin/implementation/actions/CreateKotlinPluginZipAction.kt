@@ -71,24 +71,24 @@ class CreateKotlinPluginZipAction : AnAction(
                     mainKotlinPluginRunner.setup(plugin, project)
                 }
 
-                Compressor.Jar(pluginJar.toFile()).use { jar ->
+                Compressor.Jar(pluginJar.toPath()).use { jar ->
                     jar.addManifest(Manifest(ByteArrayInputStream("Manifest-Version: 1.0\n".toByteArray())))
-                    jar.addFile("META-INF/plugin.xml", pluginXml.toFile())
+                    jar.addFile("META-INF/plugin.xml", pluginXml.toPath())
                     compilerOutput.allFiles()
                         .filterNot { it.name == hashFileName }
                         .forEach { filePath ->
                             val relativePath = filePath.value.removePrefix(compilerOutput.value + "/")
-                            jar.addFile(relativePath, filePath.toFile())
+                            jar.addFile(relativePath, filePath.toPath())
                         }
                     plugin.path.allFiles()
                         .filterNot { it == pluginXml || it == pluginJar || it == pluginZip }
                         .forEach { filePath ->
                             val relativePath = filePath.value.removePrefix(plugin.path.value + "/")
-                            jar.addFile(relativePath, filePath.toFile())
+                            jar.addFile(relativePath, filePath.toPath())
                         }
                 }
 
-                Compressor.Jar(livePluginTrimmedJar.toFile()).use { jar ->
+                Compressor.Jar(livePluginTrimmedJar.toPath()).use { jar ->
                     JBZipFile(livePluginJar.toFile()).entries.asSequence()
                         .filter { it.name.startsWith("liveplugin") && (it.isDirectory || it.name.endsWith(".class")) }
                         .filterNot { it.name.startsWith("liveplugin/toolwindow") || it.name.startsWith("liveplugin/testrunner") }
@@ -98,11 +98,11 @@ class CreateKotlinPluginZipAction : AnAction(
                         }
                 }
 
-                Compressor.Zip(pluginZip.toFile()).use { zip ->
+                Compressor.Zip(pluginZip.toPath()).use { zip ->
                     val libDir = plugin.id + "/lib"
                     zip.addDirectory(libDir)
-                    zip.addFile("$libDir/${pluginJar.name}", pluginJar.toFile())
-                    zip.addFile("$libDir/${livePluginTrimmedJar.name}", livePluginTrimmedJar.toFile())
+                    zip.addFile("$libDir/${pluginJar.name}", pluginJar.toPath())
+                    zip.addFile("$libDir/${livePluginTrimmedJar.name}", livePluginTrimmedJar.toPath())
                 }
 
                 livePluginTrimmedJar.delete()
