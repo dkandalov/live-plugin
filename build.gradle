@@ -26,7 +26,7 @@ ext.groovyVersion = "3.0.19"
 // https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
 // 👇2025.2 needs PluginClassLoader_Fork fix; has script highlighting that works (unlike 2025.1)
 ext.ideVersion = "252-EAP-SNAPSHOT"
-ext.ideSandbox = "build/idea-sandbox/IC-2025.2"
+ext.ideSandbox = "build/idea-sandbox/IC-2025.2.4"
 
 
 intellijPlatform {
@@ -202,6 +202,7 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 
 def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"(idePath) {
 	prepareSandbox.doLast {
+		println("$idePath/plugins/LivePlugin/lib")
 		new File("$idePath/plugins/LivePlugin/lib")
 			.listFiles().toList()
 			.findAll { it.name.endsWith(".jar") && it.name != "LivePlugin.jar" }
