@@ -32,7 +32,6 @@ import org.jetbrains.kotlin.config.JVMConfigurationKeys.DISABLE_STANDARD_SCRIPT_
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.JDK_HOME
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.JVM_TARGET
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.OUTPUT_DIRECTORY
-import org.jetbrains.kotlin.config.JVMConfigurationKeys.RETAIN_OUTPUT_IN_MEMORY
 import org.jetbrains.kotlin.config.JvmTarget.JVM_17
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
@@ -51,11 +50,7 @@ import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.JvmGetScriptingClass
 
 fun compile(
-    sourceRoot: String,
-    classpath: List<File>,
-    jrePath: File,
-    outputDirectory: File,
-    livePluginScriptClass: Class<*>
+    sourceRoot: String, classpath: List<File>, jrePath: File, outputDirectory: File, livePluginScriptClass: Class<*>
 ): List<String> {
     val disposable = Disposer.newDisposable()
     try {
@@ -67,7 +62,14 @@ fun compile(
         return when {
             messageCollector.hasErrors() -> messageCollector.errors
             state == null                -> listOf("Compiler returned empty state.")
-            else                         -> emptyList()
+            else                         -> {
+                state.factory.asList().forEach {
+                    val file = File(outputDirectory, it.relativePath)
+                    file.parentFile.mkdirs()
+                    file.writeBytes(it.asByteArray())
+                }
+                emptyList()
+            }
         }
     } finally {
         disposable.dispose()
@@ -85,25 +87,17 @@ private class ErrorMessageCollector : MessageCollector {
     override fun hasErrors() = errors.isNotEmpty()
 }
 
-@OptIn(ExperimentalCompilerApi::class)
-private fun createCompilerConfiguration(
-    sourceRoot: String,
-    classpath: List<File>,
-    jrePath: File,
-    outputDirectory: File,
-    messageCollector: MessageCollector,
-    livePluginScriptClass: KClass<*>
+@OptIn(ExperimentalCompilerApi::class) private fun createCompilerConfiguration(
+    sourceRoot: String, classpath: List<File>, jrePath: File, outputDirectory: File, messageCollector: MessageCollector, livePluginScriptClass: KClass<*>
 ) = CompilerConfiguration().apply {
     put(MODULE_NAME, "KotlinCompilerWrapperModule")
     put(MESSAGE_COLLECTOR_KEY, messageCollector)
     add(
-        SCRIPT_DEFINITIONS,
-        ScriptDefinition.FromTemplate(
+        SCRIPT_DEFINITIONS, ScriptDefinition.FromTemplate(
             ScriptingHostConfiguration {
                 configurationDependencies.put(listOf(JvmDependency(classpath)))
                 getScriptingClass(JvmGetScriptingClass())
-            },
-            livePluginScriptClass
+            }, livePluginScriptClass
         )
     )
     put(DISABLE_SCRIPTING_PLUGIN_OPTION, false)
@@ -117,47 +111,37 @@ private fun createCompilerConfiguration(
 
     // Based on org.jetbrains.kotlin.script.ScriptTestUtilKt#loadScriptingPlugin
     addAll(
-        PLUGIN_COMPONENT_REGISTRARS,
-        loadComponentRegistrars(classpath.map { it.path }, messageCollector)
+        PLUGIN_COMPONENT_REGISTRARS, loadComponentRegistrars(classpath.map { it.path }, messageCollector)
             // Exclude AndroidComponentRegistrar because its API is not compatible with kotlin-compiler-embedded (see https://youtrack.jetbrains.com/issue/KT-43086)
-            .filter { "AndroidComponentRegistrar" !in it.javaClass.name }
-    )
+            .filter { "AndroidComponentRegistrar" !in it.javaClass.name })
     addAll(
-        COMPILER_PLUGIN_REGISTRARS,
-        loadCompilerPluginRegistrars(classpath.map { it.path }, messageCollector)
+        COMPILER_PLUGIN_REGISTRARS, loadCompilerPluginRegistrars(classpath.map { it.path }, messageCollector)
     )
 
     put(JDK_HOME, jrePath)
     put(JVM_TARGET, JVM_17)
-    put(RETAIN_OUTPUT_IN_MEMORY, false)
     put(OUTPUT_DIRECTORY, outputDirectory)
     put(REPORT_OUTPUT_FILES, true)
-    put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_2_1, ApiVersion.KOTLIN_2_1))
+    put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_2_2, ApiVersion.KOTLIN_2_2))
 }
 
 // Based on modified version of org.jetbrains.kotlin.cli.jvm.plugins.PluginCliParser.loadPluginsSafe
-@OptIn(ExperimentalCompilerApi::class)
-private fun loadComponentRegistrars(pluginClasspaths: Iterable<String>, messageCollector: MessageCollector): List<ComponentRegistrar> =
-    try {
-        val classLoader = URLClassLoader(
-            pluginClasspaths.map { File(it).toURI().toURL() }.toTypedArray<URL?>(),
-            ErrorMessageCollector::class.java.classLoader
-        )
-        ServiceLoaderLite.loadImplementations(ComponentRegistrar::class.java, classLoader)
-    } catch (t: Throwable) {
-        MessageCollectorUtil.reportException(messageCollector, t)
-        emptyList()
-    }
+@OptIn(ExperimentalCompilerApi::class) private fun loadComponentRegistrars(pluginClasspaths: Iterable<String>, messageCollector: MessageCollector): List<ComponentRegistrar> = try {
+    val classLoader = URLClassLoader(
+        pluginClasspaths.map { File(it).toURI().toURL() }.toTypedArray<URL?>(), ErrorMessageCollector::class.java.classLoader
+    )
+    ServiceLoaderLite.loadImplementations(ComponentRegistrar::class.java, classLoader)
+} catch (t: Throwable) {
+    MessageCollectorUtil.reportException(messageCollector, t)
+    emptyList()
+}
 
-@OptIn(ExperimentalCompilerApi::class)
-private fun loadCompilerPluginRegistrars(pluginClasspaths: Iterable<String>, messageCollector: MessageCollector): List<CompilerPluginRegistrar> =
-    try {
-        val classLoader = URLClassLoader(
-            pluginClasspaths.map { File(it).toURI().toURL() }.toTypedArray<URL?>(),
-            ErrorMessageCollector::class.java.classLoader
-        )
-        ServiceLoaderLite.loadImplementations(CompilerPluginRegistrar::class.java, classLoader)
-    } catch (t: Throwable) {
-        MessageCollectorUtil.reportException(messageCollector, t)
-        emptyList()
-    }
+@OptIn(ExperimentalCompilerApi::class) private fun loadCompilerPluginRegistrars(pluginClasspaths: Iterable<String>, messageCollector: MessageCollector): List<CompilerPluginRegistrar> = try {
+    val classLoader = URLClassLoader(
+        pluginClasspaths.map { File(it).toURI().toURL() }.toTypedArray<URL?>(), ErrorMessageCollector::class.java.classLoader
+    )
+    ServiceLoaderLite.loadImplementations(CompilerPluginRegistrar::class.java, classLoader)
+} catch (t: Throwable) {
+    MessageCollectorUtil.reportException(messageCollector, t)
+    emptyList()
+}
