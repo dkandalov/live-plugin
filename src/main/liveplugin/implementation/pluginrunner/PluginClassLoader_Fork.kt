@@ -15,7 +15,6 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.extensions.PluginDescriptor
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.util.ShutDownTracker
-import com.intellij.util.Java11Shim
 import com.intellij.util.lang.ClassPath
 import com.intellij.util.lang.ClasspathCache
 import com.intellij.util.lang.Resource
@@ -520,7 +519,7 @@ private fun computeKotlinStdlibClassesUsedInSignatures(): Set<String> {
     System.getProperty("idea.kotlin.classes.used.in.signatures")?.let {
         result.addAll(it.splitToSequence(',').map(String::trim))
     }
-    return Java11Shim.INSTANCE.copyOf(result)
+    return result.toSet() // Replacement for Java11Shim.INSTANCE.copyOf(result)
 }
 
 private fun mustBeLoadedByPlatform(name: String): Boolean {
