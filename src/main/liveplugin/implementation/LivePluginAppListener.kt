@@ -13,18 +13,12 @@ import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.Messages.OK
 import com.intellij.openapi.ui.Messages.showOkCancelDialog
-import com.intellij.openapi.util.io.FileUtil.moveDirWithContent
 import com.intellij.util.download.DownloadableFileService
 import liveplugin.implementation.GroovyDownloader.downloadGroovyJar
 import liveplugin.implementation.GroovyDownloader.isGroovyOnClasspath
 import liveplugin.implementation.LivePluginPaths.livePluginLibPath
-import liveplugin.implementation.LivePluginPaths.livePluginsCompiledPath
-import liveplugin.implementation.LivePluginPaths.livePluginsPath
-import liveplugin.implementation.LivePluginPaths.oldLivePluginsCompiledPath
-import liveplugin.implementation.LivePluginPaths.oldLivePluginsPath
 import liveplugin.implementation.common.FilePath
 import liveplugin.implementation.common.IdeUtil.ideStartupActionPlace
-import liveplugin.implementation.common.IdeUtil.logger
 import liveplugin.implementation.common.IdeUtil.runLaterOnEdt
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.pluginrunner.PluginRunner.Companion.runPlugins
@@ -37,10 +31,6 @@ class LivePluginAppListener : AppLifecycleListener {
         if (!isGroovyOnClasspath()) downloadGroovyJar()
 
         val settings = Settings.instance
-        if (!settings.migratedLivePluginsToScratchesPath) {
-            val migrated = migrateLivePluginsToScratchesPath()
-            if (migrated) settings.migratedLivePluginsToScratchesPath = true
-        }
         if (settings.justInstalled) {
             installLivepluginTutorialExamples()
             settings.justInstalled = false
@@ -49,24 +39,6 @@ class LivePluginAppListener : AppLifecycleListener {
             runAllPlugins()
         }
     }
-
-    private fun migrateLivePluginsToScratchesPath() =
-        try {
-            val wasMoved = moveDirWithContent(oldLivePluginsPath.toFile(), livePluginsPath.toFile())
-
-            livePluginsCompiledPath.toFile().mkdirs()
-            // Delete because class files because liveplugin classes were moved to "implementation" package.
-            oldLivePluginsCompiledPath.toFile().deleteRecursively()
-            wasMoved
-        } catch (e: Exception) {
-            logger.warn("Failed to migrate plugins", e)
-            livePluginNotificationGroup.createNotification(
-                title = "Live plugin",
-                "Failed to migrate plugins from '${oldLivePluginsPath.toFile().absolutePath} 'to '${livePluginsPath.toFile().absolutePath}'",
-                WARNING
-            ).notify(null)
-            false
-        }
 
     private fun runAllPlugins() {
         runLaterOnEdt {
