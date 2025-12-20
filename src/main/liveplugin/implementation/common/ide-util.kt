@@ -234,7 +234,7 @@ fun AnActionEvent.selectedFiles(): List<FilePath> =
 class MapDataContext(val map: Map<String, Any?>) : AsyncDataContext {
     override fun getData(dataId: String) = map[dataId]
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any?> getData(key: DataKey<T>): T? = map[key.name] as T?
+    override fun <T> getData(key: DataKey<T>): T? = map[key.name] as T?
 }
 
 private const val requestor = livePluginId
