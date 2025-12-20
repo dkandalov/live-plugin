@@ -1,9 +1,11 @@
 package liveplugin.implementation.actions.toolwindow
 
 import com.intellij.ide.IdeBundle
+import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ActionUpdateThread.BGT
 import com.intellij.openapi.fileChooser.actions.NewFolderAction
+import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
@@ -15,10 +17,8 @@ import liveplugin.implementation.actions.AddNewGroovyPluginAction
 import liveplugin.implementation.actions.AddNewKotlinPluginAction
 import liveplugin.implementation.actions.git.AddPluginFromGistOrGitAction
 import liveplugin.implementation.common.Icons.newFolderIcon
+import liveplugin.implementation.common.IdeUtil.KotlinScriptFileType
 import liveplugin.implementation.common.IdeUtil.groovyFileType
-import liveplugin.implementation.common.IdeUtil.kotlinFileType
-import liveplugin.implementation.common.IdeUtil.textFileType
-import liveplugin.implementation.common.IdeUtil.xmlFileType
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyTestScriptFile
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
@@ -69,9 +69,9 @@ class NewElementPopupAction : AnAction(), DumbAware, PopupAction {
 
     private class NewGroovyFileAction : NewFileAction("Groovy File", groovyFileType)
 
-    private class NewKotlinFileAction : NewFileAction("Kotlin File", kotlinFileType)
+    private class NewKotlinFileAction : NewFileAction("Kotlin File", KotlinScriptFileType)
 
-    private class NewTextFileAction : NewFileAction("Text File", textFileType)
+    private class NewTextFileAction : NewFileAction("Text File", PlainTextFileType.INSTANCE)
 
     private class NewDirectoryAction : NewFolderAction("Directory", "", newFolderIcon)
 
@@ -86,7 +86,7 @@ class NewElementPopupAction : AnAction(), DumbAware, PopupAction {
         text = kotlinScriptFile,
         newFileName = kotlinScriptFile,
         fileContent = readSampleScriptFile("$kotlinExamplesPath/default-plugin.kts"),
-        fileType = kotlinFileType
+        fileType = KotlinScriptFileType
     )
 
     private class NewGroovyTestScript : NewFileFromTemplateAction(
@@ -103,5 +103,5 @@ class NewPluginXmlScript(
     text = "plugin.xml",
     newFileName = "plugin.xml",
     fileContent = fileContent,
-    fileType = xmlFileType
+    fileType = XmlFileType.INSTANCE
 )

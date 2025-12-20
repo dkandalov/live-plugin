@@ -21,7 +21,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
-import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.InputValidatorEx
 import com.intellij.openapi.ui.Messages
@@ -51,10 +50,9 @@ object IdeUtil {
     const val ideStartupActionPlace = "IDE_STARTUP"
     const val livePluginActionPlace = "LIVE_PLUGIN"
 
-    val textFileType: FileType = PlainTextFileType.INSTANCE
-    val groovyFileType = FileTypeManager.getInstance().getFileTypeByExtension("groovy")
-    val kotlinFileType = KotlinScriptFileType
-    val xmlFileType = FileTypeManager.getInstance().getFileTypeByExtension("xml")
+    // Lazy to avoid "FileTypeManager instance. Class initialization must not depend on services"
+    // and use getFileTypeByExtension() to avoid direct dependency on optional Groovy plugin.
+    val groovyFileType by lazy { FileTypeManager.getInstance().getFileTypeByExtension("groovy") }
 
     val logger = Logger.getInstance(livePluginId)
 

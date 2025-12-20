@@ -25,8 +25,8 @@ ext.groovyVersion = "3.0.19"
 // For available IDE versions see "com.jetbrains.intellij.idea" in
 // https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
 // 👇2025.2 needs PluginClassLoader_Fork fix; has script highlighting that works (unlike 2025.1)
-ext.ideVersion = "252-EAP-SNAPSHOT"
-ext.ideSandbox = "build/idea-sandbox/IC-2025.2.4"
+ext.ideVersion = "2025.2.6"
+ext.ideSandbox = "build/idea-sandbox/IC-2025.2.6"
 
 
 intellijPlatform {
