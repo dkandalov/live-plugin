@@ -89,7 +89,7 @@ private object GroovyDownloader {
             type = ERROR
         ).addAction(object : NotificationAction("Download Groovy libraries") {
             override fun actionPerformed(e: AnActionEvent, notification: Notification) {
-                val groovyVersion = "3.0.9" // Version of Groovy jar in the latest IJ.
+                val groovyVersion = "3.0.19" // Version of Groovy jar in the latest IntelliJ.
 
                 downloadFiles(
                     url = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy/$groovyVersion/",
