@@ -18,7 +18,7 @@ class MapDataContext implements DataContext, AsyncDataContext {
 	}
 
 	@Override <T> T getData(@NotNull DataKey<T> key) {
-		map.get(dataId)
+		map.get(key.name)
 	}
 
 	MapDataContext put(@NotNull String key, Object value) {
