@@ -18,15 +18,15 @@ repositories {
 }
 
 // Should match Kotlin version bundled with IntelliJ (see https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#bundled-stdlib-versions)
-// If the version is older, it will still work in IJ but is likely to be incompatible with Kotlin plugin which is often one version ahead.
+// If the version is older, it will still work in IntelliJ but is likely to be incompatible with Kotlin plugin which is often one version ahead.
 ext.kotlinVersion = "2.2.21"
 // Must match Groovy version bundled with IntelliJ (see IJ/Contents/lib/groovy.jar/META-INF/org.codehaus.groovy.runtime.ExtensionModule)
-ext.groovyVersion = "3.0.19"
+ext.groovyVersion = "3.0.25"
 // For available IDE versions see "com.jetbrains.intellij.idea" in
 // https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
-// 👇2025.2 needs PluginClassLoader_Fork fix; has script highlighting that works (unlike 2025.1)
-ext.ideVersion = "2025.2.6"
-ext.ideSandbox = "build/idea-sandbox/IC-2025.2.6"
+// 👇2025.3.2 has Groovy updated to version 3.0.25
+ext.ideVersion = "2025.3.2"
+ext.ideSandbox = "build/idea-sandbox/IU-$ideVersion"
 
 
 intellijPlatform {
@@ -41,7 +41,7 @@ intellijPlatform {
 }
 dependencies {
 	intellijPlatform {
-		intellijIdeaCommunity(ideVersion, false)
+		intellijIdea(ideVersion)
 		bundledPlugin "com.intellij.java"
 		bundledPlugin "org.intellij.groovy"
 		bundledPlugin "org.jetbrains.kotlin"
