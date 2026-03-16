@@ -32,7 +32,7 @@ import org.jetbrains.kotlin.config.JVMConfigurationKeys.DISABLE_STANDARD_SCRIPT_
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.JDK_HOME
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.JVM_TARGET
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.OUTPUT_DIRECTORY
-import org.jetbrains.kotlin.config.JvmTarget.JVM_17
+import org.jetbrains.kotlin.config.JvmTarget.JVM_21
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
 import org.jetbrains.kotlin.scripting.configuration.ScriptingConfigurationKeys.DISABLE_SCRIPTING_PLUGIN_OPTION
@@ -119,7 +119,7 @@ private class ErrorMessageCollector : MessageCollector {
     )
 
     put(JDK_HOME, jrePath)
-    put(JVM_TARGET, JVM_17)
+    put(JVM_TARGET, JVM_21)
     put(OUTPUT_DIRECTORY, outputDirectory)
     put(REPORT_OUTPUT_FILES, true)
     put(LANGUAGE_VERSION_SETTINGS, LanguageVersionSettingsImpl(LanguageVersion.KOTLIN_2_2, ApiVersion.KOTLIN_2_2))
