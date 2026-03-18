@@ -51,8 +51,8 @@ class EmbeddedCompilerTests {
         createFile("plugin.kts", text = "nonExistingFunction()")
 
         val errors = compileScript()
-        assertThat(errors.size, equalTo(1))
-        assertTrue(errors.first().contains("unresolved reference: nonExistingFunction"))
+        assertThat(errors.size, equalTo(4))
+        assertTrue(errors.first().contains("error: unresolved reference 'nonExistingFunction'"))
         assertFalse(outputDir.resolve("Plugin.class").exists())
     }
 
@@ -82,7 +82,7 @@ private class KtsScriptFixture {
     }
 
     fun compileScript(templateClass: Class<*> = EmptyScriptTemplate::class.java): List<String> = compile(
-        sourceRoot = srcDir.absolutePath,
+        sourceDir = srcDir.absolutePath,
         classpath = listOf(
             kotlinStdLib,
             kotlinScriptJvm,
@@ -107,7 +107,7 @@ private class KtsScriptFixture {
         private val kotlinScriptCompilerImplEmbeddable = findInGradleCache("kotlin-scripting-compiler-impl-embeddable")
 
         private fun findInGradleCache(libName: String): File {
-            val kotlinVersion = "2.2.21"
+            val kotlinVersion = "2.3.20"
             val dir = File(System.getProperty("user.home") + "/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin")
             val libDir = dir.listFiles()?.find { it.name == libName } ?: error("Couldn't find $libName in $dir")
             val libVersionDir = libDir.listFiles()?.find { it.name == kotlinVersion } ?: error("Couldn't find $kotlinVersion in $libDir")
