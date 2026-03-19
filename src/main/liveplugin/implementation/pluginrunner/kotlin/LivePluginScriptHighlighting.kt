@@ -16,8 +16,7 @@ class LivePluginScriptSource : ScriptDefinitionsSource {
         ScriptDefinition.FromTemplate(
             baseHostConfiguration = defaultJvmScriptingHostConfiguration,
             template = LivePluginScript::class,
-            contextClass = LivePluginScript::class,
-            defaultCompilerOptions = emptyList()
+            contextClass = LivePluginScript::class
         ).apply { order = Int.MIN_VALUE }
             .let { sequenceOf(it) }
 }

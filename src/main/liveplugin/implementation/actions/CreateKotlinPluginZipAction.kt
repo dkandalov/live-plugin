@@ -89,7 +89,7 @@ class CreateKotlinPluginZipAction : AnAction(
                 }
 
                 Compressor.Jar(livePluginTrimmedJar.toPath()).use { jar ->
-                    JBZipFile(livePluginJar.toFile()).entries.asSequence()
+                    JBZipFile(livePluginJar.toPath()).entries.asSequence()
                         .filter { it.name.startsWith("liveplugin") && (it.isDirectory || it.name.endsWith(".class")) }
                         .filterNot { it.name.startsWith("liveplugin/toolwindow") || it.name.startsWith("liveplugin/testrunner") }
                         .forEach {

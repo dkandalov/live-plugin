@@ -24,9 +24,9 @@ ext.kotlinVersion = "2.3.20"
 ext.groovyVersion = "3.0.25"
 // For available IDE versions see "com.jetbrains.intellij.idea" in
 // https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
-// 👇2025.3.2 has Groovy updated to version 3.0.25
-ext.ideVersion = "2025.3.2"
-ext.ideSandbox = "build/idea-sandbox/IU-$ideVersion"
+// 👇2026.1 because it has updated version of Kotlin and binary compatibility issue (https://github.com/dkandalov/live-plugin/issues/213)
+ext.ideVersion = "261-EAP-SNAPSHOT"
+ext.ideSandbox = "build/idea-sandbox/IU-2026.1"
 
 
 intellijPlatform {
@@ -41,7 +41,9 @@ intellijPlatform {
 }
 dependencies {
 	intellijPlatform {
-		intellijIdea(ideVersion)
+		intellijIdea(ideVersion) {
+			useInstaller = false // Don't use installer so that it's possible to try EAP versions
+		}
 		bundledPlugin "com.intellij.java"
 		bundledPlugin "org.intellij.groovy"
 		bundledPlugin "org.jetbrains.kotlin"
@@ -201,7 +203,7 @@ def "Add source files to compiler output so that LivePlugin source code is avail
 
 def "Move kotlin compiler jars from plugin classpath into a separate folder so that there are no conflicts between kotlin and intellij classes"(idePath) {
 	prepareSandbox.doLast {
-		println("$idePath/plugins/LivePlugin/lib")
+		println("Moving kotlin compiler jars to '$idePath/plugins/LivePlugin/lib'")
 		new File("$idePath/plugins/LivePlugin/lib")
 			.listFiles().toList()
 			.findAll { it.name.endsWith(".jar") && it.name != "LivePlugin.jar" }
