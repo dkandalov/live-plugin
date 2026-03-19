@@ -5,6 +5,7 @@ import com.intellij.notification.NotificationType.INFORMATION
 import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
@@ -15,7 +16,6 @@ import com.intellij.openapi.util.Computable
 import com.intellij.openapi.vfs.findFileOrDirectory
 import kotlinx.coroutines.runBlocking
 import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
-import liveplugin.implementation.common.MapDataContext
 import liveplugin.implementation.common.livePluginNotificationGroup
 import liveplugin.implementation.common.toFilePath
 import liveplugin.implementation.pluginrunner.PluginRunner.Companion.runPlugins
@@ -30,7 +30,7 @@ class LivePluginProjectPostStartupActivity : ProjectActivity {
             return
         }
 
-        val dataContext = MapDataContext(mapOf(CommonDataKeys.PROJECT.name to project))
+        val dataContext = SimpleDataContext.builder().add(CommonDataKeys.PROJECT, project).build()
         val dummyEvent = AnActionEvent.createEvent(dataContext, null, "", ActionUiKind.NONE, null)
         runPlugins(findLivePluginsIn(project), dummyEvent)
     }

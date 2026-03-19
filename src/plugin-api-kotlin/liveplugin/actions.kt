@@ -5,6 +5,7 @@ package liveplugin
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.PlatformDataKeys.CONTEXT_COMPONENT
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.editor.Caret
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorAction
@@ -16,7 +17,6 @@ import com.intellij.openapi.ui.popup.JBPopupFactory.ActionSelectionAid.*
 import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.util.NlsActions.ActionText
 import com.intellij.openapi.wm.WindowManager
-import liveplugin.implementation.common.MapDataContext
 import liveplugin.implementation.pluginrunner.kotlin.LivePluginScript
 import javax.swing.KeyStroke
 
@@ -156,7 +156,7 @@ fun ActionGroup.createPopup(
     )
 
 private fun defaultDataContext() =
-    MapDataContext(mapOf(CONTEXT_COMPONENT.name to WindowManager.getInstance().findVisibleFrame()))
+    SimpleDataContext.builder().add(CONTEXT_COMPONENT, WindowManager.getInstance().findVisibleFrame()).build()
 
 private fun String.toKeyboardShortcut(): KeyboardShortcut? {
     val parts = split(",").map { it.trim() }.filter { it.isNotEmpty() }

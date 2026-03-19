@@ -13,6 +13,7 @@ import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType.ERROR
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.impl.AsyncDataContext
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.runWriteAction
@@ -229,13 +230,17 @@ fun inputValidator(f: (String) -> String?) =
 fun AnActionEvent.selectedFiles(): List<FilePath> =
     dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)?.map { it.toFilePath() } ?: emptyList()
 
-// com.intellij.openapi.actionSystem.impl.SimpleDataContext is recommended, but it's not very usable with String keys
-@Suppress("UnstableApiUsage")
+@Deprecated("Use dataContext() instead", level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("dataContext(map)"))
 class MapDataContext(val map: Map<String, Any?>) : AsyncDataContext {
     override fun getData(dataId: String) = map[dataId]
     @Suppress("UNCHECKED_CAST")
     override fun <T> getData(key: DataKey<T>): T? = map[key.name] as T?
 }
+
+fun dataContext(map: Map<String, Any?>) =
+    map.entries.fold(SimpleDataContext.builder()) { builder, (key, value) ->
+        builder.add(DataKey.create(key), value)
+    }.build()
 
 private const val requestor = livePluginId
 
