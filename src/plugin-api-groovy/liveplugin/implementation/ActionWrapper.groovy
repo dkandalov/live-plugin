@@ -216,12 +216,8 @@ class ActionWrapper {
 			this
 		}
 
-		@Override void beforeActionPerformedUpdate(@NotNull AnActionEvent event) {
-			super.beforeActionPerformedUpdate(event)
-			editorActionHandler.event = event
-		}
-
 		@Override void update(@NotNull AnActionEvent event) {
+			editorActionHandler.event = event
 			originalAction.update(event)
 		}
 
