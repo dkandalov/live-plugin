@@ -9,8 +9,6 @@ import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import com.intellij.openapi.wm.StatusBarWidgetFactory
 
-
-@Suppress("UnstableApiUsage")
 fun registerWidget(
     widgetId: String,
     disposable: Disposable,
