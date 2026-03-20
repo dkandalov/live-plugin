@@ -51,7 +51,7 @@ class EmbeddedCompilerTests {
 
         val errors = compileScript()
         if (!errors.first().contains("error: unresolved reference 'nonExistingFunction'")) {
-            fail("Expected error message to contain 'nonExistingFunction', but got:\n$errors")
+            fail("Expected error message to contain 'nonExistingFunction', but got:\n${errors.joinToString("\n")}")
         }
         assertFalse(outputDir.resolve("Plugin.class").exists())
     }
@@ -81,22 +81,23 @@ private class KtsScriptFixture {
         File("${srcDir.absolutePath}/${name}").writeText(text)
     }
 
-    fun compileScript(templateClass: Class<*> = EmptyScriptTemplate::class.java): List<String> = compile(
-        sourceDir = srcDir.absolutePath,
-        classpath = listOf(
-            kotlinStdLib,
-            kotlinScriptJvm,
-            kotlinScriptingCommon,
-            kotlinScriptRuntime,
-            kotlinScriptCompilerEmbeddable,
-            kotlinScriptCompilerImplEmbeddable,
-            File("out/test/classes"), // For running via IntelliJ
-            File("build/classes/kotlin/test"), // For running via Gradle
-        ),
-        jrePath = File(System.getProperty("java.home")),
-        outputDirectory = outputDir,
-        livePluginScriptClass = templateClass
-    )
+    fun compileScript(templateClass: Class<*> = EmptyScriptTemplate::class.java): List<String> =
+        compile(
+            sourceDir = srcDir.absolutePath,
+            classpath = listOf(
+                kotlinStdLib,
+                kotlinScriptJvm,
+                kotlinScriptingCommon,
+                kotlinScriptRuntime,
+                kotlinScriptCompilerEmbeddable,
+                kotlinScriptCompilerImplEmbeddable,
+                File("out/test/classes"), // For running via IntelliJ
+                File("build/classes/kotlin/test"), // For running via Gradle
+            ),
+            jrePath = File(System.getProperty("java.home")),
+            outputDirectory = outputDir,
+            livePluginScriptClass = templateClass
+        )
 
     companion object {
         private val kotlinStdLib = findInGradleCache("kotlin-stdlib")
