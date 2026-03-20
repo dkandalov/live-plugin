@@ -42,60 +42,58 @@ class NewElementPopupAction : AnAction(), DumbAware, PopupAction {
     }
 
     override fun getActionUpdateThread() = BGT
-
-    companion object {
-        val livePluginNewElementPopup by lazy {
-            DefaultActionGroup(
-                { "New" },
-                listOf(
-                    NewKotlinFileAction(),
-                    NewGroovyFileAction(),
-                    NewTextFileAction(),
-                    NewDirectoryAction(),
-                    NewKotlinMainScript(),
-                    NewGroovyMainScript(),
-                    NewGroovyTestScript(),
-                    NewPluginXmlScript(),
-                    Separator.getInstance(),
-                    AddNewKotlinPluginAction(),
-                    AddNewGroovyPluginAction(),
-                    AddPluginFromGistOrGitAction(),
-                    AddKotlinExamplesActionGroup(),
-                    AddGroovyExamplesActionGroup(),
-                )
-            ).also { it.isPopup = true }
-        }
-    }
-
-    private class NewGroovyFileAction : NewFileAction("Groovy File", groovyFileType)
-
-    private class NewKotlinFileAction : NewFileAction("Kotlin File", KotlinScriptFileType)
-
-    private class NewTextFileAction : NewFileAction("Text File", PlainTextFileType.INSTANCE)
-
-    private class NewDirectoryAction : NewFolderAction("Directory", "", newFolderIcon)
-
-    private class NewGroovyMainScript : NewFileFromTemplateAction(
-        text = groovyScriptFile,
-        newFileName = groovyScriptFile,
-        fileContent = readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy"),
-        fileType = groovyFileType,
-    )
-
-    private class NewKotlinMainScript : NewFileFromTemplateAction(
-        text = kotlinScriptFile,
-        newFileName = kotlinScriptFile,
-        fileContent = readSampleScriptFile("$kotlinExamplesPath/default-plugin.kts"),
-        fileType = KotlinScriptFileType
-    )
-
-    private class NewGroovyTestScript : NewFileFromTemplateAction(
-        text = groovyTestScriptFile,
-        newFileName = groovyTestScriptFile,
-        fileContent = readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy"),
-        fileType = groovyFileType
-    )
 }
+
+private val livePluginNewElementPopup by lazy {
+    DefaultActionGroup(
+        { "New" },
+        listOf(
+            NewKotlinFileAction(),
+            NewGroovyFileAction(),
+            NewTextFileAction(),
+            NewDirectoryAction(),
+            NewKotlinMainScript(),
+            NewGroovyMainScript(),
+            NewGroovyTestScript(),
+            NewPluginXmlScript(),
+            Separator.getInstance(),
+            AddNewKotlinPluginAction(),
+            AddNewGroovyPluginAction(),
+            AddPluginFromGistOrGitAction(),
+            AddKotlinExamplesActionGroup(),
+            AddGroovyExamplesActionGroup(),
+        )
+    ).also { it.isPopup = true }
+}
+
+private class NewGroovyFileAction : NewFileAction("Groovy File", groovyFileType)
+
+private class NewKotlinFileAction : NewFileAction("Kotlin File", KotlinScriptFileType)
+
+private class NewTextFileAction : NewFileAction("Text File", PlainTextFileType.INSTANCE)
+
+private class NewDirectoryAction : NewFolderAction("Directory", "", newFolderIcon)
+
+private class NewGroovyMainScript : NewFileFromTemplateAction(
+    text = groovyScriptFile,
+    newFileName = groovyScriptFile,
+    fileContent = readSampleScriptFile("$groovyExamplesPath/default-plugin.groovy"),
+    fileType = groovyFileType,
+)
+
+private class NewKotlinMainScript : NewFileFromTemplateAction(
+    text = kotlinScriptFile,
+    newFileName = kotlinScriptFile,
+    fileContent = readSampleScriptFile("$kotlinExamplesPath/default-plugin.kts"),
+    fileType = KotlinScriptFileType
+)
+
+private class NewGroovyTestScript : NewFileFromTemplateAction(
+    text = groovyTestScriptFile,
+    newFileName = groovyTestScriptFile,
+    fileContent = readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy"),
+    fileType = groovyFileType
+)
 
 class NewPluginXmlScript(
     fileContent: String = readSampleScriptFile("$kotlinExamplesPath/plugin.xml")
