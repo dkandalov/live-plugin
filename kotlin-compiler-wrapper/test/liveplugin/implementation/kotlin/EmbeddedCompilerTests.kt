@@ -2,8 +2,7 @@ package liveplugin.implementation.kotlin
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test
 import java.io.File
@@ -51,7 +50,9 @@ class EmbeddedCompilerTests {
         createFile("plugin.kts", text = "nonExistingFunction()")
 
         val errors = compileScript()
-        assertTrue(errors.first().contains("error: unresolved reference 'nonExistingFunction'"))
+        if (!errors.first().contains("error: unresolved reference 'nonExistingFunction'")) {
+            fail("Expected error message to contain 'nonExistingFunction', but got:\n$errors")
+        }
         assertFalse(outputDir.resolve("Plugin.class").exists())
     }
 
