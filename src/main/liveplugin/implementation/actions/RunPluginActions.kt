@@ -38,14 +38,14 @@ class RunPluginAction : AnAction("Run Plugin", "Run selected plugins", runPlugin
     }
 
     override fun getActionUpdateThread() = BGT
-
-    private fun pluginNameInActionText(livePlugins: List<LivePlugin>): String =
-        when (livePlugins.size) {
-            0    -> "Plugin"
-            1    -> "'${livePlugins.first().id}' Plugin"
-            else -> "Selected Plugins"
-        }
 }
+
+fun pluginNameInActionText(livePlugins: List<LivePlugin>): String =
+    when (livePlugins.size) {
+        0    -> "Plugin"
+        1    -> "'${livePlugins.first().id}' Plugin"
+        else -> "Selected Plugins"
+    }
 
 class RunPluginTestsAction : AnAction("Run Plugin Tests", "Run plugin integration tests", testPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {

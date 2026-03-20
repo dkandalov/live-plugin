@@ -5,7 +5,6 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
 import liveplugin.implementation.LivePlugin
-import liveplugin.implementation.actions.RunPluginAction.Companion.pluginNameInActionText
 import liveplugin.implementation.common.Icons.unloadPluginIcon
 import liveplugin.implementation.livePlugins
 import liveplugin.implementation.pluginrunner.Binding

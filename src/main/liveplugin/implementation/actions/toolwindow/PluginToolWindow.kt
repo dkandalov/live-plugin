@@ -37,7 +37,6 @@ import liveplugin.implementation.actions.git.SharePluginAsGistDelegateAction
 import liveplugin.implementation.actions.settings.AddLivePluginAndIdeJarsAsDependencies
 import liveplugin.implementation.actions.settings.RunPluginsOnIDEStartAction
 import liveplugin.implementation.actions.settings.RunProjectSpecificPluginsAction
-import liveplugin.implementation.actions.toolwindow.NewElementPopupAction.Companion.livePluginNewElementPopup
 import liveplugin.implementation.common.Icons.addPluginIcon
 import liveplugin.implementation.common.Icons.collapseAllIcon
 import liveplugin.implementation.common.Icons.helpIcon

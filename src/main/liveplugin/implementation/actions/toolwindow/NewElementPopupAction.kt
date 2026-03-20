@@ -44,7 +44,7 @@ class NewElementPopupAction : AnAction(), DumbAware, PopupAction {
     override fun getActionUpdateThread() = BGT
 }
 
-private val livePluginNewElementPopup by lazy {
+val livePluginNewElementPopup by lazy {
     DefaultActionGroup(
         { "New" },
         listOf(
