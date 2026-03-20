@@ -30,6 +30,7 @@ import java.io.IOException
 import java.net.URI
 
 class AddPluginFromGistOrGitAction : AnAction("Copy from Gist/Git", "Copy from Gist/Git", AllIcons.Vcs.Vendors.Github), DumbAware {
+    private val dialogTitle = "Copy Plugin From Gist/Git"
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
@@ -107,6 +108,11 @@ class AddPluginFromGistOrGitAction : AnAction("Copy from Gist/Git", "Copy from G
         }.queue()
     }
 
+    private fun extractIdFrom(gistOrGitUrl: String): String? {
+        val i = gistOrGitUrl.lastIndexOf('/')
+        return if (i == -1) null else gistOrGitUrl.substring(i + 1)
+    }
+
     private class GitCheckoutListener(
         private val destinationFolder: VirtualFile,
         private val pluginName: String
@@ -122,15 +128,6 @@ class AddPluginFromGistOrGitAction : AnAction("Copy from Gist/Git", "Copy from G
             }
             val pluginsRoot = livePluginsPath.toVirtualFile() ?: return
             RefreshQueue.getInstance().refresh(false, true, finishRunnable, pluginsRoot)
-        }
-    }
-
-    private companion object {
-        private const val dialogTitle = "Copy Plugin From Gist/Git"
-
-        private fun extractIdFrom(gistOrGitUrl: String): String? {
-            val i = gistOrGitUrl.lastIndexOf('/')
-            return if (i == -1) null else gistOrGitUrl.substring(i + 1)
         }
     }
 }

@@ -36,22 +36,20 @@ class DeletePluginAction: AnAction("Delete Plugin", "Delete plugin", deletePlugi
 
     override fun getActionUpdateThread() = BGT
 
-    companion object {
-        private fun userDoesNotWantToRemovePlugins(plugins: List<LivePlugin>, project: Project?): Boolean {
-            val pluginIds = plugins.map { it.id }
-            val message = when (pluginIds.size) {
-                1    -> "Do you want to delete plugin ${pluginIds.first()}?"
-                else -> "Do you want to delete plugins ${pluginIds.joinToString(", ")}?"
-            }
-            val answer = Messages.showOkCancelDialog(
-                project,
-                message,
-                "Delete",
-                ApplicationBundle.message("button.delete"),
-                CommonBundle.getCancelButtonText(),
-                Messages.getQuestionIcon()
-            )
-            return answer != Messages.OK
+    private fun userDoesNotWantToRemovePlugins(plugins: List<LivePlugin>, project: Project?): Boolean {
+        val pluginIds = plugins.map { it.id }
+        val message = when (pluginIds.size) {
+            1    -> "Do you want to delete plugin ${pluginIds.first()}?"
+            else -> "Do you want to delete plugins ${pluginIds.joinToString(", ")}?"
         }
+        val answer = Messages.showOkCancelDialog(
+            project,
+            message,
+            "Delete",
+            ApplicationBundle.message("button.delete"),
+            CommonBundle.getCancelButtonText(),
+            Messages.getQuestionIcon()
+        )
+        return answer != Messages.OK
     }
 }

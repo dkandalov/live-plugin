@@ -39,14 +39,12 @@ class RunPluginAction : AnAction("Run Plugin", "Run selected plugins", runPlugin
 
     override fun getActionUpdateThread() = BGT
 
-    companion object {
-        fun pluginNameInActionText(livePlugins: List<LivePlugin>): String =
-            when (livePlugins.size) {
-                0    -> "Plugin"
-                1    -> "'${livePlugins.first().id}' Plugin"
-                else -> "Selected Plugins"
-            }
-    }
+    private fun pluginNameInActionText(livePlugins: List<LivePlugin>): String =
+        when (livePlugins.size) {
+            0    -> "Plugin"
+            1    -> "'${livePlugins.first().id}' Plugin"
+            else -> "Selected Plugins"
+        }
 }
 
 class RunPluginTestsAction : AnAction("Run Plugin Tests", "Run plugin integration tests", testPluginIcon), DumbAware {
@@ -58,14 +56,10 @@ class RunPluginTestsAction : AnAction("Run Plugin Tests", "Run plugin integratio
     override fun update(event: AnActionEvent) {
         val isApplicable = event.livePlugins().canBeHandledBy(pluginTestRunners)
         event.presentation.isEnabled = isApplicable
-        event.presentation.isVisible = isApplicable || enabledInRegistry
+        event.presentation.isVisible = isApplicable || Registry.`is`("liveplugin.enable.run.plugin.tests")
     }
 
     override fun getActionUpdateThread() = BGT
-
-    companion object {
-        val enabledInRegistry = Registry.`is`("liveplugin.enable.run.plugin.tests")
-    }
 }
 
 class RunLivePluginsGroup : DefaultActionGroup(
@@ -76,24 +70,22 @@ class RunLivePluginsGroup : DefaultActionGroup(
     init {
         isPopup = false
     }
+}
 
-    companion object {
-        fun AnAction.hiddenWhenDisabled(): AnAction = HiddenWhenDisabledAction(this)
+private fun AnAction.hiddenWhenDisabled(): AnAction = HiddenWhenDisabledAction(this)
 
-        private class HiddenWhenDisabledAction(private val delegate: AnAction) : AnAction(), DumbAware {
-            override fun actionPerformed(event: AnActionEvent) = delegate.actionPerformed(event)
+private class HiddenWhenDisabledAction(private val delegate: AnAction) : AnAction(), DumbAware {
+    override fun actionPerformed(event: AnActionEvent) = delegate.actionPerformed(event)
 
-            override fun update(event: AnActionEvent) {
-                val presentation = delegate.templatePresentation
-                event.presentation.text = presentation.text
-                event.presentation.description = presentation.description
-                event.presentation.icon = presentation.icon
+    override fun update(event: AnActionEvent) {
+        val presentation = delegate.templatePresentation
+        event.presentation.text = presentation.text
+        event.presentation.description = presentation.description
+        event.presentation.icon = presentation.icon
 
-                delegate.update(event)
-                if (!event.presentation.isEnabled) event.presentation.isVisible = false
-            }
-
-            override fun getActionUpdateThread() = BGT
-        }
+        delegate.update(event)
+        if (!event.presentation.isEnabled) event.presentation.isVisible = false
     }
+
+    override fun getActionUpdateThread() = BGT
 }
