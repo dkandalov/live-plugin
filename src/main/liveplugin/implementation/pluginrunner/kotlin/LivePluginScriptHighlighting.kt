@@ -3,22 +3,19 @@ package liveplugin.implementation.pluginrunner.kotlin
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import liveplugin.implementation.common.toFilePath
-import org.jetbrains.kotlin.scripting.definitions.ScriptDefinition
-import org.jetbrains.kotlin.scripting.definitions.ScriptDefinitionsSource
 import java.io.File
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.api.ScriptAcceptedLocation.Everywhere
 import kotlin.script.experimental.host.FileScriptSource
-import kotlin.script.experimental.jvm.*
+import kotlin.script.experimental.intellij.ScriptDefinitionsProvider
+import kotlin.script.experimental.jvm.JvmDependency
+import kotlin.script.experimental.jvm.updateClasspath
 
-class LivePluginScriptSource : ScriptDefinitionsSource {
-    override val definitions: Sequence<ScriptDefinition> =
-        ScriptDefinition.FromTemplate(
-            baseHostConfiguration = defaultJvmScriptingHostConfiguration,
-            template = LivePluginScript::class,
-            contextClass = LivePluginScript::class
-        ).apply { order = Int.MIN_VALUE }
-            .let { sequenceOf(it) }
+class LivePluginScriptProvider : ScriptDefinitionsProvider {
+    override val id = "LivePlugin"
+    override fun getDefinitionClasses() = listOf(LivePluginScript::class.java.name)
+    override fun getDefinitionsClassPath() = livePluginLibAndSrcFiles()
+    override fun useDiscovery() = false
 }
 
 class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body = {
@@ -30,10 +27,8 @@ class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body =
             ResultWithDiagnostics.Success(createScriptConfig(context))
         }
     }
+    // There is no explicit JDK setup here , but it's somehow is picked by Kotlin script hightling.
     compilerOptions("-jvm-target", "21")
-    jvm {
-        jdkHome(File(System.getProperty("java.home")))
-    }
     ide {
         acceptedLocations(Everywhere)
         dependenciesSources(JvmDependency(livePluginLibAndSrcFiles()))
