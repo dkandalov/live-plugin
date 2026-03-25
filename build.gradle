@@ -25,7 +25,7 @@ ext.groovyVersion = "3.0.25"
 // For available IDE versions see "com.jetbrains.intellij.idea" in
 // https://www.jetbrains.com/intellij-repository/releases and https://www.jetbrains.com/intellij-repository/snapshots
 // 👇2026.1 because it has updated version of Kotlin and binary compatibility issue (https://github.com/dkandalov/live-plugin/issues/213)
-ext.ideVersion = "261-EAP-SNAPSHOT"
+ext.ideVersion = "2026.1"
 ext.ideSandbox = "build/idea-sandbox/IU-2026.1"
 
 
