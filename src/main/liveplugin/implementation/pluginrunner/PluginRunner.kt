@@ -75,7 +75,8 @@ object PluginDependencies {
         val additionalPaths = additionalClasspath.map { file -> file.toPath() }.onEach { path ->
             if (!path.exists()) return SetupError("Didn't find plugin dependency '${path.toFile().absolutePath}'.").asFailure()
         }
-        val parentClassLoaders = pluginDescriptors.mapNotNull { it.pluginClassLoader } + PluginRunner::class.java.classLoader
+        val parentClassLoaders =
+            pluginDescriptors.mapNotNull { it.pluginClassLoader } + PluginRunner::class.java.classLoader
 
         return PluginClassLoader_Fork(
             classPath = ClassPath(additionalPaths, UrlClassLoader.build(), null, false),
@@ -102,10 +103,8 @@ object PluginDependencies {
             if (descriptor !in result) {
                 result.add(descriptor)
 
-                val dependenciesDescriptors1 = descriptor.dependencies
+                val descriptors = descriptor.dependencies
                     .mapNotNullTo(HashSet()) { if (it.isOptional) null else PluginManagerCore.getPlugin(it.pluginId) }
-
-                val descriptors = dependenciesDescriptors1
                     .filter { it.pluginId != PluginManagerCore.CORE_ID }
                     .distinctBy { it.pluginId }
 
