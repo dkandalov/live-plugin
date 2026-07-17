@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>LivePlugin</id>
     <name>LivePlugin</name>
-	<version>0.10.0</version>
+	<version>0.11.0</version>
 	<vendor url="https://github.com/dkandalov/live-plugin" email="dmitry.kandalov@gmail.com">Dmitry Kandalov</vendor>
 	<idea-version since-build="2026.1"/>
 	<category>Plugin Development</category>
