@@ -2,6 +2,7 @@ package liveplugin.implementation.pluginrunner
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.ide.plugins.PluginModuleDescriptor
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
@@ -69,18 +70,18 @@ object PluginDependencies {
     @Suppress("UnstableApiUsage")
     fun createClassLoaderWithDependencies(
         additionalClasspath: List<File>,
-        pluginDescriptors: List<IdeaPluginDescriptor>,
+        dependenciesDescriptors: List<IdeaPluginDescriptor>,
         plugin: LivePlugin
     ): Result<ClassLoader, SetupError> {
         val additionalPaths = additionalClasspath.map { file -> file.toPath() }.onEach { path ->
             if (!path.exists()) return SetupError("Didn't find plugin dependency '${path.toFile().absolutePath}'.").asFailure()
         }
-        val parentClassLoaders =
-            pluginDescriptors.mapNotNull { it.pluginClassLoader } + PluginRunner::class.java.classLoader
+        val selfDescriptor = PluginManagerCore.getPlugin(PluginId.getId(livePluginId))
+        val parentDescriptors = (dependenciesDescriptors + selfDescriptor).filterIsInstance<PluginModuleDescriptor>()
 
         return PluginClassLoader_Fork(
             classPath = ClassPath(additionalPaths, UrlClassLoader.build(), null, false),
-            parents = parentClassLoaders.toTypedArray(),
+            parents = parentDescriptors.toTypedArray(),
             pluginDescriptor = DefaultPluginDescriptor(plugin.id),
             coreLoader = PluginManagerCore::class.java.classLoader,
             resolveScopeManager = null,
