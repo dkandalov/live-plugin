@@ -57,8 +57,9 @@ interface PluginRunner {
 
 interface ExecutablePlugin
 
-val pluginRunners = listOf(mainGroovyPluginRunner, mainKotlinPluginRunner)
-val pluginTestRunners = listOf(testGroovyPluginRunner, testKotlinPluginRunner)
+// Lazy to avoid trying to load runners during highlighting (workaround for https://github.com/dkandalov/live-plugin/issues/220, needs a better fix)
+val pluginRunners by lazy { listOf(mainGroovyPluginRunner, mainKotlinPluginRunner) }
+val pluginTestRunners by lazy { listOf(testGroovyPluginRunner, testKotlinPluginRunner) }
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 
@@ -176,7 +177,7 @@ private fun runInBackground(project: Project?, taskDescription: String, function
 fun displayError(pluginId: String, error: PluginError, project: Project?) {
     val (title, message) = when (error) {
         is SetupError   -> Pair("Loading error: $pluginId", error.message + if (error.throwable != null) "\n" + IdeUtil.unscrambleThrowable(error.throwable) else "")
-        is RunningError -> Pair("Running error: $pluginId", IdeUtil.unscrambleThrowable(error.throwable))
+        is  RunningError -> Pair("Running error: $pluginId", IdeUtil.unscrambleThrowable(error.throwable))
     }
     IdeUtil.displayError(title, message, project)
 }
