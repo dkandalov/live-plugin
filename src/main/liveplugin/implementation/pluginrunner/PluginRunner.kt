@@ -70,18 +70,18 @@ data class RunningError(val throwable: Throwable) : PluginError()
 object PluginDependencies {
     @Suppress("UnstableApiUsage")
     fun createClassLoaderWithDependencies(
-        additionalClasspath: List<File>,
+        classpath: List<File>,
         dependenciesDescriptors: List<IdeaPluginDescriptor>,
         plugin: LivePlugin
     ): Result<ClassLoader, SetupError> {
-        val additionalPaths = additionalClasspath.map { file -> file.toPath() }.onEach { path ->
+        val paths = classpath.map { file -> file.toPath() }.onEach { path ->
             if (!path.exists()) return SetupError("Didn't find plugin dependency '${path.toFile().absolutePath}'.").asFailure()
         }
         val selfDescriptor = PluginManagerCore.getPlugin(PluginId.getId(livePluginId))
         val parentDescriptors = (dependenciesDescriptors + selfDescriptor).filterIsInstance<PluginModuleDescriptor>()
 
         return PluginClassLoader_Fork(
-            classPath = ClassPath(additionalPaths, UrlClassLoader.build(), null, false),
+            classPath = ClassPath(paths, UrlClassLoader.build(), null, false),
             parents = parentDescriptors.toTypedArray(),
             pluginDescriptor = DefaultPluginDescriptor(plugin.id),
             coreLoader = PluginManagerCore::class.java.classLoader,
