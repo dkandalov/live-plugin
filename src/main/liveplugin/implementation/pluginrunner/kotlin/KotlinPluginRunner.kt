@@ -181,7 +181,6 @@ private class KotlinPluginCompiler {
         private val compilerClassLoader by lazy {
             UrlClassLoader.build()
                 .files(ideJdkClassesRoots() + livePluginKotlinCompilerLibFiles().map(File::toPath))
-                .noPreload()
                 .allowBootstrapResources()
                 .useCache()
                 .get()
