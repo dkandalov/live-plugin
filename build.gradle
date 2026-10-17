@@ -50,6 +50,7 @@ dependencies {
 		bundledPlugin "Git4Idea"
 		bundledPlugin "org.jetbrains.plugins.github"
 		bundledPlugin "JUnit"
+		bundledPlugin "com.intellij.mcpServer"
 	}
 
 	implementation project(":kotlin-compiler-wrapper")

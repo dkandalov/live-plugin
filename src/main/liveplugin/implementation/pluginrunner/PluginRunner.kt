@@ -46,6 +46,14 @@ interface PluginRunner {
             livePlugins.forEach { Binding.lookup(it)?.dispose() }
         }
 
+        @JvmStatic fun runPluginsAndAwait(livePlugins: Collection<LivePlugin>, event: AnActionEvent): Map<String, PluginError> {
+            val errorByPluginId = LinkedHashMap<String, PluginError>()
+            livePlugins.forEach { livePlugin ->
+                livePlugin.runSync(pluginRunners, event).peekFailure { errorByPluginId[livePlugin.id] = it }
+            }
+            return errorByPluginId
+        }
+
         fun List<LivePlugin>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
             any { livePlugin ->
                 pluginRunners.any { runner ->
@@ -157,6 +165,19 @@ private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActio
             .flatMap { IdeUtil.runOnEdt { pluginRunner.run(it, binding) } }
             .peekFailure { displayError(id, it, project) }
     }
+}
+
+// Unlike runWith(), this doesn't dispatch to a background task, so it blocks the calling thread until the plugin has
+// finished running and returns the error instead of displaying it (for callers like the MCP toolset that already run
+// off the EDT and want to report success/failure back to their caller).
+private fun LivePlugin.runSync(pluginRunners: List<PluginRunner>, event: AnActionEvent): Result<Unit, PluginError> {
+    val project = event.project
+    val binding = Binding.create(this, event)
+    val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
+        ?: return SetupError(message = "Startup script was not found. Tried: ${pluginRunners.map { it.scriptName }}").asFailure()
+
+    return pluginRunner.setup(this, project)
+        .flatMap { IdeUtil.runOnEdt { pluginRunner.run(it, binding) } }
 }
 
 private fun runInBackground(project: Project?, taskDescription: String, function: () -> Any) {

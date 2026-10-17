@@ -34,6 +34,7 @@
 	<depends optional="true" config-file="junit-panel-integration.xml">JUnit</depends>
 	<depends optional="true" config-file="groovy-plugin-integration.xml">org.intellij.groovy</depends>
 	<depends optional="true" config-file="kotlin-plugin-integration.xml">org.jetbrains.kotlin</depends>
+	<depends optional="true" config-file="mcp-server-integration.xml">com.intellij.mcpServer</depends>
 
 	<extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Live Plugins" anchor="right"
