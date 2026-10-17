@@ -57,7 +57,7 @@ private object GroovyDownloader {
     fun downloadGroovyJar() {
         livePluginNotificationGroup.createNotification(
             title = "LivePlugin didn't find Groovy libraries on classpath",
-            content = "Without it plugins won't work. <a href=\"\">Download Groovy libraries</a> (~8Mb)",
+            content = "Without it Groovy plugins won't work. <a href=\"\">Download Groovy libraries</a> (~8Mb)",
             type = ERROR
         ).addAction(object : NotificationAction("Download Groovy libraries") {
             override fun actionPerformed(e: AnActionEvent, notification: Notification) {
