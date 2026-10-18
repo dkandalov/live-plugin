@@ -10,6 +10,8 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.panel
 import liveplugin.implementation.Settings
+import java.nio.file.Path
+import kotlin.io.path.isDirectory
 
 class SetIntellijSourceCodePathAction : AnAction(), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
@@ -37,6 +39,12 @@ class SetIntellijSourceCodePathAction : AnAction(), DumbAware {
                     .align(AlignX.FILL)
                     .applyToComponent { text = path }
                     .onChanged { path = it.text.trim() }
+                    .validationOnInput {
+                        val text = it.text.trim()
+                        if (text.isNotEmpty() && !runCatching { Path.of(text).isDirectory() }.getOrDefault(false)) {
+                            warning("Path doesn't exist, but it will still be saved")
+                        } else null
+                    }
             }.rowComment(
                 "Checkout of <a href=\"https://github.com/JetBrains/intellij-community\">intellij-community source code</a>. " +
                     "Used by MCP to look up IntelliJ Platform APIs."
