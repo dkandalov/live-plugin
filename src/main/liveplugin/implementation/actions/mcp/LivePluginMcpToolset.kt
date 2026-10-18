@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
 import liveplugin.implementation.LivePlugin
+import liveplugin.implementation.Settings
 import liveplugin.implementation.pluginrunner.PluginRunner.Companion.runPluginsAndAwait
 import liveplugin.implementation.pluginrunner.PluginRunner.Companion.unloadPlugins
 import liveplugin.implementation.pluginrunner.RunningError
@@ -26,6 +27,8 @@ import java.nio.file.Files
 import kotlin.io.path.exists
 
 class LivePluginMcpToolset : McpToolset {
+    override fun isEnabled(): Boolean = Settings.instance.mcpToolsEnabled
+
     @McpTool
     @McpDescription("""
         |Lists ids of LivePlugin scripts available in the 'live-plugins' folder (Settings | Tools | Live Plugins tool window).
