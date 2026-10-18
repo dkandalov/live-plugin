@@ -110,16 +110,12 @@ class LivePluginMcpToolset : McpToolset {
     """)
     @Suppress("UnstableApiUsage")
     fun list_ide_errors(
-        @McpDescription("Include errors already marked as read/viewed in the dialog")
-        include_read: Boolean = true,
-        @McpDescription("Include errors already submitted as reports")
-        include_submitted: Boolean = false,
         @McpDescription("Maximum number of errors to return (default: 20)")
         limit: Int = 20,
-        @McpDescription("Maximum stack trace lines per error (default: 30)")
-        max_stack_trace_lines: Int = 30,
+        @McpDescription("Maximum stack trace lines per error (default: 50)")
+        max_stack_trace_lines: Int = 50,
     ): String {
-        val errors = MessagePool.getInstance().getFatalErrors(include_read, include_submitted)
+        val errors = MessagePool.getInstance().getFatalErrors(true, true)
             .sortedByDescending { it.date }
             .take(limit)
 
@@ -138,7 +134,7 @@ class LivePluginMcpToolset : McpToolset {
     }
 
     @McpTool
-    @McpDescription("Clears all IDE-internal fatal errors from the IDE's error widget/dialog (same effect as 'Clear All' in that dialog).")
+    @McpDescription("Clears all IDE-internal fatal errors from the IDE's error widget/dialog.")
     @Suppress("UnstableApiUsage")
     fun clear_ide_errors(): String {
         val count = MessagePool.getInstance().getFatalErrors(true, true).size
