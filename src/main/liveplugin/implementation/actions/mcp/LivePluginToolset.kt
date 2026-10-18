@@ -26,7 +26,7 @@ import liveplugin.implementation.pluginrunner.SetupError
 import java.nio.file.Files
 import kotlin.io.path.exists
 
-class LivePluginMcpToolset : McpToolset {
+class LivePluginToolset : McpToolset {
     override fun isEnabled(): Boolean = Settings.instance.mcpToolsEnabled
 
     @McpTool

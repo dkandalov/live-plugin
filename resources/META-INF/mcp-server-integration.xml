@@ -1,5 +1,5 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
-        <mcpServer.mcpToolset implementation="liveplugin.implementation.actions.mcp.LivePluginMcpToolset"/>
+        <mcpServer.mcpToolset implementation="liveplugin.implementation.actions.mcp.LivePluginToolset"/>
     </extensions>
 </idea-plugin>

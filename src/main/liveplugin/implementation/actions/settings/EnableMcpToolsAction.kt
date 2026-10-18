@@ -6,12 +6,7 @@ import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.project.DumbAware
 import liveplugin.implementation.Settings
 
-class EnableMcpToolsAction: ToggleAction(
-    "Expose LivePlugin Tools via MCP",
-    "Expose list_live_plugins/run_live_plugin/unload_live_plugin/etc. as MCP tools " +
-        "(requires the IDE's bundled MCP Server plugin). Changing this may require reconnecting the MCP client to see the updated tool list.",
-    null
-), DumbAware {
+class EnableMcpToolsAction : ToggleAction("Expose LivePlugin Tools via MCP", null, null), DumbAware {
     override fun isSelected(event: AnActionEvent) =
         Settings.instance.mcpToolsEnabled
 
