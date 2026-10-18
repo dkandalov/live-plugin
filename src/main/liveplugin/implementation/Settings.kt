@@ -11,7 +11,8 @@ data class Settings(
     var justInstalled: Boolean = true,
     var runProjectSpecificPlugins: Boolean = true,
     var runAllPluginsOnIDEStartup: Boolean = false,
-    var mcpToolsEnabled: Boolean = false
+    var mcpToolsEnabled: Boolean = false,
+    var intellijSourceCodePath: String = ""
 ): PersistentStateComponent<Settings> {
 
     override fun getState() = this

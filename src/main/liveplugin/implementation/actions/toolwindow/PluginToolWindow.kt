@@ -34,10 +34,7 @@ import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.actions.*
 import liveplugin.implementation.actions.git.AddPluginFromGistOrGitAction
 import liveplugin.implementation.actions.git.SharePluginAsGistDelegateAction
-import liveplugin.implementation.actions.settings.AddLivePluginAndIdeJarsAsDependencies
-import liveplugin.implementation.actions.settings.EnableMcpToolsAction
-import liveplugin.implementation.actions.settings.RunPluginsOnIDEStartAction
-import liveplugin.implementation.actions.settings.RunProjectSpecificPluginsAction
+import liveplugin.implementation.actions.settings.*
 import liveplugin.implementation.common.Icons.addPluginIcon
 import liveplugin.implementation.common.Icons.collapseAllIcon
 import liveplugin.implementation.common.Icons.helpIcon
@@ -99,7 +96,9 @@ private class PluginToolWindow(project: Project) {
                 add(RunPluginsOnIDEStartAction())
                 add(RunProjectSpecificPluginsAction())
                 add(AddLivePluginAndIdeJarsAsDependencies())
+                addSeparator()
                 add(EnableMcpToolsAction())
+                add(SetIntellijSourceCodePathAction())
             }.with(settingsIcon))
             add(ShowHelpAction())
         }
