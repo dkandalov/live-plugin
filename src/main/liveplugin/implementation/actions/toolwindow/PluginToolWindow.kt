@@ -88,7 +88,6 @@ private class PluginToolWindow(project: Project) {
             add(DeletePluginAction())
             add(RunPluginAction())
             add(UnloadPluginAction())
-            add(RunPluginTestsAction())
             add(DefaultActionGroup("Share Plugin", true).apply {
                 add(SharePluginAsGistDelegateAction())
                 add(CreateKotlinPluginZipAction())

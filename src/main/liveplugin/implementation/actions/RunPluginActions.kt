@@ -8,17 +8,13 @@ import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.util.registry.Registry
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.Icons.rerunPluginIcon
 import liveplugin.implementation.common.Icons.runPluginIcon
-import liveplugin.implementation.common.Icons.testPluginIcon
 import liveplugin.implementation.livePlugins
 import liveplugin.implementation.pluginrunner.PluginRunner.Companion.canBeHandledBy
 import liveplugin.implementation.pluginrunner.PluginRunner.Companion.runPlugins
-import liveplugin.implementation.pluginrunner.PluginRunner.Companion.runPluginsTests
 import liveplugin.implementation.pluginrunner.pluginRunners
-import liveplugin.implementation.pluginrunner.pluginTestRunners
 
 class RunPluginAction : AnAction("Run Plugin", "Run selected plugins", runPluginIcon), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
@@ -46,21 +42,6 @@ fun pluginNameInActionText(livePlugins: List<LivePlugin>): String =
         1    -> "'${livePlugins.first().id}' Plugin"
         else -> "Selected Plugins"
     }
-
-class RunPluginTestsAction : AnAction("Run Plugin Tests", "Run plugin integration tests", testPluginIcon), DumbAware {
-    override fun actionPerformed(event: AnActionEvent) {
-        runWriteAction { FileDocumentManager.getInstance().saveAllDocuments() }
-        runPluginsTests(event.livePlugins(), event)
-    }
-
-    override fun update(event: AnActionEvent) {
-        val isApplicable = event.livePlugins().canBeHandledBy(pluginTestRunners)
-        event.presentation.isEnabled = isApplicable
-        event.presentation.isVisible = isApplicable || Registry.`is`("liveplugin.enable.run.plugin.tests")
-    }
-
-    override fun getActionUpdateThread() = BGT
-}
 
 class RunLivePluginsGroup : DefaultActionGroup(
     RunPluginAction().hiddenWhenDisabled(),

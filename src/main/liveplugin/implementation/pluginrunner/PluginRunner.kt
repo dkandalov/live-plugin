@@ -16,9 +16,7 @@ import com.intellij.util.lang.UrlClassLoader
 import liveplugin.implementation.LivePlugin
 import liveplugin.implementation.common.*
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.mainGroovyPluginRunner
-import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.testGroovyPluginRunner
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.mainKotlinPluginRunner
-import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.testKotlinPluginRunner
 import org.apache.oro.io.GlobFilenameFilter
 import java.io.File
 import java.io.FileFilter
@@ -45,11 +43,6 @@ interface PluginRunner {
             return errorByPluginId
         }
 
-        @Deprecated("deprecating plugin tests")
-        @JvmStatic fun runPluginsTests(livePlugins: Collection<LivePlugin>, event: AnActionEvent) {
-            livePlugins.forEach { it.runAsyncWith(pluginTestRunners, event) }
-        }
-
         @JvmStatic fun unloadPlugins(livePlugins: Collection<LivePlugin>) {
             livePlugins.forEach { Binding.lookup(it)?.dispose() }
         }
@@ -67,7 +60,6 @@ interface ExecutablePlugin
 
 // Lazy to avoid trying to load runners during highlighting (workaround for https://github.com/dkandalov/live-plugin/issues/220, needs a better fix)
 val pluginRunners by lazy { listOf(mainGroovyPluginRunner, mainKotlinPluginRunner) }
-val pluginTestRunners by lazy { listOf(testGroovyPluginRunner, testKotlinPluginRunner) }
 
 fun systemEnvironment(): Map<String, String> = HashMap(System.getenv())
 

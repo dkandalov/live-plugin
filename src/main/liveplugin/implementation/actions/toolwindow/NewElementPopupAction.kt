@@ -20,7 +20,6 @@ import liveplugin.implementation.common.Icons.newFolderIcon
 import liveplugin.implementation.common.IdeUtil.KotlinScriptFileType
 import liveplugin.implementation.common.IdeUtil.groovyFileType
 import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyScriptFile
-import liveplugin.implementation.pluginrunner.groovy.GroovyPluginRunner.Companion.groovyTestScriptFile
 import liveplugin.implementation.pluginrunner.kotlin.KotlinPluginRunner.Companion.kotlinScriptFile
 import liveplugin.implementation.readSampleScriptFile
 
@@ -54,7 +53,6 @@ val livePluginNewElementPopup by lazy {
             NewDirectoryAction(),
             NewKotlinMainScript(),
             NewGroovyMainScript(),
-            NewGroovyTestScript(),
             NewPluginXmlScript(),
             Separator.getInstance(),
             AddNewKotlinPluginAction(),
@@ -86,13 +84,6 @@ private class NewKotlinMainScript : NewFileFromTemplateAction(
     newFileName = kotlinScriptFile,
     fileContent = readSampleScriptFile("$kotlinExamplesPath/default-plugin.kts"),
     fileType = KotlinScriptFileType
-)
-
-private class NewGroovyTestScript : NewFileFromTemplateAction(
-    text = groovyTestScriptFile,
-    newFileName = groovyTestScriptFile,
-    fileContent = readSampleScriptFile("$groovyExamplesPath/default-plugin-test.groovy"),
-    fileType = groovyFileType
 )
 
 class NewPluginXmlScript(
