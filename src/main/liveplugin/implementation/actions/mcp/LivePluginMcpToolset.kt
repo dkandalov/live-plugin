@@ -3,6 +3,7 @@
 package liveplugin.implementation.actions.mcp
 
 import com.intellij.diagnostic.MessagePool
+import com.intellij.idea.LoggerFactory
 import com.intellij.mcpserver.McpToolset
 import com.intellij.mcpserver.annotations.McpDescription
 import com.intellij.mcpserver.annotations.McpTool
@@ -21,6 +22,8 @@ import liveplugin.implementation.pluginrunner.PluginRunner.Companion.runPluginsA
 import liveplugin.implementation.pluginrunner.PluginRunner.Companion.unloadPlugins
 import liveplugin.implementation.pluginrunner.RunningError
 import liveplugin.implementation.pluginrunner.SetupError
+import java.nio.file.Files
+import kotlin.io.path.exists
 
 class LivePluginMcpToolset : McpToolset {
     @McpTool
@@ -142,6 +145,34 @@ class LivePluginMcpToolset : McpToolset {
         return "Cleared $count IDE error(s)"
     }
 
+    @McpTool
+    @McpDescription("""
+        |Reads the tail of the IDE's main log file (idea.log, same file as 'Help | Show Log in Finder').
+        |Only the current log file is read, not rotated backups (idea.log.1, etc.).
+    """)
+    fun read_ide_log(
+        @McpDescription("Case-insensitive substring to filter lines by. When set, returns the last matching lines from anywhere in the file, not just its tail.")
+        filter: String? = null,
+        @McpDescription("Maximum number of lines to return, from the end of the file (default: $DEFAULT_LOG_TAIL_LINES, max: $MAX_LOG_TAIL_LINES)")
+        tail_lines: Int = DEFAULT_LOG_TAIL_LINES,
+    ): String {
+        val normalizedTailLines = tail_lines.coerceIn(1, MAX_LOG_TAIL_LINES)
+        val logFile = LoggerFactory.getLogFilePath()
+        if (!logFile.exists()) mcpFail("Log file not found: $logFile")
+
+        val lastLines = ArrayDeque<String>(normalizedTailLines)
+        Files.newBufferedReader(logFile).useLines { lines ->
+            lines.forEach { line ->
+                if (filter == null || line.contains(filter, ignoreCase = true)) {
+                    if (lastLines.size == normalizedTailLines) lastLines.removeFirst()
+                    lastLines.addLast(line.take(MAX_LOG_LINE_LENGTH))
+                }
+            }
+        }
+
+        return if (lastLines.isEmpty()) "No matching lines in $logFile" else lastLines.joinToString("\n")
+    }
+
     private suspend fun syntheticActionEvent(): AnActionEvent {
         val project = currentCoroutineContext().projectOrNull
         val dataContext = SimpleDataContext.builder().apply {
@@ -150,3 +181,7 @@ class LivePluginMcpToolset : McpToolset {
         return AnActionEvent.createEvent(dataContext, null, "", ActionUiKind.NONE, null)
     }
 }
+
+private const val DEFAULT_LOG_TAIL_LINES = 200
+private const val MAX_LOG_TAIL_LINES = 2000
+private const val MAX_LOG_LINE_LENGTH = 2000
