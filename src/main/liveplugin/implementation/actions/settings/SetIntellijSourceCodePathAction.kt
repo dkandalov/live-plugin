@@ -13,24 +13,21 @@ import liveplugin.implementation.Settings
 
 class SetIntellijSourceCodePathAction : AnAction(), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
-        val dialog = IntellijSourceCodePathDialog(event.project)
+        val dialog = PathDialog(event.project, Settings.instance.intellijSourceCodePath)
         if (dialog.showAndGet()) {
-            Settings.instance.intellijSourceCodePath = dialog.path.trim()
+            Settings.instance.intellijSourceCodePath = dialog.path
         }
     }
 
     override fun update(event: AnActionEvent) {
-        val path = Settings.instance.intellijSourceCodePath
-        event.presentation.text = if (path.isBlank()) "Set IntelliJ Source Code Path…" else "IntelliJ Source Code Path: $path"
+        event.presentation.text = "Set IntelliJ Source Code Path for MCP…"
     }
 
     override fun getActionUpdateThread() = BGT
 
-    private class IntellijSourceCodePathDialog(private val project: Project?) : DialogWrapper(project, true) {
-        var path: String = Settings.instance.intellijSourceCodePath
-
+    private class PathDialog(private val project: Project?, var path: String) : DialogWrapper(project, true) {
         init {
-            title = "IntelliJ Source Code Path"
+            title = "IntelliJ Source Code Path for MCP"
             init()
         }
 
@@ -39,8 +36,11 @@ class SetIntellijSourceCodePathAction : AnAction(), DumbAware {
                 textFieldWithBrowseButton(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project)
                     .align(AlignX.FILL)
                     .applyToComponent { text = path }
-                    .onChanged { path = it.text }
-            }.rowComment("Local checkout of intellij-community source code, used to look up IntelliJ Platform APIs.")
+                    .onChanged { path = it.text.trim() }
+            }.rowComment(
+                "Checkout of <a href=\"https://github.com/JetBrains/intellij-community\">intellij-community source code</a>. " +
+                    "Used by MCP to look up IntelliJ Platform APIs."
+            )
         }
     }
 }
