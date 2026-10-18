@@ -2,6 +2,7 @@
 
 package liveplugin.implementation.actions.mcp
 
+import com.intellij.diagnostic.MessagePool
 import com.intellij.mcpserver.McpToolset
 import com.intellij.mcpserver.annotations.McpDescription
 import com.intellij.mcpserver.annotations.McpTool
@@ -100,6 +101,49 @@ class LivePluginMcpToolset : McpToolset {
                 "Content: ${it.content}"
             ).joinToString("\n")
         }
+    }
+
+    @McpTool
+    @McpDescription("""
+        |Lists IDE-internal fatal errors shown in the IDE's error widget/dialog (the 'Report IDE Errors' icon in the status bar).
+        |These are IDE/plugin exceptions caught by the platform, not code inspection problems. Most recent first.
+    """)
+    @Suppress("UnstableApiUsage")
+    fun list_ide_errors(
+        @McpDescription("Include errors already marked as read/viewed in the dialog")
+        include_read: Boolean = true,
+        @McpDescription("Include errors already submitted as reports")
+        include_submitted: Boolean = false,
+        @McpDescription("Maximum number of errors to return (default: 20)")
+        limit: Int = 20,
+        @McpDescription("Maximum stack trace lines per error (default: 30)")
+        max_stack_trace_lines: Int = 30,
+    ): String {
+        val errors = MessagePool.getInstance().getFatalErrors(include_read, include_submitted)
+            .sortedByDescending { it.date }
+            .take(limit)
+
+        return if (errors.isEmpty()) "No IDE errors"
+        else errors.joinToString("\n\n") {
+            val stackTraceLines = it.throwableText.lineSequence().take(max_stack_trace_lines).toList()
+            val stackTrace = stackTraceLines.joinToString("\n") +
+                if (stackTraceLines.size == max_stack_trace_lines) "\n... (truncated)" else ""
+
+            listOfNotNull(
+                "Date: ${it.date}${if (it.isRead) " (read)" else ""}${if (it.isSubmitted) " (submitted)" else ""}",
+                it.message?.takeIf { message -> message.isNotBlank() }?.let { message -> "Message: $message" },
+                stackTrace
+            ).joinToString("\n")
+        }
+    }
+
+    @McpTool
+    @McpDescription("Clears all IDE-internal fatal errors from the IDE's error widget/dialog (same effect as 'Clear All' in that dialog).")
+    @Suppress("UnstableApiUsage")
+    fun clear_ide_errors(): String {
+        val count = MessagePool.getInstance().getFatalErrors(true, true).size
+        MessagePool.getInstance().clearErrors()
+        return "Cleared $count IDE error(s)"
     }
 
     private suspend fun syntheticActionEvent(): AnActionEvent {
