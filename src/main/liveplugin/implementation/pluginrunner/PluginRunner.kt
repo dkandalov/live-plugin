@@ -34,24 +34,24 @@ interface PluginRunner {
 
     companion object {
         @JvmStatic fun runPlugins(livePlugins: Collection<LivePlugin>, event: AnActionEvent) {
-            livePlugins.forEach { it.runWith(pluginRunners, event) }
-        }
-
-        @Deprecated("deprecating plugin tests")
-        @JvmStatic fun runPluginsTests(livePlugins: Collection<LivePlugin>, event: AnActionEvent) {
-            livePlugins.forEach { it.runWith(pluginTestRunners, event) }
-        }
-
-        @JvmStatic fun unloadPlugins(livePlugins: Collection<LivePlugin>) {
-            livePlugins.forEach { Binding.lookup(it)?.dispose() }
+            livePlugins.forEach { it.runAsyncWith(pluginRunners, event) }
         }
 
         @JvmStatic fun runPluginsAndAwait(livePlugins: Collection<LivePlugin>, event: AnActionEvent): Map<String, PluginError> {
             val errorByPluginId = LinkedHashMap<String, PluginError>()
             livePlugins.forEach { livePlugin ->
-                livePlugin.runSync(pluginRunners, event).peekFailure { errorByPluginId[livePlugin.id] = it }
+                livePlugin.runSyncWith(pluginRunners, event).peekFailure { errorByPluginId[livePlugin.id] = it }
             }
             return errorByPluginId
+        }
+
+        @Deprecated("deprecating plugin tests")
+        @JvmStatic fun runPluginsTests(livePlugins: Collection<LivePlugin>, event: AnActionEvent) {
+            livePlugins.forEach { it.runAsyncWith(pluginTestRunners, event) }
+        }
+
+        @JvmStatic fun unloadPlugins(livePlugins: Collection<LivePlugin>) {
+            livePlugins.forEach { Binding.lookup(it)?.dispose() }
         }
 
         fun List<LivePlugin>.canBeHandledBy(pluginRunners: List<PluginRunner>): Boolean =
@@ -154,7 +154,7 @@ object PluginDependencies {
     }
 }
 
-private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
+private fun LivePlugin.runAsyncWith(pluginRunners: List<PluginRunner>, event: AnActionEvent) {
     val project = event.project
     val binding = Binding.create(this, event)
     val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
@@ -167,10 +167,7 @@ private fun LivePlugin.runWith(pluginRunners: List<PluginRunner>, event: AnActio
     }
 }
 
-// Unlike runWith(), this doesn't dispatch to a background task, so it blocks the calling thread until the plugin has
-// finished running and returns the error instead of displaying it (for callers like the MCP toolset that already run
-// off the EDT and want to report success/failure back to their caller).
-private fun LivePlugin.runSync(pluginRunners: List<PluginRunner>, event: AnActionEvent): Result<Unit, PluginError> {
+private fun LivePlugin.runSyncWith(pluginRunners: List<PluginRunner>, event: AnActionEvent): Result<Unit, PluginError> {
     val project = event.project
     val binding = Binding.create(this, event)
     val pluginRunner = pluginRunners.find { path.find(it.scriptName) != null }
