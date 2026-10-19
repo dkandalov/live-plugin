@@ -223,6 +223,7 @@ class LivePluginToolset : McpToolset {
         |toolbar buttons, and keyboard shortcuts (e.g. 'SaveAll', 'Undo', 'Redo', 'ActivateProjectToolWindow').
         |The action's own 'update' logic still applies: if it's disabled or not visible in the current context, it's not run.
         |Action groups (e.g. menus) are not supported and will fail.
+        |Use 'find_ide_actions' to look up an action id by its display text.
     """)
     suspend fun run_ide_action(
         @McpDescription("Action id as registered with ActionManager, e.g. 'SaveAll', 'Undo', 'Redo'.")
@@ -247,6 +248,35 @@ class LivePluginToolset : McpToolset {
                 is AnActionResult.Failed -> mcpFail("Failed to perform action '$action_id': ${result.cause.message ?: result.cause}")
             }
         }
+    }
+
+    @McpTool
+    @McpDescription("""
+        |Finds IDE action ids whose display text (e.g. as shown in Help | Find Action) matches the given
+        |case-insensitive regex. Use this to discover an action id before calling 'run_ide_action'.
+        |Action groups (e.g. menus) are excluded since they can't be run directly.
+    """)
+    fun find_ide_actions(
+        @McpDescription("Case-insensitive regex matched against each action's display text.")
+        text_regex: String,
+        @McpDescription("Maximum number of matches to return (default: 50)")
+        limit: Int = 50,
+    ): String {
+        val regex = runCatching { Regex(text_regex, RegexOption.IGNORE_CASE) }
+            .getOrElse { mcpFail("Invalid 'text_regex': ${it.message}") }
+
+        val actionManager = ActionManager.getInstance()
+        val matches = actionManager.getActionIdList("").mapNotNull { id ->
+            val action = actionManager.getAction(id) ?: return@mapNotNull null
+            if (action is ActionGroup) return@mapNotNull null
+            val presentation = action.templatePresentation.clone()
+            action.applyTextOverride(ActionPlaces.ACTION_SEARCH, presentation)
+            val text = presentation.text ?: return@mapNotNull null
+            if (regex.containsMatchIn(text)) id to text else null
+        }.take(limit)
+
+        return if (matches.isEmpty()) "No actions found with text matching '$text_regex'"
+        else matches.joinToString("\n") { (id, text) -> "$id: '$text'" }
     }
 
     private suspend fun syntheticActionEvent(action: AnAction? = null): AnActionEvent {
