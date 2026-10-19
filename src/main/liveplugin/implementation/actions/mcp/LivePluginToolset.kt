@@ -14,6 +14,7 @@ import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
+import com.intellij.openapi.vfs.LocalFileSystem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
@@ -63,7 +64,7 @@ class LivePluginToolset : McpToolset {
             if (succeeded.isNotEmpty()) appendLine("Successfully ran: ${succeeded.joinToString(", ")}")
             errorById.forEach { (id, error) ->
                 val message = when (error) {
-                    is SetupError   -> error.message
+                    is SetupError -> error.message
                     is RunningError -> error.throwable.message ?: error.throwable.toString()
                 }
                 appendLine("Failed to run '$id': $message")
@@ -176,6 +177,46 @@ class LivePluginToolset : McpToolset {
         return if (lastLines.isEmpty()) "No matching lines in $logFile" else lastLines.joinToString("\n")
     }
 
+    @McpTool
+    @McpDescription(
+        """
+        |Describes where to find a local checkout of the IntelliJ Platform source code and how to use it
+        |to look up APIs (extension points, interfaces, default implementations, etc.) when writing LivePlugin scripts
+        |or other plugin code. Call this tool first before guessing API signatures.
+        |If no checkout is configured yet, returns instructions for cloning one and setting its path.
+    """
+    )
+    fun get_intellij_source_code_path(): String {
+        val path = Settings.instance.intellijSourceCodePath
+
+        return if (isValidDirectory(Settings.instance.intellijSourceCodePath))
+            """
+                |IntelliJ Platform source code is available at: $path
+                |This path points to a local git clone of https://github.com/JetBrains/intellij-community, so standard file search
+                |and grep tools work directly against it.
+                |
+                |Use it to look up exact API signatures, extension point declarations (plugin.xml files), default implementations,
+                |and Javadoc/KDoc comments instead of guessing them. For example:
+                |- Search for an extension point by its qualified name (e.g. 'com.intellij.someExtensionPoint') across '*.xml' files
+                |  to find where it's declared and what interface/class it expects.
+                |- Search for a class or interface name to find its source file, see its full API, and read usage examples
+                |  in other plugins within the same checkout.
+                |- Search for a string like a notification group id or action id to see how existing plugins use a particular API.
+            """.trimMargin()
+        else
+            """
+                |No local checkout of IntelliJ Platform (intellij-community) source code is configured.
+                |
+                |To set it up:
+                |1. Ask the user where they want to clone the repository to (e.g. a path next to their other projects).
+                |2. Clone it there (a shallow clone is enough for source lookups):
+                |   git clone --depth 1 https://github.com/JetBrains/intellij-community.git <chosen-path>
+                |3. In the IDE, open the 'Live Plugins' tool window, click the toolbar's Settings dropdown,
+                |   and select 'Set IntelliJ Source Code Path for MCP…', then point it at the cloned directory.
+                |4. Call this tool again to get usage instructions.
+            """.trimMargin()
+    }
+
     private suspend fun syntheticActionEvent(): AnActionEvent {
         val project = currentCoroutineContext().projectOrNull
         val dataContext = SimpleDataContext.builder().apply {
@@ -188,3 +229,6 @@ class LivePluginToolset : McpToolset {
 private const val DEFAULT_LOG_TAIL_LINES = 200
 private const val MAX_LOG_TAIL_LINES = 2000
 private const val MAX_LOG_LINE_LENGTH = 2000
+
+fun isValidDirectory(path: String): Boolean =
+    path.isNotBlank() && LocalFileSystem.getInstance().findFileByPath(path)?.isDirectory == true
