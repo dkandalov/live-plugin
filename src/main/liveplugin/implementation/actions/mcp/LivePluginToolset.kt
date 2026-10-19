@@ -10,10 +10,10 @@ import com.intellij.mcpserver.annotations.McpTool
 import com.intellij.mcpserver.mcpFail
 import com.intellij.mcpserver.projectOrNull
 import com.intellij.notification.ActionCenter
-import com.intellij.openapi.actionSystem.ActionUiKind
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.vfs.LocalFileSystem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -217,12 +217,45 @@ class LivePluginToolset : McpToolset {
             """.trimMargin()
     }
 
-    private suspend fun syntheticActionEvent(): AnActionEvent {
+    @McpTool
+    @McpDescription("""
+        |Runs an IDE action by its registered action id via ActionManager - the same mechanism used by menu items,
+        |toolbar buttons, and keyboard shortcuts (e.g. 'SaveAll', 'Undo', 'Redo', 'ActivateProjectToolWindow').
+        |The action's own 'update' logic still applies: if it's disabled or not visible in the current context, it's not run.
+        |Action groups (e.g. menus) are not supported and will fail.
+    """)
+    suspend fun run_ide_action(
+        @McpDescription("Action id as registered with ActionManager, e.g. 'SaveAll', 'Undo', 'Redo'.")
+        action_id: String,
+    ): String {
+        val action = ActionManager.getInstance().getAction(action_id) ?: mcpFail("No action found with id '$action_id'")
+        if (action is ActionGroup) mcpFail("Action '$action_id' is an action group (e.g. a menu) and can't be run directly.")
+
+        val event = syntheticActionEvent(action)
+        return withContext(Dispatchers.EDT) {
+            val updateResult = ActionUtil.updateAction(action, event)
+            if (updateResult is AnActionResult.Failed) {
+                mcpFail("Failed to update action '$action_id': ${updateResult.cause.message ?: updateResult.cause}")
+            }
+            if (!event.presentation.isEnabledAndVisible) {
+                return@withContext "Action '$action_id' is disabled or not visible in the current context, so it wasn't run."
+            }
+
+            when (val result = ActionUtil.performAction(action, event)) {
+                is AnActionResult.Performed -> "Performed action '$action_id'"
+                is AnActionResult.Ignored -> "Action '$action_id' was ignored: ${result.reason}"
+                is AnActionResult.Failed -> mcpFail("Failed to perform action '$action_id': ${result.cause.message ?: result.cause}")
+            }
+        }
+    }
+
+    private suspend fun syntheticActionEvent(action: AnAction? = null): AnActionEvent {
         val project = currentCoroutineContext().projectOrNull
         val dataContext = SimpleDataContext.builder().apply {
             if (project != null) add(CommonDataKeys.PROJECT, project)
         }.build()
-        return AnActionEvent.createEvent(dataContext, null, "", ActionUiKind.NONE, null)
+        return if (action != null) AnActionEvent.createEvent(action, dataContext, null, "", ActionUiKind.NONE, null)
+        else AnActionEvent.createEvent(dataContext, null, "", ActionUiKind.NONE, null)
     }
 }
 
