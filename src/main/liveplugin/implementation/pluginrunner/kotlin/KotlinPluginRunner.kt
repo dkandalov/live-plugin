@@ -188,14 +188,7 @@ private class KotlinPluginCompiler {
     }
 }
 
-fun ideLibFiles() = ideJarsPath
-    .allFiles()
-    .filter {
-        // Filter because the Kotlin compiler complains about non-zip files.
-        !it.isDirectory && (it.extension == "jar" || it.extension == "zip")
-    }
-    .map { it.toFile() }
-    .toList()
+fun ideLibFiles() = ideJarsPath.allLibFiles()
 
 fun dependenciesOnOtherPluginsForHighlighting(scriptText: List<String>): List<File> =
     findPluginDescriptorsOfDependencies(scriptText, kotlinDependsOnPluginKeyword)
@@ -215,11 +208,21 @@ private fun livePluginKotlinCompilerLibFiles() =
     (livePluginPath + "kotlin-compiler").listFiles().map { it.toFile() }
 
 private fun IdeaPluginDescriptor.toLibFiles() =
-    (pluginPath.absolutePathString().toFilePath() + "lib").listFiles {
-        // Exclusion specifically for Kotlin plugin which includes kotlin-compiler-plugins jars
-        // which seem to be compiled with IJ API and are not compatible with actual Kotlin compilers.
-        "compiler-plugin" !in it.name
-    }.map { it.toFile() }
+    (pluginPath.absolutePathString().toFilePath() + "lib").allLibFiles()
+
+private fun FilePath.allLibFiles() =
+    allFiles()
+        .filter {
+            // Filter because the Kotlin compiler complains about non-zip files.
+            !it.isDirectory && (it.extension == "jar" || it.extension == "zip")
+        }
+        .filter {
+            // Exclusion specifically for Kotlin plugin which includes kotlin-compiler-plugins jars
+            // which seem to be compiled with IJ API and are not compatible with actual Kotlin compilers.
+            "compiler-plugin" !in it.name
+        }
+        .map { it.toFile() }
+        .toList()
 
 class SrcHashCode(srcDir: FilePath, compilerOutputDir: FilePath) {
     private val hashFilePath = compilerOutputDir + hashFileName
