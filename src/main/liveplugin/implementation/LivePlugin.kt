@@ -2,7 +2,7 @@ package liveplugin.implementation
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.vfs.VirtualFile
 import liveplugin.implementation.LivePluginPaths.livePluginsPath
 import liveplugin.implementation.LivePluginPaths.livePluginsProjectDirName
@@ -15,7 +15,8 @@ data class LivePlugin(val path: FilePath) {
 
     companion object {
         @JvmStatic fun livePluginsById(): Map<String, LivePlugin> =
-            livePluginsPath.listFiles { it.isDirectory && it.name != Project.DIRECTORY_STORE_FOLDER }
+            livePluginsPath
+                .listFiles { it.isPluginFolder() }
                 .map { LivePlugin(it) }
                 .associateBy { it.id }
     }
@@ -35,6 +36,7 @@ fun FilePath.isPartOfPlugin(): Boolean =
 
 fun FilePath.isPluginFolder(): Boolean {
     if (exists() && !isDirectory) return false
+    if (FileTypeManager.getInstance().isFileIgnored(name)) return false
     val parent = parent ?: return false
     return parent == livePluginsPath ||
         parent.name == livePluginsProjectDirName ||
@@ -45,6 +47,7 @@ fun FilePath.isPluginFolder(): Boolean {
 // (See https://github.com/dkandalov/live-plugin/issues/184)
 fun VirtualFile.isPluginFolder(): Boolean {
     if (!exists() && !isDirectory) return false
+    if (FileTypeManager.getInstance().isFileIgnored(this)) return false
     val parent = parent ?: return false
     return parent.path == livePluginsPath.value ||
         parent.name == livePluginsProjectDirName ||
