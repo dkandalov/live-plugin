@@ -45,6 +45,7 @@ class LivePluginProjectListener : ProjectManagerListener {
 private fun findLivePluginsIn(project: Project) =
     project.modules
         .flatMap { it.rootManager.contentRoots.toList() }
+        .filter { it.isDirectory }
         .flatMap { root ->
             ApplicationManager.getApplication().runReadAction(Computable {
                 root.findFileOrDirectory(livePluginsProjectDirName)
