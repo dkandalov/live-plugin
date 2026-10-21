@@ -21,7 +21,7 @@ class SetIntellijSourceCodePathAction : AnAction(), DumbAware {
     }
 
     override fun update(event: AnActionEvent) {
-        event.presentation.text = "IntelliJ Source Code Path for MCP"
+        event.presentation.text = "IntelliJ Source Code Path for MCP…"
     }
 
     override fun getActionUpdateThread() = BGT
