@@ -11,6 +11,8 @@ or use the "Install" button on the [Plugin Marketplace website](http://plugins.j
 - [Why?](#why)
 - [Examples](#examples)
 - [Getting started](#getting-started)
+- [Settings](#settings)
+- [Learn more about IntelliJ API](#learn-more-about-intellij-api)
 - [How does LivePlugin work?](#how-does-liveplugin-work)
 - [Some practical use cases](#some-practical-use-cases)
 - [More examples](#more-examples)
@@ -68,16 +70,32 @@ Try bundled examples:
 - It might be useful to install [Kotlin](https://plugins.jetbrains.com/plugin/6954-kotlin) or 
 [Groovy](http://plugins.jetbrains.com/plugin/1524?pr=idea) plugin if your IDE supports them. 
 
-Take a look at settings in the `Live Plugins` tool window:
-- `Run Plugins on IDE Start` — run all plugins on IDE start.
-- `Run Project Specific Plugins` — run all plugins in `.live-plugins` project directory when 
-the project is opened and unload them when the project is closed.
-- `Add LivePlugin and IDE Jars to Project` — add jars from LivePlugin and IDE to the current project as a library (see `Project Settings -> Modules`).
-Adding unrelated jars to your project is a bit of a hack, but it can be useful for Groovy plugins to get auto-completion and code navigation in the plugin code.
-Kotlin plugins with a single `plugin.kts` should have auto-completion and code navigation without it.
-Multiple Kotlin files are not highlighted at the moment (see [this YouTrack issue](https://github.com/dkandalov/live-plugin/issues/105)) but should compile and run.
+If something doesn't work or doesn't make sense,
+please feel free to [report an issue](https://github.com/dkandalov/live-plugin/issues).
+It's ok to report an issue even if it's just a question.
 
-Learn more about IntelliJ API:
+Once your plugin has grown, you can move it to a proper plugin project 
+[still using live plugin for reloading](https://github.com/dkandalov/live-plugin/wiki/Liveplugin-as-an-entry-point-for-standard-plugins)
+and maybe make it a [dynamic plugin](https://plugins.jetbrains.com/docs/intellij/dynamic-plugins.html).
+
+
+## Settings
+Take a look at settings in the `Live Plugins` tool window:
+- `Run Plugins on IDE Start` — toggle to run all plugins on IDE start (disabled by default).
+- `Run Project Specific Plugins` — toggle to run all plugins in `.live-plugins` project directory when
+  the project is opened and unload them when the project is closed.
+- `Add LivePlugin and IDE Jars to Project` — add jars from LivePlugin and IDE to the current project as a library (see `Project Settings -> Modules`).
+  Adding unrelated jars to your project is a bit of a hack, but it can be useful for Groovy plugins to get auto-completion and code navigation in the plugin code.
+  Kotlin plugins with a single `plugin.kts` should have auto-completion and code navigation without it.
+  Multiple Kotlin files are not highlighted at the moment (see [this YouTrack issue](https://github.com/dkandalov/live-plugin/issues/105)) but should compile and run.
+- `Expose LivePlugin Tools via MCP` — turn on MCP tools for AI agents (disabled by default; requires restart). See `IDE Settings -> Tools -> MCP Server -> Exposed Tools`.
+  The tools include `list_live_plugins`, `run_live_plugin`, `read_ide_log`, etc. 
+  See [LivePluginToolset](https://github.com/dkandalov/live-plugin/blob/master/src/main/liveplugin/implementation/actions/mcp/LivePluginToolset.kt) for details.
+- `IntelliJ Source Code Path for MCP…` — path to directory with [intellij-community](https://github.com/JetBrains/intellij-community) source code
+  (exposed via `get_intellij_source_code_path` MCP tool), so that agents instead of "remembering" could look up the actual API.
+
+
+## Learn more about IntelliJ API
 - Read (or at least skim) [plugin development fundamentals](https://plugins.jetbrains.com/docs/intellij/fundamentals.html).
 - Explore [IntelliJ source code](https://github.com/JetBrains/intellij-community) by cloning or browsing it on GitHub.
   One useful strategy is to search for text you can see in IDE UI and then figure out 
@@ -85,14 +103,6 @@ Learn more about IntelliJ API:
 - [PluginUtil](https://github.com/dkandalov/live-plugin/blob/master/src/plugin-api-groovy/liveplugin/PluginUtil.groovy) class
   and [liveplugin](https://github.com/dkandalov/live-plugin/tree/master/src/plugin-api-kotlin/liveplugin) package
   might have some good starting points to explore IntelliJ API.
-
-Once your plugin has grown, you can move it to a proper plugin project 
-[still using live plugin for reloading](https://github.com/dkandalov/live-plugin/wiki/Liveplugin-as-an-entry-point-for-standard-plugins)
-and maybe then convert it to become a [dynamic plugin](https://plugins.jetbrains.com/docs/intellij/dynamic-plugins.html).
-
-If something doesn't work or doesn't make sense, 
-please feel free to [report an issue](https://github.com/dkandalov/live-plugin/issues) 
-(it's ok to report an issue even if it's just a question).
 
 
 ## How does LivePlugin work?
