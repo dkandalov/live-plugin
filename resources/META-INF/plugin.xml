@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>LivePlugin</id>
     <name>LivePlugin</name>
-	<version>0.11.0</version>
+	<version>0.12.0</version>
 	<vendor url="https://github.com/dkandalov/live-plugin" email="dmitry.kandalov@gmail.com">Dmitry Kandalov</vendor>
 	<idea-version since-build="2026.1"/>
 	<category>Plugin Development</category>
@@ -22,8 +22,12 @@
     <change-notes>
         <![CDATA[
         <html lang="EN"><body><ul>
-            <li>Compatibility with IntelliJ 2026.1</li>
-            <li>Fixed deprecated IntelliJ APIs</li>
+            <li>Added MCP tools for AI agents to run/find IDE actions, read IDE log and list/clear IDE errors</li>
+            <li>Fixed plugin transitive dependencies using new API (issue #221)</li>
+            <li>Recursively search for all lib files (issue #219)</li>
+            <li>Fixed to avoid content roots that are files (issue #217)</li>
+            <li>Don't attempt to run plugins from .git directory (issue #216)</li>
+            <li>Removed deprecated test runner</li>
         </ul></body></html>
         ]]>
     </change-notes>
