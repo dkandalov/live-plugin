@@ -1,8 +1,6 @@
 package liveplugin.implementation.pluginrunner
 
-import com.intellij.ide.plugins.IdeaPluginDescriptor
-import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.ide.plugins.PluginModuleDescriptor
+import com.intellij.ide.plugins.*
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.DefaultPluginDescriptor
@@ -11,6 +9,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.IntellijInternalApi
 import com.intellij.util.lang.ClassPath
 import com.intellij.util.lang.UrlClassLoader
 import liveplugin.implementation.LivePlugin
@@ -67,6 +66,8 @@ sealed class PluginError
 data class SetupError(val message: String = "", val throwable: Throwable? = null) : PluginError()
 data class RunningError(val throwable: Throwable) : PluginError()
 
+@OptIn(IntellijInternalApi::class)
+@Suppress("UnstableApiUsage")
 object PluginDependencies {
     @Suppress("UnstableApiUsage")
     fun createClassLoaderWithDependencies(
@@ -105,12 +106,24 @@ object PluginDependencies {
             if (descriptor !in result) {
                 result.add(descriptor)
 
-                val descriptors = descriptor.dependencies
+                // Legacy `<depends>` elements
+                val legacyDependencies = descriptor.dependencies
                     .mapNotNullTo(HashSet()) { if (it.isOptional) null else PluginManagerCore.getPlugin(it.pluginId) }
                     .filter { it.pluginId != PluginManagerCore.CORE_ID }
                     .distinctBy { it.pluginId }
 
-                queue.addAll(descriptors)
+                // Modern `<dependencies>` elements and content modules
+                val moduleDependencies = (descriptor as? IdeaPluginDescriptorImpl)?.moduleDependencies
+                val pluginDependencies = moduleDependencies?.plugins
+                    ?.mapNotNull { PluginManagerCore.getPlugin(it) }
+                    ?.filter { it.pluginId != PluginManagerCore.CORE_ID }
+                    ?: emptyList()
+                val moduleDependencyDescriptors = moduleDependencies?.modules
+                    ?.mapNotNull { PluginManagerCore.getPluginSet().findEnabledModule(it) }
+                    ?: emptyList()
+                val contentModules = (descriptor as? PluginMainDescriptor)?.contentModules ?: emptyList()
+
+                queue.addAll(legacyDependencies + pluginDependencies + moduleDependencyDescriptors + contentModules)
             }
         }
         return result.toList()
