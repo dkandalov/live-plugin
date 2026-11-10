@@ -236,7 +236,7 @@ class SrcHashCode(srcDir: FilePath, compilerOutputDir: FilePath) {
         srcDirPath.allFiles()
             .filter { it.extension == "kt" || it.extension == "kts" }
             // Update the initial value below whenever LivePlugin internals change so that user's code is recompiled
-            .fold(initial = 1L) { hash, file ->
+            .fold(initial = 2L) { hash, file ->
                 MurmurHash3.hash32(hash, (file.name + file.readText()).hashCode().toLong()).toLong()
             }
 

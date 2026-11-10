@@ -34,7 +34,7 @@ fun compile(
         moduleName = "KotlinCompilerWrapperModule"
         noStdlib = true
         reportOutputFiles = true
-        languageVersion = "2.3"
+        languageVersion = "2.4"
         apiVersion = "2.3"
         jvmTarget = "21"
         pluginOptions = arrayOf("plugin:kotlin.scripting:script-templates=${livePluginScriptClass.name}")
