@@ -28,7 +28,8 @@ class LivePluginScriptHighlightingConfig : ScriptCompilationConfiguration(body =
         }
     }
     // There is no explicit JDK setup here , but it's somehow is picked by Kotlin script hightling.
-    compilerOptions("-jvm-target", "21")
+    // Use the JVM version the IDE runs on (same as the embedded compiler) so that IDE inline functions can be used.
+    compilerOptions("-jvm-target", Runtime.version().feature().toString())
     ide {
         acceptedLocations(Everywhere)
         dependenciesSources(JvmDependency(livePluginLibAndSrcFiles()))
