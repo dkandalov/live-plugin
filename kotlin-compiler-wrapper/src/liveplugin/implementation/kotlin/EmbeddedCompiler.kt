@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer.PLAIN_FULL_PATHS
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
+import org.jetbrains.kotlin.config.JvmTarget
 import org.jetbrains.kotlin.config.Services
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -36,7 +37,7 @@ fun compile(
         reportOutputFiles = true
         languageVersion = "2.4"
         apiVersion = "2.3"
-        jvmTarget = "21"
+        jvmTarget = jvmTarget()
         pluginOptions = arrayOf("plugin:kotlin.scripting:script-templates=${livePluginScriptClass.name}")
         allowAnyScriptsInSourceRoots = true
         useFirLT = false
@@ -52,6 +53,15 @@ fun compile(
             .lines()
     }
 }
+
+/**
+ * Use the JVM version the IDE runs on because IDE classes can be compiled for any version up to it,
+ * and plugins can only use IDE inline functions if the target is at least the version of IDE classes
+ * ("cannot inline bytecode built with JVM target 25 into bytecode that is being built with JVM target 21").
+ * Fall back to the highest target supported by the bundled compiler if it doesn't know the IDE JVM version yet.
+ */
+internal fun jvmTarget(javaVersion: Int = Runtime.version().feature()): String =
+    (JvmTarget.fromString(javaVersion.toString()) ?: JvmTarget.entries.maxBy { it.majorVersion }).description
 
 private class ErrorMessageCollector(
     val errStream: ByteArrayOutputStream = ByteArrayOutputStream(),
