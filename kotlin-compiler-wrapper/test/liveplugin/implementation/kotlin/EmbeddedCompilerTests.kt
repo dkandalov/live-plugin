@@ -16,6 +16,20 @@ class EmbeddedCompilerTests {
         assertTrue(outputDir.resolve("Plugin.class").exists())
     }
 
+    @Test fun `compile for the JVM version of the IDE`() = KtsScriptFixture().run {
+        createFile("plugin.kts", text = "println(123)")
+        assertThat(compileScript(), equalTo(emptyList()))
+        val bytes = outputDir.resolve("Plugin.class").readBytes()
+        val classFileJavaVersion = ((bytes[6].toInt() and 0xFF) shl 8 or (bytes[7].toInt() and 0xFF)) - 44
+        assertThat(classFileJavaVersion, equalTo(Runtime.version().feature()))
+    }
+
+    @Test fun `use JVM target supported by the compiler`() {
+        assertThat(jvmTarget(21), equalTo("21"))
+        assertThat(jvmTarget(25), equalTo("25"))
+        assertThat(jvmTarget(999), equalTo(org.jetbrains.kotlin.config.JvmTarget.entries.maxBy { it.majorVersion }.description))
+    }
+
     @Test fun `compile println`() = KtsScriptFixture().run {
         createFile("plugin.kts", text = "println(123)")
         assertThat(compileScript(), equalTo(emptyList()))
