@@ -43,7 +43,6 @@ fun compile(
         jvmTarget = inferredJvmTarget.description
         pluginOptions = arrayOf("plugin:kotlin.scripting:script-templates=${livePluginScriptClass.name}")
         allowAnyScriptsInSourceRoots = true
-        useFirLT = false
         pluginClasspaths = classpath.filter { it.name.contains("scripting-compiler") }.map { it.absolutePath }.toTypedArray()
     }
 
