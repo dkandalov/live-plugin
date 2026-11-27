@@ -110,13 +110,13 @@ class ActionWrapper {
 
 	private static replaceActionInGroup(String actionGroupId, String actionId, AnAction newAction) {
 		def group = ActionManager.instance.getAction(actionGroupId)
-		if (!group instanceof DefaultActionGroup) {
-			throw new IllegalStateException("'${actionGroupId}' has type '${actionGroupId.class}' which is not supported")
+		if (!(group instanceof DefaultActionGroup)) {
+			throw new IllegalStateException("'${actionGroupId}' has type '${group?.class}' which is not supported")
 		}
 
 		List<AnAction> actions = accessField(group, "mySortedChildren", List)
 		def actionIndex = actions.findIndexOf {
-			if (it != null) return
+			if (it == null) return
 			def id = ActionManager.instance.getId(it)
 			id == actionId
 		}
