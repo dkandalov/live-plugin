@@ -16,20 +16,6 @@ class EmbeddedCompilerTests {
         assertTrue(outputDir.resolve("Plugin.class").exists())
     }
 
-    @Test fun `compile for the JVM version of the IDE`() = KtsScriptFixture().run {
-        createFile("plugin.kts", text = "println(123)")
-        assertThat(compileScript(), equalTo(emptyList()))
-        val bytes = outputDir.resolve("Plugin.class").readBytes()
-        val classFileJavaVersion = ((bytes[6].toInt() and 0xFF) shl 8 or (bytes[7].toInt() and 0xFF)) - 44
-        assertThat(classFileJavaVersion, equalTo(Runtime.version().feature()))
-    }
-
-    @Test fun `use JVM target supported by the compiler`() {
-        assertThat(jvmTarget(21), equalTo("21"))
-        assertThat(jvmTarget(25), equalTo("25"))
-        assertThat(jvmTarget(999), equalTo(org.jetbrains.kotlin.config.JvmTarget.entries.maxBy { it.majorVersion }.description))
-    }
-
     @Test fun `compile println`() = KtsScriptFixture().run {
         createFile("plugin.kts", text = "println(123)")
         assertThat(compileScript(), equalTo(emptyList()))
@@ -70,6 +56,22 @@ class EmbeddedCompilerTests {
         assertFalse(outputDir.resolve("Plugin.class").exists())
     }
 
+    @Test fun `compile for the JVM version of the IDE`() = KtsScriptFixture().run {
+        createFile("plugin.kts", text = "println(123)")
+        assertThat(compileScript(), equalTo(emptyList()))
+        assertThat(classFileJavaVersion("Plugin.class"), equalTo(inferJvmTarget(jrePath)?.description?.toInt()))
+    }
+
+    @Test fun `fail to compile if the JVM version of the JRE can't be determined`() = KtsScriptFixture().run {
+        createFile("plugin.kts", text = "println(123)")
+
+        val errors = compileScript(jre = Files.createTempDirectory("").toFile())
+
+        assertThat(errors.size, equalTo(1))
+        assertTrue(errors.single(), errors.single().startsWith("Could not determine the JVM version of "))
+        assertFalse(outputDir.resolve("Plugin.class").exists())
+    }
+
     @Ignore
     @Test fun `KtVisitor shouldn't end up being incompatible with PsiElementVisitor`() = KtsScriptFixture().run {
         createFile("plugin.kts", text = """
@@ -90,12 +92,13 @@ class EmbeddedCompilerTests {
 private class KtsScriptFixture {
     private val srcDir: File = Files.createTempDirectory("").toFile()
     val outputDir: File = Files.createTempDirectory("").toFile()
+    val jrePath: File = File(System.getProperty("java.home"))
 
     fun createFile(name: String, text: String) {
         File("${srcDir.absolutePath}/${name}").writeText(text)
     }
 
-    fun compileScript(templateClass: Class<*> = EmptyScriptTemplate::class.java): List<String> =
+    fun compileScript(templateClass: Class<*> = EmptyScriptTemplate::class.java, jre: File = jrePath): List<String> =
         compile(
             sourceDir = srcDir.absolutePath,
             classpath = listOf(
@@ -108,10 +111,15 @@ private class KtsScriptFixture {
                 File("out/test/classes"), // For running via IntelliJ
                 File("build/classes/kotlin/test"), // For running via Gradle
             ),
-            jrePath = File(System.getProperty("java.home")),
+            jrePath = jre,
             outputDirectory = outputDir,
             livePluginScriptClass = templateClass
         )
+
+    fun classFileJavaVersion(name: String): Int {
+        val bytes = outputDir.resolve(name).readBytes()
+        return ((bytes[6].toInt() and 0xFF) shl 8 or (bytes[7].toInt() and 0xFF)) - 44
+    }
 
     companion object {
         private val kotlinStdLib = findInGradleCache("kotlin-stdlib")

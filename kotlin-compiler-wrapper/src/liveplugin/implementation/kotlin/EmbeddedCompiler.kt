@@ -27,6 +27,9 @@ fun compile(
             .map { it.absolutePath }
             .toList()
 
+    val inferredJvmTarget = inferJvmTarget(jrePath)
+        ?: return listOf("Could not determine the JVM version of '${jrePath.absolutePath}'.")
+
     val args = K2JVMCompilerArguments().apply {
         freeArgs = sourceFiles
         this.classpath = classpath.joinToString(File.pathSeparator) { it.absolutePath }
@@ -37,7 +40,7 @@ fun compile(
         reportOutputFiles = true
         languageVersion = "2.4"
         apiVersion = "2.3"
-        jvmTarget = jvmTarget()
+        jvmTarget = inferredJvmTarget.description
         pluginOptions = arrayOf("plugin:kotlin.scripting:script-templates=${livePluginScriptClass.name}")
         allowAnyScriptsInSourceRoots = true
         useFirLT = false
@@ -54,14 +57,18 @@ fun compile(
     }
 }
 
-/**
- * Use the JVM version the IDE runs on because IDE classes can be compiled for any version up to it,
- * and plugins can only use IDE inline functions if the target is at least the version of IDE classes
- * ("cannot inline bytecode built with JVM target 25 into bytecode that is being built with JVM target 21").
- * Fall back to the highest target supported by the bundled compiler if it doesn't know the IDE JVM version yet.
- */
-internal fun jvmTarget(javaVersion: Int = Runtime.version().feature()): String =
-    (JvmTarget.fromString(javaVersion.toString()) ?: JvmTarget.entries.maxBy { it.majorVersion }).description
+internal fun inferJvmTarget(jrePath: File): JvmTarget? =
+    parseReleaseVersion(jrePath.resolve("release"))
+        ?.let { version ->
+            JvmTarget.fromString(version.toString())
+                ?: JvmTarget.supportedValues().maxBy { it.majorVersion }
+        }
+
+internal fun parseReleaseVersion(releaseFile: File): Int? =
+    releaseFile.takeIf { it.isFile }
+        ?.useLines { lines -> lines.firstOrNull { it.startsWith("JAVA_VERSION=") } }
+        ?.substringAfter('=')?.trim('"')
+        ?.let { runCatching { Runtime.Version.parse(it).feature() }.getOrNull() }
 
 private class ErrorMessageCollector(
     val errStream: ByteArrayOutputStream = ByteArrayOutputStream(),
